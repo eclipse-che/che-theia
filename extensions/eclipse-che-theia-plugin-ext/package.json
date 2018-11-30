@@ -1,6 +1,6 @@
 {
     "name": "@eclipse-che/theia-plugin-ext",
-    "version": "1.0.0",
+    "version": "6.15.0",
     "description": "Theia extension",
     "author": "Yevhen Vydolob",
     "license": "EPL-2.0",
@@ -15,6 +15,7 @@
     "dependencies": {
         "@theia/core": "next",
         "@theia/plugin-ext": "next",
+        "@eclipse-che/plugin": "6.15.0",
         "@eclipse-che/workspace-client": "^0.0.1-1527159618"
     },
     "devDependencies": {
@@ -27,8 +28,7 @@
         "ts-loader": "^4.1.0"
     },
     "scripts": {
-        "prepare": "yarn run clean && yarn run copy && yarn run build",
-        "copy": "cp ../eclipse-che-theia-plugin/src/* src",
+        "prepare": "yarn run clean && yarn run build",
         "clean": "rimraf lib",
         "build": "tsc && yarn run compileWorker",
         "compileWorker": "webpack-cli --config webpack.config.js",

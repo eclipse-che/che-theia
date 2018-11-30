@@ -9,7 +9,7 @@
  **********************************************************************/
 import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
 import { PLUGIN_RPC_CONTEXT, CheApiMain, FactoryAction as CheFactoryAction, Factory as CheFactory, ProjectConfig } from '../common/che-protocol';
-import { WorkspaceSettings, WorkspaceConfig, Workspace, ResourceCreateQueryParams, Factory, Project, FactoryAction, FactoryActionProperties } from '@eclipse-che/plugin';
+import * as che from '@eclipse-che/plugin';
 
 export class CheApiPluginImpl {
 
@@ -19,13 +19,13 @@ export class CheApiPluginImpl {
         this.delegate = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_API_MAIN);
     }
 
-    getSettings(): Promise<WorkspaceSettings> {
+    getSettings(): Promise<che.WorkspaceSettings> {
         throw new Error('Method not implemented.');
     }
     stop(workspaceId: string): Promise<any> {
         throw new Error('Method not implemented.');
     }
-    startTemporary(config: WorkspaceConfig): Promise<any> {
+    startTemporary(config: che.WorkspaceConfig): Promise<any> {
         throw new Error('Method not implemented.');
     }
     start(workspaceId: string, environmentName: string): Promise<any> {
@@ -34,42 +34,42 @@ export class CheApiPluginImpl {
     deleteWorkspace(workspaceId: string): Promise<any> {
         throw new Error('Method not implemented.');
     }
-    update(workspaceId: string, workspace: Workspace): Promise<any> {
+    update(workspaceId: string, workspace: che.Workspace): Promise<any> {
         throw new Error('Method not implemented.');
     }
-    create(config: WorkspaceConfig, params: ResourceCreateQueryParams): Promise<any> {
+    create(config: che.WorkspaceConfig, params: che.ResourceCreateQueryParams): Promise<any> {
         throw new Error('Method not implemented.');
     }
-    getById(workspaceKey: string): Promise<Workspace> {
+    getById(workspaceKey: string): Promise<che.Workspace> {
         throw new Error('Method not implemented.');
     }
-    getAllByNamespace(namespace: string): Promise<Workspace[]> {
+    getAllByNamespace(namespace: string): Promise<che.Workspace[]> {
         throw new Error('Method not implemented.');
     }
-    getAll(): Promise<Workspace[]> {
+    getAll(): Promise<che.Workspace[]> {
         throw new Error('Method not implemented.');
     }
-    getCurrentWorkspace(): Promise<Workspace> {
+    getCurrentWorkspace(): Promise<che.Workspace> {
         return this.delegate.$currentWorkspace();
     }
 
-    getFactoryById(id: string): Promise<Factory> {
+    getFactoryById(id: string): Promise<che.Factory> {
         return this.delegate.$getFactoryById(id).then(f => new FactoryImpl(f));
     }
 }
 
-class FactoryImpl implements Factory {
+class FactoryImpl implements che.Factory {
 
     constructor(private readonly factory: CheFactory) { }
 
-    getProjects(): Project[] {
+    getProjects(): che.Project[] {
         if (!this.factory || !this.factory.workspace || !this.factory.workspace.projects) {
             return [];
         }
 
         return this.factory.workspace.projects.map((project: ProjectConfig) => new ProjectImpl(project));
     }
-    getOnProjectsImportedActions(): FactoryAction[] {
+    getOnProjectsImportedActions(): che.FactoryAction[] {
         if (!this.factory || !this.factory.ide || !this.factory.ide.onProjectsLoaded || !this.factory.ide.onProjectsLoaded.actions) {
             return [];
         }
@@ -77,7 +77,7 @@ class FactoryImpl implements Factory {
         return this.factory.ide.onProjectsLoaded.actions.map((action: CheFactoryAction) => new FactoryActionImpl(action.id, action.properties));
     }
 
-    getFactoryOnAppLoadedActions(): FactoryAction[] {
+    getFactoryOnAppLoadedActions(): che.FactoryAction[] {
         if (!this.factory || !this.factory.ide || !this.factory.ide.onAppLoaded || !this.factory.ide.onAppLoaded.actions) {
             return [];
         }
@@ -85,7 +85,7 @@ class FactoryImpl implements Factory {
         return this.factory.ide.onAppLoaded.actions.map((action: CheFactoryAction) => new FactoryActionImpl(action.id, action.properties));;
     }
 
-    getFactoryOnAppClosedActions(): FactoryAction[] {
+    getFactoryOnAppClosedActions(): che.FactoryAction[] {
         if (!this.factory || !this.factory.ide || !this.factory.ide.onAppClosed || !this.factory.ide.onAppClosed.actions) {
             return [];
         }
@@ -94,7 +94,7 @@ class FactoryImpl implements Factory {
 
 }
 
-class ProjectImpl implements Project {
+class ProjectImpl implements che.Project {
 
     constructor(private readonly project: ProjectConfig) {
     }
@@ -119,11 +119,11 @@ class ProjectImpl implements Project {
 
 }
 
-class FactoryActionImpl implements FactoryAction {
+class FactoryActionImpl implements che.FactoryAction {
 
     constructor(
         private readonly id: string,
-        private readonly properties: FactoryActionProperties | undefined
+        private readonly properties: che.FactoryActionProperties | undefined
     ) {
     }
 
@@ -131,7 +131,7 @@ class FactoryActionImpl implements FactoryAction {
         return this.id;
     }
 
-    getProperties(): FactoryActionProperties | undefined {
+    getProperties(): che.FactoryActionProperties | undefined {
         return this.properties;
     }
 }
