@@ -1,6 +1,6 @@
 {
     "name": "@eclipse-che/theia-plugin-ext",
-    "version": "6.15.0",
+    "version": "0.0.1",
     "description": "Theia extension",
     "author": "Yevhen Vydolob",
     "license": "EPL-2.0",
