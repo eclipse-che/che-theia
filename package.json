@@ -5,7 +5,8 @@
     "lerna": "^3.5.0"
   },
   "scripts": {
-    "prepare": "lerna run prepare"
+    "prepare": "lerna run prepare",
+    "publish:next": "lerna publish --registry=https://registry.npmjs.org/ --exact --canary=next --npm-tag=next --force-publish --skip-git --yes"
   },
   "workspaces": [
     "extensions/*",
