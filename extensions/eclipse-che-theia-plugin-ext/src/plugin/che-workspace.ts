@@ -62,7 +62,7 @@ class FactoryImpl implements che.Factory {
 
     constructor(private readonly factory: CheFactory) { }
 
-    getProjects(): che.Project[] {
+    getProjects(): che.FactoryProject[] {
         if (!this.factory || !this.factory.workspace || !this.factory.workspace.projects) {
             return [];
         }
@@ -77,7 +77,7 @@ class FactoryImpl implements che.Factory {
         return this.factory.ide.onProjectsLoaded.actions.map((action: CheFactoryAction) => new FactoryActionImpl(action.id, action.properties));
     }
 
-    getFactoryOnAppLoadedActions(): che.FactoryAction[] {
+    getOnAppLoadedActions(): che.FactoryAction[] {
         if (!this.factory || !this.factory.ide || !this.factory.ide.onAppLoaded || !this.factory.ide.onAppLoaded.actions) {
             return [];
         }
@@ -85,7 +85,7 @@ class FactoryImpl implements che.Factory {
         return this.factory.ide.onAppLoaded.actions.map((action: CheFactoryAction) => new FactoryActionImpl(action.id, action.properties));;
     }
 
-    getFactoryOnAppClosedActions(): che.FactoryAction[] {
+    getOnAppClosedActions(): che.FactoryAction[] {
         if (!this.factory || !this.factory.ide || !this.factory.ide.onAppClosed || !this.factory.ide.onAppClosed.actions) {
             return [];
         }
@@ -94,7 +94,7 @@ class FactoryImpl implements che.Factory {
 
 }
 
-class ProjectImpl implements che.Project {
+class ProjectImpl implements che.FactoryProject {
 
     constructor(private readonly project: ProjectConfig) {
     }

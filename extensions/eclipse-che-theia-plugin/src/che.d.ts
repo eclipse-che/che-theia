@@ -154,14 +154,26 @@ declare module '@eclipse-che/plugin' {
         namespace?: string;
     }
 
+    /**
+     * Defines the contract for the factory instance.
+     */
     export interface Factory {
-        getProjects(): Project[];
+        getProjects(): FactoryProject[];
+        /**
+         * Actions that should be triggered when all projects have been imported.
+         */
         getOnProjectsImportedActions(): FactoryAction[];
-        getFactoryOnAppLoadedActions(): FactoryAction[];
-        getFactoryOnAppClosedActions(): FactoryAction[];
+        /**
+         * Actions that should be triggered when the IDE is loaded.
+         */
+        getOnAppLoadedActions(): FactoryAction[];
+        /**
+         * Actions that should be triggered when the IDE is closed.
+         */
+        getOnAppClosedActions(): FactoryAction[];
     }
 
-    export interface Project {
+    export interface FactoryProject {
         getPath(): string;
         getLocationURI(): string | undefined;
         getCheckoutBranch(): string | undefined;
