@@ -15,27 +15,27 @@ export interface CheApiPlugin {
 }
 
 export interface CheApiMain {
-    $currentWorkspace(): Promise<Workspace>;
+    $currentWorkspace(): Promise<WorkspaceDto>;
 
-    $getFactoryById(id: string): Promise<Factory>;
+    $getFactoryById(id: string): Promise<FactoryDto>;
 }
 
-export interface Factory {
-    workspace: WorkspaceConfig;
+export interface FactoryDto {
+    workspace: WorkspaceConfigDto;
     ide?: {
         onAppLoaded?: {
-            actions?: FactoryAction[]
+            actions?: FactoryActionDto[]
         };
         onProjectsLoaded?: {
-            actions?: FactoryAction[]
+            actions?: FactoryActionDto[]
         };
         onAppClosed?: {
-            actions?: FactoryAction[]
+            actions?: FactoryActionDto[]
         };
     }
 }
 
-export interface FactoryAction {
+export interface FactoryActionDto {
     id: string,
     properties?: {
         name?: string,
@@ -45,84 +45,84 @@ export interface FactoryAction {
     }
 }
 
-export interface WorkspaceConfig {
+export interface WorkspaceConfigDto {
     name?: string;
     description?: string;
     defaultEnv: string;
     environments: {
         [environmentName: string]: any;
     };
-    projects: ProjectConfig[];
-    commands?: Command[];
-    links?: Link[];
+    projects: ProjectConfigDto[];
+    commands?: CommandDto[];
+    links?: LinkDto[];
 }
-export interface ProjectConfig {
+export interface ProjectConfigDto {
     name: string;
     path: string;
     description?: string;
     mixins?: string[];
     attributes?: { [attrName: string]: string[] };
-    source?: SourceStorage;
-    problems?: ProjectProblem;
+    source?: SourceStorageDto;
+    problems?: ProjectProblemDto;
 }
 
-export interface SourceStorage {
+export interface SourceStorageDto {
     type: string;
     location: string;
     parameters: { [attrName: string]: string };
 }
 
-export interface ProjectProblem {
+export interface ProjectProblemDto {
     code: number;
     message: string;
 }
 
-export interface Command {
+export interface CommandDto {
     name: string;
     commandLine: string;
     type: string;
     attributes?: { [attrName: string]: string };
 }
 
-export interface Link {
+export interface LinkDto {
     href: string;
     rel?: string;
     method: string;
     produces?: string;
     consumes?: string;
-    parameters?: LinkParameter[];
+    parameters?: LinkParameterDto[];
     requestBody?: RequestBodyDescriptor;
 }
 
-export interface Workspace {
+export interface WorkspaceDto {
     id?: string;
-    config: WorkspaceConfig;
+    config: WorkspaceConfigDto;
     status: string | WorkspaceStatus;
     namespace?: string;
     temporary?: boolean;
-    attributes?: WorkspaceAttributes;
-    runtime?: Runtime;
+    attributes?: WorkspaceAttributesDto;
+    runtime?: RuntimeDto;
     links?: { [attrName: string]: string };
 }
 
 export type WorkspaceStatus = 'STARTING' | 'RUNNING' | 'STOPPING' | 'STOPPED';
 
-export interface Runtime {
+export interface RuntimeDto {
     activeEnv: string;
-    machines: { [attrName: string]: Machine };
+    machines: { [attrName: string]: MachineDto };
     owner: string;
-    warnings?: Warning;
+    warnings?: WarningDto;
 }
 
-export interface Machine {
+export interface MachineDto {
     status: string | MachineStatus;
-    servers: { [attrName: string]: Server };
+    servers: { [attrName: string]: ServerDto };
     attributes?: { [attrName: string]: string };
 }
 
 export type MachineStatus = 'STARTING' | 'RUNNING' | 'STOPPED' | 'FAILED';
 
-export interface Server {
+export interface ServerDto {
     url: string;
     status: string | ServerStatus;
     attributes?: { [attrName: string]: string };
@@ -130,13 +130,13 @@ export interface Server {
 
 export type ServerStatus = 'RUNNING' | 'STOPPED' | 'UNKNOWN';
 
-export interface Warning {
+export interface WarningDto {
     code: number;
     message: string;
 }
 
 
-export interface WorkspaceAttributes {
+export interface WorkspaceAttributesDto {
     created: number;
     updated?: number;
     stackId?: string;
@@ -145,7 +145,7 @@ export interface WorkspaceAttributes {
 }
 
 
-export interface LinkParameter {
+export interface LinkParameterDto {
     name: string;
     defaultValue?: string;
     description?: string;
@@ -170,5 +170,5 @@ export const CheApiServicePath = '/che-api-service';
 
 export const CheApiService = Symbol('CheApiService');
 export interface CheApiService {
-    currentWorkspace(): Promise<Workspace>;
+    currentWorkspace(): Promise<WorkspaceDto>;
 }

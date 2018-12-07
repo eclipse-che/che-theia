@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
-import { PLUGIN_RPC_CONTEXT, CheApiMain, FactoryAction as CheFactoryAction, Factory as CheFactory, ProjectConfig } from '../common/che-protocol';
+import { PLUGIN_RPC_CONTEXT, CheApiMain, FactoryActionDto as CheFactoryAction, FactoryDto as CheFactory, ProjectConfigDto } from '../common/che-protocol';
 import * as che from '@eclipse-che/plugin';
 
 export class CheApiPluginImpl {
@@ -67,7 +67,7 @@ class FactoryImpl implements che.Factory {
             return [];
         }
 
-        return this.factory.workspace.projects.map((project: ProjectConfig) => new ProjectImpl(project));
+        return this.factory.workspace.projects.map((project: ProjectConfigDto) => new ProjectImpl(project));
     }
     getOnProjectsImportedActions(): che.FactoryAction[] {
         if (!this.factory || !this.factory.ide || !this.factory.ide.onProjectsLoaded || !this.factory.ide.onProjectsLoaded.actions) {
@@ -96,7 +96,7 @@ class FactoryImpl implements che.Factory {
 
 class ProjectImpl implements che.FactoryProject {
 
-    constructor(private readonly project: ProjectConfig) {
+    constructor(private readonly project: ProjectConfigDto) {
     }
 
     getPath(): string {
