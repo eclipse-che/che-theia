@@ -34,6 +34,10 @@ jobs:
   allow_failures:
     - os: osx
   include:
+  - stage: build
+    install: skip
+    before_script: skip
+    script: travis_retry yarn;
   - stage: deploy
     before_script: skip
     script: skip
