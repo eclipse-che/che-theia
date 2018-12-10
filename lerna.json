@@ -1,0 +1,10 @@
+{
+  "npmClient": "yarn",
+  "command": {
+    "run": {
+      "stream": true
+    }
+  },
+  "version": "0.0.1",
+  "useWorkspaces": true
+}

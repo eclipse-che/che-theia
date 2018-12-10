@@ -1,0 +1,19 @@
+{
+  "name": "@eclipse-che/plugin",
+  "version": "0.0.1",
+  "description": "Eclipse Che specific Theia plugin API",
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "EPL-2.0",
+  "types": "./src/che.d.ts",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "prepare": "",
+    "clean": "",
+    "build": "",
+    "watch": ""
+  }
+}
