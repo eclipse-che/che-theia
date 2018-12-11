@@ -10,14 +10,25 @@
 import * as che from '@eclipse-che/plugin';
 import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
 import { Plugin } from '@theia/plugin-ext/lib/api/plugin-api';
-import { Workspace, WorkspaceConfig, ResourceCreateQueryParams, WorkspaceSettings } from '@eclipse-che/plugin';
+import {
+    Workspace,
+    WorkspaceConfig,
+    ResourceCreateQueryParams,
+    WorkspaceSettings,
+    Variable,
+    Disposable
+} from '@eclipse-che/plugin';
 import { CheApiPluginImpl } from './che-workspace';
+import { CheVariablesImpl } from './che-variables-impl';
+import { PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
 export interface ApiFactory {
     (plugin: Plugin): typeof che;
 }
 
 export function createAPIFactory(rpc: RPCProtocol): ApiFactory {
     const chePluginImpl = new CheApiPluginImpl(rpc);
+    const cheVariablesImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_VARIABLES, new CheVariablesImpl(rpc));
+
     return function (plugin: Plugin): typeof che {
         const ws: typeof che.workspace = {
             getCurrentWorkspace(): Promise<Workspace> {
@@ -59,11 +70,22 @@ export function createAPIFactory(rpc: RPCProtocol): ApiFactory {
             getFactoryById(id: string): PromiseLike<che.Factory> {
                 return chePluginImpl.getFactoryById(id);
             }
-        }
+        };
+
+        const variable: typeof che.variables = {
+            registerVariable(variable: Variable): Promise<Disposable> {
+                return cheVariablesImpl.registerVariable(variable);
+            },
+
+            resolve(value: string): Promise<string | undefined> {
+                return cheVariablesImpl.resolve(value);
+            }
+        };
 
         return <typeof che>{
             workspace: ws,
-            factory
+            factory,
+            variables: variable
         };
     };
 }
