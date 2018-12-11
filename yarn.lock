@@ -9,6 +9,11 @@
   dependencies:
     regenerator-runtime "^0.12.0"
 
+"@eclipse-che/plugin@next":
+  version "0.0.1-1544522717"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/plugin/-/plugin-0.0.1-1544522717.tgz#3aac539585ff696c829ad74140cf5fcad6fd13a0"
+  integrity sha512-TyYf4lYwOy4s1QBH7d7E2YHnvW15IdEMXH9q5DtyIC/T8wrBt9e6RTa5D6359zEJX0nvLQLtFOlrOfG/hOv6/g==
+
 "@eclipse-che/workspace-client@^0.0.1-1527159618":
   version "0.0.1-1527159618"
   resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-client/-/workspace-client-0.0.1-1527159618.tgz#13803c4c7e0b9cc5339ae165807e1dd7e5739109"
