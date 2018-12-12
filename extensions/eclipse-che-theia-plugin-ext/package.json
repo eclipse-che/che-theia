@@ -15,7 +15,7 @@
     "dependencies": {
         "@theia/core": "0.3.17",
         "@theia/plugin-ext": "0.3.17",
-        "@eclipse-che/plugin": "next",
+        "@eclipse-che/plugin": "^0.0.1-1544532290",
         "@eclipse-che/workspace-client": "^0.0.1-1527159618"
     },
     "devDependencies": {
