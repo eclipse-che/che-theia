@@ -9,6 +9,7 @@
  **********************************************************************/
 
 import { ProxyIdentifier, createProxyIdentifier } from '@theia/plugin-ext/lib/api/rpc-protocol';
+import * as che from '@eclipse-che/plugin';
 
 export interface CheApiPlugin {
 
@@ -18,6 +19,24 @@ export interface CheApiMain {
     $currentWorkspace(): Promise<WorkspaceDto>;
 
     $getFactoryById(id: string): Promise<FactoryDto>;
+}
+
+export interface CheVariables {
+    registerVariable(variable: che.Variable): Promise<che.Disposable>;
+    resolve(value: string): Promise<string | undefined>;
+    $resolveVariable(variableId: number): Promise<string | undefined>;
+}
+
+export interface CheVariablesMain {
+    $registerVariable(variable: Variable): Promise<void>;
+    $disposeVariable(id: number): Promise<void>;
+    $resolve(value: string): Promise<string | undefined>;
+}
+
+export interface Variable {
+    name: string,
+    description: string,
+    token: number
 }
 
 export interface FactoryDto {
@@ -162,6 +181,8 @@ export interface RequestBodyDescriptor {
 
 export const PLUGIN_RPC_CONTEXT = {
     CHE_API_MAIN: <ProxyIdentifier<CheApiMain>>createProxyIdentifier<CheApiMain>('CheApiMain'),
+    CHE_VARIABLES: <ProxyIdentifier<CheVariables>>createProxyIdentifier<CheVariables>('CheVariables'),
+    CHE_VARIABLES_MAIN: <ProxyIdentifier<CheVariablesMain>>createProxyIdentifier<CheVariablesMain>('CheVariablesMain'),
 };
 
 // Theia RPC protocol
