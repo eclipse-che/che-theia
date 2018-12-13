@@ -9,6 +9,7 @@
  **********************************************************************/
 
 declare module '@eclipse-che/plugin' {
+
     export namespace workspace {
         export function getCurrentWorkspace(): Promise<Workspace>;
         export function getAll(): Promise<Workspace[]>;
@@ -24,7 +25,7 @@ declare module '@eclipse-che/plugin' {
     }
 
     export namespace factory {
-        export function getFactoryById(id: string): PromiseLike<Factory | undefined>;
+        export function getFactory(id: string): PromiseLike<MYFactory>;
     }
 
     export interface Workspace {
@@ -155,6 +156,7 @@ declare module '@eclipse-che/plugin' {
     }
 
     export interface Factory {
+        name: string;
         getProjects(): Project[];
         getOnProjectsImportedActions(): FactoryAction[];
         getFactoryOnAppLoadedActions(): FactoryAction[];
@@ -177,6 +179,17 @@ declare module '@eclipse-che/plugin' {
         file?: string,
         greetingTitle?: string,
         greetingContentUrl?: string
+    }
+
+    export interface MYFactory {
+        id?: string;
+        config: WorkspaceConfig;
+        status: string | WorkspaceStatus;
+        namespace?: string;
+        temporary?: boolean;
+        attributes?: WorkspaceAttributes;
+        runtime?: Runtime;
+        links?: { [attrName: string]: string };
     }
 
 }

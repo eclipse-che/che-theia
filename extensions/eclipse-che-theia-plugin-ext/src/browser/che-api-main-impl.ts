@@ -9,24 +9,34 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import { CheApiMain, CheApiService, Factory } from '../common/che-protocol';
+import { CheApiMain, CheApiService, MYFactory } from '../common/che-protocol';
 import { Workspace } from '@eclipse-che/plugin';
 import { interfaces } from 'inversify';
 
-export class CheApiPluginMainImpl implements CheApiMain {
+export class CheApiMainImpl implements CheApiMain {
 
-    private readonly delegate: CheApiService;
+    private readonly service: CheApiService;
+
     constructor(container: interfaces.Container) {
-        this.delegate = container.get(CheApiService);
+        this.service = container.get(CheApiService);
     }
+
     $currentWorkspace(): Promise<Workspace> {
-        return this.delegate.currentWorkspace().then(w => w, err => {
+        return this.service.currentWorkspace().then(w => w, err => {
             console.log(err);
             return undefined!;
         });
     }
 
-    $getFactoryById(id: string): Promise<Factory> {
-        throw new Error('getFactoryById is not implemented');
+    async $getFactoryById(factoryId: string): Promise<MYFactory> {
+        return new Promise<MYFactory>((resolve, reject) => {
+            this.service.getFactory(factoryId).then(f => {
+                resolve(f);
+            }).catch(err => {
+                console.log('!!!!! ERROR ', err);
+                reject(err);
+            });
+        });
     }
+
 }

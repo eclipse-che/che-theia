@@ -56,10 +56,10 @@ export function createAPIFactory(rpc: RPCProtocol): ApiFactory {
         };
 
         const factory: typeof che.factory = {
-            getFactoryById(id: string): PromiseLike<che.Factory> {
-                return chePluginImpl.getFactoryById(id);
+            getFactory(factoryId: string): Promise<che.MYFactory> {
+                return chePluginImpl.getFactory(factoryId);
             }
-        }
+        };
 
         return <typeof che>{
             workspace: ws,

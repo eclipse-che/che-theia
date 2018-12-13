@@ -17,6 +17,7 @@ const pluginPath = path.resolve(__dirname, '../../lib/webworker');
 
 @injectable()
 export class ChePluginApiContribution implements BackendApplicationContribution {
+
     configure(app: express.Application): void {
         app.get('/che/api/:path(*)', (req, res) => {
             const filePath: string = req.params.path;

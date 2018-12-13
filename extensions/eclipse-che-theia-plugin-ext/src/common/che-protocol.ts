@@ -11,13 +11,25 @@
 import { ProxyIdentifier, createProxyIdentifier } from '@theia/plugin-ext/lib/api/rpc-protocol';
 
 export interface CheApiPlugin {
-
 }
 
 export interface CheApiMain {
+
     $currentWorkspace(): Promise<Workspace>;
 
-    $getFactoryById(id: string): Promise<Factory>;
+    $getFactoryById(id: string): Promise<MYFactory>;
+
+}
+
+export interface MYFactory {
+    id?: string;
+    config: WorkspaceConfig;
+    status: string | WorkspaceStatus;
+    namespace?: string;
+    temporary?: boolean;
+    attributes?: WorkspaceAttributes;
+    runtime?: Runtime;
+    links?: { [attrName: string]: string };
 }
 
 export interface Factory {
@@ -56,6 +68,7 @@ export interface WorkspaceConfig {
     commands?: Command[];
     links?: Link[];
 }
+
 export interface ProjectConfig {
     name: string;
     path: string;
@@ -166,9 +179,11 @@ export const PLUGIN_RPC_CONTEXT = {
 
 // Theia RPC protocol
 
-export const CheApiServicePath = '/che-api-service';
+export const CHE_API_SERVICE_PATH = '/che-api-service';
 
 export const CheApiService = Symbol('CheApiService');
+
 export interface CheApiService {
     currentWorkspace(): Promise<Workspace>;
+    getFactory(factoryId: string): Promise<MYFactory>;
 }
