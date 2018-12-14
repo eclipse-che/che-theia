@@ -11,7 +11,7 @@
 import { Plugin, emptyPlugin } from '@theia/plugin-ext/lib/api/plugin-api';
 import { ExtPluginApiFrontendInitializationFn } from '@theia/plugin-ext/lib/common/plugin-ext-api-contribution';
 import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
-import { createAPIFactory } from '../plugin-api-impl';
+import { createAPIFactory } from '../api-factory';
 import * as che from '@eclipse-che/plugin';
 // tslint:disable-next-line:no-any
 const ctx = self as any;

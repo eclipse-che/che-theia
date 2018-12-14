@@ -28,7 +28,7 @@ declare module '@eclipse-che/plugin' {
     }
 
     export namespace factory {
-        export function getFactoryById(id: string): PromiseLike<Factory | undefined>;
+        export function getFactory(id: string): PromiseLike<MYFactory | undefined>;
     }
 
     export interface Workspace {
@@ -193,6 +193,17 @@ declare module '@eclipse-che/plugin' {
         file?: string,
         greetingTitle?: string,
         greetingContentUrl?: string
+    }
+
+    export interface MYFactory {
+        id?: string;
+        config: WorkspaceConfig;
+        status: string | WorkspaceStatus;
+        namespace?: string;
+        temporary?: boolean;
+        attributes?: WorkspaceAttributes;
+        runtime?: Runtime;
+        links?: { [attrName: string]: string };
     }
 
     /**

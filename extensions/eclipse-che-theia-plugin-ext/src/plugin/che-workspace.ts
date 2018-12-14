@@ -49,13 +49,22 @@ export class CheApiPluginImpl {
     getAll(): Promise<che.Workspace[]> {
         throw new Error('Method not implemented.');
     }
+
     getCurrentWorkspace(): Promise<che.Workspace> {
         return this.delegate.$currentWorkspace();
     }
 
-    getFactoryById(id: string): Promise<che.Factory> {
-        return this.delegate.$getFactoryById(id).then(f => new FactoryImpl(f));
+    async getFactory(factoryId: string): Promise<che.MYFactory> {
+        try {
+            const myFactory = await this.delegate.$getFactoryById(factoryId + 'oo');
+            console.log('> got factory ', myFactory);
+            return myFactory;
+        } catch (e) {
+            return Promise.reject(e);
+        }
+        // return .then(f => new FactoryImpl(f));
     }
+
 }
 
 class FactoryImpl implements che.Factory {

@@ -12,13 +12,12 @@ import { ProxyIdentifier, createProxyIdentifier } from '@theia/plugin-ext/lib/ap
 import * as che from '@eclipse-che/plugin';
 
 export interface CheApiPlugin {
-
 }
 
 export interface CheApiMain {
     $currentWorkspace(): Promise<WorkspaceDto>;
 
-    $getFactoryById(id: string): Promise<FactoryDto>;
+    $getFactoryById(id: string): Promise<MYFactoryDto>;
 }
 
 export interface CheVariables {
@@ -37,6 +36,17 @@ export interface Variable {
     name: string,
     description: string,
     token: number
+}
+
+export interface MYFactoryDto {
+    id?: string;
+    config: WorkspaceConfig;
+    status: string | WorkspaceStatus;
+    namespace?: string;
+    temporary?: boolean;
+    attributes?: WorkspaceAttributes;
+    runtime?: Runtime;
+    links?: { [attrName: string]: string };
 }
 
 export interface FactoryDto {
@@ -187,9 +197,12 @@ export const PLUGIN_RPC_CONTEXT = {
 
 // Theia RPC protocol
 
-export const CheApiServicePath = '/che-api-service';
+export const CHE_API_SERVICE_PATH = '/che-api-service';
 
 export const CheApiService = Symbol('CheApiService');
+
 export interface CheApiService {
     currentWorkspace(): Promise<WorkspaceDto>;
+    getFactory(factoryId: string): Promise<MYFactoryDto>;
+
 }
