@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
-import { PLUGIN_RPC_CONTEXT, CheApiMain, FactoryActionDto as CheFactoryAction, FactoryDto as CheFactory, ProjectConfigDto } from '../common/che-protocol';
+import { PLUGIN_RPC_CONTEXT, CheApiMain } from '../common/che-protocol';
 import * as che from '@eclipse-che/plugin';
 
 export class CheApiPluginImpl {
@@ -56,7 +56,7 @@ export class CheApiPluginImpl {
 
     async getFactory(factoryId: string): Promise<che.MYFactory> {
         try {
-            const myFactory = await this.delegate.$getFactoryById(factoryId + 'oo');
+            const myFactory = await this.delegate.$getFactory(factoryId);
             console.log('> got factory ', myFactory);
             return myFactory;
         } catch (e) {
@@ -67,80 +67,80 @@ export class CheApiPluginImpl {
 
 }
 
-class FactoryImpl implements che.Factory {
+// class FactoryImpl implements che.Factory {
 
-    constructor(private readonly factory: CheFactory) { }
+//     constructor(private readonly factory: CheFactory) { }
 
-    getProjects(): che.FactoryProject[] {
-        if (!this.factory || !this.factory.workspace || !this.factory.workspace.projects) {
-            return [];
-        }
+//     getProjects(): che.FactoryProject[] {
+//         if (!this.factory || !this.factory.workspace || !this.factory.workspace.projects) {
+//             return [];
+//         }
 
-        return this.factory.workspace.projects.map((project: ProjectConfigDto) => new ProjectImpl(project));
-    }
-    getOnProjectsImportedActions(): che.FactoryAction[] {
-        if (!this.factory || !this.factory.ide || !this.factory.ide.onProjectsLoaded || !this.factory.ide.onProjectsLoaded.actions) {
-            return [];
-        }
+//         return this.factory.workspace.projects.map((project: ProjectConfigDto) => new ProjectImpl(project));
+//     }
+//     getOnProjectsImportedActions(): che.FactoryAction[] {
+//         if (!this.factory || !this.factory.ide || !this.factory.ide.onProjectsLoaded || !this.factory.ide.onProjectsLoaded.actions) {
+//             return [];
+//         }
 
-        return this.factory.ide.onProjectsLoaded.actions.map((action: CheFactoryAction) => new FactoryActionImpl(action.id, action.properties));
-    }
+//         return this.factory.ide.onProjectsLoaded.actions.map((action: CheFactoryAction) => new FactoryActionImpl(action.id, action.properties));
+//     }
 
-    getOnAppLoadedActions(): che.FactoryAction[] {
-        if (!this.factory || !this.factory.ide || !this.factory.ide.onAppLoaded || !this.factory.ide.onAppLoaded.actions) {
-            return [];
-        }
+//     getOnAppLoadedActions(): che.FactoryAction[] {
+//         if (!this.factory || !this.factory.ide || !this.factory.ide.onAppLoaded || !this.factory.ide.onAppLoaded.actions) {
+//             return [];
+//         }
 
-        return this.factory.ide.onAppLoaded.actions.map((action: CheFactoryAction) => new FactoryActionImpl(action.id, action.properties));;
-    }
+//         return this.factory.ide.onAppLoaded.actions.map((action: CheFactoryAction) => new FactoryActionImpl(action.id, action.properties));;
+//     }
 
-    getOnAppClosedActions(): che.FactoryAction[] {
-        if (!this.factory || !this.factory.ide || !this.factory.ide.onAppClosed || !this.factory.ide.onAppClosed.actions) {
-            return [];
-        }
-        return this.factory.ide.onAppClosed.actions.map((action: CheFactoryAction) => new FactoryActionImpl(action.id, action.properties));;
-    }
+//     getOnAppClosedActions(): che.FactoryAction[] {
+//         if (!this.factory || !this.factory.ide || !this.factory.ide.onAppClosed || !this.factory.ide.onAppClosed.actions) {
+//             return [];
+//         }
+//         return this.factory.ide.onAppClosed.actions.map((action: CheFactoryAction) => new FactoryActionImpl(action.id, action.properties));;
+//     }
 
-}
+// }
 
-class ProjectImpl implements che.FactoryProject {
+// class ProjectImpl implements che.FactoryProject {
 
-    constructor(private readonly project: ProjectConfigDto) {
-    }
+//     constructor(private readonly project: ProjectConfigDto) {
+//     }
 
-    getPath(): string {
-        return this.project.path;
-    }
+//     getPath(): string {
+//         return this.project.path;
+//     }
 
-    getLocationURI(): string | undefined {
-        if (!this.project.source || !this.project.source.location) {
-            return undefined;
-        }
-        return this.project.source.location;
-    }
+//     getLocationURI(): string | undefined {
+//         if (!this.project.source || !this.project.source.location) {
+//             return undefined;
+//         }
+//         return this.project.source.location;
+//     }
 
-    getCheckoutBranch(): string | undefined {
-        if (!this.project.source || !this.project.source.parameters['branch']) {
-            return undefined;
-        }
-        return this.project.source.parameters['branch'];
-    }
+//     getCheckoutBranch(): string | undefined {
+//         if (!this.project.source || !this.project.source.parameters['branch']) {
+//             return undefined;
+//         }
+//         return this.project.source.parameters['branch'];
+//     }
 
-}
+// }
 
-class FactoryActionImpl implements che.FactoryAction {
+// class FactoryActionImpl implements che.FactoryAction {
 
-    constructor(
-        private readonly id: string,
-        private readonly properties: che.FactoryActionProperties | undefined
-    ) {
-    }
+//     constructor(
+//         private readonly id: string,
+//         private readonly properties: che.FactoryActionProperties | undefined
+//     ) {
+//     }
 
-    getId(): string {
-        return this.id;
-    }
+//     getId(): string {
+//         return this.id;
+//     }
 
-    getProperties(): che.FactoryActionProperties | undefined {
-        return this.properties;
-    }
-}
+//     getProperties(): che.FactoryActionProperties | undefined {
+//         return this.properties;
+//     }
+// }

@@ -16,8 +16,7 @@ export interface CheApiPlugin {
 
 export interface CheApiMain {
     $currentWorkspace(): Promise<WorkspaceDto>;
-
-    $getFactoryById(id: string): Promise<MYFactoryDto>;
+    $getFactory(factoryId: string): Promise<MYFactoryDto>;
 }
 
 export interface CheVariables {
@@ -40,12 +39,12 @@ export interface Variable {
 
 export interface MYFactoryDto {
     id?: string;
-    config: WorkspaceConfig;
+    config: WorkspaceConfigDto;
     status: string | WorkspaceStatus;
     namespace?: string;
     temporary?: boolean;
-    attributes?: WorkspaceAttributes;
-    runtime?: Runtime;
+    attributes?: WorkspaceAttributesDto;
+    runtime?: RuntimeDto;
     links?: { [attrName: string]: string };
 }
 
