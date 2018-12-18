@@ -35,7 +35,7 @@ export class CheApiServiceImpl implements CheApiService {
         }
     }
 
-    async getFactory(factoryId: string): Promise<Factory> {
+    async getFactoryById(factoryId: string): Promise<Factory> {
         try {
             const client = await this.wsClient();
             if (client) {

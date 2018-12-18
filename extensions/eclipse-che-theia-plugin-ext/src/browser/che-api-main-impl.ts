@@ -30,7 +30,7 @@ export class CheApiMainImpl implements CheApiMain {
 
     async $getFactoryById(factoryId: string): Promise<FactoryDto> {
         return new Promise<FactoryDto>((resolve, reject) => {
-            this.service.getFactory(factoryId).then(f => {
+            this.service.getFactoryById(factoryId).then(f => {
                 resolve(f);
             }).catch(err => {
                 reject(err);
