@@ -54,93 +54,13 @@ export class CheApiPluginImpl {
         return this.delegate.$currentWorkspace();
     }
 
-    async getFactory(factoryId: string): Promise<che.MYFactory> {
+    async getFactoryById(factoryId: string): Promise<che.Factory> {
         try {
-            const myFactory = await this.delegate.$getFactory(factoryId);
-            console.log('> got factory ', myFactory);
+            const myFactory = await this.delegate.$getFactoryById(factoryId);
             return myFactory;
         } catch (e) {
             return Promise.reject(e);
         }
-        // return .then(f => new FactoryImpl(f));
     }
 
 }
-
-// class FactoryImpl implements che.Factory {
-
-//     constructor(private readonly factory: CheFactory) { }
-
-//     getProjects(): che.FactoryProject[] {
-//         if (!this.factory || !this.factory.workspace || !this.factory.workspace.projects) {
-//             return [];
-//         }
-
-//         return this.factory.workspace.projects.map((project: ProjectConfigDto) => new ProjectImpl(project));
-//     }
-//     getOnProjectsImportedActions(): che.FactoryAction[] {
-//         if (!this.factory || !this.factory.ide || !this.factory.ide.onProjectsLoaded || !this.factory.ide.onProjectsLoaded.actions) {
-//             return [];
-//         }
-
-//         return this.factory.ide.onProjectsLoaded.actions.map((action: CheFactoryAction) => new FactoryActionImpl(action.id, action.properties));
-//     }
-
-//     getOnAppLoadedActions(): che.FactoryAction[] {
-//         if (!this.factory || !this.factory.ide || !this.factory.ide.onAppLoaded || !this.factory.ide.onAppLoaded.actions) {
-//             return [];
-//         }
-
-//         return this.factory.ide.onAppLoaded.actions.map((action: CheFactoryAction) => new FactoryActionImpl(action.id, action.properties));;
-//     }
-
-//     getOnAppClosedActions(): che.FactoryAction[] {
-//         if (!this.factory || !this.factory.ide || !this.factory.ide.onAppClosed || !this.factory.ide.onAppClosed.actions) {
-//             return [];
-//         }
-//         return this.factory.ide.onAppClosed.actions.map((action: CheFactoryAction) => new FactoryActionImpl(action.id, action.properties));;
-//     }
-
-// }
-
-// class ProjectImpl implements che.FactoryProject {
-
-//     constructor(private readonly project: ProjectConfigDto) {
-//     }
-
-//     getPath(): string {
-//         return this.project.path;
-//     }
-
-//     getLocationURI(): string | undefined {
-//         if (!this.project.source || !this.project.source.location) {
-//             return undefined;
-//         }
-//         return this.project.source.location;
-//     }
-
-//     getCheckoutBranch(): string | undefined {
-//         if (!this.project.source || !this.project.source.parameters['branch']) {
-//             return undefined;
-//         }
-//         return this.project.source.parameters['branch'];
-//     }
-
-// }
-
-// class FactoryActionImpl implements che.FactoryAction {
-
-//     constructor(
-//         private readonly id: string,
-//         private readonly properties: che.FactoryActionProperties | undefined
-//     ) {
-//     }
-
-//     getId(): string {
-//         return this.id;
-//     }
-
-//     getProperties(): che.FactoryActionProperties | undefined {
-//         return this.properties;
-//     }
-// }

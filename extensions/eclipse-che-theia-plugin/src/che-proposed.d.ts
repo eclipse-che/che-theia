@@ -28,7 +28,7 @@ declare module '@eclipse-che/plugin' {
     }
 
     export namespace factory {
-        export function getFactory(id: string): PromiseLike<MYFactory | undefined>;
+        export function getById(id: string): PromiseLike<MYFactory>;
     }
 
     export interface Workspace {
@@ -158,44 +158,7 @@ declare module '@eclipse-che/plugin' {
         namespace?: string;
     }
 
-    /**
-     * Defines the contract for the factory instance.
-     */
     export interface Factory {
-        getProjects(): FactoryProject[];
-        /**
-         * Actions that should be triggered when all projects have been imported.
-         */
-        getOnProjectsImportedActions(): FactoryAction[];
-        /**
-         * Actions that should be triggered when the IDE is loaded.
-         */
-        getOnAppLoadedActions(): FactoryAction[];
-        /**
-         * Actions that should be triggered when the IDE is closed.
-         */
-        getOnAppClosedActions(): FactoryAction[];
-    }
-
-    export interface FactoryProject {
-        getPath(): string;
-        getLocationURI(): string | undefined;
-        getCheckoutBranch(): string | undefined;
-    }
-
-    export interface FactoryAction {
-        getId(): string;
-        getProperties(): FactoryActionProperties | undefined;
-    }
-
-    export interface FactoryActionProperties {
-        name?: string,
-        file?: string,
-        greetingTitle?: string,
-        greetingContentUrl?: string
-    }
-
-    export interface MYFactory {
         id?: string;
         config: WorkspaceConfig;
         status: string | WorkspaceStatus;
@@ -252,4 +215,5 @@ declare module '@eclipse-che/plugin' {
     export interface Disposable {
         dispose(): PromiseLike<void>;
     }
+
 }

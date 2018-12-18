@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 import { CheApiService } from '../common/che-protocol';
-import { Workspace, MYFactory } from '@eclipse-che/plugin';
+import { Workspace, Factory } from '@eclipse-che/plugin';
 import WorkspaceClient, { IRestAPIConfig, IRemoteAPI } from '@eclipse-che/workspace-client';
 import { injectable } from 'inversify';
 
@@ -35,11 +35,11 @@ export class CheApiServiceImpl implements CheApiService {
         }
     }
 
-    async getFactory(factoryId: string): Promise<MYFactory> {
+    async getFactory(factoryId: string): Promise<Factory> {
         try {
             const client = await this.wsClient();
             if (client) {
-                return await client.getFactory<MYFactory>(factoryId);
+                return await client.getFactory<Factory>(factoryId);
             }
 
             return Promise.reject(`Unable to get factory with ID ${factoryId}`);

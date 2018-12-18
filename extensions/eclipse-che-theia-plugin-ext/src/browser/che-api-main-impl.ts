@@ -28,7 +28,7 @@ export class CheApiMainImpl implements CheApiMain {
         });
     }
 
-    async $getFactory(factoryId: string): Promise<MYFactoryDto> {
+    async $getFactoryById(factoryId: string): Promise<MYFactoryDto> {
         return new Promise<MYFactoryDto>((resolve, reject) => {
             this.service.getFactory(factoryId).then(f => {
                 resolve(f);

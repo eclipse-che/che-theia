@@ -16,7 +16,7 @@ export interface CheApiPlugin {
 
 export interface CheApiMain {
     $currentWorkspace(): Promise<WorkspaceDto>;
-    $getFactory(factoryId: string): Promise<MYFactoryDto>;
+    $getFactoryById(factoryId: string): Promise<MYFactoryDto>;
 }
 
 export interface CheVariables {
@@ -48,31 +48,6 @@ export interface MYFactoryDto {
     links?: { [attrName: string]: string };
 }
 
-export interface FactoryDto {
-    workspace: WorkspaceConfigDto;
-    ide?: {
-        onAppLoaded?: {
-            actions?: FactoryActionDto[]
-        };
-        onProjectsLoaded?: {
-            actions?: FactoryActionDto[]
-        };
-        onAppClosed?: {
-            actions?: FactoryActionDto[]
-        };
-    }
-}
-
-export interface FactoryActionDto {
-    id: string,
-    properties?: {
-        name?: string,
-        file?: string,
-        greetingTitle?: string,
-        greetingContentUrl?: string
-    }
-}
-
 export interface WorkspaceConfigDto {
     name?: string;
     description?: string;
@@ -84,6 +59,7 @@ export interface WorkspaceConfigDto {
     commands?: CommandDto[];
     links?: LinkDto[];
 }
+
 export interface ProjectConfigDto {
     name: string;
     path: string;
@@ -163,7 +139,6 @@ export interface WarningDto {
     message: string;
 }
 
-
 export interface WorkspaceAttributesDto {
     created: number;
     updated?: number;
@@ -171,7 +146,6 @@ export interface WorkspaceAttributesDto {
     errorMessage?: string;
     [propName: string]: string | number | any;
 }
-
 
 export interface LinkParameterDto {
     name: string;
