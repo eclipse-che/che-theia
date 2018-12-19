@@ -11,14 +11,15 @@ import { MainPluginApiProvider } from '@theia/plugin-ext/lib/common/plugin-ext-a
 import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
 import { injectable, interfaces } from 'inversify';
 import { PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
-import { CheApiPluginMainImpl } from './che-workspace-main';
+import { CheApiMainImpl } from './che-api-main-impl';
 import { CheVariablesMainImpl } from './che-variables-main';
 
 @injectable()
-export class CheMainApiProvider implements MainPluginApiProvider {
+export class CheApiProvider implements MainPluginApiProvider {
 
     initialize(rpc: RPCProtocol, container: interfaces.Container): void {
-        rpc.set(PLUGIN_RPC_CONTEXT.CHE_API_MAIN, new CheApiPluginMainImpl(container));
+        rpc.set(PLUGIN_RPC_CONTEXT.CHE_API_MAIN, new CheApiMainImpl(container));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_VARIABLES_MAIN, new CheVariablesMainImpl(container, rpc));
     }
+
 }

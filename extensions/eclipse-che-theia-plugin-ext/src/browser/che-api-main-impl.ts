@@ -13,20 +13,29 @@ import { CheApiMain, CheApiService, FactoryDto } from '../common/che-protocol';
 import { Workspace } from '@eclipse-che/plugin';
 import { interfaces } from 'inversify';
 
-export class CheApiPluginMainImpl implements CheApiMain {
+export class CheApiMainImpl implements CheApiMain {
 
-    private readonly delegate: CheApiService;
+    private readonly service: CheApiService;
+
     constructor(container: interfaces.Container) {
-        this.delegate = container.get(CheApiService);
+        this.service = container.get(CheApiService);
     }
+
     $currentWorkspace(): Promise<Workspace> {
-        return this.delegate.currentWorkspace().then(w => w, err => {
+        return this.service.currentWorkspace().then(w => w, err => {
             console.log(err);
             return undefined!;
         });
     }
 
-    $getFactoryById(id: string): Promise<FactoryDto> {
-        throw new Error('getFactoryById is not implemented');
+    async $getFactoryById(factoryId: string): Promise<FactoryDto> {
+        return new Promise<FactoryDto>((resolve, reject) => {
+            this.service.getFactoryById(factoryId).then(f => {
+                resolve(f);
+            }).catch(err => {
+                reject(err);
+            });
+        });
     }
+
 }

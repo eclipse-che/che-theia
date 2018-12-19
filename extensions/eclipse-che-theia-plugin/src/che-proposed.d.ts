@@ -28,7 +28,7 @@ declare module '@eclipse-che/plugin' {
     }
 
     export namespace factory {
-        export function getFactoryById(id: string): PromiseLike<Factory | undefined>;
+        export function getById(id: string): PromiseLike<Factory>;
     }
 
     export interface Workspace {
@@ -158,41 +158,134 @@ declare module '@eclipse-che/plugin' {
         namespace?: string;
     }
 
-    /**
-     * Defines the contract for the factory instance.
-     */
     export interface Factory {
-        getProjects(): FactoryProject[];
-        /**
-         * Actions that should be triggered when all projects have been imported.
-         */
-        getOnProjectsImportedActions(): FactoryAction[];
-        /**
-         * Actions that should be triggered when the IDE is loaded.
-         */
-        getOnAppLoadedActions(): FactoryAction[];
-        /**
-         * Actions that should be triggered when the IDE is closed.
-         */
-        getOnAppClosedActions(): FactoryAction[];
+        /** Identifier of this factory instance, it is mandatory and unique. */
+        id?: string;
+
+        /** Version of this factory instance, it is mandatory. */
+        v: string;
+
+        /** Name of this factory instance, the name is unique for creator. */
+        name: string;
+
+        /** Creator of this factory instance. */
+        creator: Author;
+
+        /** Workspace configuration of this factory instance, it is mandatory for every factory. */
+        workspace: WorkspaceConfig;
+
+        /** Restrictions of this factory instance. */
+        policies: Policies;
+
+        /** Factory button for this instance. */
+        button: FactoryButton;
+
+        /** IDE for this factory instance. */
+        ide: Ide;
+
+        /** Hyperlinks. */
+        links?: { [attrName: string]: string };
     }
 
-    export interface FactoryProject {
-        getPath(): string;
-        getLocationURI(): string | undefined;
-        getCheckoutBranch(): string | undefined;
+    /**
+     * Defines the contract for the factory creator instance.
+     */
+    export interface Author {
+        /** Identifier of the user who created factory, it is mandatory */
+        userId: string;
+
+        /** Creation time of factory, set by the server (in milliseconds, from Unix epoch, no timezone) */
+        created: number;
     }
 
+    /**
+     * Defines the contract for the factory restrictions.
+     */
+    export interface Policies {
+
+        /** Restrict access if referer header doesn't match this field */
+        referer: string;
+
+        /** Restrict access for factories used earlier then author supposes */
+        since: number;
+
+        /** Restrict access for factories used later then author supposes */
+        until: number;
+
+        /** Workspace creation strategy */
+        create: string;
+    }
+
+    export type FactoryButtonType = 'logo' | 'nologo';
+
+    /**
+     * Defines factory button.
+     */
+    export interface FactoryButton {
+
+        /** Type of this button instance */
+        type: FactoryButtonType;
+
+        /** Attributes of this button instance */
+        attributes: FactoryButtonAttributes;
+    }
+
+    /**
+     * Defines factory button attributes.
+     */
+    export interface FactoryButtonAttributes {
+
+        /** Factory button color */
+        color: string;
+
+        /** Factory button counter */
+        counter: boolean;
+
+        /** Factory button logo */
+        logo: string;
+
+        /** Factory button style */
+        style: string;
+    }
+
+    /**
+     * Defines the contract for the factory IDE instance.
+     */
+    export interface Ide {
+
+        /** Returns configuration of IDE on application loaded event */
+        onAppLoaded?: {
+            actions?: FactoryAction[]
+        };
+
+        /** Returns configuration of IDE on application closed event */
+        onAppClosed?: {
+            actions?: FactoryAction[]
+        };
+
+        /** Returns configuration of IDE on projects loaded event */
+        onProjectsLoaded?: {
+            actions?: FactoryAction[]
+        };
+
+    }
+
+    /**
+     * Defines the contract for the factory action instance.
+     */
     export interface FactoryAction {
-        getId(): string;
-        getProperties(): FactoryActionProperties | undefined;
-    }
 
-    export interface FactoryActionProperties {
-        name?: string,
-        file?: string,
-        greetingTitle?: string,
-        greetingContentUrl?: string
+        /** IDE specific identifier of action e.g. ('openFile', 'editFile') */
+        id: string,
+
+        /** Properties of this action instance */
+        properties?: {
+            name?: string,
+            file?: string,
+            greetingTitle?: string,
+            greetingContentUrl?: string
+        }
+
     }
 
     /**
@@ -241,4 +334,5 @@ declare module '@eclipse-che/plugin' {
     export interface Disposable {
         dispose(): PromiseLike<void>;
     }
+
 }

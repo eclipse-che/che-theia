@@ -67,7 +67,7 @@ export function createAPIFactory(rpc: RPCProtocol): ApiFactory {
         };
 
         const factory: typeof che.factory = {
-            getFactoryById(id: string): PromiseLike<che.Factory> {
+            getById(id: string): PromiseLike<che.Factory> {
                 return chePluginImpl.getFactoryById(id);
             }
         };

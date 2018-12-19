@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
-import { PLUGIN_RPC_CONTEXT, CheApiMain, FactoryActionDto as CheFactoryAction, FactoryDto as CheFactory, ProjectConfigDto } from '../common/che-protocol';
+import { PLUGIN_RPC_CONTEXT, CheApiMain } from '../common/che-protocol';
 import * as che from '@eclipse-che/plugin';
 
 export class CheApiPluginImpl {
@@ -49,89 +49,18 @@ export class CheApiPluginImpl {
     getAll(): Promise<che.Workspace[]> {
         throw new Error('Method not implemented.');
     }
+
     getCurrentWorkspace(): Promise<che.Workspace> {
         return this.delegate.$currentWorkspace();
     }
 
-    getFactoryById(id: string): Promise<che.Factory> {
-        return this.delegate.$getFactoryById(id).then(f => new FactoryImpl(f));
-    }
-}
-
-class FactoryImpl implements che.Factory {
-
-    constructor(private readonly factory: CheFactory) { }
-
-    getProjects(): che.FactoryProject[] {
-        if (!this.factory || !this.factory.workspace || !this.factory.workspace.projects) {
-            return [];
+    async getFactoryById(factoryId: string): Promise<che.Factory> {
+        try {
+            const myFactory = await this.delegate.$getFactoryById(factoryId);
+            return myFactory;
+        } catch (e) {
+            return Promise.reject(e);
         }
-
-        return this.factory.workspace.projects.map((project: ProjectConfigDto) => new ProjectImpl(project));
-    }
-    getOnProjectsImportedActions(): che.FactoryAction[] {
-        if (!this.factory || !this.factory.ide || !this.factory.ide.onProjectsLoaded || !this.factory.ide.onProjectsLoaded.actions) {
-            return [];
-        }
-
-        return this.factory.ide.onProjectsLoaded.actions.map((action: CheFactoryAction) => new FactoryActionImpl(action.id, action.properties));
     }
 
-    getOnAppLoadedActions(): che.FactoryAction[] {
-        if (!this.factory || !this.factory.ide || !this.factory.ide.onAppLoaded || !this.factory.ide.onAppLoaded.actions) {
-            return [];
-        }
-
-        return this.factory.ide.onAppLoaded.actions.map((action: CheFactoryAction) => new FactoryActionImpl(action.id, action.properties));;
-    }
-
-    getOnAppClosedActions(): che.FactoryAction[] {
-        if (!this.factory || !this.factory.ide || !this.factory.ide.onAppClosed || !this.factory.ide.onAppClosed.actions) {
-            return [];
-        }
-        return this.factory.ide.onAppClosed.actions.map((action: CheFactoryAction) => new FactoryActionImpl(action.id, action.properties));;
-    }
-
-}
-
-class ProjectImpl implements che.FactoryProject {
-
-    constructor(private readonly project: ProjectConfigDto) {
-    }
-
-    getPath(): string {
-        return this.project.path;
-    }
-
-    getLocationURI(): string | undefined {
-        if (!this.project.source || !this.project.source.location) {
-            return undefined;
-        }
-        return this.project.source.location;
-    }
-
-    getCheckoutBranch(): string | undefined {
-        if (!this.project.source || !this.project.source.parameters['branch']) {
-            return undefined;
-        }
-        return this.project.source.parameters['branch'];
-    }
-
-}
-
-class FactoryActionImpl implements che.FactoryAction {
-
-    constructor(
-        private readonly id: string,
-        private readonly properties: che.FactoryActionProperties | undefined
-    ) {
-    }
-
-    getId(): string {
-        return this.id;
-    }
-
-    getProperties(): che.FactoryActionProperties | undefined {
-        return this.properties;
-    }
 }
