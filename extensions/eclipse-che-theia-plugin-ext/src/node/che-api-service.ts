@@ -8,13 +8,15 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 import { CheApiService } from '../common/che-protocol';
-import { Workspace } from '@eclipse-che/plugin';
+import { Workspace, Factory } from '@eclipse-che/plugin';
 import WorkspaceClient, { IRestAPIConfig, IRemoteAPI } from '@eclipse-che/workspace-client';
 import { injectable } from 'inversify';
 
 @injectable()
 export class CheApiServiceImpl implements CheApiService {
+
     private workspaceRestAPI: IRemoteAPI | undefined;
+
     async currentWorkspace(): Promise<Workspace> {
         try {
 
@@ -22,9 +24,9 @@ export class CheApiServiceImpl implements CheApiService {
             if (!cheWorkspaceId) {
                 return Promise.reject('Cannot find Che workspace id, environment variable "CHE_WORKSPACE_ID" is not set');
             }
-            const wsClient = await this.getOrCreateWSClient();
+            const wsClient = await this.wsClient();
             if (wsClient) {
-                return wsClient!.getById<Workspace>(cheWorkspaceId);
+                return await wsClient!.getById<Workspace>(cheWorkspaceId);
             }
             return Promise.reject('Cannot create Che API REST Client');
         } catch (e) {
@@ -33,7 +35,20 @@ export class CheApiServiceImpl implements CheApiService {
         }
     }
 
-    private async getOrCreateWSClient(): Promise<IRemoteAPI | undefined> {
+    async getFactoryById(factoryId: string): Promise<Factory> {
+        try {
+            const client = await this.wsClient();
+            if (client) {
+                return await client.getFactory<Factory>(factoryId);
+            }
+
+            return Promise.reject(`Unable to get factory with ID ${factoryId}`);
+        } catch (e) {
+            return Promise.reject('Unable to create Che API REST Client');
+        }
+    }
+
+    private async wsClient(): Promise<IRemoteAPI | undefined> {
         const cheApiInternalVar = process.env.CHE_API_INTERNAL;
         const cheMachineToken = process.env.CHE_MACHINE_TOKEN;
 
@@ -52,6 +67,8 @@ export class CheApiServiceImpl implements CheApiService {
 
             this.workspaceRestAPI = await WorkspaceClient.getRestApi(restAPIConfig);
         }
+
         return this.workspaceRestAPI;
     }
+
 }

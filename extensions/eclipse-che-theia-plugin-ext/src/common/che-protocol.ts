@@ -9,40 +9,162 @@
  **********************************************************************/
 
 import { ProxyIdentifier, createProxyIdentifier } from '@theia/plugin-ext/lib/api/rpc-protocol';
+import * as che from '@eclipse-che/plugin';
 
 export interface CheApiPlugin {
-
 }
 
 export interface CheApiMain {
     $currentWorkspace(): Promise<WorkspaceDto>;
+    $getFactoryById(factoryId: string): Promise<FactoryDto>;
+}
 
-    $getFactoryById(id: string): Promise<FactoryDto>;
+export interface CheVariables {
+    registerVariable(variable: che.Variable): Promise<che.Disposable>;
+    resolve(value: string): Promise<string | undefined>;
+    $resolveVariable(variableId: number): Promise<string | undefined>;
+}
+
+export interface CheVariablesMain {
+    $registerVariable(variable: Variable): Promise<void>;
+    $disposeVariable(id: number): Promise<void>;
+    $resolve(value: string): Promise<string | undefined>;
+}
+
+export interface Variable {
+    name: string,
+    description: string,
+    token: number
 }
 
 export interface FactoryDto {
+    /** Identifier of this factory instance, it is mandatory and unique. */
+    id?: string;
+
+    /** Version of this factory instance, it is mandatory. */
+    v: string;
+
+    /** Name of this factory instance, the name is unique for creator. */
+    name: string;
+
+    /** Creator of this factory instance. */
+    creator: AuthorDto;
+
+    /** Workspace configuration of this factory instance, it is mandatory for every factory. */
     workspace: WorkspaceConfigDto;
-    ide?: {
-        onAppLoaded?: {
-            actions?: FactoryActionDto[]
-        };
-        onProjectsLoaded?: {
-            actions?: FactoryActionDto[]
-        };
-        onAppClosed?: {
-            actions?: FactoryActionDto[]
-        };
-    }
+
+    /** Restrictions of this factory instance. */
+    policies: PoliciesDto;
+
+    /** Factory button for this instance. */
+    button: FactoryButtonDto;
+
+    /** IDE for this factory instance. */
+    ide: IdeDto;
+
+    /** Hyperlinks. */
+    links?: { [attrName: string]: string };
 }
 
+/**
+ * Defines the contract for the factory creator instance.
+ */
+export interface AuthorDto {
+    /** Identifier of the user who created factory, it is mandatory */
+    userId: string;
+
+    /** Creation time of factory, set by the server (in milliseconds, from Unix epoch, no timezone) */
+    created: number;
+}
+
+/**
+ * Defines the contract for the factory restrictions.
+ */
+export interface PoliciesDto {
+
+    /** Restrict access if referer header doesn't match this field */
+    referer: string;
+
+    /** Restrict access for factories used earlier then author supposes */
+    since: number;
+
+    /** Restrict access for factories used later then author supposes */
+    until: number;
+
+    /** Workspace creation strategy */
+    create: string;
+}
+
+export type FactoryButtonTypeDto = 'logo' | 'nologo';
+
+/**
+ * Defines factory button.
+ */
+export interface FactoryButtonDto {
+
+    /** Type of this button instance */
+    type: FactoryButtonTypeDto;
+
+    /** Attributes of this button instance */
+    attributes: FactoryButtonAttributesDto;
+}
+
+/**
+ * Defines factory button attributes.
+ */
+export interface FactoryButtonAttributesDto {
+
+    /** Factory button color */
+    color: string;
+
+    /** Factory button counter */
+    counter: boolean;
+
+    /** Factory button logo */
+    logo: string;
+
+    /** Factory button style */
+    style: string;
+}
+
+/**
+ * Defines the contract for the factory IDE instance.
+ */
+export interface IdeDto {
+
+    /** Returns configuration of IDE on application loaded event */
+    onAppLoaded?: {
+        actions?: FactoryActionDto[];
+    };
+
+    /** Returns configuration of IDE on application closed event */
+    onAppClosed?: {
+        actions?: FactoryActionDto[];
+    };
+
+    /** Returns configuration of IDE on projects loaded event */
+    onProjectsLoaded?: {
+        actions?: FactoryActionDto[];
+    };
+
+}
+
+/**
+ * Defines the contract for the factory action instance.
+ */
 export interface FactoryActionDto {
+
+    /** IDE specific identifier of action e.g. ('openFile', 'editFile') */
     id: string,
+
+    /** Properties of this action instance */
     properties?: {
         name?: string,
         file?: string,
         greetingTitle?: string,
         greetingContentUrl?: string
     }
+
 }
 
 export interface WorkspaceConfigDto {
@@ -56,6 +178,7 @@ export interface WorkspaceConfigDto {
     commands?: CommandDto[];
     links?: LinkDto[];
 }
+
 export interface ProjectConfigDto {
     name: string;
     path: string;
@@ -135,7 +258,6 @@ export interface WarningDto {
     message: string;
 }
 
-
 export interface WorkspaceAttributesDto {
     created: number;
     updated?: number;
@@ -143,7 +265,6 @@ export interface WorkspaceAttributesDto {
     errorMessage?: string;
     [propName: string]: string | number | any;
 }
-
 
 export interface LinkParameterDto {
     name: string;
@@ -162,13 +283,20 @@ export interface RequestBodyDescriptor {
 
 export const PLUGIN_RPC_CONTEXT = {
     CHE_API_MAIN: <ProxyIdentifier<CheApiMain>>createProxyIdentifier<CheApiMain>('CheApiMain'),
+    CHE_VARIABLES: <ProxyIdentifier<CheVariables>>createProxyIdentifier<CheVariables>('CheVariables'),
+    CHE_VARIABLES_MAIN: <ProxyIdentifier<CheVariablesMain>>createProxyIdentifier<CheVariablesMain>('CheVariablesMain'),
 };
 
 // Theia RPC protocol
 
-export const CheApiServicePath = '/che-api-service';
+export const CHE_API_SERVICE_PATH = '/che-api-service';
 
 export const CheApiService = Symbol('CheApiService');
+
 export interface CheApiService {
+
     currentWorkspace(): Promise<WorkspaceDto>;
+
+    getFactoryById(factoryId: string): Promise<FactoryDto>;
+
 }

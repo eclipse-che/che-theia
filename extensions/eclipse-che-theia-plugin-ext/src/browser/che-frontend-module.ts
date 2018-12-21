@@ -10,16 +10,16 @@
 
 import { ContainerModule } from 'inversify';
 import { MainPluginApiProvider } from '@theia/plugin-ext/lib/common/plugin-ext-api-contribution';
-import { CheMainApiProvider } from './che-api-main';
-import { CheApiService, CheApiServicePath } from '../common/che-protocol';
+import { CheApiProvider } from './che-api-provider';
+import { CheApiService, CHE_API_SERVICE_PATH } from '../common/che-protocol';
 import { WebSocketConnectionProvider } from '@theia/core/lib/browser';
 
 export default new ContainerModule(bind => {
-    bind(CheMainApiProvider).toSelf().inSingletonScope();
-    bind(MainPluginApiProvider).toService(CheMainApiProvider);
+    bind(CheApiProvider).toSelf().inSingletonScope();
+    bind(MainPluginApiProvider).toService(CheApiProvider);
 
     bind(CheApiService).toDynamicValue(ctx => {
         const provider = ctx.container.get(WebSocketConnectionProvider);
-        return provider.createProxy<CheApiService>(CheApiServicePath);
+        return provider.createProxy<CheApiService>(CHE_API_SERVICE_PATH);
     }).inSingletonScope();
 });
