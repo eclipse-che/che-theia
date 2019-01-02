@@ -11,14 +11,29 @@
 import { ProxyIdentifier, createProxyIdentifier } from '@theia/plugin-ext/lib/api/rpc-protocol';
 import * as che from '@eclipse-che/plugin';
 
-export interface CheApiPlugin {
+/**
+ * Workspace plugin API
+ */
+export interface CheWorkspace {
 }
 
-export interface CheApiMain {
+export interface CheWorkspaceMain {
     $currentWorkspace(): Promise<WorkspaceDto>;
+}
+
+/**
+ * Factory plugin API
+ */
+export interface CheFactory {
+}
+
+export interface CheFactoryMain {
     $getFactoryById(factoryId: string): Promise<FactoryDto>;
 }
 
+/**
+ * Variables plugin API
+ */
 export interface CheVariables {
     registerVariable(variable: che.Variable): Promise<che.Disposable>;
     resolve(value: string): Promise<string | undefined>;
@@ -282,7 +297,12 @@ export interface RequestBodyDescriptor {
 }
 
 export const PLUGIN_RPC_CONTEXT = {
-    CHE_API_MAIN: <ProxyIdentifier<CheApiMain>>createProxyIdentifier<CheApiMain>('CheApiMain'),
+    CHE_WORKSPACE: <ProxyIdentifier<CheWorkspace>>createProxyIdentifier<CheWorkspace>('CheWorkspace'),
+    CHE_WORKSPACE_MAIN: <ProxyIdentifier<CheWorkspaceMain>>createProxyIdentifier<CheWorkspaceMain>('CheWorkspaceMain'),
+
+    CHE_FACTORY: <ProxyIdentifier<CheFactory>>createProxyIdentifier<CheFactory>('CheFactory'),
+    CHE_FACTORY_MAIN: <ProxyIdentifier<CheFactoryMain>>createProxyIdentifier<CheFactoryMain>('CheFactoryMain'),
+
     CHE_VARIABLES: <ProxyIdentifier<CheVariables>>createProxyIdentifier<CheVariables>('CheVariables'),
     CHE_VARIABLES_MAIN: <ProxyIdentifier<CheVariablesMain>>createProxyIdentifier<CheVariablesMain>('CheVariablesMain'),
 };

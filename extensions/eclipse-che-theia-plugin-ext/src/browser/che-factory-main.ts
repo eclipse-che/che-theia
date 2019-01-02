@@ -1,4 +1,3 @@
-
 /*********************************************************************
  * Copyright (c) 2018 Red Hat, Inc.
  *
@@ -9,31 +8,24 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import { CheApiMain, CheApiService, FactoryDto } from '../common/che-protocol';
-import { Workspace } from '@eclipse-che/plugin';
 import { interfaces } from 'inversify';
+import { CheFactoryMain } from '../common/che-protocol';
+import { CheApiService, FactoryDto } from '../common/che-protocol';
 
-export class CheApiMainImpl implements CheApiMain {
+export class CheFactoryMainImpl implements CheFactoryMain {
 
-    private readonly service: CheApiService;
+    private readonly cheApiService: CheApiService;
 
     constructor(container: interfaces.Container) {
-        this.service = container.get(CheApiService);
-    }
-
-    $currentWorkspace(): Promise<Workspace> {
-        return this.service.currentWorkspace().then(w => w, err => {
-            console.log(err);
-            return undefined!;
-        });
+        this.cheApiService = container.get(CheApiService);
     }
 
     async $getFactoryById(factoryId: string): Promise<FactoryDto> {
         return new Promise<FactoryDto>((resolve, reject) => {
-            this.service.getFactoryById(factoryId).then(f => {
-                resolve(f);
-            }).catch(err => {
-                reject(err);
+            this.cheApiService.getFactoryById(factoryId).then(factory => {
+                resolve(factory);
+            }).catch(error => {
+                reject(error);
             });
         });
     }

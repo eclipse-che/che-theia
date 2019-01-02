@@ -12,8 +12,8 @@ import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
 import { PLUGIN_RPC_CONTEXT, CheVariables, CheVariablesMain } from '../common/che-protocol';
 import { Disposable, Variable } from '@eclipse-che/plugin';
 
-
 export class CheVariablesImpl implements CheVariables{
+
     private readonly cheVariablesMain: CheVariablesMain;
     private readonly variablesCache = new Map<number, Variable>();
     private callId = 0;

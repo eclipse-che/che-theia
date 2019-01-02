@@ -11,7 +11,7 @@
 import { Plugin, emptyPlugin } from '@theia/plugin-ext/lib/api/plugin-api';
 import { ExtPluginApiFrontendInitializationFn } from '@theia/plugin-ext/lib/common/plugin-ext-api-contribution';
 import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
-import { createAPIFactory } from '../api-factory';
+import { createAPIFactory } from '../che-api';
 import * as che from '@eclipse-che/plugin';
 // tslint:disable-next-line:no-any
 const ctx = self as any;
@@ -40,6 +40,7 @@ export const initializeApi: ExtPluginApiFrontendInitializationFn = (rpc: RPCProt
             return defaultApi;
         }
     };
+
     // tslint:disable-next-line:no-null-keyword
     ctx['che'] = new Proxy(Object.create(null), handler);
 };
