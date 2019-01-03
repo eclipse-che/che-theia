@@ -41,15 +41,15 @@ export class CheWorkspaceImpl implements CheWorkspace {
     }
 
     update(workspaceId: string, workspace: che.Workspace): Promise<any> {
-        throw new Error('Method not implemented.');
+        return this.workspaceMain.$update(workspaceId, workspace);
     }
 
     create(config: che.WorkspaceConfig, params: che.ResourceCreateQueryParams): Promise<any> {
         throw new Error('Method not implemented.');
     }
 
-    getById(workspaceKey: string): Promise<che.Workspace> {
-        throw new Error('Method not implemented.');
+    getById(workspaceId: string): Promise<che.Workspace> {
+        return this.workspaceMain.$getById(workspaceId);
     }
 
     getAllByNamespace(namespace: string): Promise<che.Workspace[]> {
@@ -61,7 +61,7 @@ export class CheWorkspaceImpl implements CheWorkspace {
     }
 
     getCurrentWorkspace(): Promise<che.Workspace> {
-        return this.workspaceMain.$currentWorkspace();
+        return this.workspaceMain.$getCurrentWorkspace();
     }
 
 }

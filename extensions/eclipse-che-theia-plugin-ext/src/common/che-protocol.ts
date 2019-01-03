@@ -18,7 +18,17 @@ export interface CheWorkspace {
 }
 
 export interface CheWorkspaceMain {
-    $currentWorkspace(): Promise<WorkspaceDto>;
+    $getCurrentWorkspace(): Promise<WorkspaceDto>;
+    // getAll(): Promise<Workspace[]>;
+    // getAllByNamespace(namespace: string): Promise<Workspace[]>;
+    $getById(workspaceId: string): Promise<WorkspaceDto>;
+    // create(config: WorkspaceConfig, params: ResourceCreateQueryParams): Promise<any>;
+    $update(workspaceId: string, workspace: WorkspaceDto): Promise<any>;
+    // deleteWorkspace(workspaceId: string): Promise<any>;
+    // start(workspaceId: string, environmentName: string): Promise<any>;
+    // startTemporary(config: WorkspaceConfig): Promise<any>;
+    // stop(workspaceId: string): Promise<any>;
+    // getSettings(): Promise<WorkspaceSettings>;
 }
 
 /**
@@ -316,6 +326,10 @@ export const CheApiService = Symbol('CheApiService');
 export interface CheApiService {
 
     currentWorkspace(): Promise<WorkspaceDto>;
+
+    getWorkspaceById(workspaceId: string): Promise<WorkspaceDto>;
+
+    updateWorkspace(workspaceId: string, workspace: WorkspaceDto): Promise<any>;
 
     getFactoryById(factoryId: string): Promise<FactoryDto>;
 

@@ -7,7 +7,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
-import { CheApiService } from '../common/che-protocol';
+import { CheApiService, WorkspaceDto } from '../common/che-protocol';
 import { Workspace, Factory } from '@eclipse-che/plugin';
 import WorkspaceClient, { IRestAPIConfig, IRemoteAPI } from '@eclipse-che/workspace-client';
 import { injectable } from 'inversify';
@@ -17,17 +17,54 @@ export class CheApiServiceImpl implements CheApiService {
 
     private workspaceRestAPI: IRemoteAPI | undefined;
 
-    async currentWorkspace(): Promise<Workspace> {
+    async currentWorkspace(): Promise<WorkspaceDto> {
         try {
-
-            const cheWorkspaceId = process.env.CHE_WORKSPACE_ID;
-            if (!cheWorkspaceId) {
+            const workspaceId = process.env.CHE_WORKSPACE_ID;
+            if (!workspaceId) {
                 return Promise.reject('Cannot find Che workspace id, environment variable "CHE_WORKSPACE_ID" is not set');
             }
+
             const wsClient = await this.wsClient();
             if (wsClient) {
-                return await wsClient!.getById<Workspace>(cheWorkspaceId);
+                return await wsClient!.getById<Workspace>(workspaceId);
             }
+
+            return Promise.reject('Cannot create Che API REST Client');
+        } catch (e) {
+            console.log(e);
+            return Promise.reject('Cannot create Che API REST Client');
+        }
+    }
+
+    async getWorkspaceById(workspaceId: string): Promise<WorkspaceDto> {
+        try {
+            if (!workspaceId) {
+                return Promise.reject('Che Workspace id is not set');
+            }
+
+            const wsClient = await this.wsClient();
+            if (wsClient) {
+                return await wsClient!.getById<Workspace>(workspaceId);
+            }
+
+            return Promise.reject('Cannot create Che API REST Client');
+        } catch (e) {
+            console.log(e);
+            return Promise.reject('Cannot create Che API REST Client');
+        }
+    }
+
+    async updateWorkspace(workspaceId: string, workspace: WorkspaceDto): Promise<any> {
+        try {
+            if (!workspaceId) {
+                return Promise.reject('Che Workspace id is not set');
+            }
+
+            const wsClient = await this.wsClient();
+            if (wsClient) {
+                return await wsClient!.update(workspaceId, workspace);
+            }
+
             return Promise.reject('Cannot create Che API REST Client');
         } catch (e) {
             console.log(e);

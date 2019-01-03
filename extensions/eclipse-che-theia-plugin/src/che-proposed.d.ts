@@ -17,7 +17,7 @@ declare module '@eclipse-che/plugin' {
         export function getCurrentWorkspace(): Promise<Workspace>;
         export function getAll(): Promise<Workspace[]>;
         export function getAllByNamespace(namespace: string): Promise<Workspace[]>;
-        export function getById(workspaceKey: string): Promise<Workspace>;
+        export function getById(workspaceId: string): Promise<Workspace>;
         export function create(config: WorkspaceConfig, params: ResourceCreateQueryParams): Promise<any>;
         export function update(workspaceId: string, workspace: Workspace): Promise<any>;
         export function deleteWorkspace(workspaceId: string): Promise<any>;

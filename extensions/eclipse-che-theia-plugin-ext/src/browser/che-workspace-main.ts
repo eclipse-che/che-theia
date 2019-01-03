@@ -9,8 +9,7 @@
  **********************************************************************/
 
 import { interfaces } from 'inversify';
-import { CheWorkspaceMain, CheApiService } from '../common/che-protocol';
-import { Workspace } from '@eclipse-che/plugin';
+import { CheWorkspaceMain, CheApiService, WorkspaceDto } from '../common/che-protocol';
 
 export class CheWorkspaceMainImpl implements CheWorkspaceMain {
 
@@ -20,11 +19,22 @@ export class CheWorkspaceMainImpl implements CheWorkspaceMain {
         this.cheApiService = container.get(CheApiService);
     }
 
-    $currentWorkspace(): Promise<Workspace> {
+    $getCurrentWorkspace(): Promise<WorkspaceDto> {
         return this.cheApiService.currentWorkspace().then(workspace => workspace, error => {
             console.log(error);
             return undefined!;
         });
+    }
+
+    async $getById(workspaceId: string): Promise<WorkspaceDto> {
+        return this.cheApiService.getWorkspaceById(workspaceId).then(workspace => workspace, error => {
+            console.log(error);
+            return undefined!;
+        });
+    }
+
+    async $update(workspaceId: string, workspace: WorkspaceDto): Promise<any> {
+        await this.cheApiService.updateWorkspace(workspaceId, workspace);
     }
 
 }

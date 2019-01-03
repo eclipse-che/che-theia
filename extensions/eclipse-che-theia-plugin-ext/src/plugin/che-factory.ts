@@ -22,8 +22,7 @@ export class CheFactoryImpl implements CheFactory {
 
     async getFactoryById(factoryId: string): Promise<che.Factory> {
         try {
-            const myFactory = await this.factoryMain.$getFactoryById(factoryId);
-            return myFactory;
+            return await this.factoryMain.$getFactoryById(factoryId);
         } catch (e) {
             return Promise.reject(e);
         }
