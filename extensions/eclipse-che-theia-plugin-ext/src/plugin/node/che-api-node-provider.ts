@@ -12,12 +12,12 @@ import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
 import { Plugin, emptyPlugin, PluginManager } from '@theia/plugin-ext/lib/api/plugin-api';
 import { ExtPluginApiBackendInitializationFn } from '@theia/plugin-ext/lib/common/plugin-ext-api-contribution';
 import * as che from '@eclipse-che/plugin';
-import { ApiFactory, createAPIFactory } from '../api-factory';
+import { CheApiFactory, createAPIFactory } from '../che-api';
 
 const pluginsApiImpl = new Map<string, typeof che>();
 let defaultApi: typeof che;
 let isLoadOverride = false;
-let cheApiFactory: ApiFactory;
+let cheApiFactory: CheApiFactory;
 let plugins: PluginManager;
 
 export const provideApi: ExtPluginApiBackendInitializationFn = (rpc: RPCProtocol, pluginManager: PluginManager) => {
