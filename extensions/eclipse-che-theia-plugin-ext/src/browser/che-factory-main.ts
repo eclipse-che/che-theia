@@ -9,8 +9,7 @@
  **********************************************************************/
 
 import { interfaces } from 'inversify';
-import { CheFactoryMain } from '../common/che-protocol';
-import { CheApiService } from '../common/che-protocol';
+import { CheFactoryMain, CheApiService } from '../common/che-protocol';
 import { che as cheApi } from '@eclipse-che/api';
 
 export class CheFactoryMainImpl implements CheFactoryMain {
