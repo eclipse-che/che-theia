@@ -10,8 +10,8 @@
 
 import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
 import { PLUGIN_RPC_CONTEXT, CheWorkspace, CheWorkspaceMain } from '../common/che-protocol';
+import * as che from '@eclipse-che/plugin';
 import { che as cheApi } from '@eclipse-che/api';
-import { KeyValue } from '@eclipse-che/plugin';
 
 export class CheWorkspaceImpl implements CheWorkspace {
 
@@ -21,7 +21,7 @@ export class CheWorkspaceImpl implements CheWorkspace {
         this.workspaceMain = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_WORKSPACE_MAIN);
     }
 
-    getSettings(): Promise<KeyValue> {
+    getSettings(): Promise<che.KeyValue> {
         throw new Error('Method not implemented.');
     }
 
@@ -45,7 +45,7 @@ export class CheWorkspaceImpl implements CheWorkspace {
         return this.workspaceMain.$update(workspaceId, workspace);
     }
 
-    create(config: cheApi.workspace.WorkspaceConfig, params: KeyValue): Promise<any> {
+    create(config: cheApi.workspace.WorkspaceConfig, params: che.KeyValue): Promise<any> {
         throw new Error('Method not implemented.');
     }
 

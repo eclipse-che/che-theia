@@ -7,6 +7,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
+
 import { ExtPluginApiProvider, ExtPluginApi } from '@theia/plugin-ext/lib/common/plugin-ext-api-contribution';
 import { injectable } from 'inversify';
 import * as path from 'path';

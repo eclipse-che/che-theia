@@ -10,19 +10,19 @@
 
 import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
 import { PLUGIN_RPC_CONTEXT, CheVariables, CheVariablesMain } from '../common/che-protocol';
-import { Disposable, Variable } from '@eclipse-che/plugin';
+import * as che from '@eclipse-che/plugin';
 
 export class CheVariablesImpl implements CheVariables{
 
     private readonly cheVariablesMain: CheVariablesMain;
-    private readonly variablesCache = new Map<number, Variable>();
+    private readonly variablesCache = new Map<number, che.Variable>();
     private callId = 0;
 
     constructor(rpc: RPCProtocol) {
         this.cheVariablesMain = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_VARIABLES_MAIN);
     }
 
-    async registerVariable(variable: Variable): Promise<Disposable> {
+    async registerVariable(variable: che.Variable): Promise<che.Disposable> {
         const token = this.addNewVariable(variable);
         await this.cheVariablesMain.$registerVariable({
             name: variable.name,
@@ -37,7 +37,7 @@ export class CheVariablesImpl implements CheVariables{
         };
     }
 
-    private addNewVariable(variable: Variable): number {
+    private addNewVariable(variable: che.Variable): number {
         const callId = this.callId ++;
         this.variablesCache.set(callId, variable);
         return callId;
