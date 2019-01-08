@@ -9,7 +9,7 @@
  **********************************************************************/
 
 import { ProxyIdentifier, createProxyIdentifier } from '@theia/plugin-ext/lib/api/rpc-protocol';
-import { che as api } from '@eclipse-che/api';
+import { che as cheApi } from '@eclipse-che/api';
 
 /**
  * Workspace plugin API
@@ -18,12 +18,12 @@ export interface CheWorkspace {
 }
 
 export interface CheWorkspaceMain {
-    $getCurrentWorkspace(): Promise<api.workspace.Workspace>;
+    $getCurrentWorkspace(): Promise<cheApi.workspace.Workspace>;
     // getAll(): Promise<Workspace[]>;
     // getAllByNamespace(namespace: string): Promise<Workspace[]>;
-    $getById(workspaceId: string): Promise<api.workspace.Workspace>;
+    $getById(workspaceId: string): Promise<cheApi.workspace.Workspace>;
     // create(config: WorkspaceConfig, params: ResourceCreateQueryParams): Promise<any>;
-    $update(workspaceId: string, workspace: api.workspace.Workspace): Promise<any>;
+    $update(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<any>;
     // deleteWorkspace(workspaceId: string): Promise<any>;
     // start(workspaceId: string, environmentName: string): Promise<any>;
     // startTemporary(config: WorkspaceConfig): Promise<any>;
@@ -38,16 +38,13 @@ export interface CheFactory {
 }
 
 export interface CheFactoryMain {
-    $getFactoryById(factoryId: string): Promise<api.factory.Factory>;
+    $getFactoryById(factoryId: string): Promise<cheApi.factory.Factory>;
 }
 
 /**
  * Variables plugin API
  */
 export interface CheVariables {
-    // registerVariable(variable: Variable): Promise<Disposable>;
-    // resolve(value: string): Promise<string | undefined>;
-
     $resolveVariable(variableId: number): Promise<string | undefined>;
 }
 
@@ -326,12 +323,12 @@ export const CheApiService = Symbol('CheApiService');
 
 export interface CheApiService {
 
-    currentWorkspace(): Promise<api.workspace.Workspace>;
+    currentWorkspace(): Promise<cheApi.workspace.Workspace>;
 
-    getWorkspaceById(workspaceId: string): Promise<api.workspace.Workspace>;
+    getWorkspaceById(workspaceId: string): Promise<cheApi.workspace.Workspace>;
 
-    updateWorkspace(workspaceId: string, workspace: api.workspace.Workspace): Promise<any>;
+    updateWorkspace(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<any>;
 
-    getFactoryById(factoryId: string): Promise<api.factory.Factory>;
+    getFactoryById(factoryId: string): Promise<cheApi.factory.Factory>;
 
 }

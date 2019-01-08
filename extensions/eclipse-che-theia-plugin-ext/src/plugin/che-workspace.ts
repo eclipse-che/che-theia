@@ -10,7 +10,7 @@
 
 import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
 import { PLUGIN_RPC_CONTEXT, CheWorkspace, CheWorkspaceMain } from '../common/che-protocol';
-import { che as api } from '@eclipse-che/api';
+import { che as cheApi } from '@eclipse-che/api';
 import { KeyValue } from '@eclipse-che/plugin';
 
 export class CheWorkspaceImpl implements CheWorkspace {
@@ -29,7 +29,7 @@ export class CheWorkspaceImpl implements CheWorkspace {
         throw new Error('Method not implemented.');
     }
 
-    startTemporary(config: api.workspace.WorkspaceConfig): Promise<any> {
+    startTemporary(config: cheApi.workspace.WorkspaceConfig): Promise<any> {
         throw new Error('Method not implemented.');
     }
 
@@ -41,27 +41,27 @@ export class CheWorkspaceImpl implements CheWorkspace {
         throw new Error('Method not implemented.');
     }
 
-    update(workspaceId: string, workspace: api.workspace.Workspace): Promise<any> {
+    update(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<any> {
         return this.workspaceMain.$update(workspaceId, workspace);
     }
 
-    create(config: api.workspace.WorkspaceConfig, params: KeyValue): Promise<any> {
+    create(config: cheApi.workspace.WorkspaceConfig, params: KeyValue): Promise<any> {
         throw new Error('Method not implemented.');
     }
 
-    getById(workspaceId: string): Promise<api.workspace.Workspace> {
+    getById(workspaceId: string): Promise<cheApi.workspace.Workspace> {
         return this.workspaceMain.$getById(workspaceId);
     }
 
-    getAllByNamespace(namespace: string): Promise<api.workspace.Workspace[]> {
+    getAllByNamespace(namespace: string): Promise<cheApi.workspace.Workspace[]> {
         throw new Error('Method not implemented.');
     }
 
-    getAll(): Promise<api.workspace.Workspace[]> {
+    getAll(): Promise<cheApi.workspace.Workspace[]> {
         throw new Error('Method not implemented.');
     }
 
-    getCurrentWorkspace(): Promise<api.workspace.Workspace> {
+    getCurrentWorkspace(): Promise<cheApi.workspace.Workspace> {
         return this.workspaceMain.$getCurrentWorkspace();
     }
 

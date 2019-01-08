@@ -13,6 +13,7 @@ import * as path from 'path';
 
 @injectable()
 export class ChePluginApiProvider implements ExtPluginApiProvider {
+
     provideApi(): ExtPluginApi {
         return {
             frontendExtApi: {
@@ -23,4 +24,5 @@ export class ChePluginApiProvider implements ExtPluginApiProvider {
             backendInitPath: path.join(__dirname, '../plugin/node/che-api-node-provider.js')
         };
     }
+
 }

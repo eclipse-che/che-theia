@@ -13,7 +13,7 @@
  * These API are NOT stable and subject to change. Use it on own risk.
  */
 
-import { che as api } from '@eclipse-che/api'
+import { che as cheApi } from '@eclipse-che/api'
 
 declare module '@eclipse-che/plugin' {
 
@@ -22,21 +22,21 @@ declare module '@eclipse-che/plugin' {
     }
 
     export namespace workspace {
-        export function getCurrentWorkspace(): Promise<api.workspace.Workspace>;
-        export function getAll(): Promise<api.workspace.Workspace[]>;
-        export function getAllByNamespace(namespace: string): Promise<api.workspace.Workspace[]>;
-        export function getById(workspaceId: string): Promise<api.workspace.Workspace>;
-        export function create(config: api.workspace.WorkspaceConfig, params: KeyValue): Promise<any>;
-        export function update(workspaceId: string, workspace: api.workspace.Workspace): Promise<any>;
+        export function getCurrentWorkspace(): Promise<cheApi.workspace.Workspace>;
+        export function getAll(): Promise<cheApi.workspace.Workspace[]>;
+        export function getAllByNamespace(namespace: string): Promise<cheApi.workspace.Workspace[]>;
+        export function getById(workspaceId: string): Promise<cheApi.workspace.Workspace>;
+        export function create(config: cheApi.workspace.WorkspaceConfig, params: KeyValue): Promise<any>;
+        export function update(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<any>;
         export function deleteWorkspace(workspaceId: string): Promise<any>;
         export function start(workspaceId: string, environmentName: string): Promise<any>;
-        export function startTemporary(config: api.workspace.WorkspaceConfig): Promise<any>;
+        export function startTemporary(config: cheApi.workspace.WorkspaceConfig): Promise<any>;
         export function stop(workspaceId: string): Promise<any>;
         export function getSettings(): Promise<KeyValue>;
     }
 
     export namespace factory {
-        export function getById(id: string): PromiseLike<che.factory.Factory>;
+        export function getById(id: string): PromiseLike<cheApi.factory.Factory>;
     }
 
     /**
@@ -56,6 +56,7 @@ declare module '@eclipse-che/plugin' {
          * @param value a string value to resolve. If the string contains '${<variable>}' the pattern will be replaced to a variables value.
          */
         export function resolve(value: string): Promise<string | undefined>;
+
     }
 
     export class Variable {
@@ -79,6 +80,7 @@ declare module '@eclipse-che/plugin' {
         resolve(): PromiseLike<string | undefined>;
 
         readonly isResolved: boolean;
+
     }
 
     export interface Disposable {
