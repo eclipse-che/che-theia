@@ -7,12 +7,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
+
 import { ExtPluginApiProvider, ExtPluginApi } from '@theia/plugin-ext/lib/common/plugin-ext-api-contribution';
 import { injectable } from 'inversify';
 import * as path from 'path';
 
 @injectable()
 export class ChePluginApiProvider implements ExtPluginApiProvider {
+
     provideApi(): ExtPluginApi {
         return {
             frontendExtApi: {
@@ -23,4 +25,5 @@ export class ChePluginApiProvider implements ExtPluginApiProvider {
             backendInitPath: path.join(__dirname, '../plugin/node/che-api-node-provider.js')
         };
     }
+
 }

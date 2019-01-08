@@ -9,8 +9,8 @@
  **********************************************************************/
 
 import { interfaces } from 'inversify';
-import { CheFactoryMain } from '../common/che-protocol';
-import { CheApiService, FactoryDto } from '../common/che-protocol';
+import { CheFactoryMain, CheApiService } from '../common/che-protocol';
+import { che as cheApi } from '@eclipse-che/api';
 
 export class CheFactoryMainImpl implements CheFactoryMain {
 
@@ -20,8 +20,8 @@ export class CheFactoryMainImpl implements CheFactoryMain {
         this.cheApiService = container.get(CheApiService);
     }
 
-    async $getFactoryById(factoryId: string): Promise<FactoryDto> {
-        return new Promise<FactoryDto>((resolve, reject) => {
+    async $getFactoryById(factoryId: string): Promise<cheApi.factory.Factory> {
+        return new Promise<cheApi.factory.Factory>((resolve, reject) => {
             this.cheApiService.getFactoryById(factoryId).then(factory => {
                 resolve(factory);
             }).catch(error => {

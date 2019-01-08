@@ -11,6 +11,7 @@
 import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
 import { PLUGIN_RPC_CONTEXT, CheWorkspace, CheWorkspaceMain } from '../common/che-protocol';
 import * as che from '@eclipse-che/plugin';
+import { che as cheApi } from '@eclipse-che/api';
 
 export class CheWorkspaceImpl implements CheWorkspace {
 
@@ -20,7 +21,7 @@ export class CheWorkspaceImpl implements CheWorkspace {
         this.workspaceMain = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_WORKSPACE_MAIN);
     }
 
-    getSettings(): Promise<che.WorkspaceSettings> {
+    getSettings(): Promise<che.KeyValue> {
         throw new Error('Method not implemented.');
     }
 
@@ -28,7 +29,7 @@ export class CheWorkspaceImpl implements CheWorkspace {
         throw new Error('Method not implemented.');
     }
 
-    startTemporary(config: che.WorkspaceConfig): Promise<any> {
+    startTemporary(config: cheApi.workspace.WorkspaceConfig): Promise<any> {
         throw new Error('Method not implemented.');
     }
 
@@ -40,27 +41,27 @@ export class CheWorkspaceImpl implements CheWorkspace {
         throw new Error('Method not implemented.');
     }
 
-    update(workspaceId: string, workspace: che.Workspace): Promise<any> {
+    update(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<any> {
         return this.workspaceMain.$update(workspaceId, workspace);
     }
 
-    create(config: che.WorkspaceConfig, params: che.ResourceCreateQueryParams): Promise<any> {
+    create(config: cheApi.workspace.WorkspaceConfig, params: che.KeyValue): Promise<any> {
         throw new Error('Method not implemented.');
     }
 
-    getById(workspaceId: string): Promise<che.Workspace> {
+    getById(workspaceId: string): Promise<cheApi.workspace.Workspace> {
         return this.workspaceMain.$getById(workspaceId);
     }
 
-    getAllByNamespace(namespace: string): Promise<che.Workspace[]> {
+    getAllByNamespace(namespace: string): Promise<cheApi.workspace.Workspace[]> {
         throw new Error('Method not implemented.');
     }
 
-    getAll(): Promise<che.Workspace[]> {
+    getAll(): Promise<cheApi.workspace.Workspace[]> {
         throw new Error('Method not implemented.');
     }
 
-    getCurrentWorkspace(): Promise<che.Workspace> {
+    getCurrentWorkspace(): Promise<cheApi.workspace.Workspace> {
         return this.workspaceMain.$getCurrentWorkspace();
     }
 

@@ -9,11 +9,17 @@
   dependencies:
     regenerator-runtime "^0.12.0"
 
-"@eclipse-che/workspace-client@^0.0.1-1545387823":
-  version "0.0.1-1545387823"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-client/-/workspace-client-0.0.1-1545387823.tgz#4c0cfd2aa230fc616039744962a66951ffa7132b"
-  integrity sha512-lTq6F7alJakilodn+nCzzgI2GEkNVCb9F7u3aeHYgVgqLdkj51zw7svZAGBQna8m1+6pYWrkQrzbEIs9jb+pKg==
+"@eclipse-che/api@^6.16.1":
+  version "6.16.1"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-6.16.1.tgz#5b5e70285cf27d525df3752c938388e36f7925d6"
+  integrity sha512-goL54uxAyRTrVMdRVmxgbvm73+8xDGq85X64Q+cVkQsylIkyq0BJHApWhKo4Le+DQSwgWJzIjf0fagX3LlmyJw==
+
+"@eclipse-che/workspace-client@^0.0.1-1546509769":
+  version "0.0.1-1546509769"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-client/-/workspace-client-0.0.1-1546509769.tgz#38b6bed7f244d693efd6999de99b9fd613606b72"
+  integrity sha512-ucdiUT38vh0t4JKRZXFYt32MP1IwIshQTVe9RN3gnDpAwKp+9yAN9J095/rWLbWN/V9k/pqRZ1/pflXoxAszdw==
   dependencies:
+    "@eclipse-che/api" "^6.16.1"
     axios "0.18.0"
     moxios "git://github.com/stoplightio/moxios#v1.3.0"
     websocket "1.0.23"
@@ -4924,9 +4930,9 @@ move-concurrently@^1.0.1:
     rimraf "^2.5.4"
     run-queue "^1.0.3"
 
-"moxios@git://github.com/stoplightio/moxios#v1.3.0":
+"moxios@git://github.com/stoplightio/moxios.git#v1.3.0":
   version "1.3.0"
-  resolved "git://github.com/stoplightio/moxios#9d702c8eafee4b02917d6bc400ae15f1e835cf51"
+  resolved "git://github.com/stoplightio/moxios.git#9d702c8eafee4b02917d6bc400ae15f1e835cf51"
   dependencies:
     class-autobind "^0.1.4"
 

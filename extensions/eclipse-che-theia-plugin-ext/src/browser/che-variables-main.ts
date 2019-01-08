@@ -53,4 +53,5 @@ export class CheVariablesMainImpl implements CheVariablesMain {
     $resolve(value: string): Promise<string | undefined> {
         return this.variableResolverService.resolve(value);
     }
+
 }

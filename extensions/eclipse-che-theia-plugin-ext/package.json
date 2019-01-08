@@ -16,7 +16,7 @@
         "@theia/core": "0.3.18",
         "@theia/plugin-ext": "0.3.18",
         "@eclipse-che/plugin": "^0.0.1-1545399167",
-        "@eclipse-che/workspace-client": "^0.0.1-1545387823"
+        "@eclipse-che/workspace-client": "^0.0.1-1546509769"
     },
     "devDependencies": {
         "rimraf": "2.6.2",
