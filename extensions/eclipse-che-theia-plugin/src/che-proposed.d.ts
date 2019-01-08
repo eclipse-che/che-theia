@@ -7,6 +7,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
+
 /**
  * This is the place for API experiments and proposals.
  * These API are NOT stable and subject to change. Use it on own risk.
@@ -39,34 +40,34 @@ declare module '@eclipse-che/plugin' {
     }
 
     /**
-    * Namespace for variables substitution functionality.
-    */
+     * Namespace for variables substitution functionality.
+     */
     export namespace variables {
         /**
-        * Register a variable.
-        *
-        * @param variable A variable to register.
-        */
+         * Register a variable.
+         *
+         * @param variable A variable to register.
+         */
         export function registerVariable(variable: Variable): Promise<Disposable>;
 
         /**
-        * Resolve string value.
-        *
-        * @param value a string value to resolve. If the string contains '${<variable>}' the pattern will be replaced to a variables value.
-        */
+         * Resolve string value.
+         *
+         * @param value a string value to resolve. If the string contains '${<variable>}' the pattern will be replaced to a variables value.
+         */
         export function resolve(value: string): Promise<string | undefined>;
     }
 
     export class Variable {
 
         /**
-        * Creates a new variable.
-        *
-        * @param name The variable's unique name.
-        * @param description The variable's human-readable description. Is presented in the user interface.
-        * @param value The variable's value that may be resolved later.
-        * @param isResolved `true` when there is a value already associated and the variable shouldn't be resolved again, i.e. it's value doesn't depend on the current context.
-        */
+         * Creates a new variable.
+         *
+         * @param name The variable's unique name.
+         * @param description The variable's human-readable description. Is presented in the user interface.
+         * @param value The variable's value that may be resolved later.
+         * @param isResolved `true` when there is a value already associated and the variable shouldn't be resolved again, i.e. it's value doesn't depend on the current context.
+         */
         constructor(name: string, description: string, value?: string, isResolved?: boolean);
 
         name: string;
