@@ -7,8 +7,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
-import { CheApiService, WorkspaceDto } from '../common/che-protocol';
-import { Workspace, Factory } from '@eclipse-che/plugin';
+import { CheApiService } from '../common/che-protocol';
+import { che as api } from '@eclipse-che/api';
 import WorkspaceClient, { IRestAPIConfig, IRemoteAPI } from '@eclipse-che/workspace-client';
 import { injectable } from 'inversify';
 
@@ -17,7 +17,7 @@ export class CheApiServiceImpl implements CheApiService {
 
     private workspaceRestAPI: IRemoteAPI | undefined;
 
-    async currentWorkspace(): Promise<WorkspaceDto> {
+    async currentWorkspace(): Promise<api.workspace.Workspace> {
         try {
             const workspaceId = process.env.CHE_WORKSPACE_ID;
             if (!workspaceId) {
@@ -26,7 +26,7 @@ export class CheApiServiceImpl implements CheApiService {
 
             const wsClient = await this.wsClient();
             if (wsClient) {
-                return await wsClient!.getById<Workspace>(workspaceId);
+                return await wsClient!.getById<api.workspace.Workspace>(workspaceId);
             }
 
             return Promise.reject('Cannot create Che API REST Client');
@@ -36,7 +36,7 @@ export class CheApiServiceImpl implements CheApiService {
         }
     }
 
-    async getWorkspaceById(workspaceId: string): Promise<WorkspaceDto> {
+    async getWorkspaceById(workspaceId: string): Promise<api.workspace.Workspace> {
         try {
             if (!workspaceId) {
                 return Promise.reject('Che Workspace id is not set');
@@ -44,7 +44,7 @@ export class CheApiServiceImpl implements CheApiService {
 
             const wsClient = await this.wsClient();
             if (wsClient) {
-                return await wsClient!.getById<Workspace>(workspaceId);
+                return await wsClient!.getById<api.workspace.Workspace>(workspaceId);
             }
 
             return Promise.reject('Cannot create Che API REST Client');
@@ -54,7 +54,7 @@ export class CheApiServiceImpl implements CheApiService {
         }
     }
 
-    async updateWorkspace(workspaceId: string, workspace: WorkspaceDto): Promise<any> {
+    async updateWorkspace(workspaceId: string, workspace: api.workspace.Workspace): Promise<any> {
         try {
             if (!workspaceId) {
                 return Promise.reject('Che Workspace id is not set');
@@ -72,11 +72,11 @@ export class CheApiServiceImpl implements CheApiService {
         }
     }
 
-    async getFactoryById(factoryId: string): Promise<Factory> {
+    async getFactoryById(factoryId: string): Promise<api.factory.Factory> {
         try {
             const client = await this.wsClient();
             if (client) {
-                return await client.getFactory<Factory>(factoryId);
+                return await client.getFactory<api.factory.Factory>(factoryId);
             }
 
             return Promise.reject(`Unable to get factory with ID ${factoryId}`);

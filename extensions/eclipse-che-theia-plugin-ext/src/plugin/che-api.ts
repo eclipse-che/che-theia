@@ -9,16 +9,10 @@
  **********************************************************************/
 
 import * as che from '@eclipse-che/plugin';
+import { che as api } from '@eclipse-che/api';
 import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
 import { Plugin } from '@theia/plugin-ext/lib/api/plugin-api';
-import {
-    Workspace,
-    WorkspaceConfig,
-    ResourceCreateQueryParams,
-    WorkspaceSettings,
-    Variable,
-    Disposable
-} from '@eclipse-che/plugin';
+import { Variable, Disposable, KeyValue } from '@eclipse-che/plugin';
 import { CheWorkspaceImpl } from './che-workspace';
 import { CheVariablesImpl } from './che-variables';
 import { PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
@@ -35,22 +29,22 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
 
     return function (plugin: Plugin): typeof che {
         const workspace: typeof che.workspace = {
-            getCurrentWorkspace(): Promise<Workspace> {
+            getCurrentWorkspace(): Promise<api.workspace.Workspace> {
                 return cheWorkspaceImpl.getCurrentWorkspace();
             },
-            getAll(): Promise<Workspace[]> {
+            getAll(): Promise<api.workspace.Workspace[]> {
                 return cheWorkspaceImpl.getAll();
             },
-            getAllByNamespace(namespace: string): Promise<Workspace[]> {
+            getAllByNamespace(namespace: string): Promise<api.workspace.Workspace[]> {
                 return cheWorkspaceImpl.getAllByNamespace(namespace);
             },
-            getById(workspaceKey: string): Promise<Workspace> {
+            getById(workspaceKey: string): Promise<api.workspace.Workspace> {
                 return cheWorkspaceImpl.getById(workspaceKey);
             },
-            create(config: WorkspaceConfig, params: ResourceCreateQueryParams): Promise<any> {
+            create(config: api.workspace.WorkspaceConfig, params: KeyValue): Promise<any> {
                 return cheWorkspaceImpl.create(config, params);
             },
-            update(workspaceId: string, workspace: Workspace): Promise<any> {
+            update(workspaceId: string, workspace: api.workspace.Workspace): Promise<any> {
                 return cheWorkspaceImpl.update(workspaceId, workspace);
             },
             deleteWorkspace(workspaceId: string): Promise<any> {
@@ -59,19 +53,19 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             start(workspaceId: string, environmentName: string): Promise<any> {
                 return cheWorkspaceImpl.start(workspaceId, environmentName);
             },
-            startTemporary(config: WorkspaceConfig): Promise<any> {
+            startTemporary(config: api.workspace.WorkspaceConfig): Promise<any> {
                 return cheWorkspaceImpl.startTemporary(config);
             },
             stop(workspaceId: string): Promise<any> {
                 return cheWorkspaceImpl.stop(workspaceId);
             },
-            getSettings(): Promise<WorkspaceSettings> {
+            getSettings(): Promise<KeyValue> {
                 return cheWorkspaceImpl.getSettings();
             }
         };
 
         const factory: typeof che.factory = {
-            getById(id: string): PromiseLike<che.Factory> {
+            getById(id: string): PromiseLike<api.factory.Factory> {
                 return cheFactoryImpl.getFactoryById(id);
             }
         };

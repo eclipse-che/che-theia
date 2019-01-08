@@ -7,7 +7,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
+
 import './che-proposed';
+
 declare module '@eclipse-che/plugin' {
 
 }

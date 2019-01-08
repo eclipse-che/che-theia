@@ -56,4 +56,5 @@ export class CheVariablesImpl implements CheVariables{
             return await variable.resolve();
         }
     }
+
 }

@@ -13,6 +13,7 @@ import { ExtPluginApiFrontendInitializationFn } from '@theia/plugin-ext/lib/comm
 import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
 import { createAPIFactory } from '../che-api';
 import * as che from '@eclipse-che/plugin';
+
 // tslint:disable-next-line:no-any
 const ctx = self as any;
 const pluginsApiImpl = new Map<string, typeof che>();

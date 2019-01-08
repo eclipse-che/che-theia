@@ -10,7 +10,7 @@
 
 import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
 import { PLUGIN_RPC_CONTEXT, CheFactory, CheFactoryMain } from '../common/che-protocol';
-import * as che from '@eclipse-che/plugin';
+import { che as api } from '@eclipse-che/api';
 
 export class CheFactoryImpl implements CheFactory {
 
@@ -20,7 +20,7 @@ export class CheFactoryImpl implements CheFactory {
         this.factoryMain = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_FACTORY_MAIN);
     }
 
-    async getFactoryById(factoryId: string): Promise<che.Factory> {
+    async getFactoryById(factoryId: string): Promise<api.factory.Factory> {
         try {
             return await this.factoryMain.$getFactoryById(factoryId);
         } catch (e) {

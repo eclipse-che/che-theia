@@ -10,6 +10,9 @@
   "files": [
     "src"
   ],
+  "dependencies": {
+    "@eclipse-che/api": "^6.16.1"
+  },
   "scripts": {
     "prepare": "",
     "clean": "",
