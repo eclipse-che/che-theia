@@ -9,7 +9,6 @@
     "publish:next": "lerna run publish:next"
   },
   "workspaces": [
-    "extensions/*",
-    "plugins/*"
+    "extensions/*"
   ]
 }

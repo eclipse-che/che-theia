@@ -1,0 +1,82 @@
+{
+  "defaultSeverity": "error",
+  "rules": {
+    "file-header": [
+      true,
+      "SPDX-License-Identifier: EPL-2\\.0"
+    ],
+    "class-name": true,
+    "comment-format": [
+      true,
+      "check-space"
+    ],
+    "curly": true,
+    "eofline": true,
+    "forin": true,
+    "indent": [
+      true,
+      "spaces"
+    ],
+    "jsdoc-format": [
+      true,
+      "check-multiline-start"
+    ],
+    "max-line-length": [
+      true,
+      180
+    ],
+    "no-consecutive-blank-lines": true,
+    "no-shadowed-variable": true,
+    "no-string-throw": true,
+    "no-trailing-whitespace": true,
+    "no-var-keyword": true,
+    "one-line": [
+      true,
+      "check-open-brace",
+      "check-catch",
+      "check-else",
+      "check-whitespace"
+    ],
+    "prefer-const": {
+      "options": [
+        true,
+        {
+          "destructuring": "all"
+        }
+      ]
+    },
+    "radix": true,
+    "semicolon": [
+      true,
+      "always",
+      "ignore-interfaces"
+    ],
+    "trailing-comma": [
+      false
+    ],
+    "triple-equals": [
+      true,
+      "allow-null-check"
+    ],
+    "typedef-whitespace": [
+      true,
+      {
+        "call-signature": "nospace",
+        "index-signature": "nospace",
+        "parameter": "nospace",
+        "property-declaration": "nospace",
+        "variable-declaration": "nospace"
+      }
+    ],
+    "variable-name": false,
+    "whitespace": [
+      true,
+      "check-branch",
+      "check-decl",
+      "check-operator",
+      "check-separator",
+      "check-type"
+    ]
+  }
+}
+
