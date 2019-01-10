@@ -9,9 +9,9 @@
  **********************************************************************/
 
 import * as theia from '@theia/plugin';
-import { ContainersService, IWorkspaceMachine } from './containers-service';
+import { ContainersService, IContainer } from './containers-service';
 
-interface TreeNodeItem {
+interface ITreeNodeItem {
     id: string;
     name: string;
     tooltip: string;
@@ -20,9 +20,9 @@ interface TreeNodeItem {
     commandId?: string
 }
 
-export class ContainersTreeDataProvider implements theia.TreeDataProvider<TreeNodeItem> {
+export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeNodeItem> {
     private ids: string[];
-    private treeNodeItems: TreeNodeItem[];
+    private treeNodeItems: ITreeNodeItem[];
     private onDidChangeTreeDataEmitter: theia.EventEmitter<undefined>;
 
     readonly onDidChangeTreeData: theia.Event<undefined>;
@@ -45,21 +45,24 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<TreeNo
         this.ids.length = 0;
         this.treeNodeItems.length = 0;
         await containersService.updateMachines();
-        containersService.machines.forEach((machine: IWorkspaceMachine) => {
-            const treeItem: TreeNodeItem = {
+        containersService.containers.forEach((container: IContainer) => {
+            const treeItem: ITreeNodeItem = {
                 id: this.getRandId(),
-                name: machine.machineName,
-                tooltip: `workspace container status ${machine.status}`
+                name: container.name,
+                tooltip: 'container name'
             };
-            switch (machine.status) {
+            switch (container.status) {
                 case 'STARTING':
                     treeItem.iconPath = 'fa-circle medium-yellow';
+                    treeItem.tooltip = 'container is STARTING';
                     break;
                 case 'RUNNING':
                     treeItem.iconPath = 'fa-circle medium-green';
+                    treeItem.tooltip = 'container is RUNNING';
                     break;
                 case 'FAILED':
                     treeItem.iconPath = 'fa-circle medium-red';
+                    treeItem.tooltip = 'container is FAILED';
                     break;
                 default:
                     treeItem.iconPath = 'fa-circle-o';
@@ -68,26 +71,32 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<TreeNo
             this.treeNodeItems.push({
                 id: this.getRandId(),
                 parentId: treeItem.id,
-                name: 'terminal',
-                iconPath: 'fa-terminal',
-                tooltip: `new terminal for ${machine.machineName}`,
-                commandId: `terminal-for-${machine.machineName}-container:new`
+                name: 'New terminal',
+                iconPath: 'fa-terminal medium-yellow',
+                tooltip: `open a new terminal for ${container.name}`,
+                commandId: `terminal-for-${container.name}-container:new`
             });
-            const servers = machine.servers;
+            const servers = container.servers;
             if (!servers) {
                 return;
             }
             Object.keys(servers).forEach((serverName: string) => {
                 const server = servers[serverName];
-                if (!server || !server.url) {
+                if (!server) {
                     return;
                 }
-                this.treeNodeItems.push({
+                const treeNodeItem: ITreeNodeItem = {
                     id: this.getRandId(),
                     parentId: treeItem.id,
-                    name: ` [${serverName}](${server.url})`,
-                    tooltip: server.url
-                });
+                    name: serverName,
+                    iconPath: 'fa-info-circle medium-blue',
+                    tooltip: server.url ? server.url : 'server'
+                };
+                if (server.url && server.url.startsWith('http')) {
+                    treeNodeItem.name = ` [${serverName}](${server.url})`;
+                    treeNodeItem.iconPath = 'fa-share medium-blue';
+                }
+                this.treeNodeItems.push(treeNodeItem);
             });
         });
     }
@@ -108,7 +117,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<TreeNo
         this.onDidChangeTreeDataEmitter.dispose();
     }
 
-    getTreeItem(element: TreeNodeItem): theia.TreeItem {
+    getTreeItem(element: ITreeNodeItem): theia.TreeItem {
         const treeItem: theia.TreeItem = {
             label: element.name,
             tooltip: element.tooltip
@@ -125,7 +134,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<TreeNo
         return treeItem;
     }
 
-    getChildren(element?: TreeNodeItem): TreeNodeItem[] {
+    getChildren(element?: ITreeNodeItem): ITreeNodeItem[] {
         if (element) {
             return this.treeNodeItems.filter(item => item.parentId === element.id);
         } else {

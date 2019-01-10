@@ -10,22 +10,21 @@
 
 import * as che from '@eclipse-che/plugin';
 
-export interface IWorkspaceMachine {
-    machineName: string;
+export interface IContainer {
+    name: string;
+    status?: 'STARTING' | 'RUNNING' | 'STOPPED' | 'FAILED';
     servers?: {
         [serverRef: string]: {
             url?: string;
-            port?: string;
         }
     };
-    status?: 'STARTING' | 'RUNNING' | 'STOPPED' | 'FAILED';
 }
 
 export class ContainersService {
-
-    private runtimeMachines: Array<IWorkspaceMachine> = [];
+    private _containers: Array<IContainer>;
 
     constructor() {
+        this._containers = [];
     }
 
     async updateMachines(): Promise<void> {
@@ -39,16 +38,32 @@ export class ContainersService {
             || workspace!.config!.environments![workspace.config!.defaultEnv!].machines
             || {};
 
-        this.runtimeMachines.length = 0;
-
+        this._containers.length = 0;
         Object.keys(workspaceMachines).forEach((machineName: string) => {
-            const machine = <IWorkspaceMachine>workspaceMachines[machineName];
-            machine.machineName = machineName;
-            this.runtimeMachines.push(machine);
+            const machine = <{
+                servers?: {
+                    [serverRef: string]: { url?: string; }
+                },
+                status?: 'STARTING' | 'RUNNING' | 'STOPPED' | 'FAILED';
+            }>workspaceMachines[machineName];
+            const container: IContainer = {
+                name: machineName,
+                status: machine.status
+            };
+            if (machine && machine.servers) {
+                container.servers = {};
+                Object.keys(machine.servers).forEach((serverName: string) => {
+                    const server = machine!.servers![serverName]!;
+                    if (server && server.url) {
+                        container!.servers![serverName] = { url: server!.url };
+                    }
+                });
+            }
+            this._containers.push(container);
         });
     }
 
-    get machines(): Array<IWorkspaceMachine> {
-        return this.runtimeMachines;
+    get containers(): Array<IContainer> {
+        return this._containers;
     }
 }
