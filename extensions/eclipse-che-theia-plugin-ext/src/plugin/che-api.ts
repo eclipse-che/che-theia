@@ -26,7 +26,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
     const cheFactoryImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_FACTORY, new CheFactoryImpl(rpc));
     const cheVariablesImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_VARIABLES, new CheVariablesImpl(rpc));
 
-    return function (plugin: Plugin): typeof che {
+    return function(plugin: Plugin): typeof che {
         const workspace: typeof che.workspace = {
             getCurrentWorkspace(): Promise<cheApi.workspace.Workspace> {
                 return cheWorkspaceImpl.getCurrentWorkspace();

@@ -28,7 +28,7 @@ export class CheVariablesMainImpl implements CheVariablesMain {
         this.disposableMap = new Map()
     }
 
-    async $registerVariable(variable: Variable ): Promise<void> {
+    async $registerVariable(variable: Variable): Promise<void> {
         const handle = (id: number) => {
             return this.proxy.$resolveVariable(id);
         };

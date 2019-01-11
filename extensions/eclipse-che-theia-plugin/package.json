@@ -1,23 +1,28 @@
 {
-  "name": "@eclipse-che/plugin",
-  "version": "0.0.1",
-  "description": "Eclipse Che specific Theia plugin API",
-  "publishConfig": {
-    "access": "public"
-  },
-  "license": "EPL-2.0",
-  "types": "./src/che.d.ts",
-  "files": [
-    "src"
-  ],
-  "dependencies": {
-    "@eclipse-che/api": "^6.16.1"
-  },
-  "scripts": {
-    "prepare": "",
-    "clean": "",
-    "build": "",
-    "watch": "",
-    "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
-  }
+    "name": "@eclipse-che/plugin",
+    "version": "0.0.1",
+    "description": "Eclipse Che specific Theia plugin API",
+    "publishConfig": {
+        "access": "public"
+    },
+    "license": "EPL-2.0",
+    "types": "./src/che.d.ts",
+    "files": [
+        "src"
+    ],
+    "dependencies": {
+        "@eclipse-che/api": "^6.16.1"
+    },
+    "scripts": {
+        "prepare": "",
+        "format-code": "tsfmt -r",
+        "clean": "",
+        "build": "yarn run format-code",
+        "watch": "",
+        "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
+    },
+	"devDependencies": {
+        "typescript": "^2.9.2",
+		"typescript-formatter": "7.2.2"
+	}
 }
