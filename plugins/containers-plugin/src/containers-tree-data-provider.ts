@@ -86,12 +86,12 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
             if (!serverKeys.length) {
                 return;
             }
-            const serversId = this.getRandId();
+            const endpointsId = this.getRandId();
             this.treeNodeItems.push({
-                id: serversId,
+                id: endpointsId,
                 parentId: treeItem.id,
-                name: 'servers',
-                tooltip: 'servers',
+                name: 'endpoints',
+                tooltip: 'endpoints',
                 isExpanded: true
             });
             serverKeys.forEach((serverName: string) => {
@@ -101,10 +101,10 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                 }
                 const treeNodeItem: ITreeNodeItem = {
                     id: this.getRandId(),
-                    parentId: serversId,
+                    parentId: endpointsId,
                     name: serverName,
                     iconPath: 'fa-info-circle medium-blue',
-                    tooltip: server.url ? server.url : 'server'
+                    tooltip: server.url ? server.url : 'endpoint'
                 };
                 if (server.url && server.url.startsWith('http')) {
                     treeNodeItem.name = ` [${serverName}](${server.url})`;
