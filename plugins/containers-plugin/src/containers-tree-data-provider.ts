@@ -17,7 +17,8 @@ interface ITreeNodeItem {
     tooltip: string;
     iconPath?: string;
     parentId?: string;
-    commandId?: string
+    commandId?: string;
+    isExpanded?: boolean;
 }
 
 export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeNodeItem> {
@@ -49,7 +50,8 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
             const treeItem: ITreeNodeItem = {
                 id: this.getRandId(),
                 name: container.name,
-                tooltip: 'container name'
+                tooltip: 'container name',
+                isExpanded: true
             };
             switch (container.status) {
                 case 'STARTING':
@@ -80,14 +82,26 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
             if (!servers) {
                 return;
             }
-            Object.keys(servers).forEach((serverName: string) => {
+            const serverKeys = Object.keys(servers);
+            if (!serverKeys.length) {
+                return;
+            }
+            const serversId = this.getRandId();
+            this.treeNodeItems.push({
+                id: serversId,
+                parentId: treeItem.id,
+                name: 'servers',
+                tooltip: 'servers',
+                isExpanded: true
+            });
+            serverKeys.forEach((serverName: string) => {
                 const server = servers[serverName];
                 if (!server) {
                     return;
                 }
                 const treeNodeItem: ITreeNodeItem = {
                     id: this.getRandId(),
-                    parentId: treeItem.id,
+                    parentId: serversId,
                     name: serverName,
                     iconPath: 'fa-info-circle medium-blue',
                     tooltip: server.url ? server.url : 'server'
@@ -122,14 +136,14 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
             label: element.name,
             tooltip: element.tooltip
         };
-        if (element.parentId === undefined) {
+        if (element.isExpanded) {
             treeItem.collapsibleState = theia.TreeItemCollapsibleState.Expanded;
         }
         if (element.iconPath) {
-            treeItem.iconPath = element.iconPath
+            treeItem.iconPath = element.iconPath;
         }
         if (element.commandId) {
-            treeItem.command = { id: element.commandId }
+            treeItem.command = { id: element.commandId };
         }
         return treeItem;
     }
