@@ -1,10 +1,14 @@
 {
+  "version": "0.0.1",
   "npmClient": "yarn",
   "command": {
     "run": {
       "stream": true
     }
   },
-  "version": "0.0.1",
-  "useWorkspaces": true
+  "useWorkspaces": false,
+  "packages": [
+    "extensions/*",
+    "plugins/*"
+  ]
 }

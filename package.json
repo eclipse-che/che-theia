@@ -2,13 +2,11 @@
   "name": "root",
   "private": true,
   "devDependencies": {
-    "lerna": "^3.5.0"
+    "lerna": "^3.8.1"
   },
   "scripts": {
-    "prepare": "lerna run prepare",
+    "prepare": "yarn run bootstrap && lerna run prepare",
+    "bootstrap": "lerna bootstrap --ignore-scripts",
     "publish:next": "lerna run publish:next"
-  },
-  "workspaces": [
-    "extensions/*"
-  ]
+  }
 }
