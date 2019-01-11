@@ -1,5 +1,5 @@
 {
-  "name": "containers-plugin",
+  "name": "@eclipse-che/theia-containers-plugin",
   "publisher": "theia",
   "keywords": [
     "theia-plugin"
