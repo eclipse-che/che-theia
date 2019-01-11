@@ -1,0 +1,54 @@
+{
+  "name": "containers-plugin",
+  "publisher": "theia",
+  "keywords": [
+    "theia-plugin"
+  ],
+  "version": "0.0.1",
+  "license": "EPL-2.0",
+  "files": [
+    "src"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "right": [
+        {
+          "id": "containers",
+          "title": "Containers"
+        }
+      ]
+    },
+    "views": {
+      "containers": [
+        {
+          "id": "containers",
+          "name": "Workspace"
+        }
+      ]
+    }
+  },
+  "devDependencies": {
+    "@theia/plugin": "next",
+    "@theia/plugin-packager": "latest",
+    "@eclipse-che/plugin": "latest",
+    "rimraf": "2.6.2",
+    "typescript-formatter": "7.2.2",
+    "typescript": "2.9.2"
+  },
+  "dependencies": {
+  },
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "format-code": "tsfmt -r",
+    "watch": "tsc -watch",
+    "compile": "tsc",
+    "build": "yarn run format-code && yarn run compile && theia:plugin pack"
+  },
+  "engines": {
+    "theiaPlugin": "next"
+  },
+  "theiaPlugin": {
+    "backend": "lib/containers-plugin.js"
+  }
+}
