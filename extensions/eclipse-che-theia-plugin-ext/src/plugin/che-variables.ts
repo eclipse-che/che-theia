@@ -12,7 +12,7 @@ import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
 import { PLUGIN_RPC_CONTEXT, CheVariables, CheVariablesMain } from '../common/che-protocol';
 import * as che from '@eclipse-che/plugin';
 
-export class CheVariablesImpl implements CheVariables{
+export class CheVariablesImpl implements CheVariables {
 
     private readonly cheVariablesMain: CheVariablesMain;
     private readonly variablesCache = new Map<number, che.Variable>();
@@ -38,7 +38,7 @@ export class CheVariablesImpl implements CheVariables{
     }
 
     private addNewVariable(variable: che.Variable): number {
-        const callId = this.callId ++;
+        const callId = this.callId++;
         this.variablesCache.set(callId, variable);
         return callId;
     }
@@ -49,7 +49,7 @@ export class CheVariablesImpl implements CheVariables{
 
     async $resolveVariable(variableId: number): Promise<string | undefined> {
         const variable = this.variablesCache.get(variableId);
-        if (variable ) {
+        if (variable) {
             if (variable.isResolved && variable.value) {
                 return variable.value;
             }
