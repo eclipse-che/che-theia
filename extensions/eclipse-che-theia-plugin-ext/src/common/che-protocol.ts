@@ -10,7 +10,8 @@
 
 import { ProxyIdentifier, createProxyIdentifier } from '@theia/plugin-ext/lib/api/rpc-protocol';
 import { che as cheApi } from '@eclipse-che/api';
-
+import * as che from '@eclipse-che/plugin';
+import { Event, JsonRpcServer } from '@theia/core';
 /**
  * Workspace plugin API
  */
@@ -52,6 +53,20 @@ export interface CheVariablesMain {
     $registerVariable(variable: Variable): Promise<void>;
     $disposeVariable(id: number): Promise<void>;
     $resolve(value: string): Promise<string | undefined>;
+}
+
+export interface CheTask {
+    registerTaskRunner(type: string, runner: che.TaskRunner): Promise<che.Disposable>;
+    fireTaskExited(taskId: number): Promise<void>;
+    $runTask(id: number, config: che.TaskConfiguration, ctx?: string): Promise<void>;
+    $killTask(id: number): Promise<void>;
+    $getTaskInfo(id: number): Promise<che.TaskInfo | undefined>;
+}
+
+export const CheTaskMain = Symbol('CheTaskMain');
+export interface CheTaskMain {
+    $registerTaskRunner(type: string): Promise<void>;
+    $disposeTaskRunner(type: string): Promise<void>;
 }
 
 export interface Variable {
@@ -313,6 +328,8 @@ export const PLUGIN_RPC_CONTEXT = {
 
     CHE_VARIABLES: <ProxyIdentifier<CheVariables>>createProxyIdentifier<CheVariables>('CheVariables'),
     CHE_VARIABLES_MAIN: <ProxyIdentifier<CheVariablesMain>>createProxyIdentifier<CheVariablesMain>('CheVariablesMain'),
+    CHE_TASK: <ProxyIdentifier<CheTask>>createProxyIdentifier<CheTask>('CheTask'),
+    CHE_TASK_MAIN: <ProxyIdentifier<CheTaskMain>>createProxyIdentifier<CheTaskMain>('CheTaskMain'),
 };
 
 // Theia RPC protocol
@@ -331,4 +348,23 @@ export interface CheApiService {
 
     getFactoryById(factoryId: string): Promise<cheApi.factory.Factory>;
 
+}
+
+export const CHE_TASK_SERVICE_PATH = '/che-task-service';
+
+export const CheTaskService = Symbol('CheTaskService');
+export interface CheTaskService extends JsonRpcServer<CheTaskClient> {
+    registerTaskRunner(type: string): Promise<void>;
+    disposeTaskRunner(type: string): Promise<void>;
+    disconnectClient(client: CheTaskClient): void;
+}
+
+export const CheTaskClient = Symbol('CheTaskClient');
+export interface CheTaskClient {
+    runTask(id: number, taskConfig: che.TaskConfiguration, ctx?: string): Promise<void>;
+    killTask(id: number): Promise<void>;
+    getTaskInfo(id: number): Promise<che.TaskInfo | undefined>;
+    setTaskInfoHandler(func: (id: number) => Promise<che.TaskInfo | undefined>): void;
+    setRunTaskHandler(func: (id: number, config: che.TaskConfiguration, ctx?: string) => Promise<void>): void;
+    onKillEvent: Event<number>
 }
