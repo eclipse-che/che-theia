@@ -1,0 +1,42 @@
+{
+  "name": "che-theia-terminal",
+  "keywords": [
+    "theia-extension",
+    "terminal"
+  ],
+  "version": "0.0.1",
+  "contributors": [
+    {
+      "name": "Oleksandr Andriienko",
+      "email": "oandriie@redhat.com"
+    }
+  ],
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "@theia/core": "0.3.17",
+    "@theia/terminal": "0.3.17",
+    "xterm": "3.9.1",
+    "@eclipse-che/workspace-client": "latest",
+    "@eclipse-che/api": "latest"
+  },
+  "license": "EPL-2.0",
+  "devDependencies": {
+    "typescript": "2.9.2",
+    "rimraf": "2.6.2"
+  },
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "theiaExtensions": [
+    {
+      "frontend": "lib/browser/terminal-frontend-module",
+      "backend": "lib/node/terminal-backend-module"
+    }
+  ]
+}
