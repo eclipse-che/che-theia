@@ -123,6 +123,6 @@ declare module '@eclipse-che/plugin' {
         readonly label: string;
 
         /** Additional task type specific properties. */
-        readonly [key: string]: string;
+        readonly [key: string]: any;
     }
 }
