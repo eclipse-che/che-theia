@@ -87,4 +87,42 @@ declare module '@eclipse-che/plugin' {
         dispose(): PromiseLike<void>;
     }
 
+    export namespace task {
+        export function registerTaskRunner(type: string, runner: TaskRunner): Promise<Disposable>;
+        export function fireTaskExited(id: number): Promise<void>;
+    }
+
+    /** A Task Runner knows how to run a Task of a particular type. */
+    export interface TaskRunner {
+        /** Runs a task based on the given task configuration. */
+        run(taskConfig: TaskConfiguration, ctx?: string): Promise<Task>;
+    }
+
+    export interface Task {
+        /** Terminates the task. */
+        kill(): Promise<void>;
+        /** Returns runtime information about task. */
+        getRuntimeInfo(): TaskInfo;
+    }
+
+    /** Runtime information about Task. */
+    export interface TaskInfo {
+        /** internal unique task id */
+        readonly taskId: number,
+        /** terminal id. Defined if task is run as a terminal process */
+        readonly terminalId?: number,
+        /** context that was passed as part of task creation, if any */
+        readonly ctx?: string,
+        /** task config used for launching a task */
+        readonly config: TaskConfiguration
+    }
+
+    export interface TaskConfiguration {
+        readonly type: string;
+        /** A label that uniquely identifies a task configuration */
+        readonly label: string;
+
+        /** Additional task type specific properties. */
+        readonly [key: string]: string;
+    }
 }
