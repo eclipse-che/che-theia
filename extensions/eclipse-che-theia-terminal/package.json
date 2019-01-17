@@ -1,5 +1,5 @@
 {
-  "name": "che-theia-terminal",
+  "name": "@eclipse-che/theia-terminal",
   "keywords": [
     "theia-extension",
     "terminal"
