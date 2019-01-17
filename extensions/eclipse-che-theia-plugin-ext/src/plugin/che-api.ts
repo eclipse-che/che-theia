@@ -16,7 +16,6 @@ import { CheWorkspaceImpl } from './che-workspace';
 import { CheVariablesImpl } from './che-variables';
 import { PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
 import { CheFactoryImpl } from './che-factory';
-import { CheTaskImpl } from './che-task-impl';
 
 export interface CheApiFactory {
     (plugin: Plugin): typeof che;
@@ -26,7 +25,6 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
     const cheWorkspaceImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_WORKSPACE, new CheWorkspaceImpl(rpc));
     const cheFactoryImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_FACTORY, new CheFactoryImpl(rpc));
     const cheVariablesImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_VARIABLES, new CheVariablesImpl(rpc));
-    const cheTaskImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_TASK, new CheTaskImpl(rpc));
 
     return function(plugin: Plugin): typeof che {
         const workspace: typeof che.workspace = {
@@ -80,20 +78,10 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             }
         };
 
-        const task: typeof che.task = {
-            registerTaskRunner(type: string, runner: che.TaskRunner): Promise<che.Disposable> {
-                return cheTaskImpl.registerTaskRunner(type, runner);
-            },
-            fireTaskExited(id: number): Promise<void> {
-                return cheTaskImpl.fireTaskExited(id);
-            }
-        };
-
         return <typeof che>{
             workspace,
             factory,
-            variables: variables,
-            task
+            variables
         };
     };
 
