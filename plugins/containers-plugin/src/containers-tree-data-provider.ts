@@ -9,7 +9,7 @@
  **********************************************************************/
 
 import * as theia from '@theia/plugin';
-import { ContainersService, IContainer } from './containers-service';
+import { IContainer } from './containers-service';
 
 interface ITreeNodeItem {
     id: string;
@@ -37,21 +37,11 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
 
         this.onDidChangeTreeDataEmitter = new theia.EventEmitter<undefined>();
         this.onDidChangeTreeData = this.onDidChangeTreeDataEmitter.event;
-
-        const containersService = new ContainersService();
-
-        this.updateContainersTreeData(containersService).then(() => {
-            this.onDidChangeTreeDataEmitter.fire();
-        }, error => {
-            console.error(error);
-        });
     }
 
-    private async updateContainersTreeData(containersService: ContainersService): Promise<void> {
+    updateContainersTreeData(containers: IContainer[]): void {
         this.ids.length = 0;
         this.treeNodeItems.length = 0;
-        await containersService.updateMachines();
-        const containers = containersService.containers;
         const pluginsDir = {
             id: this.getRandId(),
             name: 'plugins',
@@ -139,6 +129,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
         if (hasPlugin) {
             this.treeNodeItems.push(pluginsDir);
         }
+        this.onDidChangeTreeDataEmitter.fire();
     }
 
     private getRandId(): string {

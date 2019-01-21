@@ -9,6 +9,7 @@
  **********************************************************************/
 
 import { ContainersTreeDataProvider } from './containers-tree-data-provider';
+import { ContainersService } from './containers-service';
 import * as theia from '@theia/plugin';
 
 export function start(context: theia.PluginContext) {
@@ -19,6 +20,14 @@ export function start(context: theia.PluginContext) {
     context.subscriptions.push(treeDataDisposableFn);
 
     theia.window.createTreeView('containers', { treeDataProvider });
+
+    const containersService = new ContainersService();
+    containersService.updateContainers().then(() => {
+        treeDataProvider.updateContainersTreeData(containersService.containers);
+    }, error => {
+        console.error(error);
+        theia.window.showErrorMessage(error);
+    });
 }
 
 export function stop() {
