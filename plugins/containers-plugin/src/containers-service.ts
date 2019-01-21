@@ -12,6 +12,7 @@ import * as che from '@eclipse-che/plugin';
 
 export interface IContainer {
     name: string;
+    isDev: boolean;
     status?: 'STARTING' | 'RUNNING' | 'STOPPED' | 'FAILED';
     servers?: {
         [serverRef: string]: {
@@ -27,28 +28,25 @@ export class ContainersService {
         this._containers = [];
     }
 
-    async updateMachines(): Promise<void> {
-        const workspace = await che.workspace.getCurrentWorkspace();
+    async updateMachines(failAttempts: number = 0): Promise<void> {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        let workspace = await che.workspace.getCurrentWorkspace();
         if (!workspace) {
+            failAttempts++;
+            if (failAttempts < 5) {
+                return this.updateMachines(failAttempts);
+            }
             return Promise.reject('Failed to get workspace configuration');
         }
-
-        const workspaceMachines = workspace!.runtime
-            && workspace!.runtime!.machines
-            || workspace!.config!.environments![workspace.config!.defaultEnv!].machines
-            || {};
-
+        const devMachines = workspace!.config!.environments![workspace!.config!.defaultEnv!].machines || {};
+        const machines = workspace!.runtime && workspace!.runtime!.machines || {};
         this._containers.length = 0;
-        Object.keys(workspaceMachines).forEach((machineName: string) => {
-            const machine = <{
-                servers?: {
-                    [serverRef: string]: { url?: string; }
-                },
-                status?: 'STARTING' | 'RUNNING' | 'STOPPED' | 'FAILED';
-            }>workspaceMachines[machineName];
+        Object.keys(machines).forEach((name: string) => {
+            const machine = machines[name];
             const container: IContainer = {
-                name: machineName,
-                status: machine.status
+                name: name,
+                status: machine.status,
+                isDev: devMachines[name] !== undefined
             };
             if (machine && machine.servers) {
                 container.servers = {};
