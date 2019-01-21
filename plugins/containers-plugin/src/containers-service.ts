@@ -21,6 +21,8 @@ export interface IContainer {
     };
 }
 
+const MAX_FAILED_ATTEMPTS = 5;
+
 export class ContainersService {
     private _containers: Array<IContainer>;
 
@@ -28,13 +30,13 @@ export class ContainersService {
         this._containers = [];
     }
 
-    async updateMachines(failAttempts: number = 0): Promise<void> {
+    async updateContainers(failAttempts: number = 0): Promise<void> {
         await new Promise(resolve => setTimeout(resolve, 500));
         let workspace = await che.workspace.getCurrentWorkspace();
         if (!workspace) {
             failAttempts++;
-            if (failAttempts < 5) {
-                return this.updateMachines(failAttempts);
+            if (failAttempts < MAX_FAILED_ATTEMPTS) {
+                return this.updateContainers(failAttempts);
             }
             return Promise.reject('Failed to get workspace configuration');
         }
