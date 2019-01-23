@@ -34,11 +34,11 @@ for image_dir in "${DOCKER_FILES_LOCATIONS[@]}"
     do
         if [ "$image_dir" == "dockerfiles/theia" ]; then
             THEIA_IMAGE_TAG="$(awk '/ARG THEIA_VERSION=/{print $NF}' dockerfiles/theia/Dockerfile | cut -d '=' -f2)-nightly"
-            bash "$(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN}"
+            bash $(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN}
         elif [ "$image_dir" == "dockerfiles/theia-dev" ]; then
-            bash "$(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN}"
+            bash $(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN}
         else
-            bash "$(pwd)/$image_dir/build.sh"
+            bash $(pwd)/$image_dir/build.sh
         fi
         if [ $? -ne 0 ]; then
             echo "ERROR:"
