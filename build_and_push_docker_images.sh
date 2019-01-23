@@ -30,15 +30,15 @@ eclipse/che-theia
 
 
 # BUILD IMAGES
-for image_dir in ${DOCKER_FILES_LOCATIONS[@]}
+for image_dir in "${DOCKER_FILES_LOCATIONS[@]}"
     do
-        if [ $image_dir == "dockerfiles/theia" ]; then
+        if [ "$image_dir" == "dockerfiles/theia" ]; then
             THEIA_IMAGE_TAG="$(awk '/ARG THEIA_VERSION=/{print $NF}' dockerfiles/theia/Dockerfile | cut -d '=' -f2)-nightly"
-            bash $(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN}
-        elif [ $image_dir == "dockerfiles/theia-dev"]; then
-            bash $(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN}
+            bash "$(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN}"
+        elif [ "$image_dir" == "dockerfiles/theia-dev" ]; then
+            bash "$(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN}"
         else
-            bash $(pwd)/$image_dir/build.sh
+            bash "$(pwd)/$image_dir/build.sh"
         fi
         if [ $? -ne 0 ]; then
             echo "ERROR:"
@@ -52,9 +52,9 @@ if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
     #PUSH IMAGES
     #docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    for image in ${IMAGES_LIST[@]}
+    for image in "${IMAGES_LIST[@]}"
         do
-            if [ $image == "eclipse/che-theia" ]; then
+            if [ "$image" == "eclipse/che-theia" ]; then
                 docker tag ${image}:nightly ${image}:${THEIA_IMAGE_TAG}
                 echo y | docker push ${image}:${THEIA_IMAGE_TAG}
             else
