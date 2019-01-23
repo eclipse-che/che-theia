@@ -7,7 +7,11 @@
 
 # Use upstream image
 FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-dev:${BUILD_TAG}
+
+# define in env variable GITHUB_TOKEN
+ARG GITHUB_TOKEN
+
 # Just try to build the latest theia with current image
 RUN git clone -b 'v0.3.17' --single-branch --depth 1 https://github.com/theia-ide/theia theia
 RUN cd theia && yarn
- 
+
