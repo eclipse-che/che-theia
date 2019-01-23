@@ -27,7 +27,7 @@ jobs:
   - stage: build
     install: skip
     before_script: skip
-    script: travis_retry yarn;
+    script: travis_retry yarn && ./build_and_push_docker_images.sh;
   - stage: deploy
     os: linux
     before_script: skip
@@ -38,7 +38,7 @@ jobs:
       - yarn
     deploy:
       provider: script
-      script: yarn run publish:next && ./build_and_push_docker_images.sh
+      script: yarn run publish:next
       on:
         branch: master
       skip_cleanup: true

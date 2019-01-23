@@ -28,24 +28,25 @@ eclipse/che-theia-dev
 eclipse/che-theia
 )
 
-#Build images only if build task scheduled by cron
-if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
-    # BUILD IMAGES
-    for image_dir in ${DOCKER_FILES_LOCATIONS[@]}
-        do
-            if [ $image_dir == "dockerfiles/theia" ]; then
-                THEIA_IMAGE_TAG="$(awk '/ARG THEIA_VERSION=/{print $NF}' dockerfiles/theia/Dockerfile | cut -d '=' -f2)-nightly"
-                bash $(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN}
-            else
-                bash $(pwd)/$image_dir/build.sh
-            fi
-            if [ $? -ne 0 ]; then
-                echo "ERROR:"
-                echo "build of '$image_dir' image is failed!"
-                exit 1
-            fi
-        done
 
+# BUILD IMAGES
+for image_dir in ${DOCKER_FILES_LOCATIONS[@]}
+    do
+        if [ $image_dir == "dockerfiles/theia" ]; then
+            THEIA_IMAGE_TAG="$(awk '/ARG THEIA_VERSION=/{print $NF}' dockerfiles/theia/Dockerfile | cut -d '=' -f2)-nightly"
+            bash $(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN}
+        else
+            bash $(pwd)/$image_dir/build.sh
+        fi
+        if [ $? -ne 0 ]; then
+            echo "ERROR:"
+            echo "build of '$image_dir' image is failed!"
+            exit 1
+        fi
+    done
+
+#Push images only if build task scheduled by cron
+if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
     #PUSH IMAGES
     #docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
@@ -59,5 +60,5 @@ if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
             fi
         done
 else 
-    echo "Skip build docker images.";
+    echo "Skip push docker images.";
 fi
