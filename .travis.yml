@@ -38,7 +38,7 @@ jobs:
       - yarn
     deploy:
       provider: script
-      script: yarn run publish:next
+      script: yarn run publish:next && ./build_and_push_docker_images.sh
       on:
         branch: master
       skip_cleanup: true
