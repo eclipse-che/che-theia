@@ -89,6 +89,7 @@ declare module '@eclipse-che/plugin' {
 
     export namespace task {
         export function registerTaskRunner(type: string, runner: TaskRunner): Promise<Disposable>;
+        /** Needs to be executed when the task is finished */
         export function fireTaskExited(id: number): Promise<void>;
     }
 
