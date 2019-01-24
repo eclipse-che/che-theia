@@ -12,11 +12,6 @@
 set -e
 set -o pipefail
 
-# stop / rm all containers
-#if [[ $(docker ps -aq) != "" ]];then
-#    docker rm -f $(docker ps -aq)
-#fi
-
 # KEEP RIGHT ORDER!!!
 DOCKER_FILES_LOCATIONS=(
 dockerfiles/theia-dev

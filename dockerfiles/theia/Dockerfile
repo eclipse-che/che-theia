@@ -21,9 +21,6 @@ ARG GITHUB_TOKEN
 # Define upstream version of theia to use
 ARG THEIA_VERSION=0.3.18
 
-# Invalidate cache if there is a new commit
-ADD https://api.github.com/repos/theia-ide/theia/git/refs/tags/v${THEIA_VERSION} /tmp/.sha1-repository
-
 # Check github limit
 RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
       export GITHUB_TOKEN=$GITHUB_TOKEN; \
@@ -39,6 +36,9 @@ RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
         echo "GITHUB_TOKEN variable is not set but https://api.github.com rate limit has enough slots"; \
       fi \
     fi
+
+# Invalidate cache if there is a new commit
+ADD https://api.github.com/repos/theia-ide/theia/git/refs/tags/v${THEIA_VERSION} /tmp/.sha1-repository
 
 # Clone theia
 RUN git clone --branch v${THEIA_VERSION}  --single-branch --depth 1 https://github.com/theia-ide/theia ${HOME}/theia-source-code
