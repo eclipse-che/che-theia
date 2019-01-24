@@ -19,8 +19,9 @@ fi
 if [ "${MONACO_CDN_PREFIX:-}" != "" ]; then
   BUILD_ARGS+="--build-arg MONACO_CDN_PREFIX=${MONACO_CDN_PREFIX} "
 fi
-echo BUILD_ARGS
+
 build
+
 if ! skip_tests; then
   bash "${base_dir}"/e2e/build.sh "$@"
 fi
