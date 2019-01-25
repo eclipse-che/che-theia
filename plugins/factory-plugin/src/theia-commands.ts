@@ -9,7 +9,7 @@
  **********************************************************************/
 import * as theia from '@theia/plugin';
 import { che as cheApi } from '@eclipse-che/api';
-import convertToFileURI from './openfile';
+import * as fileuri from './file-uri';
 
 const CHE_TASK_TYPE = 'che';
 
@@ -66,7 +66,7 @@ export class TheiaCommand {
     execute(): PromiseLike<void> {
         if (this.id === ActionId.OPEN_FILE) {
             if (this.properties && this.properties.file) {
-                const fileLocation = convertToFileURI(this.properties.file);
+                const fileLocation = fileuri.convertToFileURI(this.properties.file);
                 return theia.commands.executeCommand('file-search.openFile', fileLocation)
                     .then(() => {
 
