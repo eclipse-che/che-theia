@@ -94,6 +94,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         }, 100);
 
         if (IBaseTerminalServer.validateId(this.terminalId)) {
+            this.onDidOpenEmitter.fire(undefined);
             return this.terminalId;
         }
         throw new Error('Failed to start terminal' + (id ? ` for id: ${id}.` : '.'));
@@ -108,6 +109,16 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         this.connectSocket(this.terminalId);
     }
 
+    get processId(): Promise<number> {
+        return (async () => {
+            if (!IBaseTerminalServer.validateId(this.terminalId)) {
+                throw new Error('terminal is not started');
+            }
+            // Exec server side unable to return real process pid. This information is incupsulated.
+            return this.terminalId;
+        })();
+    }
+
     protected connectSocket(id: number) {
         const waitForRemoteConnection = this.waitForRemoteConnection = new Deferred<WebSocket>();
         const socket = this.createWebSocket(id.toString());
@@ -119,7 +130,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
             const sendListener = (data) => socket.send(data);
             this.term.on('data', sendListener);
-            socket.onmessage = ev => this.term.write(ev.data);
+            socket.onmessage = ev => this.write(ev.data);
 
             this.toDisposeOnConnect.push(Disposable.create(() => {
                 this.term.off('data', sendListener);
@@ -183,7 +194,9 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         const cols = this.term.cols;
         const rows = this.term.rows;
 
-        this.termServer.resize({id: this.terminalId, cols, rows});
+        if (this.termServer) {
+            this.termServer.resize({id: this.terminalId, cols, rows});
+        }
     }
 
     sendText(text: string): void {

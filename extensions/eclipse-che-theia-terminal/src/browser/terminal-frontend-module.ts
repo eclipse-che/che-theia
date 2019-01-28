@@ -80,7 +80,7 @@ export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Un
                 workspaceService.findTerminalServer().then(server => {
                     if (server) {
                         bind(TerminalWidget).to(RemoteTerminalWidget).inTransientScope();
-                        rebind(TerminalService).toService(TerminalQuickOpenService);
+                        rebind(TerminalService).toService(ExecTerminalFrontendContribution);
 
                         return resolve(server.url);
                     }
