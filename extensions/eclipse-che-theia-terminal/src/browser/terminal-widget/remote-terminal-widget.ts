@@ -114,7 +114,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
             if (!IBaseTerminalServer.validateId(this.terminalId)) {
                 throw new Error('terminal is not started');
             }
-            // Exec server side unable to return real process pid. This information is incupsulated.
+            // Exec server side unable to return real process pid. This information is encapsulated.
             return this.terminalId;
         })();
     }
