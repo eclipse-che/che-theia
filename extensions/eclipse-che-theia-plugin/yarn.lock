@@ -3,8 +3,9 @@
 
 
 "@eclipse-che/api@^6.16.1":
-  version "6.16.1"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-6.16.1.tgz#5b5e70285cf27d525df3752c938388e36f7925d6"
+  version "6.17.1"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-6.17.1.tgz#bae00a5ac60501566759ff07b134867996ce8964"
+  integrity sha512-kXrUsNJWUkoZfw9wOKgtZH8KYntjXqkyIHNduXMyELFizpV8n94PWBvSj6MeyeKqogKO5QmeC5xvFZS5/I1fkg==
 
 "@types/node@^10.11.7":
   version "10.12.18"
