@@ -21,10 +21,7 @@ export class WelcomePage {
     static readonly DOCUMENTATION = 'https://www.eclipse.org/che/docs/che-7';
     static readonly MATTERMOST = 'https://mattermost.eclipse.org/eclipse/channels/eclipse-che';
 
-
-
     constructor(readonly pluginContext: theia.PluginContext) {
-
     }
 
     protected renderHeader(context: theia.PluginContext): string {
@@ -79,39 +76,6 @@ export class WelcomePage {
         return '';
     }
 
-
-    protected async renderCommandKeyBindingOld(commandId: string): Promise<string> {
-        const availableKeys = await theia.commands.getKeyBinding(commandId);
-
-        if (availableKeys && availableKeys.length > 0) {
-            const keybindingSeperator = /<match>\+<\/match>/g;
-            const regex = new RegExp(keybindingSeperator);
-            let keybinding = availableKeys[0].value;
-            keybinding = keybinding.replace(regex, '+');
-            const keys = keybinding.split('+');
-            if (keys.length > 0) {
-                let rows: any[] = [];
-
-                await Promise.all(keys.map(async (key: any) => {
-                    let updatedKey = key;
-                    if ((await (theia.env as any).getOsType()) === (theia as any).OSType.OSX) {
-                        if (updatedKey === 'ctrlcmd') {
-                            updatedKey = '⎇';
-                        } else if (updatedKey === 'alt') {
-                            updatedKey = '⌘';
-                        }
-                    }
-                    rows.push(`<span class="che-welcome-keybinding-key">${updatedKey}</span>`);
-                }));
-                const ret = `<div class="che-welcome-keybinding" title=${availableKeys[0].value}>${rows}</div>`;
-                return ret;
-            }
-
-
-        }
-        return '';
-    }
-
     private async renderStart(): Promise<string> {
         const newFile = `<div class="che-welcome-command-desc"><a href='#' onClick="executeCommand('file.newFile')">New File...</a>${await this.renderCommandKeyBinding('file.newFile')}</div>`;
         const gitClone = `<div class="che-welcome-command-desc"><a href='#' onClick="executeCommand('git.clone')">Git Clone...</a>${await this.renderCommandKeyBinding('git.clone')}</div>`;
@@ -128,7 +92,6 @@ export class WelcomePage {
 
     }
 
-
     private async renderOpen(): Promise<string> {
 
         const open = `<div class="che-welcome-command-desc"><a href='#' onClick="executeCommand('workspace:open')">Open Files...</a>${await this.renderCommandKeyBinding('workspace:open')}</div>`;
@@ -143,7 +106,6 @@ export class WelcomePage {
             </div>
 
         </div>`;
-
     }
 
     private async renderSettings(): Promise<string> {

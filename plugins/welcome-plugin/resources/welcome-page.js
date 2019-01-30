@@ -23,7 +23,6 @@ let api;
     })
 }());
 
-
 function executeCommand(commandName) {
     api.postMessage({
                command: 'executeCommand',

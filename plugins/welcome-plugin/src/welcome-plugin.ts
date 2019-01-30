@@ -12,6 +12,8 @@ import * as theia from '@theia/plugin';
 import * as path from 'path';
 import { WelcomePage } from './welcome-page';
 
+// Track currently webview panel
+let currentPanel: theia.WebviewPanel | undefined = undefined;
 
 async function getHtmlForWebview(context: theia.PluginContext): Promise<string> {
 
@@ -79,8 +81,6 @@ export async function handleReadmeFiles(context: theia.PluginContext): Promise<v
 }
 
 export async function addPanel(context: theia.PluginContext): Promise<void> {
-    // Track currently webview panel
-    let currentPanel: theia.WebviewPanel | undefined = undefined;
 
     if (currentPanel) {
         return;
