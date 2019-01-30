@@ -64,7 +64,7 @@ export class WelcomePage {
                         }
                         rows.push(`<span class="che-welcome-keybinding-key">${updatedKey}</span>`);
                     }));
-                    return `<div class="che-welcome-keybinding" title=${availableKeys[0].value}>${rows}</div>`;
+                    return `<div class="che-welcome-keybinding" title=${availableKeys[0].value}>${rows.join('+')}</div>`;
                 }
             }));
 

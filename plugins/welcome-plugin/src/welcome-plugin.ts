@@ -12,9 +12,6 @@ import * as theia from '@theia/plugin';
 import * as path from 'path';
 import { WelcomePage } from './welcome-page';
 
-// Track currently webview panel
-let currentPanel: theia.WebviewPanel | undefined = undefined;
-
 async function getHtmlForWebview(context: theia.PluginContext): Promise<string> {
 
     // Local path to main script run in the webview
@@ -82,12 +79,9 @@ export async function handleReadmeFiles(context: theia.PluginContext): Promise<v
 
 export async function addPanel(context: theia.PluginContext): Promise<void> {
 
-    if (currentPanel) {
-        return;
-    }
 
     // Otherwise, create a new panel
-    currentPanel = theia.window.createWebviewPanel('WelcomePage', 'Welcome', { viewColumn: theia.ViewColumn.One, preserveFocus: false }, {
+    const currentPanel = theia.window.createWebviewPanel('WelcomePage', 'Welcome', { viewColumn: theia.ViewColumn.One, preserveFocus: false }, {
         // Enable javascript in the webview
         enableScripts: true,
 
@@ -121,15 +115,6 @@ export async function addPanel(context: theia.PluginContext): Promise<void> {
     // Local icon paths in the webview
     const iconUri = theia.Uri.file(path.join(context.extensionPath, 'resources', 'che-logo.png'));
     currentPanel.iconPath = iconUri;
-
-    // Reset when the current panel is closed
-    currentPanel.onDidDispose(
-        () => {
-            currentPanel = undefined;
-        },
-        null,
-        context.subscriptions
-    );
 
 }
 
