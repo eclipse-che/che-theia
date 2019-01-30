@@ -16,41 +16,19 @@ export interface GitUpstreamBranch {
 }
 
 export async function getUpstreamBranch(projectPath: string): Promise<GitUpstreamBranch | undefined> {
-
-    return new Promise<GitUpstreamBranch | undefined>((resolve, reject) => {
-        const gitRevParseCmd = spawn('git', ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{upstream}'], { cwd: projectPath });
-
-        let output = '';
-        gitRevParseCmd.stdout.on('data', (data: string) => {
-            output += data.toString();
-        });
-        gitRevParseCmd.on('close', async (code: any) => {
-            output = output.trim();
-            const gitUpstreamBranch: GitUpstreamBranch | undefined = parseGitUpstreamBranch(output);
-            if (gitUpstreamBranch) {
-                gitUpstreamBranch.remoteURL = await getRemoteURL(gitUpstreamBranch.remote, projectPath);
-            }
-
-            resolve(gitUpstreamBranch);
-        });
-        gitRevParseCmd.on('error', (err: any) => { resolve(undefined); });
-    });
+    const remoteBranchRef = await execGit(projectPath, 'rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{upstream}');
+    if (!remoteBranchRef) {
+        return;
+    }
+    const gitUpstreamBranch = parseGitUpstreamBranch(remoteBranchRef);
+    if (gitUpstreamBranch) {
+        gitUpstreamBranch.remoteURL = await getRemoteURL(gitUpstreamBranch.remote, projectPath);
+    }
+    return gitUpstreamBranch;
 }
 
 export function getRemoteURL(remote: string, projectPath: string): Promise<string | undefined> {
-    return new Promise<string | undefined>((resolve, reject) => {
-
-        const gitConfigUrl = spawn('git', ['config', '--get', `remote.${remote}.url`], { cwd: projectPath });
-        let result = '';
-        gitConfigUrl.stdout.on('data', (data: string) => {
-            result += data.toString();
-        });
-        gitConfigUrl.on('close', (code: any) => {
-            result = result.trim();
-            resolve(result);
-        });
-        gitConfigUrl.on('error', (err: any) => { reject(err); });
-    });
+    return execGit(projectPath, 'config', '--get', `remote.${remote}.url`);
 }
 
 export function parseGitUpstreamBranch(gitBranchvvOutput: string): GitUpstreamBranch | undefined {
@@ -74,4 +52,20 @@ export function parseGitUpstreamBranch(gitBranchvvOutput: string): GitUpstreamBr
 
 export function getGitRootFolder(uri: string): string {
     return uri.substring(0, uri.lastIndexOf('.git/'));
+}
+
+export async function execGit(directory: string, ...args: string[]): Promise<string | undefined> {
+    return new Promise<string | undefined>((resolve, reject) => {
+
+        const gitCommand = spawn('git', args, { cwd: directory });
+        let result = '';
+        gitCommand.stdout.on('data', (data: string) => {
+            result += data.toString();
+        });
+        gitCommand.on('close', () => {
+            result = result.trim();
+            resolve(result);
+        });
+        gitCommand.on('error', () => { resolve(undefined); });
+    });
 }

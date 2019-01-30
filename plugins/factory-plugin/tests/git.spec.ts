@@ -60,31 +60,9 @@ async function removeFolder(folderPath: string): Promise<undefined> {
 }
 
 async function gitCheckout(projectPath: string, branch: string): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-        const gitCheckoutCmd = spawn('git', ['checkout', '-b', branch], { cwd: projectPath });
-
-        let result = '';
-        gitCheckoutCmd.stdout.on('data', (data: string) => {
-            result += data.toString();
-        });
-        gitCheckoutCmd.on('close', (code: any) => {
-            resolve(result);
-        });
-        gitCheckoutCmd.on('error', (err: any) => { reject(err); });
-    });
+    return git.execGit(projectPath, 'checkout', '-b', branch);
 }
 
 async function gitClone(targetFolderPath: string, gitRepo: string): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-        const gitClone = spawn('git', ['clone', gitRepo], { cwd: targetFolderPath });
-
-        let result = '';
-        gitClone.stdout.on('data', (data: string) => {
-            result += data.toString();
-        });
-        gitClone.on('close', (code: any) => {
-            resolve(result);
-        });
-        gitClone.on('error', (err: any) => { reject(err); });
-    });
+    return git.execGit(targetFolderPath, 'clone', gitRepo);
 }
