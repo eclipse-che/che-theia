@@ -19,12 +19,10 @@ async function getHtmlForWebview(context: theia.PluginContext): Promise<string> 
     // And the uri we use to load this script in the webview
     const scriptUri = scriptPathOnDisk.with({ scheme: 'theia-resource' });
 
-
     // Local path to main script run in the webview
     const cssPathOnDisk = theia.Uri.file(path.join(context.extensionPath, 'resources', 'welcome-page.css'));
     // And the uri we use to load this script in the webview
     const cssUri = cssPathOnDisk.with({ scheme: 'theia-resource' });
-
 
     const welcomePage = new WelcomePage(context);
     const rendering = await welcomePage.render(context);
@@ -52,7 +50,6 @@ export async function doStart(context: theia.PluginContext): Promise<void> {
     handleReadmeFiles(context);
 }
 
-
 // Open Readme file is there is one
 export async function handleReadmeFiles(context: theia.PluginContext): Promise<void> {
 
@@ -79,7 +76,6 @@ export async function handleReadmeFiles(context: theia.PluginContext): Promise<v
 
 export async function addPanel(context: theia.PluginContext): Promise<void> {
 
-
     // Otherwise, create a new panel
     const currentPanel = theia.window.createWebviewPanel('WelcomePage', 'Welcome', { viewColumn: theia.ViewColumn.One, preserveFocus: false }, {
         // Enable javascript in the webview
@@ -93,7 +89,6 @@ export async function addPanel(context: theia.PluginContext): Promise<void> {
     });
 
     currentPanel.webview.html = await getHtmlForWebview(context);
-
 
     // Handle messages from the webview
     currentPanel.webview.onDidReceiveMessage(
@@ -110,7 +105,6 @@ export async function addPanel(context: theia.PluginContext): Promise<void> {
         undefined,
         context.subscriptions
     );
-
 
     // Local icon paths in the webview
     const iconUri = theia.Uri.file(path.join(context.extensionPath, 'resources', 'che-logo.png'));

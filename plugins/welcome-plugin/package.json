@@ -18,6 +18,7 @@
     "@theia/plugin-packager": "latest",
     "@eclipse-che/plugin": "latest",
     "rimraf": "2.6.2",
+    "tslint": "5.10.0",
     "typescript-formatter": "7.2.2",
     "typescript": "2.9.2"
   },

@@ -70,8 +70,6 @@ export class WelcomePage {
 
             return keyMappings.join(' or ')
 
-
-
         }
         return '';
     }
