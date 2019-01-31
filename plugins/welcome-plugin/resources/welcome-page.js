@@ -15,17 +15,11 @@ let api;
         return
     }
     api = acquireTheiaApi();
-
-    // Handle messages sent from the extension to the webview
-    window.addEventListener('message', function (event) {
-        const message = event.data; // The json data that the extension sent
-        
-    })
 }());
 
 function executeCommand(commandName) {
     api.postMessage({
-               command: 'executeCommand',
-                commandName: commandName
-            });
+        command: 'executeCommand',
+        commandName: commandName
+    });
 }

@@ -62,10 +62,10 @@ export async function handleReadmeFiles(context: theia.PluginContext): Promise<v
                 return child;
             }
 
-        })
+        });
 
         if (updatedChildren.length >= 1) {
-            var openPath = theia.Uri.parse(updatedChildren[0] + '?open-handler=code-editor-preview');
+            const openPath = theia.Uri.parse(updatedChildren[0] + '?open-handler=code-editor-preview');
             const doc: theia.TextDocument | undefined = await theia.workspace.openTextDocument(openPath);
             if (doc) {
                 theia.window.showTextDocument(doc);

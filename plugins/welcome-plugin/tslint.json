@@ -21,9 +21,10 @@
       true,
       "check-multiline-start"
     ],
+    "align": [true, "parameters", "statements", "arguments", "members", "elements"],
     "max-line-length": [
       true,
-      180
+      250
     ],
     "no-consecutive-blank-lines": true,
     "no-shadowed-variable": true,

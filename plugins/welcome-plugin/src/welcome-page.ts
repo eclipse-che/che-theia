@@ -48,7 +48,7 @@ export class WelcomePage {
                 const updatedKeyBinding = keyBinding.value.replace(regex, '+');
                 const keys = updatedKeyBinding.split('+');
                 if (keys.length > 0) {
-                    let rows: any[] = [];
+                    const rows: any[] = [];
 
                     await Promise.all(keys.map(async (key: any) => {
                         let updatedKey = key;
@@ -68,7 +68,7 @@ export class WelcomePage {
                 }
             }));
 
-            return keyMappings.join(' or ')
+            return keyMappings.join(' or ');
 
         }
         return '';
@@ -123,7 +123,7 @@ export class WelcomePage {
                     <a href='#' onClick="executeCommand('keymaps:open')">Open Keyboard Shortcuts</a>${await this.renderCommandKeyBinding('keymaps:open')}
                 </div>
             </div>
-        </div>;`
+        </div>`;
     }
 
     private async renderHelp(): Promise<string> {
