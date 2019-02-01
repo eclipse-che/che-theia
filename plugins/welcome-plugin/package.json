@@ -1,0 +1,41 @@
+{
+  "name": "@eclipse-che/welcome-plugin",
+  "publisher": "Eclipse Che",
+  "keywords": [
+    "theia-plugin"
+  ],
+  "description": "Welcome Page Plugin",
+  "license": "EPL-2.0",
+  "files": [
+    "src",
+    "resources"
+  ],
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "5.6.3"
+  },
+  "devDependencies": {
+    "@theia/plugin": "0.3.19",
+    "@theia/plugin-packager": "latest",
+    "@eclipse-che/plugin": "latest",
+    "rimraf": "2.6.2",
+    "tslint": "5.10.0",
+    "typescript-formatter": "7.2.2",
+    "typescript": "2.9.2"
+  },
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "format-code": "tsfmt -r",
+    "compile": "tsc",
+    "watch": "tsc -watch",
+    "tslint-fix": "tslint --fix --project .",
+    "tslint": "tslint --project .",
+    "build": "yarn run format-code && yarn run tslint-fix && yarn run tslint && yarn run compile && theia:plugin pack"
+  },
+  "engines": {
+    "theiaPlugin": "next"
+  },
+  "theiaPlugin": {
+    "backend": "lib/welcome-plugin.js"
+  }
+}
