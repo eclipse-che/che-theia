@@ -116,7 +116,7 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
         return await this.baseEnvVariablesServer.getValue('CHE_API_EXTERNAL').then(v => v ? v.value : undefined);
     }
 
-    private async getMachineToken(): Promise<string> {
+    public async getMachineToken(): Promise<string | undefined> {
         return await this.baseEnvVariablesServer.getValue('CHE_MACHINE_TOKEN').then(v => v ? v.value : undefined);
     }
 

@@ -72,25 +72,24 @@ export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Un
         return provider.createProxy<CHEWorkspaceService>(cheWorkspaceServicePath);
     }).inSingletonScope();
 
-    bind<TerminalApiEndPointProvider>('TerminalApiEndPointProvider').toProvider<string>((context) => {
-        return () => {
-            return new Promise<string>((resolve, reject) => {
-                const workspaceService = context.container.get<CHEWorkspaceService>(CHEWorkspaceService);
+    bind<TerminalApiEndPointProvider>('TerminalApiEndPointProvider').toProvider<string>((context) => { // URI | undefined...
+        return async () => {
+            const workspaceService = context.container.get<CHEWorkspaceService>(CHEWorkspaceService);
+            try {
+                const token = await workspaceService.getMachineToken();
+                console.log("token", token);
+                const server = await workspaceService.findTerminalServer();
+                if (server) {
+                    bind(TerminalWidget).to(RemoteTerminalWidget).inTransientScope();
+                    rebind(TerminalService).toService(ExecTerminalFrontendContribution);
 
-                workspaceService.findTerminalServer().then(server => {
-                    if (server) {
-                        bind(TerminalWidget).to(RemoteTerminalWidget).inTransientScope();
-                        rebind(TerminalService).toService(ExecTerminalFrontendContribution);
-
-                        return resolve(server.url);
-                    }
-                    return resolve(undefined);
-                }).catch(err => {
-                    console.error('Failed to get remote terminal server api end point url. Cause: ', err);
-                    resolve(undefined);
-                });
-            });
-        };
+                    return server.url;
+                }
+            } catch(err) {
+                console.error('Failed to get remote terminal server api end point url. Cause: ', err);
+            }
+            return undefined;
+        }
     });
 
     bind<TerminalProxyCreatorProvider>('TerminalProxyCreatorProvider').toProvider<TerminalProxyCreator>((context) => {
