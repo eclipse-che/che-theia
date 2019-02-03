@@ -18,6 +18,7 @@ import {TerminalApiEndPointProvider} from '../server-definition/terminal-proxy-c
 import {TerminalWidget, TerminalWidgetOptions} from '@theia/terminal/lib/browser/base/terminal-widget';
 import { RemoteTerminalWidget } from '../terminal-widget/remote-terminal-widget';
 import { OpenTerminalHandler } from './exec-terminal-contribution';
+import URI from '@theia/core/lib/common/uri';
 
 @injectable()
 export class TerminalQuickOpenService {
@@ -35,13 +36,13 @@ export class TerminalQuickOpenService {
      public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions): Promise<TerminalWidget> {
         try {
             const workspaceId = <string>await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
-            const termApiEndPoint = <string>await this.termApiEndPointProvider();
+            const termApiEndPoint = <URI | undefined>await this.termApiEndPointProvider();
 
             const widget = <RemoteTerminalWidget>await this.widgetManager.getOrCreateWidget(REMOTE_TERMINAL_WIDGET_FACTORY_ID, <RemoteTerminalWidgetFactoryOptions>{
                 created: new Date().toString(),
                 machineName: containerName,
                 workspaceId: workspaceId,
-                endpoint: termApiEndPoint,
+                endpoint: termApiEndPoint.toString(true),
                 ...options
             });
             return widget;

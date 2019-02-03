@@ -25,6 +25,7 @@ import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/brows
 import { RemoteTerminalWidget } from './terminal-widget/remote-terminal-widget';
 import { RemoteTerminaActiveKeybingContext } from './contribution/keybinding-context';
 import { RemoteTerminalServerProxy, RemoteTerminalServer, RemoteTerminalWatcher } from './server-definition/remote-terminal-protocol';
+import URI from '@theia/core/lib/common/uri';
 
 export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Unbind, isBound: interfaces.IsBound, rebind: interfaces.Rebind)  => {
     bind(KeybindingContext).to(RemoteTerminaActiveKeybingContext).inSingletonScope();
@@ -72,18 +73,19 @@ export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Un
         return provider.createProxy<CHEWorkspaceService>(cheWorkspaceServicePath);
     }).inSingletonScope();
 
-    bind<TerminalApiEndPointProvider>('TerminalApiEndPointProvider').toProvider<string>((context) => { // URI | undefined...
+    bind<TerminalApiEndPointProvider>('TerminalApiEndPointProvider').toProvider<URI | undefined>((context) => {
         return async () => {
             const workspaceService = context.container.get<CHEWorkspaceService>(CHEWorkspaceService);
             try {
-                const token = await workspaceService.getMachineToken();
-                console.log("token", token);
+
                 const server = await workspaceService.findTerminalServer();
                 if (server) {
                     bind(TerminalWidget).to(RemoteTerminalWidget).inTransientScope();
                     rebind(TerminalService).toService(ExecTerminalFrontendContribution);
 
-                    return server.url;
+                    const token = await workspaceService.getMachineToken();
+                    const uri = new URI(server.url).withQuery('token=' + token);
+                    return uri;
                 }
             } catch(err) {
                 console.error('Failed to get remote terminal server api end point url. Cause: ', err);
