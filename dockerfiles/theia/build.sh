@@ -10,6 +10,19 @@
 base_dir=$(cd "$(dirname "$0")"; pwd)
 . "${base_dir}"/../build.include
 
+DIR=$(cd "$(dirname "$0")"; pwd)
+LOCAL_ASSEMBLY_DIR="${DIR}"/che-theia
+
+if [ -d "${LOCAL_ASSEMBLY_DIR}" ]; then
+  rm -r "${LOCAL_ASSEMBLY_DIR}"
+fi
+
+#in mac os 'cp' cannot create destination dir, so create it first
+mkdir ${LOCAL_ASSEMBLY_DIR}
+
+echo "Copying ${base_dir}/../../extensions/extensions.yml --> ${LOCAL_ASSEMBLY_DIR}/extensions.yml"
+cp "${base_dir}/../../extensions/extensions.yml" "${LOCAL_ASSEMBLY_DIR}/"
+
 init --name:theia "$@"
 
 if [ "${CDN_PREFIX:-}" != "" ]; then

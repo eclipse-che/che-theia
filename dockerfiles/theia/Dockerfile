@@ -58,7 +58,10 @@ RUN if [ -d "${HOME}/patches/${THEIA_VERSION}" ]; then \
 ARG CDN_PREFIX=""
 ARG MONACO_CDN_PREFIX=""
 WORKDIR ${HOME}/theia-source-code
-RUN che:theia init
+
+COPY che-theia/extensions.yml ${HOME}/extensions.yml
+
+RUN che:theia init -c ${HOME}/extensions.yml
 RUN che:theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 
 # Compile Theia
