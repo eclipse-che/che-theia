@@ -13,9 +13,14 @@ import { che } from '@eclipse-che/api';
 export const cheWorkspaceServicePath = '/services/che-workspace-service';
 
 export const CHEWorkspaceService = Symbol('CHEWorkspaceService');
+
+export interface WorkspaceContainer extends che.workspace.Machine {
+    name: string
+}
+
 export interface CHEWorkspaceService {
 
-    getMachineList(): Promise<{ [attrName: string]: che.workspace.Machine }>;
+    getContainerList(): Promise<WorkspaceContainer[]>;
 
     findTerminalServer(): Promise<che.workspace.Server | undefined>;
 

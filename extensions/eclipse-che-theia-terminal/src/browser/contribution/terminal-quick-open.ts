@@ -18,6 +18,7 @@ import {TerminalApiEndPointProvider} from '../server-definition/terminal-proxy-c
 import {TerminalWidget, TerminalWidgetOptions} from '@theia/terminal/lib/browser/base/terminal-widget';
 import { RemoteTerminalWidget } from '../terminal-widget/remote-terminal-widget';
 import { OpenTerminalHandler } from './exec-terminal-contribution';
+import { filterContainers } from './terminal-command-filter';
 
 @injectable()
 export class TerminalQuickOpenService {
@@ -53,17 +54,12 @@ export class TerminalQuickOpenService {
 
     async displayListMachines(doOpen: OpenTerminalHandler) {
         const items: QuickOpenItem[] = [];
-        const machines = await this.workspaceService.getMachineList();
+        const containers = await this.workspaceService.getContainerList();
 
-        if (machines) {
-            for (const machineName in machines) {
-                if (!machines.hasOwnProperty(machineName)) {
-                    continue;
-                }
-                items.push(new NewTerminalItem(machineName, async (newTermItemFunc) => {
-                    doOpen(newTermItemFunc.machineName);
-                }));
-            }
+        for (const container of filterContainers(containers)) {
+            items.push(new NewTerminalItem(container.name, async (newTermItemFunc) => {
+                doOpen(newTermItemFunc.machineName);
+            }));
         }
 
         this.showTerminalItems(items, 'Select machine to create new terminal');

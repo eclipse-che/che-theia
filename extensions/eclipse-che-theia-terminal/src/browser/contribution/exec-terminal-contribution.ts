@@ -21,6 +21,7 @@ import { TerminalKeybindingContext } from './keybinding-context';
 import { CHEWorkspaceService } from '../../common/workspace-service';
 import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal-widget';
 import { REMOTE_TERMINAL_WIDGET_FACTORY_ID } from '../terminal-widget/remote-terminal-widget';
+import { filterContainers } from './terminal-command-filter';
 
 export const NewTerminalInSpecificContainer = {
     id: 'terminal-in-specific-container:new',
@@ -68,18 +69,16 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     }
 
     private async registerTerminalCommandPerContainer(registry: CommandRegistry) {
-        const containers = await this.cheWorkspaceService.getMachineList();
+        const containers = await this.cheWorkspaceService.getContainerList();
 
-        for (const containerName in containers) {
-            if (containers.hasOwnProperty(containerName)) {
-                const termCommandPerContainer: Command = {
-                    id: "terminal-for-" + containerName + "-container:new",
-                    label: "New terminal for " + containerName
-                };
-                registry.registerCommand(termCommandPerContainer, {
-                    execute: async () => this.openTerminalByContainerName(containerName)
-                });
-            }
+        for (const container of filterContainers(containers)) {
+            const termCommandPerContainer: Command = {
+                id: 'terminal-for-' + container.name + '-container:new',
+                label: 'New terminal for ' + container.name
+            };
+            registry.registerCommand(termCommandPerContainer, {
+                execute: () => this.openTerminalByContainerName(container.name)
+            });
         }
     }
 
