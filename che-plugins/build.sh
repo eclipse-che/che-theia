@@ -12,6 +12,9 @@
 set -e
 set -u
 
+base_dir=$(cd "$(dirname "$0")"; pwd)
+cd ${base_dir}
+
 build_directory() {
     # Calling build.sh
     if [ -e ${directory}/build.sh ] ; then
