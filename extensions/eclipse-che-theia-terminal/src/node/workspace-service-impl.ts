@@ -109,15 +109,15 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
     }
 
     public async getWorkspaceId(): Promise<string | undefined> {
-        return await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
+        return process.env['CHE_WORKSPACE_ID'];
     }
 
     public async getWsMasterApiEndPoint(): Promise<string | undefined> {
-        return await this.baseEnvVariablesServer.getValue('CHE_API_EXTERNAL').then(v => v ? v.value : undefined);
+        return process.env['CHE_API_EXTERNAL'];
     }
 
     public async getMachineToken(): Promise<string | undefined> {
-        return await this.baseEnvVariablesServer.getValue('CHE_MACHINE_TOKEN').then(v => v ? v.value : undefined);
+        return process.env['CHE_MACHINE_TOKEN'];
     }
 
     private async getRemoteApi(): Promise<IRemoteAPI> {
