@@ -15,8 +15,6 @@ export const cheWorkspaceServicePath = '/services/che-workspace-service';
 export const CHEWorkspaceService = Symbol('CHEWorkspaceService');
 export interface CHEWorkspaceService {
 
-    getMachineToken(): Promise<string | undefined>;
-
     getMachineList(): Promise<{ [attrName: string]: che.workspace.Machine }>;
 
     findTerminalServer(): Promise<che.workspace.Server | undefined>;
