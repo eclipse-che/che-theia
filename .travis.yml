@@ -43,14 +43,3 @@ jobs:
         on:
           branch: master
         skip_cleanup: true
-      - provider: releases
-        api_key:
-        secure: ${GITHUB_TOKEN}
-        file:
-          - plugins/containers-plugin/eclipse_che_theia_containers_plugin.theia
-          - plugins/factory-plugin/eclipse_che_theia_factory_plugin.theia
-          - plugins/welcome-plugin/eclipse_che_welcome_plugin.theia
-          - che-plugins/che-editor-theia/che-editor-plugin.tar.gz
-        skip_cleanup: true
-        on:
-          tags: true
