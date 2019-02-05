@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import * as ws from 'ws';
+import * as WebSocket from 'ws';
 
 import { injectable, inject, postConstruct } from 'inversify';
 import { ILogger } from '@theia/core/lib/common';
@@ -33,7 +33,7 @@ export class HostedPluginRemote {
     /**
      * mapping between endpoint name and the websockets
      */
-    private endpointsSockets = new Map<string, ws>();
+    private endpointsSockets = new Map<string, WebSocket>();
 
     /**
      * mapping between endpoint's name and the websocket endpoint
@@ -58,7 +58,7 @@ export class HostedPluginRemote {
     setupWebsocket(): void {
         this.hostedPluginMapping.getEndPoints().forEach(endpointAdress => {
             if (endpointAdress) {
-                const websocket = new ws(endpointAdress);
+                const websocket = new WebSocket(endpointAdress);
                 this.endpointsSockets.set(endpointAdress, websocket);
                 websocket.on('message', (messageRaw: string) => {
                     const parsed = JSON.parse(messageRaw);

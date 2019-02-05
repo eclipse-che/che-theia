@@ -36,14 +36,12 @@ export class HostedPluginMapping {
     protected setup(): void {
 
         // Grab endpoints from env var
-        const endpointKeys: string[] = Object.keys(process.env).filter(key => key.startsWith(HostedPluginMapping.ENDPOINT_ENV_VAR_PREFIX));
-        this.endpoints = endpointKeys.map(key => process.env[key] || '');
-        this.logger.info('Plugins Endpoints are ', this.endpoints);
-
         const pluginEndpointKeys: string[] = Object.keys(process.env).filter(key => key.startsWith(HostedPluginMapping.ENDPOINT_ENV_VAR_PREFIX));
         pluginEndpointKeys.forEach(key => {
             this.pluginsEndpoints.set(key.substring(HostedPluginMapping.ENDPOINT_ENV_VAR_PREFIX.length), process.env[key] || '');
         });
+        this.endpoints = pluginEndpointKeys.map(key => process.env[key] || '');
+        this.logger.info('Plugins Endpoints are ', this.endpoints);
         this.logger.info('Plugins Mapping Endpoints are ', this.pluginsEndpoints);
     }
 

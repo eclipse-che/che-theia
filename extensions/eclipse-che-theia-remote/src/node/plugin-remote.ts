@@ -43,8 +43,6 @@ const PLUGIN_PORT = parseInt(process.env.THEIA_PLUGIN_ENDPOINT_PORT || '2503', 1
 // start websocket server
 const WebSocketServerImpl = ws.Server;
 
-// display message about process being started
-console.log(`Theia Endpoint ${process.pid}/pid listening on port`, PLUGIN_PORT);
 const webSocketServer = new WebSocketServerImpl({ port: PLUGIN_PORT });
 
 interface CheckAliveWS extends ws {
@@ -223,3 +221,6 @@ inversifyContainer.unbind(HostedPluginRemote);
 // start the deployer
 const pluginDeployer = inversifyContainer.get<PluginDeployer>(PluginDeployer);
 pluginDeployer.start();
+
+// display message about process being started
+console.log(`Theia Endpoint ${process.pid}/pid listening on port`, PLUGIN_PORT);
