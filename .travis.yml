@@ -26,10 +26,9 @@ jobs:
     install: skip
     before_script: skip
     script:
-      - |
-          yarn
-          ./build_and_push_docker_images.sh;
-          ./che-plugins/build.sh
+      - yarn
+      - ./build_and_push_docker_images.sh;
+      - ./che-plugins/build.sh
   - stage: deploy
     os: linux
     before_script: skip
