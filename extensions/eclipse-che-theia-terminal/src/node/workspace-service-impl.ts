@@ -104,11 +104,11 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
         return undefined;
     }
 
-    public getWorkspaceId(): string | undefined {
+    private getWorkspaceId(): string | undefined {
         return process.env['CHE_WORKSPACE_ID'];
     }
 
-    public getWsMasterApiEndPoint(): string | undefined {
+    private getWsMasterApiEndPoint(): string | undefined {
         return process.env['CHE_API_EXTERNAL'];
     }
 
