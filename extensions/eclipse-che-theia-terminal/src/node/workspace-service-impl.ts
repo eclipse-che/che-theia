@@ -8,10 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import { injectable, inject } from 'inversify';
+import { injectable } from 'inversify';
 import WorkspaceClient, { IRemoteAPI, IRequestError, IRestAPIConfig } from '@eclipse-che/workspace-client';
 import { che } from "@eclipse-che/api";
-import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { CHEWorkspaceService } from '../common/workspace-service';
 import { TERMINAL_SERVER_TYPE } from '../browser/server-definition/remote-terminal-protocol';
 
@@ -23,13 +22,10 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
 
     private api: IRemoteAPI;
 
-    constructor(@inject(EnvVariablesServer) protected readonly baseEnvVariablesServer: EnvVariablesServer) {
-    }
-
     public async getMachineList(): Promise<{ [attrName: string]: che.workspace.Machine }> {
         const machineNames: { [attrName: string]: che.workspace.Machine } = {};
-        const workspaceId = await this.getWorkspaceId();
-        const restClient = await this.getRemoteApi();
+        const workspaceId = this.getWorkspaceId();
+        const restClient = this.getRemoteApi();
         if (!workspaceId || !restClient) {
             return machineNames;
         }
@@ -108,22 +104,22 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
         return undefined;
     }
 
-    public async getWorkspaceId(): Promise<string | undefined> {
-        return await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
+    private getWorkspaceId(): string | undefined {
+        return process.env['CHE_WORKSPACE_ID'];
     }
 
-    public async getWsMasterApiEndPoint(): Promise<string | undefined> {
-        return await this.baseEnvVariablesServer.getValue('CHE_API_EXTERNAL').then(v => v ? v.value : undefined);
+    private getWsMasterApiEndPoint(): string | undefined {
+        return process.env['CHE_API_EXTERNAL'];
     }
 
-    private async getMachineToken(): Promise<string> {
-        return await this.baseEnvVariablesServer.getValue('CHE_MACHINE_TOKEN').then(v => v ? v.value : undefined);
+    private getMachineToken(): string | undefined {
+        return process.env['CHE_MACHINE_TOKEN'];
     }
 
-    private async getRemoteApi(): Promise<IRemoteAPI> {
+    private getRemoteApi(): IRemoteAPI {
         if (!this.api) {
-            const machineToken = await this.getMachineToken();
-            const baseUrl = await this.getWsMasterApiEndPoint();
+            const machineToken = this.getMachineToken();
+            const baseUrl = this.getWsMasterApiEndPoint();
             const restConfig: IRestAPIConfig = { baseUrl: baseUrl, headers: {} };
 
             if (machineToken) {

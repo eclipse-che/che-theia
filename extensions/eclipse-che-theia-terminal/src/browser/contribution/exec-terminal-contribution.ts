@@ -21,6 +21,7 @@ import { TerminalKeybindingContext } from './keybinding-context';
 import { CHEWorkspaceService } from '../../common/workspace-service';
 import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal-widget';
 import { REMOTE_TERMINAL_WIDGET_FACTORY_ID } from '../terminal-widget/remote-terminal-widget';
+import URI from '@theia/core/lib/common/uri';
 
 export const NewTerminalInSpecificContainer = {
     id: 'terminal-in-specific-container:new',
@@ -52,7 +53,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     private readonly mainMenuId = 'theia:menubar';
 
     async registerCommands(registry: CommandRegistry) {
-        const serverUrl = <string | undefined> await this.termApiEndPointProvider();
+        const serverUrl = <URI | undefined> await this.termApiEndPointProvider();
         if (serverUrl) {
             registry.registerCommand(NewTerminalInSpecificContainer, {
                 execute: () => {
@@ -113,7 +114,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     }
 
     async registerMenus(menus: MenuModelRegistry) {
-        const serverUrl = <string | undefined> await this.termApiEndPointProvider();
+        const serverUrl = <URI | undefined> await this.termApiEndPointProvider();
         if (serverUrl) {
             menus.registerSubmenu(TerminalMenus.TERMINAL, 'Terminal');
             menus.registerMenuAction(TerminalMenus.TERMINAL_NEW, {
@@ -142,7 +143,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     }
 
     async registerKeybindings(registry: KeybindingRegistry) {
-        const serverUrl = <string | undefined> await this.termApiEndPointProvider();
+        const serverUrl = <URI | undefined> await this.termApiEndPointProvider();
         if (serverUrl) {
             registry.registerKeybinding({
                 command: NewTerminalInSpecificContainer.id,
