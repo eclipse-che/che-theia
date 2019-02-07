@@ -37,10 +37,8 @@ context('Check Extensions are installed', () => {
        '@theia/plugin-ext-vscode',
        '@theia/java',
        '@theia/typescript',
-       'che-theia-ssh-extension',
        '@eclipse-che/che-theia-hosted-plugin-manager-extension',
-       '@eclipse-che/theia-remote-extension',
-       'github-extension',
+       '@eclipse-che/theia-remote',
        '@eclipse-che/theia-activity-tracker',
        '@eclipse-che/theia-task-extension',
        '@eclipse-che/theia-terminal',
@@ -49,12 +47,4 @@ context('Check Extensions are installed', () => {
 
   })
 
-  // Search that SSH extension is there with actions
-  it('Command Palette include SSH extension', () => {
-    cy.theiaCommandPaletteItems('SSH:').then((value) => {
-      expect(value).to.have.length(4);
-      expect(value).to.have.members([
-        'SSH: copy public key to clipboard...', 'SSH: create key pair...', 'SSH: delete key pair...', 'SSH: generate key pair...']);
-    })
-  });
 })
