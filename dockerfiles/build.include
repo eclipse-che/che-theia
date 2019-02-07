@@ -50,6 +50,8 @@ init() {
   BUILD_ARGS=""
 
   PARENT_IMAGE=""
+  BRANCH=""
+  GIT_REF=""
 
   while [ $# -gt 0 ]; do
     case $1 in
@@ -83,6 +85,12 @@ init() {
       --build-arg*:*)
         BUILD_ARGS_CSV="${1#*:}"
         prepare_build_args $BUILD_ARGS_CSV
+        shift ;;
+      --branch:*)
+        BRANCH="${1#*:}"
+        shift ;;
+      --git-ref:*)
+        GIT_REF="${1#*:}"
         shift ;;
       --*)
         printf "${RED}Unknown parameter: $1${NC}\n"; exit 2 ;;
@@ -130,7 +138,7 @@ build() {
 build_image() {
   printf "${BOLD}Building Docker Image ${IMAGE_NAME} from $DIR directory with tag $TAG${NC}\n"
   # Replace macros in Dockerfiles
-  cat ${DIR}/${DOCKERFILE} | sed s/\$\{BUILD_ORGANIZATION\}/${ORGANIZATION}/ | sed s/\$\{BUILD_PREFIX\}/${PREFIX}/ | sed s/\$\{BUILD_TAG\}/${TAG}/ | sed s/\$\{BUILD_PARENT_IMAGE\}/${PARENT_IMAGE}/ > ${DIR}/.Dockerfile
+  cat ${DIR}/${DOCKERFILE} | sed s/\$\{BUILD_ORGANIZATION\}/${ORGANIZATION}/ | sed s/\$\{BUILD_PREFIX\}/${PREFIX}/ | sed s/\$\{BUILD_TAG\}/${TAG}/ | sed s/\$\{BUILD_PARENT_IMAGE\}/${PARENT_IMAGE}/ | sed s/\$\{GIT_BRANCH_NAME\}/${BRANCH}/ | sed s/\$\{GIT_REF\}/"${GIT_REF}"/ > ${DIR}/.Dockerfile
   cd "${DIR}" && docker build -f ${DIR}/.Dockerfile -t ${IMAGE_NAME} ${BUILD_ARGS} .
   rm ${DIR}/.Dockerfile
   if [ $? -eq 0 ]; then
