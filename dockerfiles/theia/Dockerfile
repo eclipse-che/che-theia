@@ -40,16 +40,10 @@ RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
     fi
 
 #invalidate cashe
-ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/theia-ide/theia/git/${GIT_REF} /tmp/master.json
+ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/theia-ide/theia/git/${GIT_REF} /tmp/branch_info.json
 
 # Clone theia
 RUN git clone --branch ${GIT_BRANCH_NAME}  --single-branch --depth 1 https://github.com/theia-ide/theia ${HOME}/theia-source-code
-# RUN if [ $THEIA_VERSION == "master" ]; then \
-#         echo "Cloning Theia master branch"; \
-#         (git clone --branch master  --single-branch --depth 1 https://github.com/theia-ide/theia ${HOME}/theia-source-code) ; \
-#     else \
-#       (git clone --branch v${THEIA_VERSION}  --single-branch --depth 1 https://github.com/theia-ide/theia ${HOME}/theia-source-code); \
-#     fi
 
 # Add patches
 ADD src/patches ${HOME}/patches
