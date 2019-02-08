@@ -10,7 +10,7 @@ cache:
   - node_modules
 branches:
   only:
-  - master
+  - 0.3.19
 env:
   global:
     - NODE_OPTIONS="--max_old_space_size=4096"
@@ -37,9 +37,3 @@ jobs:
     before_deploy:
       - printf "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}\n" >> ~/.npmrc
       - yarn
-    deploy:
-      - provider: script
-        script: yarn run publish:next
-        on:
-          branch: master
-        skip_cleanup: true

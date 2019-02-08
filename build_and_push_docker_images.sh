@@ -30,7 +30,7 @@ for image_dir in "${DOCKER_FILES_LOCATIONS[@]}"
     do
         if [ "$image_dir" == "dockerfiles/theia" ]; then
             THEIA_IMAGE_TAG="$(awk '/ARG THEIA_VERSION=/{print $NF}' dockerfiles/theia/Dockerfile | cut -d '=' -f2)-nightly"
-            bash $(pwd)/$image_dir/build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=master --branch:master --git-ref:refs\\/heads\\/master
+            bash $(pwd)/$image_dir/build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=0.3.19 --branch:v0.3.19 --git-ref:refs\\/tags\\/v\$\{THEIA_VERSION\}
         elif [ "$image_dir" == "dockerfiles/theia-dev" ]; then
             bash $(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN}
         else
@@ -44,7 +44,7 @@ for image_dir in "${DOCKER_FILES_LOCATIONS[@]}"
     done
 
 #Push images only if build task scheduled by cron
-if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
+#if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
     #PUSH IMAGES
     #docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
@@ -57,6 +57,6 @@ if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
                 echo y | docker push ${image}:nightly
             fi
         done
-else 
-    echo "Skip push docker images.";
-fi
+#else 
+#    echo "Skip push docker images.";
+#fi
