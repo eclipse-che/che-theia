@@ -19,4 +19,4 @@ extensions:
     - extensions/eclipse-che-theia-plugin-ext
     - extensions/eclipse-che-theia-terminal
     - extensions/eclipse-che-theia-remote
-  checkoutTo: master
+  checkoutTo: 0.3.19
