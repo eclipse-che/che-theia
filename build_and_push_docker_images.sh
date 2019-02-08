@@ -21,7 +21,6 @@ dockerfiles/theia
 IMAGES_LIST=(
 eclipse/che-theia-dev
 eclipse/che-theia
-eclipse/che-theia-master
 )
 
 
