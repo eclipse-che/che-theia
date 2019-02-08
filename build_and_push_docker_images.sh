@@ -21,7 +21,6 @@ dockerfiles/theia
 IMAGES_LIST=(
 eclipse/che-theia-dev
 eclipse/che-theia
-eclipse/che-theia-master
 )
 
 
@@ -29,8 +28,8 @@ eclipse/che-theia-master
 for image_dir in "${DOCKER_FILES_LOCATIONS[@]}"
     do
         if [ "$image_dir" == "dockerfiles/theia" ]; then
-            THEIA_IMAGE_TAG="nightly"
-            bash $(pwd)/$image_dir/build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=master --branch:master --git-ref:refs\\/heads\\/master
+            THEIA_IMAGE_TAG="master"
+            bash $(pwd)/$image_dir/build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=master --branch:master --git-ref:refs\\/heads\\/master 
         elif [ "$image_dir" == "dockerfiles/theia-dev" ]; then
             bash $(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN}
         else
