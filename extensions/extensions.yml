@@ -1,14 +1,4 @@
 extensions:
-- source: https://github.com/ws-skeleton/che-theia-remote-extension
-  checkoutTo: THEIA_0_3_18
-- source: https://github.com/eclipse/che-theia-github-plugin
-  folders:
-    - github-extension
-  checkoutTo: 0.0.2
-- source: https://github.com/eclipse/che-theia-ssh-plugin
-  folders:
-    - ssh-extension
-  checkoutTo: 0.0.2
 - source: https://github.com/eclipse/che-theia-dashboard-extension
   folders:
     - theia-dashboard-extension
@@ -18,7 +8,7 @@ extensions:
 - source: https://github.com/eclipse/che-theia-task-plugin
   folders:
     - che-theia-task-extension
-  checkoutTo: 0.3.17
+  checkoutTo: 0.3.19
 - source: https://github.com/eclipse/che-theia-activity-tracker
   folders:
     - che-theia-activity-tracker
@@ -28,4 +18,5 @@ extensions:
     - extensions/eclipse-che-theia-plugin
     - extensions/eclipse-che-theia-plugin-ext
     - extensions/eclipse-che-theia-terminal
-  checkoutTo: 0.0.3
+    - extensions/eclipse-che-theia-remote
+  checkoutTo: 0.0.4

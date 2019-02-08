@@ -19,7 +19,7 @@ WORKDIR ${HOME}
 ARG GITHUB_TOKEN
 
 # Define upstream version of theia to use
-ARG THEIA_VERSION=0.3.18
+ARG THEIA_VERSION=0.3.19
 
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
@@ -39,8 +39,11 @@ RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
       fi \
     fi
 
+#invalidate cashe
+ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/theia-ide/theia/git/${GIT_REF} /tmp/branch_info.json
+
 # Clone theia
-RUN git clone --branch v${THEIA_VERSION}  --single-branch --depth 1 https://github.com/theia-ide/theia ${HOME}/theia-source-code
+RUN git clone --branch ${GIT_BRANCH_NAME}  --single-branch --depth 1 https://github.com/theia-ide/theia ${HOME}/theia-source-code
 
 # Add patches
 ADD src/patches ${HOME}/patches
@@ -61,7 +64,13 @@ WORKDIR ${HOME}/theia-source-code
 
 COPY che-theia/extensions.yml ${HOME}/extensions.yml
 
-RUN che:theia init -c ${HOME}/extensions.yml
+#RUN che:theia init -c ${HOME}/extensions.yml
+RUN if [ ${THEIA_VERSION} == "master" ]; then \
+        echo "Working in dev mode"; \
+        (che:theia init -d -c ${HOME}/extensions.yml); \
+    else \
+        (che:theia init -c ${HOME}/extensions.yml);\
+    fi
 RUN che:theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 
 # Compile Theia

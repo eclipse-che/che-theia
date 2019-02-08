@@ -10,6 +10,7 @@ base_dir=$(cd "$(dirname "$0")"; pwd)
 . "${base_dir}/../../build.include"
 
 init --name:theia-e2e "$@"
+PARENT_IMAGE="$1"
 build
 if ! skip_tests; then
   bash "${base_dir}"/test.sh "$@"

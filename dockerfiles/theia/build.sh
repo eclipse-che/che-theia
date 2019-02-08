@@ -36,7 +36,7 @@ fi
 build
 
 if ! skip_tests; then
-  bash "${base_dir}"/e2e/build.sh "$@"
+  bash "${base_dir}"/e2e/build.sh "$PREFIX-$NAME" "$@" 
 fi
 
 echo "Extracting artifacts for the CDN"
