@@ -13,15 +13,13 @@ First you need to build `che-theia-dev` image:
 
 Run in `dockerfiles/theia-dev` dir:
 ```bash
-    ./build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN}
+    ./build.sh
 ```
-
-> `${GITHUB_TOKEN}` there is your GitHub token: [GitHub docs](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)
 
 Then in `dockerfiles/theia` run:
 
 ```bash
-./build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=master --branch:master --git-ref:refs\\/heads\\/master
+./build.sh --build-args:THEIA_VERSION=master --branch:master --git-ref:refs\\/heads\\/master
 ```
 
 That script will clone Theia from master branch and all Che related extensions from theirs master branches.
