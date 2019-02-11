@@ -42,8 +42,8 @@ for image_dir in "${DOCKER_FILES_LOCATIONS[@]}"
         fi
     done
 
-#Push images only if build task scheduled by cron
-if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
+
+if [ "$BUILD_BRANCH" == "master" ]; then
     #PUSH IMAGES
     #docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin

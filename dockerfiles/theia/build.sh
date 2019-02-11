@@ -47,7 +47,7 @@ if [ -n "${LABEL_CONTENT}" ]; then
   BUILD_ARGS+="--label che-plugin.cdn.artifacts=$(echo ${LABEL_CONTENT} | sed 's/ //g') "
   echo "Rebuilding with CDN label..."
   build
-  if [ "${TRAVIS_EVENT_TYPE:-}" == "cron" ]; then
+  if [ "${BUILD_BRANCH:-}" == "master" ]; then
     "${base_dir}"/push-cdn-files-to-akamai.sh
   fi
 fi
