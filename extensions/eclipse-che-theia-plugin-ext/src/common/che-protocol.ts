@@ -41,6 +41,18 @@ export interface CheFactoryMain {
     $getFactoryById(factoryId: string): Promise<cheApi.factory.Factory>;
 }
 
+
+export interface CheSsh {
+}
+
+export interface CheSshMain {
+    $generate(service: string, name: string): Promise<cheApi.ssh.SshPair>;
+    $create(sshKeyPair: cheApi.ssh.SshPair): Promise<void>;
+    $get(service: string, name: string): Promise<cheApi.ssh.SshPair>;
+    $getAll(service: string): Promise<cheApi.ssh.SshPair[]>;
+    $deleteKey(service: string, name: string): Promise<void>;
+}
+
 /**
  * Variables plugin API
  */
@@ -313,6 +325,9 @@ export const PLUGIN_RPC_CONTEXT = {
 
     CHE_VARIABLES: <ProxyIdentifier<CheVariables>>createProxyIdentifier<CheVariables>('CheVariables'),
     CHE_VARIABLES_MAIN: <ProxyIdentifier<CheVariablesMain>>createProxyIdentifier<CheVariablesMain>('CheVariablesMain'),
+
+    CHE_SSH: <ProxyIdentifier<CheSsh>>createProxyIdentifier<CheSsh>('CheSsh'),
+    CHE_SSH_MAIN: <ProxyIdentifier<CheSshMain>>createProxyIdentifier<CheSshMain>('CheSshMain'),
 };
 
 // Theia RPC protocol
@@ -331,4 +346,13 @@ export interface CheApiService {
 
     getFactoryById(factoryId: string): Promise<cheApi.factory.Factory>;
 
+    generateSshKey(service: string, name: string): Promise<cheApi.ssh.SshPair>;
+
+    createSshKey(sshKeyPair: cheApi.ssh.SshPair): Promise<void>;
+
+    getSshKey(service: string, name: string): Promise<cheApi.ssh.SshPair>;
+
+    deleteSshKey(service: string, name: string): Promise<void>;
+
+    getAllSshKey(service: string): Promise<cheApi.ssh.SshPair[]>;
 }
