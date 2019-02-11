@@ -52,6 +52,9 @@ if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
             if [ "$image" == "eclipse/che-theia" ]; then
                 docker tag ${image}:nightly ${image}:${THEIA_IMAGE_TAG}
                 echo y | docker push ${image}:${THEIA_IMAGE_TAG}
+            elif ["$image" == "eclipse/che-theia-dev"]; then 
+                docker tag ${image}:nightly ${image}:${THEIA_IMAGE_TAG}
+                echo y | docker push ${image}:${THEIA_IMAGE_TAG}
             else
                 echo y | docker push ${image}:nightly
             fi
