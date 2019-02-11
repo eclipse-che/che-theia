@@ -39,6 +39,18 @@ declare module '@eclipse-che/plugin' {
         export function getById(id: string): PromiseLike<cheApi.factory.Factory>;
     }
 
+    export namespace ssh {
+        export function generate(service: string, name: string): Promise<cheApi.ssh.SshPair>;
+
+        export function create(sshKeyPair: cheApi.ssh.SshPair): Promise<void>;
+
+        export function get(service: string, name: string): Promise<cheApi.ssh.SshPair>;
+
+        export function getAll(service: string): Promise<cheApi.ssh.SshPair[]>;
+
+        export function deleteKey(service: string, name: string): Promise<void>;
+    }
+
     /**
      * Namespace for variables substitution functionality.
      */
