@@ -85,69 +85,6 @@ export class CheApiServiceImpl implements CheApiService {
         }
     }
 
-    async generateSshKey(service: string, name: string): Promise<cheApi.ssh.SshPair> {
-        try {
-            const client = await this.wsClient();
-            if (client) {
-                return client.generateSshKey(service, name);
-            }
-
-            throw new Error(`Unable to generate SSH Key for ${service}:${name}`);
-        } catch (e) {
-            throw new Error('Unable to create Che API REST Client');
-        }
-    }
-
-    async createSshKey(sshKeyPair: cheApi.ssh.SshPair): Promise<void> {
-        try {
-            const client = await this.wsClient();
-            if (client) {
-                return client.createSshKey(sshKeyPair);
-            }
-
-            throw new Error(`Unable to create SSH Key`);
-        } catch (e) {
-            throw new Error(e);
-        }
-    }
-
-    async getSshKey(service: string, name: string): Promise<cheApi.ssh.SshPair> {
-        try {
-            const client = await this.wsClient();
-            if (client) {
-                return await client.getSshKey(service, name);
-            }
-
-            throw new Error(`Unable to get SSH Key for ${service}:${name}`);
-        } catch (e) {
-            throw new Error(e);
-        }
-    }
-
-    async getAllSshKey(service: string): Promise<cheApi.ssh.SshPair[]> {
-        try {
-            const client = await this.wsClient();
-            if (client) {
-                return client.getAllSshKey(service);
-            }
-            throw new Error(`Unable to get SSH Keys for ${service}`);
-        } catch (e) {
-            throw new Error(e);
-        }
-    }
-
-    async deleteSshKey(service: string, name: string): Promise<void> {
-        try {
-            const client = await this.wsClient();
-            if (client) {
-                return client.deleteSshKey(service, name);
-            }
-            throw new Error(`Unable to delete SSH Key for ${service}:${name}`);
-        } catch (e) {
-            throw new Error(e);
-        }
-    }
-
     private async wsClient(): Promise<IRemoteAPI | undefined> {
         const cheApiInternalVar = process.env.CHE_API_INTERNAL;
         const cheMachineToken = process.env.CHE_MACHINE_TOKEN;
