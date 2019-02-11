@@ -21,7 +21,6 @@ dockerfiles/theia
 IMAGES_LIST=(
 eclipse/che-theia-dev
 eclipse/che-theia
-eclipse/che-theia-master
 )
 
 
@@ -29,8 +28,8 @@ eclipse/che-theia-master
 for image_dir in "${DOCKER_FILES_LOCATIONS[@]}"
     do
         if [ "$image_dir" == "dockerfiles/theia" ]; then
-            THEIA_IMAGE_TAG="$(awk '/ARG THEIA_VERSION=/{print $NF}' dockerfiles/theia/Dockerfile | cut -d '=' -f2)-nightly"
-            bash $(pwd)/$image_dir/build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=master --branch:master --git-ref:refs\\/heads\\/master
+            THEIA_IMAGE_TAG="master"
+            bash $(pwd)/$image_dir/build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=master --branch:master --git-ref:refs\\/heads\\/master 
         elif [ "$image_dir" == "dockerfiles/theia-dev" ]; then
             bash $(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN}
         else
@@ -51,6 +50,9 @@ if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
     for image in "${IMAGES_LIST[@]}"
         do
             if [ "$image" == "eclipse/che-theia" ]; then
+                docker tag ${image}:nightly ${image}:${THEIA_IMAGE_TAG}
+                echo y | docker push ${image}:${THEIA_IMAGE_TAG}
+            elif ["$image" == "eclipse/che-theia-dev"]; then 
                 docker tag ${image}:nightly ${image}:${THEIA_IMAGE_TAG}
                 echo y | docker push ${image}:${THEIA_IMAGE_TAG}
             else
