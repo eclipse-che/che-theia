@@ -20,8 +20,15 @@ COPY *.json /home/theia-endpoint/
 COPY /src /home/theia-endpoint/src
 RUN cd /home/theia-endpoint/ && yarn install
 
+FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-dev:${BUILD_TAG} as eclipse-che-theia-plugin-ext-builder
+
+# Compile
+COPY /eclipse-che-theia-plugin-ext /home/eclipse-che-theia-plugin-ext
+RUN cd /home/eclipse-che-theia-plugin-ext/ && yarn install
+
 FROM node:8.12-alpine
 # Grab runtime
 COPY --from=builder /home/theia-endpoint/node_modules /home/theia/node_modules
 COPY --from=builder /home/theia-endpoint/lib /home/theia/lib
+COPY --from=eclipse-che-theia-plugin-ext-builder /home/eclipse-che-theia-plugin-ext /home/theia/node_modules/@eclipse-che/theia-plugin-ext
 CMD node /home/theia/lib/node/plugin-remote.js

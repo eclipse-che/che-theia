@@ -1,3 +1,4 @@
+theia-plugin-ext
 node_modules
 .browser_modules
 lib
@@ -5,3 +6,4 @@ lib
 *-app/*
 !*-app/package.json
 .idea
+.Dockerfile
