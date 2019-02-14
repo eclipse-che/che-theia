@@ -13,16 +13,16 @@
         "@theia/plugin-packager": "latest",
         "@eclipse-che/api": "latest",
         "@eclipse-che/plugin": "latest",
-        "@eclipse-che/scripts": "^0.0.1"
+        "@eclipse-che/theia-scripts": "^0.0.1"
     },
     "scripts": {
         "prepare": "yarn run clean && yarn run build && yarn tslint-fix && yarn run test",
-        "clean": "che:script clean",
-        "format-code": "che:script format",
-        "watch": "che:script watch",
-        "compile": "che:script compile",
-        "build": "che:script build && theia:plugin pack",
-        "tslint-fix": "che:script lint:fix",
+        "clean": "che-theia clean",
+        "format-code": "che-theia format",
+        "watch": "che-theia watch",
+        "compile": "che-theia compile",
+        "build": "che-theia build && theia:plugin pack",
+        "tslint-fix": "che-theia lint:fix",
         "test": "jest",
         "test-watch": "jest --watchAll"
     },

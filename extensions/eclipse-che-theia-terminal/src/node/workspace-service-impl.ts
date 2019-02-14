@@ -53,8 +53,8 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
                 continue;
             }
             const machine = machines[machineName];
-            if (machine) {
-                const servers = machine.servers!;
+            if (machine && machine.servers) {
+                const servers = machine.servers;
                 for (const serverName in servers) {
                     if (!servers.hasOwnProperty(serverName)) {
                         continue;
@@ -83,8 +83,8 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
                 continue;
             }
             const machine = machines[machineName];
-            if (machine) {
-                const servers = machine.servers!;
+            if (machine && machine.servers) {
+                const servers = machine.servers;
                 for (const serverName in servers) {
                     if (!servers.hasOwnProperty(serverName)) {
                         continue;

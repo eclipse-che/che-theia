@@ -18,17 +18,17 @@
     "@theia/plugin": "0.3.19",
     "@theia/plugin-packager": "latest",
     "@eclipse-che/plugin": "latest",
-    "@eclipse-che/scripts": "^0.0.1"
+    "@eclipse-che/theia-scripts": "^0.0.1"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
-    "clean": "che:script clean",
-    "format-code": "che:script format",
-    "compile": "che:script compile",
-    "watch": "che:script watch",
-    "tslint-fix": "che:script lint:fix",
-    "tslint": "che:script lint",
-    "build": "che:script lint:fix && che:script build && theia:plugin pack"
+    "clean": "che-theia clean",
+    "format-code": "che-theia format",
+    "compile": "che-theia compile",
+    "watch": "che-theia watch",
+    "tslint-fix": "che-theia lint:fix",
+    "tslint": "che-theia lint",
+    "build": "che-theia lint:fix && che-theia build && theia:plugin pack"
   },
   "engines": {
     "theiaPlugin": "next"

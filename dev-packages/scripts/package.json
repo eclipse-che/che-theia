@@ -1,30 +1,31 @@
 {
     "private": true,
-    "name": "@eclipse-che/scripts",
+    "name": "@eclipse-che/theia-scripts",
     "version": "0.0.1",
     "description": "NPM scripts for Che-Theia packages.",
     "files": [
-        "chescript.js"
+        "che-theia.js"
     ],
     "bin": {
-        "che:script": "chescript.js"
+        "che-theia": "che-theia.js"
     },
     "scripts": {
-        "prepare": "echo 'skip'",
+        "prepare": "yarn che:compile",
         "clean": "echo 'skip'",
         "build": "echo 'skip'",
         "watch": "echo 'skip'",
         "test": "echo 'skip'",
         "docs": "echo 'skip'",
-        "che:clean": "che:script compile:clean",
-        "che:build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"che:script format\" \"che:script lint\" \"che:script compile\"",
+        "che:clean": "che-theia compile:clean",
+        "che:build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"che-theia format\" \"che-theia lint\" \"che-theia compile\"",
         "che:format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
         "che:compile": "tsc",
         "che:compile:clean": "rimraf lib",
         "che:lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
         "che:lint:fix": "tslint -c ../../configs/tslint.json --fix --project .",
-        "che:watch": "tsc -w",
-        "che:test": "",
-        "che:test:watch": ""
+        "che:watch": "tsc -w"
+    },
+    "devDependencies": {
+        "@types/node": "^11.9.3"
     }
 }

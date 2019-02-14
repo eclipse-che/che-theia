@@ -24,15 +24,15 @@
         "ts-node": "5.0.1",
         "webpack": "^4.20.2",
         "webpack-cli": "^3.1.1",
-        "@eclipse-che/scripts": "^0.0.1"
+        "@eclipse-che/theia-scripts": "^0.0.1"
     },
     "scripts": {
         "prepare": "yarn run clean && yarn run build",
-        "clean": "che:script clean",
-        "format-code": "che:script format",
-        "build": "che:script build && yarn run compileWorker",
+        "clean": "che-theia clean",
+        "format-code": "che-theia format",
+        "build": "che-theia build && yarn run compileWorker",
         "compileWorker": "webpack-cli --config webpack.config.js",
-        "watch": "che:script watch"
+        "watch": "che-theia watch"
     },
     "theiaExtensions": [
         {

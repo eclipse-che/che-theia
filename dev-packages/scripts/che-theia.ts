@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*********************************************************************
- * Copyright (c) 2018 Red Hat, Inc.
+ * Copyright (c) 2019 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,7 @@ const cp = require('child_process');
 
 const cheScriptsPck = require(path.resolve(__dirname, 'package.json'));
 
-function run(script) {
+function run(script: string): Promise<number> {
     return new Promise((resolve, reject) => {
         const env = Object.assign({}, process.env);
         const scriptProcess = cp.exec(script, {
@@ -28,11 +28,11 @@ function run(script) {
     });
 }
 
-function getCheScript() {
-    const commandIndex = process.argv.findIndex(arg => arg.endsWith('che:script')) + 1;
+function getCheScript(): string {
+    const commandIndex = process.argv.findIndex(arg => arg.endsWith('che-theia')) + 1;
     const args = process.argv.slice(commandIndex);
     if (!args[0]) {
-        throw new Error('Please specify the script that runs with che:script command.');
+        throw new Error('Please specify the script that runs with che-theia command.');
     }
     const script = 'che:' + args[0];
     if (!(script in cheScriptsPck.scripts)) {
@@ -40,8 +40,6 @@ function getCheScript() {
     }
     return [cheScriptsPck.scripts[script], ...args.slice(1, args.length)].join(' ');
 }
-
-
 
 (async () => {
     let exitCode = 0;
@@ -51,9 +49,9 @@ function getCheScript() {
         exitCode = await run(cheScript);
     } catch (err) {
         if (cheScript) {
-            console.error(`Error occurred in che:script when executing: '${cheScript}'`, err);
+            console.error(`Error occurred in che-theia when executing: '${cheScript}'`, err);
         } else {
-            console.error('Error occurred in che:script', err);
+            console.error('Error occurred in che-theia', err);
         }
         console.log(`${err.name}: ${err.message}`);
         exitCode = 1;

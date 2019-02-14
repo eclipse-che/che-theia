@@ -24,13 +24,13 @@
   },
   "license": "EPL-2.0",
   "devDependencies": {
-    "@eclipse-che/scripts": "^0.0.1"
+    "@eclipse-che/theia-scripts": "^0.0.1"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
-    "clean": "che:script clean",
-    "build": "che:script build",
-    "watch": "che:script watch"
+    "clean": "che-theia clean",
+    "build": "che-theia build",
+    "watch": "che-theia watch"
   },
   "theiaExtensions": [
     {

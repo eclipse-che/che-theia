@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "noEmitHelpers": false,
+        "target": "es6",
+        "lib": [
+            "es6"
+        ],
+        "sourceMap": false,
+        "skipLibCheck": true
+    },
+    "include": [
+        "che-theia.ts"
+    ]
+}

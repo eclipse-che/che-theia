@@ -15,12 +15,12 @@
     },
     "scripts": {
         "prepare": "",
-        "clean": "che:script clean",
+        "clean": "che-theia clean",
         "build": "",
         "watch": "",
         "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
     },
     "devDependencies": {
-        "@eclipse-che/scripts": "^0.0.1"
+        "@eclipse-che/theia-scripts": "^0.0.1"
     }
 }
