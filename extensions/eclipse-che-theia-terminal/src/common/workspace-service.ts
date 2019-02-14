@@ -25,8 +25,4 @@ export interface CHEWorkspaceService {
     findTerminalServer(): Promise<che.workspace.Server | undefined>;
 
     findEditorMachineName(): Promise<string | undefined>
-
-    getWorkspaceId(): Promise<string | undefined>;
-
-    getWsMasterApiEndPoint(): Promise<string | undefined>;
 }

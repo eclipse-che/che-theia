@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
+
 import { injectable, inject } from 'inversify';
 import WorkspaceClient, { IRemoteAPI, IRestAPIConfig } from '@eclipse-che/workspace-client';
 import { che } from "@eclipse-che/api";
@@ -98,22 +99,22 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
         return undefined;
     }
 
-    public async getWorkspaceId(): Promise<string | undefined> {
-        return await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
+    private getWorkspaceId(): string | undefined {
+        return process.env['CHE_WORKSPACE_ID'];
     }
 
-    public async getWsMasterApiEndPoint(): Promise<string | undefined> {
-        return await this.baseEnvVariablesServer.getValue('CHE_API_EXTERNAL').then(v => v ? v.value : undefined);
+    private getWsMasterApiEndPoint(): string | undefined {
+        return process.env['CHE_API_EXTERNAL'];
     }
 
-    private async getMachineToken(): Promise<string> {
-        return await this.baseEnvVariablesServer.getValue('CHE_MACHINE_TOKEN').then(v => v ? v.value : undefined);
+    private getMachineToken(): string | undefined {
+        return process.env['CHE_MACHINE_TOKEN'];
     }
 
-    private async getRemoteApi(): Promise<IRemoteAPI> {
+    private getRemoteApi(): IRemoteAPI {
         if (!this.api) {
-            const machineToken = await this.getMachineToken();
-            const baseUrl = await this.getWsMasterApiEndPoint();
+            const machineToken = this.getMachineToken();
+            const baseUrl = this.getWsMasterApiEndPoint();
             const restConfig: IRestAPIConfig = { baseUrl: baseUrl, headers: {} };
 
             if (machineToken) {

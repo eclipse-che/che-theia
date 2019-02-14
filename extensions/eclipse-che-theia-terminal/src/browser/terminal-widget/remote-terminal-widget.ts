@@ -149,7 +149,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
     protected createWebSocket(pid: string): WebSocket {
         const url = new URI(this.options.endpoint).resolve(ATTACH_TERMINAL_SEGMENT).resolve(this.terminalId + '');
-        return new WebSocket(url.toString());
+        return new WebSocket(url.toString(true));
     }
 
     protected async attachTerminal(id: number): Promise<number | undefined> {

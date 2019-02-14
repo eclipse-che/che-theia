@@ -25,7 +25,11 @@ jobs:
   - stage: build
     install: skip
     before_script: skip
-    script: travis_retry yarn && ./build_and_push_docker_images.sh;
+    script:
+      - yarn
+      - export BUILD_BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
+      - travis_retry ./build_and_push_docker_images.sh;
+      - ./che-plugins/build.sh
   - stage: deploy
     os: linux
     before_script: skip
@@ -35,8 +39,8 @@ jobs:
       - printf "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}\n" >> ~/.npmrc
       - yarn
     deploy:
-      provider: script
-      script: yarn run publish:next
-      on:
-        branch: master
-      skip_cleanup: true
+      - provider: script
+        script: yarn run publish:next
+        on:
+          branch: master
+        skip_cleanup: true

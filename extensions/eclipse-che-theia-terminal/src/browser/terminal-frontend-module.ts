@@ -25,6 +25,8 @@ import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/brows
 import { RemoteTerminalWidget } from './terminal-widget/remote-terminal-widget';
 import { RemoteTerminaActiveKeybingContext } from './contribution/keybinding-context';
 import { RemoteTerminalServerProxy, RemoteTerminalServer, RemoteTerminalWatcher } from './server-definition/remote-terminal-protocol';
+import URI from '@theia/core/lib/common/uri';
+import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 
 export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Unbind, isBound: interfaces.IsBound, rebind: interfaces.Rebind)  => {
     bind(KeybindingContext).to(RemoteTerminaActiveKeybingContext).inSingletonScope();
@@ -72,25 +74,28 @@ export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Un
         return provider.createProxy<CHEWorkspaceService>(cheWorkspaceServicePath);
     }).inSingletonScope();
 
-    bind<TerminalApiEndPointProvider>('TerminalApiEndPointProvider').toProvider<string>((context) => {
-        return () => {
-            return new Promise<string>((resolve, reject) => {
-                const workspaceService = context.container.get<CHEWorkspaceService>(CHEWorkspaceService);
+    bind<TerminalApiEndPointProvider>('TerminalApiEndPointProvider').toProvider<URI | undefined>((context) => {
+        return async () => {
+            const workspaceService = context.container.get<CHEWorkspaceService>(CHEWorkspaceService);
+            const envServer = context.container.get<EnvVariablesServer>(EnvVariablesServer);
+            try {
+                const server = await workspaceService.findTerminalServer();
+                if (server) {
+                    bind(TerminalWidget).to(RemoteTerminalWidget).inTransientScope();
+                    rebind(TerminalService).toService(ExecTerminalFrontendContribution);
 
-                workspaceService.findTerminalServer().then(server => {
-                    if (server) {
-                        bind(TerminalWidget).to(RemoteTerminalWidget).inTransientScope();
-                        rebind(TerminalService).toService(ExecTerminalFrontendContribution);
-
-                        return resolve(server.url);
+                    const token = await envServer.getValue('CHE_MACHINE_TOKEN');
+                    let uri = new URI(server.url);
+                    if (token.value) {
+                        uri = uri.withQuery('token=' + token.value);
                     }
-                    return resolve(undefined);
-                }).catch(err => {
-                    console.error('Failed to get remote terminal server api end point url. Cause: ', err);
-                    resolve(undefined);
-                });
-            });
-        };
+                    return uri;
+                }
+            } catch(err) {
+                console.error('Failed to get remote terminal server api end point url. Cause: ', err);
+            }
+            return undefined;
+        }
     });
 
     bind<TerminalProxyCreatorProvider>('TerminalProxyCreatorProvider').toProvider<TerminalProxyCreator>((context) => {

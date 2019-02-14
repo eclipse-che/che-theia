@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: EPL-2.0
 
 # Use upstream image
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia:${BUILD_TAG} as theia
+FROM ${BUILD_ORGANIZATION}/${BUILD_PARENT_IMAGE}:${BUILD_TAG} as theia
 FROM cypress/browsers:chrome67
 
 USER root
@@ -26,4 +26,3 @@ ADD cypress /root/cypress/
 COPY --from=theia /home/theia /home/theia
 COPY --from=theia /entrypoint.sh /entrypoint.sh
 RUN find /home/theia/ -name "binding.gyp" |  xargs -i sh -c 'cd $(dirname {}) && node-gyp rebuild'
- 

@@ -10,6 +10,19 @@
 base_dir=$(cd "$(dirname "$0")"; pwd)
 . "${base_dir}"/../build.include
 
+DIR=$(cd "$(dirname "$0")"; pwd)
+LOCAL_ASSEMBLY_DIR="${DIR}"/che-theia
+
+if [ -d "${LOCAL_ASSEMBLY_DIR}" ]; then
+  rm -r "${LOCAL_ASSEMBLY_DIR}"
+fi
+
+#in mac os 'cp' cannot create destination dir, so create it first
+mkdir ${LOCAL_ASSEMBLY_DIR}
+
+echo "Copying ${base_dir}/../../extensions/extensions.yml --> ${LOCAL_ASSEMBLY_DIR}/extensions.yml"
+cp "${base_dir}/../../extensions/extensions.yml" "${LOCAL_ASSEMBLY_DIR}/"
+
 init --name:theia "$@"
 
 if [ "${CDN_PREFIX:-}" != "" ]; then
@@ -23,7 +36,7 @@ fi
 build
 
 if ! skip_tests; then
-  bash "${base_dir}"/e2e/build.sh "$@"
+  bash "${base_dir}"/e2e/build.sh "$PREFIX-$NAME" "$@" 
 fi
 
 echo "Extracting artifacts for the CDN"
@@ -34,7 +47,7 @@ if [ -n "${LABEL_CONTENT}" ]; then
   BUILD_ARGS+="--label che-plugin.cdn.artifacts=$(echo ${LABEL_CONTENT} | sed 's/ //g') "
   echo "Rebuilding with CDN label..."
   build
-  if [ "${TRAVIS_EVENT_TYPE:-}" == "cron" ]; then
+  if [ "${BUILD_BRANCH:-}" == "master" ]; then
     "${base_dir}"/push-cdn-files-to-akamai.sh
   fi
 fi
