@@ -18,5 +18,5 @@ extensions:
     - extensions/eclipse-che-theia-plugin
     - extensions/eclipse-che-theia-plugin-ext
     - extensions/eclipse-che-theia-terminal
-    - dockerfiles/theia-endpoint-runtime
+    - extensions/eclipse-che-theia-remote
   checkoutTo: 0.3.19
