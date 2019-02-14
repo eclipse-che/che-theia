@@ -8,27 +8,24 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM node:8.12-alpine as builder
-RUN apk add --no-cache make gcc g++ python
+FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-dev:${BUILD_TAG} as builder
+
 
 # Grab dependencies
-COPY /package.json /home/theia-endpoint/
-RUN cd /home/theia-endpoint/ && yarn install --ignore-scripts
+COPY /package.json /home/workspace/packages/theia-remote/
+RUN cd /home/workspace/packages/theia-remote/ && yarn install --ignore-scripts
 
 # Compile
-COPY *.json /home/theia-endpoint/
-COPY /src /home/theia-endpoint/src
-RUN cd /home/theia-endpoint/ && yarn install
+COPY *.json /home/workspace/packages/theia-remote/
+COPY /src /home/workspace/packages/theia-remote/src
+COPY /theia-plugin-ext /home/workspace/packages/theia-plugin-ext
 
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-dev:${BUILD_TAG} as eclipse-che-theia-plugin-ext-builder
-
-# Compile
-COPY /eclipse-che-theia-plugin-ext /home/eclipse-che-theia-plugin-ext
-RUN cd /home/eclipse-che-theia-plugin-ext/ && yarn install
+COPY /etc/package.json /home/workspace
+RUN cd /home/workspace/ && yarn install
 
 FROM node:8.12-alpine
-# Grab runtime
-COPY --from=builder /home/theia-endpoint/node_modules /home/theia/node_modules
-COPY --from=builder /home/theia-endpoint/lib /home/theia/lib
-COPY --from=eclipse-che-theia-plugin-ext-builder /home/eclipse-che-theia-plugin-ext /home/theia/node_modules/@eclipse-che/theia-plugin-ext
+COPY --from=builder /home/workspace/node_modules /home/theia/node_modules
+RUN rm -rf /home/theia/node_modules/@eclipse-che/theia-plugin-ext /home/theia/node_modules/@eclipse-che/theia-remote
+COPY --from=builder /home/workspace/packages/theia-plugin-ext /home/theia/node_modules/@eclipse-che/theia-plugin-ext
+COPY --from=builder /home/workspace/packages/theia-remote/lib /home/theia/lib
 CMD node /home/theia/lib/node/plugin-remote.js
