@@ -16,7 +16,6 @@
       "clean": "rimraf packages/**/lib",
       "format-code": "tsfmt -r --baseDir packages/theia-remote && tsfmt -r --baseDir packages/theia-plugin-ext",
       "compile": "tsc -b packages/**",
-      "build": "yarn run format-code && yarn run compile && yarn run tslint-fix",
-      "compileWorker": "webpack-cli --config packages/theia-plugin-ext/webpack.config.js"
+      "build": "yarn run format-code && yarn run compile && yarn run tslint-fix"
     }
   }
