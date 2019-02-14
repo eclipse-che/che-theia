@@ -18,4 +18,4 @@
       "compile": "tsc -b packages/**",
       "build": "yarn run format-code && yarn run compile && yarn run tslint-fix"
     }
-  }
+  }  
