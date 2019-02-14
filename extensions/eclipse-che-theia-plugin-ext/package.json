@@ -14,28 +14,25 @@
     ],
     "dependencies": {
         "@eclipse-che/plugin": "latest",
-        "@eclipse-che/workspace-client": "^0.0.1-1546509769",
+        "@eclipse-che/workspace-client": "latest",
         "@theia/core": "0.3.19",
         "@theia/plugin-ext": "0.3.19"
     },
     "devDependencies": {
         "clean-webpack-plugin": "^0.1.19",
-        "rimraf": "2.6.2",
         "ts-loader": "^4.1.0",
         "ts-node": "5.0.1",
-        "typescript": "^2.9.2",
-        "typescript-formatter": "7.2.2",
         "webpack": "^4.20.2",
-        "webpack-cli": "^3.1.1"
+        "webpack-cli": "^3.1.1",
+        "@eclipse-che/scripts": "^0.0.1"
     },
     "scripts": {
         "prepare": "yarn run clean && yarn run build",
-        "clean": "rimraf lib",
-        "compile": "tsc",
-        "format-code": "tsfmt -r",
-        "build": "yarn run format-code && yarn run compile && yarn run compileWorker",
+        "clean": "che:script clean",
+        "format-code": "che:script format",
+        "build": "che:script build && yarn run compileWorker",
         "compileWorker": "webpack-cli --config webpack.config.js",
-        "watch": "tsc -w"
+        "watch": "che:script watch"
     },
     "theiaExtensions": [
         {

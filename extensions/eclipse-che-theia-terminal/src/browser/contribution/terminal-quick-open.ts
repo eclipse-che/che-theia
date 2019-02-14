@@ -13,9 +13,9 @@ import { QuickOpenService, QuickOpenModel, QuickOpenItem } from '@theia/core/lib
 import { QuickOpenMode, QuickOpenOptions, WidgetManager, ApplicationShell } from '@theia/core/lib/browser';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { REMOTE_TERMINAL_WIDGET_FACTORY_ID, RemoteTerminalWidgetFactoryOptions } from '../terminal-widget/remote-terminal-widget';
-import {CHEWorkspaceService} from '../../common/workspace-service';
-import {TerminalApiEndPointProvider} from '../server-definition/terminal-proxy-creator';
-import {TerminalWidget, TerminalWidgetOptions} from '@theia/terminal/lib/browser/base/terminal-widget';
+import { CHEWorkspaceService } from '../../common/workspace-service';
+import { TerminalApiEndPointProvider } from '../server-definition/terminal-proxy-creator';
+import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal-widget';
 import { RemoteTerminalWidget } from '../terminal-widget/remote-terminal-widget';
 import { OpenTerminalHandler } from './exec-terminal-contribution';
 import URI from '@theia/core/lib/common/uri';
@@ -33,7 +33,7 @@ export class TerminalQuickOpenService {
     ) {
     }
 
-     public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions): Promise<TerminalWidget> {
+    public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions): Promise<TerminalWidget> {
         try {
             const workspaceId = <string>await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
             const termApiEndPoint = <URI | undefined>await this.termApiEndPointProvider();
@@ -61,7 +61,7 @@ export class TerminalQuickOpenService {
                 if (!machines.hasOwnProperty(machineName)) {
                     continue;
                 }
-                items.push(new NewTerminalItem(machineName, async (newTermItemFunc) => {
+                items.push(new NewTerminalItem(machineName, async newTermItemFunc => {
                     doOpen(newTermItemFunc.machineName);
                 }));
             }

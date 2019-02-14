@@ -96,7 +96,7 @@ export class FactoryInitializer {
             cloneCommands.map(command => command.execute())
         );
 
-        theia.window.showInformationMessage("Che Factory: Finished cloning projects.");
+        theia.window.showInformationMessage('Che Factory: Finished cloning projects.');
     }
 
     private async executeOnProjectsImportedCommands(onProjectsImportedCommands: TheiaCommand[]) {

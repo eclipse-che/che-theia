@@ -34,8 +34,8 @@ export class CheWorkspaceMainImpl implements CheWorkspaceMain {
         });
     }
 
-    async $update(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<any> {
-        await this.cheApiService.updateWorkspace(workspaceId, workspace);
+    async $update(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<cheApi.workspace.Workspace> {
+        return await this.cheApiService.updateWorkspace(workspaceId, workspace);
     }
 
 }

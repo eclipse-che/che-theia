@@ -11,18 +11,16 @@
         "src"
     ],
     "dependencies": {
-        "@eclipse-che/api": "^6.16.1"
+        "@eclipse-che/api": "latest"
     },
     "scripts": {
         "prepare": "",
-        "format-code": "tsfmt -r",
-        "clean": "",
-        "build": "yarn run format-code",
+        "clean": "che:script clean",
+        "build": "",
         "watch": "",
         "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
     },
-	"devDependencies": {
-        "typescript": "^2.9.2",
-		"typescript-formatter": "7.2.2"
-	}
+    "devDependencies": {
+        "@eclipse-che/scripts": "^0.0.1"
+    }
 }

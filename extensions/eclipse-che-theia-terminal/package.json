@@ -24,14 +24,13 @@
   },
   "license": "EPL-2.0",
   "devDependencies": {
-    "typescript": "3.1.3",
-    "rimraf": "2.6.2"
+    "@eclipse-che/scripts": "^0.0.1"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
-    "clean": "rimraf lib",
-    "build": "tsc",
-    "watch": "tsc -w"
+    "clean": "che:script clean",
+    "build": "che:script build",
+    "watch": "che:script watch"
   },
   "theiaExtensions": [
     {

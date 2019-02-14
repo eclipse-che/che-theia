@@ -23,7 +23,7 @@ export interface CheWorkspaceMain {
     // getAllByNamespace(namespace: string): Promise<Workspace[]>;
     $getById(workspaceId: string): Promise<cheApi.workspace.Workspace>;
     // create(config: WorkspaceConfig, params: ResourceCreateQueryParams): Promise<any>;
-    $update(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<any>;
+    $update(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<cheApi.workspace.Workspace>;
     // deleteWorkspace(workspaceId: string): Promise<any>;
     // start(workspaceId: string, environmentName: string): Promise<any>;
     // startTemporary(config: WorkspaceConfig): Promise<any>;
@@ -195,6 +195,7 @@ export interface WorkspaceConfigDto {
     description?: string;
     defaultEnv: string;
     environments: {
+        // tslint:disable-next-line: no-any
         [environmentName: string]: any;
     };
     projects: ProjectConfigDto[];
@@ -286,6 +287,7 @@ export interface WorkspaceAttributesDto {
     updated?: number;
     stackId?: string;
     errorMessage?: string;
+    // tslint:disable-next-line: no-any
     [propName: string]: string | number | any;
 }
 
@@ -327,7 +329,7 @@ export interface CheApiService {
 
     getWorkspaceById(workspaceId: string): Promise<cheApi.workspace.Workspace>;
 
-    updateWorkspace(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<any>;
+    updateWorkspace(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<cheApi.workspace.Workspace>;
 
     getFactoryById(factoryId: string): Promise<cheApi.factory.Factory>;
 
