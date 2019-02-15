@@ -20,3 +20,5 @@ extensions:
     - extensions/eclipse-che-theia-terminal
     - extensions/eclipse-che-theia-remote
   checkoutTo: 0.3.19
+- source: https://github.com/aaqaishtyaq/theia-run-core
+  checkoutTo: master

@@ -11,7 +11,7 @@
 ###
 # Builder Image
 #
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-dev:${BUILD_TAG} as builder
+FROM eclipse/che-theia-dev:nightly as builder
 WORKDIR ${HOME}
 
 # define in env variable GITHUB_TOKEN only if it is defined
