@@ -12,17 +12,17 @@
         "@theia/plugin": "0.3.19",
         "@theia/plugin-packager": "latest",
         "@eclipse-che/api": "latest",
-        "@eclipse-che/plugin": "latest",
-        "@eclipse-che/theia-scripts": "^0.0.1"
+        "@eclipse-che/plugin": "latest"
     },
     "scripts": {
-        "prepare": "yarn run clean && yarn run build && yarn tslint-fix && yarn run test",
-        "clean": "che-theia clean",
-        "format-code": "che-theia format",
-        "watch": "che-theia watch",
-        "compile": "che-theia compile",
-        "build": "che-theia build && theia:plugin pack",
-        "tslint-fix": "che-theia lint:fix",
+        "prepare": "yarn clean && yarn build && yarn lint:fix && yarn test",
+        "clean": "rimraf lib",
+        "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
+        "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
+        "lint:fix": "tslint -c ../../configs/tslint.json --fix --project .",
+        "compile": "tsc",
+        "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia:plugin pack",
+        "watch": "tsc -w",
         "test": "jest",
         "test-watch": "jest --watchAll"
     },

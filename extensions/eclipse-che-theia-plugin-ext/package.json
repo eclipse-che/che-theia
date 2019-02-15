@@ -23,16 +23,17 @@
         "ts-loader": "^4.1.0",
         "ts-node": "5.0.1",
         "webpack": "^4.20.2",
-        "webpack-cli": "^3.1.1",
-        "@eclipse-che/theia-scripts": "^0.0.1"
+        "webpack-cli": "^3.1.1"
     },
     "scripts": {
-        "prepare": "yarn run clean && yarn run build",
-        "clean": "che-theia clean",
-        "format-code": "che-theia format",
-        "build": "che-theia build && yarn run compileWorker",
+        "prepare": "yarn clean && yarn build",
+        "clean": "rimraf lib",
+        "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
+        "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
+        "compile": "tsc",
+        "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && yarn run compileWorker",
         "compileWorker": "webpack-cli --config webpack.config.js",
-        "watch": "che-theia watch"
+        "watch": "tsc -w"
     },
     "theiaExtensions": [
         {
