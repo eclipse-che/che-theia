@@ -24,6 +24,7 @@
   },
   "license": "EPL-2.0",
   "devDependencies": {
+    "typescript-formatter": "7.2.2"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",

@@ -13,6 +13,7 @@
     "@theia/core": "0.3.19"
   },
   "devDependencies": {
+    "typescript-formatter": "7.2.2"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",
