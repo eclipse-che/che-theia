@@ -18,5 +18,5 @@ extensions:
     - extensions/eclipse-che-theia-plugin
     - extensions/eclipse-che-theia-plugin-ext
     - extensions/eclipse-che-theia-terminal
-    - extensions/eclipse-che-theia-remote
+    - dockerfiles/theia-endpoint-runtime
   checkoutTo: master
