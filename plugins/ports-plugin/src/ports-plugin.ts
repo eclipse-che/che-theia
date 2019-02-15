@@ -48,9 +48,9 @@ async function askRedirect(port: Port, redirectMessage: string, errorMessage: st
         return;
     }
 
-    const interactions: MessageItem[] = [{ title: 'yes please' }];
+    const interactions: MessageItem[] = [{ title: 'yes' }];
     const result = await theia.window.showInformationMessage(redirectMessage, { modal: true }, ...interactions);
-    if (result && result.title === 'yes please') {
+    if (result && result.title === 'yes') {
         // takes first available port
         const workspacePort = redirectPorts.pop()!;
 
