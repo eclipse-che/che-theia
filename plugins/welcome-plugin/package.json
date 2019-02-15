@@ -1,5 +1,6 @@
 {
   "name": "@eclipse-che/welcome-plugin",
+  "version": "0.0.1",
   "publisher": "Eclipse Che",
   "keywords": [
     "theia-plugin"
@@ -16,21 +17,17 @@
   "devDependencies": {
     "@theia/plugin": "0.3.19",
     "@theia/plugin-packager": "latest",
-    "@eclipse-che/plugin": "latest",
-    "rimraf": "2.6.2",
-    "tslint": "5.10.0",
-    "typescript-formatter": "7.2.2",
-    "typescript": "2.9.2"
+    "@eclipse-che/plugin": "latest"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",
-    "format-code": "tsfmt -r",
+    "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
+    "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
+    "lint:fix": "tslint -c ../../configs/tslint.json --fix --project .",
     "compile": "tsc",
-    "watch": "tsc -watch",
-    "tslint-fix": "tslint --fix --project .",
-    "tslint": "tslint --project .",
-    "build": "yarn run format-code && yarn run tslint-fix && yarn run tslint && yarn run compile && theia:plugin pack"
+    "build": "yarn lint:fix && concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia:plugin pack",
+    "watch": "tsc -w"
   },
   "engines": {
     "theiaPlugin": "next"

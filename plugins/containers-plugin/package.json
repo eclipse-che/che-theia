@@ -30,20 +30,18 @@
   "devDependencies": {
     "@theia/plugin": "next",
     "@theia/plugin-packager": "latest",
-    "@eclipse-che/plugin": "latest",
-    "rimraf": "2.6.2",
-    "typescript-formatter": "7.2.2",
-    "typescript": "2.9.2"
+    "@eclipse-che/plugin": "latest"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "scripts": {
-    "prepare": "yarn run clean && yarn run build",
+    "prepare": "yarn clean && yarn build",
     "clean": "rimraf lib",
-    "format-code": "tsfmt -r",
-    "watch": "tsc -watch",
+    "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
+    "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
+    "lint:fix": "tslint -c ../../configs/tslint.json --fix --project .",
     "compile": "tsc",
-    "build": "yarn run format-code && yarn run compile && theia:plugin pack"
+    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia:plugin pack",
+    "watch": "tsc -w"
   },
   "engines": {
     "theiaPlugin": "next"

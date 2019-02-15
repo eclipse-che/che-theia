@@ -23,9 +23,9 @@ export class TerminalProxyCreator {
     private remoteTermServer: RemoteTerminalServerProxy;
 
     constructor(@inject(RemoteWebSocketConnectionProvider) protected readonly connProvider: RemoteWebSocketConnectionProvider,
-                @inject('term-api-end-point') protected readonly apiEndPoint: URI | undefined,
-                @inject(RemoteTerminalWatcher) protected readonly terminalWatcher: RemoteTerminalWatcher,
-            ) {
+        @inject('term-api-end-point') protected readonly apiEndPoint: URI | undefined,
+        @inject(RemoteTerminalWatcher) protected readonly terminalWatcher: RemoteTerminalWatcher,
+    ) {
     }
 
     create(): RemoteTerminalServerProxy {

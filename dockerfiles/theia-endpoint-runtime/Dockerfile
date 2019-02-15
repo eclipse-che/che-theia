@@ -16,9 +16,10 @@ COPY /package.json /home/workspace/packages/theia-remote/
 RUN cd /home/workspace/packages/theia-remote/ && yarn install --ignore-scripts
 
 # Compile
+COPY /docker-build/configs /home/workspace/configs
 COPY *.json /home/workspace/packages/theia-remote/
 COPY /src /home/workspace/packages/theia-remote/src
-COPY /theia-plugin-ext /home/workspace/packages/theia-plugin-ext
+COPY /docker-build/theia-plugin-ext /home/workspace/packages/theia-plugin-ext
 
 COPY /etc/package.json /home/workspace
 RUN cd /home/workspace/ && yarn install

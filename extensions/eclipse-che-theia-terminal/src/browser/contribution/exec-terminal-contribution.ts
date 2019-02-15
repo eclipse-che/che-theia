@@ -29,7 +29,7 @@ export const NewTerminalInSpecificContainer = {
 };
 
 export interface OpenTerminalHandler {
-    (containerName: string)
+    (containerName: string): void;
 }
 
 @injectable()
@@ -53,11 +53,11 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     private readonly mainMenuId = 'theia:menubar';
 
     async registerCommands(registry: CommandRegistry) {
-        const serverUrl = <URI | undefined> await this.termApiEndPointProvider();
+        const serverUrl = <URI | undefined>await this.termApiEndPointProvider();
         if (serverUrl) {
             registry.registerCommand(NewTerminalInSpecificContainer, {
                 execute: () => {
-                    this.terminalQuickOpen.displayListMachines((containerName) => {
+                    this.terminalQuickOpen.displayListMachines(containerName => {
                         this.openTerminalByContainerName(containerName);
                     });
                 }
@@ -74,8 +74,8 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         for (const containerName in containers) {
             if (containers.hasOwnProperty(containerName)) {
                 const termCommandPerContainer: Command = {
-                    id: "terminal-for-" + containerName + "-container:new",
-                    label: "New terminal for " + containerName
+                    id: 'terminal-for-' + containerName + '-container:new',
+                    label: 'New terminal for ' + containerName
                 };
                 registry.registerCommand(termCommandPerContainer, {
                     execute: async () => this.openTerminalByContainerName(containerName)
@@ -114,7 +114,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     }
 
     async registerMenus(menus: MenuModelRegistry) {
-        const serverUrl = <URI | undefined> await this.termApiEndPointProvider();
+        const serverUrl = <URI | undefined>await this.termApiEndPointProvider();
         if (serverUrl) {
             menus.registerSubmenu(TerminalMenus.TERMINAL, 'Terminal');
             menus.registerMenuAction(TerminalMenus.TERMINAL_NEW, {
@@ -143,7 +143,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     }
 
     async registerKeybindings(registry: KeybindingRegistry) {
-        const serverUrl = <URI | undefined> await this.termApiEndPointProvider();
+        const serverUrl = <URI | undefined>await this.termApiEndPointProvider();
         if (serverUrl) {
             registry.registerKeybinding({
                 command: NewTerminalInSpecificContainer.id,

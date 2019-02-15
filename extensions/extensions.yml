@@ -8,7 +8,7 @@ extensions:
 - source: https://github.com/eclipse/che-theia-task-plugin
   folders:
     - che-theia-task-extension
-  checkoutTo: 0.3.19
+  checkoutTo: master
 - source: https://github.com/eclipse/che-theia-activity-tracker
   folders:
     - che-theia-activity-tracker
@@ -19,4 +19,4 @@ extensions:
     - extensions/eclipse-che-theia-plugin-ext
     - extensions/eclipse-che-theia-terminal
     - dockerfiles/theia-endpoint-runtime
-  checkoutTo: 0.3.19
+  checkoutTo: master

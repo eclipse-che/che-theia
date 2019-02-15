@@ -9,11 +9,10 @@
     "insertSpaceAfterSemicolonInForStatements": true,
     "insertSpaceBeforeAndAfterBinaryOperators": true,
     "insertSpaceAfterKeywordsInControlFlowStatements": true,
-    "insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
+    "insertSpaceAfterFunctionKeywordForAnonymousFunctions": true,
     "insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": false,
     "insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": false,
     "insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces": false,
     "placeOpenBraceOnNewLineForFunctions": false,
     "placeOpenBraceOnNewLineForControlBlocks": false
 }
-

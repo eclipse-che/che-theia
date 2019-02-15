@@ -32,7 +32,7 @@ export class ContainersService {
 
     async updateContainers(failAttempts: number = 0): Promise<void> {
         await new Promise(resolve => setTimeout(resolve, 500));
-        let workspace = await che.workspace.getCurrentWorkspace();
+        const workspace = await che.workspace.getCurrentWorkspace();
         if (!workspace) {
             failAttempts++;
             if (failAttempts < MAX_FAILED_ATTEMPTS) {

@@ -10,7 +10,7 @@
 
 import { injectable } from 'inversify';
 import WorkspaceClient, { IRemoteAPI, IRequestError, IRestAPIConfig } from '@eclipse-che/workspace-client';
-import { che } from "@eclipse-che/api";
+import { che } from '@eclipse-che/api';
 import { CHEWorkspaceService } from '../common/workspace-service';
 import { TERMINAL_SERVER_TYPE } from '../browser/server-definition/remote-terminal-protocol';
 
@@ -20,7 +20,7 @@ const EDITOR_SERVER_TYPE: string = 'ide';
 @injectable()
 export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
 
-    private api: IRemoteAPI;
+    private api: IRemoteAPI | undefined;
 
     public async getMachineList(): Promise<{ [attrName: string]: che.workspace.Machine }> {
         const machineNames: { [attrName: string]: che.workspace.Machine } = {};
@@ -53,7 +53,7 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
                 continue;
             }
             const machine = machines[machineName];
-            if (machine) {
+            if (machine && machine.servers) {
                 const servers = machine.servers;
                 for (const serverName in servers) {
                     if (!servers.hasOwnProperty(serverName)) {
@@ -83,7 +83,7 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
                 continue;
             }
             const machine = machines[machineName];
-            if (machine) {
+            if (machine && machine.servers) {
                 const servers = machine.servers;
                 for (const serverName in servers) {
                     if (!servers.hasOwnProperty(serverName)) {

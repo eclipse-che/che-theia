@@ -19,18 +19,18 @@ export function updateOrCreateGitProject(
 
         // create a new one
         projects.push({
-            "name": projectName ? projectName : "new-project",
-            "attributes": {},
-            "source": {
-                "location": projectGitLocation,
-                "type": "git",
-                "parameters": {
-                    "branch": projectGitRemoteBranch
+            'name': projectName ? projectName : 'new-project',
+            'attributes': {},
+            'source': {
+                'location': projectGitLocation,
+                'type': 'git',
+                'parameters': {
+                    'branch': projectGitRemoteBranch
                 }
             },
-            "path": projectPath,
-            "description": "",
-            "mixins": []
+            'path': projectPath,
+            'description': '',
+            'mixins': []
         });
         return projects;
     }

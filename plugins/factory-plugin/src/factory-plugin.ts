@@ -9,8 +9,8 @@
  **********************************************************************/
 
 import * as theia from '@theia/plugin';
-import { FactoryInitializer } from "./factory-initializer";
-import { WorkspaceProjectsManager } from "./workspace-projects-manager";
+import { FactoryInitializer } from './factory-initializer';
+import { WorkspaceProjectsManager } from './workspace-projects-manager';
 
 export async function start(context: theia.PluginContext) {
     let projectsRoot = '/projects';

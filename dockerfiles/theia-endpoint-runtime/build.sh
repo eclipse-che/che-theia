@@ -11,17 +11,24 @@ base_dir=$(cd "$(dirname "$0")"; pwd)
 . "${base_dir}"/../build.include
 
 DIR=$(cd "$(dirname "$0")"; pwd)
-LOCAL_ASSEMBLY_DIR="${DIR}"/theia-plugin-ext
+LOCAL_ASSEMBLY_DIR="${DIR}"/docker-build
 
 if [ -d "${LOCAL_ASSEMBLY_DIR}" ]; then
-  rm -r "${LOCAL_ASSEMBLY_DIR}"
+  rm -rf "${LOCAL_ASSEMBLY_DIR}"
 fi
 
 #in mac os 'cp' cannot create destination dir, so create it first
 mkdir ${LOCAL_ASSEMBLY_DIR}
 
-echo "Copying ${base_dir}/../../extensions/eclipse-che-theia-plugin-ext --> ${LOCAL_ASSEMBLY_DIR}"
-cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-ext/." "${LOCAL_ASSEMBLY_DIR}"
+echo "Copying ${base_dir}/../../extensions/eclipse-che-theia-plugin-ext --> ${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext"
+mkdir ${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext
+cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-ext/src/." "${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext/src/"
+cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-ext/package.json" "${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext"
+cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-ext/tsconfig.json" "${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext"
+cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-ext/webpack.config.js" "${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext"
+
+echo "Copying ${base_dir}/../../configs --> ${LOCAL_ASSEMBLY_DIR}/configs"
+cp -r "${base_dir}/../../configs/." "${LOCAL_ASSEMBLY_DIR}/configs"
 
 
 init --name:theia-endpoint-runtime "$@"

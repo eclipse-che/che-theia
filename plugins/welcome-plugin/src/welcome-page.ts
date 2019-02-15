@@ -43,14 +43,14 @@ export class WelcomePage {
         if (availableKeys && availableKeys.length > 0) {
             const keybindingSeperator = /<match>\+<\/match>/g;
             const regex = new RegExp(keybindingSeperator);
-            const keyMappings = await Promise.all(availableKeys.map(async (keyBinding: any) => {
+            const keyMappings = await Promise.all(availableKeys.map(async (keyBinding: theia.CommandKeyBinding) => {
 
                 const updatedKeyBinding = keyBinding.value.replace(regex, '+');
                 const keys = updatedKeyBinding.split('+');
                 if (keys.length > 0) {
-                    const rows: any[] = [];
+                    const rows: string[] = [];
 
-                    await Promise.all(keys.map(async (key: any) => {
+                    await Promise.all(keys.map(async (key: string) => {
                         let updatedKey = key;
                         if ((await theia.env.getClientOperatingSystem()) === theia.OperatingSystem.OSX) {
                             if (updatedKey === 'ctrlcmd') {
@@ -75,7 +75,9 @@ export class WelcomePage {
     }
 
     private async renderStart(): Promise<string> {
+        // tslint:disable-next-line: max-line-length
         const newFile = `<div class="che-welcome-command-desc"><a href='#' onClick="executeCommand('file.newFile')">New File...</a>${await this.renderCommandKeyBinding('file.newFile')}</div>`;
+        // tslint:disable-next-line: max-line-length
         const gitClone = `<div class="che-welcome-command-desc"><a href='#' onClick="executeCommand('git.clone')">Git Clone...</a>${await this.renderCommandKeyBinding('git.clone')}</div>`;
         return `<div class='che-welcome-section'>
             <h3 class='che-welcome-section-header'><i class='fa fa-file'></i>New</h3>
@@ -92,7 +94,9 @@ export class WelcomePage {
 
     private async renderOpen(): Promise<string> {
 
+        // tslint:disable-next-line: max-line-length
         const open = `<div class="che-welcome-command-desc"><a href='#' onClick="executeCommand('workspace:open')">Open Files...</a>${await this.renderCommandKeyBinding('workspace:open')}</div>`;
+        // tslint:disable-next-line: max-line-length
         const openCommandPalette = `<div class="che-welcome-command-desc"><a href='#' onClick="executeCommand('workbench.action.showCommands')">Open Command Palette...</a>${await this.renderCommandKeyBinding('workbench.action.showCommands')}</div>`;
         return `<div class='che-welcome-section'>
             <h3 class='che-welcome-section-header'><i class='fa fa-folder-open'></i>Open</h3>

@@ -26,6 +26,7 @@ async function getHtmlForWebview(context: theia.PluginContext): Promise<string> 
 
     const welcomePage = new WelcomePage(context);
     const rendering = await welcomePage.render(context);
+    // tslint:disable: max-line-length
     return `<!DOCTYPE html>
             <html lang="en">
             <head>
@@ -92,6 +93,7 @@ export async function addPanel(context: theia.PluginContext): Promise<void> {
 
     // Handle messages from the webview
     currentPanel.webview.onDidReceiveMessage(
+        // tslint:disable-next-line: no-any
         (message: any) => {
             switch (message.command) {
                 case 'alert':
