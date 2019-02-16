@@ -14,9 +14,9 @@ export const RECIPE_CONTAINER_SOURCE = 'recipe';
 export const CONTAINER_SOURCE_ATTRIBUTE = 'source';
 
  /**
-  * Return list containers for which should be create terminal.
+  * Return list containers with recipe source attribute.
   */
- export function filterContainers(containers: WorkspaceContainer[]): WorkspaceContainer[] {
+ export function filterRecipeContainers(containers: WorkspaceContainer[]): WorkspaceContainer[] {
      return containers.filter((container: WorkspaceContainer) => {
          return container.attributes && (!container.attributes[CONTAINER_SOURCE_ATTRIBUTE] || container.attributes[CONTAINER_SOURCE_ATTRIBUTE] == RECIPE_CONTAINER_SOURCE);
      });
