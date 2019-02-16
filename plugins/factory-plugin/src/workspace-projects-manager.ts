@@ -10,8 +10,8 @@
 
 import { TheiaCloneCommand } from './theia-commands';
 import * as git from './git';
-import * as projectsHelper from "./projects";
-import * as fileUri from "./file-uri";
+import * as projectsHelper from './projects';
+import * as fileUri from './file-uri';
 import * as theia from '@theia/plugin';
 import * as che from '@eclipse-che/plugin';
 import { che as cheApi } from '@eclipse-che/api';
@@ -56,11 +56,11 @@ export class WorkspaceProjectsManager {
             return;
         }
 
-        theia.window.showInformationMessage("Che Workspace: Starting cloning projects.");
+        theia.window.showInformationMessage('Che Workspace: Starting cloning projects.');
         await Promise.all(
             cloneCommandList.map(cloneCommand => cloneCommand.execute())
         );
-        theia.window.showInformationMessage("Che Workspace: Finished cloning projects.");
+        theia.window.showInformationMessage('Che Workspace: Finished cloning projects.');
     }
 
     async startSyncWorkspaceProjects() {

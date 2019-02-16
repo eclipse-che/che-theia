@@ -25,26 +25,32 @@ export class CheWorkspaceImpl implements CheWorkspace {
         throw new Error('Method not implemented.');
     }
 
+    // tslint:disable-next-line: no-any
     stop(workspaceId: string): Promise<any> {
         throw new Error('Method not implemented.');
     }
 
+    // tslint:disable-next-line: no-any
     startTemporary(config: cheApi.workspace.WorkspaceConfig): Promise<any> {
         throw new Error('Method not implemented.');
     }
 
+    // tslint:disable-next-line: no-any
     start(workspaceId: string, environmentName: string): Promise<any> {
         throw new Error('Method not implemented.');
     }
 
+    // tslint:disable-next-line: no-any
     deleteWorkspace(workspaceId: string): Promise<any> {
         throw new Error('Method not implemented.');
     }
 
+    // tslint:disable-next-line: no-any
     update(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<any> {
         return this.workspaceMain.$update(workspaceId, workspace);
     }
 
+    // tslint:disable-next-line: no-any
     create(config: cheApi.workspace.WorkspaceConfig, params: che.KeyValue): Promise<any> {
         throw new Error('Method not implemented.');
     }

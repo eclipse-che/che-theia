@@ -1,14 +1,14 @@
 {
     "extends": "../../configs/base.tsconfig",
     "compilerOptions": {
+        "skipLibCheck": true,
+        "jsx": "react",
         "lib": [
             "es6",
             "dom"
         ],
-        "sourceMap": true,
         "rootDir": "src",
-        "outDir": "lib",
-        "skipLibCheck": true
+        "outDir": "lib"
     },
     "include": [
         "src"

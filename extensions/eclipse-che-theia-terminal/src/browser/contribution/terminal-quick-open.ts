@@ -13,9 +13,9 @@ import { QuickOpenModel, QuickOpenItem, QuickOpenHandler, QuickOpenService } fro
 import { QuickOpenMode, QuickOpenOptions, WidgetManager, ApplicationShell, KeybindingRegistry, Keybinding } from '@theia/core/lib/browser';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { REMOTE_TERMINAL_WIDGET_FACTORY_ID, RemoteTerminalWidgetFactoryOptions } from '../terminal-widget/remote-terminal-widget';
-import {CHEWorkspaceService} from '../../common/workspace-service';
-import {TerminalApiEndPointProvider} from '../server-definition/terminal-proxy-creator';
-import {TerminalWidget, TerminalWidgetOptions} from '@theia/terminal/lib/browser/base/terminal-widget';
+import { CHEWorkspaceService } from '../../common/workspace-service';
+import { TerminalApiEndPointProvider } from '../server-definition/terminal-proxy-creator';
+import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal-widget';
 import { RemoteTerminalWidget } from '../terminal-widget/remote-terminal-widget';
 import { OpenTerminalHandler } from './exec-terminal-contribution';
 import { filterRecipeContainers } from './terminal-command-filter';
@@ -53,7 +53,7 @@ export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenMode
     @inject('terminal-in-specific-container-command-id')
     protected readonly terminalInSpecificContainerCommandId: string;
 
-     public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions): Promise<TerminalWidget> {
+    public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions): Promise<TerminalWidget> {
         try {
             const workspaceId = <string>await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
             const termApiEndPoint = <URI | undefined>await this.termApiEndPointProvider();
@@ -79,7 +79,7 @@ export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenMode
 
         if (this.isOpen) {
             // trigger show/hide tool containers
-            this.hideToolContainers = ! this.hideToolContainers;
+            this.hideToolContainers = !this.hideToolContainers;
         } else {
             this.isOpen = true;
             this.hideToolContainers = true;
@@ -90,7 +90,7 @@ export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenMode
         }
 
         for (const container of containers) {
-            items.push(new NewTerminalItem(container.name, async (newTermItemFunc) => {
+            items.push(new NewTerminalItem(container.name, async newTermItemFunc => {
                 doOpen(newTermItemFunc.machineName);
             }));
         }

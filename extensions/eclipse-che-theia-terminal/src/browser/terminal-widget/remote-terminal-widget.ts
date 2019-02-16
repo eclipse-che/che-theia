@@ -35,7 +35,7 @@ export interface RemoteTerminalWidgetFactoryOptions extends Partial<TerminalWidg
 @injectable()
 export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
-    protected termServer: RemoteTerminalServerProxy;
+    protected termServer: RemoteTerminalServerProxy | undefined;
     protected waitForRemoteConnection: Deferred<WebSocket> | undefined;
 
     @inject('TerminalProxyCreatorProvider')
@@ -54,7 +54,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         super.init();
 
         this.toDispose.push(this.remoteTerminalWatcher.onTerminalExecExit(exitEvent => {
-            if (this.terminalId  === exitEvent.id) {
+            if (this.terminalId === exitEvent.id) {
                 this.dispose();
             }
         }));
@@ -128,7 +128,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
                 waitForRemoteConnection.resolve(socket);
             }
 
-            const sendListener = (data) => socket.send(data);
+            const sendListener = data => socket.send(data);
             this.term.on('data', sendListener);
             socket.onmessage = ev => this.write(ev.data);
 
@@ -195,7 +195,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         const rows = this.term.rows;
 
         if (this.termServer) {
-            this.termServer.resize({id: this.terminalId, cols, rows});
+            this.termServer.resize({ id: this.terminalId, cols, rows });
         }
     }
 

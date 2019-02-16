@@ -8,10 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-
 import { injectable, inject } from 'inversify';
 import WorkspaceClient, { IRemoteAPI, IRestAPIConfig } from '@eclipse-che/workspace-client';
-import { che } from "@eclipse-che/api";
+import { che } from '@eclipse-che/api';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { CHEWorkspaceService, WorkspaceContainer } from '../common/workspace-service';
 import { TERMINAL_SERVER_TYPE } from '../browser/server-definition/remote-terminal-protocol';
@@ -22,7 +21,7 @@ const EDITOR_SERVER_TYPE: string = 'ide';
 @injectable()
 export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
 
-    private api: IRemoteAPI;
+    private api: IRemoteAPI | undefined;
 
     constructor(@inject(EnvVariablesServer) protected readonly baseEnvVariablesServer: EnvVariablesServer) {
     }
@@ -39,17 +38,17 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
             const workspace = await restClient.getById<che.workspace.Workspace>(workspaceId);
 
             if (workspace.runtime && workspace.runtime.machines) {
-                const machines =  workspace.runtime.machines;
+                const machines = workspace.runtime.machines;
                 for (const machineName in machines) {
                     if (!machines.hasOwnProperty(machineName)) {
                         continue;
                     }
                     const machine = workspace.runtime.machines[machineName];
-                    const container: WorkspaceContainer = {name: machineName, ...machine};
+                    const container: WorkspaceContainer = { name: machineName, ...machine };
                     containers.push(container);
                 }
             }
-        } catch(e) {
+        } catch (e) {
             throw new Error('Unable to get list workspace containers. Cause: ' + e);
         }
 
@@ -60,19 +59,19 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
         const containers = await this.getContainerList();
 
         for (const container of containers) {
-                const servers = container.servers || [];
-                for (const serverName in servers) {
-                    if (!servers.hasOwnProperty(serverName)) {
-                        continue;
-                    }
-                    const attrs = servers[serverName].attributes || [];
+            const servers = container.servers || [];
+            for (const serverName in servers) {
+                if (!servers.hasOwnProperty(serverName)) {
+                    continue;
+                }
+                const attrs = servers[serverName].attributes || [];
 
-                    for (const attrName in attrs) {
-                        if (attrName === TYPE && attrs[attrName] === TERMINAL_SERVER_TYPE) {
-                            return servers[serverName];
-                        }
+                for (const attrName in attrs) {
+                    if (attrName === TYPE && attrs[attrName] === TERMINAL_SERVER_TYPE) {
+                        return servers[serverName];
                     }
                 }
+            }
         }
 
         return undefined;

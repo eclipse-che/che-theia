@@ -25,13 +25,12 @@ export class CheVariablesMainImpl implements CheVariablesMain {
         this.proxy = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_VARIABLES);
         this.variableResolverService = container.get(VariableResolverService);
         this.variableRegistry = container.get(VariableRegistry);
-        this.disposableMap = new Map()
+        this.disposableMap = new Map();
     }
 
     async $registerVariable(variable: Variable): Promise<void> {
-        const handle = (id: number) => {
-            return this.proxy.$resolveVariable(id);
-        };
+        const handle = (id: number) =>
+            this.proxy.$resolveVariable(id);
         const disposable = await this.variableRegistry.registerVariable({
             name: variable.name,
             description: variable.description,

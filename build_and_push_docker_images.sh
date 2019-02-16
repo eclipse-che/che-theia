@@ -16,11 +16,13 @@ set -o pipefail
 DOCKER_FILES_LOCATIONS=(
 dockerfiles/theia-dev
 dockerfiles/theia
+dockerfiles/theia-endpoint-runtime
 )
 
 IMAGES_LIST=(
 eclipse/che-theia-dev
 eclipse/che-theia
+eclipse/che-theia-endpoint-runtime
 )
 
 
@@ -29,9 +31,9 @@ for image_dir in "${DOCKER_FILES_LOCATIONS[@]}"
     do
         if [ "$image_dir" == "dockerfiles/theia" ]; then
             THEIA_IMAGE_TAG="master"
-            bash $(pwd)/$image_dir/build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=master --branch:master --git-ref:refs\\/heads\\/master 
+            bash $(pwd)/$image_dir/build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=master --tag:master --branch:master --git-ref:refs\\/heads\\/master 
         elif [ "$image_dir" == "dockerfiles/theia-dev" ]; then
-            bash $(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN}
+            bash $(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN} --tag:master
         else
             bash $(pwd)/$image_dir/build.sh
         fi

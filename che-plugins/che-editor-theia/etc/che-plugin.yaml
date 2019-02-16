@@ -24,7 +24,7 @@ endpoints:
       discoverable: false
 containers:
  - name: theia-ide
-   image: eclipse/che-theia:0.3.19-nightly
+   image: eclipse/che-theia:master
    env:
        - name: THEIA_PLUGINS
          value: local-dir:///plugins

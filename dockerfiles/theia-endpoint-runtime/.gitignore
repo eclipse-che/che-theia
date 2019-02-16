@@ -1,3 +1,5 @@
+theia-plugin-ext
+docker-build
 node_modules
 .browser_modules
 lib
