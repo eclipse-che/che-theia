@@ -105,7 +105,6 @@ export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenMode
             const accel = Keybinding.acceleratorFor(keyCommand[0], '+');
             return accel.join(' ');
         }
-        console.log(keyCommand);
 
         return undefined;
     }
