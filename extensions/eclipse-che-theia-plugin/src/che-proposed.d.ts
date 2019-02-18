@@ -123,7 +123,7 @@ declare module '@eclipse-che/plugin' {
          * Source of the task configuration.
          * For a configured task, it is the name of the root folder, while for a provided task, it is the name of the provider.
          */
-        readonly source: string;
+        readonly _source: string;
         /** A label that uniquely identifies a task configuration per source */
         readonly type: string;
         /** A label that uniquely identifies a task configuration */

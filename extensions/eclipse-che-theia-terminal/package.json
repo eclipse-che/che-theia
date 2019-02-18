@@ -16,8 +16,8 @@
     "src"
   ],
   "dependencies": {
-    "@theia/core": "0.3.19",
-    "@theia/terminal": "0.3.19",
+    "@theia/core": "next",
+    "@theia/terminal": "next",
     "xterm": "3.9.1",
     "@eclipse-che/workspace-client": "latest",
     "@eclipse-che/api": "latest"
