@@ -1,0 +1,38 @@
+{
+  "name": "@eclipse-che/welcome-plugin",
+  "version": "0.0.1",
+  "publisher": "Eclipse Che",
+  "keywords": [
+    "theia-plugin"
+  ],
+  "description": "Welcome Page Plugin",
+  "license": "EPL-2.0",
+  "files": [
+    "src",
+    "resources"
+  ],
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "5.6.3"
+  },
+  "devDependencies": {
+    "@theia/plugin": "0.3.19",
+    "@theia/plugin-packager": "latest",
+    "@eclipse-che/plugin": "latest"
+  },
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
+    "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
+    "lint:fix": "tslint -c ../../configs/tslint.json --fix --project .",
+    "compile": "tsc",
+    "build": "yarn lint:fix && concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia:plugin pack",
+    "watch": "tsc -w"
+  },
+  "engines": {
+    "theiaPlugin": "next"
+  },
+  "theiaPlugin": {
+    "backend": "lib/welcome-plugin.js"
+  }
+}

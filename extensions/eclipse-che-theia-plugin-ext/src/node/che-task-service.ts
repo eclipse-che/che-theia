@@ -9,7 +9,7 @@
  **********************************************************************/
 import { CheTaskClient, CheTaskService } from '../common/che-protocol';
 import { injectable, interfaces } from 'inversify';
-import { Task, TaskManager, TaskOptions, TaskRunnerRegistry } from '@theia/task/lib/node'
+import { Task, TaskManager, TaskOptions, TaskRunnerRegistry } from '@theia/task/lib/node';
 import { Disposable, ILogger } from '@theia/core';
 import { TaskConfiguration, TaskInfo } from '@theia/task/lib/common/task-protocol';
 

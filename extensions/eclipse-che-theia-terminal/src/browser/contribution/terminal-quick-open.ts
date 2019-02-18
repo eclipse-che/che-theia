@@ -13,16 +13,18 @@ import { QuickOpenService, QuickOpenModel, QuickOpenItem } from '@theia/core/lib
 import { QuickOpenMode, QuickOpenOptions, WidgetManager, ApplicationShell } from '@theia/core/lib/browser';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { REMOTE_TERMINAL_WIDGET_FACTORY_ID, RemoteTerminalWidgetFactoryOptions } from '../terminal-widget/remote-terminal-widget';
-import {CHEWorkspaceService} from '../../common/workspace-service';
-import {TerminalApiEndPointProvider} from '../server-definition/terminal-proxy-creator';
-import {TerminalService} from '@theia/terminal/lib/browser/base/terminal-service';
-import {TerminalWidget, TerminalWidgetOptions} from '@theia/terminal/lib/browser/base/terminal-widget';
+import { CHEWorkspaceService } from '../../common/workspace-service';
+import { TerminalApiEndPointProvider } from '../server-definition/terminal-proxy-creator';
+import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal-widget';
 import { RemoteTerminalWidget } from '../terminal-widget/remote-terminal-widget';
+import { OpenTerminalHandler } from './exec-terminal-contribution';
+import URI from '@theia/core/lib/common/uri';
 
 @injectable()
-export class TerminalQuickOpenService implements TerminalService {
+export class TerminalQuickOpenService {
 
-    constructor(@inject(QuickOpenService) private readonly quickOpenService: QuickOpenService,
+    constructor(
+        @inject(QuickOpenService) private readonly quickOpenService: QuickOpenService,
         @inject(WidgetManager) private readonly widgetManager: WidgetManager,
         @inject(EnvVariablesServer) protected readonly baseEnvVariablesServer: EnvVariablesServer,
         @inject('TerminalApiEndPointProvider') protected readonly termApiEndPointProvider: TerminalApiEndPointProvider,
@@ -31,44 +33,16 @@ export class TerminalQuickOpenService implements TerminalService {
     ) {
     }
 
-    activateTerminal(termWidget: TerminalWidget): void {
-        const tabBar = this.shell.getTabBarFor(termWidget);
-        if (!tabBar) {
-            this.shell.addWidget(termWidget, { area: 'bottom' });
-        }
-        this.shell.activateWidget(termWidget.id);
-    }
-
-    async newTerminal(options: TerminalWidgetOptions): Promise<TerminalWidget> {
-        let containerName;
-
-        // todo remove rude casting when will be used theia 0.3.16.
-        if ((options as any).attributes) {
-            containerName = (options as any).attributes['CHE_MACHINE_NAME'];
-        }
-
-        if (!containerName) {
-            containerName = await this.workspaceService.findEditorMachineName();
-        }
-
-        if (containerName) {
-            const termWidget = await this.newTerminalPerContainer(containerName, options);
-            return termWidget;
-        }
-
-        throw new Error('Unable to create new terminal widget');
-    }
-
-     public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions): Promise<TerminalWidget> {
+    public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions): Promise<TerminalWidget> {
         try {
             const workspaceId = <string>await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
-            const termApiEndPoint = <string>await this.termApiEndPointProvider();
+            const termApiEndPoint = <URI | undefined>await this.termApiEndPointProvider();
 
             const widget = <RemoteTerminalWidget>await this.widgetManager.getOrCreateWidget(REMOTE_TERMINAL_WIDGET_FACTORY_ID, <RemoteTerminalWidgetFactoryOptions>{
                 created: new Date().toString(),
                 machineName: containerName,
                 workspaceId: workspaceId,
-                endpoint: termApiEndPoint,
+                endpoint: termApiEndPoint.toString(true),
                 ...options
             });
             return widget;
@@ -78,7 +52,7 @@ export class TerminalQuickOpenService implements TerminalService {
         throw new Error('Unable to create new terminal for machine: ' + containerName);
     }
 
-    async displayListMachines() {
+    async displayListMachines(doOpen: OpenTerminalHandler) {
         const items: QuickOpenItem[] = [];
         const machines = await this.workspaceService.getMachineList();
 
@@ -87,15 +61,13 @@ export class TerminalQuickOpenService implements TerminalService {
                 if (!machines.hasOwnProperty(machineName)) {
                     continue;
                 }
-                items.push(new NewTerminalItem(machineName, async (newTermItemFunc) => {
-                    const termWidget = await this.newTerminalPerContainer(newTermItemFunc.machineName);
-                    this.activateTerminal(termWidget);
-                    termWidget.start();
+                items.push(new NewTerminalItem(machineName, async newTermItemFunc => {
+                    doOpen(newTermItemFunc.machineName);
                 }));
             }
         }
 
-        this.open(items, 'Select machine to create new terminal');
+        this.showTerminalItems(items, 'Select machine to create new terminal');
     }
 
     private getOpts(placeholder: string, fuzzyMatchLabel: boolean = true): QuickOpenOptions {
@@ -106,7 +78,7 @@ export class TerminalQuickOpenService implements TerminalService {
         });
     }
 
-    private open(items: QuickOpenItem | QuickOpenItem[], placeholder: string): void {
+    private showTerminalItems(items: QuickOpenItem | QuickOpenItem[], placeholder: string): void {
         this.quickOpenService.open(this.getModel(Array.isArray(items) ? items : [items]), this.getOpts(placeholder));
     }
 

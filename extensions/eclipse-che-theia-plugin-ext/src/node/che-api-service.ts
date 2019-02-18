@@ -54,7 +54,7 @@ export class CheApiServiceImpl implements CheApiService {
         }
     }
 
-    async updateWorkspace(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<any> {
+    async updateWorkspace(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<cheApi.workspace.Workspace> {
         try {
             if (!workspaceId) {
                 return Promise.reject('Che Workspace id is not set');

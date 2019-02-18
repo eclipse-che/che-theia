@@ -28,7 +28,7 @@ export class CheTaskImpl implements CheTask {
             dispose: async () => {
                 await this.cheTaskMain.$disposeTaskRunner(type);
             }
-        }
+        };
     }
 
     async $runTask(id: number, config: TaskConfiguration, ctx?: string): Promise<void> {

@@ -18,8 +18,6 @@ before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0
   - export PATH=$HOME/.yarn/bin:$PATH ;
 install: yarn
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
 script: travis_retry yarn;
 jobs:
   fast_finish: true
@@ -27,7 +25,12 @@ jobs:
   - stage: build
     install: skip
     before_script: skip
-    script: travis_retry yarn;
+    script:
+      - |  
+          yarn
+          export BUILD_BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
+          travis_retry ./build_and_push_docker_images.sh;
+          ./che-plugins/build.sh;
   - stage: deploy
     os: linux
     before_script: skip
@@ -37,8 +40,8 @@ jobs:
       - printf "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}\n" >> ~/.npmrc
       - yarn
     deploy:
-      provider: script
-      script: yarn run publish:next
-      on:
-        branch: master
-      skip_cleanup: true
+      - provider: script
+        script: yarn run publish:next
+        on:
+          branch: master
+        skip_cleanup: true

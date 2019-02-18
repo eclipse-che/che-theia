@@ -28,7 +28,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
     const cheVariablesImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_VARIABLES, new CheVariablesImpl(rpc));
     const cheTaskImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_TASK, new CheTaskImpl(rpc));
 
-    return function(plugin: Plugin): typeof che {
+    return function (plugin: Plugin): typeof che {
         const workspace: typeof che.workspace = {
             getCurrentWorkspace(): Promise<cheApi.workspace.Workspace> {
                 return cheWorkspaceImpl.getCurrentWorkspace();
@@ -42,21 +42,27 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             getById(workspaceKey: string): Promise<cheApi.workspace.Workspace> {
                 return cheWorkspaceImpl.getById(workspaceKey);
             },
+            // tslint:disable-next-line: no-any
             create(config: cheApi.workspace.WorkspaceConfig, params: che.KeyValue): Promise<any> {
                 return cheWorkspaceImpl.create(config, params);
             },
-            update(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<any> {
-                return cheWorkspaceImpl.update(workspaceId, workspace);
+            // tslint:disable-next-line: no-any
+            update(workspaceId: string, workspaceObj: cheApi.workspace.Workspace): Promise<any> {
+                return cheWorkspaceImpl.update(workspaceId, workspaceObj);
             },
+            // tslint:disable-next-line: no-any
             deleteWorkspace(workspaceId: string): Promise<any> {
                 return cheWorkspaceImpl.deleteWorkspace(workspaceId);
             },
+            // tslint:disable-next-line: no-any
             start(workspaceId: string, environmentName: string): Promise<any> {
                 return cheWorkspaceImpl.start(workspaceId, environmentName);
             },
+            // tslint:disable-next-line: no-any
             startTemporary(config: cheApi.workspace.WorkspaceConfig): Promise<any> {
                 return cheWorkspaceImpl.startTemporary(config);
             },
+            // tslint:disable-next-line: no-any
             stop(workspaceId: string): Promise<any> {
                 return cheWorkspaceImpl.stop(workspaceId);
             },

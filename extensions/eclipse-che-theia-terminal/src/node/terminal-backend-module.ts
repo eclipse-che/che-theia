@@ -16,7 +16,7 @@ export default new ContainerModule(bind => {
     bind(CHEWorkspaceServiceImpl).toSelf().inSingletonScope();
 
     bind(CHEWorkspaceService).to(CHEWorkspaceServiceImpl).inSingletonScope();
-     bind(ConnectionHandler).toDynamicValue(ctx =>
+    bind(ConnectionHandler).toDynamicValue(ctx =>
         new JsonRpcConnectionHandler(cheWorkspaceServicePath, () =>
             ctx.container.get(CHEWorkspaceService)
         )

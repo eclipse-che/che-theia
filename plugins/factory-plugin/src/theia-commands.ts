@@ -9,7 +9,7 @@
  **********************************************************************/
 import * as theia from '@theia/plugin';
 import { che as cheApi } from '@eclipse-che/api';
-import convertToFileURI from './openfile';
+import * as fileuri from './file-uri';
 
 const CHE_TASK_TYPE = 'che';
 
@@ -40,7 +40,7 @@ export class TheiaCloneCommand {
         }
 
         return theia.commands.executeCommand('git.clone', this.locationURI, this.folder, this.checkoutBranch)
-            .then((repo) => {
+            .then(repo => {
                 theia.window.showInformationMessage(`Project ${this.locationURI} cloned! to ${repo}`);
             }, e => {
                 theia.window.showErrorMessage(`Couldnt clone ${this.locationURI}: ${e.message}`);
@@ -66,13 +66,13 @@ export class TheiaCommand {
     execute(): PromiseLike<void> {
         if (this.id === ActionId.OPEN_FILE) {
             if (this.properties && this.properties.file) {
-                const fileLocation = convertToFileURI(this.properties.file);
+                const fileLocation = fileuri.convertToFileURI(this.properties.file);
                 return theia.commands.executeCommand('file-search.openFile', fileLocation)
                     .then(() => {
 
                     }, e => {
                         theia.window.showErrorMessage(`Could not open file: ${e.message}`);
-                        console.log(`Could not open file `, e);
+                        console.log('Could not open file ', e);
                     });
             }
         }
@@ -81,10 +81,10 @@ export class TheiaCommand {
             if (this.properties) {
                 return theia.commands.executeCommand('task:run', CHE_TASK_TYPE, this.properties.name)
                     .then(() => {
-                        theia.window.showInformationMessage(`Executed che command succesfully`);
+                        theia.window.showInformationMessage('Executed che command succesfully');
                     }, e => {
                         theia.window.showErrorMessage(`Could not execute Che command: ${e.message}`);
-                        console.log(`Could not execute Che command`, e);
+                        console.log('Could not execute Che command', e);
                     });
             }
         }

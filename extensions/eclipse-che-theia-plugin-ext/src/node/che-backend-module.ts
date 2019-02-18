@@ -22,7 +22,7 @@ import {
     CheTaskClient,
     CheTaskService
 } from '../common/che-protocol';
-import { CheTaskServiceImpl } from "./che-task-service";
+import { CheTaskServiceImpl } from './che-task-service';
 
 export default new ContainerModule(bind => {
     bind(ChePluginApiProvider).toSelf().inSingletonScope();

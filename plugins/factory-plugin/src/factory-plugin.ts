@@ -9,10 +9,10 @@
  **********************************************************************/
 
 import * as theia from '@theia/plugin';
-import { FactoryInitializer } from "./factory-initializer";
-import { WorkspaceProjectsManager } from "./workspace-projects-manager";
+import { FactoryInitializer } from './factory-initializer';
+import { WorkspaceProjectsManager } from './workspace-projects-manager';
 
-export async function start() {
+export async function start(context: theia.PluginContext) {
     let projectsRoot = '/projects';
     const projectsRootEnvVar = await theia.env.getEnvVariable('CHE_PROJECTS_ROOT');
     if (projectsRootEnvVar) {
@@ -20,7 +20,7 @@ export async function start() {
     }
 
     await new FactoryInitializer(projectsRoot).run();
-    await new WorkspaceProjectsManager(projectsRoot).run();
+    await new WorkspaceProjectsManager(context, projectsRoot).run();
 }
 
 export function stop() {

@@ -1,0 +1,150 @@
+{
+"links": {
+"self": "https://che.openshift.io/api/workspace/workspacey6oret4r0c62ji5o",
+"ide": "https://che.openshift.io/fbenoit-1/wksp-h485",
+"environment/statusChannel": "wss://che.openshift.io/api/websocket",
+"environment/outputChannel": "wss://che.openshift.io/api/websocket"
+},
+"attributes": {
+"stopped_by": "activity-checker",
+"org.eclipse.che.runtimes_id": "runtimes5fpnar4e79d12iqz",
+"startNumber": "11",
+"created": "1548870889570",
+"stackId": "che7",
+"updated": "1549295970830"
+},
+"namespace": "fbenoit-1",
+"temporary": false,
+"id": "workspacey6oret4r0c62ji5o",
+"status": "RUNNING",
+"runtime": {
+"machines": {
+"che-jwtproxy": {
+"attributes": {
+"memoryLimitBytes": "157286400",
+"memoryRequestBytes": "157286400"
+},
+"servers": {},
+"status": "RUNNING"
+},
+"ws/theia-ide": {
+"attributes": {
+"memoryLimitBytes": "1536000000",
+"memoryRequestBytes": "1536000000"
+},
+"servers": {
+"theia-dev": {
+"url": "https://route0n470rmj-fbenoit-1-che.8a09.starter-us-east-2.openshiftapps.com",
+"attributes": {
+"type": "ide-dev",
+"internal": "false"
+},
+"status": "UNKNOWN"
+},
+"theia": {
+"url": "https://route9iykc3a3-fbenoit-1-che.8a09.starter-us-east-2.openshiftapps.com",
+"attributes": {
+"cookiesAuthEnabled": "true",
+"internal": "false",
+"secure": "true",
+"type": "ide"
+},
+"status": "RUNNING"
+}
+},
+"status": "RUNNING"
+},
+"ws/che-machine-exec": {
+"attributes": {
+"memoryLimitBytes": "157286400",
+"memoryRequestBytes": "157286400"
+},
+"servers": {
+"che-machine-exec": {
+"url": "wss://route5sq8mwwf-fbenoit-1-che.8a09.starter-us-east-2.openshiftapps.com",
+"attributes": {
+"type": "terminal",
+"internal": "false"
+},
+"status": "UNKNOWN"
+}
+},
+"status": "RUNNING"
+},
+"ws/dev": {
+"attributes": {
+"memoryLimitBytes": "536870912",
+"memoryRequestBytes": "536870912"
+},
+"servers": {
+"florentjs": {
+"url": "https://routehkw7m74z.openshiftapps.com",
+"attributes": {},
+"status": "UNKNOWN"
+}
+},
+"status": "RUNNING"
+}
+},
+"warnings": [],
+"activeEnv": "default",
+"commands": [
+{
+"commandLine": "echo ${CHE_OSO_CLUSTER//api/console}",
+"name": "Get OpenShift Console URL",
+"attributes": {},
+"type": "custom"
+}
+],
+"machineToken": "",
+"links": []
+},
+"config": {
+"defaultEnv": "default",
+"environments": {
+"default": {
+"machines": {
+"ws/dev": {
+"attributes": {
+"memoryLimitBytes": "536870912"
+},
+"servers": {
+"florentjs": {
+"attributes": {},
+"port": "3000",
+"protocol": "http"
+}
+},
+"volumes": {
+"projects": {
+"path": "/projects"
+}
+},
+"installers": [],
+"env": {}
+}
+},
+"recipe": {
+"type": "openshift",
+"content": "kind: List\nitems:\n - \n  apiVersion: v1\n  kind: Pod\n  metadata:\n   name: ws\n  spec:\n   containers:\n    - \n     image: 'eclipse/che-dev:nightly'\n     name: dev\n     resources:\n      limits:\n       memory: 512Mi\n",
+"contentType": "application/x-yaml"
+}
+}
+},
+"projects": [],
+"name": "wksp-h485",
+"attributes": {
+"editor": "org.eclipse.che.editor.theia:1.0.0",
+"plugins": "che-machine-exec-plugin:0.0.1"
+},
+"commands": [
+{
+"commandLine": "echo ${CHE_OSO_CLUSTER//api/console}",
+"name": "Get OpenShift Console URL",
+"attributes": {},
+"type": "custom"
+}
+],
+"links": []
+}
+}

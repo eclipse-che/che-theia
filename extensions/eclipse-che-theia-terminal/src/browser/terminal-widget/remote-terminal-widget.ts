@@ -35,7 +35,7 @@ export interface RemoteTerminalWidgetFactoryOptions extends Partial<TerminalWidg
 @injectable()
 export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
-    protected termServer: RemoteTerminalServerProxy;
+    protected termServer: RemoteTerminalServerProxy | undefined;
     protected waitForRemoteConnection: Deferred<WebSocket> | undefined;
 
     @inject('TerminalProxyCreatorProvider')
@@ -54,7 +54,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         super.init();
 
         this.toDispose.push(this.remoteTerminalWatcher.onTerminalExecExit(exitEvent => {
-            if (this.terminalId  === exitEvent.id) {
+            if (this.terminalId === exitEvent.id) {
                 this.dispose();
             }
         }));
@@ -94,6 +94,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         }, 100);
 
         if (IBaseTerminalServer.validateId(this.terminalId)) {
+            this.onDidOpenEmitter.fire(undefined);
             return this.terminalId;
         }
         throw new Error('Failed to start terminal' + (id ? ` for id: ${id}.` : '.'));
@@ -108,6 +109,16 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         this.connectSocket(this.terminalId);
     }
 
+    get processId(): Promise<number> {
+        return (async () => {
+            if (!IBaseTerminalServer.validateId(this.terminalId)) {
+                throw new Error('terminal is not started');
+            }
+            // Exec server side unable to return real process pid. This information is encapsulated.
+            return this.terminalId;
+        })();
+    }
+
     protected connectSocket(id: number) {
         const waitForRemoteConnection = this.waitForRemoteConnection = new Deferred<WebSocket>();
         const socket = this.createWebSocket(id.toString());
@@ -117,9 +128,9 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
                 waitForRemoteConnection.resolve(socket);
             }
 
-            const sendListener = (data) => socket.send(data);
+            const sendListener = data => socket.send(data);
             this.term.on('data', sendListener);
-            socket.onmessage = ev => this.term.write(ev.data);
+            socket.onmessage = ev => this.write(ev.data);
 
             this.toDisposeOnConnect.push(Disposable.create(() => {
                 this.term.off('data', sendListener);
@@ -138,7 +149,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
     protected createWebSocket(pid: string): WebSocket {
         const url = new URI(this.options.endpoint).resolve(ATTACH_TERMINAL_SEGMENT).resolve(this.terminalId + '');
-        return new WebSocket(url.toString());
+        return new WebSocket(url.toString(true));
     }
 
     protected async attachTerminal(id: number): Promise<number | undefined> {
@@ -183,7 +194,9 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         const cols = this.term.cols;
         const rows = this.term.rows;
 
-        this.termServer.resize({id: this.terminalId, cols, rows});
+        if (this.termServer) {
+            this.termServer.resize({ id: this.terminalId, cols, rows });
+        }
     }
 
     sendText(text: string): void {
