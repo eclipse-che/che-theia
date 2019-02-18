@@ -1,26 +1,19 @@
 {
+    "extends": "../../configs/base.tsconfig",
     "compilerOptions": {
-        "strict": true,
-        "experimentalDecorators": true,
-        "noUnusedLocals": true,
-        "emitDecoratorMetadata": true,
-        "downlevelIteration": true,
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "target": "es6",
+        "target": "es5",
         "lib": [
             "es6",
-            "dom"
+            "webworker"
         ],
         "sourceMap": true,
         "rootDir": "src",
-        "outDir": "lib"
+        "outDir": "lib",
+        "types": [
+            "node", "jest"
+        ]
     },
     "include": [
         "src"
-    ],
-    "exclude": [
-        "tests",
-        "node_modules"
     ]
 }

@@ -27,6 +27,7 @@ export class Command {
                 cwd: this.directory,
                 maxBuffer: 1024 * 1024
             }, (error, stdout, stderr) => {
+                // tslint:disable-next-line:no-any
                 const exitCode = (execProcess as any).exitCode;
                 if (error) {
                     reject(new CliError('Unable to execute the command ' + commandLine + ': ' + error));

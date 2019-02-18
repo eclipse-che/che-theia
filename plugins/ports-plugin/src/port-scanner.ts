@@ -8,9 +8,9 @@
 * SPDX-License-Identifier: EPL-2.0
 **********************************************************************/
 
-import { Port } from "./port";
-import { Command } from "./command";
-import { IpConverter } from "./ip-converter";
+import { Port } from './port';
+import { Command } from './command';
+import { IpConverter } from './ip-converter';
 
 /**
  * Allow to grab ports being opened and on which network interface

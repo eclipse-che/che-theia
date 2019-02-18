@@ -60,7 +60,8 @@ async function askRedirect(port: Port, redirectMessage: string, errorMessage: st
 
         // show redirect
         const redirectInteractions: MessageItem[] = [{ title: 'Open Link' }];
-        const resultShow = await theia.window.showInformationMessage(`Redirect is now enabled on port ${port.portNumber}. External URL is ${workspacePort.url}`, { modal: true }, ...redirectInteractions);
+        const msg = `Redirect is now enabled on port ${port.portNumber}. External URL is ${workspacePort.url}`;
+        const resultShow = await theia.window.showInformationMessage(msg, { modal: true }, ...redirectInteractions);
         if (resultShow && resultShow.title === 'Open Link') {
             theia.commands.executeCommand('mini-browser.openUrl', workspacePort.url);
         }
@@ -74,7 +75,8 @@ async function onOpenPort(port: Port) {
     if (port.interfaceListen !== LISTEN_ALL_IPV4 && port.interfaceListen !== LISTEN_ALL_IPV6) {
         const desc = `A new process is now listening on port ${port.portNumber} but is listening on interface ${port.interfaceListen} which is internal.
         You should change to be remotely available. Would you want to add a redirect for this port so it becomes available ?`;
-        const err = `A new process is now listening on port ${port.portNumber} but is listening on interface ${port.interfaceListen} which is internal. This port is not available outside. You should change the code to listen on 0.0.0.0 for example.`;
+        const err = `A new process is now listening on port ${port.portNumber} but is listening on interface ${port.interfaceListen} which is internal.
+        This port is not available outside. You should change the code to listen on 0.0.0.0 for example.`;
         await askRedirect(port, desc, err);
         return;
     }
@@ -90,14 +92,17 @@ async function onOpenPort(port: Port) {
             return;
         }
         const interactions: MessageItem[] = [{ title: 'Open Link' }];
-        const result = await theia.window.showInformationMessage(`A process is now listening on port ${matchingWorkspacePort.portNumber}. External URL is ${matchingWorkspacePort.url}`, { modal: true }, ...interactions);
+        const msg = `A process is now listening on port ${matchingWorkspacePort.portNumber}. External URL is ${matchingWorkspacePort.url}`;
+        const result = await theia.window.showInformationMessage(msg, { modal: true }, ...interactions);
         if (result && result.title === 'Open Link') {
             theia.commands.executeCommand('mini-browser.openUrl', matchingWorkspacePort.url);
         }
     } else {
         // TODO: here need to use a pre-defined port and hook it with custom listener
-        const desc = `A new process is now listening on port ${port.portNumber} but this port is not exposed in the workspace as a server. Would you want to add a redirect for this port so it becomes available ?`;
-        const err = `A new process is now listening on port ${port.portNumber} but this port is not exposed in the workspace as a server. You should add a new server with this port in order to access it`;
+        const desc = `A new process is now listening on port ${port.portNumber} but this port is not exposed in the workspace as a server.
+         Would you want to add a redirect for this port so it becomes available ?`;
+        const err = `A new process is now listening on port ${port.portNumber} but this port is not exposed in the workspace as a server.
+         You should add a new server with this port in order to access it`;
         await askRedirect(port, desc, err);
     }
     console.info(`The port ${port.portNumber} is now listening on interface ${port.interfaceListen}`);
