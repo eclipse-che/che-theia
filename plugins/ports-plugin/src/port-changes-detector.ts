@@ -8,8 +8,8 @@
 * SPDX-License-Identifier: EPL-2.0
 **********************************************************************/
 
-import { PortScanner } from "./port-scanner";
-import { Port } from "./port";
+import { PortScanner } from './port-scanner';
+import { Port } from './port';
 
 interface PortCallback {
     (port: Port): void;

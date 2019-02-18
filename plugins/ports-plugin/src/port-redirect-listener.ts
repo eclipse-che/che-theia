@@ -22,19 +22,19 @@ export class PortRedirectListener {
 
     async start(): Promise<void> {
 
-        const server = net.createServer((localsocket) => {
+        const server = net.createServer(localsocket => {
             const remotesocket = new net.Socket();
 
             remotesocket.connect(this.remotePort, this.remoteHost);
-
+            // tslint:disable-next-line:no-any
             localsocket.on('connect', (data: any) => {
             });
-
+            // tslint:disable-next-line:no-any
             localsocket.on('data', (data: any) => {
                 remotesocket.write(data);
             });
 
-            remotesocket.on('data', (data) => {
+            remotesocket.on('data', data => {
                 const flushed = localsocket.write(data);
                 if (!flushed) {
                     remotesocket.pause();
@@ -49,11 +49,11 @@ export class PortRedirectListener {
                 localsocket.resume();
             });
 
-            localsocket.on('close', (had_error) => {
+            localsocket.on('close', had_error => {
                 remotesocket.end();
             });
 
-            remotesocket.on('close', (had_error) => {
+            remotesocket.on('close', had_error => {
                 localsocket.end();
             });
 
@@ -61,7 +61,7 @@ export class PortRedirectListener {
 
         server.listen(this.localPort);
 
-        console.log("redirecting connections from 127.0.0.1:%d to %s:%d", this.localPort, this.remoteHost, this.remotePort);
+        console.log('redirecting connections from 127.0.0.1:%d to %s:%d', this.localPort, this.remoteHost, this.remotePort);
 
     }
 }
