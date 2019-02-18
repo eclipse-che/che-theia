@@ -8,10 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import { injectable } from 'inversify';
-import WorkspaceClient, { IRemoteAPI, IRequestError, IRestAPIConfig } from '@eclipse-che/workspace-client';
+import { injectable, inject } from 'inversify';
+import WorkspaceClient, { IRemoteAPI, IRestAPIConfig } from '@eclipse-che/workspace-client';
 import { che } from '@eclipse-che/api';
-import { CHEWorkspaceService } from '../common/workspace-service';
+import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
+import { CHEWorkspaceService, WorkspaceContainer } from '../common/workspace-service';
 import { TERMINAL_SERVER_TYPE } from '../browser/server-definition/remote-terminal-protocol';
 
 const TYPE: string = 'type';
@@ -22,80 +23,73 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
 
     private api: IRemoteAPI | undefined;
 
-    public async getMachineList(): Promise<{ [attrName: string]: che.workspace.Machine }> {
-        const machineNames: { [attrName: string]: che.workspace.Machine } = {};
-        const workspaceId = this.getWorkspaceId();
-        const restClient = this.getRemoteApi();
-        if (!workspaceId || !restClient) {
-            return machineNames;
-        }
-        return new Promise<{ [attrName: string]: che.workspace.Machine }>((resolve, reject) => {
-            restClient.getById<che.workspace.Workspace>(workspaceId)
-                .then((workspace: che.workspace.Workspace) => {
-                    if (workspace.runtime) {
-                        resolve(workspace.runtime.machines);
-                        return;
+    constructor(@inject(EnvVariablesServer) protected readonly baseEnvVariablesServer: EnvVariablesServer) {
+    }
+
+    public async getContainerList(): Promise<WorkspaceContainer[]> {
+        const containers: WorkspaceContainer[] = [];
+        try {
+            const workspaceId = await this.getWorkspaceId();
+            const restClient = await this.getRemoteApi();
+            if (!workspaceId || !restClient) {
+                throw new Error('Unable to use workspace client.');
+            }
+
+            const workspace = await restClient.getById<che.workspace.Workspace>(workspaceId);
+
+            if (workspace.runtime && workspace.runtime.machines) {
+                const machines = workspace.runtime.machines;
+                for (const machineName in machines) {
+                    if (!machines.hasOwnProperty(machineName)) {
+                        continue;
                     }
-                    resolve({});
-                })
-                .catch((reason: IRequestError) => {
-                    console.log(`Failed to get workspace by ID: ${workspaceId}. Status code: ${reason.status}`);
-                    reject(reason.message);
-                });
-        });
+                    const machine = workspace.runtime.machines[machineName];
+                    const container: WorkspaceContainer = { name: machineName, ...machine };
+                    containers.push(container);
+                }
+            }
+        } catch (e) {
+            throw new Error('Unable to get list workspace containers. Cause: ' + e);
+        }
+
+        return containers;
     }
 
     public async findTerminalServer(): Promise<che.workspace.Server | undefined> {
-        const machines = await this.getMachineList();
+        const containers = await this.getContainerList();
 
-        for (const machineName in machines) {
-            if (!machines.hasOwnProperty(machineName)) {
-                continue;
-            }
-            const machine = machines[machineName];
-            if (machine && machine.servers) {
-                const servers = machine.servers;
-                for (const serverName in servers) {
-                    if (!servers.hasOwnProperty(serverName)) {
-                        continue;
-                    }
-                    const attrs = servers[serverName].attributes;
-                    if (attrs) {
-                        for (const attrName in attrs) {
-                            if (attrName === TYPE && attrs[attrName] === TERMINAL_SERVER_TYPE) {
-                                return servers[serverName];
-                            }
-                        }
+        for (const container of containers) {
+            const servers = container.servers || [];
+            for (const serverName in servers) {
+                if (!servers.hasOwnProperty(serverName)) {
+                    continue;
+                }
+                const attrs = servers[serverName].attributes || [];
+
+                for (const attrName in attrs) {
+                    if (attrName === TYPE && attrs[attrName] === TERMINAL_SERVER_TYPE) {
+                        return servers[serverName];
                     }
                 }
             }
-
         }
 
         return undefined;
     }
 
     public async findEditorMachineName(): Promise<string | undefined> {
-        const machines = await this.getMachineList();
+        const containers = await this.getContainerList();
 
-        for (const machineName in machines) {
-            if (!machines.hasOwnProperty(machineName)) {
-                continue;
-            }
-            const machine = machines[machineName];
-            if (machine && machine.servers) {
-                const servers = machine.servers;
-                for (const serverName in servers) {
-                    if (!servers.hasOwnProperty(serverName)) {
-                        continue;
-                    }
-                    const attrs = servers[serverName].attributes;
-                    if (attrs) {
-                        for (const attrName in attrs) {
-                            if (attrName === TYPE && attrs[attrName] === EDITOR_SERVER_TYPE) {
-                                return machineName;
-                            }
-                        }
+        for (const container of containers) {
+            const servers = container.servers || [];
+            for (const serverName in servers) {
+                if (!servers.hasOwnProperty(serverName)) {
+                    continue;
+                }
+                const attrs = servers[serverName].attributes || [];
+                for (const attrName in attrs) {
+                    if (attrName === TYPE && attrs[attrName] === EDITOR_SERVER_TYPE) {
+                        return container.name;
                     }
                 }
             }

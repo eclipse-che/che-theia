@@ -87,7 +87,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                 name: 'New terminal',
                 iconPath: 'fa-terminal medium-yellow',
                 tooltip: `open a new terminal for ${container.name}`,
-                command: { id: `terminal-for-${container.name}-container:new` }
+                command: { id: 'terminal-in-specific-container:new', arguments: [container.name] }
             });
             const servers = container.servers;
             if (!servers) {

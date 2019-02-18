@@ -10,8 +10,7 @@
 
 import { injectable, inject } from 'inversify';
 import { CommandRegistry, MenuModelRegistry, Command } from '@theia/core/lib/common';
-import { ApplicationShell, KeybindingRegistry, Key, KeyCode, KeyModifier } from '@theia/core/lib/browser';
-
+import { ApplicationShell, KeybindingRegistry, Key, KeyCode, KeyModifier, QuickOpenContribution, QuickOpenHandlerRegistry } from '@theia/core/lib/browser';
 import { TerminalQuickOpenService } from './terminal-quick-open';
 import { TerminalFrontendContribution, TerminalMenus } from '@theia/terminal/lib/browser/terminal-frontend-contribution';
 import { TerminalApiEndPointProvider } from '../server-definition/terminal-proxy-creator';
@@ -21,6 +20,7 @@ import { TerminalKeybindingContext } from './keybinding-context';
 import { CHEWorkspaceService } from '../../common/workspace-service';
 import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal-widget';
 import { REMOTE_TERMINAL_WIDGET_FACTORY_ID } from '../terminal-widget/remote-terminal-widget';
+import { filterRecipeContainers } from './terminal-command-filter';
 import URI from '@theia/core/lib/common/uri';
 
 export const NewTerminalInSpecificContainer = {
@@ -33,7 +33,7 @@ export interface OpenTerminalHandler {
 }
 
 @injectable()
-export class ExecTerminalFrontendContribution extends TerminalFrontendContribution {
+export class ExecTerminalFrontendContribution extends TerminalFrontendContribution implements QuickOpenContribution {
 
     @inject(TerminalQuickOpenService)
     private readonly terminalQuickOpen: TerminalQuickOpenService;
@@ -56,10 +56,14 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         const serverUrl = <URI | undefined>await this.termApiEndPointProvider();
         if (serverUrl) {
             registry.registerCommand(NewTerminalInSpecificContainer, {
-                execute: () => {
-                    this.terminalQuickOpen.displayListMachines(containerName => {
-                        this.openTerminalByContainerName(containerName);
-                    });
+                execute: (containerNameToExecute: string) => {
+                    if (containerNameToExecute) {
+                        this.openTerminalByContainerName(containerNameToExecute);
+                    } else {
+                        this.terminalQuickOpen.displayListMachines(containerName => {
+                            this.openTerminalByContainerName(containerName);
+                        });
+                    }
                 }
             });
             await this.registerTerminalCommandPerContainer(registry);
@@ -69,18 +73,16 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     }
 
     private async registerTerminalCommandPerContainer(registry: CommandRegistry) {
-        const containers = await this.cheWorkspaceService.getMachineList();
+        const containers = await this.cheWorkspaceService.getContainerList();
 
-        for (const containerName in containers) {
-            if (containers.hasOwnProperty(containerName)) {
-                const termCommandPerContainer: Command = {
-                    id: 'terminal-for-' + containerName + '-container:new',
-                    label: 'New terminal for ' + containerName
-                };
-                registry.registerCommand(termCommandPerContainer, {
-                    execute: async () => this.openTerminalByContainerName(containerName)
-                });
-            }
+        for (const container of filterRecipeContainers(containers)) {
+            const termCommandPerContainer: Command = {
+                id: 'terminal-for-' + container.name + '-container:new',
+                label: 'New terminal for ' + container.name
+            };
+            registry.registerCommand(termCommandPerContainer, {
+                execute: () => this.openTerminalByContainerName(container.name)
+            });
         }
     }
 
@@ -190,5 +192,9 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
             keybinding: keybinding,
             context: TerminalKeybindingContext.contextId
         });
+    }
+
+    registerQuickOpenHandlers(handlers: QuickOpenHandlerRegistry): void {
+        handlers.registerHandler(this.terminalQuickOpen, false);
     }
 }

@@ -9,7 +9,7 @@
  **********************************************************************/
 
 import { ContainerModule, Container, interfaces } from 'inversify';
-import { WidgetFactory, WebSocketConnectionProvider, KeybindingContext } from '@theia/core/lib/browser';
+import { WidgetFactory, WebSocketConnectionProvider, KeybindingContext, QuickOpenContribution } from '@theia/core/lib/browser';
 import { TerminalQuickOpenService } from './contribution/terminal-quick-open';
 import { RemoteTerminalWidgetOptions, REMOTE_TERMINAL_WIDGET_FACTORY_ID } from './terminal-widget/remote-terminal-widget';
 import { RemoteWebSocketConnectionProvider } from './server-definition/remote-connection';
@@ -18,7 +18,7 @@ import { TerminalProxyCreator, TerminalProxyCreatorProvider, TerminalApiEndPoint
 import '../../src/browser/terminal-widget/terminal.css';
 import 'xterm/lib/xterm.css';
 import { cheWorkspaceServicePath, CHEWorkspaceService } from '../common/workspace-service';
-import { ExecTerminalFrontendContribution } from './contribution/exec-terminal-contribution';
+import { ExecTerminalFrontendContribution, NewTerminalInSpecificContainer } from './contribution/exec-terminal-contribution';
 import { TerminalFrontendContribution } from '@theia/terminal/lib/browser/terminal-frontend-contribution';
 import { TerminalService } from '@theia/terminal/lib/browser/base/terminal-service';
 import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal-widget';
@@ -29,6 +29,9 @@ import URI from '@theia/core/lib/common/uri';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 
 export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Unbind, isBound: interfaces.IsBound, rebind: interfaces.Rebind) => {
+    // bind this contstant to prevent circle dependency
+    bind('terminal-in-specific-container-command-id').toConstantValue(NewTerminalInSpecificContainer.id);
+
     bind(KeybindingContext).to(RemoteTerminaActiveKeybingContext).inSingletonScope();
 
     bind(RemoteTerminalWidget).toSelf();
@@ -38,6 +41,7 @@ export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Un
     bind(ExecTerminalFrontendContribution).toSelf().inSingletonScope();
 
     rebind(TerminalFrontendContribution).toService(ExecTerminalFrontendContribution);
+    bind(QuickOpenContribution).toService(ExecTerminalFrontendContribution);
 
     bind(RemoteWebSocketConnectionProvider).toSelf();
     bind(TerminalProxyCreator).toSelf().inSingletonScope();
