@@ -1067,17 +1067,7 @@
   dependencies:
     "@theia/core" "^0.3.19"
 
-"@theia/plugin-ext-vscode@0.3.19":
-  version "0.3.19"
-  resolved "https://registry.yarnpkg.com/@theia/plugin-ext-vscode/-/plugin-ext-vscode-0.3.19.tgz#67b5f9233b4d82627b15ef5ed563724ff036c44e"
-  integrity sha512-dChkazG2zmZtVXrxXXUxU4ep3SOmo4VI0etBzLO3GVTw8X9DPoiVFGh8cvuVckNRzfAM5+wDj2DkGr0XLfSdug==
-  dependencies:
-    "@theia/core" "^0.3.19"
-    "@theia/plugin" "^0.3.19"
-    "@theia/plugin-ext" "^0.3.19"
-    vscode-uri "^1.0.1"
-
-"@theia/plugin-ext@0.3.19", "@theia/plugin-ext@^0.3.19":
+"@theia/plugin-ext@0.3.19":
   version "0.3.19"
   resolved "https://registry.yarnpkg.com/@theia/plugin-ext/-/plugin-ext-0.3.19.tgz#b43da65ebdc84a4265c5b28fa3e8dfd1b5c1032d"
   integrity sha512-65uS/v5YaZKMfmZP8jYCl/mjlUFb8O5410y3QombpMGs1pLT9IgPSAj177AEp2XQ1P8WqtSBfrzYrTRPyn6jmw==
