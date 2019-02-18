@@ -13,7 +13,7 @@
         "src"
     ],
     "dependencies": {
-        "@eclipse-che/plugin": "latest",
+        "@eclipse-che/plugin": "0.0.1",
         "@eclipse-che/workspace-client": "latest",
         "@theia/core": "next",
         "@theia/plugin-ext": "next"
