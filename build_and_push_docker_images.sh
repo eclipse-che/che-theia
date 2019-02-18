@@ -17,12 +17,14 @@ DOCKER_FILES_LOCATIONS=(
 dockerfiles/theia-dev
 dockerfiles/theia
 dockerfiles/theia-endpoint-runtime
+dockerfiles/remote-plugin-runner-java8
 )
 
 IMAGES_LIST=(
 eclipse/che-theia-dev
 eclipse/che-theia
 eclipse/che-theia-endpoint-runtime
+eclipse/remote-plugin-runner-java8
 )
 
 
