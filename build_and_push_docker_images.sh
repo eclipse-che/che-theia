@@ -36,6 +36,8 @@ for image_dir in "${DOCKER_FILES_LOCATIONS[@]}"
             bash $(pwd)/$image_dir/build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=master --tag:master --branch:master --git-ref:refs\\/heads\\/master 
         elif [ "$image_dir" == "dockerfiles/theia-dev" ]; then
             bash $(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN} --tag:master
+        elif [ "$image_dir" == "dockerfiles/theia-endpoint-runtime" ]; then
+            bash $(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN}
         else
             bash $(pwd)/$image_dir/build.sh
         fi

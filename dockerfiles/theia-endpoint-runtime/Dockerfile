@@ -11,6 +11,26 @@
 FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-dev:${BUILD_TAG} as builder
 
 
+# define in env variable GITHUB_TOKEN only if it is defined
+# else check if github rate limit is enough, else will abort requiring to set GITHUB_TOKEN value
+ARG GITHUB_TOKEN
+
+# Check github limit
+RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
+        export GITHUB_TOKEN=$GITHUB_TOKEN; \
+        echo "Setting GITHUB_TOKEN value as provided"; \
+    else \
+        export GITHUB_LIMIT=$(curl -s 'https://api.github.com/rate_limit' | jq '.rate .remaining'); \
+        echo "Current API rate limit https://api.github.com is ${GITHUB_LIMIT}"; \
+        if [ "${GITHUB_LIMIT}" -lt 10 ]; then \
+            printf "\033[0;31m\n\n\nRate limit on https://api.github.com is reached so in order to build this image, "; \
+            printf "the build argument GITHUB_TOKEN needs to be provided so build will not fail.\n\n\n\033[0m"; \
+            exit 1; \
+        else \
+            echo "GITHUB_TOKEN variable is not set but https://api.github.com rate limit has enough slots"; \
+        fi \
+    fi
+
 # Grab dependencies
 COPY /package.json /home/workspace/packages/theia-remote/
 RUN cd /home/workspace/packages/theia-remote/ && yarn install --ignore-scripts
