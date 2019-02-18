@@ -13,10 +13,10 @@
         "src"
     ],
     "dependencies": {
-        "@eclipse-che/plugin": "latest",
+        "@eclipse-che/plugin": "0.0.1",
         "@eclipse-che/workspace-client": "latest",
-        "@theia/core": "0.3.19",
-        "@theia/plugin-ext": "0.3.19"
+        "@theia/core": "next",
+        "@theia/plugin-ext": "next"
     },
     "devDependencies": {
         "clean-webpack-plugin": "^0.1.19",
