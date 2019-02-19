@@ -1,0 +1,36 @@
+diff --git a/packages/typescript/src/node/typescript-backend-module.ts b/packages/typescript/src/node/typescript-backend-module.ts
+index 82b9ad8d..5c2a24a2 100644
+--- a/packages/typescript/src/node/typescript-backend-module.ts
++++ b/packages/typescript/src/node/typescript-backend-module.ts
+@@ -15,19 +15,19 @@
+  ********************************************************************************/
+ 
+ import { ContainerModule } from 'inversify';
+-import { JsonRpcConnectionHandler, ConnectionHandler } from '@theia/core/lib/common';
+-import { LanguageServerContribution } from '@theia/languages/lib/node';
+-import { TypeScriptContribution } from './typescript-contribution';
+-import { typescriptVersionPath, TypescriptVersionService } from '../common/typescript-version-service';
+-import { TypescriptVersionServiceImpl } from './typescript-version-service-impl';
++// import { JsonRpcConnectionHandler, ConnectionHandler } from '@theia/core/lib/common';
++// import { LanguageServerContribution } from '@theia/languages/lib/node';
++// import { TypeScriptContribution } from './typescript-contribution';
++// import { typescriptVersionPath, TypescriptVersionService } from '../common/typescript-version-service';
++// import { TypescriptVersionServiceImpl } from './typescript-version-service-impl';
+ 
+ export default new ContainerModule(bind => {
+-    bind(LanguageServerContribution).to(TypeScriptContribution).inSingletonScope();
++    // bind(LanguageServerContribution).to(TypeScriptContribution).inSingletonScope();
+ 
+-    bind(TypescriptVersionService).to(TypescriptVersionServiceImpl).inSingletonScope();
+-    bind(ConnectionHandler).toDynamicValue(ctx =>
+-        new JsonRpcConnectionHandler(typescriptVersionPath, () =>
+-            ctx.container.get(TypescriptVersionService)
+-        )
+-    ).inSingletonScope();
++    // bind(TypescriptVersionService).to(TypescriptVersionServiceImpl).inSingletonScope();
++    // bind(ConnectionHandler).toDynamicValue(ctx =>
++    //     new JsonRpcConnectionHandler(typescriptVersionPath, () =>
++    //         ctx.container.get(TypescriptVersionService)
++    //     )
++    // ).inSingletonScope();
+ });
