@@ -9,7 +9,7 @@
         "src"
     ],
     "devDependencies": {
-        "@theia/plugin": "0.3.19",
+        "@theia/plugin": "next",
         "@theia/plugin-packager": "latest",
         "@eclipse-che/api": "latest",
         "@eclipse-che/plugin": "latest"

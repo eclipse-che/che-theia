@@ -3,11 +3,6 @@ language: node_js
 node_js: '8'
 git:
   depth: 1
-cache:
-  yarn: true
-  directories:
-  - extensions/eclipse-che-theia-plugin-ext/node_modules
-  - node_modules
 branches:
   only:
   - master
@@ -26,10 +21,10 @@ jobs:
     install: skip
     before_script: skip
     script:
-      - yarn
-      - export BUILD_BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
-      - ./build_and_push_docker_images.sh;
-      - ./che-plugins/build.sh;
+      - travis_retry yarn && \
+      export BUILD_BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi) && \
+      ./build_and_push_docker_images.sh && \
+      ./che-plugins/build.sh
   - stage: deploy
     os: linux
     before_script: skip

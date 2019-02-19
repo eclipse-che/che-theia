@@ -20,6 +20,11 @@ fi
 #in mac os 'cp' cannot create destination dir, so create it first
 mkdir ${LOCAL_ASSEMBLY_DIR}
 
+echo "Copying ${base_dir}/../../extensions/eclipse-che-theia-plugin --> ${LOCAL_ASSEMBLY_DIR}/theia-plugin"
+mkdir ${LOCAL_ASSEMBLY_DIR}/theia-plugin
+cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin/src/." "${LOCAL_ASSEMBLY_DIR}/theia-plugin/src/"
+cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin/package.json" "${LOCAL_ASSEMBLY_DIR}/theia-plugin"
+
 echo "Copying ${base_dir}/../../extensions/eclipse-che-theia-plugin-ext --> ${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext"
 mkdir ${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext
 cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-ext/src/." "${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext/src/"
