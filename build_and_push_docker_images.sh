@@ -24,7 +24,7 @@ IMAGES_LIST=(
 eclipse/che-theia-dev
 eclipse/che-theia
 eclipse/che-theia-endpoint-runtime
-eclipse/remote-plugin-runner-java8
+eclipse/che-remote-plugin-runner-java8
 )
 
 
