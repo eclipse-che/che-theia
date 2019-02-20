@@ -46,7 +46,7 @@ COPY /tsconfig.json /home/workspace/packages/theia-plugin/tsconfig.json
 COPY /etc/package.json /home/workspace
 RUN cd /home/workspace/ && yarn install
 
-FROM node:8.12-alpine
+FROM node:8.15.0-alpine
 COPY --from=builder /home/workspace/node_modules /home/theia/node_modules
 RUN rm -rf /home/theia/node_modules/@eclipse-che/theia-plugin-ext /home/theia/node_modules/@eclipse-che/theia-remote
 COPY --from=builder /home/workspace/packages/theia-plugin-ext /home/theia/node_modules/@eclipse-che/theia-plugin-ext

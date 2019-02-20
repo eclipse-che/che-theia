@@ -86,7 +86,7 @@ RUN find production -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt
 # Runtime Image
 #
 # Use node image
-FROM node:8.12.0-alpine as runtime
+FROM node:8.15.0-alpine as runtime
 ENV USE_LOCAL_GIT=true \
     HOME=/home/theia \
     THEIA_DEFAULT_PLUGINS=local-dir:///default-theia-plugins \
