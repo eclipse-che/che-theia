@@ -42,7 +42,7 @@ export class CheTaskServiceImpl implements CheTaskService {
             for (const client of this.clients) {
                 await client.runTask(id, config, ctx);
             }
-            return new CheTask(id, this.taskManager, this.logger, { label: config.label, config }, this.clients);
+            return new CheTask(id, this.taskManager, this.logger, { label: config.label, config, context: ctx }, this.clients);
         };
     }
 
