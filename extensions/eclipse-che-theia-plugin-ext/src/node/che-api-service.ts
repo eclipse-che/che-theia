@@ -7,7 +7,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
-import { CheApiService } from '../common/che-protocol';
+import { CheApiService, Preferences } from '../common/che-protocol';
 import { che as cheApi } from '@eclipse-che/api';
 import WorkspaceClient, { IRestAPIConfig, IRemoteAPI } from '@eclipse-che/workspace-client';
 import { injectable } from 'inversify';
@@ -17,6 +17,30 @@ export class CheApiServiceImpl implements CheApiService {
 
     private workspaceRestAPI: IRemoteAPI | undefined;
 
+    async getCurrentWorkspaceId(): Promise<string> {
+        return this.getWorkspaceIdFromEnv();
+    }
+
+    async getUserPreferences(filter?: string): Promise<Preferences> {
+        const cheApiClient = await this.getCheApiClient();
+        return cheApiClient.getUserPreferences(filter);
+    }
+
+    async updateUserPreferences(update: Preferences): Promise<Preferences> {
+        const cheApiClient = await this.getCheApiClient();
+        return cheApiClient.updateUserPreferences(update);
+    }
+
+    async replaceUserPreferences(preferences: Preferences): Promise<Preferences> {
+        const cheApiClient = await this.getCheApiClient();
+        return cheApiClient.replaceUserPreferences(preferences);
+    }
+
+    async deleteUserPreferences(list?: string[]): Promise<void> {
+        const cheApiClient = await this.getCheApiClient();
+        return cheApiClient.deleteUserPreferences(list);
+    }
+
     async currentWorkspace(): Promise<cheApi.workspace.Workspace> {
         try {
             const workspaceId = process.env.CHE_WORKSPACE_ID;
@@ -24,9 +48,9 @@ export class CheApiServiceImpl implements CheApiService {
                 return Promise.reject('Cannot find Che workspace id, environment variable "CHE_WORKSPACE_ID" is not set');
             }
 
-            const wsClient = await this.wsClient();
-            if (wsClient) {
-                return await wsClient!.getById<cheApi.workspace.Workspace>(workspaceId);
+            const cheApiClient = await this.getCheApiClient();
+            if (cheApiClient) {
+                return await cheApiClient.getById<cheApi.workspace.Workspace>(workspaceId);
             }
 
             return Promise.reject('Cannot create Che API REST Client');
@@ -42,9 +66,9 @@ export class CheApiServiceImpl implements CheApiService {
                 return Promise.reject('Che Workspace id is not set');
             }
 
-            const wsClient = await this.wsClient();
-            if (wsClient) {
-                return await wsClient!.getById<cheApi.workspace.Workspace>(workspaceId);
+            const cheApiClient = await this.getCheApiClient();
+            if (cheApiClient) {
+                return await cheApiClient.getById<cheApi.workspace.Workspace>(workspaceId);
             }
 
             return Promise.reject('Cannot create Che API REST Client');
@@ -60,9 +84,9 @@ export class CheApiServiceImpl implements CheApiService {
                 return Promise.reject('Che Workspace id is not set');
             }
 
-            const wsClient = await this.wsClient();
-            if (wsClient) {
-                return await wsClient!.update(workspaceId, workspace);
+            const cheApiClient = await this.getCheApiClient();
+            if (cheApiClient) {
+                return await cheApiClient.update(workspaceId, workspace);
             }
 
             return Promise.reject('Cannot create Che API REST Client');
@@ -74,7 +98,7 @@ export class CheApiServiceImpl implements CheApiService {
 
     async getFactoryById(factoryId: string): Promise<cheApi.factory.Factory> {
         try {
-            const client = await this.wsClient();
+            const client = await this.getCheApiClient();
             if (client) {
                 return await client.getFactory<cheApi.factory.Factory>(factoryId);
             }
@@ -85,12 +109,12 @@ export class CheApiServiceImpl implements CheApiService {
         }
     }
 
-    private async wsClient(): Promise<IRemoteAPI | undefined> {
+    private async getCheApiClient(): Promise<IRemoteAPI> {
         const cheApiInternalVar = process.env.CHE_API_INTERNAL;
         const cheMachineToken = process.env.CHE_MACHINE_TOKEN;
 
         if (!cheApiInternalVar) {
-            return undefined;
+            return Promise.reject('Unable to create Che API REST Client: "CHE_API_INTERNAL" is not set.');
         }
 
         if (!this.workspaceRestAPI) {
@@ -106,6 +130,14 @@ export class CheApiServiceImpl implements CheApiService {
         }
 
         return this.workspaceRestAPI;
+    }
+
+    private getWorkspaceIdFromEnv(): string {
+        const workspaceId = process.env.CHE_WORKSPACE_ID;
+        if (!workspaceId) {
+            throw new Error('Environment variable CHE_WORKSPACE_ID is not set.');
+        }
+        return workspaceId;
     }
 
 }
