@@ -1,0 +1,33 @@
+{
+  "name": "@eclipse-che/theia-user-preferences-synchronizer",
+  "keywords": [
+    "theia-extension",
+    "che",
+    "preferences"
+  ],
+  "version": "0.0.1",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "@theia/core": "^0.3.19",
+    "@theia/preferences": "^0.3.19",
+    "@eclipse-che/theia-plugin-ext": "^0.0.1"
+  },
+  "devDependencies": {
+    "rimraf": "latest",
+    "typescript": "latest"
+  },
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "theiaExtensions": [
+    {
+      "backend": "lib/node/che-theia-user-preferences-backend-module"
+    }
+  ]
+}
