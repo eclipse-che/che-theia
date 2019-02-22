@@ -17,9 +17,9 @@
 /// <reference types='@theia/core/src/typings/nsfw/index'/>
 
 import { injectable, inject } from 'inversify';
-import { readFileSync, writeFileSync } from 'fs';
+import { readFile, writeFile, ensureDir } from 'fs-extra';
 import { homedir } from 'os';
-import { resolve } from 'path';
+import { resolve, dirname } from 'path';
 import * as nsfw from 'vscode-nsfw';
 import { CheApiService, Preferences } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
 
@@ -41,7 +41,8 @@ export class CheTheiaUserPreferencesSynchronizer {
         const chePreferences = await this.cheApiService.getUserPreferences(THEIA_PREFERENCES_KEY);
         const theiaPreferences = chePreferences[THEIA_PREFERENCES_KEY] ? chePreferences[THEIA_PREFERENCES_KEY] : '{}';
         const theiaPreferencesBeautified = JSON.stringify(JSON.parse(theiaPreferences), undefined, 3);
-        writeFileSync(THEIA_USER_PREFERENCES_PATH, theiaPreferencesBeautified, 'utf8');
+        await ensureDir(dirname(THEIA_USER_PREFERENCES_PATH));
+        await writeFile(THEIA_USER_PREFERENCES_PATH, theiaPreferencesBeautified, 'utf8');
     }
 
     public async watchUserPreferencesChanges(): Promise<void> {
@@ -72,7 +73,7 @@ export class CheTheiaUserPreferencesSynchronizer {
      * Updates Theia user preferences which stored in Che
      */
     protected async updateTheiaUserPreferencesInCheSettings(): Promise<void> {
-        let userPreferences = readFileSync(THEIA_USER_PREFERENCES_PATH, 'utf8');
+        let userPreferences = await readFile(THEIA_USER_PREFERENCES_PATH, 'utf8');
         try {
             // check json validity and remove indents
             userPreferences = JSON.stringify(JSON.parse(userPreferences));
