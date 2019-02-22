@@ -97,12 +97,11 @@ ENV USE_LOCAL_GIT=true \
 EXPOSE 3100 3130
 
 # Install sudo
-# Install Java for java extension
 # Install git
 # Install bzip2 to unpack files
 # Install which tool in order to search git
 # Install curl and bash
-RUN apk add --update --no-cache sudo openjdk8-jre git bzip2 which bash curl
+RUN apk add --update --no-cache sudo git bzip2 which bash curl
 RUN adduser --disabled-password -S -u 1001 -G root -h ${HOME} -s /bin/sh theia \
     && echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
     # Create /projects for Che
