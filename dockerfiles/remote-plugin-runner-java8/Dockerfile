@@ -9,6 +9,6 @@
 #   Red Hat, Inc. - initial API and implementation
 
 FROM eclipse/che-theia-endpoint-runtime:nightly
-RUN apk --no-cache add openjdk8
+RUN apk --no-cache add openjdk8 procps
 ENV JAVA_HOME /usr/lib/jvm/default-jvm/
 WORKDIR /projects
