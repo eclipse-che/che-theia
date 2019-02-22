@@ -11,8 +11,8 @@
     "src"
   ],
   "dependencies": {
-    "@theia/core": "^0.3.19",
-    "@theia/preferences": "^0.3.19",
+    "@theia/core": "next",
+    "@theia/preferences": "next",
     "@eclipse-che/theia-plugin-ext": "^0.0.1"
   },
   "devDependencies": {
