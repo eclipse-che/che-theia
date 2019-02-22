@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { injectable, inject } from "inversify";
+import { injectable, inject } from 'inversify';
 import { BackendApplicationContribution } from '@theia/core/lib/node/backend-application';
 import { CheTheiaUserPreferencesSynchronizer } from './che-theia-preferences-synchronizer';
 
@@ -22,10 +22,10 @@ import { CheTheiaUserPreferencesSynchronizer } from './che-theia-preferences-syn
 export class CheTheiaPreferencesContribution implements BackendApplicationContribution {
 
     @inject(CheTheiaUserPreferencesSynchronizer)
-    cheTheiaUserPreferencesSynchronizer: CheTheiaUserPreferencesSynchronizer
+    cheTheiaUserPreferencesSynchronizer: CheTheiaUserPreferencesSynchronizer;
 
-    async onStart(): Promise<void> {
-        await this.cheTheiaUserPreferencesSynchronizer.readTheiaUserPreferencesFromCheSettings();
+    public onStart(): void {
+        this.cheTheiaUserPreferencesSynchronizer.readTheiaUserPreferencesFromCheSettings();
         this.cheTheiaUserPreferencesSynchronizer.watchUserPreferencesChanges();
     }
 }

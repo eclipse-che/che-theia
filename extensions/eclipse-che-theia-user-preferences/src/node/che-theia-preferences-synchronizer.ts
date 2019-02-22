@@ -14,17 +14,17 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-/// <reference types="@theia/core/src/typings/nsfw/index"/>
+/// <reference types='@theia/core/src/typings/nsfw/index'/>
 
-import { injectable, inject } from "inversify";
+import { injectable, inject } from 'inversify';
 import { readFileSync, writeFileSync } from 'fs';
 import { homedir } from 'os';
-import { sep as PATH_SEPARATOR } from 'path';
+import { resolve } from 'path';
 import * as nsfw from 'vscode-nsfw';
-import { CheApiService, Preferences } from "@eclipse-che/theia-plugin-ext/lib/common/che-protocol";
+import { CheApiService, Preferences } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
 
 export const THEIA_PREFERENCES_KEY = 'theia-user-preferences';
-export const THEIA_USER_PREFERENCES_PATH = homedir() + PATH_SEPARATOR + '.theia' + PATH_SEPARATOR + 'settings.json';
+export const THEIA_USER_PREFERENCES_PATH = resolve(homedir(), '.theia', 'settings.json');
 
 @injectable()
 export class CheTheiaUserPreferencesSynchronizer {
@@ -35,8 +35,8 @@ export class CheTheiaUserPreferencesSynchronizer {
     protected settingsJsonWatcher: nsfw.NSFW | undefined;
 
     /**
-    * Provides stored Theia user preferences into workspace.
-    */
+     * Provides stored Theia user preferences into workspace.
+     */
     public async readTheiaUserPreferencesFromCheSettings(): Promise<void> {
         const chePreferences = await this.cheApiService.getUserPreferences(THEIA_PREFERENCES_KEY);
         const theiaPreferences = chePreferences[THEIA_PREFERENCES_KEY] ? chePreferences[THEIA_PREFERENCES_KEY] : '{}';
@@ -68,11 +68,14 @@ export class CheTheiaUserPreferencesSynchronizer {
         }
     }
 
+    /**
+     * Updates Theia user preferences which stored in Che
+     */
     protected async updateTheiaUserPreferencesInCheSettings(): Promise<void> {
         let userPreferences = readFileSync(THEIA_USER_PREFERENCES_PATH, 'utf8');
         try {
-             // check json validity and remove indents
-             userPreferences = JSON.stringify(JSON.parse(userPreferences));
+            // check json validity and remove indents
+            userPreferences = JSON.stringify(JSON.parse(userPreferences));
         } catch (error) {
             // settings.json has syntax error, do not update anything
             return;
