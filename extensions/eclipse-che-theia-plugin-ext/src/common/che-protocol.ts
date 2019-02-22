@@ -321,6 +321,10 @@ export interface RequestBodyDescriptor {
     description: string;
 }
 
+export interface Preferences {
+    [key: string]: string;
+}
+
 export const PLUGIN_RPC_CONTEXT = {
     CHE_WORKSPACE: <ProxyIdentifier<CheWorkspace>>createProxyIdentifier<CheWorkspace>('CheWorkspace'),
     CHE_WORKSPACE_MAIN: <ProxyIdentifier<CheWorkspaceMain>>createProxyIdentifier<CheWorkspaceMain>('CheWorkspaceMain'),
@@ -342,13 +346,21 @@ export const CheApiService = Symbol('CheApiService');
 
 export interface CheApiService {
 
-    currentWorkspace(): Promise<cheApi.workspace.Workspace>;
+    getCurrentWorkspaceId(): Promise<string>;
 
+    currentWorkspace(): Promise<cheApi.workspace.Workspace>;
     getWorkspaceById(workspaceId: string): Promise<cheApi.workspace.Workspace>;
 
     updateWorkspace(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<cheApi.workspace.Workspace>;
 
     getFactoryById(factoryId: string): Promise<cheApi.factory.Factory>;
+
+    getUserPreferences(): Promise<Preferences>;
+    getUserPreferences(filter: string | undefined): Promise<Preferences>;
+    updateUserPreferences(update: Preferences): Promise<Preferences>;
+    replaceUserPreferences(preferences: Preferences): Promise<Preferences>;
+    deleteUserPreferences(): Promise<void>;
+    deleteUserPreferences(list: string[] | undefined): Promise<void>;
 
 }
 
