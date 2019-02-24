@@ -19,6 +19,13 @@ export interface IContainer {
             url?: string;
         }
     };
+    env?: { [key: string]: string; },
+    volumes?: {
+        [key: string]: {
+            path?: string;
+        };
+    },
+    commands?: string[]
 }
 
 const MAX_FAILED_ATTEMPTS = 5;
@@ -50,6 +57,19 @@ export class ContainersService {
                 status: machine.status,
                 isDev: devMachines[name] !== undefined
             };
+            if (devMachines[name]) {
+                container.volumes = devMachines[name].volumes;
+                container.env = devMachines[name].env;
+            }
+            if (workspace!.config!.commands) {
+                container.commands = [];
+                workspace!.config!.commands.forEach(command => {
+                    if (command.attributes && command.attributes.machineName && command.attributes.machineName !== name) {
+                        return;
+                    }
+                    container.commands.push(command.name);
+                });
+            }
             if (machine && machine.servers) {
                 container.servers = {};
                 Object.keys(machine.servers).forEach((serverName: string) => {

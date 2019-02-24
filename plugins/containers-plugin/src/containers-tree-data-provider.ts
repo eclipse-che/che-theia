@@ -89,42 +89,113 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                 tooltip: `open a new terminal for ${container.name}`,
                 command: { id: 'terminal-in-specific-container:new', arguments: [container.name] }
             });
-            const servers = container.servers;
-            if (!servers) {
-                return;
+            const serverKeys = container.servers ? Object.keys(container.servers) : [];
+            if (serverKeys.length) {
+                const endpointsId = this.getRandId();
+                this.treeNodeItems.push({
+                    id: endpointsId,
+                    parentId: treeItem.id,
+                    name: 'endpoints',
+                    tooltip: 'endpoints',
+                    isExpanded: true
+                });
+                serverKeys.forEach((serverName: string) => {
+                    const server = container.servers[serverName];
+                    if (!server) {
+                        return;
+                    }
+                    const treeNodeItem: ITreeNodeItem = {
+                        id: this.getRandId(),
+                        parentId: endpointsId,
+                        name: serverName,
+                        iconPath: 'fa-info-circle medium-blue',
+                        tooltip: server.url ? server.url : 'endpoint'
+                    };
+                    if (server.url && server.url.startsWith('http')) {
+                        treeNodeItem.name = serverName;
+                        treeNodeItem.iconPath = 'fa-share medium-blue';
+                        treeNodeItem.command = { id: 'theia.open', arguments: [server.url] };
+                        treeNodeItem.tooltip = 'open in a new tab  ' + treeNodeItem.tooltip;
+                    }
+                    this.treeNodeItems.push(treeNodeItem);
+                });
             }
-            const serverKeys = Object.keys(servers);
-            if (!serverKeys.length) {
-                return;
+            const envKeys = container.env ? Object.keys(container.env) : [];
+            if (envKeys.length) {
+                const envsId = this.getRandId();
+                this.treeNodeItems.push({
+                    id: envsId,
+                    parentId: treeItem.id,
+                    name: 'env',
+                    tooltip: 'environment variables',
+                    isExpanded: false
+                });
+                envKeys.forEach((envName: string) => {
+                    this.treeNodeItems.push({
+                        id: this.getRandId(),
+                        parentId: envsId,
+                        name: `${envName} : ${container.env[envName]}`,
+                        tooltip: `environment variable ${envName}`,
+                        iconPath: 'fa-info-circle medium-blue'
+                    });
+                });
             }
-            const endpointsId = this.getRandId();
-            this.treeNodeItems.push({
-                id: endpointsId,
-                parentId: treeItem.id,
-                name: 'endpoints',
-                tooltip: 'endpoints',
-                isExpanded: true
-            });
-            serverKeys.forEach((serverName: string) => {
-                const server = servers[serverName];
-                if (!server) {
-                    return;
-                }
-                const treeNodeItem: ITreeNodeItem = {
-                    id: this.getRandId(),
-                    parentId: endpointsId,
-                    name: serverName,
-                    iconPath: 'fa-info-circle medium-blue',
-                    tooltip: server.url ? server.url : 'endpoint'
-                };
-                if (server.url && server.url.startsWith('http')) {
-                    treeNodeItem.name = serverName;
-                    treeNodeItem.iconPath = 'fa-share medium-blue';
-                    treeNodeItem.command = { id: 'theia.open', arguments: [server.url] };
-                    treeNodeItem.tooltip = 'open in a new tab  ' + treeNodeItem.tooltip;
-                }
-                this.treeNodeItems.push(treeNodeItem);
-            });
+            const volumesKeys = container.volumes ? Object.keys(container.volumes) : [];
+            if (volumesKeys.length) {
+                const volumesId = this.getRandId();
+                this.treeNodeItems.push({
+                    id: volumesId,
+                    parentId: treeItem.id,
+                    name: 'volumes',
+                    tooltip: 'volumes',
+                    isExpanded: false
+                });
+                volumesKeys.forEach((volumeName: string) => {
+                    const volume: {
+                        [paramRef: string]: string;
+                    } = container.volumes[volumeName];
+                    if (!volume) {
+                        return;
+                    }
+                    const volumeId = this.getRandId();
+                    this.treeNodeItems.push({
+                        id: volumeId,
+                        parentId: volumesId,
+                        name: volumeName,
+                        tooltip: 'volume name',
+                        isExpanded: true
+                    });
+                    Object.keys(volume).forEach((key: string) => {
+                        this.treeNodeItems.push({
+                            id: this.getRandId(),
+                            parentId: volumeId,
+                            name: `${key} : ${volume[key]}`,
+                            tooltip: `volume ${volumeName}`,
+                            iconPath: 'fa-info-circle medium-blue'
+                        });
+                    });
+                });
+            }
+            if (container.commands && container.commands.length) {
+                const commandsId = this.getRandId();
+                this.treeNodeItems.push({
+                    id: commandsId,
+                    parentId: treeItem.id,
+                    name: 'commands',
+                    tooltip: 'commands',
+                    isExpanded: false
+                });
+                container.commands.forEach((commandName: string) => {
+                    this.treeNodeItems.push({
+                        id: this.getRandId(),
+                        parentId: commandsId,
+                        name: commandName,
+                        tooltip: 'execute the command',
+                        iconPath: 'fa-terminal medium-yellow',
+                        command: { id: 'task:run', arguments: ['che', commandName] }
+                    });
+                });
+            }
         });
         if (hasPlugin) {
             this.treeNodeItems.push(pluginsDir);
