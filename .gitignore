@@ -1,5 +1,20 @@
-node_modules
+# Dependency directories
+node_modules/
+
+# Logs
 yarn-error.log
+
+# IntelliJ
+.idea
+
+# VS Code
+.vscode/*
+
+# Generated files
+*.theia
+
+
+# MacOS
 .DS_Store
 .theia
 .idea

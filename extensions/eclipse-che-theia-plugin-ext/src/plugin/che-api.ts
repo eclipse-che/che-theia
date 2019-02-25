@@ -17,6 +17,7 @@ import { CheVariablesImpl } from './che-variables';
 import { PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
 import { CheFactoryImpl } from './che-factory';
 import { CheTaskImpl } from './che-task-impl';
+import { CheSshImpl } from './che-ssh';
 
 export interface CheApiFactory {
     (plugin: Plugin): typeof che;
@@ -27,6 +28,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
     const cheFactoryImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_FACTORY, new CheFactoryImpl(rpc));
     const cheVariablesImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_VARIABLES, new CheVariablesImpl(rpc));
     const cheTaskImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_TASK, new CheTaskImpl(rpc));
+    const cheSshImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_SSH, new CheSshImpl(rpc));
 
     return function (plugin: Plugin): typeof che {
         const workspace: typeof che.workspace = {
@@ -86,6 +88,25 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             }
         };
 
+        const ssh: typeof che.ssh = {
+            deleteKey(service: string, name: string): Promise<void> {
+                return cheSshImpl.delete(service, name);
+            },
+            generate(service: string, name: string): Promise<cheApi.ssh.SshPair> {
+                return cheSshImpl.generate(service, name);
+
+            },
+            create(sshKeyPair: cheApi.ssh.SshPair): Promise<void> {
+                return cheSshImpl.create(sshKeyPair);
+            },
+            getAll(service: string): Promise<cheApi.ssh.SshPair[]> {
+                return cheSshImpl.getAll(service);
+            },
+            get(service: string, name: string): Promise<cheApi.ssh.SshPair> {
+                return cheSshImpl.get(service, name);
+            }
+        };
+
         const task: typeof che.task = {
             registerTaskRunner(type: string, runner: che.TaskRunner): Promise<che.Disposable> {
                 return cheTaskImpl.registerTaskRunner(type, runner);
@@ -99,7 +120,8 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             workspace,
             factory,
             variables,
-            task
+            task,
+            ssh
         };
     };
 
