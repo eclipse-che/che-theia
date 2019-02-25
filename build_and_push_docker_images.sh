@@ -18,6 +18,7 @@ dockerfiles/theia-dev
 dockerfiles/theia
 dockerfiles/theia-endpoint-runtime
 dockerfiles/remote-plugin-runner-java8
+dockerfiles/remote-plugin-go-1.10.7
 )
 
 IMAGES_LIST=(
@@ -25,21 +26,21 @@ eclipse/che-theia-dev
 eclipse/che-theia
 eclipse/che-theia-endpoint-runtime
 eclipse/che-remote-plugin-runner-java8
+eclipse/che-remote-plugin-go-1.10.7
 )
 
 
 # BUILD IMAGES
 for image_dir in "${DOCKER_FILES_LOCATIONS[@]}"
     do
+        GITHUB_TOKEN_ARG="GITHUB_TOKEN="${GITHUB_TOKEN}
         if [ "$image_dir" == "dockerfiles/theia" ]; then
             THEIA_IMAGE_TAG="master"
-            bash $(pwd)/$image_dir/build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=master --tag:master --branch:master --git-ref:refs\\/heads\\/master 
+            bash $(pwd)/$image_dir/build.sh --build-args:${GITHUB_TOKEN_ARG},THEIA_VERSION=master --tag:master --branch:master --git-ref:refs\\/heads\\/master 
         elif [ "$image_dir" == "dockerfiles/theia-dev" ]; then
-            bash $(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN} --tag:master
-        elif [ "$image_dir" == "dockerfiles/theia-endpoint-runtime" ]; then
-            bash $(pwd)/$image_dir/build.sh --build-arg:GITHUB_TOKEN=${GITHUB_TOKEN}
+            bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:master
         else
-            bash $(pwd)/$image_dir/build.sh
+            bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG}
         fi
         if [ $? -ne 0 ]; then
             echo "ERROR:"
