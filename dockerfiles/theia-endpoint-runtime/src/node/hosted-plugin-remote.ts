@@ -8,12 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import * as WebSocket from 'ws';
-
 import { injectable, inject, postConstruct } from 'inversify';
 import { ILogger } from '@theia/core/lib/common';
 import { HostedPluginClient, PluginMetadata } from '@theia/plugin-ext';
 import { HostedPluginMapping } from './plugin-remote-mapping';
+import { Websocket } from './websocket';
 
 /**
  * Class handling remote connection for executing plug-ins.
@@ -33,7 +32,7 @@ export class HostedPluginRemote {
     /**
      * mapping between endpoint name and the websockets
      */
-    private endpointsSockets = new Map<string, WebSocket>();
+    private endpointsSockets = new Map<string, Websocket>();
 
     /**
      * mapping between endpoint's name and the websocket endpoint
@@ -58,19 +57,19 @@ export class HostedPluginRemote {
     setupWebsocket(): void {
         this.hostedPluginMapping.getEndPoints().forEach(endpointAdress => {
             if (endpointAdress) {
-                const websocket = new WebSocket(endpointAdress);
+                const websocket = new Websocket(this.logger, endpointAdress);
                 this.endpointsSockets.set(endpointAdress, websocket);
-                websocket.on('message', (messageRaw: string) => {
+                websocket.onMessage = (messageRaw: string) => {
                     const parsed = JSON.parse(messageRaw);
                     if (parsed.internal) {
                         this.handleLocalMessage(parsed.internal);
                         return;
                     }
                     this.sendToClient(messageRaw);
-                });
+                };
 
                 // when websocket is opened, send the order
-                websocket.onopen = event => {
+                websocket.onOpen = event => {
                     websocket.send(JSON.stringify({
                         'internal': {
                             'endpointName': endpointAdress,
