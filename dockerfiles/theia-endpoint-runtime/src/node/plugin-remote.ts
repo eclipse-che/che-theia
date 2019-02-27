@@ -140,6 +140,8 @@ function handleConnection(socket: ws, request: http.IncomingMessage): void {
         if (jsonParsed.internal) {
             // asked to grab metadata, send them
             if (jsonParsed.internal.metadata && 'request' === jsonParsed.internal.metadata) {
+                // apply host on all local metadata
+                currentBackendPluginsMetadata.forEach(metadata => metadata.host = jsonParsed.internal.endpointName);
                 const metadataResult = {
                     'internal': {
                         'endpointName': jsonParsed.internal.endpointName,
