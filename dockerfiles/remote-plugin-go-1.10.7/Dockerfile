@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM eclipse/che-theia-endpoint-runtime:nightly
+FROM eclipse/che-theia-endpoint-runtime:${BUILD_TAG}
 
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
