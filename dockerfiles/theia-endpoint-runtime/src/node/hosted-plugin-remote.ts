@@ -13,6 +13,7 @@ import { ILogger } from '@theia/core/lib/common';
 import { HostedPluginClient, PluginMetadata } from '@theia/plugin-ext';
 import { HostedPluginMapping } from './plugin-remote-mapping';
 import { Websocket } from './websocket';
+import { getPluginId } from '@theia/plugin-ext/lib/common';
 
 /**
  * Class handling remote connection for executing plug-ins.
@@ -114,7 +115,15 @@ export class HostedPluginRemote {
     // tslint:disable-next-line:no-any
     handleLocalMessage(jsonMessage: any): void {
         if (jsonMessage.metadata && jsonMessage.metadata.result) {
-            this.pluginsMetadata.set(jsonMessage.endpointName, jsonMessage.metadata.result);
+            const metadatas: PluginMetadata[] = jsonMessage.metadata.result;
+            this.pluginsMetadata.set(jsonMessage.endpointName, metadatas);
+            // add the mapping retreived from external plug-in if not defined
+            metadatas.forEach(metadata => {
+                const entryName = getPluginId(metadata.model);
+                if (!this.hostedPluginMapping.getPluginsEndPoints().has(entryName)) {
+                    this.hostedPluginMapping.getPluginsEndPoints().set(entryName, jsonMessage.endpointName);
+                }
+            });
         }
     }
 
