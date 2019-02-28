@@ -119,7 +119,7 @@ WORKDIR ${HOME}/che-theia-source-code/plugins/
 RUN yarn
 
 RUN mkdir -p ${HOME}/che-theia-plugins/ && \
-    find ${HOME}/che-theia-source-code/plugins/ -name "*.theia"  -exec sh -c "cp {} ${HOME}/che-theia-plugins/" \; 2>log.txt
+    find ${HOME}/che-theia-source-code/plugins/ -not -name "*ssh*" -not -name "*ports*" -name "*.theia"  -exec sh -c "cp {} ${HOME}/che-theia-plugins/" \; 2>log.txt
 
 
 ###
