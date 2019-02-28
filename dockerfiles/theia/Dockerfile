@@ -119,7 +119,7 @@ WORKDIR ${HOME}/che-theia-source-code/plugins/
 RUN yarn
 
 RUN mkdir -p ${HOME}/che-theia-plugins/ && \
-    find ${HOME}/che-theia-source-code/plugins/ -name "*.theia"  -exec sh -c "chgrp 0 {}; chmod g+rwX {}; cp {} ${HOME}/che-theia-plugins/" \; 2>log.txt
+    find ${HOME}/che-theia-source-code/plugins/ -name "*.theia"  -exec sh -c "cp {} ${HOME}/che-theia-plugins/" \; 2>log.txt
 
 
 ###
