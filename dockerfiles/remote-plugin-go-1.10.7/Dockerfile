@@ -67,6 +67,8 @@ RUN set -eux; \
     ; \
 	apk del .build-deps \
     ; \
+	mkdir ${HOME}/.cache && chmod -R 777 ${HOME}/.cache \
+	; \
     go version
 
 ENV GOPATH /go
