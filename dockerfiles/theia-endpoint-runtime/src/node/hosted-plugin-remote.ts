@@ -14,6 +14,7 @@ import { HostedPluginClient, PluginMetadata } from '@theia/plugin-ext';
 import { HostedPluginMapping } from './plugin-remote-mapping';
 import { Websocket } from './websocket';
 import { getPluginId } from '@theia/plugin-ext/lib/common';
+import { PluginDiscovery } from './plugin-discovery';
 
 /**
  * Class handling remote connection for executing plug-ins.
@@ -42,6 +43,7 @@ export class HostedPluginRemote {
 
     @postConstruct()
     protected postConstruct(): void {
+        this.setupDiscovery();
         this.setupWebsocket();
     }
 
@@ -53,33 +55,50 @@ export class HostedPluginRemote {
     }
 
     /**
+     * Handle discovery of other endpoints on same network.
+     */
+    protected setupDiscovery(): void {
+        const pluginDiscovery = new PluginDiscovery(this.logger);
+        pluginDiscovery.onNewEndpoint = announceRequest => {
+            const endpointAdress = announceRequest.websocketAddress;
+            // only accept new endpoint address
+            if (!this.endpointsSockets.has(endpointAdress)) {
+                this.logger.debug(`Adding a new remote endpoint from ${endpointAdress}`);
+                this.connect(endpointAdress);
+            }
+        };
+        pluginDiscovery.discover();
+    }
+
+    /**
      * Handle the creation of connection to remote endpoints.
      */
     setupWebsocket(): void {
-        this.hostedPluginMapping.getEndPoints().forEach(endpointAdress => {
-            if (endpointAdress) {
-                const websocket = new Websocket(this.logger, endpointAdress);
-                this.endpointsSockets.set(endpointAdress, websocket);
-                websocket.onMessage = (messageRaw: string) => {
-                    const parsed = JSON.parse(messageRaw);
-                    if (parsed.internal) {
-                        this.handleLocalMessage(parsed.internal);
-                        return;
-                    }
-                    this.sendToClient(messageRaw);
-                };
+        this.hostedPluginMapping.getEndPoints().forEach(endpointAdress => this.connect(endpointAdress));
+    }
 
-                // when websocket is opened, send the order
-                websocket.onOpen = event => {
-                    websocket.send(JSON.stringify({
-                        'internal': {
-                            'endpointName': endpointAdress,
-                            'metadata': 'request'
-                        }
-                    }));
-                };
+    connect(endpointAdress: string) {
+        this.logger.debug(`Establish websocket connection to ${endpointAdress}`);
+        const websocket = new Websocket(this.logger, endpointAdress);
+        this.endpointsSockets.set(endpointAdress, websocket);
+        websocket.onMessage = (messageRaw: string) => {
+            const parsed = JSON.parse(messageRaw);
+            if (parsed.internal) {
+                this.handleLocalMessage(parsed.internal);
+                return;
             }
-        });
+            this.sendToClient(messageRaw);
+        };
+
+        // when websocket is opened, send the order
+        websocket.onOpen = event => {
+            websocket.send(JSON.stringify({
+                'internal': {
+                    'endpointName': endpointAdress,
+                    'metadata': 'request'
+                }
+            }));
+        };
     }
 
     /**
