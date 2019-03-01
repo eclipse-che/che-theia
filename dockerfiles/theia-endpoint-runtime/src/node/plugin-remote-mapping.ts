@@ -41,8 +41,12 @@ export class HostedPluginMapping {
             this.pluginsEndpoints.set(key.substring(HostedPluginMapping.ENDPOINT_ENV_VAR_PREFIX.length), process.env[key] || '');
         });
         this.endpoints = pluginEndpointKeys.map(key => process.env[key] || '');
-        this.logger.info('Plugins Endpoints are ', this.endpoints);
-        this.logger.info('Plugins Mapping Endpoints are ', this.pluginsEndpoints);
+        if (this.endpoints.length > 0) {
+            this.logger.info('Plugins Endpoints are ', this.endpoints);
+        }
+        if (this.pluginsEndpoints.size > 0) {
+            this.logger.info('Plugins Mapping Endpoints are ', this.pluginsEndpoints);
+        }
     }
 
     /**
