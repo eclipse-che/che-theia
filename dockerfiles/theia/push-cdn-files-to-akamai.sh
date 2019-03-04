@@ -20,7 +20,7 @@ ${AKAMAI_CHE_AUTH}
 EOF
 for file in $(find theia_artifacts -type f -print | grep -v 'cdn.json'); do
   echo "   Pushing $file" 
-  docker run -it --rm -v "${base_dir}/akamai.conf:/root/.akamai-cli/.netstorage/auth" -v "${base_dir}/theia_artifacts:/theia_artifacts" akamai/cli netstorage upload --directory "${AKAMAI_CHE_DIR:-che}" "${file}"
+  docker run -i --rm -v "${base_dir}/akamai.conf:/root/.akamai-cli/.netstorage/auth" -v "${base_dir}/theia_artifacts:/theia_artifacts" akamai/cli netstorage upload --directory "${AKAMAI_CHE_DIR:-che}" "${file}"
 done
 rm -f "${base_dir}/akamai.conf"
 cd "${current_dir}"
