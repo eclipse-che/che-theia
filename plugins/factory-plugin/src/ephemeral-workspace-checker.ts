@@ -13,19 +13,20 @@ import * as che from '@eclipse-che/plugin';
 import { che as cheApi } from '@eclipse-che/api';
 
 /**
- * Make checks on workspace configuration and shows dedicated information to user.
+ * Make checks on workspace ephemeral configuration and shows dedicated information to user.
  */
-export class WorkspaceManager {
+export class EphemeralWorkspaceChecker {
 
     constructor() {
     }
 
-    async run() {
-        const workspace = await che.workspace.getCurrentWorkspace();
-        const isEphemeralWorkspace = this.isEphemeralWorkspace(workspace);
-        if (isEphemeralWorkspace) {
-            this.displayEphemeralWarning();
-        }
+    public check() {
+        che.workspace.getCurrentWorkspace().then((workspace: cheApi.workspace.Workspace) => {
+            const isEphemeralWorkspace = this.isEphemeralWorkspace(workspace);
+            if (isEphemeralWorkspace) {
+                this.displayEphemeralWarning();
+            }
+        });
     }
 
     /**

@@ -11,7 +11,7 @@
 import * as theia from '@theia/plugin';
 import { FactoryInitializer } from './factory-initializer';
 import { WorkspaceProjectsManager } from './workspace-projects-manager';
-import { WorkspaceManager } from './workspace-manager';
+import { EphemeralWorkspaceChecker } from './ephemeral-workspace-checker';
 
 export async function start(context: theia.PluginContext) {
     let projectsRoot = '/projects';
@@ -20,7 +20,7 @@ export async function start(context: theia.PluginContext) {
         projectsRoot = projectsRootEnvVar;
     }
 
-    await new WorkspaceManager().run();
+    new EphemeralWorkspaceChecker().check();
     await new FactoryInitializer(projectsRoot).run();
     await new WorkspaceProjectsManager(context, projectsRoot).run();
 }
