@@ -16,7 +16,7 @@ After that, You can build Theia image.
 Example:
 
 ```bash
-$ ./build.sh --build-args:GITHUB_TOKEN=$GITHUB_TOKEN,THEIA_VERSION=0.3.18
+$ ./build.sh --build-args:GITHUB_TOKEN=$GITHUB_TOKEN,THEIA_VERSION=0.3.18 --git-ref:refs\\/heads\\/master
 ```
 
 ## Theia version
