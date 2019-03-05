@@ -116,7 +116,7 @@ RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
 RUN git clone --branch ${CHE_THEIA_PLUGIN_BRANCH}  --single-branch --depth 1 https://github.com/eclipse/che-theia ${HOME}/che-theia-source-code
 
 WORKDIR ${HOME}/che-theia-source-code/plugins/
-RUN yarn
+RUN for PLUGIN_DIR in */; do   cd ${HOME}/che-theia-source-code/plugins/${PLUGIN_DIR} && yarn; done
 
 RUN mkdir -p ${HOME}/che-theia-plugins/ && \
     find ${HOME}/che-theia-source-code/plugins/ -not -name "*ssh*" -not -name "*ports*" -name "*.theia"  -exec sh -c "cp {} ${HOME}/che-theia-plugins/" \; 2>log.txt
