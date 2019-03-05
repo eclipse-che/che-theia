@@ -24,7 +24,7 @@ export class CheTheiaPreferencesContribution implements BackendApplicationContri
     @inject(CheTheiaUserPreferencesSynchronizer)
     cheTheiaUserPreferencesSynchronizer: CheTheiaUserPreferencesSynchronizer;
 
-     public onStart(): void {
+    public onStart(): void {
         // do not block Theia start here, initialize preferences asynchronously
         this.retrieveAndWatchSettings();
     }
