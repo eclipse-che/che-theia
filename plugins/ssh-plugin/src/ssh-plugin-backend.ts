@@ -14,19 +14,19 @@ import { che as cheApi } from '@eclipse-che/api';
 
 export async function start() {
     const sshKeyManager = new RemoteSshKeyManager();
-    const GENERATE: theia.Command = {
+    const GENERATE: theia.CommandDescription = {
         id: 'ssh:generate',
         label: 'SSH: generate key pair...'
     };
-    const CREATE: theia.Command = {
+    const CREATE: theia.CommandDescription = {
         id: 'ssh:create',
         label: 'SSH: create key pair...'
     };
-    const DELETE: theia.Command = {
+    const DELETE: theia.CommandDescription = {
         id: 'ssh:delete',
         label: 'SSH: delete key pair...'
     };
-    const VIEW: theia.Command = {
+    const VIEW: theia.CommandDescription = {
         id: 'ssh:view',
         label: 'SSH: view public key...'
     };
