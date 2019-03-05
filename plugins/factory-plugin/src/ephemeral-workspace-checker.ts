@@ -44,6 +44,6 @@ export class EphemeralWorkspaceChecker {
      * Returns, whether provided workspace is ephmeral or not.
      */
     private isEphemeralWorkspace(workspace: cheApi.workspace.Workspace): boolean {
-        return workspace!.config!.attributes!.persistVolumes === 'true' || false;
+        return workspace!.config!.attributes!.persistVolumes === 'false' || false;
     }
 }
