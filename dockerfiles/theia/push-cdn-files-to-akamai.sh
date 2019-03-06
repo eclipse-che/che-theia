@@ -15,9 +15,9 @@ fi
 
 echo "Pushing CDN files to the Akamai directory..."
 cd "${base_dir}"
-cat > akamai.conf << EOF
-${AKAMAI_CHE_AUTH}
-EOF
+
+cat ${AKAMAI_CHE_AUTH} > akamai.conf
+
 for file in $(find theia_artifacts -type f -print | grep -v 'cdn.json'); do
   echo "   Pushing $file" 
   docker run -i --rm -v "${base_dir}/akamai.conf:/root/.akamai-cli/.netstorage/auth" -v "${base_dir}/theia_artifacts:/theia_artifacts" akamai/cli netstorage upload --directory "${AKAMAI_CHE_DIR:-che}" "${file}"
