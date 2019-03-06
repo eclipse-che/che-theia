@@ -35,10 +35,10 @@ for image_dir in "${DOCKER_FILES_LOCATIONS[@]}"
     do
         GITHUB_TOKEN_ARG="GITHUB_TOKEN="${GITHUB_TOKEN}
         if [ "$image_dir" == "dockerfiles/theia" ]; then
-            THEIA_IMAGE_TAG="master"
-            bash $(pwd)/$image_dir/build.sh --build-args:${GITHUB_TOKEN_ARG},THEIA_VERSION=master --tag:master --branch:master --git-ref:refs\\/heads\\/master 
+            THEIA_IMAGE_TAG="latest"
+            bash $(pwd)/$image_dir/build.sh --build-args:${GITHUB_TOKEN_ARG},THEIA_VERSION=0.4.0 --tag:0.4.0 --branch:v0.4.0 --git-ref:refs\\/tags\\/v\$\{THEIA_VERSION\}
         elif [ "$image_dir" == "dockerfiles/theia-dev" ]; then
-            bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:master
+            bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:0.4.0
         else
             bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG}
         fi
@@ -49,23 +49,20 @@ for image_dir in "${DOCKER_FILES_LOCATIONS[@]}"
         fi
     done
 
-
-if [ "$BUILD_BRANCH" == "master" ]; then
-    #PUSH IMAGES
-    #docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
-    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    for image in "${IMAGES_LIST[@]}"
-        do
-            if [ "$image" == "eclipse/che-theia" ]; then
-                docker tag ${image}:master ${image}:${THEIA_IMAGE_TAG}
-                echo y | docker push ${image}:${THEIA_IMAGE_TAG}
-            elif [ "$image" == "eclipse/che-theia-dev" ]; then 
-                docker tag ${image}:master ${image}:${THEIA_IMAGE_TAG}
-                echo y | docker push ${image}:${THEIA_IMAGE_TAG}
-            else
-                echo y | docker push ${image}:nightly
-            fi
-        done
-else 
-    echo "Skip push docker images.";
-fi
+#PUSH IMAGES
+#docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+for image in "${IMAGES_LIST[@]}"
+    do
+        if [ "$image" == "eclipse/che-theia" ]; then
+            docker tag ${image}:0.4.0 ${image}:${THEIA_IMAGE_TAG}
+            echo y | docker push ${image}:${THEIA_IMAGE_TAG}
+            echo y | docker push ${image}:0.4.0
+        elif [ "$image" == "eclipse/che-theia-dev" ]; then 
+            docker tag ${image}:master ${image}:${THEIA_IMAGE_TAG}
+            echo y | docker push ${image}:${THEIA_IMAGE_TAG}
+            echo y | docker push ${image}:0.4.0
+        else
+            echo y | docker push ${image}:latest
+        fi
+    done

@@ -2,17 +2,17 @@ extensions:
 - source: https://github.com/eclipse/che-theia-dashboard-extension
   folders:
     - theia-dashboard-extension
-  checkoutTo: master
+  checkoutTo: 0.4.0
 - source: https://github.com/eclipse/che-theia-hosted-plugin-manager-extension
-  checkoutTo: master
+  checkoutTo: 0.4.0
 - source: https://github.com/eclipse/che-theia-task-plugin
   folders:
     - che-theia-task-extension
-  checkoutTo: master
+  checkoutTo: 0.4.0
 - source: https://github.com/eclipse/che-theia-activity-tracker
   folders:
     - che-theia-activity-tracker
-  checkoutTo: master
+  checkoutTo: 0.4.0
 - source: https://github.com/eclipse/che-theia
   folders:
     - extensions/eclipse-che-theia-plugin
@@ -20,4 +20,4 @@ extensions:
     - extensions/eclipse-che-theia-terminal
     - extensions/eclipse-che-theia-user-preferences
     - dockerfiles/theia-endpoint-runtime
-  checkoutTo: master
+  checkoutTo: 0.4.0
