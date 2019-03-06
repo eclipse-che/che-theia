@@ -40,7 +40,7 @@ for image_dir in "${DOCKER_FILES_LOCATIONS[@]}"
         elif [ "$image_dir" == "dockerfiles/theia-dev" ]; then
             bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:0.4.0
         else
-            bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG}
+            bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:latest
         fi
         if [ $? -ne 0 ]; then
             echo "ERROR:"
