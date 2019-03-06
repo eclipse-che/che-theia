@@ -136,11 +136,6 @@ declare module '@eclipse-che/plugin' {
          * For a configured task, it is the name of the root folder, while for a provided task, it is the name of the provider.
          */
         readonly _source: string;
-        /**
-         * For a provided task, it is the string representation of the URI where the task is supposed to run from. It is `undefined` for global tasks.
-         * This field is not supposed to be used in `tasks.json`
-         */
-        readonly _scope: string | undefined;
         /** A label that uniquely identifies a task configuration per source */
         readonly type: string;
         /** A label that uniquely identifies a task configuration */

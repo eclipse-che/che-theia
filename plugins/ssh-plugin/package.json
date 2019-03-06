@@ -25,7 +25,7 @@
       "devDependencies": {
         "@eclipse-che/api": "latest",
         "@eclipse-che/plugin": "0.0.1",
-        "@theia/plugin": "next",
+        "@theia/plugin": "0.4.0",
         "@theia/plugin-packager": "latest"
       },
       "scripts": {
