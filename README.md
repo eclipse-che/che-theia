@@ -23,3 +23,5 @@ Then in `dockerfiles/theia` run:
 ```
 
 That script will clone Theia from master branch and all Che related extensions from theirs master branches.
+
+Test PR
