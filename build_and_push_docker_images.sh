@@ -19,6 +19,7 @@ dockerfiles/theia
 dockerfiles/theia-endpoint-runtime
 dockerfiles/remote-plugin-runner-java8
 dockerfiles/remote-plugin-go-1.10.7
+dockerfiles/remote-plugin-python-3.7.2
 )
 
 IMAGES_LIST=(
@@ -27,6 +28,7 @@ eclipse/che-theia
 eclipse/che-theia-endpoint-runtime
 eclipse/che-remote-plugin-runner-java8
 eclipse/che-remote-plugin-go-1.10.7
+eclipse/che-remote-plugin-python-3.7.2
 )
 
 
