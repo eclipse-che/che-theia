@@ -1,5 +1,5 @@
 # che-theia
-
+test
 ## Project structure
 
 - [che-plugins](./che-plugins) contains Eclipse Che plugins definition
