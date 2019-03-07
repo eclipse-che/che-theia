@@ -35,10 +35,10 @@ for image_dir in "${DOCKER_FILES_LOCATIONS[@]}"
     do
         GITHUB_TOKEN_ARG="GITHUB_TOKEN="${GITHUB_TOKEN}
         if [ "$image_dir" == "dockerfiles/theia" ]; then
-            THEIA_IMAGE_TAG="master"
-            bash $(pwd)/$image_dir/build.sh --build-args:${GITHUB_TOKEN_ARG},THEIA_VERSION=master --tag:master --branch:master --git-ref:refs\\/heads\\/master 
+            THEIA_IMAGE_TAG="next"
+            bash $(pwd)/$image_dir/build.sh --build-args:${GITHUB_TOKEN_ARG},THEIA_VERSION=master --tag:next --branch:master --git-ref:refs\\/heads\\/master 
         elif [ "$image_dir" == "dockerfiles/theia-dev" ]; then
-            bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:master
+            bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:next
         else
             bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG}
         fi
@@ -57,10 +57,10 @@ if [ "$BUILD_BRANCH" == "master" ]; then
     for image in "${IMAGES_LIST[@]}"
         do
             if [ "$image" == "eclipse/che-theia" ]; then
-                docker tag ${image}:master ${image}:${THEIA_IMAGE_TAG}
+                docker tag ${image}:next ${image}:${THEIA_IMAGE_TAG}
                 echo y | docker push ${image}:${THEIA_IMAGE_TAG}
             elif [ "$image" == "eclipse/che-theia-dev" ]; then 
-                docker tag ${image}:master ${image}:${THEIA_IMAGE_TAG}
+                docker tag ${image}:next ${image}:${THEIA_IMAGE_TAG}
                 echo y | docker push ${image}:${THEIA_IMAGE_TAG}
             else
                 echo y | docker push ${image}:nightly
