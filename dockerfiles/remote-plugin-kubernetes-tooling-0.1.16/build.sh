@@ -11,5 +11,5 @@
 base_dir=$(cd "$(dirname "$0")"; pwd)
 . "${base_dir}"/../build.include
 
-init --name:remote-plugin-kubernetes-tooling-0.1.16 "$@"
+init --name:remote-plugin-kubernetes-tooling-0.1.17 "$@"
 build
