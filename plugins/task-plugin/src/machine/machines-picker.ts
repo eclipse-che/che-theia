@@ -10,7 +10,7 @@
 
 import { injectable, inject } from 'inversify';
 import * as theia from '@theia/plugin';
-import { CheWorkspaceClient } from '../che-workspace/che-workspace-client';
+import { CheWorkspaceClient } from '../che-workspace-client';
 
 const MACHINES_PLACE_HOLDER = 'Pick a machine to run the task';
 

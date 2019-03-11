@@ -11,7 +11,7 @@
 import { inject, injectable } from 'inversify';
 import * as che from '@eclipse-che/plugin';
 import * as startPoint from '../task-plugin-backend';
-import { CheWorkspaceClient } from '../che-workspace/che-workspace-client';
+import { CheWorkspaceClient } from '../che-workspace-client';
 
 /**
  * Contributes the substitution variables, in form of `server.<name>`,

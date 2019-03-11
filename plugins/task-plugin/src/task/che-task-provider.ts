@@ -14,7 +14,7 @@ import { che as cheApi } from '@eclipse-che/api';
 import { Task } from '@theia/plugin';
 import { CHE_TASK_TYPE, MACHINE_NAME_ATTRIBUTE, PREVIEW_URL_ATTRIBUTE, CheTaskDefinition, Target } from './task-protocol';
 import { MachinesPicker } from '../machine/machines-picker';
-import { CheWorkspaceClient } from '../che-workspace/che-workspace-client';
+import { CheWorkspaceClient } from '../che-workspace-client';
 
 /** Reads the commands from the current Che workspace and provides it as Task Configurations. */
 @injectable()
@@ -26,13 +26,8 @@ export class CheTaskProvider {
     protected readonly cheWorkspaceClient!: CheWorkspaceClient;
 
     async provideTasks(): Promise<Task[]> {
-        const tasks: Task[] = [];
         const commands = await this.cheWorkspaceClient.getCommands();
-
-        commands.forEach(command => {
-            tasks.push(this.toTask(command));
-        });
-        return tasks;
+        return commands.map(command => this.toTask(command));
     }
 
     async resolveTask(task: Task): Promise<Task> {

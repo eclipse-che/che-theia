@@ -10,13 +10,12 @@
 
 import * as che from '@eclipse-che/plugin';
 import { che as cheApi } from '@eclipse-che/api';
-import { CheWorkspaceClient } from './che-workspace-client';
 import { injectable } from 'inversify';
 
 const TERMINAL_SERVER_TYPE = 'terminal';
 
 @injectable()
-export class CheWorkspaceClientImpl implements CheWorkspaceClient {
+export class CheWorkspaceClient {
 
     async getMachines(): Promise<{ [attrName: string]: cheApi.workspace.Machine }> {
         const workspace = await this.getCurrentWorkspace();

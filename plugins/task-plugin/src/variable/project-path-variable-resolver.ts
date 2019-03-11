@@ -19,7 +19,7 @@ const SELECTED_CONTEXT_COMMAND = 'theia.plugin.workspace.selectedContext';
 const PROJECTS_ROOT_VARIABLE = 'CHE_PROJECTS_ROOT';
 const ERROR_MESSAGE_TEMPLATE = 'Can not resolve \'current.project.path\' variable.';
 /**
- * Contributes the path for current project as a relative path to the first directory under the root workspace.
+ * Contributes the variable for getting path for current project as a relative path to the first directory under the root workspace.
  */
 @injectable()
 export class ProjectPathVariableResolver {

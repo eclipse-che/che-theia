@@ -12,11 +12,12 @@ import { injectable, inject } from 'inversify';
 import * as che from '@eclipse-che/plugin';
 import { CHE_TASK_TYPE } from './task-protocol';
 import { MachineExecClient, MachineExec } from '../machine/machine-exec-client';
-import { CheWorkspaceClient } from '../che-workspace/che-workspace-client';
 import { TerminalWidgetFactory } from '../machine/terminal-widget';
 import { ProjectPathVariableResolver } from '../variable/project-path-variable-resolver';
+import { CheWorkspaceClient } from '../che-workspace-client';
 
-// CHE task gets ID at creating in che task service https://github.com/eclipse/che-theia/blob/master/extensions/eclipse-che-theia-plugin-ext/src/node/che-task-service.ts#L89
+// CHE task gets ID at creating in che task service
+// https://github.com/eclipse/che-theia/blob/c515f75044f9099820c3b18afb8de83f263d671a/extensions/eclipse-che-theia-plugin-ext/src/node/che-task-service.ts#L89
 const STUB_TASK_ID: number = -1;
 
 @injectable()

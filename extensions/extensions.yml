@@ -5,10 +5,6 @@ extensions:
   checkoutTo: master
 - source: https://github.com/eclipse/che-theia-hosted-plugin-manager-extension
   checkoutTo: master
-- source: https://github.com/eclipse/che-theia-task-plugin
-  folders:
-    - che-theia-task-extension
-  checkoutTo: master
 - source: https://github.com/eclipse/che-theia-activity-tracker
   folders:
     - che-theia-activity-tracker

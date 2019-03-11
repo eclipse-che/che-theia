@@ -8,16 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-/**
- * Generated using theia-plugin-generator
- */
-
+import 'reflect-metadata';
+import { container } from './che-task-backend-module';
 import * as theia from '@theia/plugin';
 import * as che from '@eclipse-che/plugin';
-import 'reflect-metadata';
 import { CHE_TASK_TYPE } from './task/task-protocol';
 import { CheTaskProvider } from './task/che-task-provider';
-import { container } from './che-task-backend-module';
 import { CheTaskRunner } from './task/che-task-runner';
 import { ServerVariableResolver } from './variable/server-variable-resolver';
 import { ProjectPathVariableResolver } from './variable/project-path-variable-resolver';

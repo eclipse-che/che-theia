@@ -5,7 +5,7 @@
     "theia-plugin"
   ],
   "version": "0.0.1",
-  "license": "none",
+  "license": "EPL-2.0",
   "contributors": [
     {
       "name": "Artem Zatsarynnyi",

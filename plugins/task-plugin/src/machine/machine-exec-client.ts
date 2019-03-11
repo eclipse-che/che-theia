@@ -12,7 +12,7 @@ import * as rpc from 'vscode-ws-jsonrpc';
 import * as ws from 'ws';
 import { injectable, inject } from 'inversify';
 import { ConsoleLogger, createWebSocketConnection, IWebSocket } from 'vscode-ws-jsonrpc';
-import { CheWorkspaceClient } from '../che-workspace/che-workspace-client';
+import { CheWorkspaceClient } from '../che-workspace-client';
 
 const ReconnectingWebSocket = require('reconnecting-websocket');
 const RECONNECTING_OPTIONS = {
