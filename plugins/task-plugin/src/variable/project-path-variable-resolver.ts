@@ -45,15 +45,12 @@ export class ProjectPathVariableResolver {
 
         const selection = selections[0];
         const selectionPath = selection.path;
-        const workspaceFolderCandidate = theia.workspace.getWorkspaceFolder(theia.Uri.file(selectionPath));
-        if (!workspaceFolderCandidate) {
+        const workspaceFolder = theia.workspace.getWorkspaceFolder(theia.Uri.file(selectionPath));
+        if (!workspaceFolder) {
             return this.onError('Selection doesn\'t match any workspace folder.');
         }
 
-        const workspaceFolder = workspaceFolderCandidate as theia.WorkspaceFolder;
-        const workspaceFolderUri: theia.Uri = workspaceFolder.uri ? workspaceFolder.uri : workspaceFolderCandidate as theia.Uri;
-        const workspaceFolderPath = workspaceFolderUri.path;
-
+        const workspaceFolderPath = workspaceFolder.uri.path;
         if (workspaceFolderPath === this.projectsRoot) {
             const splittedSelectionUri = selectionPath.substring(workspaceFolderPath.length).split('/');
             const project = splittedSelectionUri.shift() || splittedSelectionUri.shift();

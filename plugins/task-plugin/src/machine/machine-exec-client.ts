@@ -9,21 +9,9 @@
  **********************************************************************/
 
 import * as rpc from 'vscode-ws-jsonrpc';
-import * as ws from 'ws';
 import { injectable, inject } from 'inversify';
-import { ConsoleLogger, createWebSocketConnection, IWebSocket } from 'vscode-ws-jsonrpc';
 import { CheWorkspaceClient } from '../che-workspace-client';
-
-const ReconnectingWebSocket = require('reconnecting-websocket');
-const RECONNECTING_OPTIONS = {
-    constructor: ws,
-    maxReconnectionDelay: 10000,
-    minReconnectionDelay: 1000,
-    reconnectionDelayGrowFactor: 1.3,
-    connectionTimeout: 10000,
-    maxRetries: Infinity,
-    debug: false
-};
+import { createConnection } from './websocket';
 
 const CREATE_METHOD_NAME: string = 'create';
 const CONNECT_TERMINAL_SEGMENT: string = 'connect';
@@ -69,7 +57,7 @@ export class MachineExecClient {
         }
 
         const execServerUrl: string = `${machineExecServerEndpoint}/${CONNECT_TERMINAL_SEGMENT}`;
-        this.connection = await this.createConnection(execServerUrl);
+        this.connection = await createConnection(execServerUrl);
         return this.connection;
     }
 
@@ -80,40 +68,5 @@ export class MachineExecClient {
             return url;
         }
         return this.machineExecServerEndpoint;
-    }
-
-    private async createConnection(execServerUrl: string): Promise<rpc.MessageConnection> {
-        const webSocket = new ReconnectingWebSocket(execServerUrl, undefined, RECONNECTING_OPTIONS);
-        const logger = new ConsoleLogger();
-
-        return new Promise<rpc.MessageConnection>((resolve, reject) => {
-            webSocket.addEventListener('open', () => {
-                const vsCodeWebSocket = this.createVsCodeWebSocket(webSocket);
-                const messageConnection = createWebSocketConnection(vsCodeWebSocket, logger);
-
-                messageConnection.listen();
-                resolve(messageConnection);
-            });
-            webSocket.onerror = function (error: Event) {
-                reject(error);
-                logger.error('' + error);
-                return;
-            };
-        });
-    }
-
-    protected createVsCodeWebSocket(webSocket: WebSocket): IWebSocket {
-        return {
-            send: msg => webSocket.send(msg),
-            onMessage: cb => webSocket.addEventListener('message', event => cb(event.data)),
-            onError: cb => webSocket.onerror = event => {
-                if ('message' in event) {
-                    // tslint:disable-next-line:no-any
-                    cb((event as any).message);
-                }
-            },
-            onClose: cb => webSocket.onclose = event => cb(event.code, event.reason),
-            dispose: () => webSocket.close()
-        };
     }
 }

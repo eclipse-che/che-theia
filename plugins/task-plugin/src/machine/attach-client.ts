@@ -8,20 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import * as ws from 'ws';
 import { injectable, inject } from 'inversify';
 import { CheWorkspaceClient } from '../che-workspace-client';
-
-const ReconnectingWebSocket = require('reconnecting-websocket');
-const RECONNECTING_OPTIONS = {
-    constructor: ws,
-    maxReconnectionDelay: 10000,
-    minReconnectionDelay: 1000,
-    reconnectionDelayGrowFactor: 1.3,
-    connectionTimeout: 10000,
-    maxRetries: Infinity,
-    debug: false
-};
+import { ReconnectingWebSocket } from './websocket';
 
 const ATTACH_TERMINAL_SEGMENT: string = 'attach';
 
@@ -39,16 +28,15 @@ export class AttachTerminalClient {
         const termServerEndpoint = await this.cheWorkspaceClient.getMachineExecServerURL();
         const terminalURL = `${termServerEndpoint}/${ATTACH_TERMINAL_SEGMENT}/${terminalId}`;
 
-        const webSocket = new ReconnectingWebSocket(terminalURL, undefined, RECONNECTING_OPTIONS);
+        const webSocket = new ReconnectingWebSocket(terminalURL);
 
-        // tslint:disable-next-line:no-any
-        webSocket.addEventListener('message', (message: any) => {
-            outputHandler.onMessage(message.data);
-        });
+        webSocket.onMessage = (message: string) => {
+            outputHandler.onMessage(message);
+        };
 
-        webSocket.addEventListener('error', (event: Event) => {
-            console.error('Websocket error:', event);
-        });
+        webSocket.onError = (error: Error) => {
+            console.error('Websocket error:', error);
+        };
         // TODO close webSocket when task is completed; event with runtime info is not implemented for plugin API at the moment
     }
 }
