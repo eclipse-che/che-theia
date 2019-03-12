@@ -10,6 +10,7 @@
 
 import * as theia from '@theia/plugin';
 import { TerminalServiceExtImpl } from '@theia/plugin-ext/src/plugin/terminal-ext';
+import { DebugExtImpl } from '@theia/plugin-ext/lib/plugin/node/debug/debug';
 
 /**
  * Allow to override createTerminal to be container-aware and then create terminal to the sidecar container
@@ -48,14 +49,14 @@ export class TerminalContainerAware {
         terminalServiceExt.createTerminal = createTerminal;
     }
     
-    overrideRunInTerminalRequest(debugExt: DebugExtImpl) {
+    overrideTerminalCreationOptionForDebug(debugExt: DebugExtImpl) {
         debugExt.doGetTerminalCreationOptions = (debugType: string) => {
             const options: theia.TerminalOptions = {
                 attributes: {
                     'CHE_MACHINE_NAME' :  process.env.CHE_MACHINE_NAME
                 }
             };
-            
+
             return options;
         }
     }
