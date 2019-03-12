@@ -10,7 +10,7 @@
 
 import * as WS from 'ws';
 import * as rpc from 'vscode-ws-jsonrpc';
-import { IWebSocket, ConsoleLogger, createWebSocketConnection } from 'vscode-ws-jsonrpc';
+import { IWebSocket, ConsoleLogger, createWebSocketConnection, Logger } from 'vscode-ws-jsonrpc';
 
 /** Websocket wrapper allows to reconnect in case of failures */
 export class ReconnectingWebSocket {
@@ -24,8 +24,11 @@ export class ReconnectingWebSocket {
     /** URL for connection */
     private readonly url: string;
 
+    private readonly logger: Logger;
+
     constructor(url: string) {
         this.url = url;
+        this.logger = new ConsoleLogger();
         this.open();
     }
 
@@ -79,10 +82,10 @@ export class ReconnectingWebSocket {
     }
 
     private reconnect(reason: string) {
-        // this.logger.debug(`WebSocket: Reconnecting in ${Websocket.RECONNECT_INTERVAL}ms due to ${reason}`);
+        this.logger.warn(`WebSocket: Reconnecting in ${ReconnectingWebSocket.RECONNECTION_DELAY}ms due to ${reason}`);
         this.ws.removeAllListeners();
         setTimeout(() => {
-            // this.logger.debug('WebSocket: Reconnecting...');
+            this.logger.warn('WebSocket: Reconnecting...');
             this.open();
         }, ReconnectingWebSocket.RECONNECTION_DELAY);
     }
