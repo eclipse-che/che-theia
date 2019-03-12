@@ -9,8 +9,7 @@
  **********************************************************************/
 
 import * as WS from 'ws';
-import * as rpc from 'vscode-ws-jsonrpc';
-import { IWebSocket, ConsoleLogger, createWebSocketConnection, Logger } from 'vscode-ws-jsonrpc';
+import { IWebSocket, ConsoleLogger, createWebSocketConnection, Logger, MessageConnection } from 'vscode-ws-jsonrpc';
 
 /** Websocket wrapper allows to reconnect in case of failures */
 export class ReconnectingWebSocket {
@@ -96,11 +95,11 @@ export class ReconnectingWebSocket {
     public onError(reason: Error) { }
 }
 
-export function createConnection(url: string): Promise<rpc.MessageConnection> {
+export function createConnection(url: string): Promise<MessageConnection> {
     const webSocket = new ReconnectingWebSocket(url);
     const logger = new ConsoleLogger();
 
-    return new Promise<rpc.MessageConnection>((resolve, reject) => {
+    return new Promise<MessageConnection>((resolve, reject) => {
         webSocket.onOpen = () => {
             const messageConnection = createWebSocketConnection(toSocket(webSocket), logger);
 
