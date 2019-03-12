@@ -47,4 +47,16 @@ export class TerminalContainerAware {
         // override terminal
         terminalServiceExt.createTerminal = createTerminal;
     }
+    
+    overrideRunInTerminalRequest(debugExt: DebugExtImpl) {
+        debugExt.doGetTerminalCreationOptions = (debugType: string) => {
+            const options: theia.TerminalOptions = {
+                attributes: {
+                    'CHE_MACHINE_NAME' :  process.env.CHE_MACHINE_NAME
+                }
+            };
+            
+            return options;
+        }
+    }
 }
