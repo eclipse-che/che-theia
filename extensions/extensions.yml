@@ -15,9 +15,9 @@ extensions:
   checkoutTo: master
 - source: https://github.com/eclipse/che-theia
   folders:
+    - dockerfiles/theia-endpoint-runtime
     - extensions/eclipse-che-theia-plugin
     - extensions/eclipse-che-theia-plugin-ext
     - extensions/eclipse-che-theia-terminal
     - extensions/eclipse-che-theia-user-preferences
-    - dockerfiles/theia-endpoint-runtime
   checkoutTo: master
