@@ -47,6 +47,18 @@ export class HostedPluginRemote {
         this.setupWebsocket();
     }
 
+    public clientClosed(): void {
+
+        Array.from(this.endpointsSockets.values()).forEach(websocket => {
+            websocket.send(JSON.stringify({
+                'internal': {
+                    'method': 'stop'
+                }
+            }));
+            websocket.close();
+        });
+    }
+
     /**
      * Called when a client is connecting to this endpoint
      */

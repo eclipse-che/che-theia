@@ -14,11 +14,16 @@ import { ServerPluginProxyRunner } from './server-plugin-proxy-runner';
 import { MetadataProcessor, ServerPluginRunner } from '@theia/plugin-ext/lib/common';
 import { RemoteMetadataProcessor } from './remote-metadata-processor';
 import { HostedPluginMapping } from './plugin-remote-mapping';
+import { ConnectionContainerModule } from '@theia/core/lib/node/messaging/connection-container-module';
+
+const localModule = ConnectionContainerModule.create(({ bind }) => {
+    bind(HostedPluginRemote).toSelf().inSingletonScope();
+    bind(ServerPluginRunner).to(ServerPluginProxyRunner).inSingletonScope();
+});
 
 export default new ContainerModule(bind => {
     bind(HostedPluginMapping).toSelf().inSingletonScope();
-    bind(HostedPluginRemote).toSelf().inSingletonScope();
-    bind(ServerPluginRunner).to(ServerPluginProxyRunner).inSingletonScope();
     bind(MetadataProcessor).to(RemoteMetadataProcessor).inSingletonScope();
+    bind(ConnectionContainerModule).toConstantValue(localModule);
 }
 );
