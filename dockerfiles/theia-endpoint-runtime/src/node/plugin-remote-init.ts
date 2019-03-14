@@ -23,7 +23,6 @@ import { HostedPluginReader } from '@theia/plugin-ext/lib/hosted/node/plugin-rea
 import pluginExtBackendModule from '@theia/plugin-ext/lib/plugin-ext-backend-module';
 import { Container, inject, injectable } from 'inversify';
 import { DummyTraceLogger } from './dummy-trace-logger';
-import { HostedPluginRemote } from './hosted-plugin-remote';
 import pluginRemoteBackendModule from './plugin-remote-backend-module';
 import { TerminalContainerAware } from './terminal-container-aware';
 import { PluginDiscovery } from './plugin-discovery';
@@ -80,13 +79,11 @@ export class PluginRemoteInit {
         inversifyContainer.load(pluginVscodeBackendModule);
 
         // override handler to our own class
-        inversifyContainer.rebind(PluginDeployerHandler).to(PluginDeployerHandlerImpl).inSingletonScope();
+        inversifyContainer.bind(PluginDeployerHandlerImpl).toSelf().inSingletonScope();
+        inversifyContainer.rebind(PluginDeployerHandler).toService(PluginDeployerHandlerImpl);
 
         // bind local stuff
         inversifyContainer.load(pluginRemoteBackendModule);
-
-        // remove endpoint
-        inversifyContainer.unbind(HostedPluginRemote);
 
         inversifyContainer.bind<number>('plugin.port').toConstantValue(this.pluginPort);
 
@@ -160,9 +157,8 @@ to pick-up automatically a free port`));
 
     // create a new client on top of socket
     newClient(id: number, socket: ws): WebSocketClient {
-        const webSocketClient = new WebSocketClient(id, socket);
         const emitter = new Emitter();
-        webSocketClient.emitter = emitter;
+        const webSocketClient = new WebSocketClient(id, socket, emitter);
         webSocketClient.rpc = new RPCProtocolImpl({
             onMessage: emitter.event,
             // send messages to this client
@@ -173,6 +169,7 @@ to pick-up automatically a free port`));
 
         const pluginHostRPC = new PluginHostRPC(webSocketClient.rpc);
         pluginHostRPC.initialize();
+        webSocketClient.pluginHostRPC = pluginHostRPC;
 
         // override window.createTerminal to be container aware
         // tslint:disable-next-line:no-any
@@ -192,14 +189,29 @@ to pick-up automatically a free port`));
         });
 
         socket.on('close', (code, reason) => {
-            webSocketClients.clear();
+            webSocketClients.delete(channelId);
         });
 
-        socket.on('message', (data: ws.Data) => {
+        socket.on('message', async (data: ws.Data) => {
             const jsonParsed = JSON.parse(data.toString());
 
             // handle local call
             if (jsonParsed.internal) {
+
+                // asked to stop plug-ins
+                if (jsonParsed.internal.method && jsonParsed.internal.method === 'stop') {
+                    try {
+                        // wait to stop plug-ins
+                        await client.pluginHostRPC.stopContext();
+
+                        // ok now we can dispose the emitter
+                        client.disposeEmitter();
+                    } catch (e) {
+                        console.error(e);
+                    }
+                    return;
+                }
+
                 // asked to grab metadata, send them
                 if (jsonParsed.internal.metadata && 'request' === jsonParsed.internal.metadata) {
                     // apply host on all local metadata
@@ -218,14 +230,9 @@ to pick-up automatically a free port`));
                 return;
             }
 
-            for (const webSocketClient of webSocketClients.values()) {
-                // send what is inside the message (wrapped message)
-                try {
-                    webSocketClient.emitter.fire(jsonParsed);
-                } catch (e) {
-                    console.error(e);
-                }
-            }
+            // send what is inside the message (wrapped message)
+            client.fire(jsonParsed);
+
         });
     }
 }
@@ -236,10 +243,11 @@ to pick-up automatically a free port`));
 class WebSocketClient {
 
     public rpc: RPCProtocolImpl;
-    // tslint:disable-next-line:no-any
-    public emitter: Emitter<any>;
 
-    constructor(private readonly id: number, private socket: ws) {
+    public pluginHostRPC: PluginHostRPC;
+
+    // tslint:disable-next-line:no-any
+    constructor(private readonly id: number, private socket: ws, private readonly emitter: Emitter<any>) {
     }
 
     public getIdentifier(): number {
@@ -249,7 +257,24 @@ class WebSocketClient {
     // message is a JSON entry
     // tslint:disable-next-line:no-any
     send(message: any) {
-        this.socket.send(JSON.stringify(message));
+        try {
+            this.socket.send(JSON.stringify(message));
+        } catch (error) {
+            console.log('error socket while sending', error, message);
+        }
+    }
+
+    disposeEmitter(): void {
+        this.emitter.dispose();
+    }
+
+    // tslint:disable-next-line:no-any
+    fire(message: any) {
+        try {
+            this.emitter.fire(message);
+        } catch (error) {
+            console.log('error socket while sending', error, message);
+        }
     }
 
 }

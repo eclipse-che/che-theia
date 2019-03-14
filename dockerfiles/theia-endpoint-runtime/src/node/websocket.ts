@@ -108,4 +108,10 @@ export class Websocket {
     private onError(e: Error) { }
     private onClose(reason: string) { }
 
+    /***
+     * Closing websocket with proper error code.
+     */
+    public close(): void {
+        this.instance.close(1000);
+    }
 }

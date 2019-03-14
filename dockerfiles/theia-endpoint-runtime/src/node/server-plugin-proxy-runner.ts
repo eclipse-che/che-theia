@@ -31,6 +31,10 @@ export class ServerPluginProxyRunner implements ServerPluginRunner {
         this.hostedPluginRemote.setClient(client);
     }
 
+    public clientClosed(): void {
+        this.hostedPluginRemote.clientClosed();
+    }
+
     // tslint:disable-next-line:no-any
     public acceptMessage(jsonMessage: any): boolean {
         return jsonMessage.pluginID !== undefined;
