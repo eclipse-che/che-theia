@@ -48,7 +48,7 @@ export class TerminalContainerAware {
         // override terminal
         terminalServiceExt.createTerminal = createTerminal;
     }
-    
+
     overrideTerminalCreationOptionForDebug(debugExt: DebugExtImpl) {
         debugExt.doGetTerminalCreationOptions = (debugType: string) => {
             const options: theia.TerminalOptions = {
@@ -58,6 +58,6 @@ export class TerminalContainerAware {
             };
 
             return options;
-        }
+        };
     }
 }
