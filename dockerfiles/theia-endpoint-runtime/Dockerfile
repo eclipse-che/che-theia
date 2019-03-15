@@ -31,6 +31,10 @@ RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
         fi \
     fi
 
+#invalidate cashe
+ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/theia-ide/theia/git/refs/head /tmp/branch_info.json
+ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/eclipse/che-theia/git/refs/head /tmp/branch_info.json
+
 # Grab dependencies
 COPY /package.json /home/workspace/packages/theia-remote/
 RUN cd /home/workspace/packages/theia-remote/ && yarn install --ignore-scripts
