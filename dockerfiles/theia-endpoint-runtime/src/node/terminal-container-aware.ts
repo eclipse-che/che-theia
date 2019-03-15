@@ -57,7 +57,7 @@ export class TerminalContainerAware {
                 }
             };
 
-            return options;
+            return Promise.resolve(options);
         };
     }
 }
