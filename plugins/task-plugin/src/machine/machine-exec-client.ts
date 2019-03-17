@@ -23,6 +23,7 @@ export interface MachineIdentifier {
 export interface MachineExec {
     identifier: MachineIdentifier,
     cmd: string[],
+    cwd?: string,
     tty: boolean,
     id?: number
 }
