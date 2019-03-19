@@ -20,4 +20,5 @@ extensions:
     - extensions/eclipse-che-theia-plugin-ext
     - extensions/eclipse-che-theia-terminal
     - extensions/eclipse-che-theia-user-preferences
+    - extensions/che-theia-hosted-plugin-manager-extension
   checkoutTo: master
