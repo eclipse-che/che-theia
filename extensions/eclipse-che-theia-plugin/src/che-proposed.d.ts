@@ -39,6 +39,10 @@ declare module '@eclipse-che/plugin' {
         export function getById(id: string): PromiseLike<cheApi.factory.Factory>;
     }
 
+    export namespace devfile {
+        export function create(devifle: string): Promise<cheApi.workspace.Workspace>;
+    }
+
     export namespace ssh {
         export function generate(service: string, name: string): Promise<cheApi.ssh.SshPair>;
 

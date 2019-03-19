@@ -42,6 +42,13 @@ export interface CheFactoryMain {
     $getFactoryById(factoryId: string): Promise<cheApi.factory.Factory>;
 }
 
+export interface CheDevfile {
+}
+
+export interface CheDevfileMain {
+    $create(devifle: string): Promise<cheApi.workspace.Workspace>;
+}
+
 export interface CheSsh {
 }
 
@@ -342,6 +349,9 @@ export const PLUGIN_RPC_CONTEXT = {
 
     CHE_FACTORY: <ProxyIdentifier<CheFactory>>createProxyIdentifier<CheFactory>('CheFactory'),
     CHE_FACTORY_MAIN: <ProxyIdentifier<CheFactoryMain>>createProxyIdentifier<CheFactoryMain>('CheFactoryMain'),
+
+    CHE_DEVFILE: <ProxyIdentifier<CheDevfile>>createProxyIdentifier<CheDevfile>('CheDevfile'),
+    CHE_DEVFILE_MAIN: <ProxyIdentifier<CheDevfileMain>>createProxyIdentifier<CheDevfileMain>('CheDevfileMain'),
 
     CHE_VARIABLES: <ProxyIdentifier<CheVariables>>createProxyIdentifier<CheVariables>('CheVariables'),
     CHE_VARIABLES_MAIN: <ProxyIdentifier<CheVariablesMain>>createProxyIdentifier<CheVariablesMain>('CheVariablesMain'),

@@ -53,5 +53,27 @@
             "json"
         ],
         "testURL": "http://localhost/"
+    },
+    "contributes": {
+        "menus": {
+            "editor/context": [
+                {
+                    "command": "factory-plugin.create-workspace",
+                    "when": "resourceFilename =~ /devfile/"
+                }
+            ],
+            "editor/title": [
+                {
+                    "command": "factory-plugin.create-workspace",
+                    "when": "resourceFilename =~ /devfile/"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "command": "factory-plugin.create-workspace",
+                    "when": "resourceFilename =~ /devfile/"
+                }
+            ]
+        }
     }
 }

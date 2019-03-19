@@ -16,6 +16,7 @@ import { CheWorkspaceImpl } from './che-workspace';
 import { CheVariablesImpl } from './che-variables';
 import { PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
 import { CheFactoryImpl } from './che-factory';
+import { CheDevfileImpl } from './che-devfile';
 import { CheTaskImpl } from './che-task-impl';
 import { CheSshImpl } from './che-ssh';
 
@@ -26,6 +27,7 @@ export interface CheApiFactory {
 export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
     const cheWorkspaceImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_WORKSPACE, new CheWorkspaceImpl(rpc));
     const cheFactoryImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_FACTORY, new CheFactoryImpl(rpc));
+    const cheDevfileImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_DEVFILE, new CheDevfileImpl(rpc));
     const cheVariablesImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_VARIABLES, new CheVariablesImpl(rpc));
     const cheTaskImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_TASK, new CheTaskImpl(rpc));
     const cheSshImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_SSH, new CheSshImpl(rpc));
@@ -79,6 +81,12 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             }
         };
 
+        const devfile: typeof che.devfile = {
+            create(devfileContent: string): Promise<cheApi.workspace.Workspace> {
+                return cheDevfileImpl.create(devfileContent);
+            }
+        };
+
         const variables: typeof che.variables = {
             registerVariable(variable: che.Variable): Promise<che.Disposable> {
                 return cheVariablesImpl.registerVariable(variable);
@@ -119,6 +127,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
         return <typeof che>{
             workspace,
             factory,
+            devfile,
             variables,
             task,
             ssh
