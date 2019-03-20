@@ -67,10 +67,11 @@ RUN set -eux; \
     ; \
 	apk del .build-deps \
     ; \
-	mkdir ${HOME}/.cache && chmod -R 777 ${HOME}/.cache \
+	mkdir /.cache && chmod -R 777 /.cache \
 	; \
-    go version
+    go version && \
+    apk add gcc g++
 
-ENV GOPATH /go
+ENV GOPATH /go:/projects
 ENV GOROOT /usr/local/go
 ENV PATH $GOPATH/bin:$GOROOT/bin:$PATH
