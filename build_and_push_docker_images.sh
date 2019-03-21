@@ -46,7 +46,7 @@ for image_dir in "${DOCKER_FILES_LOCATIONS[@]}"
         elif [ "$image_dir" == "dockerfiles/theia-dev" ]; then
             bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:next
         else
-            bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG}
+            bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:next
         fi
         if [ $? -ne 0 ]; then
             echo "ERROR:"
@@ -69,7 +69,7 @@ if [ "$BUILD_BRANCH" == "master" ]; then
                 docker tag ${image}:next ${image}:${THEIA_IMAGE_TAG}
                 echo y | docker push ${image}:${THEIA_IMAGE_TAG}
             else
-                echo y | docker push ${image}:nightly
+                echo y | docker push ${image}:next
             fi
         done
 else 
