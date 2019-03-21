@@ -1,0 +1,10 @@
+# Global Owners
+* @evidolob
+
+# dockerfiles
+dockerfiles/** @riuvshin @benoitf @evidolob
+plugins/** @sunix @vitaliy-guliy @olexii4
+extensions/** @mmorhun @evidolob
+che-plugins/** @evidolob @tolusha
+extensions/eclipse-che-theia-terminal/** @AndrienkoAleksandr
+
