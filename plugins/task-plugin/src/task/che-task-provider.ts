@@ -54,7 +54,7 @@ export class CheTaskProvider {
         }
 
         if (target && target.workingDir) {
-            resultTarget.workingDir = cheTaskDefinition.target.workingDir;
+            resultTarget.workingDir = target.workingDir;
         }
 
         const command = await che.variables.resolve(cheTaskDefinition.command);

@@ -59,8 +59,6 @@ export class CheTaskRunner {
             throw new Error("Che task config must have 'target.machineName' property specified");
         }
 
-        const workingDir = target.workingDir;
-
         const machineExec: MachineExec = {
             identifier: {
                 machineName: machineName,
@@ -68,7 +66,7 @@ export class CheTaskRunner {
             },
             cmd: ['sh', '-c', "'" + taskConfig.command + "'"],
             tty: true,
-            cwd: workingDir
+            cwd: target.workingDir
         };
 
         try {
