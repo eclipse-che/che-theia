@@ -67,7 +67,7 @@ context('TypeScript', () => {
             });
         }).then(() => {
             // select new folder
-            cy.get('.p-Widget.p-TabBar.theia-app-left.theia-app-sides.p-BoxPanel-child.ps').contains('Files').click({ force: true }).then(() => {
+            cy.get('.p-Widget.p-TabBar.theia-app-left.theia-app-sides.p-BoxPanel-child.ps').contains('Explorer').click({ force: true }).then(() => {
                 cy.get('#files').contains(FOLDER_NAME).click({ force: true });
             })
         }).then(() => {
