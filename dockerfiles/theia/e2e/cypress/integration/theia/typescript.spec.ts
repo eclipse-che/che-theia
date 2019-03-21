@@ -67,7 +67,7 @@ context('TypeScript', () => {
             });
         }).then(() => {
             // select new folder
-            cy.get('.p-Widget.p-TabBar.theia-app-left.theia-app-sides.p-BoxPanel-child.ps').contains('Explorer').click({ force: true }).then(() => {
+            cy.get('.theia-app-left > .p-TabBar-content > [title="Explorer"]').click({ force: true }).then(() => {
                 cy.get('#files').contains(FOLDER_NAME).click({ force: true });
             })
         }).then(() => {
@@ -92,7 +92,7 @@ context('TypeScript', () => {
             // now, search if there is an invalid syntax
             cy.get('.lines-content.monaco-editor-background').contains('invalid').should('have.class', 'mtk11');
         }).then(() => {
-            cy.visit('http://localhost:3100');
+            cy.visit('http://localhost:3100/');
         });
     })
 });
