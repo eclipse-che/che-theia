@@ -67,7 +67,7 @@ COPY che-theia/extensions.yml ${HOME}/extensions.yml
 #RUN che:theia init -c ${HOME}/extensions.yml
 RUN if [ ${THEIA_VERSION} == "master" ]; then \
         echo "Working in dev mode"; \
-        (che:theia init -d -c ${HOME}/extensions.yml); \
+        (che:theia init -c ${HOME}/extensions.yml); \
     else \
         (che:theia init -c ${HOME}/extensions.yml);\
     fi

@@ -1081,17 +1081,7 @@
   dependencies:
     "@theia/core" "0.5.0-next.f8b3be08"
 
-"@theia/plugin-ext-vscode@next":
-  version "0.5.0-next.f8b3be08"
-  resolved "https://registry.yarnpkg.com/@theia/plugin-ext-vscode/-/plugin-ext-vscode-0.5.0-next.f8b3be08.tgz#54779b6b200bc1d864bdcf756d0e4ccf7e84aff3"
-  integrity sha512-ghNBkPTSb5PRfBKvsiAIEeGw5bQyU5ac+St4dRmCtEIMm1nsG2a92mmAhBrO1VtBAGbb/0QcLF7SWKLSxBKhIQ==
-  dependencies:
-    "@theia/core" "0.5.0-next.f8b3be08"
-    "@theia/plugin" "0.5.0-next.f8b3be08"
-    "@theia/plugin-ext" "0.5.0-next.f8b3be08"
-    vscode-uri "^1.0.1"
-
-"@theia/plugin-ext@0.5.0-next.f8b3be08", "@theia/plugin-ext@next":
+"@theia/plugin-ext@next":
   version "0.5.0-next.f8b3be08"
   resolved "https://registry.yarnpkg.com/@theia/plugin-ext/-/plugin-ext-0.5.0-next.f8b3be08.tgz#2616b49c26f6fa9d6e58c9987ae530bc51875c9a"
   integrity sha512-He3A1eUEihKjlANTbYYb2EjHMFn/o+FMqAwX+23yYbJ4UXK23PcxUV0cV2B0Y85hVcSXh4r/OGSST2ASD4/MwQ==
@@ -6829,9 +6819,9 @@ move-concurrently@^1.0.1:
     rimraf "^2.5.4"
     run-queue "^1.0.3"
 
-"moxios@git://github.com/stoplightio/moxios.git#v1.3.0":
+"moxios@git://github.com/stoplightio/moxios#v1.3.0":
   version "1.3.0"
-  resolved "git://github.com/stoplightio/moxios.git#9d702c8eafee4b02917d6bc400ae15f1e835cf51"
+  resolved "git://github.com/stoplightio/moxios#9d702c8eafee4b02917d6bc400ae15f1e835cf51"
   dependencies:
     class-autobind "^0.1.4"
 
