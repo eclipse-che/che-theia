@@ -39,7 +39,6 @@ context('Check Extensions are installed', () => {
        '@eclipse-che/che-theia-hosted-plugin-manager-extension',
        '@eclipse-che/theia-remote',
        '@eclipse-che/theia-activity-tracker',
-       '@eclipse-che/theia-task-extension',
        '@eclipse-che/theia-terminal',
        '@eclipse-che/theia-dashboard-extension']);
     });
