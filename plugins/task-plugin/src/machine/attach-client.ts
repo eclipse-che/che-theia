@@ -11,7 +11,7 @@
 import { injectable, inject } from 'inversify';
 import { CheWorkspaceClient } from '../che-workspace-client';
 import { ReconnectingWebSocket } from './websocket';
-import { resolve } from 'url';
+import { applySegmentsToUri } from '../uri-helper';
 
 const ATTACH_TERMINAL_SEGMENT: string = 'attach';
 
@@ -28,7 +28,8 @@ export class AttachTerminalClient {
     async connectTerminalProcess(terminalId: number, outputHandler: TerminalProcessOutputHandler): Promise<void> {
         const termServerEndpoint = await this.cheWorkspaceClient.getMachineExecServerURL();
 
-        const terminalURL = resolve(resolve(termServerEndpoint, ATTACH_TERMINAL_SEGMENT), `${terminalId}`);
+        const terminalURL = applySegmentsToUri(termServerEndpoint, ATTACH_TERMINAL_SEGMENT, `${terminalId}`);
+        console.log('terminal url...' + terminalURL);
 
         const webSocket = new ReconnectingWebSocket(terminalURL);
 
