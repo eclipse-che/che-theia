@@ -58,7 +58,6 @@ export class MachineExecClient {
         }
 
         const execServerUrl = applySegmentsToUri(machineExecServerEndpoint, CONNECT_TERMINAL_SEGMENT);
-        console.log('server url', execServerUrl);
         this.connection = await createConnection(execServerUrl);
         return this.connection;
     }
