@@ -51,8 +51,15 @@ COPY /etc/package.json /home/workspace
 RUN cd /home/workspace/ && yarn install
 
 FROM node:8.15.0-alpine
+ENV HOME=/home/theia
 COPY --from=builder /home/workspace/node_modules /home/theia/node_modules
 RUN rm -rf /home/theia/node_modules/@eclipse-che/theia-plugin-ext /home/theia/node_modules/@eclipse-che/theia-remote
 COPY --from=builder /home/workspace/packages/theia-plugin-ext /home/theia/node_modules/@eclipse-che/theia-plugin-ext
 COPY --from=builder /home/workspace/packages/theia-remote/lib /home/theia/lib
+RUN mkdir /projects && \
+    # Change permissions to let any arbitrary user
+    for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
+        echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+        chmod -R g+rwX ${f}; \
+    done
 CMD node /home/theia/lib/node/plugin-remote.js
