@@ -12,7 +12,7 @@ import { injectable, inject } from 'inversify';
 import * as che from '@eclipse-che/plugin';
 import { che as cheApi } from '@eclipse-che/api';
 import { Task } from '@theia/plugin';
-import { CHE_TASK_TYPE, MACHINE_NAME_ATTRIBUTE, PREVIEW_URL_ATTRIBUTE, CheTaskDefinition, Target } from './task-protocol';
+import { CHE_TASK_TYPE, MACHINE_NAME_ATTRIBUTE, PREVIEW_URL_ATTRIBUTE, WORKING_DIR_ATTRIBUTE, CheTaskDefinition, Target } from './task-protocol';
 import { MachinesPicker } from '../machine/machines-picker';
 import { CheWorkspaceClient } from '../che-workspace-client';
 
@@ -53,6 +53,10 @@ export class CheTaskProvider {
             resultTarget.machineName = await this.machinePicker.pick();
         }
 
+        if (target && target.workingDir) {
+            resultTarget.workingDir = target.workingDir;
+        }
+
         const command = await che.variables.resolve(cheTaskDefinition.command);
         return {
             definition: {
@@ -73,6 +77,7 @@ export class CheTaskProvider {
                 type: CHE_TASK_TYPE,
                 command: command.commandLine,
                 target: {
+                    workingDir: this.getCommandAttribute(command, WORKING_DIR_ATTRIBUTE),
                     machineName: this.getCommandAttribute(command, MACHINE_NAME_ATTRIBUTE)
                 },
                 previewUrl: this.getCommandAttribute(command, PREVIEW_URL_ATTRIBUTE)
