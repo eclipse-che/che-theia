@@ -1,3 +1,4 @@
+extensions:
 - source: https://github.com/eclipse/che-theia
   folders:
     - dockerfiles/theia-endpoint-runtime
