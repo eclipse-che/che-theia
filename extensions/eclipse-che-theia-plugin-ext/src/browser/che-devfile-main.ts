@@ -20,19 +20,14 @@ export class CheDevfileMainImpl implements CheDevfileMain {
         this.cheApiService = container.get(CheApiService);
     }
 
-    async $create(devifle: string): Promise<cheApi.workspace.Workspace> {
-        this.cheApiService.getCurrentWorkspaceId();
-        return Promise.reject(new Error('Method to create a WORKSPACE is still not implemened'));
+    async $create(devfileContent: string): Promise<cheApi.workspace.Workspace> {
+        return new Promise<cheApi.workspace.Workspace>((resolve, reject) => {
+            this.cheApiService.createWorkspace(devfileContent).then(workspace => {
+                resolve(workspace);
+            }).catch(error => {
+                reject(error);
+            });
+        });
     }
-
-    // async test(factoryId: string): Promise<cheApi.factory.Factory> {
-    //     return new Promise<cheApi.factory.Factory>((resolve, reject) => {
-    //         this.cheApiService.getFactoryById(factoryId).then(factory => {
-    //             resolve(factory);
-    //         }).catch(error => {
-    //             reject(error);
-    //         });
-    //     });
-    // }
 
 }

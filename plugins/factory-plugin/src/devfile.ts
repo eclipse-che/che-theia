@@ -9,6 +9,7 @@
  **********************************************************************/
 
 import * as theia from '@theia/plugin';
+import * as che from '@eclipse-che/plugin';
 
 const fs = require('fs');
 
@@ -29,13 +30,28 @@ export class Devfile {
         );
     }
 
-    createWorkspace(uri: theia.Uri) {
+    async createWorkspace(uri: theia.Uri) {
         if ('file' !== uri.scheme) {
             return;
         }
 
-        const devfileContent = fs.readFileSync(uri.path, 'utf8');
-        console.log('>>>> DEVFILE >>>>', devfileContent);
+        try {
+            const devfileContent = fs.readFileSync(uri.path, 'utf8');
+            console.log('>>>> DEVFILE >>>>', devfileContent);
+
+            const workspace = await che.devfile.create(devfileContent);
+            console.log('> created workspace > ', workspace);
+
+            if (workspace) {
+                theia.window.showInformationMessage(`Workspace ${workspace.config!.name!} created`);
+            } else {
+                theia.window.showWarningMessage('I don\'t know why, but workspace is not created');
+            }
+
+        } catch (error) {
+            console.log(error);
+            theia.window.showErrorMessage(error.message);
+        }
     }
 
 }

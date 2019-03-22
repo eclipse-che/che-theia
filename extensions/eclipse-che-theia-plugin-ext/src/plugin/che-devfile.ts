@@ -20,9 +20,9 @@ export class CheDevfileImpl implements CheDevfile {
         this.devfileMain = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_DEVFILE_MAIN);
     }
 
-    async create(devfile: string): Promise<cheApi.workspace.Workspace> {
+    async create(devfileContent: string): Promise<cheApi.workspace.Workspace> {
         try {
-            return await this.devfileMain.$create(devfile);
+            return await this.devfileMain.$create(devfileContent);
         } catch (e) {
             return Promise.reject(e);
         }

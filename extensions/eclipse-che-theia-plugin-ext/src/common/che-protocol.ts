@@ -46,7 +46,7 @@ export interface CheDevfile {
 }
 
 export interface CheDevfileMain {
-    $create(devifle: string): Promise<cheApi.workspace.Workspace>;
+    $create(devfileContent: string): Promise<cheApi.workspace.Workspace>;
 }
 
 export interface CheSsh {
@@ -375,6 +375,7 @@ export interface CheApiService {
     currentWorkspace(): Promise<cheApi.workspace.Workspace>;
     getWorkspaceById(workspaceId: string): Promise<cheApi.workspace.Workspace>;
 
+    createWorkspace(devfileContent: string): Promise<cheApi.workspace.Workspace>;
     updateWorkspace(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<cheApi.workspace.Workspace>;
 
     getFactoryById(factoryId: string): Promise<cheApi.factory.Factory>;

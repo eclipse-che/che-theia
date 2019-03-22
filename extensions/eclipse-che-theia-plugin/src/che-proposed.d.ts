@@ -40,7 +40,7 @@ declare module '@eclipse-che/plugin' {
     }
 
     export namespace devfile {
-        export function create(devifle: string): Promise<cheApi.workspace.Workspace>;
+        export function create(devfileContent: string): Promise<cheApi.workspace.Workspace>;
     }
 
     export namespace ssh {
