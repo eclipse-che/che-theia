@@ -22,14 +22,14 @@ import { resolve } from 'path';
  * applySegmentsToUri('http://ws:/some-server/api', '/connect', `1`)) => error, segment should not contains '/'
  */
 export function applySegmentsToUri(endPointUrl: string, ...pathSegements: string[]): string {
-    const urlToTranform: URL = new URL(endPointUrl);
+    const urlToTransform: URL = new URL(endPointUrl);
 
     for (const segment of pathSegements) {
         if (segment.indexOf('/') > -1) {
             throw new Error(`path segment ${segment} contains '/'`);
         }
-        urlToTranform.pathname = resolve(urlToTranform.pathname, segment);
+        urlToTransform.pathname = resolve(urlToTransform.pathname, segment);
     }
 
-    return urlToTranform.toString();
+    return urlToTransform.toString();
 }
