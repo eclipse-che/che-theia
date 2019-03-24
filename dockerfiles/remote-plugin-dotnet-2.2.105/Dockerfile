@@ -43,7 +43,7 @@ RUN wget -O dotnet.tar.gz https://dotnetcli.blob.core.windows.net/dotnet/Sdk/$DO
     && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet \
     && rm dotnet.tar.gz
 
-ENV MSBuildSDKsPath=/usr/share/dotnet/sdk/2.2.105/Sdks \
+ENV MSBuildSDKsPath=/usr/share/dotnet/sdk/$DOTNET_SDK_VERSION/Sdks \
     PATH=$MSBuildSDKsPath:$PATH
 
 RUN wget -O /usr/lib/mono/xbuild/15.0/Microsoft.Common.props https://raw.githubusercontent.com/Microsoft/msbuild/v15.9.21.664/src/Tasks/Microsoft.Common.props
