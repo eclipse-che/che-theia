@@ -92,7 +92,7 @@ export class TheiaDashboardClient implements FrontendApplicationContribution {
         }
         const ideWorkspaceUrl = workspace!.links!.ide!;
 
-        return ideWorkspaceUrl.replace('/che/', '/dashboard/#/ide/che/');
+        return ideWorkspaceUrl.replace(/^https?:\/\/[^\/]+/, match => `${match}/dashboard/#/ide`);
     }
 
 }
