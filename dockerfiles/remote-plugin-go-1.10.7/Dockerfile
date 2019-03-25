@@ -70,8 +70,8 @@ RUN set -eux; \
 	mkdir /.cache && chmod -R 777 /.cache \
 	; \
     go version && \
-    apk add gcc g++
+    apk add gcc g++ git
 
-ENV GOPATH /go:/projects
+ENV GOPATH /projects:/go
 ENV GOROOT /usr/local/go
 ENV PATH $GOPATH/bin:$GOROOT/bin:$PATH
