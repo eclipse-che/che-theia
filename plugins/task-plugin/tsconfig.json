@@ -6,7 +6,10 @@
             "webworker"
         ],
         "rootDir": "src",
-        "outDir": "lib"
+        "outDir": "lib",
+        "types": ["reflect-metadata"],
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
     },
     "include": [
         "src", "resources/preview-urls.js"
