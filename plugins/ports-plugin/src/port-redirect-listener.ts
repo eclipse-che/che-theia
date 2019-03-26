@@ -16,13 +16,15 @@ import * as net from 'net';
  */
 export class PortRedirectListener {
 
+    private server: net.Server;
+
     constructor(private readonly localPort: number, private readonly remoteHost: string, private readonly remotePort: number) {
 
     }
 
     async start(): Promise<void> {
 
-        const server = net.createServer(localsocket => {
+        this.server = net.createServer(localsocket => {
             const remotesocket = new net.Socket();
 
             remotesocket.connect(this.remotePort, this.remoteHost);
@@ -59,9 +61,12 @@ export class PortRedirectListener {
 
         });
 
-        server.listen(this.localPort);
+        this.server.listen(this.localPort);
 
-        console.log('redirecting connections from 127.0.0.1:%d to %s:%d', this.localPort, this.remoteHost, this.remotePort);
+        console.info('redirecting connections from 127.0.0.1:%d to %s:%d', this.localPort, this.remoteHost, this.remotePort);
+    }
 
+    stop(): void {
+        this.server.close();
     }
 }

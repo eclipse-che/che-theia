@@ -29,6 +29,16 @@ const SERVER_REDIRECT_PATTERN = 'theia-redirect-';
 // variables
 let workspacePorts: WorkspacePort[];
 let redirectPorts: WorkspacePort[];
+let redirectListeners: Map<number, BusyPort>;
+
+// map a listener and the workspace port used
+export interface BusyPort {
+
+    portRedirectListener: PortRedirectListener;
+
+    workspacePort: WorkspacePort;
+
+}
 
 export interface MessageItem {
     title: string;
@@ -49,7 +59,7 @@ async function askRedirect(port: Port, redirectMessage: string, errorMessage: st
     }
 
     const interactions: MessageItem[] = [{ title: 'yes' }];
-    const result = await theia.window.showInformationMessage(redirectMessage, { modal: true }, ...interactions);
+    const result = await theia.window.showInformationMessage(redirectMessage, ...interactions);
     if (result && result.title === 'yes') {
         // takes first available port
         const workspacePort = redirectPorts.pop()!;
@@ -58,10 +68,14 @@ async function askRedirect(port: Port, redirectMessage: string, errorMessage: st
         const portRedirectListener = new PortRedirectListener(parseInt(workspacePort.portNumber, 10), 'localhost', port.portNumber);
         portRedirectListener.start();
 
+        // store port taken
+        const busyPort = { portRedirectListener, workspacePort };
+        redirectListeners.set(port.portNumber, busyPort);
+
         // show redirect
         const redirectInteractions: MessageItem[] = [{ title: 'Open Link' }];
         const msg = `Redirect is now enabled on port ${port.portNumber}. External URL is ${workspacePort.url}`;
-        const resultShow = await theia.window.showInformationMessage(msg, { modal: true }, ...redirectInteractions);
+        const resultShow = await theia.window.showInformationMessage(msg, ...redirectInteractions);
         if (resultShow && resultShow.title === 'Open Link') {
             theia.commands.executeCommand('mini-browser.openUrl', workspacePort.url);
         }
@@ -98,7 +112,6 @@ async function onOpenPort(port: Port) {
             theia.commands.executeCommand('mini-browser.openUrl', matchingWorkspacePort.url);
         }
     } else {
-        // TODO: here need to use a pre-defined port and hook it with custom listener
         const desc = `A new process is now listening on port ${port.portNumber} but this port is not exposed in the workspace as a server.
          Would you want to add a redirect for this port so it becomes available ?`;
         const err = `A new process is now listening on port ${port.portNumber} but this port is not exposed in the workspace as a server.
@@ -109,7 +122,23 @@ async function onOpenPort(port: Port) {
 }
 
 function onClosedPort(port: Port) {
-    // only do a trace
+
+    // free redirect listener if there is one
+    const portNumber = port.portNumber;
+    if (redirectListeners.has(portNumber)) {
+
+        // stop the redirect
+        const busyPort = redirectListeners.get(portNumber);
+        busyPort.portRedirectListener.stop();
+
+        // free up the port
+        redirectPorts.push(busyPort.workspacePort);
+
+        // remove entry
+        redirectListeners.delete(portNumber);
+    }
+
+    // just log trace
     console.info(`The port ${port.portNumber} is no longer listening on interface ${port.interfaceListen}`);
 }
 
@@ -119,6 +148,7 @@ export async function start(context: theia.PluginContext): Promise<void> {
     const workspaceHandler = new WorkspaceHandler();
     workspacePorts = await workspaceHandler.getWorkspacePorts();
 
+    redirectListeners = new Map<number, BusyPort>();
     redirectPorts = workspacePorts.filter(port => port.serverName.startsWith(SERVER_REDIRECT_PATTERN));
 
     const portChangesDetector = new PortChangesDetector();
@@ -126,7 +156,7 @@ export async function start(context: theia.PluginContext): Promise<void> {
     portChangesDetector.onDidClosePort(onClosedPort);
 
     // start port changes
-    portChangesDetector.init();
+    await portChangesDetector.init();
     portChangesDetector.check();
 
 }

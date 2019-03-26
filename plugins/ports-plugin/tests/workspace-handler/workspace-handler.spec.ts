@@ -40,11 +40,11 @@ describe("Test Workspace Ports", () => {
 
         expect(ports).toBeDefined();
         expect(Array.isArray(ports)).toBe(true);
-        expect(ports.length).toBe(1);
+        expect(ports.length).toBe(12);
 
-        expect(ports[0].portNumber).toBe('3000');
-        expect(ports[0].url).toBe('https://routehkw7m74z.openshiftapps.com');
-        expect(ports[0].serverName).toBe('florentjs');
+        expect(ports[0].portNumber).toBe('13138');
+        expect(ports[0].url).toBe('http://serveryp2q3s76-ws-theia-ide-server-13138.192.168.99.103.nip.io/');
+        expect(ports[0].serverName).toBe('theia-redirect-8');
 
     });
 
