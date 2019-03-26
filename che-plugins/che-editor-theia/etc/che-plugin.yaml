@@ -22,6 +22,60 @@ endpoints:
       protocol: http
       type: ide-dev
       discoverable: false
+ -  name: "theia-redirect-1"
+    public: true
+    targetPort: 13131
+    attributes:
+      protocol: http
+      discoverable: false
+ -  name: "theia-redirect-2"
+    public: true
+    targetPort: 13132
+    attributes:
+      protocol: http
+      discoverable: false
+ -  name: "theia-redirect-3"
+    public: true
+    targetPort: 13133
+    attributes:
+      protocol: http
+      discoverable: false
+ -  name: "theia-redirect-4"
+    public: true
+    targetPort: 13134
+    attributes:
+      protocol: http
+      discoverable: false
+ -  name: "theia-redirect-5"
+    public: true
+    targetPort: 13135
+    attributes:
+      protocol: http
+      discoverable: false
+ -  name: "theia-redirect-6"
+    public: true
+    targetPort: 13136
+    attributes:
+      protocol: http
+      discoverable: false
+ -  name: "theia-redirect-7"
+    public: true
+    targetPort: 13137
+    attributes:
+      protocol: http
+      discoverable: false
+ -  name: "theia-redirect-8"
+    public: true
+    targetPort: 13138
+    attributes:
+      protocol: http
+      discoverable: false
+ -  name: "theia-redirect-9"
+    public: true
+    targetPort: 13139
+    attributes:
+      protocol: http
+      discoverable: false
 containers:
  - name: theia-ide
    image: eclipse/che-theia:next
@@ -42,3 +96,12 @@ containers:
        - exposedPort: 3130
    memory-limit: "1536M"
    memoryLimit: "1536M"
+       - exposedPort: 13131
+       - exposedPort: 13132
+       - exposedPort: 13133
+       - exposedPort: 13134
+       - exposedPort: 13135
+       - exposedPort: 13136
+       - exposedPort: 13137
+       - exposedPort: 13138
+       - exposedPort: 13139
