@@ -67,7 +67,7 @@ COPY che-theia/extensions.yml ${HOME}/extensions.yml
 #RUN che:theia init -c ${HOME}/extensions.yml
 RUN if [ ${THEIA_VERSION} == "master" ]; then \
         echo "Working in dev mode"; \
-        (che:theia init -d -c ${HOME}/extensions.yml); \
+        (che:theia init -c ${HOME}/extensions.yml); \
     else \
         (che:theia init -c ${HOME}/extensions.yml);\
     fi
@@ -119,7 +119,7 @@ WORKDIR ${HOME}/che-theia-source-code/plugins/
 RUN for PLUGIN_DIR in */; do   cd ${HOME}/che-theia-source-code/plugins/${PLUGIN_DIR} && yarn; done
 
 RUN mkdir -p ${HOME}/che-theia-plugins/ && \
-    find ${HOME}/che-theia-source-code/plugins/ -not -name "*ssh*" -not -name "*ports*" -name "*.theia"  -exec sh -c "cp {} ${HOME}/che-theia-plugins/" \; 2>log.txt
+    find ${HOME}/che-theia-source-code/plugins/ -not -name "*ssh*" -name "*.theia"  -exec sh -c "cp {} ${HOME}/che-theia-plugins/" \; 2>log.txt
 
 
 ###

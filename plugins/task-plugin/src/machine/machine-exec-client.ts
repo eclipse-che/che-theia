@@ -12,7 +12,7 @@ import * as rpc from 'vscode-ws-jsonrpc';
 import { injectable, inject } from 'inversify';
 import { CheWorkspaceClient } from '../che-workspace-client';
 import { createConnection } from './websocket';
-import { resolve } from 'url';
+import { applySegmentsToUri } from '../uri-helper';
 
 const CREATE_METHOD_NAME: string = 'create';
 const CONNECT_TERMINAL_SEGMENT: string = 'connect';
@@ -24,6 +24,7 @@ export interface MachineIdentifier {
 export interface MachineExec {
     identifier: MachineIdentifier,
     cmd: string[],
+    cwd?: string,
     tty: boolean,
     id?: number
 }
@@ -57,7 +58,7 @@ export class MachineExecClient {
             throw new Error('URL for machine-exec server is not found in the current workspace.');
         }
 
-        const execServerUrl = resolve(machineExecServerEndpoint, CONNECT_TERMINAL_SEGMENT);
+        const execServerUrl = applySegmentsToUri(machineExecServerEndpoint, CONNECT_TERMINAL_SEGMENT);
         this.connection = await createConnection(execServerUrl);
         return this.connection;
     }

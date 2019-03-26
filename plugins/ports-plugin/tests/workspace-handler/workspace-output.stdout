@@ -1,70 +1,151 @@
 {
 "links": {
-"self": "https://che.openshift.io/api/workspace/workspacey6oret4r0c62ji5o",
-"ide": "https://che.openshift.io/fbenoit-1/wksp-h485",
-"environment/statusChannel": "wss://che.openshift.io/api/websocket",
-"environment/outputChannel": "wss://che.openshift.io/api/websocket"
+"self": "http://che-che.192.168.99.103.nip.io/api/workspace/workspace0pnu0qrzuilq9fjp",
+"ide": "http://che-che.192.168.99.103.nip.io/che/fbenoit",
+"environment/statusChannel": "ws://che-che.192.168.99.103.nip.io/api/websocket",
+"environment/outputChannel": "ws://che-che.192.168.99.103.nip.io/api/websocket"
 },
 "attributes": {
-"stopped_by": "activity-checker",
-"org.eclipse.che.runtimes_id": "runtimes5fpnar4e79d12iqz",
-"startNumber": "11",
-"created": "1548870889570",
-"stackId": "che7",
-"updated": "1549295970830"
+"org.eclipse.che.runtimes_id": "runtimesiddeoue4m624dm98",
+"updated": "1553591801717",
+"created": "1553590924087",
+"stackId": "che7-preview"
 },
-"namespace": "fbenoit-1",
+"namespace": "che",
 "temporary": false,
-"id": "workspacey6oret4r0c62ji5o",
+"id": "workspace0pnu0qrzuilq9fjp",
 "status": "RUNNING",
 "runtime": {
 "machines": {
-"che-jwtproxy": {
-"attributes": {
-"memoryLimitBytes": "157286400",
-"memoryRequestBytes": "157286400"
-},
-"servers": {},
-"status": "RUNNING"
-},
 "ws/theia-ide": {
 "attributes": {
-"memoryLimitBytes": "1536000000",
-"memoryRequestBytes": "1536000000"
+"memoryLimitBytes": "2048000000",
+"memoryRequestBytes": "2048000000",
+"source": "tool",
+"plugin": "org.eclipse.che.editor.theia"
 },
 "servers": {
-"theia-dev": {
-"url": "https://route0n470rmj-fbenoit-1-che.8a09.starter-us-east-2.openshiftapps.com",
+"theia-redirect-8": {
+"url": "http://serveryp2q3s76-ws-theia-ide-server-13138.192.168.99.103.nip.io/",
 "attributes": {
-"type": "ide-dev",
-"internal": "false"
+"internal": "false",
+"port": "13138",
+"discoverable": "false"
+},
+"status": "UNKNOWN"
+},
+"theia-redirect-7": {
+"url": "http://serveryp2q3s76-ws-theia-ide-server-13137.192.168.99.103.nip.io/",
+"attributes": {
+"internal": "false",
+"port": "13137",
+"discoverable": "false"
+},
+"status": "UNKNOWN"
+},
+"theia-redirect-6": {
+"url": "http://serveryp2q3s76-ws-theia-ide-server-13136.192.168.99.103.nip.io/",
+"attributes": {
+"internal": "false",
+"port": "13136",
+"discoverable": "false"
+},
+"status": "UNKNOWN"
+},
+"theia-redirect-5": {
+"url": "http://serveryp2q3s76-ws-theia-ide-server-13135.192.168.99.103.nip.io/",
+"attributes": {
+"internal": "false",
+"port": "13135",
+"discoverable": "false"
+},
+"status": "UNKNOWN"
+},
+"theia-redirect-9": {
+"url": "http://serveryp2q3s76-ws-theia-ide-server-13139.192.168.99.103.nip.io/",
+"attributes": {
+"internal": "false",
+"port": "13139",
+"discoverable": "false"
 },
 "status": "UNKNOWN"
 },
 "theia": {
-"url": "https://route9iykc3a3-fbenoit-1-che.8a09.starter-us-east-2.openshiftapps.com",
+"url": "http://serveryp2q3s76-ws-theia-ide-server-3100.192.168.99.103.nip.io/",
 "attributes": {
-"cookiesAuthEnabled": "true",
 "internal": "false",
-"secure": "true",
-"type": "ide"
+"port": "3100",
+"discoverable": "false",
+"cookiesAuthEnabled": "true",
+"type": "ide",
+"secure": "true"
 },
 "status": "RUNNING"
+},
+"theia-dev": {
+"url": "http://serveryp2q3s76-ws-theia-ide-server-3130.192.168.99.103.nip.io/",
+"attributes": {
+"internal": "false",
+"type": "ide-dev",
+"port": "3130",
+"discoverable": "false"
+},
+"status": "UNKNOWN"
+},
+"theia-redirect-4": {
+"url": "http://serveryp2q3s76-ws-theia-ide-server-13134.192.168.99.103.nip.io/",
+"attributes": {
+"internal": "false",
+"port": "13134",
+"discoverable": "false"
+},
+"status": "UNKNOWN"
+},
+"theia-redirect-3": {
+"url": "http://serveryp2q3s76-ws-theia-ide-server-13133.192.168.99.103.nip.io/",
+"attributes": {
+"internal": "false",
+"port": "13133",
+"discoverable": "false"
+},
+"status": "UNKNOWN"
+},
+"theia-redirect-2": {
+"url": "http://serveryp2q3s76-ws-theia-ide-server-13132.192.168.99.103.nip.io/",
+"attributes": {
+"internal": "false",
+"port": "13132",
+"discoverable": "false"
+},
+"status": "UNKNOWN"
+},
+"theia-redirect-1": {
+"url": "http://serveryp2q3s76-ws-theia-ide-server-13131.192.168.99.103.nip.io/",
+"attributes": {
+"internal": "false",
+"port": "13131",
+"discoverable": "false"
+},
+"status": "UNKNOWN"
 }
 },
 "status": "RUNNING"
 },
 "ws/che-machine-exec": {
 "attributes": {
-"memoryLimitBytes": "157286400",
-"memoryRequestBytes": "157286400"
+"memoryLimitBytes": "134217728",
+"memoryRequestBytes": "134217728",
+"source": "tool",
+"plugin": "che-machine-exec-plugin"
 },
 "servers": {
 "che-machine-exec": {
-"url": "wss://route5sq8mwwf-fbenoit-1-che.8a09.starter-us-east-2.openshiftapps.com",
+"url": "ws://serveraulkt3yd-ws-che-machine-exec-server-4444.192.168.99.103.nip.io/",
 "attributes": {
+"internal": "false",
 "type": "terminal",
-"internal": "false"
+"port": "4444",
+"discoverable": "false"
 },
 "status": "UNKNOWN"
 }
@@ -74,28 +155,16 @@
 "ws/dev": {
 "attributes": {
 "memoryLimitBytes": "536870912",
-"memoryRequestBytes": "536870912"
+"memoryRequestBytes": "536870912",
+"source": "recipe"
 },
-"servers": {
-"florentjs": {
-"url": "https://routehkw7m74z.openshiftapps.com",
-"attributes": {},
-"status": "UNKNOWN"
-}
-},
+"servers": {},
 "status": "RUNNING"
 }
 },
 "warnings": [],
 "activeEnv": "default",
-"commands": [
-{
-"commandLine": "echo ${CHE_OSO_CLUSTER//api/console}",
-"name": "Get OpenShift Console URL",
-"attributes": {},
-"type": "custom"
-}
-],
+"commands": [],
 "machineToken": "",
 "links": []
 },
@@ -108,13 +177,7 @@
 "attributes": {
 "memoryLimitBytes": "536870912"
 },
-"servers": {
-"florentjs": {
-"attributes": {},
-"port": "3000",
-"protocol": "http"
-}
-},
+"servers": {},
 "volumes": {
 "projects": {
 "path": "/projects"
@@ -125,26 +188,36 @@
 }
 },
 "recipe": {
-"type": "openshift",
-"content": "kind: List\nitems:\n - \n  apiVersion: v1\n  kind: Pod\n  metadata:\n   name: ws\n  spec:\n   containers:\n    - \n     image: 'eclipse/che-dev:nightly'\n     name: dev\n     resources:\n      limits:\n       memory: 512Mi\n",
+"type": "kubernetes",
+"content": "kind: List\nitems:\n - \n  apiVersion: v1\n  kind: Pod\n  metadata:\n   name: ws\n  spec:\n   containers:\n    - \n     image: 'eclipse/che-theia-dev:next'\n     name: dev\n     resources:\n      limits:\n       memory: 2048Mi\n",
 "contentType": "application/x-yaml"
 }
 }
 },
-"projects": [],
-"name": "wksp-h485",
-"attributes": {
-"editor": "org.eclipse.che.editor.theia:1.0.0",
-"plugins": "che-machine-exec-plugin:0.0.1"
-},
-"commands": [
+"projects": [
 {
-"commandLine": "echo ${CHE_OSO_CLUSTER//api/console}",
-"name": "Get OpenShift Console URL",
+"links": [],
+"name": "che-theia",
 "attributes": {},
-"type": "custom"
+"source": {
+"location": "https://github.com/eclipse/che-theia",
+"type": "git",
+"parameters": {
+"branch": "fb-port-plugin"
+}
+},
+"path": "/che-theia",
+"description": "",
+"mixins": [],
+"problems": []
 }
 ],
+"name": "fbenoit",
+"attributes": {
+"editor": "https://raw.githubusercontent.com/benoitf/custom-repo/master/plugins/org.eclipse.che.editor.theia:next",
+"plugins": "che-machine-exec-plugin:0.0.1"
+},
+"commands": [],
 "links": []
 }
 }

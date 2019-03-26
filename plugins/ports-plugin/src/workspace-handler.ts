@@ -23,26 +23,13 @@ export class WorkspaceHandler {
         if (!workspace) {
             return ports;
         }
-        const configServersPort = new Map<string, string>();
-
-        const configMachines = workspace!.config!.environments![workspace!.config!.defaultEnv!].machines || {};
-        Object.keys(configMachines).forEach((machineName: string) => {
-            const machineServers = configMachines[machineName].servers || {};
-            Object.keys(machineServers).forEach((serverName: string) => {
-                const serverPort = machineServers[serverName].port!;
-                configServersPort.set(serverName, serverPort);
-            });
-        });
-
         const runtimeMachines = workspace!.runtime!.machines || {};
         Object.keys(runtimeMachines).forEach((machineName: string) => {
             const machineServers = runtimeMachines[machineName].servers || {};
             Object.keys(machineServers).forEach((serverName: string) => {
                 const url = machineServers[serverName].url!;
-                const portNumber = configServersPort.get(serverName);
-                if (portNumber) {
-                    ports.push({ portNumber, serverName, url });
-                }
+                const portNumber = machineServers[serverName].attributes.port!;
+                ports.push({ portNumber, serverName, url });
             });
 
         });
