@@ -60,7 +60,7 @@
     "backend": "lib/task-plugin-backend.js"
   },
   "dependencies": {
-    "inversify": "^4.14.0",
-    "reflect-metadata": "^0.1.10"
+    "inversify": "4.14.0",
+    "reflect-metadata": "0.1.10"
   }
 }
