@@ -35,7 +35,6 @@ context('Check Extensions are installed', () => {
     cy.theiaExtensionsList().then((value) => {
       expect(value).to.contains.members(['@theia/plugin-ext',
        '@theia/plugin-ext-vscode',
-       '@theia/typescript',
        '@eclipse-che/che-theia-hosted-plugin-manager-extension',
        '@eclipse-che/theia-remote',
        '@eclipse-che/theia-activity-tracker',
