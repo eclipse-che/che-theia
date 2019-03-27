@@ -11,8 +11,6 @@
 import * as theia from '@theia/plugin';
 import * as che from '@eclipse-che/plugin';
 
-const fs = require('fs');
-
 const CREATE_WORKSPACE_COMMAND = {
     id: 'factory-plugin.create-workspace',
     label: 'Create Workspace',
@@ -36,18 +34,7 @@ export class Devfile {
         }
 
         try {
-            const devfileContent = fs.readFileSync(uri.path, 'utf8');
-            console.log('>>>> DEVFILE >>>>', devfileContent);
-
-            const workspace = await che.devfile.create(devfileContent);
-            console.log('> created workspace > ', workspace);
-
-            if (workspace) {
-                theia.window.showInformationMessage(`Workspace ${workspace.config!.name!} created`);
-            } else {
-                theia.window.showWarningMessage('I don\'t know why, but workspace is not created');
-            }
-
+            await che.devfile.createWorkspace(uri.toString());
         } catch (error) {
             console.log(error);
             theia.window.showErrorMessage(error.message);
