@@ -162,8 +162,6 @@ RUN adduser --disabled-password -S -u 1001 -G root -h ${HOME} -s /bin/sh theia \
     && yarn global add yo @theia/generator-plugin@0.0.1-1540209403 typescript@2.9.2 \
     && mkdir -p ${HOME}/.config/insight-nodejs/ \
     && chmod -R 777 ${HOME}/.config/ \
-    # Defines the root /node_modules as the folder to use by yarn
-    && echo '"--*.modules-folder" "/node_modules"' > $HOME/.yarnrc \
     # Disable the statistics for yeoman
     && echo '{"optOut": true}' > $HOME/.config/insight-nodejs/insight-yo.json \
     # Link yarn global modules for yeoman
