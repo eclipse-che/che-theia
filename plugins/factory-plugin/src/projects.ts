@@ -48,6 +48,9 @@ export function updateOrCreateGitProject(
             project.source.parameters = {};
         }
         project.source.parameters['branch'] = projectGitRemoteBranch;
+        delete project.source.parameters['startPoint'];
+        delete project.source.parameters['tag'];
+        delete project.source.parameters['commitId'];
     });
 
     return projects;
