@@ -65,9 +65,11 @@ if [ "$BUILD_BRANCH" == "master" ]; then
     for image in "${IMAGES_LIST[@]}"
         do
             if [ "$image" == "eclipse/che-theia" ]; then
+                [ -z $(docker images -q  ${image}:${THEIA_IMAGE_TAG}) ] || docker rmi ${image}:${THEIA_IMAGE_TAG}
                 docker tag ${image}:next ${image}:${THEIA_IMAGE_TAG}
                 echo y | docker push ${image}:${THEIA_IMAGE_TAG}
             elif [ "$image" == "eclipse/che-theia-dev" ]; then 
+                [ -z $(docker images -q  ${image}:${THEIA_IMAGE_TAG}) ] || docker rmi ${image}:${THEIA_IMAGE_TAG}
                 docker tag ${image}:next ${image}:${THEIA_IMAGE_TAG}
                 echo y | docker push ${image}:${THEIA_IMAGE_TAG}
             else
