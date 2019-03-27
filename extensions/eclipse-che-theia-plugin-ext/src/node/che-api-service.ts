@@ -21,6 +21,10 @@ export class CheApiServiceImpl implements CheApiService {
         return this.getWorkspaceIdFromEnv();
     }
 
+    async getCheApiURI(): Promise<string | undefined> {
+        return process.env.CHE_API_INTERNAL;
+    }
+
     async getUserPreferences(filter?: string): Promise<Preferences> {
         const cheApiClient = await this.getCheApiClient();
         return cheApiClient.getUserPreferences(filter);
@@ -75,24 +79,6 @@ export class CheApiServiceImpl implements CheApiService {
         } catch (e) {
             console.log(e);
             return Promise.reject('Cannot create Che API REST Client');
-        }
-    }
-
-    async createWorkspace(devfileContent: string): Promise<cheApi.workspace.Workspace> {
-        try {
-            if (!devfileContent) {
-                return Promise.reject('Devfile content is empty');
-            }
-
-            const cheApiClient = await this.getCheApiClient();
-            if (cheApiClient) {
-                return await cheApiClient.createFromDevfile(devfileContent);
-            }
-
-            return Promise.reject('Cannot create Che API REST Client');
-        } catch (e) {
-            console.log(e);
-            return Promise.reject('Unable to create Workspace from devfile');
         }
     }
 

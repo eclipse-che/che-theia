@@ -82,8 +82,8 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
         };
 
         const devfile: typeof che.devfile = {
-            create(devfileContent: string): Promise<cheApi.workspace.Workspace> {
-                return cheDevfileImpl.create(devfileContent);
+            createWorkspace(devfilePath: string): Promise<void> {
+                return cheDevfileImpl.createWorkspace(devfilePath);
             }
         };
 

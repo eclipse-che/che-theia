@@ -10,7 +10,6 @@
 
 import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
 import { PLUGIN_RPC_CONTEXT, CheDevfile, CheDevfileMain } from '../common/che-protocol';
-import { che as cheApi } from '@eclipse-che/api';
 
 export class CheDevfileImpl implements CheDevfile {
 
@@ -20,9 +19,9 @@ export class CheDevfileImpl implements CheDevfile {
         this.devfileMain = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_DEVFILE_MAIN);
     }
 
-    async create(devfileContent: string): Promise<cheApi.workspace.Workspace> {
+    async createWorkspace(devfilePath: string): Promise<void> {
         try {
-            return await this.devfileMain.$create(devfileContent);
+            return await this.devfileMain.$createWorkspace(devfilePath);
         } catch (e) {
             return Promise.reject(e);
         }
