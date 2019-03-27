@@ -36,7 +36,7 @@ export interface RemoteTerminalWidgetFactoryOptions extends Partial<TerminalWidg
 export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
     protected termServer: RemoteTerminalServerProxy | undefined;
-    protected waitForRemoteConnection: Deferred<WebSocket> | undefined;
+    protected waitForRemoteConnection: Deferred<WebSocket> | undefined = new Deferred<WebSocket>();
 
     @inject('TerminalProxyCreatorProvider')
     protected readonly termProxyCreatorProvider: TerminalProxyCreatorProvider;
@@ -76,6 +76,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
                 this.toDispose.push(this.termServer.onDidCloseConnection(() => {
                     const disposable = this.termServer.onDidOpenConnection(() => {
                         disposable.dispose();
+                        this.waitForRemoteConnection = new Deferred<WebSocket>();
                         this.reconnectTerminalProcess();
                     });
                     this.toDispose.push(disposable);
@@ -88,7 +89,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         this.connectTerminalProcess();
 
         await this.waitForRemoteConnection;
-        // some delay need to attach exec. If we send resize earlier this size will be skiped.
+        // Some delay need to attach exec. If we send resize earlier this size will be skipped.
         setTimeout(async () => {
             await this.resizeTerminalProcess();
         }, 100);
@@ -120,12 +121,11 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     }
 
     protected connectSocket(id: number) {
-        const waitForRemoteConnection = this.waitForRemoteConnection = new Deferred<WebSocket>();
         const socket = this.createWebSocket(id.toString());
 
         socket.onopen = () => {
-            if (waitForRemoteConnection) {
-                waitForRemoteConnection.resolve(socket);
+            if (this.waitForRemoteConnection) {
+                this.waitForRemoteConnection.resolve(socket);
             }
 
             const sendListener = data => socket.send(data);
