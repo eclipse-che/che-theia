@@ -94,8 +94,6 @@ containers:
    ports:
        - exposedPort: 3100
        - exposedPort: 3130
-   memory-limit: "1536M"
-   memoryLimit: "1536M"
        - exposedPort: 13131
        - exposedPort: 13132
        - exposedPort: 13133
@@ -105,3 +103,5 @@ containers:
        - exposedPort: 13137
        - exposedPort: 13138
        - exposedPort: 13139
+   memory-limit: "1536M"
+   memoryLimit: "1536M"
