@@ -85,7 +85,7 @@ class OpenFactoryLinkDialog extends AbstractDialog<string> {
         });
 
         const message = document.createElement('div');
-        message.innerText = 'URI to create a workspace: ';
+        message.innerHTML = 'URI to create a workspace:<br>';
         this.contentNode.appendChild(message);
 
         this.link = document.createElement('a');
