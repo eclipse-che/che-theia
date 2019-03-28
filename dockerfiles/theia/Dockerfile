@@ -112,6 +112,9 @@ RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
       fi \
     fi
 
+#invalidate cashe
+ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/eclipse/che-theia/git/refs/heads/${CHE_THEIA_PLUGIN_BRANCH} /tmp/che_theia_branch_info.json
+
 # Clone and build che-theia plugins
 RUN git clone --branch ${CHE_THEIA_PLUGIN_BRANCH}  --single-branch --depth 1 https://github.com/eclipse/che-theia ${HOME}/che-theia-source-code
 
