@@ -37,8 +37,9 @@ export class CheDevfileMainImpl implements CheDevfileMain {
             let baseURI = await this.cheApiService.getCheApiURI();
 
             if (!baseURI) {
-                this.messageService.error('Che API URI is not set!');
-                reject('Che API URI is not set!');
+                const error = 'Che API URI is not set!';
+                this.messageService.error(error);
+                reject(error);
                 return;
             }
 
@@ -49,7 +50,9 @@ export class CheDevfileMainImpl implements CheDevfileMain {
             const fileDownloadURI = window.location.origin + '/files/?uri=' + devfilePath;
             const factoryURI = `${baseURI}/f?url=${fileDownloadURI}`;
 
-            this.openFactoryWindow(factoryURI);
+            setTimeout(() => {
+                this.openFactoryWindow(factoryURI);
+            }, 1);
 
             resolve();
         });
@@ -64,13 +67,11 @@ export class CheDevfileMainImpl implements CheDevfileMain {
             return;
         }
 
-        if (uri) {
-            try {
-                this.windowService.openNewWindow(uri);
-            } catch (err) {
-                // browser blocked opening of a new tab
-                this.openFactoryLinkDialog.showOpenNewTabAskDialog(uri);
-            }
+        try {
+            this.windowService.openNewWindow(uri);
+        } catch (err) {
+            // browser blocked opening of a new tab
+            this.openFactoryLinkDialog.showDialog(uri);
         }
     }
 
@@ -78,39 +79,34 @@ export class CheDevfileMainImpl implements CheDevfileMain {
 
 class OpenFactoryLinkDialog extends AbstractDialog<string> {
 
-    protected readonly windowService: WindowService;
+    protected readonly link: HTMLAnchorElement;
     protected readonly openButton: HTMLButtonElement;
-    protected readonly messageNode: HTMLDivElement;
-    protected readonly linkNode: HTMLAnchorElement;
 
     value: string;
 
-    constructor(windowService: WindowService) {
+    constructor(private readonly windowService: WindowService) {
         super({
             title: 'Your browser prevented opening of a new tab'
         });
 
-        this.windowService = windowService;
+        const message = document.createElement('div');
+        message.innerText = 'URI to create a workspace: ';
+        this.contentNode.appendChild(message);
 
-        this.linkNode = document.createElement('a');
-        this.linkNode.target = '_blank';
-        this.linkNode.setAttribute('style', 'color: var(--theia-ui-dialog-font-color);');
-        this.contentNode.appendChild(this.linkNode);
-
-        const messageNode = document.createElement('div');
-        messageNode.innerText = 'URI to create a workspace: ';
-        messageNode.appendChild(this.linkNode);
-        this.contentNode.appendChild(messageNode);
+        this.link = document.createElement('a');
+        this.link.target = '_blank';
+        this.link.setAttribute('style', 'color: var(--theia-ui-dialog-font-color);');
+        message.appendChild(this.link);
 
         this.appendCloseButton();
         this.openButton = this.appendAcceptButton('Open');
     }
 
-    showOpenNewTabAskDialog(uri: string): void {
+    showDialog(uri: string): void {
         this.value = uri;
 
-        this.linkNode.innerHTML = uri;
-        this.linkNode.href = uri;
+        this.link.innerHTML = uri;
+        this.link.href = uri;
         this.openButton.onclick = () => {
             this.windowService.openNewWindow(uri);
         };
