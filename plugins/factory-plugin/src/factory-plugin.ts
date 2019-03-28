@@ -22,7 +22,6 @@ export async function start(context: theia.PluginContext) {
     }
 
     new Devfile(context).init();
-
     new EphemeralWorkspaceChecker().check();
     await new FactoryInitializer(projectsRoot).run();
     await new WorkspaceProjectsManager(context, projectsRoot).run();
