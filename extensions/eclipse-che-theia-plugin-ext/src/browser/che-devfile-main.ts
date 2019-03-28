@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2018 Red Hat, Inc.
+ * Copyright (c) 2019 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
 
 import { interfaces } from 'inversify';
 import { CheDevfileMain, CheApiService } from '../common/che-protocol';
-import { isNative, AbstractDialog } from '@theia/core/lib/browser';
+import { AbstractDialog } from '@theia/core/lib/browser';
 import { WindowService } from '@theia/core/lib/browser/window/window-service';
 import { MessageService } from '@theia/core';
 
@@ -62,11 +62,6 @@ export class CheDevfileMainImpl implements CheDevfileMain {
      * Opens window with URL to the factory.
      */
     protected async openFactoryWindow(uri: string): Promise<void> {
-        // do nothing for electron browser
-        if (isNative) {
-            return;
-        }
-
         try {
             this.windowService.openNewWindow(uri);
         } catch (err) {
