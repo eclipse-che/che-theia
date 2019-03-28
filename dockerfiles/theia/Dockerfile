@@ -39,7 +39,7 @@ RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
       fi \
     fi
 
-#invalidate cashe
+#invalidate cache
 ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/theia-ide/theia/git/${GIT_REF} /tmp/branch_info.json
 
 # Clone theia
@@ -112,7 +112,7 @@ RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
       fi \
     fi
 
-#invalidate cashe
+#invalidate cache
 ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/eclipse/che-theia/git/refs/heads/${CHE_THEIA_PLUGIN_BRANCH} /tmp/che_theia_branch_info.json
 
 # Clone and build che-theia plugins
