@@ -12,6 +12,7 @@
   ],
   "dependencies": {
     "@theia/core": "next",
+    "nsfw": "^1.2.2",
     "@theia/preferences": "next",
     "@eclipse-che/theia-plugin-ext": "^0.0.1"
   },

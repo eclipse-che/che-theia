@@ -20,7 +20,7 @@ import { injectable, inject } from 'inversify';
 import { readFile, writeFile, ensureDir } from 'fs-extra';
 import { homedir } from 'os';
 import { resolve, dirname } from 'path';
-import * as nsfw from 'vscode-nsfw';
+import * as nsfw from 'nsfw';
 import { CheApiService, Preferences } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
 
 export const THEIA_PREFERENCES_KEY = 'theia-user-preferences';
