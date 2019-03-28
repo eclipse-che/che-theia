@@ -50,9 +50,7 @@ export class CheDevfileMainImpl implements CheDevfileMain {
             const fileDownloadURI = window.location.origin + '/files/?uri=' + devfilePath;
             const factoryURI = `${baseURI}/f?url=${fileDownloadURI}`;
 
-            setTimeout(() => {
-                this.openFactoryWindow(factoryURI);
-            }, 1);
+            this.openFactoryWindow(factoryURI);
 
             resolve();
         });
