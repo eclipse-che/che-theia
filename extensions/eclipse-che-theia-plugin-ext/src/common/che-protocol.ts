@@ -42,6 +42,13 @@ export interface CheFactoryMain {
     $getFactoryById(factoryId: string): Promise<cheApi.factory.Factory>;
 }
 
+export interface CheDevfile {
+}
+
+export interface CheDevfileMain {
+    $createWorkspace(devfilePath: string): Promise<void>;
+}
+
 export interface CheSsh {
 }
 
@@ -343,6 +350,9 @@ export const PLUGIN_RPC_CONTEXT = {
     CHE_FACTORY: <ProxyIdentifier<CheFactory>>createProxyIdentifier<CheFactory>('CheFactory'),
     CHE_FACTORY_MAIN: <ProxyIdentifier<CheFactoryMain>>createProxyIdentifier<CheFactoryMain>('CheFactoryMain'),
 
+    CHE_DEVFILE: <ProxyIdentifier<CheDevfile>>createProxyIdentifier<CheDevfile>('CheDevfile'),
+    CHE_DEVFILE_MAIN: <ProxyIdentifier<CheDevfileMain>>createProxyIdentifier<CheDevfileMain>('CheDevfileMain'),
+
     CHE_VARIABLES: <ProxyIdentifier<CheVariables>>createProxyIdentifier<CheVariables>('CheVariables'),
     CHE_VARIABLES_MAIN: <ProxyIdentifier<CheVariablesMain>>createProxyIdentifier<CheVariablesMain>('CheVariablesMain'),
     CHE_TASK: <ProxyIdentifier<CheTask>>createProxyIdentifier<CheTask>('CheTask'),
@@ -359,8 +369,8 @@ export const CHE_API_SERVICE_PATH = '/che-api-service';
 export const CheApiService = Symbol('CheApiService');
 
 export interface CheApiService {
-
     getCurrentWorkspaceId(): Promise<string>;
+    getCheApiURI(): Promise<string | undefined>;
 
     currentWorkspace(): Promise<cheApi.workspace.Workspace>;
     getWorkspaceById(workspaceId: string): Promise<cheApi.workspace.Workspace>;

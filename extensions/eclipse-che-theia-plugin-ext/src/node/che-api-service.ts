@@ -21,6 +21,10 @@ export class CheApiServiceImpl implements CheApiService {
         return this.getWorkspaceIdFromEnv();
     }
 
+    async getCheApiURI(): Promise<string | undefined> {
+        return process.env.CHE_API_INTERNAL;
+    }
+
     async getUserPreferences(filter?: string): Promise<Preferences> {
         const cheApiClient = await this.getCheApiClient();
         return cheApiClient.getUserPreferences(filter);

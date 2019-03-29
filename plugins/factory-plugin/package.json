@@ -12,7 +12,7 @@
         "@theia/plugin": "next",
         "@theia/plugin-packager": "latest",
         "@eclipse-che/api": "latest",
-        "@eclipse-che/plugin": "latest"
+        "@eclipse-che/plugin": "0.0.1"
     },
     "scripts": {
         "prepare": "yarn clean && yarn build && yarn lint:fix && yarn test",
@@ -53,5 +53,27 @@
             "json"
         ],
         "testURL": "http://localhost/"
+    },
+    "contributes": {
+        "menus": {
+            "editor/context": [
+                {
+                    "command": "factory-plugin.create-workspace",
+                    "when": "resourceFilename =~ /devfile/"
+                }
+            ],
+            "editor/title": [
+                {
+                    "command": "factory-plugin.create-workspace",
+                    "when": "resourceFilename =~ /devfile/"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "command": "factory-plugin.create-workspace",
+                    "when": "resourceFilename =~ /devfile/"
+                }
+            ]
+        }
     }
 }
