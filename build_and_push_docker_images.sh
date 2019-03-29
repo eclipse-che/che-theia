@@ -59,7 +59,7 @@ for image in "${IMAGES_LIST[@]}"
             echo y | docker push ${image}:${THEIA_IMAGE_TAG}
             echo y | docker push ${image}:0.4.0
         elif [ "$image" == "eclipse/che-theia-dev" ]; then 
-            docker tag ${image}:master ${image}:${THEIA_IMAGE_TAG}
+            docker tag ${image}:0.4.0 ${image}:${THEIA_IMAGE_TAG}
             echo y | docker push ${image}:${THEIA_IMAGE_TAG}
             echo y | docker push ${image}:0.4.0
         else
