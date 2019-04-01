@@ -9,4 +9,4 @@ extensions:
     - extensions/che-theia-hosted-plugin-manager-extension
     - extensions/eclipse-che-theia-dashboard
     - extensions/eclipse-che-theia-activity-tracker
-  checkoutTo: master
+  checkoutTo: 0.5.0

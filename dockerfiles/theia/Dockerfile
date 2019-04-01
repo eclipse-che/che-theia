@@ -19,7 +19,7 @@ WORKDIR ${HOME}
 ARG GITHUB_TOKEN
 
 # Define upstream version of theia to use
-ARG THEIA_VERSION=0.4.0
+ARG THEIA_VERSION=0.5.0
 
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
@@ -94,7 +94,7 @@ WORKDIR ${HOME}
 ARG GITHUB_TOKEN
 
 # Define che-theia branch to use for plugins
-ARG CHE_THEIA_PLUGIN_BRANCH=master
+ARG CHE_THEIA_PLUGIN_BRANCH=0.5.0
 
 # Check github limit
 RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
