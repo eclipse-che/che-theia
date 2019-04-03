@@ -85,6 +85,13 @@ async function askRedirect(port: Port, redirectMessage: string, errorMessage: st
 // Callback when a new port is being opened in workspace
 async function onOpenPort(port: Port) {
 
+    // handle ephemeral ports
+    if (port.portNumber >= 32000) {
+        // this port is ephemeral so just print a notice but does not propose a redirect
+        await theia.window.showInformationMessage(`Ephemeral port now listening on port ${port.portNumber} (port range >= 32000). No redirect proposed for ephemerals.`);
+        return;
+    }
+
     // if not listening on 0.0.0.0 then raise a prompt to add a port redirect
     if (port.interfaceListen !== LISTEN_ALL_IPV4 && port.interfaceListen !== LISTEN_ALL_IPV6) {
         const desc = `A new process is now listening on port ${port.portNumber} but is listening on interface ${port.interfaceListen} which is internal.
