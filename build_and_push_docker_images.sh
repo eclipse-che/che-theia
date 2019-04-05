@@ -19,7 +19,7 @@ dockerfiles/theia
 dockerfiles/theia-endpoint-runtime
 dockerfiles/remote-plugin-runner-java8
 dockerfiles/remote-plugin-go-1.10.7
-dockerfiles/remote-plugin-python-3.7.2
+dockerfiles/remote-plugin-python-3.7.3
 dockerfiles/remote-plugin-dotnet-2.2.105
 dockerfiles/remote-plugin-kubernetes-tooling-0.1.17
 dockerfiles/remote-plugin-openshift-connector-0.0.17
@@ -31,7 +31,7 @@ eclipse/che-theia
 eclipse/che-theia-endpoint-runtime
 eclipse/che-remote-plugin-runner-java8
 eclipse/che-remote-plugin-go-1.10.7
-eclipse/che-remote-plugin-python-3.7.2
+eclipse/che-remote-plugin-python-3.7.3
 eclipse/che-remote-plugin-dotnet-2.2.105
 eclipse/che-remote-plugin-kubernetes-tooling-0.1.17
 eclipse/che-remote-plugin-openshift-connector-0.0.17

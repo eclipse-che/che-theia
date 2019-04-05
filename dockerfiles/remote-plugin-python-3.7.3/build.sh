@@ -11,5 +11,5 @@
 base_dir=$(cd "$(dirname "$0")"; pwd)
 . "${base_dir}"/../build.include
 
-init --name:remote-plugin-python-3.7.2 "$@"
+init --name:remote-plugin-python-3.7.3 "$@"
 build
