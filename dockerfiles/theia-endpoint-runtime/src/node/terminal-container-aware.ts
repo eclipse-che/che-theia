@@ -21,7 +21,9 @@ export class TerminalContainerAware {
      * Intercept the original method by adding the CHE_MACHINE_NAME as attribute (if exists)
      */
     overrideTerminal(terminalServiceExt: TerminalServiceExtImpl) {
-        const originalCreateTerminal = terminalServiceExt.createTerminal;
+        // Create copy of the original method 'createTerminal' to save scope 'this' inside method.
+        // tslint:disable-next-line: no-any
+        (terminalServiceExt as any).originalCreateTerminal = terminalServiceExt.createTerminal;
         const createTerminal = (nameOrOptions: theia.TerminalOptions | (string | undefined), shellPath?: string, shellArgs?: string[]) => {
             let options: theia.TerminalOptions;
             if (typeof nameOrOptions === 'object') {
@@ -42,7 +44,9 @@ export class TerminalContainerAware {
                 }
                 options.attributes['CHE_MACHINE_NAME'] = process.env.CHE_MACHINE_NAME;
             }
-            return originalCreateTerminal(options, shellPath, shellArgs);
+
+            // tslint:disable-next-line: no-any
+            return (terminalServiceExt as any).originalCreateTerminal(options, shellPath, shellArgs);
         };
 
         // override terminal
@@ -53,7 +57,7 @@ export class TerminalContainerAware {
         debugExt.doGetTerminalCreationOptions = (debugType: string) => {
             const options: theia.TerminalOptions = {
                 attributes: {
-                    'CHE_MACHINE_NAME' :  process.env.CHE_MACHINE_NAME
+                    'CHE_MACHINE_NAME': process.env.CHE_MACHINE_NAME
                 }
             };
 
