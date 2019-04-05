@@ -10,6 +10,7 @@
 import * as theia from '@theia/plugin';
 import { che as cheApi } from '@eclipse-che/api';
 import * as fileuri from './file-uri';
+import * as git from './git';
 
 const CHE_TASK_TYPE = 'che';
 
@@ -60,7 +61,7 @@ export class TheiaCloneCommand {
                 const branch = this.checkoutBranch ? this.checkoutBranch : 'default branch';
 
                 if (treeish) {
-                    theia.commands.executeCommand('git.reset', repo, '--hard', treeish)
+                    git.execGit(this.folder, 'reset', '--hard', treeish)
                         .then(_ => {
                             theia.window.showInformationMessage(`Project ${this.locationURI} cloned to ${repo}, checked out ${branch} which has been reset to ${treeish}.`);
                         }, e => {
