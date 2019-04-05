@@ -47,8 +47,8 @@ export class ContainersService {
             }
             return Promise.reject('Failed to get workspace configuration');
         }
-        const devMachines = workspace!.config!.environments![workspace!.config!.defaultEnv!].machines || {};
-        const machines = workspace!.runtime && workspace!.runtime!.machines || {};
+        const devMachines = workspace.config!.environments![workspace.config!.defaultEnv!].machines || {};
+        const machines = workspace.runtime && workspace.runtime.machines || {};
         this._containers.length = 0;
         Object.keys(machines).forEach((name: string) => {
             const machine = machines[name];
@@ -61,9 +61,9 @@ export class ContainersService {
                 container.volumes = devMachines[name].volumes;
                 container.env = devMachines[name].env;
             }
-            if (workspace!.config!.commands) {
+            if (workspace.runtime!.commands) {
                 container.commands = [];
-                workspace!.config!.commands.forEach(command => {
+                workspace.runtime.commands.forEach(command => {
                     if (command.attributes && command.attributes.machineName && command.attributes.machineName !== name) {
                         return;
                     }
@@ -73,7 +73,7 @@ export class ContainersService {
             if (machine && machine.servers) {
                 container.servers = {};
                 Object.keys(machine.servers).forEach((serverName: string) => {
-                    const server = machine!.servers![serverName]!;
+                    const server = machine.servers[serverName];
                     if (server && server.url) {
                         container!.servers![serverName] = { url: server!.url };
                     }
