@@ -26,7 +26,9 @@ RUN apk add --no-cache \
     lttng-ust \
     bash \
     mono mono-dev mono-lang --repository=http://dl-4.alpinelinux.org/alpine/edge/testing \
-    musl\>1.1.20 --repository http://dl-cdn.alpinelinux.org/alpine/edge/main
+    \
+    # To run netcoredbg
+    musl\>1.1.20 libc6-compat\>1.1.20 gcompat --repository http://dl-cdn.alpinelinux.org/alpine/v3.9/main
 
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
     LC_ALL=en_US.UTF-8 \
@@ -41,7 +43,9 @@ RUN wget -O dotnet.tar.gz https://dotnetcli.blob.core.windows.net/dotnet/Sdk/$DO
     && mkdir -p /usr/share/dotnet \
     && tar -C /usr/share/dotnet -xzf dotnet.tar.gz \
     && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet \
-    && rm dotnet.tar.gz
+    && rm dotnet.tar.gz \
+    && mkdir ${HOME}/.dotnet && chmod -R 777 ${HOME}/.dotnet \
+    && mkdir /usr/share/dotnet/sdk/NuGetFallbackFolder && chmod 777 /usr/share/dotnet/sdk/NuGetFallbackFolder
 
 ENV MSBuildSDKsPath=/usr/share/dotnet/sdk/$DOTNET_SDK_VERSION/Sdks \
     PATH=$MSBuildSDKsPath:$PATH
