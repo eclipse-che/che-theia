@@ -12,6 +12,11 @@ import * as theia from '@theia/plugin';
 import * as path from 'path';
 import { WelcomePage } from './welcome-page';
 
+export namespace Settings {
+    export const CHE_CONFIGURATION = 'che';
+    export const SHOW_WELCOME_PAGE = 'welcome.plugin.show.welcome.page';
+}
+
 async function getHtmlForWebview(context: theia.PluginContext): Promise<string> {
 
     // Local path to main script run in the webview
@@ -115,7 +120,16 @@ export async function addPanel(context: theia.PluginContext): Promise<void> {
 }
 
 export function start(context: theia.PluginContext): void {
-    setTimeout(async () => doStart(context), 1000);
+    let showWelcomePage = true;
+
+    const configuration = theia.workspace.getConfiguration(Settings.CHE_CONFIGURATION);
+    if (configuration) {
+        showWelcomePage = configuration.get(Settings.SHOW_WELCOME_PAGE);
+    }
+
+    if (showWelcomePage) {
+        setTimeout(async () => doStart(context), 1000);
+    }
 }
 
 export function stop() {

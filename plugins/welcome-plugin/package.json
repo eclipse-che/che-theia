@@ -11,6 +11,19 @@
     "src",
     "resources"
   ],
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Welcome plugin configuration",
+      "properties": {
+        "che.welcome.plugin.show.welcome.page": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show/hide welcome page on page reload."
+        }
+      }
+    }
+  },
   "dependencies": {
     "@fortawesome/fontawesome-free": "5.6.3"
   },
