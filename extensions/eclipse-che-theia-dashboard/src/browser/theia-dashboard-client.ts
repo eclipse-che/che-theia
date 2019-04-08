@@ -26,9 +26,11 @@ export class TheiaDashboardClient implements FrontendApplicationContribution {
 
     private isExpanded: boolean = false;
 
-    constructor(@inject(EnvVariablesServer) private readonly envVariablesServer: EnvVariablesServer,
+    constructor(
+        @inject(EnvVariablesServer) private readonly envVariablesServer: EnvVariablesServer,
         @inject(CheWorkspaceClientService) private readonly cheWorkspaceClient: CheWorkspaceClientService,
-        @inject(FrontendApplicationStateService) protected readonly frontendApplicationStateService: FrontendApplicationStateService) {
+        @inject(FrontendApplicationStateService) protected readonly frontendApplicationStateService: FrontendApplicationStateService,
+    ) {
         this.frontendApplicationStateService.reachedState('ready').then(() => this.onReady());
     }
 
@@ -47,31 +49,30 @@ export class TheiaDashboardClient implements FrontendApplicationContribution {
         dashboardEl.className = 'che-dashboard';
         const arrowEl: HTMLElement = document.createElement(isInFrame ? 'i' : 'a');
         arrowEl.className = 'fa fa-chevron-left';
-        dashboardEl.appendChild(arrowEl);
         logoEl!.parentElement!.replaceChild(dashboardEl, logoEl!);
 
-        if (!isInFrame) {
+        if (isInFrame) {
+            arrowEl.setAttribute('title', 'Hide navigation bar');
+            arrowEl.addEventListener('click', () => {
+                this.isExpanded = !this.isExpanded;
+                window.parent.postMessage(this.isExpanded ? 'hide-navbar' : 'show-navbar', '*');
+                arrowEl.className = `fa fa-chevron-${this.isExpanded ? 'right' : 'left'}`;
+                arrowEl.title = `${this.isExpanded ? 'Show' : 'Hide'} navigation bar`;
+            });
+        } else {
             arrowEl.setAttribute('target', '_blank');
-            const href = await this.getDashboardWorkspaceUrl();
+            const href = await this.getDashboardIdeUrl();
             if (href === undefined) {
                 return;
             }
             arrowEl.setAttribute('href', href!);
             arrowEl.title = 'Open with navigation bar';
-
-            return;
         }
 
-        arrowEl.setAttribute('title', 'Hide navigation bar');
-        arrowEl.addEventListener('click', () => {
-            this.isExpanded = !this.isExpanded;
-            window.parent.postMessage(this.isExpanded ? 'hide-navbar' : 'show-navbar', '*');
-            arrowEl.className = `fa fa-chevron-${this.isExpanded ? 'right' : 'left'}`;
-            arrowEl.title = `${this.isExpanded ? 'Show' : 'Hide'} navigation bar`;
-        });
+        dashboardEl.appendChild(arrowEl);
     }
 
-    async getDashboardWorkspaceUrl(): Promise<string | undefined> {
+    async getIdeUrl(): Promise<string | undefined> {
         const envVariables: EnvVariable[] = await this.envVariablesServer.getVariables();
         if (!envVariables) {
             return undefined;
@@ -87,12 +88,26 @@ export class TheiaDashboardClient implements FrontendApplicationContribution {
         const remoteApi = await this.cheWorkspaceClient.restClient();
         const workspace: che.workspace.Workspace = await remoteApi.getById<che.workspace.Workspace>(workspaceId);
 
-        if (!workspace || !workspace.links || !workspace.links.ide) {
-            return undefined;
+        if (workspace && workspace.links && workspace.links.ide) {
+            return workspace.links.ide;
         }
-        const ideWorkspaceUrl = workspace!.links!.ide!;
+    }
 
-        return ideWorkspaceUrl.replace(/^https?:\/\/[^\/]+/, match => `${match}/dashboard/#/ide`);
+    async getDashboardIdeUrl(): Promise<string | undefined> {
+        const url = await this.getIdeUrl();
+        if (!url) {
+            return;
+        }
+        return url.replace(/^https?:\/\/[^\/]+/, match => `${match}/dashboard/#/ide`);
+    }
+
+    async openDashboardWorkspacePage(): Promise<void> {
+        const url = await this.getIdeUrl();
+        if (!url) {
+            return;
+        }
+        const workspacePageUrl = url.replace(/^https?:\/\/[^\/]+/, match => `${match}/dashboard/#/workspace`);
+        window.location.href = workspacePageUrl + '?tab=Share';
     }
 
 }
