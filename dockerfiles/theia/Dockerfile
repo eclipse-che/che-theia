@@ -19,7 +19,7 @@ WORKDIR ${HOME}
 ARG GITHUB_TOKEN
 
 # Define upstream version of theia to use
-ARG THEIA_VERSION=0.4.0
+ARG THEIA_VERSION=0.5.0
 
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
@@ -129,7 +129,7 @@ RUN mkdir -p ${HOME}/che-theia-plugins/ && \
 # Runtime Image
 #
 # Use node image
-FROM node:8.15.0-alpine as runtime
+FROM node:10.2.1-alpine as runtime
 ENV USE_LOCAL_GIT=true \
     HOME=/home/theia \
     THEIA_DEFAULT_PLUGINS=local-dir:///default-theia-plugins \
@@ -147,7 +147,7 @@ COPY --from=plugins-builder /home/theia-dev/che-theia-plugins /default-theia-plu
 # Install which tool in order to search git
 # Install curl and bash
 RUN apk add --update --no-cache sudo git bzip2 which bash curl
-RUN adduser --disabled-password -S -u 1001 -G root -h ${HOME} -s /bin/sh theia \
+RUN adduser -D -S -u 1001 -G root -h ${HOME} -s /bin/sh theia \
     && echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
     # Create /projects for Che
     && mkdir /projects \

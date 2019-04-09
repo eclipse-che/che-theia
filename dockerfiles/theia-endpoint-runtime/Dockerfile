@@ -50,7 +50,7 @@ COPY /tsconfig.json /home/workspace/packages/theia-plugin/tsconfig.json
 COPY /etc/package.json /home/workspace
 RUN cd /home/workspace/ && yarn install
 
-FROM node:8.15.0-alpine
+FROM node:10.2.1-alpine
 ENV HOME=/home/theia
 COPY --from=builder /home/workspace/node_modules /home/theia/node_modules
 RUN rm -rf /home/theia/node_modules/@eclipse-che/theia-plugin-ext /home/theia/node_modules/@eclipse-che/theia-remote
