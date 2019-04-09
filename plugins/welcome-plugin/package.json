@@ -16,10 +16,10 @@
       "type": "object",
       "title": "Welcome plugin configuration",
       "properties": {
-        "che.welcome.plugin.show.welcome.page": {
+        "che.welcome.plugin.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Show/hide welcome page on page reload."
+          "description": "Enable/disable welcome plugin."
         }
       }
     }

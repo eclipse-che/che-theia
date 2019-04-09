@@ -14,7 +14,7 @@ import { WelcomePage } from './welcome-page';
 
 export namespace Settings {
     export const CHE_CONFIGURATION = 'che';
-    export const SHOW_WELCOME_PAGE = 'welcome.plugin.show.welcome.page';
+    export const SHOW_WELCOME_PAGE = 'welcome.plugin.enable';
 }
 
 async function getHtmlForWebview(context: theia.PluginContext): Promise<string> {
