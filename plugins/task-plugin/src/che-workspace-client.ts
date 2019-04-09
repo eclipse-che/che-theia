@@ -32,14 +32,14 @@ export class CheWorkspaceClient {
     }
 
     async getCommands(): Promise<cheApi.workspace.Command[]> {
-        const workspace = await this.getCurrentWorkspace();
+        const workspace: cheApi.workspace.Workspace = await this.getCurrentWorkspace();
 
-        const config = workspace.config;
-        if (!config) {
+        const runtime: cheApi.workspace.Runtime = workspace.runtime;
+        if (!runtime) {
             return [];
         }
 
-        const commands = config.commands;
+        const commands = runtime.commands;
         return commands ? commands : [];
     }
 
