@@ -10,7 +10,7 @@
 
 import { injectable, inject } from 'inversify';
 import { QuickOpenModel, QuickOpenItem, QuickOpenHandler, QuickOpenService } from '@theia/core/lib/browser/quick-open/';
-import { QuickOpenMode, QuickOpenOptions, WidgetManager, ApplicationShell, KeybindingRegistry, Keybinding } from '@theia/core/lib/browser';
+import { QuickOpenMode, QuickOpenOptions, WidgetManager, ApplicationShell, KeybindingRegistry } from '@theia/core/lib/browser';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { REMOTE_TERMINAL_WIDGET_FACTORY_ID, RemoteTerminalWidgetFactoryOptions } from '../terminal-widget/remote-terminal-widget';
 import { CHEWorkspaceService } from '../../common/workspace-service';
@@ -102,7 +102,7 @@ export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenMode
     protected getShortCutCommand(): string | undefined {
         const keyCommand = this.keybindingRegistry.getKeybindingsForCommand(this.terminalInSpecificContainerCommandId);
         if (keyCommand) {
-            const accel = Keybinding.acceleratorFor(keyCommand[0], '+');
+            const accel = this.keybindingRegistry.acceleratorFor(keyCommand[0], '+');
             return accel.join(' ');
         }
 

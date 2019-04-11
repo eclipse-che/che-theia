@@ -177,9 +177,10 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     private registerRangeKeyBindings(registry: KeybindingRegistry, keyModifiers: KeyModifier[], startKey: Key, offSet: number, codePrefix: string) {
         for (let i = 0; i < offSet + 1; i++) {
             const keyCode = startKey.keyCode + i;
-            const key = {
+            const key: Key = {
                 keyCode: keyCode,
-                code: codePrefix + String.fromCharCode(keyCode)
+                code: codePrefix + String.fromCharCode(keyCode),
+                easyString: String.fromCharCode(keyCode)
             };
             this.registerKeyBinding(registry, keyModifiers, key);
         }
