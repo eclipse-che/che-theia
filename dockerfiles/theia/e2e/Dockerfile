@@ -12,7 +12,9 @@ FROM cypress/browsers:chrome67
 USER root
 ENV HOME=/root
 ENV NOCDN=true
-
+RUN apk add --update --no-cache \
+    # some lib to compile 'native-keymap' npm mpdule
+    libx11-dev libxkbfile-dev
 CMD /root/docker-run.sh
 RUN yarn global add typescript@2.9.2 node-gyp
 
