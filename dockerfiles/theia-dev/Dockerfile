@@ -25,7 +25,9 @@ RUN apk add --update --no-cache \
     # Handle git diff properly
     less \
     # bash shell
-    bash
+    bash \
+    # some lib to compile 'native-keymap' npm mpdule
+    libx11-dev libxkbfile-dev
 
 # Add npm global bin directory to the path
 ENV HOME=/home/theia-dev \
