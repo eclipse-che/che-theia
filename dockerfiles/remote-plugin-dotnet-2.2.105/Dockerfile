@@ -10,7 +10,7 @@
 
 FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG}
 
-RUN apk add --no-cache \
+RUN apk add --update --no-cache \
     ca-certificates \
     \
     # .NET Core dependencies
