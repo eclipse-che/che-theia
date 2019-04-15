@@ -25,3 +25,12 @@ Then in `dockerfiles/theia` run:
 Where `${GITHUB_TOKEN_ARG}` is your GitHub API token, it's used for fetching some vscode library that placed on GitHub releases, without that token build may fail.
 
 That script will clone Theia from master branch and all Che related extensions from theirs master branches.
+
+Once the docker builds have completed, run the `che-theia` docker container:
+```bash
+docker run -it -p 3100:3100 -v "${THEIA_WORKSPACE}:/projects" eclipse/che-theia:next
+```
+
+where $THEIA_WORKSPACE is the directory you wish to be the root of your Theia workspace.
+
+You can then access che-theia at `http://localhost:3100`.
