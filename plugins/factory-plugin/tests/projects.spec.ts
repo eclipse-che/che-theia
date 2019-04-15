@@ -36,7 +36,8 @@ describe("Testing projects updater when file is triggered", () => {
                     "location": "https://github.com/eclipse/che-theia-factory-extension.git",
                     "type": "git",
                     "parameters": {
-                        "branch": "master"
+                        "branch": "master",
+                        "tag": "v42.0"
                     }
                 },
                 "path": "/che-theia-factory-extension",
@@ -52,6 +53,7 @@ describe("Testing projects updater when file is triggered", () => {
         projecthelper.updateOrCreateGitProject(projects, '/che-theia-factory-extension', 'https://github.com/sunix/che-theia-factory-extension.git', 'wip-sunix');
         expect(projects[1].source.location).toBe("https://github.com/sunix/che-theia-factory-extension.git");
         expect(projects[1].source.parameters['branch']).toBe("wip-sunix");
+        expect(projects[1].source.parameters['tag']).toBe(undefined);
 
         projecthelper.updateOrCreateGitProject(projects, '/che/che-theia-factory-extension', 'https://github.com/sunix/che-theia-factory-extension.git', 'wip-theia');
         expect(projects[2].source.location).toBe("https://github.com/sunix/che-theia-factory-extension.git");

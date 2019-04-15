@@ -11,7 +11,7 @@
 FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG}
 
 RUN set -eux; \
-	apk add --no-cache --virtual .build-deps \
+	apk add --update --no-cache  --virtual .build-deps \
 		bash \
 		gcc \
 		musl-dev \

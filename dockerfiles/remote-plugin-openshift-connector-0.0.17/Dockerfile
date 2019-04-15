@@ -17,7 +17,7 @@ ENV OC_TAG 0cbc58b
 # install glibc compatibility layer package for Alpine Linux
 # see https://github.com/openshift/origin/issues/18942 for the details
 RUN wget -O glibc-${GLIBC_VERSION}.apk https://github.com/andyshinn/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk && \
-    apk --allow-untrusted add glibc-${GLIBC_VERSION}.apk && \
+    apk --update --allow-untrusted add glibc-${GLIBC_VERSION}.apk && \
     rm -f glibc-${GLIBC_VERSION}.apk && \
     # install ODO
     wget -O /usr/local/bin/odo https://github.com/redhat-developer/odo/releases/download/v0.0.19/odo-linux-amd64 && \

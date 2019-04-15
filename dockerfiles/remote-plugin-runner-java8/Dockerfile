@@ -9,6 +9,6 @@
 #   Red Hat, Inc. - initial API and implementation
 
 FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG}
-RUN apk --no-cache add openjdk8 procps nss
+RUN apk --update --no-cache add openjdk8 procps nss
 ENV JAVA_HOME /usr/lib/jvm/default-jvm/
 WORKDIR /projects

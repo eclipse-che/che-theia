@@ -10,7 +10,7 @@
 
 FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG}
 
-RUN apk add --no-cache \
+RUN apk add --update --no-cache \
     ca-certificates \
     \
     # .NET Core dependencies
@@ -24,9 +24,8 @@ RUN apk add --no-cache \
     userspace-rcu \
     zlib \
     lttng-ust \
-    bash \
-    mono mono-dev mono-lang --repository=http://dl-4.alpinelinux.org/alpine/edge/testing \
-    musl\>1.1.20 --repository http://dl-cdn.alpinelinux.org/alpine/edge/main
+    bash
+RUN apk add --no-cache  mono mono-dev mono-lang --repository=http://dl-4.alpinelinux.org/alpine/edge/testing
 
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
     LC_ALL=en_US.UTF-8 \
@@ -35,7 +34,7 @@ ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
 # Install .NET Core SDK
 ENV DOTNET_SDK_VERSION 2.2.105
 
-RUN wget -O dotnet.tar.gz https://dotnetcli.blob.core.windows.net/dotnet/Sdk/$DOTNET_SDK_VERSION/dotnet-sdk-$DOTNET_SDK_VERSION-linux-musl-x64.tar.gz \
+RUN wget -O dotnet.tar.gz https://dotnetcli.azureedge.net/dotnet/Sdk/$DOTNET_SDK_VERSION/dotnet-sdk-$DOTNET_SDK_VERSION-linux-musl-x64.tar.gz \
     && dotnet_sha512='04045f20440fca38bc517cf6ae1c6bea48e773629ada8b86f3ce0394784b1372a180aa829fa2bcc5abc184a0e41babe7c5ff0ef376c2b89aad271a0cfb3d75e4' \
     && echo "$dotnet_sha512  dotnet.tar.gz" | sha512sum -c - \
     && mkdir -p /usr/share/dotnet \

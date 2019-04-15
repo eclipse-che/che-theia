@@ -25,7 +25,7 @@ ENV GPG_KEY 0D96DF4D4110E5C43FBFB17F2D347EA6AA65421D
 ENV PYTHON_VERSION 3.7.3
 
 RUN set -ex \
-	&& apk add --no-cache --virtual .fetch-deps \
+	&& apk add --update --no-cache --virtual .fetch-deps \
 		gnupg \
 		tar \
 		xz \
@@ -41,7 +41,7 @@ RUN set -ex \
 	&& tar -xJC /usr/src/python --strip-components=1 -f python.tar.xz \
 	&& rm python.tar.xz \
 	\
-	&& apk add --no-cache --virtual .build-deps  \
+	&& apk add --update --no-cache --virtual .build-deps  \
 		bzip2-dev \
 		coreutils \
 		dpkg-dev dpkg \
