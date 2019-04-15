@@ -149,7 +149,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         if (serverUrl) {
             registry.registerKeybinding({
                 command: NewTerminalInSpecificContainer.id,
-                keybinding: 'ctrl+`'
+                keybinding: 'ctrlcmd+`'
             });
             this.registerTerminalKeybindings(registry);
         } else {
