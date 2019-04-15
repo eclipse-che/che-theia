@@ -25,7 +25,8 @@ RUN apk add --update --no-cache \
     zlib \
     lttng-ust \
     bash
-RUN apk add --no-cache  mono mono-dev mono-lang --repository=http://dl-4.alpinelinux.org/alpine/edge/testing
+RUN apk add --no-cache  mono mono-dev mono-lang --repository=http://dl-4.alpinelinux.org/alpine/edge/testing \
+    musl\>1.1.20 --repository http://dl-cdn.alpinelinux.org/alpine/edge/main
 
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
     LC_ALL=en_US.UTF-8 \
