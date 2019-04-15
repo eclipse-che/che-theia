@@ -16,7 +16,7 @@
       "type": "object",
       "title": "Welcome plugin configuration",
       "properties": {
-        "che.welcome.plugin.enable": {
+        "che.welcome.enable": {
           "type": "boolean",
           "default": true,
           "description": "Enable/disable welcome plugin."
