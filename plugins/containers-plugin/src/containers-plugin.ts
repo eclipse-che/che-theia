@@ -19,7 +19,7 @@ export function start(context: theia.PluginContext) {
     });
     context.subscriptions.push(treeDataDisposableFn);
 
-    theia.window.createTreeView('containers', { treeDataProvider });
+    theia.window.createTreeView('workspace', { treeDataProvider });
 
     const containersService = new ContainersService();
     containersService.updateContainers().then(() => {

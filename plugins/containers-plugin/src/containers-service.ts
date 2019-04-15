@@ -75,7 +75,7 @@ export class ContainersService {
                 Object.keys(machine.servers).forEach((serverName: string) => {
                     const server = machine.servers[serverName];
                     if (server && server.url) {
-                        container!.servers![serverName] = { url: server!.url };
+                        container.servers[serverName] = { url: server.url };
                     }
                 });
             }

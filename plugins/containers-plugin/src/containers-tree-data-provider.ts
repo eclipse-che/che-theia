@@ -42,9 +42,15 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
     updateContainersTreeData(containers: IContainer[]): void {
         this.ids.length = 0;
         this.treeNodeItems.length = 0;
-        const pluginsDir = {
+        const runtimesGroup = {
             id: this.getRandId(),
-            name: 'plugins',
+            name: 'User Runtimes',
+            tooltip: 'user defined containers',
+            isExpanded: true
+        };
+        const pluginsGroup = {
+            id: this.getRandId(),
+            name: 'Plugins',
             tooltip: 'che-plugin containers',
             isExpanded: false
         };
@@ -75,10 +81,11 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
             }
             if (container.isDev) {
                 treeItem.tooltip = 'dev ' + treeItem.tooltip;
+                treeItem.parentId = runtimesGroup.id;
             } else {
                 hasPlugin = true;
                 treeItem.tooltip = 'che-plugin ' + treeItem.tooltip;
-                treeItem.parentId = pluginsDir.id;
+                treeItem.parentId = pluginsGroup.id;
             }
             this.treeNodeItems.push(treeItem);
             this.treeNodeItems.push({
@@ -197,9 +204,12 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                 });
             }
         });
+
+        this.treeNodeItems.push(runtimesGroup);
         if (hasPlugin) {
-            this.treeNodeItems.push(pluginsDir);
+            this.treeNodeItems.push(pluginsGroup);
         }
+
         this.onDidChangeTreeDataEmitter.fire();
     }
 
