@@ -129,7 +129,7 @@ RUN mkdir -p ${HOME}/che-theia-plugins/ && \
 # Runtime Image
 #
 # Use node image
-FROM node:10.2.1-alpine as runtime
+FROM node:10.15-alpine as runtime
 ENV USE_LOCAL_GIT=true \
     HOME=/home/theia \
     THEIA_DEFAULT_PLUGINS=local-dir:///default-theia-plugins \
