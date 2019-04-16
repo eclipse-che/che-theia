@@ -55,6 +55,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
             isExpanded: false
         };
         let hasPlugin = false;
+        let hasRuntimeContainers = false;
 
         containers.forEach((container: IContainer) => {
             const treeItem: ITreeNodeItem = {
@@ -80,6 +81,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                     treeItem.iconPath = 'fa-circle-o';
             }
             if (container.isDev) {
+                hasRuntimeContainers = true;
                 treeItem.tooltip = 'dev ' + treeItem.tooltip;
                 treeItem.parentId = runtimesGroup.id;
             } else {
@@ -205,10 +207,25 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
             }
         });
 
-        this.treeNodeItems.push(runtimesGroup);
-        if (hasPlugin) {
-            this.treeNodeItems.push(pluginsGroup);
+        if (!hasRuntimeContainers) {
+            this.treeNodeItems.push({
+                id: this.getRandId(),
+                parentId: runtimesGroup.id,
+                name: 'No runtime containers',
+                tooltip: 'No runtime containers are specified in workspace configuration'
+            });
         }
+        this.treeNodeItems.push(runtimesGroup);
+
+        if (!hasPlugin) {
+            this.treeNodeItems.push({
+                id: this.getRandId(),
+                parentId: pluginsGroup.id,
+                name: 'No plugins defined',
+                tooltip: 'No plugins are specified in workspace configuration'
+            });
+        }
+        this.treeNodeItems.push(pluginsGroup);
 
         this.onDidChangeTreeDataEmitter.fire();
     }
