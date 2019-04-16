@@ -53,23 +53,29 @@ export class TheiaDashboardClient implements FrontendApplicationContribution {
 
         if (isInFrame) {
             arrowEl.setAttribute('title', 'Hide navigation bar');
-            arrowEl.addEventListener('click', () => {
-                this.isExpanded = !this.isExpanded;
-                window.parent.postMessage(this.isExpanded ? 'hide-navbar' : 'show-navbar', '*');
-                arrowEl.className = `fa fa-chevron-${this.isExpanded ? 'right' : 'left'}`;
-                arrowEl.title = `${this.isExpanded ? 'Show' : 'Hide'} navigation bar`;
-            });
+            arrowEl.addEventListener('click', () => this.expandIde(arrowEl));
+            this.expandIde(arrowEl);
         } else {
+            this.isExpanded = true;
+
             arrowEl.setAttribute('target', '_blank');
             const href = await this.getDashboardIdeUrl();
             if (href === undefined) {
                 return;
             }
-            arrowEl.setAttribute('href', href!);
+            arrowEl.setAttribute('href', href);
+            arrowEl.className = `fa fa-chevron-${this.isExpanded ? 'right' : 'left'}`;
             arrowEl.title = 'Open with navigation bar';
         }
 
         dashboardEl.appendChild(arrowEl);
+    }
+
+    private expandIde(arrowEl: HTMLElement): void {
+        this.isExpanded = !this.isExpanded;
+        window.parent.postMessage(this.isExpanded ? 'hide-navbar' : 'show-navbar', '*');
+        arrowEl.className = `fa fa-chevron-${this.isExpanded ? 'right' : 'left'}`;
+        arrowEl.title = `${this.isExpanded ? 'Show' : 'Hide'} navigation bar`;
     }
 
     async getIdeUrl(): Promise<string | undefined> {
