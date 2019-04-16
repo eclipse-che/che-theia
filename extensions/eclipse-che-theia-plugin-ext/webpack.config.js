@@ -15,6 +15,12 @@ module.exports = {
     entry: './src/plugin/webworker/che-api-worker-provider.ts',
     devtool: 'source-map',
     mode: 'production',
+    node:{
+        fs: 'empty',
+        child_process: 'empty',
+        net: 'empty',
+        crypto: 'empty'
+    },
     module: {
         rules: [
             {
