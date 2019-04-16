@@ -15,11 +15,8 @@ RUN apk add --update --no-cache \
     \
     # .NET Core dependencies
     krb5-libs \
-    libgcc \
     libintl \
     icu-libs \
-    libssl1.0 \
-    libstdc++ \
     tzdata \
     userspace-rcu \
     zlib \
