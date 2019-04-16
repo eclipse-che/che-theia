@@ -42,13 +42,20 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
     updateContainersTreeData(containers: IContainer[]): void {
         this.ids.length = 0;
         this.treeNodeItems.length = 0;
-        const pluginsDir = {
+        const runtimesGroup = {
             id: this.getRandId(),
-            name: 'plugins',
+            name: 'User Runtimes',
+            tooltip: 'user defined containers',
+            isExpanded: true
+        };
+        const pluginsGroup = {
+            id: this.getRandId(),
+            name: 'Plugins',
             tooltip: 'che-plugin containers',
             isExpanded: false
         };
         let hasPlugin = false;
+        let hasRuntimeContainers = false;
 
         containers.forEach((container: IContainer) => {
             const treeItem: ITreeNodeItem = {
@@ -74,11 +81,13 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                     treeItem.iconPath = 'fa-circle-o';
             }
             if (container.isDev) {
+                hasRuntimeContainers = true;
                 treeItem.tooltip = 'dev ' + treeItem.tooltip;
+                treeItem.parentId = runtimesGroup.id;
             } else {
                 hasPlugin = true;
                 treeItem.tooltip = 'che-plugin ' + treeItem.tooltip;
-                treeItem.parentId = pluginsDir.id;
+                treeItem.parentId = pluginsGroup.id;
             }
             this.treeNodeItems.push(treeItem);
             this.treeNodeItems.push({
@@ -197,9 +206,27 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                 });
             }
         });
-        if (hasPlugin) {
-            this.treeNodeItems.push(pluginsDir);
+
+        if (!hasRuntimeContainers) {
+            this.treeNodeItems.push({
+                id: this.getRandId(),
+                parentId: runtimesGroup.id,
+                name: 'No runtime containers',
+                tooltip: 'No runtime containers are specified in workspace configuration'
+            });
         }
+        this.treeNodeItems.push(runtimesGroup);
+
+        if (!hasPlugin) {
+            this.treeNodeItems.push({
+                id: this.getRandId(),
+                parentId: pluginsGroup.id,
+                name: 'No plugins defined',
+                tooltip: 'No plugins are specified in workspace configuration'
+            });
+        }
+        this.treeNodeItems.push(pluginsGroup);
+
         this.onDidChangeTreeDataEmitter.fire();
     }
 
