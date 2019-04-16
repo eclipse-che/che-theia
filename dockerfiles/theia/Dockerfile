@@ -64,13 +64,11 @@ WORKDIR ${HOME}/theia-source-code
 
 COPY che-theia/extensions.yml ${HOME}/extensions.yml
 
-#RUN che:theia init -c ${HOME}/extensions.yml
-RUN if [ ${THEIA_VERSION} == "master" ]; then \
-        echo "Working in dev mode"; \
-        (che:theia init -c ${HOME}/extensions.yml); \
-    else \
-        (che:theia init -c ${HOME}/extensions.yml);\
-    fi
+#invalidate cache for che-theia extensions
+ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/eclipse/che-theia/git/${GIT_REF} /tmp/this_branch_info.json
+
+RUN che:theia init -c ${HOME}/extensions.yml
+
 RUN che:theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 
 # Compile Theia
