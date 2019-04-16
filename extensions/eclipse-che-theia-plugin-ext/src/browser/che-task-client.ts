@@ -15,22 +15,27 @@ import { TaskConfiguration, TaskInfo } from '@eclipse-che/plugin';
 @injectable()
 export class CheTaskClientImpl implements CheTaskClient {
     private readonly onKillEventEmitter: Emitter<number>;
-    private taskInfoHandler: ((id: number) => Promise<TaskInfo>) | undefined;
-    private runTaskHandler: ((id: number, config: TaskConfiguration, ctx?: string) => Promise<void>) | undefined;
+    private taskInfoHandlers: ((id: number) => Promise<TaskInfo>)[] = [];
+    private runTaskHandlers: ((id: number, config: TaskConfiguration, ctx?: string) => Promise<void>)[] = [];
     constructor() {
         this.onKillEventEmitter = new Emitter<number>();
     }
 
     async runTask(id: number, taskConfig: TaskConfiguration, ctx?: string): Promise<void> {
-        if (this.runTaskHandler) {
-            return await this.runTaskHandler(id, taskConfig, ctx);
+        for (const runTaskHandler of this.runTaskHandlers) {
+            await runTaskHandler(id, taskConfig, ctx);
         }
+        return undefined;
     }
 
     async getTaskInfo(id: number): Promise<TaskInfo | undefined> {
-        if (this.taskInfoHandler) {
-            return await this.taskInfoHandler(id);
+        for (const taskInfoHandler of this.taskInfoHandlers) {
+            const taskInfo = await taskInfoHandler(id);
+            if (taskInfo) {
+                return taskInfo;
+            }
         }
+        return undefined;
     }
 
     get onKillEvent(): Event<number> {
@@ -42,10 +47,10 @@ export class CheTaskClientImpl implements CheTaskClient {
     }
 
     setTaskInfoHandler(handler: (id: number) => Promise<TaskInfo>) {
-        this.taskInfoHandler = handler;
+        this.taskInfoHandlers.push(handler);
     }
 
     setRunTaskHandler(handler: (id: number, config: TaskConfiguration, ctx?: string) => Promise<void>) {
-        this.runTaskHandler = handler;
+        this.runTaskHandlers.push(handler);
     }
 }
