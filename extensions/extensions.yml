@@ -9,6 +9,7 @@ extensions:
     - extensions/che-theia-hosted-plugin-manager-extension
     - extensions/eclipse-che-theia-dashboard
     - extensions/eclipse-che-theia-activity-tracker
+    - extensions/eclipse-che-theia-about
   extensionFolders:
     - dockerfiles/theia-endpoint-runtime
     - extensions/eclipse-che-theia-plugin
@@ -18,6 +19,7 @@ extensions:
     - extensions/che-theia-hosted-plugin-manager-extension
     - extensions/eclipse-che-theia-dashboard
     - extensions/eclipse-che-theia-activity-tracker
+    - extensions/eclipse-che-theia-about
   pluginFolders:
     - plugins/containers-plugin
     - plugins/factory-plugin

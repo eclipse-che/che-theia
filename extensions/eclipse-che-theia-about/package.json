@@ -1,0 +1,37 @@
+{
+  "name": "@eclipse-che/theia-about",
+  "keywords": [
+    "theia-extension"
+  ],
+  "version": "0.0.1",
+  "description": "Eclipse Che - Theia About menu",
+  "dependencies": {
+    "@theia/core": "next"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "theiaExtensions": [
+    {
+      "frontend": "lib/browser/about-frontend-module"
+    }
+  ],
+  "license": "EPL-2.0",
+  "files": [
+    "lib",
+    "src",
+    "scripts",
+    "conf"
+  ],
+  "scripts": {
+    "setup-build-details": "node ./scripts/generate-about-details.js",
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
+    "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
+    "compile": "yarn run setup-build-details && tsc",
+    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
+    "watch": "tsc -w",
+    "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
+  }
+}
