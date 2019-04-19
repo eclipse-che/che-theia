@@ -8,47 +8,88 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG}
+FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG} as endpoint
+FROM node:10.15-stretch-slim
 
-RUN apk add --update --no-cache \
-    ca-certificates \
-    \
-    # .NET Core dependencies
-    krb5-libs \
-    libintl \
-    icu-libs \
-    tzdata \
-    userspace-rcu \
-    zlib \
-    lttng-ust \
-    bash
-RUN apk add --no-cache  mono mono-dev mono-lang --repository=http://dl-4.alpinelinux.org/alpine/edge/testing \
-    musl\>1.1.20 --repository http://dl-cdn.alpinelinux.org/alpine/edge/main
+RUN apt-get update && apt-get install -y --no-install-recommends \
+		ca-certificates \
+		curl \
+		bash \
+		netbase \
+		wget \
+	&&	set -ex; \
+        if ! command -v gpg > /dev/null; then \
+        		apt-get install -y --no-install-recommends \
+        			gnupg \
+        			dirmngr \
+        		; \
+        		rm -rf /var/lib/apt/lists/*; \
+        fi \
 
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
-    LC_ALL=en_US.UTF-8 \
-    LANG=en_US.UTF-8
+    # procps is very common in build systems, and is a reasonably small package
+
+    &&  apt-get install -y --no-install-recommends \
+        		bzr \
+        		git \
+        		mercurial \
+        		openssh-client \
+        		subversion \
+        		\
+        		procps \
+
+    # Install .NET CLI dependencies
+
+    &&  apt-get install -y --no-install-recommends \
+                make \
+                g++ \
+                libc6 \
+                libgcc1 \
+                libgssapi-krb5-2 \
+                libicu57 \
+                liblttng-ust0 \
+                libssl1.0.2 \
+                libstdc++6 \
+                zlib1g \
+    &&  rm -rf /var/lib/apt/lists/* \
+
+    # Install typescript@2.9.2 and node-gyp
+
+    &&  yarn global add typescript@2.9.2 node-gyp
+
+ENV HOME=/home/theia
+COPY --from=endpoint /home/theia /home/theia
+COPY --from=endpoint /projects /projects
+COPY --from=endpoint /etc/passwd  /etc/passwd
+COPY --from=endpoint /etc/group   /etc/group
+COPY --from=endpoint /entrypoint.sh /entrypoint.sh
+
+RUN find /home/theia/ -name "binding.gyp" |  xargs -i sh -c 'cd $(dirname {}) && node-gyp rebuild' \
+    && sed -i 's/SIGHUP SIGTERM SIGINT/HUP TERM INT/g' /entrypoint.sh
 
 # Install .NET Core SDK
 ENV DOTNET_SDK_VERSION 2.2.105
 
-RUN wget -O dotnet.tar.gz https://dotnetcli.azureedge.net/dotnet/Sdk/$DOTNET_SDK_VERSION/dotnet-sdk-$DOTNET_SDK_VERSION-linux-musl-x64.tar.gz \
-    && dotnet_sha512='04045f20440fca38bc517cf6ae1c6bea48e773629ada8b86f3ce0394784b1372a180aa829fa2bcc5abc184a0e41babe7c5ff0ef376c2b89aad271a0cfb3d75e4' \
-    && echo "$dotnet_sha512  dotnet.tar.gz" | sha512sum -c - \
+RUN curl -SL --output dotnet.tar.gz https://dotnetcli.azureedge.net/dotnet/Sdk/$DOTNET_SDK_VERSION/dotnet-sdk-$DOTNET_SDK_VERSION-linux-x64.tar.gz \
+    && dotnet_sha512='b7ad26b344995de91848adec56bda5dfe5fef0b83abaa3e4376dc790cf9786e945b625de1ae4cecaf5c5bef86284652886ed87696581553aeda89ee2e2e99517' \
+    && echo "$dotnet_sha512 dotnet.tar.gz" | sha512sum -c - \
     && mkdir -p /usr/share/dotnet \
-    && tar -C /usr/share/dotnet -xzf dotnet.tar.gz \
+    && tar -zxf dotnet.tar.gz -C /usr/share/dotnet \
+    && rm dotnet.tar.gz \
     && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet \
-    && rm dotnet.tar.gz
+    && mkdir ${HOME}/.dotnet && chmod -R 777 ${HOME}/.dotnet \
+    && mkdir /usr/share/dotnet/sdk/NuGetFallbackFolder && chmod 777 /usr/share/dotnet/sdk/NuGetFallbackFolder \
+    && mkdir ${HOME}/.nuget && chmod -R 777 ${HOME}/.nuget \
+    && mkdir ${HOME}/.templateengine && chmod -R 777 ${HOME}/.templateengine
 
-ENV MSBuildSDKsPath=/usr/share/dotnet/sdk/$DOTNET_SDK_VERSION/Sdks \
-    PATH=$MSBuildSDKsPath:$PATH
-
-RUN wget -O /usr/lib/mono/xbuild/15.0/Microsoft.Common.props https://raw.githubusercontent.com/Microsoft/msbuild/v15.9.21.664/src/Tasks/Microsoft.Common.props
-
-# Enable correct mode for dotnet watch (only mode supported in a container)
-ENV DOTNET_USE_POLLING_FILE_WATCHER=true \
+# Configure web servers to bind to port 80 when present
+ENV ASPNETCORE_URLS=http://+:80 \
+    # Enable detection of running in a container
+    DOTNET_RUNNING_IN_CONTAINER=true \
+    # Enable correct mode for dotnet watch (only mode supported in a container)
+    DOTNET_USE_POLLING_FILE_WATCHER=true \
     # Skip extraction of XML docs - generally not useful within an image/container - helps performance
     NUGET_XMLDOC_MODE=skip
 
 # Trigger first run experience by running arbitrary cmd to populate local package cache
 RUN dotnet --version
+ENTRYPOINT ["/entrypoint.sh"]
