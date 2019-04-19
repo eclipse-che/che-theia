@@ -17,55 +17,54 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		bash \
 		netbase \
 		wget \
-	&& rm -rf /var/lib/apt/lists/*
+	&&	set -ex; \
+        if ! command -v gpg > /dev/null; then \
+        		apt-get install -y --no-install-recommends \
+        			gnupg \
+        			dirmngr \
+        		; \
+        		rm -rf /var/lib/apt/lists/*; \
+        fi \
 
-RUN set -ex; \
-	if ! command -v gpg > /dev/null; then \
-		apt-get update; \
-		apt-get install -y --no-install-recommends \
-			gnupg \
-			dirmngr \
-		; \
-		rm -rf /var/lib/apt/lists/*; \
-	fi
+    # procps is very common in build systems, and is a reasonably small package
 
-# procps is very common in build systems, and is a reasonably small package
-RUN apt-get update && apt-get install -y --no-install-recommends \
-		bzr \
-		git \
-		mercurial \
-		openssh-client \
-		subversion \
-		\
-		procps \
-	&& rm -rf /var/lib/apt/lists/*
+    &&  apt-get install -y --no-install-recommends \
+        		bzr \
+        		git \
+        		mercurial \
+        		openssh-client \
+        		subversion \
+        		\
+        		procps \
 
-# Install .NET CLI dependencies
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        make \
-        g++ \
-        libc6 \
-        libgcc1 \
-        libgssapi-krb5-2 \
-        libicu57 \
-        liblttng-ust0 \
-        libssl1.0.2 \
-        libstdc++6 \
-        zlib1g \
-    && rm -rf /var/lib/apt/lists/*
+    # Install .NET CLI dependencies
 
-RUN yarn global add typescript@2.9.2 node-gyp
+    &&  apt-get install -y --no-install-recommends \
+                make \
+                g++ \
+                libc6 \
+                libgcc1 \
+                libgssapi-krb5-2 \
+                libicu57 \
+                liblttng-ust0 \
+                libssl1.0.2 \
+                libstdc++6 \
+                zlib1g \
+    &&  rm -rf /var/lib/apt/lists/* \
+
+    # Install typescript@2.9.2 and node-gyp
+
+    &&  yarn global add typescript@2.9.2 node-gyp
 
 ENV HOME=/home/theia
 COPY --from=endpoint /home/theia /home/theia
 COPY --from=endpoint /projects /projects
 COPY --from=endpoint /etc/passwd  /etc/passwd
 COPY --from=endpoint /etc/group   /etc/group
-RUN find /home/theia/ -name "binding.gyp" |  xargs -i sh -c 'cd $(dirname {}) && node-gyp rebuild'
-
 COPY --from=endpoint /entrypoint.sh /entrypoint.sh
-RUN sed -i 's/SIGHUP SIGTERM SIGINT/HUP TERM INT/g' /entrypoint.sh
+
+RUN find /home/theia/ -name "binding.gyp" |  xargs -i sh -c 'cd $(dirname {}) && node-gyp rebuild' \
+    && sed -i 's/SIGHUP SIGTERM SIGINT/HUP TERM INT/g' /entrypoint.sh
 
 # Install .NET Core SDK
 ENV DOTNET_SDK_VERSION 2.2.105
@@ -76,9 +75,8 @@ RUN curl -SL --output dotnet.tar.gz https://dotnetcli.azureedge.net/dotnet/Sdk/$
     && mkdir -p /usr/share/dotnet \
     && tar -zxf dotnet.tar.gz -C /usr/share/dotnet \
     && rm dotnet.tar.gz \
-    && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
-
-RUN mkdir ${HOME}/.dotnet && chmod -R 777 ${HOME}/.dotnet \
+    && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet \
+    && mkdir ${HOME}/.dotnet && chmod -R 777 ${HOME}/.dotnet \
     && mkdir /usr/share/dotnet/sdk/NuGetFallbackFolder && chmod 777 /usr/share/dotnet/sdk/NuGetFallbackFolder \
     && mkdir ${HOME}/.nuget && chmod -R 777 ${HOME}/.nuget \
     && mkdir ${HOME}/.templateengine && chmod -R 777 ${HOME}/.templateengine
