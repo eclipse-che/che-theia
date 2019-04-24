@@ -53,6 +53,8 @@ containers:
    volumes:
        - mountPath: "/plugins"
          name: plugins
+       - mountPath: "/home/theia/.theia"
+         name: theia-data
        - mountPath: "/projects"
          name: projects
    ports:
