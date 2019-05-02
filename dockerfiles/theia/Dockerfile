@@ -62,12 +62,12 @@ ARG CDN_PREFIX=""
 ARG MONACO_CDN_PREFIX=""
 WORKDIR ${HOME}/theia-source-code
 
-COPY che-theia/extensions.yml ${HOME}/extensions.yml
+COPY che-theia/che-theia-init-sources.yml ${HOME}/che-theia-init-sources.yml
 
 #invalidate cache for che-theia extensions
 ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/eclipse/che-theia/git/${GIT_REF} /tmp/this_branch_info.json
 
-RUN che:theia init -c ${HOME}/extensions.yml
+RUN che:theia init -c ${HOME}/che-theia-init-sources.yml
 
 RUN che:theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 
@@ -77,50 +77,11 @@ RUN yarn
 # Run into production mode
 RUN che:theia production
 
+# Compile plugins
+RUN cd plugins && ./foreach_yarn
+
 # change permissions
 RUN find production -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt
-
-
-###
-# Plugin Builder Image
-#
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-dev:${BUILD_TAG} as plugins-builder
-WORKDIR ${HOME}
-
-# define in env variable GITHUB_TOKEN only if it is defined
-# else check if github rate limit is enough, else will abort requiring to set GITHUB_TOKEN value
-ARG GITHUB_TOKEN
-
-# Define che-theia branch to use for plugins
-ARG CHE_THEIA_PLUGIN_BRANCH=master
-
-# Check github limit
-RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
-      export GITHUB_TOKEN=$GITHUB_TOKEN; \
-      echo "Setting GITHUB_TOKEN value as provided"; \
-    else \
-      export GITHUB_LIMIT=$(curl -s 'https://api.github.com/rate_limit' | jq '.rate .remaining'); \
-      echo "Current API rate limit https://api.github.com is ${GITHUB_LIMIT}"; \
-      if [ "${GITHUB_LIMIT}" -lt 10 ]; then \
-        printf "\033[0;31m\n\n\nRate limit on https://api.github.com is reached so in order to build this image, "; \
-        printf "the build argument GITHUB_TOKEN needs to be provided so build will not fail.\n\n\n\033[0m"; \
-        exit 1; \
-      else \
-        echo "GITHUB_TOKEN variable is not set but https://api.github.com rate limit has enough slots"; \
-      fi \
-    fi
-
-#invalidate cache
-ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/eclipse/che-theia/git/refs/heads/${CHE_THEIA_PLUGIN_BRANCH} /tmp/che_theia_branch_info.json
-
-# Clone and build che-theia plugins
-RUN git clone --branch ${CHE_THEIA_PLUGIN_BRANCH}  --single-branch --depth 1 https://github.com/eclipse/che-theia ${HOME}/che-theia-source-code
-
-WORKDIR ${HOME}/che-theia-source-code/plugins/
-RUN for PLUGIN_DIR in */; do   cd ${HOME}/che-theia-source-code/plugins/${PLUGIN_DIR} && yarn; done
-
-RUN mkdir -p ${HOME}/che-theia-plugins/ && \
-    find ${HOME}/che-theia-source-code/plugins/ -not -name "*ssh*" -name "*.theia"  -exec sh -c "cp {} ${HOME}/che-theia-plugins/" \; 2>log.txt
 
 
 ###
@@ -137,7 +98,7 @@ ENV USE_LOCAL_GIT=true \
 
 EXPOSE 3100 3130
 
-COPY --from=plugins-builder /home/theia-dev/che-theia-plugins /default-theia-plugins
+COPY --from=builder /home/theia-dev/theia-source-code/production/plugins /default-theia-plugins
 
 # Install sudo
 # Install git
