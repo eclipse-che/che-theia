@@ -16,6 +16,7 @@ import { che } from '@eclipse-che/api';
 
 @injectable()
 export class CheWorkspaceHostedPluginUriPostProcessor implements HostedPluginUriPostProcessor {
+
     protected restApiClient: IRemoteAPI;
 
     constructor() {
@@ -74,6 +75,10 @@ export class CheWorkspaceHostedPluginUriPostProcessor implements HostedPluginUri
             throw new Error('Environment variable CHE_WORKSPACE_ID is not set.');
         }
         return await this.restApiClient.getById<che.workspace.Workspace>(workspaceId);
+    }
+
+    async processOptions(options: object): Promise<object> {
+        return options;
     }
 
 }
