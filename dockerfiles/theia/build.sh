@@ -20,8 +20,8 @@ fi
 #in mac os 'cp' cannot create destination dir, so create it first
 mkdir ${LOCAL_ASSEMBLY_DIR}
 
-echo "Copying ${base_dir}/../../extensions/extensions.yml --> ${LOCAL_ASSEMBLY_DIR}/extensions.yml"
-cp "${base_dir}/../../extensions/extensions.yml" "${LOCAL_ASSEMBLY_DIR}/"
+echo "Copying ${base_dir}/../../che-theia-init-sources.yml --> ${LOCAL_ASSEMBLY_DIR}/che-theia-init-sources.yml"
+cp "${base_dir}/../../che-theia-init-sources.yml" "${LOCAL_ASSEMBLY_DIR}/"
 
 init --name:theia "$@"
 

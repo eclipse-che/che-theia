@@ -38,7 +38,7 @@ ENV HOME=/home/theia-dev \
     GIT_EXEC_PATH=/usr/libexec/git-core
 
 # Define package of the theia generator to use
-ARG THEIA_GENERATOR_PACKAGE=@eclipse-che/theia-generator@0.0.1-1553159770
+ARG THEIA_GENERATOR_PACKAGE=@eclipse-che/theia-generator@0.0.1-1556612396
 
 WORKDIR ${HOME}
 
