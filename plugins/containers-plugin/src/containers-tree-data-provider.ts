@@ -98,16 +98,20 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                 tooltip: `open a new terminal for ${container.name}`,
                 command: { id: 'terminal-in-specific-container:new', arguments: [container.name] }
             });
+            if (container.commands && container.commands.length) {
+                container.commands.forEach((commandName: string) => {
+                    this.treeNodeItems.push({
+                        id: this.getRandId(),
+                        parentId: treeItem.id,
+                        name: commandName,
+                        tooltip: 'execute the command',
+                        iconPath: 'fa-cogs medium-yellow',
+                        command: { id: 'task:run', arguments: ['che', commandName] }
+                    });
+                });
+            }
             const serverKeys = container.servers ? Object.keys(container.servers) : [];
             if (serverKeys.length) {
-                const endpointsId = this.getRandId();
-                this.treeNodeItems.push({
-                    id: endpointsId,
-                    parentId: treeItem.id,
-                    name: 'endpoints',
-                    tooltip: 'endpoints',
-                    isExpanded: true
-                });
                 serverKeys.forEach((serverName: string) => {
                     const server = container.servers[serverName];
                     if (!server) {
@@ -115,14 +119,14 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                     }
                     const treeNodeItem: ITreeNodeItem = {
                         id: this.getRandId(),
-                        parentId: endpointsId,
+                        parentId: treeItem.id,
                         name: serverName,
                         iconPath: 'fa-info-circle medium-blue',
                         tooltip: server.url ? server.url : 'endpoint'
                     };
                     if (server.url && server.url.startsWith('http')) {
                         treeNodeItem.name = serverName;
-                        treeNodeItem.iconPath = 'fa-share medium-blue';
+                        treeNodeItem.iconPath = 'fa-external-link medium-blue';
                         treeNodeItem.command = { id: 'theia.open', arguments: [server.url] };
                         treeNodeItem.tooltip = 'open in a new tab  ' + treeNodeItem.tooltip;
                     }
@@ -182,26 +186,6 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                             tooltip: `volume ${volumeName}`,
                             iconPath: 'fa-info-circle medium-blue'
                         });
-                    });
-                });
-            }
-            if (container.commands && container.commands.length) {
-                const commandsId = this.getRandId();
-                this.treeNodeItems.push({
-                    id: commandsId,
-                    parentId: treeItem.id,
-                    name: 'commands',
-                    tooltip: 'commands',
-                    isExpanded: false
-                });
-                container.commands.forEach((commandName: string) => {
-                    this.treeNodeItems.push({
-                        id: this.getRandId(),
-                        parentId: commandsId,
-                        name: commandName,
-                        tooltip: 'execute the command',
-                        iconPath: 'fa-terminal medium-yellow',
-                        command: { id: 'task:run', arguments: ['che', commandName] }
                     });
                 });
             }
