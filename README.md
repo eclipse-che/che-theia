@@ -13,7 +13,7 @@ First you need to build `che-theia-dev` image:
 
 Run in `dockerfiles/theia-dev` dir:
 ```bash
-    ./build.sh --build-arg:${GITHUB_TOKEN_ARG}
+    ./build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:next
 ```
 
 Then in `dockerfiles/theia` run:
