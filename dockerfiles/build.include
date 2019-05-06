@@ -24,7 +24,7 @@ skip_tests() {
 
 prepare_build_args() {
     IFS=',' read -r -a BUILD_ARGS_ARRAY <<< "$@"
-    for i in ${BUILD_ARGS_ARRAY[@]}; do
+    for i in ${BUILD_ARGS_ARRAY[@]+"${BUILD_ARGS_ARRAY[@]}"}; do
     BUILD_ARGS+="--build-arg $i "
     done
 }
