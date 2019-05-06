@@ -9,17 +9,14 @@
  **********************************************************************/
 
 import { injectable, inject } from 'inversify';
-import { QuickOpenModel, QuickOpenItem, QuickOpenHandler, QuickOpenService } from '@theia/core/lib/browser/quick-open/';
-import { QuickOpenMode, QuickOpenOptions, WidgetManager, ApplicationShell, KeybindingRegistry } from '@theia/core/lib/browser';
-import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
-import { REMOTE_TERMINAL_WIDGET_FACTORY_ID, RemoteTerminalWidgetFactoryOptions } from '../terminal-widget/remote-terminal-widget';
+import {
+    QuickOpenMode, QuickOpenOptions, ApplicationShell, KeybindingRegistry,
+    QuickOpenModel, QuickOpenItem, QuickOpenHandler, QuickOpenService
+} from '@theia/core/lib/browser';
 import { CHEWorkspaceService } from '../../common/workspace-service';
 import { TerminalApiEndPointProvider } from '../server-definition/terminal-proxy-creator';
-import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal-widget';
-import { RemoteTerminalWidget } from '../terminal-widget/remote-terminal-widget';
 import { OpenTerminalHandler } from './exec-terminal-contribution';
 import { filterRecipeContainers } from './terminal-command-filter';
-import URI from '@theia/core/lib/common/uri';
 
 @injectable()
 export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenModel {
@@ -31,12 +28,6 @@ export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenMode
 
     @inject(QuickOpenService)
     private readonly quickOpenService: QuickOpenService;
-
-    @inject(WidgetManager)
-    private readonly widgetManager: WidgetManager;
-
-    @inject(EnvVariablesServer)
-    protected readonly baseEnvVariablesServer: EnvVariablesServer;
 
     @inject('TerminalApiEndPointProvider')
     protected readonly termApiEndPointProvider: TerminalApiEndPointProvider;
@@ -52,25 +43,6 @@ export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenMode
 
     @inject('terminal-in-specific-container-command-id')
     protected readonly terminalInSpecificContainerCommandId: string;
-
-    public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions): Promise<TerminalWidget> {
-        try {
-            const workspaceId = <string>await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
-            const termApiEndPoint = <URI | undefined>await this.termApiEndPointProvider();
-
-            const widget = <RemoteTerminalWidget>await this.widgetManager.getOrCreateWidget(REMOTE_TERMINAL_WIDGET_FACTORY_ID, <RemoteTerminalWidgetFactoryOptions>{
-                created: new Date().toString(),
-                machineName: containerName,
-                workspaceId: workspaceId,
-                endpoint: termApiEndPoint.toString(true),
-                ...options
-            });
-            return widget;
-        } catch (err) {
-            console.error('Failed to create terminal widget. Cause: ', err);
-        }
-        throw new Error('Unable to create new terminal for machine: ' + containerName);
-    }
 
     async displayListMachines(doOpen: OpenTerminalHandler) {
         const items: QuickOpenItem[] = [];

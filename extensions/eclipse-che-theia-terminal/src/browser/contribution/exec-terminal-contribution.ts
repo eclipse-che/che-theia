@@ -19,9 +19,10 @@ import { MenuBar as MenuBarWidget } from '@phosphor/widgets';
 import { TerminalKeybindingContext } from './keybinding-context';
 import { CHEWorkspaceService } from '../../common/workspace-service';
 import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal-widget';
-import { REMOTE_TERMINAL_WIDGET_FACTORY_ID } from '../terminal-widget/remote-terminal-widget';
+import { REMOTE_TERMINAL_WIDGET_FACTORY_ID, RemoteTerminalWidget, RemoteTerminalWidgetFactoryOptions } from '../terminal-widget/remote-terminal-widget';
 import { filterRecipeContainers } from './terminal-command-filter';
 import URI from '@theia/core/lib/common/uri';
+import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 
 export const NewTerminalInSpecificContainer = {
     id: 'terminal-in-specific-container:new',
@@ -49,6 +50,9 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
 
     @inject(CHEWorkspaceService)
     protected readonly cheWorkspaceService: CHEWorkspaceService;
+
+    @inject(EnvVariablesServer)
+    protected readonly baseEnvVariablesServer: EnvVariablesServer;
 
     private readonly mainMenuId = 'theia:menubar';
 
@@ -86,8 +90,29 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         }
     }
 
+    public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions): Promise<TerminalWidget> {
+        try {
+            const workspaceId = <string>await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
+            const termApiEndPoint = <URI | undefined>await this.termApiEndPointProvider();
+
+            const widget = <RemoteTerminalWidget>await this.widgetManager.getOrCreateWidget(REMOTE_TERMINAL_WIDGET_FACTORY_ID, <RemoteTerminalWidgetFactoryOptions>{
+                created: new Date().toString(),
+                machineName: containerName,
+                workspaceId: workspaceId,
+                endpoint: termApiEndPoint.toString(true),
+                ...options
+            });
+            return widget;
+        } catch (err) {
+            console.error('Failed to create terminal widget. Cause: ', err);
+        }
+        throw new Error('Unable to create new terminal for machine: ' + containerName);
+    }
+
     async openTerminalByContainerName(containerName: string): Promise<void> {
-        const termWidget = await this.terminalQuickOpen.newTerminalPerContainer(containerName, {});
+        const cwd = await this.selectTerminalCwd();
+        console.log('CWD ', cwd);
+        const termWidget = await this.newTerminalPerContainer(containerName, { cwd });
         this.open(termWidget, {});
         termWidget.start();
     }
@@ -104,7 +129,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         }
 
         if (containerName) {
-            const termWidget = await this.terminalQuickOpen.newTerminalPerContainer(containerName, options);
+            const termWidget = await this.newTerminalPerContainer(containerName, options);
             return termWidget;
         }
 
