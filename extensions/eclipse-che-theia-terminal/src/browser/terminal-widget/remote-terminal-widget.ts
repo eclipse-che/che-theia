@@ -168,7 +168,6 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
             cmd = [this.options.shellPath, ...(this.options.shellArgs || [])];
         }
 
-        console.log('CWD before send ', this.options.cwd);
         const machineExec = {
             identifier: {
                 machineName: this.options.machineName,
