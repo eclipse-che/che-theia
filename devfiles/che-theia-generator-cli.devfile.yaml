@@ -1,0 +1,98 @@
+# A devfile to work on the che-theia generator cli: che:theia init, che:theia production, etc ...
+
+specVersion: 0.0.1
+name: cheTheiaGenerator-in-che
+projects:
+  - name: che-theia
+    source:
+      type: git
+      location: 'https://github.com/eclipse/che-theia.git'
+  - name: theia
+    source:
+      type: git
+      location: 'https://github.com/theia-ide/theia.git'
+  - name: che-theia-generator
+    source:
+      type: git
+      location: 'https://github.com/ws-skeleton/che-theia-generator.git'
+components:
+  - 
+    alias: git-devtools
+    type: dockerimage
+    image: sunix/git-devtools
+    mountSources: true
+    memoryLimit: 256M
+  - 
+    alias: che-dev
+    type: dockerimage
+    image: eclipse/che-theia-dev:nightly
+    mountSources: true
+    endpoints:
+      - name: "theia-dev-flow"
+        port: 3010
+        attributes:
+          protocol: http
+          public: 'true'
+    memoryLimit: "2Gi"
+  - 
+    alias: theia-editor
+    id: eclipse/che-theia/next
+    type: cheEditor
+  - 
+    id: eclipse/che-machine-exec-plugin/0.0.1
+    type: chePlugin
+  - 
+    id: redhat/vscode-yaml/0.4.0
+    type: chePlugin
+  - 
+    id: che-incubator/typescript/1.30.2
+    type: chePlugin
+    memoryLimit: 2048M 
+commands:
+  -
+    name: run ... che:theia init (built from source)... che-theia
+    actions:
+      - type: exec
+        component: che-dev
+        command: >
+                 /projects/che-theia-generator/dist/index.js init --dev &&
+                 echo -e "\e[32mDone.\e[0m che:theia init"
+        workdir: /projects/theia
+  -
+    name: run ... che:theia init (built from source) -c /projects/che-theia/che-theia-init-sources.yml
+    actions:
+      - type: exec
+        component: che-dev
+        command: >
+                 /projects/che-theia-generator/dist/index.js init --dev -c /projects/che-theia/che-theia-init-sources.yml &&
+                 echo -e "\e[32mDone.\e[0m che:theia init"
+        workdir: /projects/theia
+  -
+    name: run ... che:theia clean (built from source)
+    actions:
+      - type: exec
+        component: che-dev
+        command: >
+                 /projects/che-theia-generator/dist/index.js clean &&
+                 echo -e "\e[32mDone.\e[0m che:theia clean"
+        workdir: /projects/theia
+  -
+    name: build ... che-theia-generator
+    actions:
+      - type: exec
+        component: che-dev
+        command: >
+                 killall node;
+                 yarn &&
+                 echo -e "\e[32mDone.\e[0m build ... che-theia-generator"
+        workdir: /projects/che-theia-generator
+  -
+    name: test-watch ... che-theia-generator
+    actions:
+      - type: exec
+        component: che-dev
+        command: >
+                 killall node;
+                 yarn test-watch
+        workdir: /projects/che-theia-generator
+
