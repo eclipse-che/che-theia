@@ -16,4 +16,4 @@ sources:
     - plugins/ports-plugin
     - plugins/task-plugin
     - plugins/welcome-plugin
-  checkoutTo: master
+  checkoutTo: 0.6.1
