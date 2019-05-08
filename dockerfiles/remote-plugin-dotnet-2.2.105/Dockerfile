@@ -79,7 +79,8 @@ RUN curl -SL --output dotnet.tar.gz https://dotnetcli.azureedge.net/dotnet/Sdk/$
     && mkdir ${HOME}/.dotnet && chmod -R 777 ${HOME}/.dotnet \
     && mkdir /usr/share/dotnet/sdk/NuGetFallbackFolder && chmod 777 /usr/share/dotnet/sdk/NuGetFallbackFolder \
     && mkdir ${HOME}/.nuget && chmod -R 777 ${HOME}/.nuget \
-    && mkdir ${HOME}/.templateengine && chmod -R 777 ${HOME}/.templateengine
+    && mkdir ${HOME}/.templateengine && chmod -R 777 ${HOME}/.templateengine \
+    && chmod -R 777 ${HOME}
 
 # Configure web servers to bind to port 80 when present
 ENV ASPNETCORE_URLS=http://+:80 \
