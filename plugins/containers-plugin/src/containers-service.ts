@@ -28,6 +28,11 @@ export interface IContainer {
     commands?: string[]
 }
 
+enum ContainerType {
+    TOOL = 'tool',
+    USER_DEFINED = 'recipe'
+}
+
 const MAX_FAILED_ATTEMPTS = 5;
 
 export class ContainersService {
@@ -47,23 +52,46 @@ export class ContainersService {
             }
             return Promise.reject('Failed to get workspace configuration');
         }
-        const devMachines = workspace.config!.environments![workspace.config!.defaultEnv!].machines || {};
-        const machines = workspace.runtime && workspace.runtime.machines || {};
+
+        const runtime = workspace.runtime;
+        if (!runtime) {
+            // this code runs inside workspace, so should never happen
+            throw new Error('Workspace is not running');
+        }
+
+        const machines = runtime.machines || {};
         this._containers.length = 0;
         Object.keys(machines).forEach((name: string) => {
             const machine = machines[name];
+            let userDefinedContainer = true;
+            if (machine.attributes && machine.attributes.source) {
+                userDefinedContainer = machine.attributes.source === ContainerType.USER_DEFINED;
+            }
+
             const container: IContainer = {
                 name: name,
                 status: machine.status,
-                isDev: devMachines[name] !== undefined
+                isDev: userDefinedContainer
             };
-            if (devMachines[name]) {
-                container.volumes = devMachines[name].volumes;
-                container.env = devMachines[name].env;
+            // TODO rework to use runtime only and do not read static config when appropriate changes added to Che server side.
+            if (container.isDev) {
+                if (workspace.devfile) {
+                    // For now we cannot retreive needed information without very complicated analyzation,
+                    // which is not client side task. See the comment above.
+                    container.volumes = {};
+                    container.env = {};
+                } else if (workspace.config) {
+                    const machinesConfig = workspace.config.environments[workspace.config.defaultEnv].machines;
+                    container.volumes = machinesConfig[name].volumes;
+                    container.env = machinesConfig[name].env;
+                } else {
+                    // should never happen
+                    throw new Error('Invalid workspace structure');
+                }
             }
-            if (workspace.runtime!.commands) {
+            if (runtime.commands) {
                 container.commands = [];
-                workspace.runtime.commands.forEach(command => {
+                runtime.commands.forEach(command => {
                     if (command.attributes && command.attributes.machineName && command.attributes.machineName !== name) {
                         return;
                     }
