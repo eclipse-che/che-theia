@@ -15,8 +15,8 @@
     "dependencies": {
         "@eclipse-che/plugin": "0.0.1",
         "@eclipse-che/workspace-client": "latest",
-        "@theia/core": "next",
-        "@theia/plugin-ext": "next"
+        "@theia/core": "0.6.1",
+        "@theia/plugin-ext": "0.6.1"
     },
     "devDependencies": {
         "clean-webpack-plugin": "^0.1.19",
