@@ -67,8 +67,8 @@ RUN npm config set prefix "${HOME}/.npm-global" && \
     echo '{"optOut": true}' > ${HOME}/.config/insight-nodejs/insight-yo.json && \
     # Change permissions to let any arbitrary user
     for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
-    echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
-    chmod -R g+rwX ${f}; \
+        echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+        chmod -R g+rwX ${f}; \
     done
 
 WORKDIR "/projects"
