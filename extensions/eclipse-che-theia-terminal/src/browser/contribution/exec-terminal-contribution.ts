@@ -19,9 +19,10 @@ import { MenuBar as MenuBarWidget } from '@phosphor/widgets';
 import { TerminalKeybindingContext } from './keybinding-context';
 import { CHEWorkspaceService } from '../../common/workspace-service';
 import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal-widget';
-import { REMOTE_TERMINAL_WIDGET_FACTORY_ID } from '../terminal-widget/remote-terminal-widget';
+import { REMOTE_TERMINAL_WIDGET_FACTORY_ID, RemoteTerminalWidget, RemoteTerminalWidgetFactoryOptions } from '../terminal-widget/remote-terminal-widget';
 import { filterRecipeContainers } from './terminal-command-filter';
 import URI from '@theia/core/lib/common/uri';
+import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 
 export const NewTerminalInSpecificContainer = {
     id: 'terminal-in-specific-container:new',
@@ -50,7 +51,11 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     @inject(CHEWorkspaceService)
     protected readonly cheWorkspaceService: CHEWorkspaceService;
 
+    @inject(EnvVariablesServer)
+    protected readonly baseEnvVariablesServer: EnvVariablesServer;
+
     private readonly mainMenuId = 'theia:menubar';
+    private editorContainerName;
 
     async registerCommands(registry: CommandRegistry) {
         const serverUrl = <URI | undefined>await this.termApiEndPointProvider();
@@ -86,10 +91,43 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         }
     }
 
+    public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions): Promise<TerminalWidget> {
+        try {
+            const workspaceId = <string>await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
+            const termApiEndPoint = <URI | undefined>await this.termApiEndPointProvider();
+
+            const widget = <RemoteTerminalWidget>await this.widgetManager.getOrCreateWidget(REMOTE_TERMINAL_WIDGET_FACTORY_ID, <RemoteTerminalWidgetFactoryOptions>{
+                created: new Date().toString(),
+                machineName: containerName,
+                workspaceId: workspaceId,
+                endpoint: termApiEndPoint.toString(true),
+                ...options
+            });
+            return widget;
+        } catch (err) {
+            console.error('Failed to create terminal widget. Cause: ', err);
+        }
+        throw new Error('Unable to create new terminal for machine: ' + containerName);
+    }
+
     async openTerminalByContainerName(containerName: string): Promise<void> {
-        const termWidget = await this.terminalQuickOpen.newTerminalPerContainer(containerName, {});
-        this.open(termWidget, {});
+        const editorContainer = await this.getEditorContainerName();
+        let cwd: string;
+        // use information about volumes to cover cwd for development containers too. Depends on https://github.com/eclipse/che/issues/13290
+        if (containerName === editorContainer) {
+            cwd = await this.selectTerminalCwd();
+        }
+
+        const termWidget = await this.newTerminalPerContainer(containerName, { cwd });
+        this.open(termWidget);
         termWidget.start();
+    }
+
+    async getEditorContainerName() {
+        if (!this.editorContainerName) {
+            this.editorContainerName = await this.cheWorkspaceService.findEditorMachineName();
+        }
+        return this.editorContainerName;
     }
 
     async newTerminal(options: TerminalWidgetOptions): Promise<TerminalWidget> {
@@ -100,11 +138,11 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         }
 
         if (!containerName) {
-            containerName = await this.cheWorkspaceService.findEditorMachineName();
+            containerName = await this.getEditorContainerName();
         }
 
         if (containerName) {
-            const termWidget = await this.terminalQuickOpen.newTerminalPerContainer(containerName, options);
+            const termWidget = await this.newTerminalPerContainer(containerName, options);
             return termWidget;
         }
 

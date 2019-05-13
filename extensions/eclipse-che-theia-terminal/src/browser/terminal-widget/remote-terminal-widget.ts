@@ -174,6 +174,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
                 workspaceId: this.options.workspaceId
             },
             cmd: cmd,
+            cwd: this.options.cwd,
             cols,
             rows,
             tty: true,
