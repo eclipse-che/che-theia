@@ -44,14 +44,28 @@ export class TasksPreviewManager {
     async showPreviews() {
         const executions = theia.tasks.taskExecutions;
         const tasks = executions.map(execution => execution.task);
+        const filteredTasks = tasks.filter(task => {
+            if (task.definition.previewUrl) {
+                return true;
+            }
+            return false;
+        });
 
-        const context = startPoint.getContext();
-        const previewsWidget = await this.previewUrlsWidgetFactory.createWidget({ tasks: tasks });
+        const previewsWidget = await this.previewUrlsWidgetFactory.createWidget({ tasks: filteredTasks });
 
         const panel = this.providePanel();
         panel.webview.html = previewsWidget.getHtml();
-        panel.webview.onDidReceiveMessage(message => this.onMessageReceived(message), undefined, context.subscriptions);
-        panel.onDidDispose(() => { this.currentPanel = undefined; }, undefined, context.subscriptions);
+        panel.reveal(undefined, undefined, true);
+    }
+
+    onTaskStarted(task: theia.Task) {
+        this.showPreviews();
+    }
+
+    onTaskCompleted(task: theia.Task) {
+        if (this.currentPanel && this.currentPanel.visible) {
+            this.showPreviews();
+        }
     }
 
     // tslint:disable-next-line:no-any
@@ -73,19 +87,34 @@ export class TasksPreviewManager {
 
     private providePanel(): theia.WebviewPanel {
         if (this.currentPanel) {
-            // TODO improve way of updating webview panel
-            // depends on https://github.com/theia-ide/theia/issues/4342 and https://github.com/theia-ide/theia/issues/4339
-            this.currentPanel.dispose();
+            return this.currentPanel;
         }
 
-        return this.currentPanel = theia.window.createWebviewPanel(PREVIEW_URL_VIEW_TYPE, PREVIEW_URL_TITLE, { area: theia.WebviewPanelTargetArea.Bottom }, {
+        this.currentPanel = theia.window.createWebviewPanel(PREVIEW_URL_VIEW_TYPE, PREVIEW_URL_TITLE, { area: theia.WebviewPanelTargetArea.Bottom, preserveFocus: true }, {
             enableScripts: true,
             localResourceRoots: [theia.Uri.file(path.join(startPoint.getContext().extensionPath, 'resources'))]
         });
+
+        const context = startPoint.getContext();
+        this.currentPanel.webview.onDidReceiveMessage(message => this.onMessageReceived(message), undefined, context.subscriptions);
+        this.currentPanel.onDidDispose(() => { this.currentPanel = undefined; }, undefined, context.subscriptions);
+        this.currentPanel.onDidChangeViewState(event => {
+            if (event.webviewPanel.active) {
+                this.showPreviews();
+            }
+        }, undefined, context.subscriptions);
+
+        return this.currentPanel;
     }
 
     private async setStatusBarPreviewUrlItem() {
-        const previewCommandSubscription = theia.commands.registerCommand(STATUS_BAR_PREVIEW, () => this.showPreviews());
+        const previewCommandSubscription = theia.commands.registerCommand(STATUS_BAR_PREVIEW, () => {
+            if (this.currentPanel && this.currentPanel.visible) {
+                this.currentPanel.dispose();
+            } else {
+                this.showPreviews();
+            }
+        });
         startPoint.getSubscriptions().push(previewCommandSubscription);
 
         const item = await theia.window.createStatusBarItem(theia.StatusBarAlignment.Left);

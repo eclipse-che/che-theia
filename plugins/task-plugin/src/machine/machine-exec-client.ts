@@ -9,10 +9,11 @@
  **********************************************************************/
 
 import * as rpc from 'vscode-ws-jsonrpc';
-import { injectable, inject } from 'inversify';
+import { injectable, inject, postConstruct } from 'inversify';
 import { CheWorkspaceClient } from '../che-workspace-client';
 import { createConnection } from './websocket';
 import { applySegmentsToUri } from '../uri-helper';
+import { MachineExecWatcher } from './machine-exec-watcher';
 
 const CREATE_METHOD_NAME: string = 'create';
 const CONNECT_TERMINAL_SEGMENT: string = 'connect';
@@ -21,6 +22,7 @@ export interface MachineIdentifier {
     workspaceId: string,
     machineName: string
 }
+
 export interface MachineExec {
     identifier: MachineIdentifier,
     cmd: string[],
@@ -42,6 +44,14 @@ export class MachineExecClient {
     @inject(CheWorkspaceClient)
     protected readonly cheWorkspaceClient!: CheWorkspaceClient;
 
+    @inject(MachineExecWatcher)
+    protected readonly machineExecWatcher!: MachineExecWatcher;
+
+    @postConstruct()
+    protected init() {
+        this.getConnection();
+    }
+
     async getExecId(machineExec: MachineExec): Promise<number> {
         const connection = await this.getConnection();
         const request = new rpc.RequestType<MachineExec, number, void, void>(CREATE_METHOD_NAME);
@@ -60,6 +70,9 @@ export class MachineExecClient {
 
         const execServerUrl = applySegmentsToUri(machineExecServerEndpoint, CONNECT_TERMINAL_SEGMENT);
         this.connection = await createConnection(execServerUrl);
+
+        this.machineExecWatcher.init(this.connection);
+
         return this.connection;
     }
 

@@ -8,9 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 import { CheTask, CheTaskMain, PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
-import { TaskRunner, Disposable, Task, TaskInfo } from '@eclipse-che/plugin';
+import { TaskRunner, Disposable, Task, TaskInfo, TaskExitedEvent, TaskConfiguration } from '@eclipse-che/plugin';
 import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
-import { TaskConfiguration } from '@theia/task/lib/common';
 
 export class CheTaskImpl implements CheTask {
     private readonly cheTaskMain: CheTaskMain;
@@ -54,15 +53,14 @@ export class CheTaskImpl implements CheTask {
         }
     }
 
-    async fireTaskExited(taskId: number): Promise<void> {
-        let id: number | undefined;
-        this.taskMap.forEach((value: Task, key: number) => {
-            if (value.getRuntimeInfo().taskId === taskId) {
-                id = key;
-            }
-        });
-        if (id) {
+    async $onTaskExited(id: number): Promise<void> {
+        const task = this.taskMap.get(id);
+        if (task) {
             this.taskMap.delete(id);
         }
+    }
+
+    async fireTaskExited(event: TaskExitedEvent): Promise<void> {
+        this.cheTaskMain.$fireTaskExited(event);
     }
 }

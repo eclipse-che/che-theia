@@ -75,8 +75,9 @@ export interface CheVariablesMain {
 
 export interface CheTask {
     registerTaskRunner(type: string, runner: che.TaskRunner): Promise<che.Disposable>;
-    fireTaskExited(taskId: number): Promise<void>;
+    fireTaskExited(event: che.TaskExitedEvent): Promise<void>;
     $runTask(id: number, config: che.TaskConfiguration, ctx?: string): Promise<void>;
+    $onTaskExited(id: number): Promise<void>;
     $killTask(id: number): Promise<void>;
     $getTaskInfo(id: number): Promise<che.TaskInfo | undefined>;
 }
@@ -85,6 +86,7 @@ export const CheTaskMain = Symbol('CheTaskMain');
 export interface CheTaskMain {
     $registerTaskRunner(type: string): Promise<void>;
     $disposeTaskRunner(type: string): Promise<void>;
+    $fireTaskExited(event: che.TaskExitedEvent): Promise<void>;
 }
 
 export interface Variable {
@@ -400,6 +402,7 @@ export interface CheTaskService extends JsonRpcServer<CheTaskClient> {
     registerTaskRunner(type: string): Promise<void>;
     disposeTaskRunner(type: string): Promise<void>;
     disconnectClient(client: CheTaskClient): void;
+    fireTaskExited(event: che.TaskExitedEvent): Promise<void>;
 }
 
 export const CheTaskClient = Symbol('CheTaskClient');
@@ -407,7 +410,9 @@ export interface CheTaskClient {
     runTask(id: number, taskConfig: che.TaskConfiguration, ctx?: string): Promise<void>;
     killTask(id: number): Promise<void>;
     getTaskInfo(id: number): Promise<che.TaskInfo | undefined>;
-    setTaskInfoHandler(func: (id: number) => Promise<che.TaskInfo | undefined>): void;
-    setRunTaskHandler(func: (id: number, config: che.TaskConfiguration, ctx?: string) => Promise<void>): void;
+    onTaskExited(id: number): Promise<void>;
+    addTaskInfoHandler(func: (id: number) => Promise<che.TaskInfo | undefined>): void;
+    addRunTaskHandler(func: (id: number, config: che.TaskConfiguration, ctx?: string) => Promise<void>): void;
+    addTaskExitedHandler(func: (id: number) => Promise<void>): void;
     onKillEvent: Event<number>
 }
