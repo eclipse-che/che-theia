@@ -15,6 +15,7 @@ import { ProjectPathVariableResolver } from './variable/project-path-variable-re
 import { CheTaskRunner } from './task/che-task-runner';
 import { ServerVariableResolver } from './variable/server-variable-resolver';
 import { MachineExecClient } from './machine/machine-exec-client';
+import { MachineExecWatcher } from './machine/machine-exec-watcher';
 import { CheTerminalWidget, CheTerminalWidgetOptions, TerminalWidgetFactory } from './machine/terminal-widget';
 import { CheTaskEventsHandler } from './preview/task-events-handler';
 import { TasksPreviewManager } from './preview/tasks-preview-manager';
@@ -32,6 +33,7 @@ container.bind(CheTaskRunner).toSelf().inSingletonScope();
 container.bind(MachinesPicker).toSelf().inSingletonScope();
 container.bind(AttachTerminalClient).toSelf().inSingletonScope();
 container.bind(MachineExecClient).toSelf().inSingletonScope();
+container.bind(MachineExecWatcher).toSelf().inSingletonScope();
 container.bind(ServerVariableResolver).toSelf().inSingletonScope();
 container.bind(ProjectPathVariableResolver).toSelf().inSingletonScope();
 container.bind(CheWorkspaceClient).toSelf().inSingletonScope();

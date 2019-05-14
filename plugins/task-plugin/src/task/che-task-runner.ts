@@ -8,13 +8,15 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import { injectable, inject } from 'inversify';
+import { injectable, inject, postConstruct } from 'inversify';
 import * as che from '@eclipse-che/plugin';
 import { CHE_TASK_TYPE } from './task-protocol';
 import { MachineExecClient, MachineExec } from '../machine/machine-exec-client';
 import { TerminalWidgetFactory } from '../machine/terminal-widget';
 import { ProjectPathVariableResolver } from '../variable/project-path-variable-resolver';
 import { CheWorkspaceClient } from '../che-workspace-client';
+import { MachineExecWatcher } from '../machine/machine-exec-watcher';
+import * as startPoint from '../task-plugin-backend';
 
 // CHE task gets ID at creating in che task service
 // https://github.com/eclipse/che-theia/blob/c515f75044f9099820c3b18afb8de83f263d671a/extensions/eclipse-che-theia-plugin-ext/src/node/che-task-service.ts#L89
@@ -34,6 +36,17 @@ export class CheTaskRunner {
 
     @inject(ProjectPathVariableResolver)
     protected readonly projectPathVariableResolver!: ProjectPathVariableResolver;
+
+    @inject(MachineExecWatcher)
+    protected readonly machineExecWatcher: MachineExecWatcher;
+
+    @postConstruct()
+    protected init() {
+        const disposable = this.machineExecWatcher.onExit(event => {
+            che.task.fireTaskExited({ execId: event.id, code: event.code });
+        });
+        startPoint.getSubscriptions().push(disposable);
+    }
 
     /**
      * Runs a task from the given task configuration which must have a target property specified.
@@ -82,7 +95,8 @@ export class CheTaskRunner {
                     ({
                         taskId: STUB_TASK_ID,
                         ctx: ctx,
-                        config: taskConfig
+                        config: taskConfig,
+                        execId
                     })
             };
         } catch (error) {

@@ -17,6 +17,8 @@ export class CheTaskClientImpl implements CheTaskClient {
     private readonly onKillEventEmitter: Emitter<number>;
     private taskInfoHandlers: ((id: number) => Promise<TaskInfo>)[] = [];
     private runTaskHandlers: ((id: number, config: TaskConfiguration, ctx?: string) => Promise<void>)[] = [];
+    private taskExitedHandlers: ((id: number) => Promise<void>)[] = [];
+
     constructor() {
         this.onKillEventEmitter = new Emitter<number>();
     }
@@ -30,12 +32,26 @@ export class CheTaskClientImpl implements CheTaskClient {
 
     async getTaskInfo(id: number): Promise<TaskInfo | undefined> {
         for (const taskInfoHandler of this.taskInfoHandlers) {
-            const taskInfo = await taskInfoHandler(id);
-            if (taskInfo) {
-                return taskInfo;
+            try {
+                const taskInfo = await taskInfoHandler(id);
+                if (taskInfo) {
+                    return taskInfo;
+                }
+            } catch (e) {
+                // allow another handlers to handle request
             }
         }
         return undefined;
+    }
+
+    async onTaskExited(id: number): Promise<void> {
+        for (const taskExitedHandler of this.taskExitedHandlers) {
+            try {
+                await taskExitedHandler(id);
+            } catch (e) {
+                // allow another handlers to handle request
+            }
+        }
     }
 
     get onKillEvent(): Event<number> {
@@ -46,11 +62,15 @@ export class CheTaskClientImpl implements CheTaskClient {
         this.onKillEventEmitter.fire(id);
     }
 
-    setTaskInfoHandler(handler: (id: number) => Promise<TaskInfo>) {
+    addTaskInfoHandler(handler: (id: number) => Promise<TaskInfo>) {
         this.taskInfoHandlers.push(handler);
     }
 
-    setRunTaskHandler(handler: (id: number, config: TaskConfiguration, ctx?: string) => Promise<void>) {
+    addRunTaskHandler(handler: (id: number, config: TaskConfiguration, ctx?: string) => Promise<void>) {
         this.runTaskHandlers.push(handler);
+    }
+
+    addTaskExitedHandler(handler: (id: number) => Promise<void>) {
+        this.taskExitedHandlers.push(handler);
     }
 }

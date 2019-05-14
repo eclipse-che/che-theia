@@ -119,8 +119,8 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             registerTaskRunner(type: string, runner: che.TaskRunner): Promise<che.Disposable> {
                 return cheTaskImpl.registerTaskRunner(type, runner);
             },
-            fireTaskExited(id: number): Promise<void> {
-                return cheTaskImpl.fireTaskExited(id);
+            fireTaskExited(event: che.TaskExitedEvent): Promise<void> {
+                return cheTaskImpl.fireTaskExited(event);
             }
         };
 

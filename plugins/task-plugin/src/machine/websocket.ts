@@ -77,7 +77,8 @@ export class ReconnectingWebSocket {
     }
 
     public close() {
-        this.ws.close();
+        this.ws.removeAllListeners();
+        this.ws.close(1000);
     }
 
     private reconnect(reason: string) {

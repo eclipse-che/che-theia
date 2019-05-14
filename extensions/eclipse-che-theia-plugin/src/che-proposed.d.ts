@@ -106,7 +106,7 @@ declare module '@eclipse-che/plugin' {
     export namespace task {
         export function registerTaskRunner(type: string, runner: TaskRunner): Promise<Disposable>;
         /** Needs to be executed when the task is finished */
-        export function fireTaskExited(id: number): Promise<void>;
+        export function fireTaskExited(event: TaskExitedEvent): Promise<void>;
     }
 
     /** A Task Runner knows how to run a Task of a particular type. */
@@ -132,6 +132,19 @@ declare module '@eclipse-che/plugin' {
         readonly ctx?: string,
         /** task config used for launching a task */
         readonly config: TaskConfiguration
+        // tslint:disable-next-line:no-any
+        readonly [key: string]: any;
+    }
+
+    export interface TaskExitedEvent {
+        readonly taskId?: number;
+        readonly ctx?: string;
+
+        readonly code?: number;
+        readonly signal?: string;
+
+        // tslint:disable-next-line:no-any
+        readonly [key: string]: any;
     }
 
     export interface TaskConfiguration {

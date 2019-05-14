@@ -6846,9 +6846,9 @@ move-concurrently@^1.0.1:
     rimraf "^2.5.4"
     run-queue "^1.0.3"
 
-"moxios@git://github.com/stoplightio/moxios.git#v1.3.0":
+"moxios@git://github.com/stoplightio/moxios#v1.3.0":
   version "1.3.0"
-  resolved "git://github.com/stoplightio/moxios.git#9d702c8eafee4b02917d6bc400ae15f1e835cf51"
+  resolved "git://github.com/stoplightio/moxios#9d702c8eafee4b02917d6bc400ae15f1e835cf51"
   dependencies:
     class-autobind "^0.1.4"
 
