@@ -23,13 +23,12 @@ ENV HELM_VERSION v2.13.1
 
 ADD etc/docker.sh /usr/local/bin/docker
 
-RUN curl -sL https://rpm.nodesource.com/setup_10.x | bash - && \
-    # 'which' utility is used by VS Code Kubernetes extension to find the binaries, e.g. 'kubectl'
-    dnf install -y which nodejs && \
-    curl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl && \
+RUN curl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl && \
     chmod +x /usr/local/bin/kubectl && \
     curl -o- -L https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz | tar xvz -C /usr/local/bin --strip 1 && \
     # set up local Helm configuration skipping Tiller installation
-    helm init --client-only
+    helm init --client-only && \
+    # 'which' utility is used by VS Code Kubernetes extension to find the binaries, e.g. 'kubectl'
+    dnf install -y which nodejs
 
 ENTRYPOINT ["/entrypoint.sh"]
