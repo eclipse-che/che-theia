@@ -24,6 +24,7 @@ export const RemoteTerminalWidgetOptions = Symbol('RemoteTerminalWidgetOptions')
 export interface RemoteTerminalWidgetOptions extends Partial<TerminalWidgetOptions> {
     machineName: string,
     workspaceId: string,
+    closeWidgetExitOrError: boolean,
     endpoint: string
 }
 
@@ -49,19 +50,29 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     @inject(RemoteTerminalWidgetOptions)
     options: RemoteTerminalWidgetOptions;
 
+    protected terminalId = -1;
+
     @postConstruct()
     protected init(): void {
         super.init();
 
         this.toDispose.push(this.remoteTerminalWatcher.onTerminalExecExit(exitEvent => {
             if (this.terminalId === exitEvent.id) {
-                this.dispose();
+                if (this.options.closeWidgetExitOrError) {
+                    this.dispose();
+                }
+                this.onTermDidClose.fire(this);
+                this.onTermDidClose.dispose();
             }
         }));
 
         this.toDispose.push(this.remoteTerminalWatcher.onTerminalExecError(errEvent => {
             if (this.terminalId === errEvent.id) {
-                this.dispose();
+                if (this.options.closeWidgetExitOrError) {
+                    this.dispose();
+                }
+                this.onTermDidClose.fire(this);
+                this.onTermDidClose.dispose();
                 this.logger.error(`Terminal error: ${errEvent.stack}`);
             }
         }));

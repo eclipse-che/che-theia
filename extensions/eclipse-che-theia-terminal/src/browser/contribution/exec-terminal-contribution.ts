@@ -91,7 +91,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         }
     }
 
-    public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions): Promise<TerminalWidget> {
+    public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions, closeWidgetOnExitOrError?: boolean): Promise<TerminalWidget> {
         try {
             const workspaceId = <string>await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
             const termApiEndPoint = <URI | undefined>await this.termApiEndPointProvider();
@@ -101,6 +101,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
                 machineName: containerName,
                 workspaceId: workspaceId,
                 endpoint: termApiEndPoint.toString(true),
+                closeWidgetExitOrError: closeWidgetOnExitOrError,
                 ...options
             });
             return widget;
@@ -132,9 +133,15 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
 
     async newTerminal(options: TerminalWidgetOptions): Promise<TerminalWidget> {
         let containerName;
+        let closeWidgetExitOrError: boolean;
 
         if (options.attributes) {
             containerName = options.attributes['CHE_MACHINE_NAME'];
+
+            const closeWidgetOnExitOrErrorValue = options.attributes['closeWidgetExitOrError'];
+            if (closeWidgetOnExitOrErrorValue) {
+                closeWidgetExitOrError = closeWidgetOnExitOrErrorValue.toLowerCase() === 'false' ? false : true;
+            }
         }
 
         if (!containerName) {
@@ -142,7 +149,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         }
 
         if (containerName) {
-            const termWidget = await this.newTerminalPerContainer(containerName, options);
+            const termWidget = await this.newTerminalPerContainer(containerName, options, closeWidgetExitOrError);
             return termWidget;
         }
 
