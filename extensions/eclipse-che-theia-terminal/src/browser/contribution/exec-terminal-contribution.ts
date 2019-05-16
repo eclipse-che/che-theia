@@ -91,7 +91,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         }
     }
 
-    public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions, closeWidgetOnExitOrError?: boolean): Promise<TerminalWidget> {
+    public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions, closeWidgetOnExitOrError: boolean): Promise<TerminalWidget> {
         try {
             const workspaceId = <string>await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
             const termApiEndPoint = <URI | undefined>await this.termApiEndPointProvider();
@@ -119,7 +119,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
             cwd = await this.selectTerminalCwd();
         }
 
-        const termWidget = await this.newTerminalPerContainer(containerName, { cwd });
+        const termWidget = await this.newTerminalPerContainer(containerName, { cwd }, true);
         this.open(termWidget);
         termWidget.start();
     }
@@ -141,6 +141,8 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
             const closeWidgetOnExitOrErrorValue = options.attributes['closeWidgetExitOrError'];
             if (closeWidgetOnExitOrErrorValue) {
                 closeWidgetExitOrError = closeWidgetOnExitOrErrorValue.toLowerCase() === 'false' ? false : true;
+            } else {
+                closeWidgetExitOrError = true;
             }
         }
 
