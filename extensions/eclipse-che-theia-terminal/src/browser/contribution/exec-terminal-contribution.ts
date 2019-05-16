@@ -99,9 +99,9 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
             const widget = <RemoteTerminalWidget>await this.widgetManager.getOrCreateWidget(REMOTE_TERMINAL_WIDGET_FACTORY_ID, <RemoteTerminalWidgetFactoryOptions>{
                 created: new Date().toString(),
                 machineName: containerName,
-                workspaceId: workspaceId,
+                workspaceId,
                 endpoint: termApiEndPoint.toString(true),
-                closeWidgetExitOrError: closeWidgetOnExitOrError,
+                closeWidgetOnExitOrError,
                 ...options
             });
             return widget;

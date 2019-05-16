@@ -24,7 +24,7 @@ export const RemoteTerminalWidgetOptions = Symbol('RemoteTerminalWidgetOptions')
 export interface RemoteTerminalWidgetOptions extends Partial<TerminalWidgetOptions> {
     machineName: string,
     workspaceId: string,
-    closeWidgetExitOrError: boolean,
+    closeWidgetOnExitOrError: boolean,
     endpoint: string
 }
 
@@ -58,7 +58,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
         this.toDispose.push(this.remoteTerminalWatcher.onTerminalExecExit(exitEvent => {
             if (this.terminalId === exitEvent.id) {
-                if (this.options.closeWidgetExitOrError) {
+                if (this.options.closeWidgetOnExitOrError) {
                     this.dispose();
                 }
                 this.onTermDidClose.fire(this);
@@ -68,7 +68,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
         this.toDispose.push(this.remoteTerminalWatcher.onTerminalExecError(errEvent => {
             if (this.terminalId === errEvent.id) {
-                if (this.options.closeWidgetExitOrError) {
+                if (this.options.closeWidgetOnExitOrError) {
                     this.dispose();
                 }
                 this.onTermDidClose.fire(this);
