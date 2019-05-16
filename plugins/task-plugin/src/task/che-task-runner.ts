@@ -25,10 +25,10 @@ const STUB_TASK_ID: number = -1;
 export class CheTaskRunner {
 
     @inject(MachineExecClient)
-    protected readonly machineExecClient!: MachineExecClient;
+    protected readonly machineExecClient: MachineExecClient;
 
     @inject(ProjectPathVariableResolver)
-    protected readonly projectPathVariableResolver!: ProjectPathVariableResolver;
+    protected readonly projectPathVariableResolver: ProjectPathVariableResolver;
 
     @inject(MachineExecWatcher)
     protected readonly machineExecWatcher: MachineExecWatcher;
@@ -74,6 +74,7 @@ export class CheTaskRunner {
             };
             const terminal = theia.window.createTerminal(terminalOptions);
             terminal.show();
+            const execId = await terminal.processId;
 
             return {
                 kill: () => {
@@ -84,7 +85,7 @@ export class CheTaskRunner {
                         taskId: STUB_TASK_ID,
                         ctx: ctx,
                         config: taskConfig,
-                        execId: 'nope'
+                        execId: execId
                     })
             };
         } catch (error) {
