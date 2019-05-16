@@ -2,7 +2,7 @@
 * @evidolob
 
 # dockerfiles
-dockerfiles/** @riuvshin @benoitf @evidolob
+dockerfiles/** @benoitf @evidolob
 plugins/** @sunix @vitaliy-guliy @olexii4
 extensions/** @mmorhun @evidolob
 che-plugins/** @evidolob @tolusha
