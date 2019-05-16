@@ -91,7 +91,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         }
     }
 
-    public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions, closeWidgetOnExitOrError: boolean): Promise<TerminalWidget> {
+    public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions, closeWidgetOnExitOrError?: boolean): Promise<TerminalWidget> {
         try {
             const workspaceId = <string>await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
             const termApiEndPoint = <URI | undefined>await this.termApiEndPointProvider();
