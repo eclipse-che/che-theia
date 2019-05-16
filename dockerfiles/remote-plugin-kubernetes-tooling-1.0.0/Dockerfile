@@ -11,15 +11,15 @@
 FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:next as endpoint
 FROM quay.io/buildah/upstream:v1.8.2
 
+ENV KUBECTL_VERSION v1.14.1
+ENV HELM_VERSION v2.13.1
 ENV HOME=/home/theia
+
 COPY --from=endpoint /home/theia /home/theia
 COPY --from=endpoint /projects /projects
 COPY --from=endpoint /etc/passwd /etc/passwd
 COPY --from=endpoint /etc/group /etc/group
 COPY --from=endpoint /entrypoint.sh /entrypoint.sh
-
-ENV KUBECTL_VERSION v1.14.1
-ENV HELM_VERSION v2.13.1
 
 ADD etc/docker.sh /usr/local/bin/docker
 
