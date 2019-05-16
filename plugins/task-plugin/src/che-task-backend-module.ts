@@ -16,7 +16,6 @@ import { CheTaskRunner } from './task/che-task-runner';
 import { ServerVariableResolver } from './variable/server-variable-resolver';
 import { MachineExecClient } from './machine/machine-exec-client';
 import { MachineExecWatcher } from './machine/machine-exec-watcher';
-import { CheTerminalWidget, CheTerminalWidgetOptions, TerminalWidgetFactory } from './machine/terminal-widget';
 import { CheTaskEventsHandler } from './preview/task-events-handler';
 import { TasksPreviewManager } from './preview/tasks-preview-manager';
 import { AttachTerminalClient } from './machine/attach-client';
@@ -39,17 +38,6 @@ container.bind(ProjectPathVariableResolver).toSelf().inSingletonScope();
 container.bind(CheWorkspaceClient).toSelf().inSingletonScope();
 container.bind(CheTaskPreviewMode).toSelf().inSingletonScope();
 container.bind(PreviewUrlOpenService).toSelf().inSingletonScope();
-
-container.bind(CheTerminalWidget).toSelf().inTransientScope();
-container.bind(TerminalWidgetFactory).toDynamicValue(ctx => ({
-    createWidget: (options: CheTerminalWidgetOptions) => {
-        const child = new Container({ defaultScope: 'Singleton' });
-        child.parent = ctx.container;
-        child.bind(CheTerminalWidgetOptions).toConstantValue(options);
-        return child.get(CheTerminalWidget);
-    }
-}));
-
 container.bind(PreviewUrlsWidget).toSelf().inTransientScope();
 container.bind(PreviewUrlsWidgetFactory).toDynamicValue(ctx => ({
     createWidget: (options: PreviewUrlsWidgetOptions) => {

@@ -11,12 +11,11 @@
 import { injectable, inject, postConstruct } from 'inversify';
 import * as che from '@eclipse-che/plugin';
 import { CHE_TASK_TYPE } from './task-protocol';
-import { MachineExecClient, MachineExec } from '../machine/machine-exec-client';
-import { TerminalWidgetFactory } from '../machine/terminal-widget';
+import { MachineExecClient } from '../machine/machine-exec-client';
 import { ProjectPathVariableResolver } from '../variable/project-path-variable-resolver';
-import { CheWorkspaceClient } from '../che-workspace-client';
 import { MachineExecWatcher } from '../machine/machine-exec-watcher';
 import * as startPoint from '../task-plugin-backend';
+import * as theia from '@theia/plugin';
 
 // CHE task gets ID at creating in che task service
 // https://github.com/eclipse/che-theia/blob/c515f75044f9099820c3b18afb8de83f263d671a/extensions/eclipse-che-theia-plugin-ext/src/node/che-task-service.ts#L89
@@ -27,12 +26,6 @@ export class CheTaskRunner {
 
     @inject(MachineExecClient)
     protected readonly machineExecClient!: MachineExecClient;
-
-    @inject(CheWorkspaceClient)
-    protected readonly cheWorkspaceClient!: CheWorkspaceClient;
-
-    @inject(TerminalWidgetFactory)
-    protected readonly terminalWidgetFactory!: TerminalWidgetFactory;
 
     @inject(ProjectPathVariableResolver)
     protected readonly projectPathVariableResolver!: ProjectPathVariableResolver;
@@ -62,30 +55,25 @@ export class CheTaskRunner {
             throw new Error("Che task config must have 'target' property specified");
         }
 
-        const workspaceId = target.workspaceId;
-        if (!workspaceId) {
-            throw new Error("Che task config must have 'target.workspaceId' property specified");
-        }
-
         const machineName = target.machineName;
         if (!machineName) {
             throw new Error("Che task config must have 'target.machineName' property specified");
         }
 
-        const machineExec: MachineExec = {
-            identifier: {
-                machineName: machineName,
-                workspaceId: workspaceId
-            },
-            cmd: ['sh', '-c', "'" + taskConfig.command + "'"],
-            tty: false,
-            cwd: target.workingDir
-        };
-
         try {
-            const execId = await this.machineExecClient.getExecId(machineExec);
-            const terminalWidget = await this.terminalWidgetFactory.createWidget({ title: taskConfig.label, terminalId: execId });
-            terminalWidget.connectTerminalProcess();
+            const terminalOptions: theia.TerminalOptions = {
+                cwd: target.workingDir,
+                name: taskConfig.label,
+                shellPath: 'sh',
+                shellArgs: ['-c', "'" + taskConfig.command + "'"],
+
+                attributes: {
+                    machineName: machineName,
+                    closeWidgetExitOrError: 'false',
+                }
+            };
+            const terminal = theia.window.createTerminal(terminalOptions);
+            terminal.show();
 
             return {
                 kill: () => {
@@ -96,7 +84,7 @@ export class CheTaskRunner {
                         taskId: STUB_TASK_ID,
                         ctx: ctx,
                         config: taskConfig,
-                        execId
+                        execId: 'nope'
                     })
             };
         } catch (error) {
