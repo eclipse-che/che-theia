@@ -94,7 +94,9 @@ ENV USE_LOCAL_GIT=true \
     THEIA_DEFAULT_PLUGINS=local-dir:///default-theia-plugins \
     # Specify the directory of git (avoid to search at init of Theia)
     LOCAL_GIT_DIRECTORY=/usr \
-    GIT_EXEC_PATH=/usr/libexec/git-core
+    GIT_EXEC_PATH=/usr/libexec/git-core \
+    # Ignore from port plugin the default hosted mode port
+    PORT_PLUGIN_EXCLUDE_3130=TRUE
 
 EXPOSE 3100 3130
 
