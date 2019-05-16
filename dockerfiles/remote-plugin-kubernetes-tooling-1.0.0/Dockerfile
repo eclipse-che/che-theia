@@ -15,12 +15,6 @@ ENV KUBECTL_VERSION v1.14.1
 ENV HELM_VERSION v2.13.1
 ENV HOME=/home/theia
 
-COPY --from=endpoint /home/theia /home/theia
-COPY --from=endpoint /projects /projects
-COPY --from=endpoint /etc/passwd /etc/passwd
-COPY --from=endpoint /etc/group /etc/group
-COPY --from=endpoint /entrypoint.sh /entrypoint.sh
-
 ADD etc/docker.sh /usr/local/bin/docker
 
 RUN curl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl && \
@@ -30,5 +24,11 @@ RUN curl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VER
     helm init --client-only && \
     # 'which' utility is used by VS Code Kubernetes extension to find the binaries, e.g. 'kubectl'
     dnf install -y which nodejs
+
+COPY --from=endpoint /home/theia /home/theia
+COPY --from=endpoint /projects /projects
+COPY --from=endpoint /etc/passwd /etc/passwd
+COPY --from=endpoint /etc/group /etc/group
+COPY --from=endpoint /entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
