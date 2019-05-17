@@ -91,7 +91,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         }
     }
 
-    public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions): Promise<TerminalWidget> {
+    public async newTerminalPerContainer(containerName: string, options: TerminalWidgetOptions, closeWidgetOnExitOrError: boolean = true): Promise<TerminalWidget> {
         try {
             const workspaceId = <string>await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
             const termApiEndPoint = <URI | undefined>await this.termApiEndPointProvider();
@@ -99,8 +99,9 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
             const widget = <RemoteTerminalWidget>await this.widgetManager.getOrCreateWidget(REMOTE_TERMINAL_WIDGET_FACTORY_ID, <RemoteTerminalWidgetFactoryOptions>{
                 created: new Date().toString(),
                 machineName: containerName,
-                workspaceId: workspaceId,
+                workspaceId,
                 endpoint: termApiEndPoint.toString(true),
+                closeWidgetOnExitOrError,
                 ...options
             });
             return widget;
@@ -132,9 +133,15 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
 
     async newTerminal(options: TerminalWidgetOptions): Promise<TerminalWidget> {
         let containerName;
+        let closeWidgetExitOrError: boolean = true;
 
         if (options.attributes) {
             containerName = options.attributes['CHE_MACHINE_NAME'];
+
+            const closeWidgetOnExitOrErrorValue = options.attributes['closeWidgetExitOrError'];
+            if (closeWidgetOnExitOrErrorValue) {
+                closeWidgetExitOrError = closeWidgetOnExitOrErrorValue.toLowerCase() === 'false' ? false : true;
+            }
         }
 
         if (!containerName) {
@@ -142,7 +149,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         }
 
         if (containerName) {
-            const termWidget = await this.newTerminalPerContainer(containerName, options);
+            const termWidget = await this.newTerminalPerContainer(containerName, options, closeWidgetExitOrError);
             return termWidget;
         }
 
