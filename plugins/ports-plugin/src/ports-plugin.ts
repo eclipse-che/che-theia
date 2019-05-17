@@ -25,11 +25,14 @@ import { WorkspacePort } from './workspace-port';
 const LISTEN_ALL_IPV4 = '0.0.0.0';
 const LISTEN_ALL_IPV6 = '::';
 const SERVER_REDIRECT_PATTERN = 'theia-redirect-';
+const PORT_EXCLUDE_ENV_VAR_PREFIX: string = 'PORT_PLUGIN_EXCLUDE_';
 
 // variables
 let workspacePorts: WorkspacePort[];
 let redirectPorts: WorkspacePort[];
 let redirectListeners: Map<number, BusyPort>;
+const excludedPorts: number[] = [];
+let outputChannel: theia.OutputChannel;
 
 // map a listener and the workspace port used
 export interface BusyPort {
@@ -85,10 +88,17 @@ async function askRedirect(port: Port, redirectMessage: string, errorMessage: st
 // Callback when a new port is being opened in workspace
 async function onOpenPort(port: Port) {
 
+    // skip excluded
+    if (excludedPorts.includes(port.portNumber)) {
+        // this port is excluded so just print a notice but does not propose a redirect
+        outputChannel.appendLine(`Ignoring excluded port ${port.portNumber}`);
+        return;
+    }
+
     // handle ephemeral ports
     if (port.portNumber >= 32000) {
         // this port is ephemeral so just print a notice but does not propose a redirect
-        await theia.window.showInformationMessage(`Ephemeral port now listening on port ${port.portNumber} (port range >= 32000). No redirect proposed for ephemerals.`);
+        outputChannel.appendLine(`Ephemeral port now listening on port ${port.portNumber} (port range >= 32000). No redirect proposed for ephemerals.`);
         return;
     }
 
@@ -151,12 +161,23 @@ function onClosedPort(port: Port) {
 
 export async function start(context: theia.PluginContext): Promise<void> {
 
+    outputChannel = theia.window.createOutputChannel('Ports Plug-in');
+
     // first, grab ports of workspace
     const workspaceHandler = new WorkspaceHandler();
     workspacePorts = await workspaceHandler.getWorkspacePorts();
 
     redirectListeners = new Map<number, BusyPort>();
     redirectPorts = workspacePorts.filter(port => port.serverName.startsWith(SERVER_REDIRECT_PATTERN));
+
+    // initiate excluded ports
+    const excludedPortProperties: string[] = Object.keys(process.env).filter(key => key.startsWith(PORT_EXCLUDE_ENV_VAR_PREFIX));
+    excludedPortProperties.forEach(key => {
+        const value = process.env[key].toLocaleLowerCase() || '';
+        if (value !== 'no' && value !== 'false') {
+            excludedPorts.push(parseInt(key.substring(PORT_EXCLUDE_ENV_VAR_PREFIX.length)));
+        }
+    });
 
     const portChangesDetector = new PortChangesDetector();
     portChangesDetector.onDidOpenPort(onOpenPort);
