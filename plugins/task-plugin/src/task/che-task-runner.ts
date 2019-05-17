@@ -68,7 +68,7 @@ export class CheTaskRunner {
                 shellArgs: ['-c', `'${taskConfig.command}'`],
 
                 attributes: {
-                    machineName: machineName,
+                    CHE_MACHINE_NAME: machineName,
                     closeWidgetExitOrError: 'false',
                 }
             };
