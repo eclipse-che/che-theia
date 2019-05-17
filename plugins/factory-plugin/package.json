@@ -9,10 +9,12 @@
         "src"
     ],
     "devDependencies": {
+        "@types/node": "^10.0.0",
+        "@eclipse-che/api": "latest",
+        "@eclipse-che/plugin": "0.0.1",
         "@theia/plugin": "next",
         "@theia/plugin-packager": "latest",
-        "@eclipse-che/api": "latest",
-        "@eclipse-che/plugin": "0.0.1"
+        "jest": "22.1.4"
     },
     "scripts": {
         "prepare": "yarn clean && yarn build && yarn lint:fix && yarn test",
@@ -24,7 +26,7 @@
         "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia:plugin pack",
         "watch": "tsc -w",
         "test": "jest",
-        "test-watch": "jest --watchAll"
+        "test:watch": "jest --watchAll"
     },
     "engines": {
         "theiaPlugin": "next"
@@ -44,7 +46,7 @@
         "modulePathIgnorePatterns": [
             "<rootDir>/lib"
         ],
-        "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+        "testRegex": "(/tests/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
         "moduleFileExtensions": [
             "ts",
             "tsx",

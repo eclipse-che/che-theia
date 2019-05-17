@@ -7,6 +7,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
+
+import * as path from 'path';
 import * as theia from '@theia/plugin';
 import { che as cheApi } from '@eclipse-che/api';
 import * as fileuri from './file-uri';
@@ -22,6 +24,10 @@ export enum ActionId {
     RUN_COMMAND = 'runCommand'
 }
 
+function isDevfileProjectConfig(project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project): project is cheApi.workspace.devfile.Project {
+    return !!project.name && !!project.source && !!project.source.type && !!project.source.location && !project.source['parameters'];
+}
+
 export class TheiaCloneCommand {
 
     private locationURI: string | undefined;
@@ -31,17 +37,33 @@ export class TheiaCloneCommand {
     private checkoutStartPoint?: string | undefined;
     private checkoutCommitId?: string | undefined;
 
-    constructor(project: cheApi.workspace.ProjectConfig, projectsRoot: string) {
-        this.locationURI = project.source && project.source.location ? project.source.location : undefined;
-        this.folder = projectsRoot + project.path;
-        this.checkoutBranch = project.source && project.source.parameters && project.source.parameters['branch'] ?
-            project.source.parameters['branch'] : undefined;
-        this.checkoutStartPoint = project.source && project.source.parameters && project.source.parameters['startPoint'] ?
-            project.source.parameters['startPoint'] : undefined;
-        this.checkoutTag = project.source && project.source.parameters && project.source.parameters['tag'] ?
-            project.source.parameters['tag'] : undefined;
-        this.checkoutCommitId = project.source && project.source.parameters && project.source.parameters['commitId'] ?
-            project.source.parameters['commitId'] : undefined;
+    constructor(project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project, projectsRoot: string) {
+        if (isDevfileProjectConfig(project)) {
+            const source = project.source;
+            if (!source) {
+                return;
+            }
+
+            this.locationURI = source.location;
+            this.folder = project.clonePath ? path.join(projectsRoot, project.clonePath) : path.join(projectsRoot, project.name);
+            this.checkoutBranch = source.branch;
+            this.checkoutStartPoint = source.startPoint;
+            this.checkoutTag = source.tag;
+            this.checkoutCommitId = source.commitId;
+        } else {
+            // legacy project config
+            if (!project.source || !project.source.parameters) {
+                return;
+            }
+            const parameters = project.source.parameters;
+
+            this.locationURI = project.source.location;
+            this.folder = projectsRoot + project.path;
+            this.checkoutBranch = parameters['branch'];
+            this.checkoutStartPoint = parameters['startPoint'];
+            this.checkoutTag = project.source.parameters['tag'];
+            this.checkoutCommitId = project.source.parameters['commitId'];
+        }
     }
 
     execute(): PromiseLike<void> {
