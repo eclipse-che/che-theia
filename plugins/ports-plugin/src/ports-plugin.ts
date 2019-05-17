@@ -174,7 +174,7 @@ export async function start(context: theia.PluginContext): Promise<void> {
     const excludedPortProperties: string[] = Object.keys(process.env).filter(key => key.startsWith(PORT_EXCLUDE_ENV_VAR_PREFIX));
     excludedPortProperties.forEach(key => {
         const value = process.env[key].toLocaleLowerCase() || '';
-        if (value !== 'no') {
+        if (value !== 'no' && value !== 'false') {
             excludedPorts.push(parseInt(key.substring(PORT_EXCLUDE_ENV_VAR_PREFIX.length)));
         }
     });
