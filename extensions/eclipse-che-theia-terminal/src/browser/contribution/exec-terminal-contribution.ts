@@ -91,7 +91,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         }
     }
 
-    public async newTerminalPerContainer(containerName: string, options?: TerminalWidgetOptions, closeWidgetOnExitOrError?: boolean): Promise<TerminalWidget> {
+    public async newTerminalPerContainer(containerName: string, options: TerminalWidgetOptions, closeWidgetOnExitOrError: boolean = true): Promise<TerminalWidget> {
         try {
             const workspaceId = <string>await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
             const termApiEndPoint = <URI | undefined>await this.termApiEndPointProvider();
@@ -119,7 +119,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
             cwd = await this.selectTerminalCwd();
         }
 
-        const termWidget = await this.newTerminalPerContainer(containerName, { cwd }, true);
+        const termWidget = await this.newTerminalPerContainer(containerName, { cwd });
         this.open(termWidget);
         termWidget.start();
     }
@@ -133,7 +133,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
 
     async newTerminal(options: TerminalWidgetOptions): Promise<TerminalWidget> {
         let containerName;
-        let closeWidgetExitOrError: boolean;
+        let closeWidgetExitOrError: boolean = true;
 
         if (options.attributes) {
             containerName = options.attributes['CHE_MACHINE_NAME'];
@@ -141,8 +141,6 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
             const closeWidgetOnExitOrErrorValue = options.attributes['closeWidgetExitOrError'];
             if (closeWidgetOnExitOrErrorValue) {
                 closeWidgetExitOrError = closeWidgetOnExitOrErrorValue.toLowerCase() === 'false' ? false : true;
-            } else {
-                closeWidgetExitOrError = true;
             }
         }
 
