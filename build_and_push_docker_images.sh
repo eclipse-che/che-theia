@@ -22,6 +22,7 @@ dockerfiles/remote-plugin-go-1.10.7
 dockerfiles/remote-plugin-python-3.7.3
 dockerfiles/remote-plugin-dotnet-2.2.105
 dockerfiles/remote-plugin-kubernetes-tooling-0.1.17
+dockerfiles/remote-plugin-kubernetes-tooling-1.0.0
 dockerfiles/remote-plugin-openshift-connector-0.0.17
 )
 
@@ -34,6 +35,7 @@ eclipse/che-remote-plugin-go-1.10.7
 eclipse/che-remote-plugin-python-3.7.3
 eclipse/che-remote-plugin-dotnet-2.2.105
 eclipse/che-remote-plugin-kubernetes-tooling-0.1.17
+eclipse/che-remote-plugin-kubernetes-tooling-1.0.0
 eclipse/che-remote-plugin-openshift-connector-0.0.17
 )
 
