@@ -22,6 +22,9 @@ import { PreviewUrlsWidgetFactory, PreviewUrlsWidget, PreviewUrlsWidgetOptions }
 import { CheTaskPreviewMode } from './preview/task-preview-mode';
 import { PreviewUrlOpenService } from './preview/preview-url-open-service';
 import { CheWorkspaceClient } from './che-workspace-client';
+import { LaunchConfigurationsExporter } from './export/launch-configs-exporter';
+import { TaskConfigurationsExporter } from './export/task-configs-exporter';
+import { ConfigurationsExporter, ExportConfigurationsManager } from './export/export-configs-manager';
 
 const container = new Container();
 container.bind(CheTaskProvider).toSelf().inSingletonScope();
@@ -36,6 +39,10 @@ container.bind(ProjectPathVariableResolver).toSelf().inSingletonScope();
 container.bind(CheWorkspaceClient).toSelf().inSingletonScope();
 container.bind(CheTaskPreviewMode).toSelf().inSingletonScope();
 container.bind(PreviewUrlOpenService).toSelf().inSingletonScope();
+container.bind<ConfigurationsExporter>(ConfigurationsExporter).to(TaskConfigurationsExporter).inSingletonScope();
+container.bind<ConfigurationsExporter>(ConfigurationsExporter).to(LaunchConfigurationsExporter).inSingletonScope();
+container.bind(ExportConfigurationsManager).toSelf().inSingletonScope();
+
 container.bind(PreviewUrlsWidget).toSelf().inTransientScope();
 container.bind(PreviewUrlsWidgetFactory).toDynamicValue(ctx => ({
     createWidget: (options: PreviewUrlsWidgetOptions) => {
