@@ -16,6 +16,7 @@ const TERMINAL_SERVER_TYPE = 'terminal';
 
 @injectable()
 export class CheWorkspaceClient {
+    private cachedCommands: cheApi.workspace.Command[] = [];
 
     async getMachines(): Promise<{ [attrName: string]: cheApi.workspace.Machine }> {
         const workspace = await this.getCurrentWorkspace();
@@ -32,6 +33,10 @@ export class CheWorkspaceClient {
     }
 
     async getCommands(): Promise<cheApi.workspace.Command[]> {
+        if (this.cachedCommands.length > 0) {
+            return this.cachedCommands;
+        }
+
         const workspace: cheApi.workspace.Workspace = await this.getCurrentWorkspace();
 
         const runtime: cheApi.workspace.Runtime = workspace.runtime;
@@ -40,7 +45,11 @@ export class CheWorkspaceClient {
         }
 
         const commands = runtime.commands;
-        return commands ? commands : [];
+        if (commands) {
+            this.cachedCommands = commands;
+            return commands;
+        }
+        return [];
     }
 
     getCurrentWorkspace(): Promise<cheApi.workspace.Workspace> {
