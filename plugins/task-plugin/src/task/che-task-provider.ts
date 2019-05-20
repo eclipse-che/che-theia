@@ -15,6 +15,8 @@ import { Task } from '@theia/plugin';
 import { CHE_TASK_TYPE, MACHINE_NAME_ATTRIBUTE, PREVIEW_URL_ATTRIBUTE, WORKING_DIR_ATTRIBUTE, CheTaskDefinition, Target } from './task-protocol';
 import { MachinesPicker } from '../machine/machines-picker';
 import { CheWorkspaceClient } from '../che-workspace-client';
+import { VSCODE_LAUNCH_TYPE } from '../export/launch-configs-exporter';
+import { VSCODE_TASK_TYPE } from '../export/task-configs-exporter';
 
 /** Reads the commands from the current Che workspace and provides it as Task Configurations. */
 @injectable()
@@ -27,7 +29,10 @@ export class CheTaskProvider {
 
     async provideTasks(): Promise<Task[]> {
         const commands = await this.cheWorkspaceClient.getCommands();
-        return commands.map(command => this.toTask(command));
+        const filteredCommands = commands.filter(command =>
+            command.type !== VSCODE_TASK_TYPE &&
+            command.type !== VSCODE_LAUNCH_TYPE);
+        return filteredCommands.map(command => this.toTask(command));
     }
 
     async resolveTask(task: Task): Promise<Task> {

@@ -12,7 +12,7 @@ import * as rpc from 'vscode-ws-jsonrpc';
 import { injectable, inject, postConstruct } from 'inversify';
 import { CheWorkspaceClient } from '../che-workspace-client';
 import { createConnection } from './websocket';
-import { applySegmentsToUri } from '../uri-helper';
+import { applySegmentsToUri } from '../utils';
 import { MachineExecWatcher } from './machine-exec-watcher';
 
 const CREATE_METHOD_NAME: string = 'create';
