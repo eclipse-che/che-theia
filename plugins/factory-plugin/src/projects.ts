@@ -72,7 +72,7 @@ export function deleteProjectFromDevfile(
         const project = projects[i];
         const currentProjectPath = project.clonePath ? project.clonePath : path.sep + project.name;
         if (currentProjectPath === projectPath) {
-            projects.splice(i);
+            projects.splice(i, 1);
             break;
         }
     }
@@ -140,7 +140,7 @@ export function deleteProjectFromWorkspaceConfig(
     for (let i = 0; i < projects.length; i++) {
         const project = projects[i];
         if (project.path === projectPath) {
-            projects.splice(i);
+            projects.splice(i, 1);
             break;
         }
     }
