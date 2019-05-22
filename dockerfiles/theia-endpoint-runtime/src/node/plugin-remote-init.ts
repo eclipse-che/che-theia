@@ -40,7 +40,7 @@ export class PluginRemoteInit {
     /**
      * Max number of trying new port
      */
-    private static readonly MAX_RETRIES = 1;
+    private static readonly MAX_RETRIES = 100;
 
     /**
      *  number of retries for finding port
