@@ -65,7 +65,7 @@ export class CheTaskRunner {
                 cwd: target.workingDir,
                 name: taskConfig.label,
                 shellPath: 'sh',
-                shellArgs: ['-c', `'${taskConfig.command}'`],
+                shellArgs: ['-c', `${taskConfig.command}`],
 
                 attributes: {
                     CHE_MACHINE_NAME: machineName,
