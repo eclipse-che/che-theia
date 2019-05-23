@@ -32,10 +32,17 @@ export function convertToFileURI(file: string, rootFolder?: string): string {
 
 }
 
+/**
+ * Returns path of the given project according projects directory.
+ * Given project should be in subtree of root projects directory.
+ *
+ * @param fileURI root folder of the project
+ * @param rootFolder root folder for all projects in workspace
+ */
 export function convertToCheProjectPath(fileURI: string, rootFolder: string): string {
     if (!rootFolder) {
         // default value
         rootFolder = '/projects';
     }
-    return `/${path.relative(rootFolder, fileURI)}`;
+    return path.relative(rootFolder, fileURI);
 }

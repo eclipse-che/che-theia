@@ -145,8 +145,6 @@ export class DevfileProjectsManager extends WorkspaceProjectsManager {
             fileUri.convertToCheProjectPath(projectFolderURI, this.projectsRoot),
             projectUpstreamBranch.remoteURL,
             projectUpstreamBranch.branch);
-
-        if (workspace.devfile) { delete workspace.config; } // TODO delete this temporary workaround
     }
 
     deleteProject(workspace: cheApi.workspace.Workspace, projectFolderURI: string): void {
@@ -154,8 +152,6 @@ export class DevfileProjectsManager extends WorkspaceProjectsManager {
             workspace.devfile.projects,
             fileUri.convertToCheProjectPath(projectFolderURI, this.projectsRoot)
         );
-
-        if (workspace.devfile) { delete workspace.config; } // TODO delete this temporary workaround
     }
 
 }
@@ -195,7 +191,7 @@ export class WorkspaceConfigProjectsManager extends WorkspaceProjectsManager {
 
         projectsHelper.updateOrCreateGitProjectInWorkspaceConfig(
             workspace.config.projects,
-            fileUri.convertToCheProjectPath(projectFolderURI, this.projectsRoot),
+            '/' + fileUri.convertToCheProjectPath(projectFolderURI, this.projectsRoot),
             projectUpstreamBranch.remoteURL,
             projectUpstreamBranch.branch);
     }
@@ -212,7 +208,7 @@ export class WorkspaceConfigProjectsManager extends WorkspaceProjectsManager {
 
         projectsHelper.deleteProjectFromWorkspaceConfig(
             workspace.config.projects,
-            fileUri.convertToCheProjectPath(projectFolderURI, this.projectsRoot)
+            '/' + fileUri.convertToCheProjectPath(projectFolderURI, this.projectsRoot)
         );
     }
 
