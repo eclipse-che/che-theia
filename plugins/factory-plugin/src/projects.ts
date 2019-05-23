@@ -9,10 +9,18 @@
  **********************************************************************/
 
 import { che as cheApi } from '@eclipse-che/api';
-import * as path from 'path';
 
 // devfile projects handling
 
+/**
+ * Updates configuration of existing project or create new if such project doesn't exist.
+ *
+ * @param projects list of all projects in workspace
+ * @param projectPath relative path of the added/updated project according to projects root directory (no slash at the beginning).
+ *                    If project root directory is located directly in projects root directory it is the same as project name.
+ * @param projectGitLocation link to git project, the same as used for git clone
+ * @param projectGitRemoteBranch git branch of the project
+ */
 export function updateOrCreateGitProjectInDevfile(
     projects: cheApi.workspace.devfile.Project[],
     projectPath: string,
@@ -24,9 +32,8 @@ export function updateOrCreateGitProjectInDevfile(
         projects = [];
     }
 
-    for (let i = 0; i < projects.length; i++) {
-        const project = projects[i];
-        const currentProjectPath = project.clonePath ? project.clonePath : path.sep + project.name;
+    for (const project of projects) {
+        const currentProjectPath = project.clonePath ? project.clonePath : project.name;
         if (currentProjectPath === projectPath) {
             project.source.type = 'git';
             project.source.location = projectGitLocation;
@@ -59,6 +66,13 @@ export function updateOrCreateGitProjectInDevfile(
     return projects;
 }
 
+/**
+ * Deletes configuration of existing project.
+ * Does nothing if project doesn't exist.
+ *
+ * @param projects list of projects in workspace
+ * @param projectPath relative path of the project to delete according to projets root directory
+ */
 export function deleteProjectFromDevfile(
     projects: cheApi.workspace.devfile.Project[],
     projectPath: string
@@ -70,7 +84,7 @@ export function deleteProjectFromDevfile(
 
     for (let i = 0; i < projects.length; i++) {
         const project = projects[i];
-        const currentProjectPath = project.clonePath ? project.clonePath : path.sep + project.name;
+        const currentProjectPath = project.clonePath ? project.clonePath : project.name;
         if (currentProjectPath === projectPath) {
             projects.splice(i, 1);
             break;

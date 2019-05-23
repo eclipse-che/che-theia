@@ -16,14 +16,14 @@ describe('Devfile: Projects:', () => {
     const CHE_THEIA_REPOSITORY = 'https://github.com/eclipse/che-theia.git';
     const BRANCH1 = 'che-13112';
     const BRANCH2 = 'issue-12321';
-    const CUSTOM_PROJECT_PATH = '/theia/packages/che-theia';
+    const CUSTOM_PROJECT_PATH = 'theia/packages/che-theia';
 
     test('Should be able to create project if no projects defined', () => {
         const projects: cheApi.workspace.devfile.Project[] = [];
 
         projecthelper.updateOrCreateGitProjectInDevfile(
             projects,
-            '/che',
+            'che',
             CHE_REPOSITORY,
             BRANCH1
         );
@@ -48,7 +48,7 @@ describe('Devfile: Projects:', () => {
 
         projecthelper.updateOrCreateGitProjectInDevfile(
             projects,
-            '/che-theia',
+            'che-theia',
             CHE_THEIA_REPOSITORY,
             BRANCH2
         );
@@ -86,7 +86,7 @@ describe('Devfile: Projects:', () => {
 
         projecthelper.deleteProjectFromDevfile(
             projects,
-            '/che-theia'
+            'che-theia'
         );
 
         expect(projects.length).toBe(1);
