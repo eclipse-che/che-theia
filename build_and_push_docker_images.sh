@@ -24,6 +24,7 @@ dockerfiles/remote-plugin-dotnet-2.2.105
 dockerfiles/remote-plugin-kubernetes-tooling-0.1.17
 dockerfiles/remote-plugin-kubernetes-tooling-1.0.0
 dockerfiles/remote-plugin-openshift-connector-0.0.17
+dockerfiles/remote-plugin-openshift-connector-0.0.21
 )
 
 IMAGES_LIST=(
@@ -37,6 +38,7 @@ eclipse/che-remote-plugin-dotnet-2.2.105
 eclipse/che-remote-plugin-kubernetes-tooling-0.1.17
 eclipse/che-remote-plugin-kubernetes-tooling-1.0.0
 eclipse/che-remote-plugin-openshift-connector-0.0.17
+eclipse/che-remote-plugin-openshift-connector-0.0.21
 )
 
 
