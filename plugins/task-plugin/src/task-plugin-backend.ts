@@ -19,6 +19,7 @@ import { ServerVariableResolver } from './variable/server-variable-resolver';
 import { ProjectPathVariableResolver } from './variable/project-path-variable-resolver';
 import { CheTaskEventsHandler } from './preview/task-events-handler';
 import { TasksPreviewManager } from './preview/tasks-preview-manager';
+import { ExportConfigurationsManager } from './export/export-configs-manager';
 
 let pluginContext: theia.PluginContext;
 
@@ -44,6 +45,9 @@ export async function start(context: theia.PluginContext) {
     const cheTaskRunner = container.get<CheTaskRunner>(CheTaskRunner);
     const taskRunnerSubscription = await che.task.registerTaskRunner(CHE_TASK_TYPE, cheTaskRunner);
     getSubscriptions().push(taskRunnerSubscription);
+
+    const exportConfigurationsManager = container.get<ExportConfigurationsManager>(ExportConfigurationsManager);
+    exportConfigurationsManager.export();
 }
 
 export function stop() { }

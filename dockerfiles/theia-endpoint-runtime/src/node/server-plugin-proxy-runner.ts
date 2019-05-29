@@ -9,7 +9,7 @@
  **********************************************************************/
 
 import { injectable, inject } from 'inversify';
-import { HostedPluginClient, ServerPluginRunner, PluginMetadata } from '@theia/plugin-ext/src/common/plugin-protocol';
+import { HostedPluginClient, ServerPluginRunner, PluginMetadata } from '@theia/plugin-ext/lib/common/plugin-protocol';
 import { HostedPluginRemote } from './hosted-plugin-remote';
 
 /**

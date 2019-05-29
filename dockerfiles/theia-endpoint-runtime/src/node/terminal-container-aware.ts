@@ -9,7 +9,7 @@
  **********************************************************************/
 
 import * as theia from '@theia/plugin';
-import { TerminalServiceExtImpl } from '@theia/plugin-ext/src/plugin/terminal-ext';
+import { TerminalServiceExtImpl } from '@theia/plugin-ext/lib/plugin/terminal-ext';
 import { DebugExtImpl } from '@theia/plugin-ext/lib/plugin/node/debug/debug';
 
 /**
