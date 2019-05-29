@@ -16,7 +16,9 @@
         "@eclipse-che/plugin": "0.0.1",
         "@eclipse-che/workspace-client": "latest",
         "@theia/core": "next",
-        "@theia/plugin-ext": "next"
+        "@theia/plugin-ext": "next",
+        "axios": "0.18.0",
+        "js-yaml": "3.12.0"
     },
     "devDependencies": {
         "clean-webpack-plugin": "^0.1.19",
@@ -24,7 +26,8 @@
         "ts-node": "5.0.1",
         "webpack": "^4.20.2",
         "webpack-cli": "^3.1.1",
-        "typescript-formatter": "7.2.2"
+        "typescript-formatter": "7.2.2",
+        "@types/js-yaml": "3.11.2"
     },
     "scripts": {
         "prepare": "yarn clean && yarn build",
