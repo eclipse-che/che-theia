@@ -51,7 +51,8 @@ export class ChePluginManager {
     private registryList: ChePluginRegistry[];
 
     /**
-     * List of installed plugins received from workspace config.
+     * List of installed plugins.
+     * Initialized by plugins received from workspace config.
      */
     private installedPlugins: string[];
 
@@ -102,13 +103,12 @@ export class ChePluginManager {
 
         const prefs = this.chePluginPreferences['chePlugins.repositories'];
         if (prefs) {
-            const instance = this;
             Object.keys(prefs).forEach(repoName => {
                 const uri = prefs[repoName];
 
                 const registry = this.registryList.find(r => r.uri === uri);
                 if (registry === undefined) {
-                    instance.registryList.push({
+                    this.registryList.push({
                         name: repoName,
                         uri: uri
                     });
@@ -195,7 +195,6 @@ export class ChePluginManager {
         try {
             // add the plugin to workspace configuration
             await this.chePluginService.addPlugin(plugin.key);
-            await this.delay(1000);
             this.messageService.info(`Plugin '${plugin.publisher}/${plugin.name}/${plugin.version}' has been successfully installed`);
 
             // add the plugin to the list of workspace plugins
@@ -214,7 +213,6 @@ export class ChePluginManager {
         try {
             // remove the plugin from workspace configuration
             await this.chePluginService.removePlugin(plugin.key);
-            await this.delay(1000);
             this.messageService.info(`Plugin '${plugin.publisher}/${plugin.name}/${plugin.version}' has been successfully removed`);
 
             // remove the plugin from the list of workspace plugins
@@ -272,18 +270,10 @@ export class ChePluginManager {
                 }
             }
         } catch (error) {
-            console.log('error > ', error);
+            console.log(error);
         }
 
         return undefined;
-    }
-
-    async delay(miliseconds: number): Promise<void> {
-        return new Promise<void>(resolve => {
-            setTimeout(() => {
-                resolve();
-            }, miliseconds);
-        });
     }
 
     private notifyWorkspaceConfigurationChanged() {

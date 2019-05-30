@@ -80,11 +80,14 @@ export class ChePluginCommandContribution implements CommandContribution {
     }
 
     // @builtin
+    // Displays a list of built in plugins provided inside Theia editor container.
+    // Will be implemented soon.
     async showBuiltInPlugins() {
     }
 
     /**
-     * Displays prompt to add new plugin registry
+     * Displays prompt to add a new plugin registry.
+     * Makes new plugin registry active and displays a list of plugins from this registry.
      */
     async addPluginRegistry(): Promise<void> {
         const name = await this.quickInputService.open({

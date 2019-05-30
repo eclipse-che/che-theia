@@ -15,14 +15,9 @@
  ********************************************************************************/
 
 import { injectable, inject } from 'inversify';
-import {
-    HostedPluginServer,
-    PluginMetadata
-} from '@theia/plugin-ext/lib/common/plugin-protocol';
-
-import {
-    ChePluginMetadata
-} from '../../common/che-protocol';
+import { HostedPluginServer, PluginMetadata } from '@theia/plugin-ext/lib/common/plugin-protocol';
+import { ChePluginMetadata } from '../../common/che-protocol';
+import { PluginFilter } from '../../common/plugin/plugin-filter';
 
 @injectable()
 export class ChePluginFrontentService {
@@ -31,61 +26,18 @@ export class ChePluginFrontentService {
     protected readonly hostedPluginServer: HostedPluginServer;
 
     async getDeployedPlugins(filter: string): Promise<ChePluginMetadata[]> {
-        if (this.hasType(filter, '@installed')) {
+        if (PluginFilter.hasType(filter, '@installed')) {
             let pluginList = await this.getAllDeployedPlugins();
-            pluginList = this.filter(pluginList, filter);
+            pluginList = PluginFilter.filterPlugins(pluginList, filter);
             return pluginList;
         }
 
         return [];
     }
 
-    // @installed
-    // @builtin
-    // @enabled
-    // @disabled
-    hasType(filter: string, type: string) {
-        if (filter) {
-            const filters = filter.split(' ');
-            const found = filters.find(value => value === type);
-            return found !== undefined;
-        }
-
-        return false;
-    }
-
-    filterByType(plugins: ChePluginMetadata[], type: string): ChePluginMetadata[] {
-        return plugins.filter(plugin => {
-            const regex = / /gi;
-            const t = plugin.type.toLowerCase().replace(regex, '_');
-            return t === type;
-        });
-    }
-
-    filterByText(plugins: ChePluginMetadata[], text: string): ChePluginMetadata[] {
-        return plugins;
-    }
-
-    filter(plugins: ChePluginMetadata[], filter: string): ChePluginMetadata[] {
-        let filteredPlugins = plugins;
-        const filters = filter.split(' ');
-
-        filters.forEach(f => {
-            if (f) {
-                if (f.startsWith('@')) {
-                    if (f.startsWith('@type:')) {
-                        const type = f.substring('@type:'.length);
-                        filteredPlugins = this.filterByType(filteredPlugins, type);
-                    }
-                } else {
-                    filteredPlugins = this.filterByText(filteredPlugins, f);
-                }
-            }
-        });
-
-        return filteredPlugins;
-    }
-
+    /**
+     * Returns non-filtered list of the deployed plugins.
+     */
     private async getAllDeployedPlugins(): Promise<ChePluginMetadata[]> {
         const metadata = await this.hostedPluginServer.getDeployedMetadata();
 
@@ -113,11 +65,11 @@ export class ChePluginFrontentService {
                     title,
                     description,
                     icon,
-                    url: 'string',
-                    repository: 'string',
-                    firstPublicationDate: 'string',
-                    category: 'string',
-                    latestUpdateDate: 'string',
+                    url: '',
+                    repository: '',
+                    firstPublicationDate: '',
+                    category: '',
+                    latestUpdateDate: '',
 
                     // Plugin KEY. Used to set in workpsace configuration
                     key: `${publisher}/${name}/${version}`
@@ -140,7 +92,7 @@ export class ChePluginFrontentService {
             }
         }
 
-        return 'test';
+        return '';
     }
 
 }

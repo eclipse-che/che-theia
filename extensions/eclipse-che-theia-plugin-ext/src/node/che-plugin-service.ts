@@ -19,6 +19,7 @@ import { injectable, interfaces } from 'inversify';
 import axios, { AxiosInstance } from 'axios';
 import { che as cheApi } from '@eclipse-che/api';
 import URI from '@theia/core/lib/common/uri';
+import { PluginFilter } from '../common/plugin/plugin-filter';
 
 const yaml = require('js-yaml');
 
@@ -93,58 +94,12 @@ export class ChePluginServiceImpl implements ChePluginService {
         }
     }
 
-    // @installed
-    // @builtin
-    // @enabled
-    // @disabled
-    hasType(filter: string, type: string) {
-        if (filter) {
-            const filters = filter.split(' ');
-            const found = filters.find(value => value === type);
-            return found !== undefined;
-        }
-
-        return false;
-    }
-
-    filterByType(plugins: ChePluginMetadata[], type: string): ChePluginMetadata[] {
-        return plugins.filter(plugin => {
-            const regex = / /gi;
-            const t = plugin.type.toLowerCase().replace(regex, '_');
-            return t === type;
-        });
-    }
-
-    filterByText(plugins: ChePluginMetadata[], text: string): ChePluginMetadata[] {
-        return plugins;
-    }
-
-    filter(plugins: ChePluginMetadata[], filter: string): ChePluginMetadata[] {
-        let filteredPlugins = plugins;
-        const filters = filter.split(' ');
-
-        filters.forEach(f => {
-            if (f) {
-                if (f.startsWith('@')) {
-                    if (f.startsWith('@type:')) {
-                        const type = f.substring('@type:'.length);
-                        filteredPlugins = this.filterByType(filteredPlugins, type);
-                    }
-                } else {
-                    filteredPlugins = this.filterByText(filteredPlugins, f);
-                }
-            }
-        });
-
-        return filteredPlugins;
-    }
-
     /**
      * Removes plugins with type 'Che Editor' if type '@type:che_editor' is not set
      */
     squeezeOutEditors(plugins: ChePluginMetadata[], filter: string): ChePluginMetadata[] {
         // do not filter if user requested list of editors
-        if (this.hasType(filter, '@type:che_editor')) {
+        if (PluginFilter.hasType(filter, '@type:che_editor')) {
             return plugins;
         }
 
@@ -166,13 +121,13 @@ export class ChePluginServiceImpl implements ChePluginService {
 
         let pluginList;
         if (filter) {
-            if (this.hasType(filter, '@installed')) {
+            if (PluginFilter.hasType(filter, '@installed')) {
                 pluginList = await this.getInstalledPlugins();
             } else {
                 pluginList = await this.getAllPlugins(registry);
             }
 
-            pluginList = this.filter(pluginList, filter);
+            pluginList = PluginFilter.filterPlugins(pluginList, filter);
         } else {
             pluginList = await this.getAllPlugins(registry);
         }
@@ -183,7 +138,9 @@ export class ChePluginServiceImpl implements ChePluginService {
         return pluginList;
     }
 
-    // without prefix
+    /**
+     * Returns non-filtered list of the plugins from the given plugin registry.
+     */
     async getAllPlugins(registry: ChePluginRegistry): Promise<ChePluginMetadata[]> {
         // Get list of ChePluginMetadataInternal from plugin registry
         const marketplacePlugins = await this.loadPluginList(registry);

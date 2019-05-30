@@ -60,29 +60,29 @@ export class ChePluginMenu {
         commands.addCommand(ChePluginManagerCommands.SHOW_AVAILABLE_PLUGINS.id, {
             label: ChePluginManagerCommands.SHOW_AVAILABLE_PLUGINS.label,
             isEnabled: () => true,
-            execute: () => setTimeout(() => this.chePluginCommandContribution.showAvailablePlugins(), 100)
+            execute: () => this.chePluginCommandContribution.showAvailablePlugins()
         });
 
         commands.addCommand(ChePluginManagerCommands.SHOW_INSTALLED_PLUGINS.id, {
             label: ChePluginManagerCommands.SHOW_INSTALLED_PLUGINS.label,
             isEnabled: () => true,
-            execute: () => setTimeout(() => this.chePluginCommandContribution.showInstalledPlugins(), 100)
+            execute: () => this.chePluginCommandContribution.showInstalledPlugins()
         });
 
         commands.addCommand(ChePluginManagerCommands.SHOW_BUILT_IN_PLUGINS.id, {
             label: ChePluginManagerCommands.SHOW_BUILT_IN_PLUGINS.label,
             isEnabled: () => false,
-            execute: () => setTimeout(() => this.chePluginCommandContribution.showBuiltInPlugins(), 100)
+            execute: () => this.chePluginCommandContribution.showBuiltInPlugins()
         });
 
         commands.addCommand(ChePluginManagerCommands.CHANGE_REGISTRY.id, {
             label: ChePluginManagerCommands.CHANGE_REGISTRY.label,
-            execute: () => setTimeout(() => this.chePluginCommandContribution.changePluginRegistry(), 100)
+            execute: () => this.chePluginCommandContribution.changePluginRegistry()
         });
 
         commands.addCommand(ChePluginManagerCommands.ADD_REGISTRY.id, {
             label: ChePluginManagerCommands.ADD_REGISTRY.label,
-            execute: () => setTimeout(() => this.chePluginCommandContribution.addPluginRegistry(), 100)
+            execute: () => this.chePluginCommandContribution.addPluginRegistry()
         });
 
         menu.addItem({
