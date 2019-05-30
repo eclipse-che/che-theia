@@ -1,7 +1,7 @@
 sources:
 - source: https://github.com/eclipse/che-theia
   extensions:
-    - dockerfiles/theia-endpoint-runtime
+    - extensions/eclipse-che-theia-plugin-remote
     - extensions/eclipse-che-theia-plugin
     - extensions/eclipse-che-theia-plugin-ext
     - extensions/eclipse-che-theia-terminal
