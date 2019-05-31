@@ -1,0 +1,23 @@
+#!/bin/bash
+# Copyright (c) 2019 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+set -e
+set -u
+
+IMAGE_TAG="latest"
+THEIA_VERSION="2.0.2"
+THEIA_BRANCH="222"
+THEIA_GIT_REFS="refs/tags/v2.0.2"
+THEIA_DOCKER_IMAGE_VERSION="333"
+
+# I1MAGE_TAG="next"
+# T1HEIA_VERSION="master"
+# T1HEIA_BRANCH="master"
+# T1HEIA_GIT_REFS="refs\\/heads\\/master"
+# T1HEIA_DOCKER_IMAGE_VERSION=

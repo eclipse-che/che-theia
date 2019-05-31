@@ -8,7 +8,7 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 # See: https://sipb.mit.edu/doc/safe-shell/
-
+. ./docker_image_build.include
 set -e
 set -o pipefail
 
@@ -47,12 +47,11 @@ for image_dir in "${DOCKER_FILES_LOCATIONS[@]}"
     do
         GITHUB_TOKEN_ARG="GITHUB_TOKEN="${GITHUB_TOKEN}
         if [ "$image_dir" == "dockerfiles/theia" ]; then
-            THEIA_IMAGE_TAG="next"
-            bash $(pwd)/$image_dir/build.sh --build-args:${GITHUB_TOKEN_ARG},THEIA_VERSION=master --tag:next --branch:master --git-ref:refs\\/heads\\/master 
+            bash $(pwd)/$image_dir/build.sh --build-args:${GITHUB_TOKEN_ARG},THEIA_VERSION=${THEIA_VERSION} --tag:${IMAGE_TAG} --branch:${THEIA_BRANCH} --git-ref:${THEIA_GIT_REFS} 
         elif [ "$image_dir" == "dockerfiles/theia-dev" ]; then
-            bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:next
+            bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:${IMAGE_TAG}
         else
-            bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:next
+            bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:${IMAGE_TAG}
         fi
         if [ $? -ne 0 ]; then
             echo "ERROR:"
@@ -62,24 +61,15 @@ for image_dir in "${DOCKER_FILES_LOCATIONS[@]}"
     done
 
 
-if [ "$BUILD_BRANCH" == "master" ]; then
-    #PUSH IMAGES
-    #docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
-    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    for image in "${IMAGES_LIST[@]}"
-        do
-            # if [ "$image" == "eclipse/che-theia" ]; then
-                #[ -z $(docker images -q  ${image}:${THEIA_IMAGE_TAG}) ] || docker rmi ${image}:${THEIA_IMAGE_TAG}
-                #docker tag ${image}:next ${image}:${THEIA_IMAGE_TAG}
-                # echo y | docker push ${image}:next
-            # elif [ "$image" == "eclipse/che-theia-dev" ]; then 
-                #[ -z $(docker images -q  ${image}:${THEIA_IMAGE_TAG}) ] || docker rmi ${image}:${THEIA_IMAGE_TAG}
-                #docker tag ${image}:next ${image}:${THEIA_IMAGE_TAG}
-                # echo y | docker push ${image}:next
-            # else
-                echo y | docker push ${image}:next
-            # fi
-        done
-else 
-    echo "Skip push docker images.";
-fi
+#PUSH IMAGES
+echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+for image in "${IMAGES_LIST[@]}"
+    do
+        if [ ! -z ${THEIA_DOCKER_IMAGE_VERSION} ]; then
+            docker tag ${image}:${IMAGE_TAG} ${image}:${THEIA_DOCKER_IMAGE_VERSION}
+            echo y | docker push ${image}:${IMAGE_TAG}
+            echo y | docker push ${image}:${THEIA_DOCKER_IMAGE_VERSION}
+        else
+            echo y | docker push ${image}:${IMAGE_TAG}
+        fi
+    done
