@@ -60,9 +60,9 @@ export class ChePluginServiceImpl implements ChePluginService {
         }
 
         try {
-            const workpsaceSettings: WorkspaceSettings = await this.cheApiService.getWorkspaceSettings();
-            if (workpsaceSettings && workpsaceSettings['cheWorkspacePluginRegistryUrl']) {
-                let uri = workpsaceSettings['cheWorkspacePluginRegistryUrl'];
+            const workspaceSettings: WorkspaceSettings = await this.cheApiService.getWorkspaceSettings();
+            if (workspaceSettings && workspaceSettings['cheWorkspacePluginRegistryUrl']) {
+                let uri = workspaceSettings['cheWorkspacePluginRegistryUrl'];
 
                 if (uri.endsWith('/')) {
                     uri = uri.substring(0, uri.length - 1);

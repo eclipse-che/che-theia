@@ -41,44 +41,39 @@ export class ChePluginFrontentService {
     private async getAllDeployedPlugins(): Promise<ChePluginMetadata[]> {
         const metadata = await this.hostedPluginServer.getDeployedMetadata();
 
-        const plugins: ChePluginMetadata[] = await Promise.all(
-            metadata.map(async (meta: PluginMetadata) => {
-                const publisher = meta.source.publisher;
-                const name = meta.source.name;
-                const version = meta.source.version;
-                const type = this.determinePluginType(meta);
-                const displayName = meta.source.displayName ? meta.source.displayName : meta.source.name;
+        const plugins: ChePluginMetadata[] = metadata.map((meta: PluginMetadata) => {
+            const publisher = meta.source.publisher;
+            const name = meta.source.name;
+            const version = meta.source.version;
+            const type = this.determinePluginType(meta);
+            const displayName = meta.source.displayName ? meta.source.displayName : meta.source.name;
 
-                const title = name;
+            const title = name;
 
-                const description = meta.source.description;
+            const description = meta.source.description;
 
-                // tslint:disable-next-line:no-any
-                const icon = (meta.source as any).icon;
+            // tslint:disable-next-line:no-any
+            const icon = (meta.source as any).icon;
 
-                const plugin = {
-                    publisher,
-                    name,
-                    version,
-                    type,
-                    displayName,
-                    title,
-                    description,
-                    icon,
-                    url: '',
-                    repository: '',
-                    firstPublicationDate: '',
-                    category: '',
-                    latestUpdateDate: '',
+            return {
+                publisher,
+                name,
+                version,
+                type,
+                displayName,
+                title,
+                description,
+                icon,
+                url: '',
+                repository: '',
+                firstPublicationDate: '',
+                category: '',
+                latestUpdateDate: '',
 
-                    // Plugin KEY. Used to set in workpsace configuration
-                    key: `${publisher}/${name}/${version}`
-                };
-
-                return plugin;
-
-            }
-            ));
+                // Plugin KEY. Used to set in workspace configuration
+                key: `${publisher}/${name}/${version}`
+            };
+        });
 
         return plugins;
     }
