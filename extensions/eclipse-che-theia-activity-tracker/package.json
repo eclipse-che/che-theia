@@ -9,7 +9,7 @@
     "src"
   ],
   "dependencies": {
-    "@theia/core": "next"
+    "@theia/core": "0.7.0"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",
