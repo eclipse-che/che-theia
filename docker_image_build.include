@@ -10,14 +10,8 @@
 set -e
 set -u
 
-IMAGE_TAG="latest"
-THEIA_VERSION="2.0.2"
-THEIA_BRANCH="222"
-THEIA_GIT_REFS="refs/tags/v2.0.2"
-THEIA_DOCKER_IMAGE_VERSION="333"
-
-# I1MAGE_TAG="next"
-# T1HEIA_VERSION="master"
-# T1HEIA_BRANCH="master"
-# T1HEIA_GIT_REFS="refs\\/heads\\/master"
-# T1HEIA_DOCKER_IMAGE_VERSION=
+IMAGE_TAG="next"
+THEIA_VERSION="master"
+THEIA_BRANCH="master"
+THEIA_GIT_REFS="refs\\/heads\\/master"
+THEIA_DOCKER_IMAGE_VERSION=
