@@ -46,6 +46,8 @@ containers:
    env:
        - name: THEIA_PLUGINS
          value: local-dir:///plugins
+       - name: VSCODE_PLUGINS
+         value: local-dir:///vscode-plugins
        - name: HOSTED_PLUGIN_HOSTNAME
          value: 0.0.0.0
        - name: HOSTED_PLUGIN_PORT
@@ -53,6 +55,8 @@ containers:
    volumes:
        - mountPath: "/plugins"
          name: plugins
+       - mountPath: "/vscode-plugins"
+         name: vscode-plugins
        - mountPath: "/home/theia/.theia"
          name: theia-data
        - mountPath: "/projects"

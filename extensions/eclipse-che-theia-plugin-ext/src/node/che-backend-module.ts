@@ -14,15 +14,18 @@ import { ExtPluginApiProvider } from '@theia/plugin-ext';
 import { ChePluginApiContribution } from './che-plugin-script-service';
 import { BackendApplicationContribution } from '@theia/core/lib/node/backend-application';
 import { ConnectionHandler, JsonRpcConnectionHandler } from '@theia/core';
-import { CheApiServiceImpl } from './che-api-service';
 import {
     CHE_API_SERVICE_PATH,
     CHE_TASK_SERVICE_PATH,
+    CHE_PLUGIN_SERVICE_PATH,
     CheApiService,
     CheTaskClient,
-    CheTaskService
+    CheTaskService,
+    ChePluginService
 } from '../common/che-protocol';
+import { CheApiServiceImpl } from './che-api-service';
 import { CheTaskServiceImpl } from './che-task-service';
+import { ChePluginServiceImpl } from './che-plugin-service';
 
 export default new ContainerModule(bind => {
     bind(ChePluginApiProvider).toSelf().inSingletonScope();
@@ -45,7 +48,15 @@ export default new ContainerModule(bind => {
             server.setClient(client);
             client.onDidCloseConnection(() => server.disconnectClient(client));
             return server;
-        }
+        })
+    ).inSingletonScope();
+
+    // bind(ChePluginService).to(ChePluginServiceImpl).inSingletonScope();
+    bind(ChePluginService).toDynamicValue(ctx => new ChePluginServiceImpl(ctx.container)).inSingletonScope();
+    bind(ConnectionHandler).toDynamicValue(ctx =>
+        new JsonRpcConnectionHandler(CHE_PLUGIN_SERVICE_PATH, () =>
+            ctx.container.get(ChePluginService)
         )
     ).inSingletonScope();
+
 });
