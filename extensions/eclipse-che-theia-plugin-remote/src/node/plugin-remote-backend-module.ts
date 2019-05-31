@@ -22,6 +22,15 @@ const localModule = ConnectionContainerModule.create(({ bind }) => {
 });
 
 export default new ContainerModule(bind => {
+    try {
+        const cheApiNodeProvider = require('@eclipse-che/theia-plugin-ext/lib/plugin/node/che-api-node-provider.js');
+        console.log('Che Api node!!! ', cheApiNodeProvider);
+        const cheApi = require('@eclipse-che/theia-plugin-ext/lib/node/che-plugin-api-provider.js');
+        cheApi.Text2();
+    } catch (err) {
+        console.log('>>>>Error2', err);
+    }
+
     bind(HostedPluginMapping).toSelf().inSingletonScope();
     bind(MetadataProcessor).to(RemoteMetadataProcessor).inSingletonScope();
     bind(ConnectionContainerModule).toConstantValue(localModule);

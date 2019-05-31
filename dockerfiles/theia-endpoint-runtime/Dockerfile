@@ -50,13 +50,23 @@ COPY /docker-build/theia-plugin-remote/tsconfig.json /home/workspace/packages/th
 COPY /etc/package.json /home/workspace
 RUN cd /home/workspace/ && yarn install
 
-FROM node:10.15-alpine
+RUN yarn global add nexe@3.2.0 && nexe -v
+WORKDIR /home/workspace
+
+# Fix theia-plugin-ext dependency
+RUN rm -rf /home/workspace/node_modules/@eclipse-che/theia-plugin-ext /home/workspace/node_modules/@eclipse-che/theia-remote
+RUN cp -rf /home/workspace/packages/theia-plugin-ext /home/workspace/node_modules/@eclipse-che/theia-plugin-ext
+
+RUN nexe packages/theia-remote/lib/node/plugin-remote.js -t alpine-x64-10.14.2 -o plugin-remote
+RUN ls
+
+
+FROM registry.access.redhat.com/ubi8/ubi-minimal
+
 ENV HOME=/home/theia
-COPY --from=builder /home/workspace/node_modules /home/theia/node_modules
-RUN rm -rf /home/theia/node_modules/@eclipse-che/theia-plugin-ext /home/theia/node_modules/@eclipse-che/theia-remote
-COPY --from=builder /home/workspace/packages/theia-plugin-ext /home/theia/node_modules/@eclipse-che/theia-plugin-ext
-COPY --from=builder /home/workspace/packages/theia-remote/lib /home/theia/lib
-RUN mkdir /projects \
+COPY --from=builder  /home/workspace/plugin-remote /plugin-remote
+
+RUN mkdir /projects /home/theia \
     # Store passwd/group as template files
     && cat /etc/passwd | sed s#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/sh#g > ${HOME}/passwd.template \
     && cat /etc/group | sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g > ${HOME}/group.template \
@@ -65,6 +75,25 @@ RUN mkdir /projects \
         echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
         chmod -R g+rwX ${f}; \
     done
-ADD etc/entrypoint.sh /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+
+ENTRYPOINT /plugin-remote
+
+
+# FROM node:10.15-alpine
+# ENV HOME=/home/theia
+# COPY --from=builder /home/workspace/node_modules /home/theia/node_modules
+# RUN rm -rf /home/theia/node_modules/@eclipse-che/theia-plugin-ext /home/theia/node_modules/@eclipse-che/theia-remote
+# COPY --from=builder /home/workspace/packages/theia-plugin-ext /home/theia/node_modules/@eclipse-che/theia-plugin-ext
+# COPY --from=builder /home/workspace/packages/theia-remote/lib /home/theia/lib
+# RUN mkdir /projects \
+#     # Store passwd/group as template files
+#     && cat /etc/passwd | sed s#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/sh#g > ${HOME}/passwd.template \
+#     && cat /etc/group | sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g > ${HOME}/group.template \
+#     # Change permissions to let any arbitrary user
+#     && for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
+#         echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+#         chmod -R g+rwX ${f}; \
+#     done
+# ADD etc/entrypoint.sh /entrypoint.sh
+# ENTRYPOINT ["/entrypoint.sh"]
 
