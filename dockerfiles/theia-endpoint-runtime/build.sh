@@ -35,6 +35,12 @@ cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-ext/webpack.config.
 echo "Copying ${base_dir}/../../configs --> ${LOCAL_ASSEMBLY_DIR}/configs"
 cp -r "${base_dir}/../../configs/." "${LOCAL_ASSEMBLY_DIR}/configs"
 
+echo "Copying ${base_dir}/../../extensions/eclipse-che-theia-plugin-remote --> ${LOCAL_ASSEMBLY_DIR}/theia-plugin-remote"
+mkdir ${LOCAL_ASSEMBLY_DIR}/theia-plugin-remote
+cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-remote/src/." "${LOCAL_ASSEMBLY_DIR}/theia-plugin-remote/src/"
+cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-remote/package.json" "${LOCAL_ASSEMBLY_DIR}/theia-plugin-remote"
+cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-remote/tsconfig.json" "${LOCAL_ASSEMBLY_DIR}/theia-plugin-remote"
+
 
 init --name:theia-endpoint-runtime "$@"
 build
