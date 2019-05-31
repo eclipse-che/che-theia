@@ -41,9 +41,9 @@
   integrity sha512-0j10nNc7aT18srs7R38mipyi4DjrGQ+bXBmvf2vLTFJGAqhl8V7pB9HsFUq0CYHd8t+gwfwfH0cUmZHdPcJRjA==
 
 "@eclipse-che/plugin@latest":
-  version "0.0.1-1559186331"
-  resolved "https://registry.npmjs.org/@eclipse-che/plugin/-/plugin-0.0.1-1559186331.tgz#3722d63b41851c025d466c818a433f4e3ec9c0cd"
-  integrity sha512-u+mGcjXdBAiJ6BWxUEfgISxwmc2PYFwVUEI0wGEH3+5mH+houozjzUZNyEgobNMV6XBXbd/GaKmq+JAXdz7Fbw==
+  version "0.0.1-1559290690"
+  resolved "https://registry.npmjs.org/@eclipse-che/plugin/-/plugin-0.0.1-1559290690.tgz#34116c28e873a5d1d15be465e788d4618c066e36"
+  integrity sha512-CZcMyEk9ybM76+XQ9qkQg/TopSVEtGbxyrtX+KmbKjNxEzC1jYch1P8+Ye/p4cSRh6PbyMiUne1oV9YGUk92JA==
   dependencies:
     "@eclipse-che/api" latest
 
