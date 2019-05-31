@@ -1,0 +1,34 @@
+{
+  "name": "@eclipse-che/theia-remote",
+  "author": "Florent Benoit",
+  "version": "0.0.1",
+  "license": "EPL-2.0",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "@theia/plugin-ext": "next",
+    "@theia/plugin-ext-vscode": "next",
+    "@theia/core": "next"
+  },
+  "devDependencies": {
+    "typescript-formatter": "7.2.2",
+    "concurrently": "^3.5.0"
+  },
+  "scripts": {
+    "prepare": "yarn clean && yarn build",
+    "clean": "rimraf lib",
+    "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
+    "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
+    "lint:fix": "tslint -c ../../configs/tslint.json --fix --project .",
+    "compile": "tsc",
+    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint:fix\" \"yarn compile\"",
+    "watch": "tsc -w"
+  },
+  "theiaExtensions": [
+    {
+      "backend": "lib/node/plugin-remote-backend-module"
+    }
+  ]
+}
