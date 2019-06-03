@@ -10,11 +10,6 @@
 
 import { ExtPluginApiProvider, ExtPluginApi } from '@theia/plugin-ext/lib/common/plugin-ext-api-contribution';
 import { injectable } from 'inversify';
-// import * as path from 'path';
-
-export function Text2() {
-    console.log('>>>>>>>>>>>>>>>>>>>>>>Here I am!!!!!!!!!!!!1');
-}
 
 @injectable()
 export class ChePluginApiProvider implements ExtPluginApiProvider {
@@ -27,7 +22,6 @@ export class ChePluginApiProvider implements ExtPluginApiProvider {
                 initFunction: 'initializeApi',
                 initVariable: 'che_api_provider'
             },
-            // backendInitPath: path.join(__dirname, '../plugin/node/che-api-node-provider.js')
             backendInitPath: '@eclipse-che/theia-plugin-ext/lib/plugin/node/che-api-node-provider.js'
         };
     }

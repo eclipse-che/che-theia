@@ -38,7 +38,7 @@ fi
 responsible_shutdown() {
   echo ""
   echo "Received SIGTERM"
-  kill -SIGINT ${PID}
+  kill -INT ${PID}
   wait ${PID}
   exit;
 }
@@ -47,12 +47,12 @@ set -e
 
 # setup handlers
 # on callback, kill the last background process, which is `tail -f /dev/null` and execute the specified handler
-trap 'responsible_shutdown' SIGHUP SIGTERM SIGINT
+trap 'responsible_shutdown' HUP TERM INT
 
 cd ${HOME}
 
 # run theia endpoint
-node /home/theia/lib/node/plugin-remote.js &
+/plugin-remote &
 
 PID=$!
 
