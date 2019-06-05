@@ -54,7 +54,7 @@
   dependencies:
     "@eclipse-che/api" "^6.16.1"
     axios "0.18.0"
-    moxios "git://github.com/stoplightio/moxios.git#v1.3.0"
+    moxios "git://github.com/stoplightio/moxios#v1.3.0"
     websocket "1.0.23"
 
 "@fortawesome/fontawesome-free@5.6.3":
@@ -1387,7 +1387,7 @@
   resolved "https://registry.yarnpkg.com/@theia/plugin/-/plugin-0.3.19.tgz#eb1ea2d8311097535b6613ea6d554ff93bb4efc8"
   integrity sha512-8iKIPE7UQfaxbN/p+eHqT4wmbEgdVGxMMhzczqrX0x9sFwXxVOipC9urdfG8UvNWQO3dXCssxVslNF56jScofg==
 
-"@theia/plugin@0.8.0-next.71f277be", "@theia/plugin@next":
+"@theia/plugin@0.8.0-next.71f277be":
   version "0.8.0-next.71f277be"
   resolved "https://registry.yarnpkg.com/@theia/plugin/-/plugin-0.8.0-next.71f277be.tgz#a1a5d48cadaae09d514003fc47e10136771f5134"
   integrity sha512-PPHTmj0Zka344sjKr92c+vtt7NFXFOwnoAwQB7jYqm8xvl26NXy25mEWyENtMAqjsVO8FIM1QGyFmpSpiunA4g==
@@ -1396,6 +1396,11 @@
   version "0.7.1"
   resolved "https://registry.yarnpkg.com/@theia/plugin/-/plugin-0.7.1.tgz#7c50e8381cd1a295a44929423e6af33bc77b345c"
   integrity sha512-f+XQuqn7Sb62RheFtyhhiHGevDYuMwAR8VK/BkZv5MuiDaWCx7b1u1NQXkbRitEg0trRa6gOSOrQiMBoIqAFog==
+
+"@theia/plugin@next":
+  version "0.8.0-next.92cfe9a2"
+  resolved "https://registry.yarnpkg.com/@theia/plugin/-/plugin-0.8.0-next.92cfe9a2.tgz#dcab88b54ca0d60b51b07953732eb73c241312f3"
+  integrity sha512-S7txeg7XtjkSQffzQirT4xqofb5z8p54h+v7yrDjc/iS9zthsB3j5xeDNbPNmbktEcCf/zXvU/JHwYIEpyEIKg==
 
 "@theia/preferences@0.8.0-next.71f277be", "@theia/preferences@next":
   version "0.8.0-next.71f277be"
@@ -7298,9 +7303,9 @@ move-concurrently@^1.0.1:
     rimraf "^2.5.4"
     run-queue "^1.0.3"
 
-"moxios@git://github.com/stoplightio/moxios.git#v1.3.0":
+"moxios@git://github.com/stoplightio/moxios#v1.3.0":
   version "1.3.0"
-  resolved "git://github.com/stoplightio/moxios.git#9d702c8eafee4b02917d6bc400ae15f1e835cf51"
+  resolved "git://github.com/stoplightio/moxios#9d702c8eafee4b02917d6bc400ae15f1e835cf51"
   dependencies:
     class-autobind "^0.1.4"
 
