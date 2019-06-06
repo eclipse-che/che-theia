@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG}
-RUN apk --no-cache add openjdk11 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+RUN apk --no-cache add openjdk11 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community \
     && apk add procps nss \
     && chmod 777 /home/theia
 ENV JAVA_HOME /usr/lib/jvm/default-jvm/
