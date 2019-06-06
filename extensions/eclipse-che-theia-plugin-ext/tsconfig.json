@@ -8,7 +8,8 @@
         "sourceMap": true,
         "rootDir": "src",
         "outDir": "lib",
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "jsx": "react"
     },
     "include": [
         "src"

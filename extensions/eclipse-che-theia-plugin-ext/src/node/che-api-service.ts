@@ -7,10 +7,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
-import { CheApiService, Preferences } from '../common/che-protocol';
+import { CheApiService, Preferences, WorkspaceSettings } from '../common/che-protocol';
 import { che as cheApi } from '@eclipse-che/api';
 import WorkspaceClient, { IRestAPIConfig, IRemoteAPI } from '@eclipse-che/workspace-client';
 import { injectable } from 'inversify';
+
+const ENV_WORKSPACE_ID_IS_NOT_SET = 'Environment variable CHE_WORKSPACE_ID is not set';
 
 @injectable()
 export class CheApiServiceImpl implements CheApiService {
@@ -45,11 +47,16 @@ export class CheApiServiceImpl implements CheApiService {
         return cheApiClient.deleteUserPreferences(list);
     }
 
+    async getWorkspaceSettings(): Promise<WorkspaceSettings> {
+        const cheApiClient = await this.getCheApiClient();
+        return cheApiClient.getSettings();
+    }
+
     async currentWorkspace(): Promise<cheApi.workspace.Workspace> {
         try {
             const workspaceId = process.env.CHE_WORKSPACE_ID;
             if (!workspaceId) {
-                return Promise.reject('Cannot find Che workspace id, environment variable "CHE_WORKSPACE_ID" is not set');
+                return Promise.reject(ENV_WORKSPACE_ID_IS_NOT_SET);
             }
 
             const cheApiClient = await this.getCheApiClient();
@@ -98,6 +105,16 @@ export class CheApiServiceImpl implements CheApiService {
             console.log(e);
             return Promise.reject('Cannot create Che API REST Client');
         }
+    }
+
+    async stop(): Promise<void> {
+        const workspaceId = process.env.CHE_WORKSPACE_ID;
+        if (!workspaceId) {
+            return Promise.reject(ENV_WORKSPACE_ID_IS_NOT_SET);
+        }
+
+        const cheApiClient = await this.getCheApiClient();
+        return await cheApiClient.stop(workspaceId);
     }
 
     async getFactoryById(factoryId: string): Promise<cheApi.factory.Factory> {
@@ -207,8 +224,9 @@ export class CheApiServiceImpl implements CheApiService {
     private getWorkspaceIdFromEnv(): string {
         const workspaceId = process.env.CHE_WORKSPACE_ID;
         if (!workspaceId) {
-            throw new Error('Environment variable CHE_WORKSPACE_ID is not set.');
+            throw new Error(ENV_WORKSPACE_ID_IS_NOT_SET);
         }
+
         return workspaceId;
     }
 
