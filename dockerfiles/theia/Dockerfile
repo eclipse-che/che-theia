@@ -77,6 +77,9 @@ RUN yarn
 # Run into production mode
 RUN che:theia production
 
+# FIX ME, temporary fix to restore build
+RUN cd che/che-theia && git reset --hard
+
 # Compile plugins
 RUN cd plugins && ./foreach_yarn
 
