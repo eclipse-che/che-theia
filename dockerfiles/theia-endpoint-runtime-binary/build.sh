@@ -44,3 +44,5 @@ cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-remote/tsconfig.jso
 
 init --name:theia-endpoint-runtime "$@"
 build
+
+./retag.sh
