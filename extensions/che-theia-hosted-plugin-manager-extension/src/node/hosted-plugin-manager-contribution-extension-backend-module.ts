@@ -9,7 +9,7 @@
  **********************************************************************/
 
 import { ContainerModule } from 'inversify';
-import { HostedPluginUriPostProcessorSymbolName } from '@theia/plugin-ext';
+import { HostedPluginUriPostProcessorSymbolName } from '@theia/plugin-dev';
 import { CheWorkspaceHostedPluginUriPostProcessor } from './che-workspace-hosted-plugin-uri-post-processor';
 
 export default new ContainerModule(bind => {

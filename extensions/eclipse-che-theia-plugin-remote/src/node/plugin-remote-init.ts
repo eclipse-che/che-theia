@@ -301,7 +301,6 @@ class PluginDeployerHandlerImpl implements PluginDeployerHandler {
     constructor(
         @inject(HostedPluginReader) private readonly reader: HostedPluginReader,
     ) {
-        this.reader.initialize();
     }
 
     async deployFrontendPlugins(frontendPlugins: PluginDeployerEntry[]): Promise<void> {

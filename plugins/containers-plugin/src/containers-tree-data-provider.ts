@@ -11,6 +11,8 @@
 import * as theia from '@theia/plugin';
 import { IContainer } from './containers-service';
 
+const CHE_TASK_TYPE = 'che';
+
 interface ITreeNodeItem {
     id: string;
     name: string;
@@ -19,7 +21,7 @@ interface ITreeNodeItem {
     parentId?: string;
     command?: {
         id: string;
-        arguments?: string[]
+        arguments?: (string | Object)[]
     },
     isExpanded?: boolean;
 }
@@ -106,7 +108,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                         name: commandName,
                         tooltip: 'execute the command',
                         iconPath: 'fa-cogs medium-yellow',
-                        command: { id: 'task:run', arguments: ['che', commandName] }
+                        command: { id: 'task:custom-run', arguments: [CHE_TASK_TYPE, commandName, this.overrideContainerName(container.name)] }
                     });
                 });
             }
@@ -224,6 +226,23 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
         }
         this.ids.push(uniqueId);
         return uniqueId;
+    }
+
+    /**
+     * Builds object which has one time amend of machineName field for already defined task.
+     * Is used for tasks which should be executed inside specific container this time,
+     * but they do not have a container specified in persistent configuration.
+     * Return value is a subset of CheTaskDefinition.
+     *
+     * @param containerName name of the container in which the task should be executed
+     */
+    private overrideContainerName(containerName: string): object {
+        return {
+            type: CHE_TASK_TYPE,
+            target: {
+                machineName: containerName
+            }
+        };
     }
 
     dispose(): void {

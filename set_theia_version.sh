@@ -71,6 +71,8 @@ change_change_che_theia_init_baranch () {
         fi
     done < "che-theia-init-sources.yml";
     printf "%b\n" "$content" > "che-theia-init-sources.yml";
+
+    sed -i 's~@api.github.com/repos/eclipse/che-theia/git/${GIT_REF}~@api.github.com/repos/eclipse/che-theia/git/refs/heads/'${branchName}'~' ./dockerfiles/theia/Dockerfile 
 }
 
 # first is path to dir which contains 'package.json', second is Theia version
@@ -105,7 +107,7 @@ read -p "Enter Theia branch name [v${theiaVersion}]: "  theiaBranchName
 theiaBranchName="${theiaBranchName:=v${theiaVersion}}"
 
 read -p "Enter Theia git refs [refs\\/tags\\/v${theiaVersion}]: "  theiaGitRefs
-theiaGitRefs="${theiaGitRefs:=refs\\/tags\\/v${theiaVersion}}"
+theiaGitRefs="${theiaGitRefs:="refs\\\\\\\\\\/tags\\\\\\\\\\/v${theiaVersion}"}"
 
 read -p "Enter che-theia image version [${theiaVersion}]: "  cheTheiaVersion
 cheTheiaVersion="${cheTheiaVersion:=${theiaVersion}}"
@@ -113,7 +115,7 @@ cheTheiaVersion="${cheTheiaVersion:=${theiaVersion}}"
 sed -i -e 's/IMAGE_TAG="..*"/IMAGE_TAG="'${theiaTag}'"/' docker_image_build.include
 sed -i -e 's/THEIA_VERSION="..*"/THEIA_VERSION="'${theiaVersion}'"/' docker_image_build.include
 sed -i -e 's/THEIA_BRANCH="..*"/THEIA_BRANCH="'${theiaBranchName}'"/' docker_image_build.include
-sed -i -e 's/THEIA_GIT_REFS="..*"/THEIA_GIT_REFS="'${theiaGitRefs}'"/' docker_image_build.include
+sed -i -e 's/THEIA_GIT_REFS="..*"/THEIA_GIT_REFS="'${theiaGitRefs}'"/g' docker_image_build.include
 sed -i -e 's/THEIA_DOCKER_IMAGE_VERSION=.*/THEIA_DOCKER_IMAGE_VERSION="'${cheTheiaVersion}'"/' docker_image_build.include
 
 echo "All done..."
