@@ -17,4 +17,4 @@ sources:
     - plugins/ports-plugin
     - plugins/task-plugin
     - plugins/welcome-plugin
-  checkoutTo: remoteBinary
+  checkoutTo: master
