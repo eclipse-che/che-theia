@@ -447,7 +447,8 @@ export interface ChePluginMetadata {
     latestUpdateDate: string,
 
     // Plugin KEY. Used to set in workpsace configuration
-    key: string
+    key: string,
+    builtIn: boolean
 }
 
 export const CHE_PLUGIN_SERVICE_PATH = '/che-plugin-service';

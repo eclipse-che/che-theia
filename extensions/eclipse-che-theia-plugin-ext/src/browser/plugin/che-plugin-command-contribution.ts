@@ -83,6 +83,7 @@ export class ChePluginCommandContribution implements CommandContribution {
     // Displays a list of built in plugins provided inside Theia editor container.
     // Will be implemented soon.
     async showBuiltInPlugins() {
+        this.chePluginManager.changeFilter('@builtin', true);
     }
 
     /**

@@ -290,7 +290,8 @@ export class ChePluginServiceImpl implements ChePluginService {
                 firstPublicationDate: props.firstPublicationDate,
                 category: props.category,
                 latestUpdateDate: props.latestUpdateDate,
-                key: key
+                key: key,
+                builtIn: false
             };
 
         } catch (error) {

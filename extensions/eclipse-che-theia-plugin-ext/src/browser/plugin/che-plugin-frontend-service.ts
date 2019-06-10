@@ -25,14 +25,11 @@ export class ChePluginFrontentService {
     @inject(HostedPluginServer)
     protected readonly hostedPluginServer: HostedPluginServer;
 
-    async getDeployedPlugins(filter: string): Promise<ChePluginMetadata[]> {
-        if (PluginFilter.hasType(filter, '@installed')) {
-            let pluginList = await this.getAllDeployedPlugins();
-            pluginList = PluginFilter.filterPlugins(pluginList, filter);
-            return pluginList;
-        }
-
-        return [];
+    // returns a list of built-in plugins when filter contains '@builtin'
+    async getBuiltInPlugins(filter: string): Promise<ChePluginMetadata[]> {
+        let pluginList = await this.getAllDeployedPlugins();
+        pluginList = PluginFilter.filterPlugins(pluginList, filter);
+        return pluginList;
     }
 
     /**
@@ -53,7 +50,7 @@ export class ChePluginFrontentService {
             const description = meta.source.description;
 
             // tslint:disable-next-line:no-any
-            const icon = (meta.source as any).icon;
+            // const icon = (meta.source as any).icon;
 
             return {
                 publisher,
@@ -63,7 +60,7 @@ export class ChePluginFrontentService {
                 displayName,
                 title,
                 description,
-                icon,
+                icon: '',
                 url: '',
                 repository: '',
                 firstPublicationDate: '',
@@ -71,7 +68,8 @@ export class ChePluginFrontentService {
                 latestUpdateDate: '',
 
                 // Plugin KEY. Used to set in workspace configuration
-                key: `${publisher}/${name}/${version}`
+                key: `${publisher}/${name}/${version}`,
+                builtIn: true
             };
         });
 

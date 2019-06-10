@@ -30,6 +30,7 @@ import { ConfirmDialog } from '@theia/core/lib/browser';
 import { ChePluginPreferences } from './che-plugin-preferences';
 import { ChePluginFrontentService } from './che-plugin-frontend-service';
 import { PreferenceService, PreferenceScope } from '@theia/core/lib/browser/preferences';
+import { PluginFilter } from '../../common/plugin/plugin-filter';
 
 @injectable()
 export class ChePluginManager {
@@ -55,11 +56,6 @@ export class ChePluginManager {
      * Initialized by plugins received from workspace config.
      */
     private installedPlugins: string[];
-
-    /**
-     * List of plugins, currently available on active plugin registry.
-     */
-    private availablePlugins: ChePluginMetadata[] = [];
 
     @inject(ChePluginService)
     protected readonly chePluginService: ChePluginService;
@@ -180,11 +176,11 @@ export class ChePluginManager {
     async getPlugins(filter: string): Promise<ChePluginMetadata[]> {
         await this.initDefaults();
 
-        this.availablePlugins = await this.chePluginService.getPlugins(this.activeRegistry, filter);
-        // The code will be use soon
-        // const deployedPlugins = await this.pluginFrontentService.getDeployedPlugins(filter);
-        // this.availablePlugins = this.availablePlugins.concat(deployedPlugins);
-        return this.availablePlugins;
+        if (PluginFilter.hasType(filter, '@builtin')) {
+            return await this.pluginFrontentService.getBuiltInPlugins(filter);
+        }
+
+        return await this.chePluginService.getPlugins(this.activeRegistry, filter);
     }
 
     isPluginInstalled(plugin: ChePluginMetadata): boolean {
@@ -236,7 +232,7 @@ export class ChePluginManager {
             return input.substring('vscode:extension/'.length);
         }
 
-        return undefined;
+        return '';
     }
 
     /**
