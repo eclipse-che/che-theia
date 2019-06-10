@@ -7,11 +7,25 @@
 - [extensions](./extensions) contains Theia Extensions
 - [plugins](./plugins) contains Theia Plugins
 
+## How to build
+
+Run `yarn` to build Theia extensions and plugins.
+
+> Note: this build Theia extensions and plugins __ONLY__
+
+If you want to build all images also run `build.sh` script.
+
+CI for PR job in this repository will use `build.sh --pr`.
+> Note: `--pr` will build only limited set of docker images, see [PR_IMAGES variable](./docker_image_build.include)
+
+If you want to publish docker images use `build.sh --push`
+
 ## How to build own che-theia image
 
 First you need to build `che-theia-dev` image:
 
 Run in `dockerfiles/theia-dev` dir:
+
 ```bash
     ./build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:next
 ```
