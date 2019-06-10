@@ -167,9 +167,10 @@ export class ChePluginWidget extends ReactWidget {
         this.status = 'loading';
         this.update();
 
-        await this.chePluginManager.installVSCodeExtension(extension);
+        const installed = await this.chePluginManager.installVSCodeExtension(extension);
+        this.needToRestartWorkspace = true;
         await this.clearFilter();
-        return true;
+        return installed;
     }
 
     protected render(): React.ReactNode {
