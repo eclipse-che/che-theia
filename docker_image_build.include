@@ -15,3 +15,76 @@ THEIA_VERSION="master"
 THEIA_BRANCH="master"
 THEIA_GIT_REFS="refs\\/heads\\/master"
 THEIA_DOCKER_IMAGE_VERSION=
+
+# KEEP RIGHT ORDER!!!
+PR_IMAGES=(
+dockerfiles/theia-dev
+dockerfiles/theia
+dockerfiles/theia-endpoint-runtime
+)
+
+# KEEP RIGHT ORDER!!!
+DOCKER_FILES_LOCATIONS=(
+dockerfiles/theia-dev
+dockerfiles/theia
+dockerfiles/theia-endpoint-runtime
+dockerfiles/remote-plugin-java8
+dockerfiles/remote-plugin-java11
+dockerfiles/remote-plugin-go-1.10.7
+dockerfiles/remote-plugin-python-3.7.3
+dockerfiles/remote-plugin-dotnet-2.2.105
+dockerfiles/remote-plugin-kubernetes-tooling-0.1.17
+dockerfiles/remote-plugin-kubernetes-tooling-1.0.0
+dockerfiles/remote-plugin-openshift-connector-0.0.17
+dockerfiles/remote-plugin-openshift-connector-0.0.21
+)
+
+IMAGES_LIST=(
+eclipse/che-theia-dev
+eclipse/che-theia
+eclipse/che-theia-endpoint-runtime
+eclipse/che-remote-plugin-runner-java8
+eclipse/che-remote-plugin-runner-java11
+eclipse/che-remote-plugin-go-1.10.7
+eclipse/che-remote-plugin-python-3.7.3
+eclipse/che-remote-plugin-dotnet-2.2.105
+eclipse/che-remote-plugin-kubernetes-tooling-0.1.17
+eclipse/che-remote-plugin-kubernetes-tooling-1.0.0
+eclipse/che-remote-plugin-openshift-connector-0.0.17
+eclipse/che-remote-plugin-openshift-connector-0.0.21
+)
+
+buildImages() {
+    IMG_LIST=("$@")
+    for image_dir in "${IMG_LIST[@]}"
+        do
+            GITHUB_TOKEN_ARG="GITHUB_TOKEN="${GITHUB_TOKEN}
+            if [ "$image_dir" == "dockerfiles/theia" ]; then
+                bash $(pwd)/$image_dir/build.sh --build-args:${GITHUB_TOKEN_ARG},THEIA_VERSION=${THEIA_VERSION} --tag:${IMAGE_TAG} --branch:${THEIA_BRANCH} --git-ref:${THEIA_GIT_REFS} 
+            elif [ "$image_dir" == "dockerfiles/theia-dev" ]; then
+                bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:${IMAGE_TAG}
+            else
+                bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:${IMAGE_TAG}
+            fi
+            if [ $? -ne 0 ]; then
+                echo "ERROR:"
+                echo "build of '$image_dir' image is failed!"
+                exit 1
+            fi
+        done
+}
+
+publishImages() {
+    IMG_LIST=("$@")
+    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    for image in "${IMG_LIST[@]}"
+        do
+            if [ ! -z ${THEIA_DOCKER_IMAGE_VERSION} ]; then
+                docker tag ${image}:${IMAGE_TAG} ${image}:${THEIA_DOCKER_IMAGE_VERSION}
+                echo y | docker push ${image}:${IMAGE_TAG}
+                echo y | docker push ${image}:${THEIA_DOCKER_IMAGE_VERSION}
+            else
+                echo y | docker push ${image}:${IMAGE_TAG}
+            fi
+        done
+}
