@@ -20,26 +20,28 @@ fi
 #in mac os 'cp' cannot create destination dir, so create it first
 mkdir ${LOCAL_ASSEMBLY_DIR}
 
-echo "Copying ${base_dir}/../../extensions/eclipse-che-theia-plugin --> ${LOCAL_ASSEMBLY_DIR}/theia-plugin"
+app_root=${base_dir}/../..
+
+echo "Copying ${app_root}/extensions/eclipse-che-theia-plugin --> ${LOCAL_ASSEMBLY_DIR}/theia-plugin"
 mkdir ${LOCAL_ASSEMBLY_DIR}/theia-plugin
-cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin/src/." "${LOCAL_ASSEMBLY_DIR}/theia-plugin/src/"
-cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin/package.json" "${LOCAL_ASSEMBLY_DIR}/theia-plugin"
+cp -r "${app_root}/extensions/eclipse-che-theia-plugin/src/." "${LOCAL_ASSEMBLY_DIR}/theia-plugin/src/"
+cp -r "${app_root}/extensions/eclipse-che-theia-plugin/package.json" "${LOCAL_ASSEMBLY_DIR}/theia-plugin"
 
-echo "Copying ${base_dir}/../../extensions/eclipse-che-theia-plugin-ext --> ${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext"
+echo "Copying ${app_root}/extensions/eclipse-che-theia-plugin-ext --> ${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext"
 mkdir ${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext
-cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-ext/src/." "${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext/src/"
-cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-ext/package.json" "${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext"
-cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-ext/tsconfig.json" "${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext"
-cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-ext/webpack.config.js" "${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext"
+cp -r "${app_root}/extensions/eclipse-che-theia-plugin-ext/src/." "${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext/src/"
+cp -r "${app_root}/extensions/eclipse-che-theia-plugin-ext/package.json" "${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext"
+cp -r "${app_root}/extensions/eclipse-che-theia-plugin-ext/tsconfig.json" "${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext"
+cp -r "${app_root}/extensions/eclipse-che-theia-plugin-ext/webpack.config.js" "${LOCAL_ASSEMBLY_DIR}/theia-plugin-ext"
 
-echo "Copying ${base_dir}/../../configs --> ${LOCAL_ASSEMBLY_DIR}/configs"
-cp -r "${base_dir}/../../configs/." "${LOCAL_ASSEMBLY_DIR}/configs"
+echo "Copying ${app_root}/configs --> ${LOCAL_ASSEMBLY_DIR}/configs"
+cp -r "${app_root}/configs/." "${LOCAL_ASSEMBLY_DIR}/configs"
 
-echo "Copying ${base_dir}/../../extensions/eclipse-che-theia-plugin-remote --> ${LOCAL_ASSEMBLY_DIR}/theia-plugin-remote"
+echo "Copying ${app_root}/extensions/eclipse-che-theia-plugin-remote --> ${LOCAL_ASSEMBLY_DIR}/theia-plugin-remote"
 mkdir ${LOCAL_ASSEMBLY_DIR}/theia-plugin-remote
-cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-remote/src/." "${LOCAL_ASSEMBLY_DIR}/theia-plugin-remote/src/"
-cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-remote/package.json" "${LOCAL_ASSEMBLY_DIR}/theia-plugin-remote"
-cp -r "${base_dir}/../../extensions/eclipse-che-theia-plugin-remote/tsconfig.json" "${LOCAL_ASSEMBLY_DIR}/theia-plugin-remote"
+cp -r "${app_root}/extensions/eclipse-che-theia-plugin-remote/src/." "${LOCAL_ASSEMBLY_DIR}/theia-plugin-remote/src/"
+cp -r "${app_root}/extensions/eclipse-che-theia-plugin-remote/package.json" "${LOCAL_ASSEMBLY_DIR}/theia-plugin-remote"
+cp -r "${app_root}/extensions/eclipse-che-theia-plugin-remote/tsconfig.json" "${LOCAL_ASSEMBLY_DIR}/theia-plugin-remote"
 
 
 init --name:theia-endpoint-runtime-binary "$@"

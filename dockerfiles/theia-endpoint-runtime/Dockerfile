@@ -31,7 +31,7 @@ RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
         fi \
     fi
 
-#invalidate cashe
+#invalidate cache
 ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/theia-ide/theia/git/refs/head /tmp/branch_info.json
 ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/eclipse/che-theia/git/refs/head /tmp/branch_info.json
 

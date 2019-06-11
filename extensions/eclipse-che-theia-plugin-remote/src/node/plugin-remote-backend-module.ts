@@ -23,7 +23,7 @@ const localModule = ConnectionContainerModule.create(({ bind }) => {
 
 export default new ContainerModule(bind => {
     try {
-        // Force nexe to include theia-plugin-ext iside binary
+        // Force nexe to include theia-plugin-ext inside binary
         require('@eclipse-che/theia-plugin-ext/lib/node/che-plugin-api-provider.js');
     } catch (err) {
         console.log('Unable to set up che theia plugin api: ', err);

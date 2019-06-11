@@ -15,7 +15,6 @@ import { injectable } from 'inversify';
 export class ChePluginApiProvider implements ExtPluginApiProvider {
 
     provideApi(): ExtPluginApi {
-        console.log('provide che plugin api!!!');
         return {
             frontendExtApi: {
                 initPath: '/che/api/che-api-worker-provider.js',
