@@ -19,7 +19,7 @@ WORKDIR ${HOME}
 ARG GITHUB_TOKEN
 
 # Define upstream version of theia to use
-ARG THEIA_VERSION=0.5.0
+ARG THEIA_VERSION=master
 
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
