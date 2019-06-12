@@ -49,6 +49,8 @@ export class ChePluginFrontentService {
 
             const description = meta.source.description;
 
+            // Temporary disabled.
+            // We don't have an ability for now to display icons from the file system.
             // tslint:disable-next-line:no-any
             // const icon = (meta.source as any).icon;
 
