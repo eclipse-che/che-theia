@@ -17,4 +17,5 @@ sources:
     - plugins/ports-plugin
     - plugins/task-plugin
     - plugins/welcome-plugin
+    - plugins/ssh-plugin
   checkoutTo: master
