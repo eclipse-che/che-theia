@@ -164,12 +164,16 @@ export class ChePluginWidget extends ReactWidget {
     }
 
     protected async installExtension(extension: string): Promise<boolean> {
+        this.currentFilter = '';
+
         this.status = 'loading';
         this.update();
 
         const installed = await this.chePluginManager.installVSCodeExtension(extension);
         this.needToRestartWorkspace = true;
-        await this.clearFilter();
+
+        await this.updatePlugins();
+
         return installed;
     }
 
@@ -413,14 +417,14 @@ export class ChePlugin extends React.Component<ChePlugin.Props, ChePlugin.State>
         if (this.props.plugin.icon) {
             // return the icon
             return <div className='che-plugin-icon'>
-                    <img src={this.props.plugin.icon}></img>
-                </div>;
+                <img src={this.props.plugin.icon}></img>
+            </div>;
         }
 
         // return default icon
         return <div className='che-plugin-default-icon'>
-                <div className='fa fa-puzzle-piece fa-2x fa-fw'></div>
-            </div>;
+            <div className='fa fa-puzzle-piece fa-2x fa-fw'></div>
+        </div>;
     }
 
     protected renderAction(): React.ReactNode {
