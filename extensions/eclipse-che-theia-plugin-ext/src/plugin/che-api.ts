@@ -19,6 +19,7 @@ import { CheFactoryImpl } from './che-factory';
 import { CheDevfileImpl } from './che-devfile';
 import { CheTaskImpl } from './che-task-impl';
 import { CheSshImpl } from './che-ssh';
+import { CheUserImpl } from './che-user';
 
 export interface CheApiFactory {
     (plugin: Plugin): typeof che;
@@ -31,6 +32,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
     const cheVariablesImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_VARIABLES, new CheVariablesImpl(rpc));
     const cheTaskImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_TASK, new CheTaskImpl(rpc));
     const cheSshImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_SSH, new CheSshImpl(rpc));
+    const cheUserImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_USER, new CheUserImpl(rpc));
 
     return function (plugin: Plugin): typeof che {
         const workspace: typeof che.workspace = {
@@ -124,13 +126,29 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             }
         };
 
+        const user: typeof che.user = {
+            getUserPreferences(filter?: string): Promise<che.Preferences> {
+                return cheUserImpl.getUserPreferences(filter);
+            },
+            updateUserPreferences(update: che.Preferences): Promise<che.Preferences> {
+                return cheUserImpl.updateUserPreferences(update);
+            },
+            replaceUserPreferences(preferences: che.Preferences): Promise<che.Preferences> {
+                return cheUserImpl.replaceUserPreferences(preferences);
+            },
+            deleteUserPreferences(list?: string[]): Promise<void> {
+                return cheUserImpl.deleteUserPreferences(list);
+            }
+        };
+
         return <typeof che>{
             workspace,
             factory,
             devfile,
             variables,
             task,
-            ssh
+            ssh,
+            user
         };
     };
 

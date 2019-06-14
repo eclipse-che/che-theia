@@ -18,6 +18,7 @@ import { CheVariablesMainImpl } from './che-variables-main';
 import { CheTaskMainImpl } from './che-task-main';
 import { CheSshMainImpl } from './che-ssh-main';
 import { CheDevfileMainImpl } from './che-devfile-main';
+import { CheUserMainImpl } from './che-user-main';
 
 @injectable()
 export class CheApiProvider implements MainPluginApiProvider {
@@ -29,6 +30,7 @@ export class CheApiProvider implements MainPluginApiProvider {
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_VARIABLES_MAIN, new CheVariablesMainImpl(container, rpc));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_TASK_MAIN, new CheTaskMainImpl(container, rpc));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_SSH_MAIN, new CheSshMainImpl(container));
+        rpc.set(PLUGIN_RPC_CONTEXT.CHE_USER_MAIN, new CheUserMainImpl(container));
     }
 
 }
