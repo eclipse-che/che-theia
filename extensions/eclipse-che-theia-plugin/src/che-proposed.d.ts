@@ -156,4 +156,17 @@ declare module '@eclipse-che/plugin' {
         /** Additional task type specific properties. */
         readonly [key: string]: any;
     }
+
+    export namespace user {
+        export function getUserPreferences(): Promise<Preferences>;
+        export function getUserPreferences(filter: string | undefined): Promise<Preferences>;
+        export function updateUserPreferences(update: Preferences): Promise<Preferences>;
+        export function replaceUserPreferences(preferences: Preferences): Promise<Preferences>;
+        export function deleteUserPreferences(): Promise<void>;
+        export function deleteUserPreferences(list: string[] | undefined): Promise<void>;
+    }
+
+    export interface Preferences {
+        [key: string]: string;
+    }
 }

@@ -366,6 +366,9 @@ export const PLUGIN_RPC_CONTEXT = {
 
     CHE_SSH: <ProxyIdentifier<CheSsh>>createProxyIdentifier<CheSsh>('CheSsh'),
     CHE_SSH_MAIN: <ProxyIdentifier<CheSshMain>>createProxyIdentifier<CheSshMain>('CheSshMain'),
+
+    CHE_USER: <ProxyIdentifier<CheUser>>createProxyIdentifier<CheUser>('CheUser'),
+    CHE_USER_MAIN: <ProxyIdentifier<CheUserMain>>createProxyIdentifier<CheUserMain>('CheUserMain'),
 };
 
 // Theia RPC protocol
@@ -486,4 +489,13 @@ export interface ChePluginService {
      */
     removePlugin(pluginKey: string): Promise<void>;
 
+}
+
+export interface CheUser { }
+
+export interface CheUserMain {
+    $getUserPreferences(filter?: string): Promise<Preferences>;
+    $updateUserPreferences(preferences: Preferences): Promise<Preferences>;
+    $replaceUserPreferences(preferences: Preferences): Promise<Preferences>;
+    $deleteUserPreferences(list?: string[]): Promise<void>;
 }
