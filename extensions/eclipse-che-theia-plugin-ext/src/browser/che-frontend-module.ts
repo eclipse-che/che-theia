@@ -62,7 +62,8 @@ export default new ContainerModule(bind => {
     bindViewContribution(bind, ChePluginViewContribution);
 
     bind(ChePluginMenu).toSelf().inSingletonScope();
-    bind(ChePluginWidget).toSelf().inSingletonScope();
+
+    bind(ChePluginWidget).toSelf();
     bind(WidgetFactory).toDynamicValue(ctx => ({
         id: ChePluginViewContribution.PLUGINS_WIDGET_ID,
         createWidget: () => ctx.container.get(ChePluginWidget)

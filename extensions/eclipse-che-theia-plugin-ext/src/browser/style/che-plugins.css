@@ -198,7 +198,8 @@
     background: var(--theia-layout-color2);
 }
 
-.che-plugin-list .che-plugin-icon {
+.che-plugin-list .che-plugin-icon,
+.che-plugin-list .che-plugin-default-icon {
     position: absolute;
     display: block;
     overflow: hidden;
@@ -211,6 +212,14 @@
 .che-plugin-list .che-plugin-icon > img {
     width: 64px;
     height: 64px;
+}
+
+.che-plugin-list .che-plugin-default-icon > div {
+    font-size: 55px;
+    line-height: 64px;
+    width: 64px;
+    height: 64px;
+    color: gray;
 }
 
 .che-plugin-list .che-plugin-info {

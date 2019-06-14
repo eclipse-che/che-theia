@@ -164,12 +164,17 @@ export class ChePluginWidget extends ReactWidget {
     }
 
     protected async installExtension(extension: string): Promise<boolean> {
+        this.currentFilter = '';
+
         this.status = 'loading';
         this.update();
 
-        await this.chePluginManager.installVSCodeExtension(extension);
-        await this.clearFilter();
-        return true;
+        const installed = await this.chePluginManager.installVSCodeExtension(extension);
+        this.needToRestartWorkspace = true;
+
+        await this.updatePlugins();
+
+        return installed;
     }
 
     protected render(): React.ReactNode {
@@ -387,9 +392,7 @@ export class ChePlugin extends React.Component<ChePlugin.Props, ChePlugin.State>
         // I'm not sure whether 'key' attribute is necessary here
         return <div key={plugin.key} className='che-plugin'>
             <div className='che-plugin-content'>
-                <div className='che-plugin-icon'>
-                    <img src={plugin.icon}></img>
-                </div>
+                {this.renderIcon()}
                 <div className='che-plugin-info'>
                     <div className='che-plugin-title'>
                         <div className='che-plugin-name'>{plugin.name}</div>
@@ -404,15 +407,30 @@ export class ChePlugin extends React.Component<ChePlugin.Props, ChePlugin.State>
                         {plugin.publisher}
                         <span className='che-plugin-type'>{plugin.type}</span>
                     </div>
-                    {this.renderPluginAction(plugin)}
+                    {this.renderAction()}
                 </div>
             </div>
         </div>;
     }
 
-    protected renderPluginAction(plugin: ChePluginMetadata): React.ReactNode {
-        // Don't show the button for 'Che Editor' plugins
-        if ('Che Editor' === plugin.type) {
+    protected renderIcon(): React.ReactNode {
+        if (this.props.plugin.icon) {
+            // return the icon
+            return <div className='che-plugin-icon'>
+                <img src={this.props.plugin.icon}></img>
+            </div>;
+        }
+
+        // return default icon
+        return <div className='che-plugin-default-icon'>
+            <div className='fa fa-puzzle-piece fa-2x fa-fw'></div>
+        </div>;
+    }
+
+    protected renderAction(): React.ReactNode {
+        // Don't show the button for 'Che Editor' plugins and for built-in plugins
+        if ('Che Editor' === this.props.plugin.type ||
+            this.props.plugin.builtIn) {
             return undefined;
         }
 
