@@ -22,6 +22,7 @@
     "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
     "watch": "tsc -w"
   },
+  "license": "EPL-2.0",
   "theiaExtensions": [
     {
       "frontend": "lib/browser/che-theia-dashboard-module"
