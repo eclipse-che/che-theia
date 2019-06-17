@@ -26,12 +26,11 @@
 </div>
 
 ## What is Che-theia ?
-Che-theia is the default `Che editor` provided in [Eclipse Che 7](https://eclipse.org/che/)([Github](https://github.com/eclipse/che)).
+[Eclipse Che](https://eclipse.org/che/) provides a default web IDE for the workspaces which is based on the [Theia](https://github.com/theia-ide/theia) project. It’s a subtle different version than a plain  Theia(https://github.com/theia-ide/theia) as there are functionalities that have been added based on the nature of the Eclipse Che workspaces. We are calling this version of Eclipse Theia for Che: Che-Theia.
 
-Che-theia is IDE Web application based on the [Theia IDE](https://github.com/theia-ide/theia) project.
+So, Che-Theia is the default `Che editor` provided with developer workspaces created in [Eclipse Che 7](https://eclipse.org/che/)([Github](https://github.com/eclipse/che)). 
 
-Che-theia contains additional specific extensions and plugins
-to provide the best IDE experience of Theia within Che.
+Che-Theia contains additional extensions and plugins which have been added based on the nature of Eclipse Che workspaces and to provide the best IDE experience of Theia within Che.
  - A VSCode-like IDE experience. Che-Theia is based on the monaco
    editor and includes features like the command pallete.
  - VSCode extension compatibility. Che-Theia supports VSCode
@@ -41,8 +40,8 @@ to provide the best IDE experience of Theia within Che.
  - Nice views to interact with your user containers or production runtime containers.
    (Terminal access, execute Che-commands in specific containers, etc...)
 
-## Che-theia capabilities
-In Che-theia, you’ll find the following capabilities:
+## Che-Theia capabilities
+In Che-Theia, you’ll find the following capabilities:
 
 
 | Plug-in               | Description |
@@ -72,6 +71,7 @@ You are very welcome to join our community chat [here](https://mattermost.eclips
 - [extensions](./extensions) contains Theia Extensions
 - [plugins](./plugins) contains Theia Plugins
 
+# Contributing
 ## How to build
 
 Run `yarn` to build Theia extensions and plugins.
@@ -104,3 +104,8 @@ Then in `dockerfiles/theia` run:
 Where `${GITHUB_TOKEN_ARG}` is your GitHub API token, it's used for fetching some vscode library that placed on GitHub releases, without that token build may fail.
 
 That script will clone Theia from master branch and all Che related extensions from theirs master branches.
+
+
+## License
+
+- [Eclipse Public License 2.0](LICENSE)
