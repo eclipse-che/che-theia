@@ -3,9 +3,19 @@
 ## What is Che-theia ?
 Che-theia is the default `Che editor` provided in [Eclipse Che 7](https://eclipse.org/che/).
 
-Che-theia is based on the [Theia IDE](https://github.com/theia-ide/theia) project and contains
+Che-theia is IDE Web application based on the [Theia IDE](https://github.com/theia-ide/theia) project.
+
+It contains
 additional specific extensions and plugins
 to provide the best IDE experience of Theia within Che.
+ - A VSCode-like IDE experience. Che-Theia is based on the monaco
+   editor and includes features like the command pallete.
+ - VSCode extension compatibility. Che-Theia supports VSCode
+   extension. These extensions could come with a side-car
+   containers with all the dependency that the extension would need.
+   No need to install the JDK or Maven when you install our VSCode Java plugin.
+ - Nice views to interact to your user containers or production containers.
+   (Terminal access, execute Che-commands in specific containers, etc...)
 
 ## Che-theia capabilities
 In Che-theia, you’ll find the following capabilities:
