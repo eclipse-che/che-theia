@@ -1,5 +1,30 @@
-[![Build Status](https://ci.codenvycorp.com/buildStatus/icon?job=che-theia-master-ci)](https://ci.codenvycorp.com/job/che-theia-master-ci)
-# Che-theia
+<br/>
+<div id="che-theia-logo" align="center" style="vertical-align: middle">
+
+<img src="https://raw.githubusercontent.com/eclipse/che-theia/master/extensions/eclipse-che-theia-about/src/browser/style/che-logo-light.svg?sanitize=true" alt="Che Logo" width="200" />
+
+<img src="https://raw.githubusercontent.com/theia-ide/theia/master/logo/theia-logo.svg?sanitize=true" alt="Theia Logo" width="150"/>
+
+# Che Theia
+
+
+</div>
+
+<div id="badges" align="center">
+
+  [![Build Status](https://ci.codenvycorp.com/buildStatus/icon?job=che-theia-master-ci)](https://ci.codenvycorp.com/job/che-theia-master-ci)
+  [![mattermost](https://img.shields.io/badge/chat-on%20mattermost-blue.svg)](https://mattermost.eclipse.org/eclipse/channels/eclipse-che-ide2-team)
+  [![Open questions](https://img.shields.io/badge/Open-questions-blue.svg?style=flat-curved)](https://github.com/eclipse/che-theia/labels/question)
+  [![Open bugs](https://img.shields.io/badge/Open-bugs-red.svg?style=flat-curved)](https://github.com/eclipse/che-theia/labels/bug)
+
+</div>
+
+<div style='margin:0 auto;width:80%;'>
+
+![Che-Theia](https://raw.githubusercontent.com/eclipse/che-theia/readme/che-theia-screenshot.png)
+
+</div>
+
 ## What is Che-theia ?
 Che-theia is the default `Che editor` provided in [Eclipse Che 7](https://eclipse.org/che/)([Github](https://github.com/eclipse/che)).
 
@@ -34,10 +59,11 @@ In Che-theia, you’ll find the following capabilities:
 
 ## Join the community
 
-The Eclipse Che community globally is reachable through public chat rooms, mailing list and weekly calls.
+The Eclipse Che community is globally reachable through public chat rooms, mailing list and weekly calls.
 See https://www.eclipse.org/che/docs/che-7/introduction-to-eclipse-che.html#joining-the-community
 
-Che-Theia is mainly maintained by the Che IDE2 team a.k.a Selene. You are very welcome to join our community chat [here](https://mattermost.eclipse.org/eclipse/channels/eclipse-che-ide2-team) to discuss about improvements, bug fixes and anything else.
+Che-Theia is mainly maintained by the Che IDE2 team a.k.a Selene.
+You are very welcome to join our community chat [here](https://mattermost.eclipse.org/eclipse/channels/eclipse-che-ide2-team) to discuss about improvements, bug fixes and anything else.
 
 ## Project structure
 
