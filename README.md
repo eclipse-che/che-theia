@@ -13,7 +13,7 @@ to provide the best IDE experience of Theia within Che.
    extensions. In Che-theia, these extensions could come with a side-car
    containers with all the dependencies required by the extension.
    No need to install the JDK or Maven when you install our VSCode Java plugin.
- - Nice views to interact to your user containers or production containers.
+ - Nice views to interact with your user containers or production runtime containers.
    (Terminal access, execute Che-commands in specific containers, etc...)
 
 ## Che-theia capabilities
