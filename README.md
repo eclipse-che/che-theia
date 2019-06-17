@@ -1,7 +1,7 @@
 [![Build Status](https://ci.codenvycorp.com/buildStatus/icon?job=che-theia-master-ci)](https://ci.codenvycorp.com/job/che-theia-master-ci)
 # Che-theia
 ## What is Che-theia ?
-Che-theia is the default `Che editor` provided in [Eclipse Che 7](https://eclipse.org/che/).
+Che-theia is the default `Che editor` provided in [Eclipse Che 7](https://eclipse.org/che/)([Github](https://github.com/eclipse/che)).
 
 Che-theia is IDE Web application based on the [Theia IDE](https://github.com/theia-ide/theia) project.
 
