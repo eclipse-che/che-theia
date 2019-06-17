@@ -21,14 +21,14 @@
 
 <div style='margin:0 auto;width:80%;'>
 
-![Che-Theia](https://raw.githubusercontent.com/eclipse/che-theia/readme/che-theia-screenshot.png)
+![Che-Theia](https://raw.githubusercontent.com/eclipse/che-theia/master/che-theia-screenshot.png)
 
 </div>
 
 ## What is Che-theia ?
 [Eclipse Che](https://eclipse.org/che/) provides a default web IDE for the workspaces which is based on the [Theia](https://github.com/theia-ide/theia) project. It’s a subtle different version than a plain  Theia(https://github.com/theia-ide/theia) as there are functionalities that have been added based on the nature of the Eclipse Che workspaces. We are calling this version of Eclipse Theia for Che: Che-Theia.
 
-So, Che-Theia is the default `Che editor` provided with developer workspaces created in [Eclipse Che 7](https://eclipse.org/che/)([Github](https://github.com/eclipse/che)). 
+So, Che-Theia is the default `Che editor` provided with developer workspaces created in [Eclipse Che 7](https://eclipse.org/che/)([Github](https://github.com/eclipse/che)).
 
 Che-Theia contains additional extensions and plugins which have been added based on the nature of Eclipse Che workspaces and to provide the best IDE experience of Theia within Che.
  - A VSCode-like IDE experience. Che-Theia is based on the monaco
