@@ -1,4 +1,27 @@
-# che-theia
+[![Build Status](https://ci.codenvycorp.com/buildStatus/icon?job=che-theia-master-ci)](https://ci.codenvycorp.com/job/che-theia-master-ci)
+# Che-theia
+## What is Che-theia ?
+Che-theia is the default `Che editor` provided in [Eclipse Che 7](https://eclipse.org/che/).
+
+Che-theia is based on the [Theia IDE](https://github.com/theia-ide/theia) project and contains
+additional specific extensions and plugins
+to provide the best IDE experience of Theia within Che.
+
+## Che-theia capabilities
+In Che-theia, you’ll find the following capabilities:
+
+
+| Plug-in               | Description |
+|-----------------------|-------------|
+| Che Extended Tasks    | Handles the Che commands and provides the ability to start those into a specific container of the workspace. |
+| Che Extended Terminal | Allows to provide terminal for any of the containers of the workspace. |
+| Che Factory           | Handles the Eclipse Che Factories [TODO: LINK] |
+| Che Container         | Provides a container view that shows all the containers that are running in the workspace and allows to interact with them. |
+| Che Dashboard         | Allows to integrate the IDE with Che Dashboard and facilitate the navigation. |
+| Che Welcome Page      | Display a welcome page with handy links when opening the IDE. |
+| Che Ports             | Allows to detect when services are running inside of the workspace and expose them. |
+| Che APIs              | Extends the IDE APIs, to allow interacting with the Che specific components (workspaces, preferences, etc.). |
+
 
 ## Project structure
 
