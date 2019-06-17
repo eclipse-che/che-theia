@@ -72,6 +72,7 @@ RUN set -eux; \
     go version && \
     apk add gcc g++ git
 
-ENV GOPATH /projects:/go
+ENV GOPATH /go
+ENV GOCACHE /.cache
 ENV GOROOT /usr/local/go
 ENV PATH $GOPATH/bin:$GOROOT/bin:$PATH
