@@ -72,7 +72,7 @@ RUN che:theia init -c ${HOME}/che-theia-init-sources.yml
 RUN che:theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 
 # Compile Theia
-RUN yarn
+RUN yarn global add node-gyp && node-gyp install && yarn
 
 # Run into production mode
 RUN che:theia production

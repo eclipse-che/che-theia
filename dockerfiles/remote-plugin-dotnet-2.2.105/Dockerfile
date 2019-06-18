@@ -54,7 +54,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
     # Install typescript@2.9.2 and node-gyp
 
-    &&  yarn global add typescript@2.9.2 node-gyp
+    &&  yarn global add typescript@2.9.2 node-gyp \
+    &&  node-gyp install
 
 ENV HOME=/home/theia
 COPY --from=endpoint /home/theia /home/theia
@@ -63,7 +64,7 @@ COPY --from=endpoint /etc/passwd  /etc/passwd
 COPY --from=endpoint /etc/group   /etc/group
 COPY --from=endpoint /entrypoint.sh /entrypoint.sh
 
-RUN find /home/theia/ -name "binding.gyp" |  xargs -i sh -c 'cd $(dirname {}) && node-gyp rebuild' \
+RUN find /home/theia/ -name "binding.gyp" |  xargs -i sh -c 'cd $(dirname {}) && node-gyp rebuild --ensure' \
     && sed -i 's/SIGHUP SIGTERM SIGINT/HUP TERM INT/g' /entrypoint.sh
 
 # Install .NET Core SDK

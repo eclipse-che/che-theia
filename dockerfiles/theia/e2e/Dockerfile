@@ -17,7 +17,7 @@ RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb-src http://ar
 RUN apt-get update && \
     apt-get install -y libx11-dev libxkbfile-dev sudo iproute2
 CMD /root/docker-run.sh
-RUN yarn global add typescript@2.9.2 node-gyp
+RUN yarn global add typescript@2.9.2 node-gyp && node-gyp install
 
 # Add cypress scripts and grab dependencies
 COPY src /root/
@@ -28,4 +28,4 @@ ADD cypress /root/cypress/
 
 COPY --from=theia /home/theia /home/theia
 COPY --from=theia /entrypoint.sh /entrypoint.sh
-RUN find /home/theia/ -name "binding.gyp" |  xargs -i sh -c 'cd $(dirname {}) && node-gyp rebuild'
+RUN find /home/theia/ -name "binding.gyp" |  xargs -i sh -c 'cd $(dirname {}) && node-gyp rebuild --ensure'

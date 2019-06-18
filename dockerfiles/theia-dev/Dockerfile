@@ -49,6 +49,8 @@ EXPOSE 3000 3030
 # Configure npm and yarn to use home folder for global dependencies
 RUN npm config set prefix "${HOME}/.npm-global" && \
     echo "--global-folder \"${HOME}/.yarn-global\"" > ${HOME}/.yarnrc && \
+    # Setup node-gyp. Yarn will be failed unless installing required files here.
+    yarn global add node-gyp && \
     # add eclipse che theia generator
     yarn global add yo @theia/generator-plugin@0.0.1-1540209403 ${THEIA_GENERATOR_PACKAGE} && \
     # Generate .passwd.template \
