@@ -54,7 +54,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
     # Install typescript@2.9.2 and node-gyp
 
-    &&  yarn global add typescript@2.9.2 node-gyp
+    &&  yarn global add typescript@2.9.2 node-gyp \
+    &&  node-gyp install
 
 ENV HOME=/home/theia
 COPY --from=endpoint /home/theia /home/theia
