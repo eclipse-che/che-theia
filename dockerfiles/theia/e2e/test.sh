@@ -20,10 +20,15 @@ fi
 # Runs E2E tests in a docker container.
 run_test_in_docker_container() {
   docker_exec run --rm ${DOCKER_RUN_OPTIONS} \
+       --user $1 \
        -v "${base_dir}/videos":/root/cypress/videos \
        -v "${base_dir}/logs":/root/logs \
        -v /var/run/docker.sock:/var/run/docker.sock \
            $IMAGE_NAME
 }
 
-run_test_in_docker_container
+# Run as root
+run_test_in_docker_container '0:0'
+
+# Run as non root
+run_test_in_docker_container '1234:5678'
