@@ -13,7 +13,7 @@ help() {
 
 image="$1"
 destination="$2"
-if [ "${image}" == "" -o "${destination}" == "" ]; then
+if [ -z "${image}" -o -z "${destination}" ]; then
   help
   exit 1
 fi
