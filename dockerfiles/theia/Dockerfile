@@ -112,25 +112,22 @@ COPY --from=builder /home/theia-dev/theia-source-code/production/plugins /defaul
 # Install curl and bash
 # Install ssh for cloning ssh-repositories
 # Install less for handling git diff properly
-RUN apk add --update --no-cache sudo git bzip2 which bash curl openssh openssh-keygen less
-RUN adduser -D -S -u 1001 -G root -h ${HOME} -s /bin/sh theia \
-    && echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
-    # Create /projects for Che
-    && mkdir /projects \
-    # Create root node_modules in order to not use node_modules in each project folder
-    && mkdir /node_modules \
+RUN apk add --update --no-cache sudo git bzip2 which bash curl openssh openssh-keygen less shadow \
+    && useradd -u 1001 -U -G root -d ${HOME} -s /bin/bash theia-dev \
+    && apk del --no-cache shadow \
+    && echo "%root ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+RUN mkdir /projects /node_modules \
     # Download yeoman generator plug-in
     && curl -L -o /default-theia-plugins/theia_yeoman_plugin.theia https://github.com/eclipse/theia-yeoman-plugin/releases/download/untagged-04f28ee329e479cc465b/theia_yeoman_plugin.theia \
-    && for f in "${HOME}" "/etc/passwd" "/etc/group /node_modules /default-theia-plugins /projects"; do\
-           sudo chgrp -R 0 ${f} && \
-           sudo chmod -R g+rwX ${f}; \
-       done \
-    && cat /etc/passwd | sed s#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g > ${HOME}/passwd.template \
-    && cat /etc/group | sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g > ${HOME}/group.template \
+    # For non-root instances. File permissions will be fixed in `entrypoint.sh`.
+    && sed -e 's#theia:x.*#theia:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g' \
+           /etc/passwd > ${HOME}/.passwd.template \
+    && sed -e 's#^theia:.*#theia:x:${GROUP_ID}:#g' \
+           /etc/group > ${HOME}/.group.template \
     # Add yeoman, theia plugin generator and typescript (to have tsc/typescript working)
     && yarn global add yo @theia/generator-plugin@0.0.1-1540209403 typescript@2.9.2 \
     && mkdir -p ${HOME}/.config/insight-nodejs/ \
-    && chmod -R 777 ${HOME}/.config/ \
     # Disable the statistics for yeoman
     && echo '{"optOut": true}' > $HOME/.config/insight-nodejs/insight-yo.json \
     # Link yarn global modules for yeoman
@@ -140,9 +137,13 @@ RUN adduser -D -S -u 1001 -G root -h ${HOME} -s /bin/sh theia \
     # Cleanup yarn cache
     && yarn cache clean \
     # Change permissions to allow editing of files for openshift user
-    && find ${HOME} -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \;
+    && for f in "${HOME}" /etc/passwd /etc/group /node_modules /default-theia-plugins /projects; do\
+           sudo chgrp -R 0 ${f} && \
+           sudo chmod -R g+rwX ${f}; \
+       done
 
 COPY --chown=theia:root --from=builder /home/theia-dev/theia-source-code/production /home/theia
+
 USER theia
 WORKDIR /projects
 ADD src/entrypoint.sh /entrypoint.sh
