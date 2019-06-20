@@ -11,7 +11,7 @@ FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-dev:${BUILD_TAG}
 # define in env variable GITHUB_TOKEN
 ARG GITHUB_TOKEN
 
-# Just try to build the latest theia with current image
-RUN git clone -b 'master' --single-branch --depth 1 https://github.com/theia-ide/theia theia
-RUN cd theia && yarn
+ADD src/test-entrypoint.sh /test-entrypoint.sh
+
+CMD ["/test-entrypoint.sh"]
 

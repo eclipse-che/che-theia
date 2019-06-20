@@ -11,3 +11,6 @@ base_dir=$(cd "$(dirname "$0")"; pwd)
 
 init --name:theia-builder-e2e "$@"
 build
+if ! skip_tests; then
+  bash "${base_dir}"/test.sh "$@"
+fi
