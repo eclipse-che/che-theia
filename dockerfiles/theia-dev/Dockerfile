@@ -13,6 +13,15 @@
 #
 FROM node:10.15-alpine
 
+# Add npm global bin directory to the path
+ENV HOME=/home/theia-dev \
+    PATH=/home/theia-dev/.npm-global/bin:${PATH} \
+    # Specify the directory of git (avoid to search at init of Theia)
+    USE_LOCAL_GIT=true \
+    LOCAL_GIT_DIRECTORY=/usr \
+    GIT_EXEC_PATH=/usr/libexec/git-core \
+    THEIA_ELECTRON_SKIP_REPLACE_FFMPEG=true
+
 RUN apk add --update --no-cache \
     # Download some files
     curl \
@@ -26,17 +35,15 @@ RUN apk add --update --no-cache \
     less \
     # bash shell
     bash \
+    # give root privilege
+    sudo \
+    # for useradd command
+    shadow \
     # some lib to compile 'native-keymap' npm mpdule
-    libx11-dev libxkbfile-dev
-
-# Add npm global bin directory to the path
-ENV HOME=/home/theia-dev \
-    PATH=/home/theia-dev/.npm-global/bin:${PATH} \
-    # Specify the directory of git (avoid to search at init of Theia)
-    USE_LOCAL_GIT=true \
-    LOCAL_GIT_DIRECTORY=/usr \
-    GIT_EXEC_PATH=/usr/libexec/git-core \
-    THEIA_ELECTRON_SKIP_REPLACE_FFMPEG=true
+    libx11-dev libxkbfile-dev && \
+    useradd -u 1001 -U -G root -d ${HOME} -s /bin/bash theia-dev && \
+    apk del --no-cache shadow && \
+    echo "%root ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Define package of the theia generator to use
 ARG THEIA_GENERATOR_PACKAGE=@eclipse-che/theia-generator@0.0.1-1559634039
@@ -54,13 +61,10 @@ RUN npm config set prefix "${HOME}/.npm-global" && \
     # add eclipse che theia generator
     yarn global add yo @theia/generator-plugin@0.0.1-1540209403 ${THEIA_GENERATOR_PACKAGE} && \
     # Generate .passwd.template \
-    cat /etc/passwd | \
-    sed s#root:x.*#theia-dev:x:\${USER_ID}:\${GROUP_ID}::${HOME}:/bin/bash#g \
-    > ${HOME}/.passwd.template && \
-    # Generate .group.template \
-    cat /etc/group | \
-    sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g \
-    > ${HOME}/.group.template && \
+    sed -e "s#^theia-dev:x.*#theia-dev:x:\${USER_ID}:\${GROUP_ID}::${HOME}:/bin/bash#g" \
+        /etc/passwd > /.passwd.template && \
+    sed -e 's#^theia-dev:.*#theia-dev:x:${GROUP_ID}:#g' \
+        /etc/group > /.group.template && \
     mkdir /projects && \
     # Define default prompt
     echo "export PS1='\[\033[01;33m\](\u@container)\[\033[01;36m\] (\w) \$ \[\033[00m\]'" > ${HOME}/.bashrc  && \
@@ -68,8 +72,9 @@ RUN npm config set prefix "${HOME}/.npm-global" && \
     mkdir -p ${HOME}/.config/insight-nodejs/ && \
     echo '{"optOut": true}' > ${HOME}/.config/insight-nodejs/insight-yo.json && \
     # Change permissions to let any arbitrary user
-    for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
-        echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+    for f in "${HOME}" /projects /etc/passwd /etc/group; do \
+        echo "Changing permissions on ${f}" && \
+        chgrp -R 0 ${f} && \
         chmod -R g+rwX ${f}; \
     done
 
