@@ -23,6 +23,7 @@ import { REMOTE_TERMINAL_WIDGET_FACTORY_ID, RemoteTerminalWidget, RemoteTerminal
 import { filterRecipeContainers } from './terminal-command-filter';
 import URI from '@theia/core/lib/common/uri';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
+import { isOSX } from '@theia/core/lib/common/os';
 
 export const NewTerminalInSpecificContainer = {
     id: 'terminal-in-specific-container:new',
@@ -194,7 +195,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         if (serverUrl) {
             registry.registerKeybinding({
                 command: NewTerminalInSpecificContainer.id,
-                keybinding: 'ctrlcmd+`'
+                keybinding: isOSX ? 'ctrl+shift+`' : 'ctrl+`'
             });
             this.registerTerminalKeybindings(registry);
         } else {
