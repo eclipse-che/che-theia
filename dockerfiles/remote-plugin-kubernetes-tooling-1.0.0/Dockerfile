@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG} as endpoint
-FROM quay.io/buildah/upstream:v1.8.2
+FROM quay.io/buildah/stable:v1.9.0
 
 ENV KUBECTL_VERSION v1.14.1
 ENV HELM_VERSION v2.13.1
@@ -23,12 +23,15 @@ RUN curl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VER
     # set up local Helm configuration skipping Tiller installation
     helm init --client-only && \
     # 'which' utility is used by VS Code Kubernetes extension to find the binaries, e.g. 'kubectl'
-    dnf install -y which nodejs
+    # Install Buildah 1.9 since the image contains Buildah 1.8.2. See https://github.com/containers/buildah/issues/1687 for the details
+    dnf install -y which nodejs buildah-1.9.0
 
 COPY --from=endpoint /home/theia /home/theia
 COPY --from=endpoint /projects /projects
 COPY --from=endpoint /etc/passwd /etc/passwd
 COPY --from=endpoint /etc/group /etc/group
 COPY --from=endpoint /entrypoint.sh /entrypoint.sh
+
+RUN chmod g+w /home/theia
 
 ENTRYPOINT ["/entrypoint.sh"]
