@@ -13,6 +13,7 @@ import WorkspaceClient, { IRestAPIConfig, IRemoteAPI } from '@eclipse-che/worksp
 import { injectable } from 'inversify';
 
 const ENV_WORKSPACE_ID_IS_NOT_SET = 'Environment variable CHE_WORKSPACE_ID is not set';
+const SS_CRT_PATH = '/tmp/che/secret/ca.crt';
 
 @injectable()
 export class CheApiServiceImpl implements CheApiService {
@@ -214,6 +215,7 @@ export class CheApiServiceImpl implements CheApiService {
             if (cheMachineToken) {
                 restAPIConfig.headers['Authorization'] = 'Bearer ' + cheMachineToken;
             }
+            restAPIConfig.ssCrtPath = SS_CRT_PATH;
 
             this.workspaceRestAPI = await WorkspaceClient.getRestApi(restAPIConfig);
         }

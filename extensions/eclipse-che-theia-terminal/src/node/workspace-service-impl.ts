@@ -17,6 +17,7 @@ import { TERMINAL_SERVER_TYPE } from '../browser/server-definition/remote-termin
 
 const TYPE: string = 'type';
 const EDITOR_SERVER_TYPE: string = 'ide';
+const SS_CRT_PATH = '/tmp/che/secret/ca.crt';
 
 @injectable()
 export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
@@ -119,6 +120,7 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
             if (machineToken) {
                 restConfig.headers['Authorization'] = 'Bearer ' + machineToken;
             }
+            restConfig.ssCrtPath = SS_CRT_PATH;
 
             this.api = WorkspaceClient.getRestApi(restConfig);
         }

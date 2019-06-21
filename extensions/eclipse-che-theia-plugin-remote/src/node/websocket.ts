@@ -97,7 +97,7 @@ export class Websocket {
         this.logger.debug(`WebSocket: Reconnecting in ${Websocket.RECONNECT_INTERVAL}ms due to ${reason}`);
         this.instance.removeAllListeners();
         setTimeout(() => {
-            this.logger.debug('WebSocket: Reconnecting...');
+            this.logger.debug('Remote plugin endpoint runtime webSocket: Reconnecting...');
             this.open();
         }, Websocket.RECONNECT_INTERVAL);
     }
