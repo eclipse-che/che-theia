@@ -36,8 +36,16 @@ export class PreviewUrlOpenService {
         return this.preview(previewURL, INTERNAL_COMMAND_ID);
     }
 
+    /**
+     * Tries to resolve the variable in the given URL.
+     * @param previewURL an URL to resolve
+     */
+    async resolve(previewURL: string): Promise<string> {
+        return await che.variables.resolve(previewURL);
+    }
+
     private async preview(previewURL: string, commandId: string): Promise<void> {
-        const url = await che.variables.resolve(previewURL);
+        const url = await this.resolve(previewURL);
         return theia.commands.executeCommand<void>(commandId, url);
     }
 }
