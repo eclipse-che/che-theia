@@ -12,7 +12,7 @@
     "@theia/core": "next",
     "@theia/plugin-dev": "next",
     "@theia/plugin-ext": "next",
-    "@eclipse-che/workspace-client": "/home/user/recovered/che-workspace-client",
+    "@eclipse-che/workspace-client": "/projects/che-workspace-client",
     "@eclipse-che/api": "latest"
   },
   "scripts": {
