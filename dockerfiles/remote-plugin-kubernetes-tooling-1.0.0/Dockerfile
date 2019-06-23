@@ -23,8 +23,7 @@ RUN curl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VER
     # set up local Helm configuration skipping Tiller installation
     helm init --client-only && \
     # 'which' utility is used by VS Code Kubernetes extension to find the binaries, e.g. 'kubectl'
-    # Install Buildah 1.9 since the image contains Buildah 1.8.2. See https://github.com/containers/buildah/issues/1687 for the details
-    dnf install -y which nodejs buildah-1.9.0
+    dnf install -y which nodejs
 
 COPY --from=endpoint /home/theia /home/theia
 COPY --from=endpoint /projects /projects
