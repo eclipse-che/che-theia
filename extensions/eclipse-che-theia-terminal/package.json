@@ -23,8 +23,7 @@
     "@theia/terminal": "next",
     "xterm": "3.9.1",
     "@eclipse-che/workspace-client": "/projects/che-workspace-client",
-    "@eclipse-che/api": "latest",
-    "@eclipse-che/theia-plugin-ext": "0.0.1"
+    "@eclipse-che/api": "latest"
   },
   "license": "EPL-2.0",
   "devDependencies": {
