@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG} as endpoint
-FROM quay.io/buildah/upstream:v1.8.2
+FROM quay.io/buildah/stable:v1.9.0
 
 ENV KUBECTL_VERSION v1.14.1
 ENV HELM_VERSION v2.13.1
@@ -30,5 +30,7 @@ COPY --from=endpoint /projects /projects
 COPY --from=endpoint /etc/passwd /etc/passwd
 COPY --from=endpoint /etc/group /etc/group
 COPY --from=endpoint /entrypoint.sh /entrypoint.sh
+
+RUN chmod g+w /home/theia
 
 ENTRYPOINT ["/entrypoint.sh"]
