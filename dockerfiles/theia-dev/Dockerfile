@@ -11,7 +11,7 @@
 ###
 # Builder Image
 #
-FROM node:10.15-alpine
+FROM node:10.16-alpine
 
 RUN apk add --update --no-cache \
     # Download some files
