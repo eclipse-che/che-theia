@@ -18,6 +18,8 @@ WORKDIR ${HOME}
 # else check if github rate limit is enough, else will abort requiring to set GITHUB_TOKEN value
 ARG GITHUB_TOKEN
 
+ARG THEIA_GITHUB_REPO=theia-ide/theia
+
 # Define upstream version of theia to use
 ARG THEIA_VERSION=master
 
@@ -40,10 +42,10 @@ RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
     fi
 
 #invalidate cache
-ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/theia-ide/theia/git/${GIT_REF} /tmp/branch_info.json
+ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/${THEIA_GITHUB_REPO}/git/${GIT_REF} /tmp/branch_info.json
 
 # Clone theia
-RUN git clone --branch ${GIT_BRANCH_NAME}  --single-branch --depth 1 https://github.com/theia-ide/theia ${HOME}/theia-source-code
+RUN git clone --branch ${GIT_BRANCH_NAME}  --single-branch --depth 1 https://github.com/${THEIA_GITHUB_REPO} ${HOME}/theia-source-code
 
 # Add patches
 ADD src/patches ${HOME}/patches
