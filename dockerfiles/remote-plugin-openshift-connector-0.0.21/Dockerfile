@@ -23,7 +23,7 @@ RUN apk add --no-cache bash && \
     apk --update --allow-untrusted add glibc-${GLIBC_VERSION}.apk && \
     rm -f glibc-${GLIBC_VERSION}.apk && \
     # install odo
-    wget -O /usr/local/bin/odo https://github.com/redhat-developer/odo/releases/download/${ODO_VERSION}/odo-linux-amd64 && \
+    wget -O /usr/local/bin/odo https://github.com/openshift/odo/releases/download/${ODO_VERSION}/odo-linux-amd64 && \
     chmod +x /usr/local/bin/odo && \
     # install oc
     wget -O- https://github.com/openshift/origin/releases/download/${OC_VERSION}/openshift-origin-client-tools-${OC_VERSION}-${OC_TAG}-linux-64bit.tar.gz | tar xvz -C /usr/local/bin --strip 1
