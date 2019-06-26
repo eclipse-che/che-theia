@@ -73,6 +73,8 @@ RUN che:theia init -c ${HOME}/che-theia-init-sources.yml
 
 RUN che:theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 
+COPY src/post-install.dummy.log dev-packages/electron/post-install.log
+
 # Compile Theia
 RUN yarn
 

@@ -13,5 +13,6 @@ ARG GITHUB_TOKEN
 
 # Just try to build the latest theia with current image
 RUN git clone -b 'master' --single-branch --depth 1 https://github.com/theia-ide/theia theia
+COPY post-install.dummy.log theia/dev-packages/electron/post-install.log
 RUN cd theia && yarn
 
