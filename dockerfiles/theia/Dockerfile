@@ -63,6 +63,7 @@ RUN if [ -d "${HOME}/patches/${THEIA_VERSION}" ]; then \
 ARG CDN_PREFIX=""
 ARG MONACO_CDN_PREFIX=""
 WORKDIR ${HOME}/theia-source-code
+ENV THEIA_ELECTRON_SKIP_REPLACE_FFMPEG=1
 
 COPY che-theia/che-theia-init-sources.yml ${HOME}/che-theia-init-sources.yml
 
