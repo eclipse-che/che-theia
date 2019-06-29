@@ -38,7 +38,6 @@ export class ReconnectingWebSocket {
         let options: WS.ClientOptions;
         if (fs.existsSync(SS_CRT_PATH)) {
             const SS_SRT = fs.readFileSync(SS_CRT_PATH).toString();
-            console.log('sertificate ', SS_SRT);
             options = { ca: SS_SRT };
         }
 

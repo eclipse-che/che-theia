@@ -14,7 +14,7 @@
   ],
   "dependencies": {
     "@eclipse-che/plugin": "0.0.1",
-    "@eclipse-che/workspace-client": "/home/theia-dev/che-workspace-client",
+    "@eclipse-che/workspace-client": "latest",
     "@theia/core": "next",
     "@theia/plugin-ext": "next",
     "axios": "0.18.0",
