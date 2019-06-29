@@ -96,10 +96,10 @@ export class ReconnectingWebSocket {
     }
 
     private reconnect(reason: string) {
-        this.logger.warn(`WebSocket: Reconnecting in ${ReconnectingWebSocket.RECONNECTION_DELAY}ms due to ${reason}`);
+        this.logger.warn(`Task plugin webSocket: Reconnecting in ${ReconnectingWebSocket.RECONNECTION_DELAY}ms due to ${reason}`);
         this.ws.removeAllListeners();
         setTimeout(() => {
-            this.logger.warn('WebSocket: Reconnecting...');
+            this.logger.warn('Task plugin webSocket: Reconnecting...');
             this.open();
         }, ReconnectingWebSocket.RECONNECTION_DELAY);
     }
