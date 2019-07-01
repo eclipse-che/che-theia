@@ -9,7 +9,10 @@
  **********************************************************************/
 
 import * as WS from 'ws';
+import * as fs from 'fs';
 import { IWebSocket, ConsoleLogger, createWebSocketConnection, Logger, MessageConnection } from 'vscode-ws-jsonrpc';
+
+const SS_CRT_PATH = '/tmp/che/secret/ca.crt';
 
 /** Websocket wrapper allows to reconnect in case of failures */
 export class ReconnectingWebSocket {
@@ -31,9 +34,19 @@ export class ReconnectingWebSocket {
         this.open();
     }
 
+    private getOptions(): WS.ClientOptions {
+        let options: WS.ClientOptions;
+        if (fs.existsSync(SS_CRT_PATH)) {
+            const SS_SRT = fs.readFileSync(SS_CRT_PATH).toString();
+            options = { ca: SS_SRT };
+        }
+
+        return options || {};
+    }
+
     /** Open the websocket. If error, try to reconnect. */
     open() {
-        this.ws = new WS(this.url);
+        this.ws = new WS(this.url, this.getOptions());
 
         this.ws.on('open', () => {
             this.onOpen(this.url);
@@ -82,10 +95,10 @@ export class ReconnectingWebSocket {
     }
 
     private reconnect(reason: string) {
-        this.logger.warn(`WebSocket: Reconnecting in ${ReconnectingWebSocket.RECONNECTION_DELAY}ms due to ${reason}`);
+        this.logger.warn(`Task plugin webSocket: Reconnecting in ${ReconnectingWebSocket.RECONNECTION_DELAY}ms due to ${reason}`);
         this.ws.removeAllListeners();
         setTimeout(() => {
-            this.logger.warn('WebSocket: Reconnecting...');
+            this.logger.warn('Task plugin webSocket: Reconnecting...');
             this.open();
         }, ReconnectingWebSocket.RECONNECTION_DELAY);
     }
@@ -110,7 +123,7 @@ export function createConnection(url: string): Promise<MessageConnection> {
 
         webSocket.onError = (error: Error) => {
             reject(error);
-            logger.error('' + error);
+            logger.error('Unable to create ws connection for task plugin. Cause: ' + error);
             return;
         };
     });

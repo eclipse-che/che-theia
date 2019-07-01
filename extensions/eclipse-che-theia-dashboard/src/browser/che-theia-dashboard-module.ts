@@ -11,14 +11,12 @@
 import { TheiaDashboardClient } from './theia-dashboard-client';
 import { FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { CommandContribution, MenuContribution } from '@theia/core/lib/common';
-import { CheWorkspaceClientService } from './che-workspace-client-service';
 import { CheTheiaDashboardFrontendContribution } from './che-theia-dashboard-frontend-contribution';
 
 import { ContainerModule } from 'inversify';
 
 export default new ContainerModule(bind => {
     // add your contribution bindings here
-    bind(CheWorkspaceClientService).toSelf();
     bind(TheiaDashboardClient).toSelf().inSingletonScope();
     bind(FrontendApplicationContribution).toDynamicValue(c => c.container.get(TheiaDashboardClient));
 

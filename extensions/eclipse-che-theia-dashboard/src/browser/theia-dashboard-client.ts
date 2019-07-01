@@ -12,8 +12,7 @@ import { injectable, inject } from 'inversify';
 import { FrontendApplicationContribution, FrontendApplication } from '@theia/core/lib/browser';
 import { EnvVariablesServer, EnvVariable } from '@theia/core/lib/common/env-variables';
 import { FrontendApplicationStateService } from '@theia/core/lib/browser/frontend-application-state';
-import { CheWorkspaceClientService } from './che-workspace-client-service';
-import { che } from '@eclipse-che/api';
+import { CheApiService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
 import '../../src/browser/style/che-theia-dashboard-module.css';
 
 const THEIA_ICON_ID = 'theia:icon';
@@ -26,9 +25,11 @@ export class TheiaDashboardClient implements FrontendApplicationContribution {
 
     private isExpanded: boolean = false;
 
+    @inject(CheApiService)
+    private cheApi: CheApiService;
+
     constructor(
         @inject(EnvVariablesServer) private readonly envVariablesServer: EnvVariablesServer,
-        @inject(CheWorkspaceClientService) private readonly cheWorkspaceClient: CheWorkspaceClientService,
         @inject(FrontendApplicationStateService) protected readonly frontendApplicationStateService: FrontendApplicationStateService,
     ) {
         this.frontendApplicationStateService.reachedState('ready').then(() => this.onReady());
@@ -89,10 +90,7 @@ export class TheiaDashboardClient implements FrontendApplicationContribution {
             return undefined;
         }
 
-        const workspaceId = workspaceIdEnvVar.value;
-
-        const remoteApi = await this.cheWorkspaceClient.restClient();
-        const workspace: che.workspace.Workspace = await remoteApi.getById<che.workspace.Workspace>(workspaceId);
+        const workspace = await this.cheApi.currentWorkspace();
 
         if (workspace && workspace.links && workspace.links.ide) {
             return workspace.links.ide;

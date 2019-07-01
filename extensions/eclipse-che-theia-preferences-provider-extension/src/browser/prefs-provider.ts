@@ -15,7 +15,6 @@
  ********************************************************************************/
 
 import { injectable, inject } from 'inversify';
-import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import {
     PreferenceServiceImpl,
     PreferenceScope,
@@ -23,14 +22,16 @@ import {
     FrontendApplication
 } from '@theia/core/lib/browser';
 import { WorkspaceService } from '@theia/workspace/lib/browser';
-import WorkspaceClient, { IRemoteAPI } from '@eclipse-che/workspace-client';
+import { CheApiService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
 import { che } from '@eclipse-che/api';
 
 @injectable()
 export class PreferencesProvider implements FrontendApplicationContribution {
 
+    @inject(CheApiService)
+    private cheApi: CheApiService;
+
     constructor(
-        @inject(EnvVariablesServer) private readonly envVariablesServer: EnvVariablesServer,
         @inject(PreferenceServiceImpl) private readonly preferenceService: PreferenceServiceImpl,
         @inject(WorkspaceService) private readonly workspaceService: WorkspaceService,
     ) { }
@@ -88,32 +89,8 @@ export class PreferencesProvider implements FrontendApplicationContribution {
         }
     }
 
-    private async getWorkspace(): Promise<che.workspace.Workspace> {
-        let workspaceId;
-        workspaceId = await this.envVariablesServer.getValue('CHE_WORKSPACE_ID');
-
-        if (!workspaceId || !workspaceId.value) {
-            throw new Error('Failed to get current workspace ID.');
-        }
-
-        const remoteApi = await this.restClient();
-        return await remoteApi.getById<che.workspace.Workspace>(await workspaceId.value);
-    }
-
-    private async restClient(): Promise<IRemoteAPI> {
-        const cheApiEndpoint = await this.envVariablesServer.getValue('CHE_API_EXTERNAL');
-
-        if (!cheApiEndpoint || !cheApiEndpoint.value) {
-            throw new Error('Failed to get Eclipse Che API endpoint.');
-        }
-
-        return WorkspaceClient.getRestApi({
-            baseUrl: await cheApiEndpoint.value
-        });
-    }
-
     async restorePluginProperties(): Promise<void> {
-        const workspace = await this.getWorkspace();
+        const workspace = await this.cheApi.currentWorkspace();
         const propsTuples = this.getPluginsProperties(workspace);
         return this.setPluginProperties(propsTuples);
     }

@@ -25,7 +25,7 @@ export class CheWorkspaceHostedPluginUriPostProcessor implements HostedPluginUri
         const token = process.env.CHE_MACHINE_TOKEN;
         if (token) {
             restAPIConfig.headers = {};
-            restAPIConfig.headers['Authorization'] = token;
+            restAPIConfig.headers['Authorization'] = 'Bearer ' + token;
         }
         this.restApiClient = WorkspaceClient.getRestApi(restAPIConfig);
     }

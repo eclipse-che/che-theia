@@ -1,47 +1,47 @@
 {
-    "name": "@eclipse-che/theia-plugin-ext",
-    "version": "0.0.1",
-    "description": "Theia extension",
-    "author": "Yevhen Vydolob",
-    "license": "EPL-2.0",
-    "keywords": [
-        "theia-extension",
-        "che"
-    ],
-    "files": [
-        "lib",
-        "src"
-    ],
-    "dependencies": {
-        "@eclipse-che/plugin": "0.0.1",
-        "@eclipse-che/workspace-client": "latest",
-        "@theia/core": "next",
-        "@theia/plugin-ext": "next",
-        "axios": "0.18.0",
-        "js-yaml": "3.12.0"
-    },
-    "devDependencies": {
-        "clean-webpack-plugin": "^0.1.19",
-        "ts-loader": "^4.1.0",
-        "webpack": "^4.20.2",
-        "webpack-cli": "^3.1.1",
-        "typescript-formatter": "7.2.2",
-        "@types/js-yaml": "3.11.2"
-    },
-    "scripts": {
-        "prepare": "yarn clean && yarn build",
-        "clean": "rimraf lib",
-        "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
-        "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
-        "compile": "tsc",
-        "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && yarn run compileWorker",
-        "compileWorker": "webpack-cli --config webpack.config.js",
-        "watch": "tsc -w"
-    },
-    "theiaExtensions": [
-        {
-            "frontend": "lib/browser/che-frontend-module",
-            "backend": "lib/node/che-backend-module"
-        }
-    ]
+  "name": "@eclipse-che/theia-plugin-ext",
+  "version": "0.0.1",
+  "description": "Theia extension",
+  "author": "Yevhen Vydolob",
+  "license": "EPL-2.0",
+  "keywords": [
+    "theia-extension",
+    "che"
+  ],
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "@eclipse-che/plugin": "0.0.1",
+    "@eclipse-che/workspace-client": "latest",
+    "@theia/core": "next",
+    "@theia/plugin-ext": "next",
+    "axios": "0.18.0",
+    "js-yaml": "3.12.0"
+  },
+  "devDependencies": {
+    "clean-webpack-plugin": "^0.1.19",
+    "ts-loader": "^4.1.0",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.1",
+    "typescript-formatter": "7.2.2",
+    "@types/js-yaml": "3.11.2"
+  },
+  "scripts": {
+    "prepare": "yarn clean && yarn build",
+    "clean": "rimraf lib",
+    "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
+    "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
+    "compile": "tsc",
+    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && yarn run compileWorker",
+    "compileWorker": "webpack-cli --config webpack.config.js",
+    "watch": "tsc -w"
+  },
+  "theiaExtensions": [
+    {
+      "frontend": "lib/browser/che-frontend-module",
+      "backend": "lib/node/che-backend-module"
+    }
+  ]
 }
