@@ -11,5 +11,5 @@
 base_dir=$(cd "$(dirname "$0")"; pwd)
 . "${base_dir}"/../build.include
 
-init --name:remote-plugin-dependency-analytics "$@"
+init --name:remote-plugin-dependency-analytics-0.0.12 "$@"
 build
