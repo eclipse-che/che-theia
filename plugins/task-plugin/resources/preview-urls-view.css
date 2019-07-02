@@ -352,3 +352,7 @@ html, body {
     color: var(--theia-ui-font-color2);
     font-size: var(--theia-ui-font-size1);
 }
+
+.task-link {
+    color: var(--theia-accent-color1)
+}
