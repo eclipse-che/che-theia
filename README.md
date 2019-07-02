@@ -59,10 +59,10 @@ In Che-Theia, you’ll find the following capabilities:
 
 ## Project structure
 
-- [che-plugins](./che-plugins) contains Eclipse Che plugins definition
-- [dockerfiles](./dockerfiles) contains Dockerfiles
-- [extensions](./extensions) contains Theia Extensions
-- [plugins](./plugins) contains Theia Plugins
+- [che-plugins](./che-plugins) contains the Che7 plugin definition,
+- [dockerfiles](./dockerfiles) contains Dockerfiles for plugin sidecars, theia-editor and theia builder,
+- [extensions](./extensions) contains Che-Theia specific extensions,
+- [plugins](./plugins) contains Che-Theia plugins.
 
 # Contributing
 ## How to build
