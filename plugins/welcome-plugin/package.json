@@ -28,7 +28,7 @@
     "@fortawesome/fontawesome-free": "5.6.3"
   },
   "devDependencies": {
-    "@theia/plugin": "0.3.19",
+    "@theia/plugin": "0.8.0",
     "@theia/plugin-packager": "latest",
     "@eclipse-che/plugin": "latest"
   },

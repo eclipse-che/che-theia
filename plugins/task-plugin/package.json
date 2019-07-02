@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@eclipse-che/plugin": "0.0.1",
-    "@theia/plugin": "next",
+    "@theia/plugin": "0.8.0",
     "@theia/plugin-packager": "latest"
   },
   "scripts": {
@@ -60,7 +60,7 @@
     "backend": "lib/task-plugin-backend.js"
   },
   "dependencies": {
-    "inversify": "4.13.0",
+    "inversify": "4.14.0",
     "reflect-metadata": "0.1.8",
     "vscode-uri": "1.0.5",
     "vscode-ws-jsonrpc": "^0.0.2-1",

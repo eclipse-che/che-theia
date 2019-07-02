@@ -10,11 +10,11 @@
 set -e
 set -u
 
-IMAGE_TAG="next"
-THEIA_VERSION="master"
-THEIA_BRANCH="master"
-THEIA_GIT_REFS="refs\\/heads\\/master"
-THEIA_DOCKER_IMAGE_VERSION=
+IMAGE_TAG="latest"
+THEIA_VERSION="0.8.0"
+THEIA_BRANCH="v0.8.0"
+THEIA_GIT_REFS="refs\\/tags\\/v0.8.0"
+THEIA_DOCKER_IMAGE_VERSION="7.0.0-rc-3.0"
 
 # KEEP RIGHT ORDER!!!
 PR_IMAGES=(
