@@ -13,6 +13,7 @@ import * as path from 'path';
 import * as startPoint from '../task-plugin-backend';
 import { injectable, inject } from 'inversify';
 import { EXTERNALLY_CHOICE, INTERNALLY_CHOICE, PREVIEW_URL_TITLE } from './tasks-preview-manager';
+import { PreviewUrlOpenService } from './preview-url-open-service';
 
 const GO_TO_BUTTON_NAME = 'Go To';
 const PREVIEW_BUTTON_NAME = 'Preview';
@@ -34,7 +35,10 @@ export class PreviewUrlsWidget {
     @inject(PreviewUrlsWidgetOptions)
     private readonly options!: PreviewUrlsWidgetOptions;
 
-    getHtml(): string {
+    @inject(PreviewUrlOpenService)
+    private readonly previewUrlOpenService: PreviewUrlOpenService;
+
+    async getHtml(): Promise<string> {
         const context = startPoint.getContext();
         const scriptPathOnDisk = theia.Uri.file(path.join(context.extensionPath, 'resources', 'preview-urls.js'));
         const scriptUri = scriptPathOnDisk.with({ scheme: 'theia-resource' });
@@ -42,7 +46,7 @@ export class PreviewUrlsWidget {
         const cssPathOnDisk = theia.Uri.file(path.join(context.extensionPath, 'resources', 'preview-urls-view.css'));
         const cssUri = cssPathOnDisk.with({ scheme: 'theia-resource' });
 
-        const rendering = this.render();
+        const rendering = await this.render();
         return `<!DOCTYPE html>
                 <html lang="en">
                 <head>
@@ -62,26 +66,31 @@ export class PreviewUrlsWidget {
                 </html>`;
     }
 
-    private render(): string {
+    private async render(): Promise<string> {
         if (this.options.tasks.length < 1) {
             return `<div class='previews-placeholder'>${PLACEHOLDER}</div>`;
         }
 
-        const previews = this.renderPreviews().join('');
+        const previews = (await this.renderPreviews()).join('');
         return `<div class='previews-container'>${previews}</div>`;
     }
 
-    private renderPreviews(): Array<string> {
-        return this.options.tasks.map(cheTask => {
-            const previewUrl = cheTask.definition.previewUrl;
+    private async renderPreviews(): Promise<Array<string>> {
+        return await Promise.all(
+            this.options.tasks.map(
+                async (cheTask: theia.Task) => {
+                    const previewUrl = cheTask.definition.previewUrl;
+                    const url = await this.previewUrlOpenService.resolve(previewUrl);
 
-            const server = `<lable>${previewUrl}</label>`;
-            const taskLabel = `<lable>${cheTask.name}</label>`;
-            const previewButton = `<button class='button' type="button" onclick="preview('${INTERNALLY_CHOICE}', '${previewUrl}')">${PREVIEW_BUTTON_NAME}</button>`;
-            const goToButton = `<button class='button' type="button" onclick="preview('${EXTERNALLY_CHOICE}', '${previewUrl}')">${GO_TO_BUTTON_NAME}</button>`;
+                    const server = `<a class="task-link" href="${url}" target="_blank">${url}</a>`;
+                    const taskLabel = `<label>${cheTask.name}</label>`;
+                    const previewButton = `<button class='button' type="button" onclick="preview('${INTERNALLY_CHOICE}', '${url}')">${PREVIEW_BUTTON_NAME}</button>`;
+                    const goToButton = `<button class='button' type="button" onclick="preview('${EXTERNALLY_CHOICE}', '${url}')">${GO_TO_BUTTON_NAME}</button>`;
 
-            return this.renderTemplate(server, taskLabel, previewButton, goToButton);
-        });
+                    return this.renderTemplate(server, taskLabel, previewButton, goToButton);
+                }
+            )
+        );
     }
 
     private renderTemplate(server: string, taskLabel: string, previewButton: string, goToButton: string) {

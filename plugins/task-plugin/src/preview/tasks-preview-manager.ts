@@ -41,7 +41,7 @@ export class TasksPreviewManager {
         this.setStatusBarPreviewUrlItem();
     }
 
-    async showPreviews() {
+    async showPreviews(): Promise<void> {
         const executions = theia.tasks.taskExecutions;
         const tasks = executions.map(execution => execution.task);
         const filteredTasks = tasks.filter(task => {
@@ -54,34 +54,34 @@ export class TasksPreviewManager {
         const previewsWidget = await this.previewUrlsWidgetFactory.createWidget({ tasks: filteredTasks });
 
         const panel = this.providePanel();
-        panel.webview.html = previewsWidget.getHtml();
+        panel.webview.html = await previewsWidget.getHtml();
         panel.reveal(undefined, undefined, true);
     }
 
-    onTaskStarted(task: theia.Task) {
-        this.showPreviews();
+    async onTaskStarted(task: theia.Task): Promise<void> {
+        await this.showPreviews();
     }
 
-    onTaskCompleted(task: theia.Task) {
+    async onTaskCompleted(task: theia.Task): Promise<void> {
         if (this.currentPanel && this.currentPanel.visible) {
-            this.showPreviews();
+            await this.showPreviews();
         }
     }
 
     // tslint:disable-next-line:no-any
-    private onMessageReceived(message: any) {
+    private async onMessageReceived(message: any): Promise<void> {
         if (message.command !== 'preview') {
             return;
         }
 
         const url = message.url;
         if (EXTERNALLY_CHOICE === message.choice) {
-            this.previewUrlOpenService.previewExternally(url);
+            await this.previewUrlOpenService.previewExternally(url);
             return;
         }
 
         if (INTERNALLY_CHOICE === message.choice) {
-            this.previewUrlOpenService.previewInternally(url);
+            await this.previewUrlOpenService.previewInternally(url);
         }
     }
 
@@ -96,11 +96,11 @@ export class TasksPreviewManager {
         });
 
         const context = startPoint.getContext();
-        this.currentPanel.webview.onDidReceiveMessage(message => this.onMessageReceived(message), undefined, context.subscriptions);
+        this.currentPanel.webview.onDidReceiveMessage(async message => await this.onMessageReceived(message), undefined, context.subscriptions);
         this.currentPanel.onDidDispose(() => { this.currentPanel = undefined; }, undefined, context.subscriptions);
-        this.currentPanel.onDidChangeViewState(event => {
+        this.currentPanel.onDidChangeViewState(async event => {
             if (event.webviewPanel.active) {
-                this.showPreviews();
+                await this.showPreviews();
             }
         }, undefined, context.subscriptions);
 
@@ -108,11 +108,11 @@ export class TasksPreviewManager {
     }
 
     private async setStatusBarPreviewUrlItem() {
-        const previewCommandSubscription = theia.commands.registerCommand(STATUS_BAR_PREVIEW, () => {
+        const previewCommandSubscription = theia.commands.registerCommand(STATUS_BAR_PREVIEW, async () => {
             if (this.currentPanel && this.currentPanel.visible) {
                 this.currentPanel.dispose();
             } else {
-                this.showPreviews();
+                await this.showPreviews();
             }
         });
         startPoint.getSubscriptions().push(previewCommandSubscription);
