@@ -20,20 +20,18 @@ export class PreviewUrlOpenService {
 
     /**
      * Open the given URL to preview it in a separate browser's tab.
-     * Method also tries to resolve the variables in the given URL.
-     * @param previewURL a URL to go to
+     * @param url a URL to go to
      */
-    async previewExternally(previewURL: string): Promise<void> {
-        return this.preview(previewURL, EXTERNAL_COMMAND_ID);
+    async previewExternally(url: string): Promise<void> {
+        return this.preview(url, EXTERNAL_COMMAND_ID);
     }
 
     /**
      * Open the given URL to preview it in the embedded mini-browser.
-     * Method also tries to resolve the variables in the given URL.
-     * @param previewURL a URL to preview
+     * @param url a URL to preview
      */
-    async previewInternally(previewURL: string): Promise<void> {
-        return this.preview(previewURL, INTERNAL_COMMAND_ID);
+    async previewInternally(url: string): Promise<void> {
+        return this.preview(url, INTERNAL_COMMAND_ID);
     }
 
     /**
@@ -44,8 +42,7 @@ export class PreviewUrlOpenService {
         return await che.variables.resolve(previewURL);
     }
 
-    private async preview(previewURL: string, commandId: string): Promise<void> {
-        const url = await this.resolve(previewURL);
+    private async preview(url: string, commandId: string): Promise<void> {
         return theia.commands.executeCommand<void>(commandId, url);
     }
 }

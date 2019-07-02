@@ -84,8 +84,8 @@ export class PreviewUrlsWidget {
 
                     const server = `<a class="task-link" href="${url}" target="_blank">${url}</a>`;
                     const taskLabel = `<label>${cheTask.name}</label>`;
-                    const previewButton = `<button class='button' type="button" onclick="preview('${INTERNALLY_CHOICE}', '${previewUrl}')">${PREVIEW_BUTTON_NAME}</button>`;
-                    const goToButton = `<button class='button' type="button" onclick="preview('${EXTERNALLY_CHOICE}', '${previewUrl}')">${GO_TO_BUTTON_NAME}</button>`;
+                    const previewButton = `<button class='button' type="button" onclick="preview('${INTERNALLY_CHOICE}', '${url}')">${PREVIEW_BUTTON_NAME}</button>`;
+                    const goToButton = `<button class='button' type="button" onclick="preview('${EXTERNALLY_CHOICE}', '${url}')">${GO_TO_BUTTON_NAME}</button>`;
 
                     return this.renderTemplate(server, taskLabel, previewButton, goToButton);
                 }
