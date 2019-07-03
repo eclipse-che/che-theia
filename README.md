@@ -14,8 +14,8 @@
 
   [![Build Status](https://ci.codenvycorp.com/buildStatus/icon?job=che-theia-master-ci)](https://ci.codenvycorp.com/job/che-theia-master-ci)
   [![mattermost](https://img.shields.io/badge/chat-on%20mattermost-blue.svg)](https://mattermost.eclipse.org/eclipse/channels/eclipse-che-ide2-team)
-  [![Open questions](https://img.shields.io/badge/Open-questions-blue.svg?style=flat-curved)](https://github.com/eclipse/che-theia/labels/kind%2Fquestion)
-  [![Open bugs](https://img.shields.io/badge/Open-bugs-red.svg?style=flat-curved)](https://github.com/eclipse/che-theia/labels/kind%2Fbug)
+  [![Open questions](https://img.shields.io/badge/Open-questions-blue.svg?style=flat-curved)](https://github.com/eclipse/che/issues?utf8=%E2%9C%93&q=label%3Aarea%2Ftheia+label%3Akind%2Fquestion+)
+  [![Open bugs](https://img.shields.io/badge/Open-bugs-red.svg?style=flat-curved)](https://github.com/eclipse/che/issues?utf8=%E2%9C%93&q=label%3Aarea%2Ftheia+label%3Akind%2Fbug+)
 
 </div>
 
@@ -110,3 +110,7 @@ See https://www.eclipse.org/che/docs/che-7/index.html#joining-the-community
 
 Che-Theia is mainly maintained by the Che IDE2 team a.k.a Selene.
 You are very welcome to join our community chat [here](https://mattermost.eclipse.org/eclipse/channels/eclipse-che-ide2-team) to discuss about improvements, bug fixes and anything else.
+
+## Report issues
+
+Issues are tracked on the main Eclipse Che Repository: https://github.com/eclipse/che/issues
