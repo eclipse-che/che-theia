@@ -88,7 +88,10 @@ const generateKeyPair = async function (sshkeyManager: SshKeyManager): Promise<v
     const viewAction = 'View';
     const action = await theia.window.showInformationMessage('Do you want to view the generated private key?', viewAction);
     if (action === viewAction && key.privateKey) {
-        theia.workspace.openTextDocument({ content: key.privateKey });
+        const document = await theia.workspace.openTextDocument({ content: key.privateKey });
+        if (document) {
+            theia.window.showTextDocument(document);
+        }
     }
 };
 
@@ -130,8 +133,11 @@ const viewPublicKey = async function (sshkeyManager: SshKeyManager): Promise<voi
     const keyName = keyResp ? keyResp.label : '';
     await sshkeyManager
         .get(sshServiceName, keyName)
-        .then(key => {
-            theia.workspace.openTextDocument({ content: key.publicKey });
+        .then(async key => {
+            const document = await theia.workspace.openTextDocument({ content: key.publicKey });
+            if (document) {
+                theia.window.showTextDocument(document);
+            }
         })
         .catch(error => {
             theia.window.showErrorMessage(error);
