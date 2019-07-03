@@ -78,7 +78,7 @@ The che-plugin of this editor is defined in the plugin registry https://github.c
 # Contributing
 
 ## Contribute to Che-theia
-Contributing to che-theia section is cover in [docs/Contributing.md](./docs/Contributing.md)
+Contributing to che-theia section is cover in [docs/Contributing.md](https://github.com/eclipse/che-theia/blob/master/doc/Contributing.md)
 
 
 ## Build container images
