@@ -92,7 +92,7 @@ $ node /projects/theia/production/src-gen/backend/main.js /tmp/theiadev_projects
 ```
 
 You can then access to your modified Che-theia from the Container view `theia-dev` endpoint
-![Che-Theia-dev-endpoint](https://raw.githubusercontent.com/eclipse/che-theia/master/doc/images/theia-dev-endpoint.png)
+![Che-Theia-dev-endpoint](https://raw.githubusercontent.com/eclipse/che-theia/assets/theia-dev-endpoint.png)
 
 ### Run che-theia + plugin in dev mode
 You can use the che command `run ... DEV yarn start ... che-theia + factory-plugin` or
@@ -101,7 +101,7 @@ You can use the che command `run ... DEV yarn start ... che-theia + factory-plug
 To start che-theia in `dev-mode` with yarn (not using the production che-theia generated). It would keep things like the ability to source map.
 
 Running dev theia would be located in the che-dev container and `theia-dev-flow` endpoint:
-![Che-Theia-dev-endpoint](https://raw.githubusercontent.com/eclipse/che-theia/master/doc/images/theia-dev-flow-endpoint.png)
+![Che-Theia-dev-endpoint](https://raw.githubusercontent.com/eclipse/che-theia/assets/theia-dev-flow-endpoint.png)
 
 
 
