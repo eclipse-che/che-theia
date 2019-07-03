@@ -106,7 +106,7 @@ That script will clone Theia from master branch and all Che related extensions f
 ## Join the community
 
 The Eclipse Che community is globally reachable through public chat rooms, mailing list and weekly calls.
-See https://www.eclipse.org/che/docs/che-7/introduction-to-eclipse-che.html#joining-the-community
+See https://www.eclipse.org/che/docs/che-7/index.html#joining-the-community
 
 Che-Theia is mainly maintained by the Che IDE2 team a.k.a Selene.
 You are very welcome to join our community chat [here](https://mattermost.eclipse.org/eclipse/channels/eclipse-che-ide2-team) to discuss about improvements, bug fixes and anything else.
