@@ -16,11 +16,12 @@
 
 import { injectable, inject } from 'inversify';
 import { Menu } from '@phosphor/widgets';
-import { CommandRegistry } from '@phosphor/commands';
+import { CommandRegistry as PhosphorCommandRegistry } from '@phosphor/commands';
 import { Emitter, Event } from '@theia/core/lib/common';
 import { ChePluginManager } from './che-plugin-manager';
-
 import { ChePluginManagerCommands, ChePluginCommandContribution } from './che-plugin-command-contribution';
+import { MenuModelRegistry, CommandRegistry } from '@theia/core/lib/common';
+import { CommonMenus } from '@theia/core/lib/browser';
 
 @injectable()
 export class ChePluginMenu {
@@ -33,12 +34,26 @@ export class ChePluginMenu {
 
     protected readonly menuClosed = new Emitter<void>();
 
+    /**
+     * TEMPORARY SOLUTION
+     *
+     * Following code removes 'View/Plugins' menu item and the command that displays/hides Plugins view.
+     * In the future we will try to refactor Che Plugins view and move it to the 'plugin-ext'.
+     */
+    constructor(
+        @inject(MenuModelRegistry) menuModelRegistry: MenuModelRegistry,
+        @inject(CommandRegistry) commandRegistry: CommandRegistry
+    ) {
+        menuModelRegistry.unregisterMenuAction('pluginsView:toggle', CommonMenus.VIEW_VIEWS);
+        commandRegistry.unregisterCommand('pluginsView:toggle');
+    }
+
     get onMenuClosed(): Event<void> {
         return this.menuClosed.event;
     }
 
     show(x: number, y: number): void {
-        const commands = new CommandRegistry();
+        const commands = new PhosphorCommandRegistry();
         const menu = new Menu({
             commands
         });
@@ -55,7 +70,7 @@ export class ChePluginMenu {
     /**
      * Adds commands to the menu for running plugin.
      */
-    protected addCommands(commands: CommandRegistry, menu: Menu): void {
+    protected addCommands(commands: PhosphorCommandRegistry, menu: Menu): void {
 
         commands.addCommand(ChePluginManagerCommands.SHOW_AVAILABLE_PLUGINS.id, {
             label: ChePluginManagerCommands.SHOW_AVAILABLE_PLUGINS.label,
