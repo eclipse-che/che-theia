@@ -82,7 +82,7 @@ $ yarn
 `yarn` will compile the plugin and produce a .theia file which is the plugin itself.
 
 ### Run che-theia + plugin
-You can use the che command `run ... che-theia + factory-plugin` or `run ... che-theia + containers-plugin` (command pallette > Run task > … or containers view)
+You can use the che command `run ... DEV che-theia + factory-plugin` or `run ... DEV che-theia + containers-plugin` (command pallette > Run task > … or containers view)
 Basically, this command will start the DEV che-theia with the plugin:
 
 ```
