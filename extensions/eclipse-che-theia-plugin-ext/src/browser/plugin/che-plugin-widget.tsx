@@ -45,8 +45,8 @@ export class ChePluginWidget extends ReactWidget {
     ) {
         super();
         this.id = 'che-plugins';
-        this.title.label = 'Che Plugins';
-        this.title.caption = 'Che Plugins';
+        this.title.label = 'Plugins';
+        this.title.caption = 'Plugins';
         this.title.iconClass = 'fa che-plugins-tab-icon';
         this.title.closable = true;
         this.addClass('theia-plugins');
