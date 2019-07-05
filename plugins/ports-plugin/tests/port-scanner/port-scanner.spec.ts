@@ -8,25 +8,26 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import * as fs from "fs";
-import { PortScanner } from "../../src/port-scanner";
-import { Command } from "../../src/command";
+import { PortScanner, AbstractInternalScanner } from "../../src/port-scanner";
 
-jest.mock("../../src/command");
+class DummyInternalScanner extends AbstractInternalScanner {
+    async getListeningPortV4() {
+         return super.readFilePromise(__dirname + "/port-scanner-listen-ipv4.stdout");
+    }
+    async getListeningPortV6() {
+         return super.readFilePromise(__dirname + "/port-scanner-listen-ipv6.stdout");
+    }
+}
 
-describe("Test Port Scanner", () => {
+describe("Test Port Scanner with dummy data", () => {
 
     let portScanner: PortScanner;
 
     beforeEach(() => {
-        portScanner = new PortScanner();
+        portScanner = new PortScanner(new DummyInternalScanner());
     });
 
     test("test port opened", async () => {
-        const outputIpv4 = fs.readFileSync(__dirname + "/port-scanner-listen-ipv4.stdout");
-        const outputIpv6 = fs.readFileSync(__dirname + "/port-scanner-listen-ipv6.stdout");
-        (Command as any).__setExecCommandOutput(PortScanner.GRAB_PORTS_IPV4, outputIpv4);
-        (Command as any).__setExecCommandOutput(PortScanner.GRAB_PORTS_IPV6, outputIpv6);
         const ports = await portScanner.getListeningPorts();
         expect(ports).toBeDefined();
         expect(Array.isArray(ports)).toBe(true);
@@ -43,4 +44,17 @@ describe("Test Port Scanner", () => {
         expect(ports[4].portNumber).toBe(4444);
     });
 
+});
+
+describe("Test Port Scanner with real path", () => {
+    let portScanner: PortScanner;
+
+    beforeEach(() => {
+        portScanner = new PortScanner();
+    });
+
+    test("test no unhandled exception is thrown", async () => {
+        await portScanner.getListeningPorts();
+        await portScanner.getListeningPorts();
+    });
 });
