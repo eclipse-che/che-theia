@@ -11,6 +11,9 @@
     "src",
     "resources"
   ],
+  "activationEvents": [
+    "*"
+  ],
   "dependencies": {},
   "devDependencies": {
     "@eclipse-che/plugin": "latest",

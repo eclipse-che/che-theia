@@ -19,6 +19,9 @@
   "files": [
     "src"
   ],
+  "activationEvents": [
+    "*"
+  ],
   "contributes": {
     "configuration": {
       "type": "object",
