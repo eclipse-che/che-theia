@@ -9,17 +9,70 @@
 **********************************************************************/
 
 import { Port } from './port';
-import { Command } from './command';
 import { IpConverter } from './ip-converter';
+import { readFile } from 'fs';
+
+/**
+ * Injectrable internal scanner used with PortScanner.
+ * @author Masaki Muranaka <monaka@monami-ya.com>
+ */
+export abstract class AbstractInternalScanner {
+    public readFilePromise(path: string): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            readFile(path, (err, data) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(data.toString());
+                }
+            });
+        });
+    }
+    abstract getListeningPortV4(): Promise<string>;
+    abstract getListeningPortV6(): Promise<string>;
+
+}
+
+/**
+ * Default internal scanner used with PortScanner.
+ * @author Masaki Muranaka <monaka@monami-ya.com>
+ */
+class DefaultInternalScanner extends AbstractInternalScanner {
+    public static readonly PORTS_IPV4 = '/proc/net/tcp';
+    public static readonly PORTS_IPV6 = '/proc/net/tcp6';
+    private fetchIPV4 = true;
+    private fetchIPV6 = true;
+
+    async getListeningPortV4() {
+        return this.fetchIPV4 ? this.readFilePromise(DefaultInternalScanner.PORTS_IPV4)
+            .catch(e => {
+                console.error(e);
+                this.fetchIPV4 = false;
+                return Promise.resolve('');
+            }) : '';
+    }
+
+    async getListeningPortV6() {
+        return this.fetchIPV6 ? this.readFilePromise(DefaultInternalScanner.PORTS_IPV6)
+            .catch(e => {
+                console.error(e);
+                this.fetchIPV6 = false;
+                return Promise.resolve('');
+            }) : '';
+    }
+}
 
 /**
  * Allow to grab ports being opened and on which network interface
  * @author Florent Benoit
  */
 export class PortScanner {
+    private scanner: AbstractInternalScanner;
 
-    public static readonly GRAB_PORTS_IPV4 = 'cat /proc/net/tcp';
-    public static readonly GRAB_PORTS_IPV6 = 'cat /proc/net/tcp6';
+    /* `scanner` will be injected on tests. */
+    constructor(scanner: AbstractInternalScanner = new DefaultInternalScanner()) {
+        this.scanner = scanner;
+    }
 
     /**
      * Get opened ports.
@@ -27,16 +80,9 @@ export class PortScanner {
     public async getListeningPorts(): Promise<Port[]> {
 
         const ipConverter = new IpConverter();
-        // connect to /proc/net/tcp and /proc/net/tcp6
-        const command = new Command(__dirname);
-        const outputv4 = await command.exec(PortScanner.GRAB_PORTS_IPV4);
-        const outputv6 = await command.exec(PortScanner.GRAB_PORTS_IPV6);
-
-        // assembe ipv4 and ipv6 output
-        const output = `
-        ${outputv4}
-        ${outputv6}
-        `;
+        const outIPV6 = this.scanner.getListeningPortV6();
+        const outIPV4 = this.scanner.getListeningPortV4();
+        const output = (await Promise.all([outIPV4, outIPV6])).join();
 
         // parse
         const regex = /:\s(.*):(.*)\s[0-9].*\s0A\s/gm;

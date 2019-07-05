@@ -14,5 +14,8 @@
         "dev-packages/*/src",
         "plugins/*/src",
         "extensions/*/src"
+    ],
+    "types": [
+        "node", "jest"
     ]
 }

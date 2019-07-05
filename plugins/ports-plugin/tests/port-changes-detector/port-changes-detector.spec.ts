@@ -9,24 +9,35 @@
  **********************************************************************/
 
 import * as fs from "fs";
-import { PortScanner } from "../../src/port-scanner";
+import { PortScanner, AbstractInternalScanner } from "../../src/port-scanner";
 import { PortChangesDetector } from "../../src/port-changes-detector";
-import { Command } from "../../src/command";
 import { Port } from "../../src/port";
 
-jest.mock("../../src/command");
+class DummyInternalScanner extends AbstractInternalScanner {
+    private path_: string;
+
+    set path(path_: string) {
+        this.path_ = path_;
+    }
+
+    async getListeningPortV4() {
+         return super.readFilePromise(this.path_);
+    }
+    async getListeningPortV6() {
+         return super.readFilePromise("/dev/null");
+    }
+}
 
 describe("Test Port Changes", () => {
-
+    let dummyInternalScanner = new DummyInternalScanner();
     let portChangesDetector: PortChangesDetector;
 
     beforeEach(() => {
-        portChangesDetector = new PortChangesDetector();
+        portChangesDetector = new PortChangesDetector(dummyInternalScanner);
     });
 
     test("test events triggered", async () => {
-        const outputBefore = fs.readFileSync(__dirname + "/port-changes-detector-before.stdout");
-        (Command as any).__setExecCommandOutput(PortScanner.GRAB_PORTS_IPV4, outputBefore);
+        dummyInternalScanner.path = __dirname + "/port-changes-detector-before.stdout";
 
         // register callbacks
         const newOpenedPorts: Port[] = [];
@@ -39,8 +50,7 @@ describe("Test Port Changes", () => {
         await portChangesDetector.init();
 
         // change  output
-        const outputAfter = fs.readFileSync(__dirname + "/port-changes-detector-after.stdout");
-        (Command as any).__setExecCommandOutput(PortScanner.GRAB_PORTS_IPV4, outputAfter);
+        dummyInternalScanner.path = __dirname + "/port-changes-detector-after.stdout";
 
         // monitor
         await portChangesDetector.check();
