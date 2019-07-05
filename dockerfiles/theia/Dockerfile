@@ -123,6 +123,8 @@ RUN adduser -D -S -u 1001 -G root -h ${HOME} -s /bin/sh theia \
     && mkdir /node_modules \
     # Download yeoman generator plug-in
     && curl -L -o /default-theia-plugins/theia_yeoman_plugin.theia https://github.com/eclipse/theia-yeoman-plugin/releases/download/untagged-04f28ee329e479cc465b/theia_yeoman_plugin.theia \
+    # Download vscode git plug-in
+    && curl -L -o /default-theia-plugins/vscode-git-1.3.0.1.vsix https://github.com/che-incubator/vscode-git/releases/download/1.30.1/vscode-git-1.3.0.1.vsix \
     && for f in "${HOME}" "/etc/passwd" "/etc/group /node_modules /default-theia-plugins /projects"; do\
            sudo chgrp -R 0 ${f} && \
            sudo chmod -R g+rwX ${f}; \
