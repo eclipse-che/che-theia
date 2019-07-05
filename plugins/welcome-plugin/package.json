@@ -11,6 +11,9 @@
     "src",
     "resources"
   ],
+  "activationEvents": [
+    "*"
+  ],
   "contributes": {
     "configuration": {
       "type": "object",

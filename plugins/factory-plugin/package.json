@@ -56,6 +56,9 @@
         ],
         "testURL": "http://localhost/"
     },
+    "activationEvents": [
+        "*"
+    ],
     "contributes": {
         "menus": {
             "editor/context": [

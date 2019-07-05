@@ -22,6 +22,9 @@
       "files": [
         "src"
       ],
+      "activationEvents": [
+        "*"
+      ],
       "devDependencies": {
         "@eclipse-che/api": "latest",
         "@eclipse-che/plugin": "0.0.1",
