@@ -122,7 +122,7 @@ RUN adduser -D -S -u 1001 -G root -h ${HOME} -s /bin/sh theia \
     # Create root node_modules in order to not use node_modules in each project folder
     && mkdir /node_modules \
     # Download yeoman generator plug-in
-    && curl -L -o /default-theia-plugins/theia_yeoman_plugin.theia https://github.com/eclipse/theia-yeoman-plugin/releases/download/untagged-04f28ee329e479cc465b/theia_yeoman_plugin.theia \
+    && curl -L -o /default-theia-plugins/theia_yeoman_plugin.theia https://github.com/eclipse/theia-yeoman-plugin/releases/download/untagged-c11870b25a17d20bb7a7/theia_yeoman_plugin.theia \
     # Download vscode git plug-in
     && curl -L -o /default-theia-plugins/vscode-git-1.3.0.1.vsix https://github.com/che-incubator/vscode-git/releases/download/1.30.1/vscode-git-1.3.0.1.vsix \
     && for f in "${HOME}" "/etc/passwd" "/etc/group /node_modules /default-theia-plugins /projects"; do\
@@ -132,7 +132,7 @@ RUN adduser -D -S -u 1001 -G root -h ${HOME} -s /bin/sh theia \
     && cat /etc/passwd | sed s#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g > ${HOME}/passwd.template \
     && cat /etc/group | sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g > ${HOME}/group.template \
     # Add yeoman, theia plugin generator and typescript (to have tsc/typescript working)
-    && yarn global add yo @theia/generator-plugin@0.0.1-1540209403 typescript@2.9.2 \
+    && yarn global add yo @theia/generator-plugin@0.0.1-1562578105 typescript@2.9.2 \
     && mkdir -p ${HOME}/.config/insight-nodejs/ \
     && chmod -R 777 ${HOME}/.config/ \
     # Disable the statistics for yeoman
