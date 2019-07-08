@@ -15,7 +15,7 @@ import {
     WorkspaceSettings
 } from '../common/che-protocol';
 
-import { injectable, interfaces } from 'inversify';
+import { injectable, inject } from 'inversify';
 import axios, { AxiosInstance } from 'axios';
 import { che as cheApi } from '@eclipse-che/api';
 import URI from '@theia/core/lib/common/uri';
@@ -44,15 +44,12 @@ export interface ChePluginMetadataInternal {
 @injectable()
 export class ChePluginServiceImpl implements ChePluginService {
 
+    @inject(CheApiService)
+    protected readonly cheApiService: CheApiService;
+
     private axiosInstance: AxiosInstance = axios;
 
-    private cheApiService: CheApiService;
-
     private defaultRegistry: ChePluginRegistry;
-
-    constructor(container: interfaces.Container) {
-        this.cheApiService = container.get(CheApiService);
-    }
 
     async getDefaultRegistry(): Promise<ChePluginRegistry> {
         if (this.defaultRegistry) {
