@@ -51,7 +51,8 @@ export default new ContainerModule(bind => {
         })
     ).inSingletonScope();
 
-    bind(ChePluginService).to(ChePluginServiceImpl).inSingletonScope();
+    bind(ChePluginServiceImpl).toSelf().inSingletonScope();
+    bind(ChePluginService).toService(ChePluginServiceImpl);
     bind(ConnectionHandler).toDynamicValue(ctx =>
         new JsonRpcConnectionHandler(CHE_PLUGIN_SERVICE_PATH, () =>
             ctx.container.get(ChePluginService)
