@@ -14,7 +14,6 @@ import {
     ChePluginMetadata,
     WorkspaceSettings
 } from '../common/che-protocol';
-
 import { injectable, interfaces } from 'inversify';
 import axios, { AxiosInstance } from 'axios';
 import { che as cheApi } from '@eclipse-che/api';
