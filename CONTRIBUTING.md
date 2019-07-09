@@ -24,8 +24,8 @@ $ chectl workspace:start -f devfiles/che-theia-all.devfile.yaml
 
 The devfile: [<this.repo>/devfiles/che-theia-all.devfile.yaml](../devfiles/che-theia-all.devfile.yaml)
 
-The goal is to show how to setup a che7 environment to work on che-theia.
-For the workflow we would have a workspace with such containers:
+In this section, we show how to setup a Che 7 environment to work on che-theia, and how to use it.
+For the whole workflows, we will need a workspace with such containers:
 
 - Theia IDE (Editor) container (a.k.a theia-idexxx). It would have Theia editor with a set of plugins. It will also run the Theia instance for testing our development (theia-dev endpoint).
 - Che-Theia Dev container (a.k.a che-dev). We will build the che-theia (theia + che-theia extensions) and plugins.
@@ -33,7 +33,7 @@ For the workflow we would have a workspace with such containers:
 All containers have `/projects` folder mounted, which is shared among them.
 
 
-Developer steps:
+Developer workflow:
 
 1. Start the workspace with the devfile, it is cloning Theia and the che-theia plugins.
 2. Setup Theia sources to include Che-theia extension thanks to `che:theia init` command (Che-theia dev container)
@@ -45,7 +45,22 @@ Developer steps:
 
 The following devfile provides examples of commands to build and run che-theia with factory and containers plugins.
 
-### Che-theia init
+
+### Step 1: Start the workspace
+In this section we are going to start a new workspace to work on che-theia. The new workspace will have few projects cloned: `theia` and `che-theia`. It will also setup the containers and commands in the `My workspace` view. We will use these commands in the next steps.
+
+The devfile could be started using `chectl`:
+
+```
+chectl workspace:start -f https://raw.githubusercontent.com/eclipse/che-theia/master/devfiles/che-theia-all.devfile.yaml
+```
+At workspace start, Che will clone Theia and Che-theia.
+
+
+
+### Step 2: Decorate Theia with Che-theia extensions: che-theia init
+
+In this section we are going to adapt Theia build so it creates an assembly with che-theia specific extensions.
 
 You can use the che command `init ... DEV che-theia` (command pallette > Run task > … or containers view)
 Basically, this command will perform:
@@ -58,7 +73,10 @@ This command will checkout all extensions in `/projects/theia/che` folder and cr
 
 By default, extensions list is retrieved from https://github.com/eclipse/che-theia/blob/master/che-theia-init-sources.yml
 
-### Compile Che-Theia
+### Step 3: Code che-theia extensions
+At this point you can code on che-theia extensions inside `/projects/theia/che/che-theia/extensions` folder. Extensions changes would be taken into account in the next step.
+
+### Step 4: Compile Che-Theia
 You can use the che command `build ... DEV che-theia` (command pallette > Run task > … or containers view)
 Basically, this command will perform:
 ```
@@ -70,7 +88,11 @@ $ che:theia production
 - `yarn` will compile theia + additional Che-theia extensions that have been setted up by `che:theia init`
 - `che:theia production` will generate a production like package.
 
-### Compile your plugin
+### Step 5: Code che-theia plugins
+At this stage, you can code on Che-theia plugins. In this devfile, containers and factory plugin are covered.
+Che-theia plugins are located in `/projects/che-theia/plugins/` folder.
+
+### Step 6: Compile your plugin
 You can use the che command `build ... containers-plugin` or `build ... factory-plugin` (command pallette > Run task > … or containers view)
 Basically, this command will perform in the right plugin folder:
 
@@ -81,7 +103,9 @@ $ yarn
 
 `yarn` will compile the plugin and produce a .theia file which is the plugin itself.
 
-### Run che-theia + plugin
+### Step 7: Run che-theia + plugin
+In this section, we are going to run the che-theia assembly built previously and run that with one of the plugins built previously. We will be able to test our changes with a dedicated che-theia instance.
+
 You can use the che command `run ... DEV che-theia + factory-plugin` or `run ... DEV che-theia + containers-plugin` (command pallette > Run task > … or containers view)
 Basically, this command will start the DEV che-theia with the plugin:
 
@@ -94,7 +118,9 @@ $ node /projects/theia/production/src-gen/backend/main.js /tmp/theiadev_projects
 You can then access to your modified Che-theia from the Container view `theia-dev` endpoint
 ![Che-Theia-dev-endpoint](https://raw.githubusercontent.com/eclipse/che-theia/assets/theia-dev-endpoint.png)
 
-### Run che-theia + plugin in dev mode
+### Step 7bis: Run che-theia + plugin in dev mode
+In this section we show how to run the che-theia assembly but in `dev mode`: keeping all the information for debugging.
+
 You can use the che command `run ... DEV yarn start ... che-theia + factory-plugin` or
 `run ... DEV yarn start... che-theia + containers-plugin`
 (command pallette > Run task > … or containers view).
