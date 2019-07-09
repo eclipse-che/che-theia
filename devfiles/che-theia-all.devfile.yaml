@@ -46,8 +46,7 @@ components:
 
   - type: cheEditor
     alias: theia-editor
-    id: eclipse/che-theia/next
-
+    id: eclipse/che-theia/7.0.0-rc-3.0
 commands:
 
   - name: init ... DEV che-theia
@@ -143,7 +142,7 @@ commands:
                  rm /default-theia-plugins/eclipse_che_theia_factory_plugin.theia;
                  mkdir -p /tmp/theiadev_projects &&
                  export CHE_PROJECTS_ROOT=/tmp/theiadev_projects &&
-                 export HOSTED_PLUGIN=/projects/che-theia/plugins/factory-plugin/ &&
+                 cp /projects/che-theia/plugins/factory-plugin/eclipse_che_theia_factory_plugin.theia /default-theia-plugins/ &&
                  node src-gen/backend/main.js /tmp/theiadev_projects --hostname=0.0.0.0 --port=3130 & echo $!> /tmp/node_theiadev.pid ; wait `cat /tmp/node_theiadev.pid`
         workdir: /home/theia
 
@@ -156,7 +155,7 @@ commands:
                  rm /default-theia-plugins/eclipse_che_theia_containers_plugin.theia;
                  mkdir -p /tmp/theiadev_projects &&
                  export CHE_PROJECTS_ROOT=/tmp/theiadev_projects &&
-                 export HOSTED_PLUGIN=/projects/che-theia/plugins/containers-plugin/ &&
+                 cp /projects/che-theia/plugins/containers-plugin/eclipse_che_theia_containers_plugin.theia /default-theia-plugins/ &&
                  node src-gen/backend/main.js /tmp/theiadev_projects --hostname=0.0.0.0 --port=3130 & echo $!> /tmp/node_theiadev.pid ; wait `cat /tmp/node_theiadev.pid`
         workdir: /home/theia
 
