@@ -39,7 +39,7 @@ ENV HOME=/home/theia-dev \
     THEIA_ELECTRON_SKIP_REPLACE_FFMPEG=true
 
 # Define package of the theia generator to use
-ARG THEIA_GENERATOR_PACKAGE=@eclipse-che/theia-generator@0.0.1-1562229933
+ARG THEIA_GENERATOR_PACKAGE=@eclipse-che/theia-generator@0.0.1-1562767926
 
 WORKDIR ${HOME}
 
