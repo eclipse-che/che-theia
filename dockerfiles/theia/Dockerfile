@@ -27,6 +27,7 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Check github limit
 RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:"$GITHUB_TOKEN; \
       export GITHUB_TOKEN=$GITHUB_TOKEN; \
       echo "Setting GITHUB_TOKEN value as provided"; \
     else \
