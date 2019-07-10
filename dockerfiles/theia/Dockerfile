@@ -26,6 +26,8 @@ ARG THEIA_VERSION=master
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Check github limit
+RUN echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:"$GITHUB_TOKEN;
+RUN echo "---------------------------------------------------------->"
 RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:"$GITHUB_TOKEN; \
       export GITHUB_TOKEN=$GITHUB_TOKEN; \
