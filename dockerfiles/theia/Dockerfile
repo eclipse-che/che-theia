@@ -31,6 +31,7 @@ echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:"$GITHUB_TOKEN; \
       export GITHUB_TOKEN=$GITHUB_TOKEN; \
       echo "Setting GITHUB_TOKEN value as provided"; \
     else \
+    echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:"$GITHUB_TOKEN; \
       export GITHUB_LIMIT=$(curl -s 'https://api.github.com/rate_limit' | jq '.rate .remaining'); \
       echo "Current API rate limit https://api.github.com is ${GITHUB_LIMIT}"; \
       if [ "${GITHUB_LIMIT}" -lt 10 ]; then \
@@ -38,6 +39,7 @@ echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:"$GITHUB_TOKEN; \
         printf "the build argument GITHUB_TOKEN needs to be provided so build will not fail.\n\n\n\033[0m"; \
         exit 1; \
       else \
+      echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:"$GITHUB_TOKEN; \
         echo "GITHUB_TOKEN variable is not set but https://api.github.com rate limit has enough slots"; \
       fi \
     fi
