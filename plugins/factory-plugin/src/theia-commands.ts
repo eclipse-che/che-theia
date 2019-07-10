@@ -74,7 +74,7 @@ export class TheiaCloneCommand {
         }
 
         const clone = async (progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken): Promise<void> => {
-            const args: string[] = ['clone', this.locationURI, this.folder.substring(this.folder.lastIndexOf('/') + 1, this.folder.length)];
+            const args: string[] = ['clone', this.locationURI, this.folder];
             if (this.checkoutBranch) {
                 args.push('--branch');
                 args.push(this.checkoutBranch);
