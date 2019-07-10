@@ -31,10 +31,12 @@ export function updateOrCreateGitProjectInDevfile(
         projects = [];
     }
 
-    const filteredProject = projects.filter(project => project.clonePath === projectPath);
+    const filteredProject = projects.filter(project => (project.clonePath ? project.clonePath : project.name) === projectPath);
     if (filteredProject.length === 0) {
         const projectName = projectPath.split('/').pop();
-
+        if (projectPath === projectName) {
+            projectPath = undefined;
+        }
         // create a new one
         projects.push({
             name: projectName ? projectName : 'new-project',
