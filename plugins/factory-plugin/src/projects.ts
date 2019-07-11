@@ -27,41 +27,43 @@ export function updateOrCreateGitProjectInDevfile(
     projectGitLocation: string,
     projectGitRemoteBranch: string
 ): cheApi.workspace.devfile.Project[] {
-
     if (!projects) {
         projects = [];
     }
 
-    for (const project of projects) {
-        const currentProjectPath = project.clonePath ? project.clonePath : project.name;
-        if (currentProjectPath === projectPath) {
-            project.source.type = 'git';
-            project.source.location = projectGitLocation;
-            project.source.branch = projectGitRemoteBranch;
-
-            return projects;
+    const filteredProject = projects.filter(project => (project.clonePath ? project.clonePath : project.name) === projectPath);
+    if (filteredProject.length === 0) {
+        const projectName = projectPath.split('/').pop();
+        if (projectPath === projectName) {
+            projectPath = undefined;
         }
+        // create a new one
+        projects.push({
+            name: projectName ? projectName : 'new-project',
+            source: {
+                location: projectGitLocation,
+                type: 'git',
+                branch: projectGitRemoteBranch
+            },
+            clonePath: projectPath
+        });
+        return projects;
     }
 
-    // project not found in the list of existed, create a new one
-    const projectPathSegments = projectPath.split('/');
-    const isCustomPath = projectPathSegments.filter(segment => segment !== '').length !== 1;
-    const projectName = projectPathSegments.pop();
-
-    const newProject: cheApi.workspace.devfile.Project = {
-        'name': projectName ? projectName : 'new-project',
-        'source': {
-            'type': 'git',
-            'location': projectGitLocation,
-            'branch': projectGitRemoteBranch
+    filteredProject.forEach(project => {
+        if (!project.source) {
+            project.source = {
+                location: projectGitLocation,
+                type: 'git',
+                branch: projectGitRemoteBranch
+            };
         }
-    };
-
-    if (isCustomPath) {
-        newProject.clonePath = projectPath;
-    }
-
-    projects.push(newProject);
+        project.source.location = projectGitLocation;
+        project.source.branch = projectGitRemoteBranch;
+        delete project.source.startPoint;
+        delete project.source.tag;
+        delete project.source.commitId;
+    });
 
     return projects;
 }
@@ -77,9 +79,8 @@ export function deleteProjectFromDevfile(
     projects: cheApi.workspace.devfile.Project[],
     projectPath: string
 ): cheApi.workspace.devfile.Project[] {
-
-    if (!projects || projects.length === 0) {
-        return [];
+    if (!projects) {
+        projects = [];
     }
 
     for (let i = 0; i < projects.length; i++) {
@@ -153,7 +154,8 @@ export function deleteProjectFromWorkspaceConfig(
 ): cheApi.workspace.ProjectConfig[] {
     for (let i = 0; i < projects.length; i++) {
         const project = projects[i];
-        if (project.path === projectPath) {
+        const currentProjectPath = project.path ? project.path : project.name;
+        if (currentProjectPath === projectPath) {
             projects.splice(i, 1);
             break;
         }
