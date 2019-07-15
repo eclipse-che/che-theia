@@ -59,26 +59,40 @@ In Che-Theia, you’ll find the following capabilities:
 
 ## Project structure
 
-- [che-plugins](./che-plugins) contains the Che7 plugin definition,
 - [dockerfiles](./dockerfiles) contains Dockerfiles for plugin sidecars, theia-editor and theia builder,
 - [extensions](./extensions) contains Che-Theia specific extensions,
 - [plugins](./plugins) contains Che-Theia plugins.
 
+Che-theia editor is a container image which contains the Che-theia IDE web application.
+
+The che-plugin of this editor is defined in the plugin registry https://github.com/eclipse/che-plugin-registry/blob/master/v3/plugins/eclipse/che-theia/next/meta.yaml
+
+[dockerfiles/theia](./dockerfiles/theia) folder contains the container image sources of `eclipse/che-theia`:
+- Using a Docker multistage build and [dockerfiles/theia-dev](./dockerfiles/theia-dev) as builder.
+- Cloning [Theia](https://github.com/theia-ide/theia)
+- Using `che:theia init` command to decorate Theia with Che-theia plugins and extensions. All plugins and extensions are defined in [che-theia-init-sources.yml](./che-theia-init-sources.yml)
+- Using `yarn` to build theia + che-theia extensions + che-theia plugins
+- Assembling everything and using `che:theia production` to make the che-theia webapp.
+- Copying the che-theia webapp into the runtime container and creating the Che-theia image.
+
 # Contributing
-## How to build
 
-Run `yarn` to build Theia extensions and plugins.
+## Contribute to Che-theia
+Contributing to che-theia section is cover in [CONTRIBUTING.md](https://github.com/eclipse/che-theia/blob/master/doc/CONTRIBUTING.md)
 
-> Note: this build Theia extensions and plugins __ONLY__
 
-If you want to build all images also run `build.sh` script.
+## Build container images
+
+### How to build all the container images
+
+If you want to build all images run `build.sh` script.
 
 CI for PR job in this repository will use `build.sh --pr`.
 > Note: `--pr` will build only limited set of docker images, see [PR_IMAGES variable](./docker_image_build.include)
 
 If you want to publish docker images use `build.sh --push`
 
-## How to build own che-theia image
+### How to build own che-theia image with Docker
 
 First you need to build `che-theia-dev` image:
 
@@ -99,11 +113,11 @@ Where `${GITHUB_TOKEN_ARG}` is your GitHub API token, it's used for fetching som
 That script will clone Theia from master branch and all Che related extensions from theirs master branches.
 
 
-## License
+# License
 
 - [Eclipse Public License 2.0](LICENSE)
 
-## Join the community
+# Join the community
 
 The Eclipse Che community is globally reachable through public chat rooms, mailing list and weekly calls.
 See https://www.eclipse.org/che/docs/che-7/index.html#joining-the-community
