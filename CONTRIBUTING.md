@@ -22,7 +22,7 @@ $ chectl workspace:start -f devfiles/che-theia-all.devfile.yaml
 ## Devfile for contributing to Theia or Che-Theia extensions or Che-plugins
 > Note that this devfile is going to evolve very soon and be splitted into multiple devfiles.
 
-The devfile: [<this.repo>/devfiles/che-theia-all.devfile.yaml](../devfiles/che-theia-all.devfile.yaml)
+The devfile: [<this.repo>/devfiles/che-theia-all.devfile.yaml](./devfiles/che-theia-all.devfile.yaml)
 
 In this section, we show how to setup a Che 7 environment to work on che-theia, and how to use it.
 For the whole workflows, we will need a workspace with such containers:
