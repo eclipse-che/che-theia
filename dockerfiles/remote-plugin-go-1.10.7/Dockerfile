@@ -52,7 +52,7 @@ RUN set -eux; \
     go get -u -v github.com/zmb3/gogetdoc && \
     go get -u -v golang.org/x/lint/golint && \
     go get -u -v github.com/fatih/gomodifytags &&  \
-    go get -u -v golang.org/x/tools/cmd/gorenam e && \
+    go get -u -v golang.org/x/tools/cmd/gorename && \
     go get -u -v sourcegraph.com/sqs/goreturns && \
     go get -u -v golang.org/x/tools/cmd/goimports && \
     go get -u -v github.com/cweill/gotests/... && \
