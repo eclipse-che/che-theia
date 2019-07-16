@@ -17,8 +17,7 @@
   "contributes": {
     "configuration": {
       "type": "object",
-      "title": "
-      "Pazavata istoria",
+      "title": "Pazavata istoria",
       "properties": {
         "che.welcome.enable": {
           "type": "boolean",
