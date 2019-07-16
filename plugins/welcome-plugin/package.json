@@ -17,7 +17,8 @@
   "contributes": {
     "configuration": {
       "type": "object",
-      "title": "Welcome plugin configuration",
+      "title": "
+      "Pazavata istoria",
       "properties": {
         "che.welcome.enable": {
           "type": "boolean",
