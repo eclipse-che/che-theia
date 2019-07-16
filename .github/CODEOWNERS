@@ -2,9 +2,9 @@
 * @evidolob @vparfonov @l0rd @rhopp
 
 # dockerfiles
-dockerfiles/** @benoitf @evidolob
-plugins/** @sunix @vitaliy-guliy @olexii4
-extensions/** @mmorhun @evidolob
-che-plugins/** @evidolob @tolusha
-extensions/eclipse-che-theia-terminal/** @AndrienkoAleksandr
+dockerfiles/** @benoitf @evidolob @vparfonov @l0rd @rhopp
+plugins/** @sunix @vitaliy-guliy @olexii4 @vparfonov @l0rd @rhopp
+extensions/** @mmorhun @evidolob @vparfonov @l0rd @rhopp
+che-plugins/** @evidolob @tolusha @vparfonov @l0rd @rhopp
+extensions/eclipse-che-theia-terminal/** @AndrienkoAleksandr @vparfonov @l0rd @rhopp
 
