@@ -14,7 +14,6 @@ import {
     ChePluginMetadata,
     WorkspaceSettings
 } from '../common/che-protocol';
-
 import { injectable, interfaces } from 'inversify';
 import axios, { AxiosInstance } from 'axios';
 import { che as cheApi } from '@eclipse-che/api';
@@ -88,7 +87,7 @@ export class ChePluginServiceImpl implements ChePluginService {
             // A temporary solution. Should throw an error instead.
             this.defaultRegistry = {
                 name: 'Eclipse Che plugin registry',
-                uri: 'https://che-plugin-registry.openshift.io/plugins/'
+                uri: 'https://che-plugin-registry.openshift.io/v3/plugins/'
             };
             return this.defaultRegistry;
         }
@@ -301,14 +300,60 @@ export class ChePluginServiceImpl implements ChePluginService {
     }
 
     /**
+     * Removes /meta.yaml from the end of the plugin ID (reference)
+     */
+    normalizeId(id: string): string {
+        if ((id.startsWith('http://') || id.startsWith('https://')) && id.endsWith('/meta.yaml')) {
+            id = id.substring(0, id.length - '/meta.yaml'.length);
+        }
+
+        return id;
+    }
+
+    /**
+     * Creates a plugin component for the given plugin ID (reference)
+     */
+    createPluginComponent(id: string): cheApi.workspace.devfile.Component {
+        if (id.startsWith('http://') || id.startsWith('https://')) {
+            return {
+                type: 'chePlugin',
+                reference: `${id}/meta.yaml`
+            };
+        } else {
+            return {
+                type: 'chePlugin',
+                id: `${id}`
+            };
+        }
+    }
+
+    /**
      * Returns list of plugins described in workspace configuration.
      */
     async getWorkspacePlugins(): Promise<string[]> {
         const workspace: cheApi.workspace.Workspace = await this.cheApiService.currentWorkspace();
 
-        if (workspace.config && workspace.config.attributes && workspace.config.attributes['plugins']) {
-            const plugins = workspace.config.attributes['plugins'];
-            return plugins.split(',');
+        if (workspace.config) {
+            if (workspace.config.attributes && workspace.config.attributes['plugins']) {
+                const plugins = workspace.config.attributes['plugins'];
+                return plugins.split(',');
+            } else {
+                return [];
+            }
+        } else if (workspace.devfile) {
+            const plugins: string[] = [];
+
+            workspace.devfile.components!.forEach(component => {
+                if (component.type === 'chePlugin') {
+                    if (component.reference) {
+                        plugins.push(this.normalizeId(component.reference));
+                    } else if (component.id) {
+                        plugins.push(component.id);
+                    }
+                }
+            });
+
+            return plugins;
         }
 
         return Promise.reject('Unable to get Workspace plugins');
@@ -319,10 +364,35 @@ export class ChePluginServiceImpl implements ChePluginService {
      */
     async setWorkspacePlugins(plugins: string[]): Promise<void> {
         const workspace: cheApi.workspace.Workspace = await this.cheApiService.currentWorkspace();
-        if (workspace.config && workspace.config.attributes && workspace.config.attributes['plugins']) {
+
+        if (workspace.config) {
+            workspace.config.attributes = workspace.config.attributes || {};
             workspace.config.attributes['plugins'] = plugins.join(',');
-            await this.cheApiService.updateWorkspace(workspace.id, workspace);
+
+        } else if (workspace.devfile) {
+            const components: cheApi.workspace.devfile.Component[] = [];
+            workspace.devfile.components!.forEach((component: cheApi.workspace.devfile.Component) => {
+                if (component.type === 'chePlugin') {
+                    components.push(component);
+                }
+            });
+
+            components.forEach((component: cheApi.workspace.devfile.Component) => {
+                const id = component.reference ? this.normalizeId(component.reference) : component.id;
+                const foundIndex = plugins.indexOf(id);
+                if (foundIndex >= 0) {
+                    plugins.splice(foundIndex, 1);
+                } else {
+                    workspace.devfile.components.splice(workspace.devfile.components.indexOf(component), 1);
+                }
+            });
+
+            plugins.forEach((plugin: string) => {
+                workspace.devfile.components.push(this.createPluginComponent(plugin));
+            });
         }
+
+        await this.cheApiService.updateWorkspace(workspace.id, workspace);
     }
 
     /**
