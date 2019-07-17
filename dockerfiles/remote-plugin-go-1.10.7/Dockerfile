@@ -45,9 +45,9 @@ RUN set -eux; \
     mkdir -p "$GOPATH/src" "$GOPATH/bin" "$GOPATH/pkg" && chmod -R 777 "$GOPATH"; \
     export PATH="$GOPATH/bin:/usr/local/go/bin:$PATH"; \
     go get -u -v github.com/ramya-rao-a/go-outline && \
-    go get -u -v github.com/acroca/go-symbols &&  \
-    go get -u -v github.com/mdempsky/gocode && \
-    go get -u -v github.com/rogpeppe/godef && \
+    go get -u -v github.com/acroca/go-symbols &&  \ 
+    go get -u -v github.com/mdempsky/gocode && \ 
+    go get -u -v github.com/rogpeppe/godef && \ 
     go get -u -v golang.org/x/tools/cmd/godoc && \
     go get -u -v github.com/zmb3/gogetdoc && \
     go get -u -v golang.org/x/lint/golint && \
