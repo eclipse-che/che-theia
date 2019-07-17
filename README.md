@@ -64,7 +64,7 @@ In Che-Theia, you’ll find the following capabilities:
 - [plugins](./plugins) contains Che-Theia plugins.
 
 Che-theia editor is a container image which contains the Che-theia IDE web application.
-
+g
 The che-plugin of this editor is defined in the plugin registry https://github.com/eclipse/che-plugin-registry/blob/master/v3/plugins/eclipse/che-theia/next/meta.yaml
 
 [dockerfiles/theia](./dockerfiles/theia) folder contains the container image sources of `eclipse/che-theia`:
@@ -93,6 +93,8 @@ CI for PR job in this repository will use `build.sh --pr`.
 If you want to publish docker images use `build.sh --push`
 
 ### How to build own che-theia image with Docker
+Make sure that you have added name of your branch into che-theia-init-sources.yml (`checkoutTo` section).
+Commit all changes and push into your branch remotely.
 
 First you need to build `che-theia-dev` image:
 
