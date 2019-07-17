@@ -46,6 +46,10 @@ export async function start() {
         viewPublicKey(sshKeyManager);
     });
 }
+const getHostName = async function (): Promise<string> {
+    const hostName = await theia.window.showInputBox({ placeHolder: 'Please provide a Host name e.g. github.com' });
+    return hostName ? hostName : '';
+};
 
 const getSshServiceName = async function (): Promise<string> {
     /**
@@ -83,7 +87,7 @@ const getSshServiceName = async function (): Promise<string> {
     }
 };
 
-const updateConfig = function (host: string): void {
+const updateConfig = function (hostName: string): void {
     const sshDir = os.homedir() + '/.ssh';
     const configFile = sshDir + '/config';
     if (!fs.existsSync(configFile)) {
@@ -93,7 +97,7 @@ const updateConfig = function (host: string): void {
         fs.appendFileSync(configFile, '');
         fs.chmodSync(configFile, '644');
     }
-    const keyConfig = `\nHost ${host}\nHostName ${host}\nIdentityFile ${sshDir}/${host.replace('.', '_')}\n`;
+    const keyConfig = `\nHost ${hostName}\nHostName ${hostName}\nIdentityFile ${sshDir}/${hostName.replace('.', '_')}\n`;
     const configContent = fs.readFileSync(configFile).toString();
     if (configContent.indexOf(keyConfig) >= 0) {
         const newConfigContent = configContent.replace(keyConfig, '');
@@ -110,12 +114,12 @@ const writeKey = function (name: string, key: string): void {
 };
 
 const generateKeyPair = async function (sshkeyManager: SshKeyManager): Promise<void> {
-    const keyName = await theia.window.showInputBox({ placeHolder: 'Please provide a key pair name (Host name e.g. github.com)' });
-    const key = await sshkeyManager.generate(await getSshServiceName(), keyName ? keyName : '');
-    updateConfig(keyName);
-    writeKey(keyName, key.privateKey);
+    const hostName = await getHostName();
+    const key = await sshkeyManager.generate(await getSshServiceName(), hostName);
+    updateConfig(hostName);
+    writeKey(hostName, key.privateKey);
     const viewAction = 'View';
-    const action = await theia.window.showInformationMessage('Do you want to view the generated public key?', viewAction);
+    const action = await theia.window.showInformationMessage(`Key for ${hostName} successfully generated, do you want to view the public key?`, viewAction);
     if (action === viewAction && key.privateKey) {
         const document = await theia.workspace.openTextDocument({ content: key.publicKey });
         await theia.window.showTextDocument(document);
@@ -123,17 +127,17 @@ const generateKeyPair = async function (sshkeyManager: SshKeyManager): Promise<v
 };
 
 const createKeyPair = async function (sshkeyManager: SshKeyManager): Promise<void> {
-    const keyName = await theia.window.showInputBox({ placeHolder: 'Please provide a key pair name' });
+    const hostName = await getHostName();
     const publicKey = await theia.window.showInputBox({ placeHolder: 'Enter public key' });
     const privateKey = await theia.window.showInputBox({ placeHolder: 'Enter private key' });
     const service = await getSshServiceName();
 
     await sshkeyManager
-        .create({ name: keyName ? keyName : '', service, publicKey: publicKey, privateKey })
+        .create({ name: hostName, service, publicKey: publicKey, privateKey })
         .then(async () => {
-            theia.window.showInformationMessage('Key "' + `${keyName}` + '" successfully created');
-            updateConfig(keyName);
-            writeKey(keyName, privateKey);
+            theia.window.showInformationMessage('Key "' + `${hostName}` + '" successfully created');
+            updateConfig(hostName);
+            writeKey(hostName, privateKey);
         })
         .catch(error => {
             theia.window.showErrorMessage(error);
