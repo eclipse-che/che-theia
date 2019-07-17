@@ -64,7 +64,7 @@ In Che-Theia, you’ll find the following capabilities:
 - [plugins](./plugins) contains Che-Theia plugins.
 
 Che-theia editor is a container image which contains the Che-theia IDE web application.
-g
+
 The che-plugin of this editor is defined in the plugin registry https://github.com/eclipse/che-plugin-registry/blob/master/v3/plugins/eclipse/che-theia/next/meta.yaml
 
 [dockerfiles/theia](./dockerfiles/theia) folder contains the container image sources of `eclipse/che-theia`:
