@@ -217,7 +217,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
     private getRootPath(): string {
         const workspaceFolders = theia.workspace.workspaceFolders;
         if (!workspaceFolders || workspaceFolders.length < 1) {
-            return '';
+            return '/projects';
         }
         return workspaceFolders[0].uri.path;
     }
