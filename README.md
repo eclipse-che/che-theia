@@ -78,6 +78,7 @@ The che-plugin of this editor is defined in the plugin registry https://github.c
 # Contributing
 
 ## Contribute to Che-theia
+
 Contributing to che-theia section is cover in [CONTRIBUTING.md](https://github.com/eclipse/che-theia/blob/master/CONTRIBUTING.md)
 
 
@@ -93,6 +94,7 @@ CI for PR job in this repository will use `build.sh --pr`.
 If you want to publish docker images use `build.sh --push`
 
 ### How to build own che-theia image with Docker
+
 Make sure that you have added name of your branch into che-theia-init-sources.yml (`checkoutTo` section).
 Commit all changes and push into your branch remotely.
 
