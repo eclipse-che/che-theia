@@ -25,6 +25,9 @@
       "activationEvents": [
         "*"
       ],
+      "dependencies": {
+        "fs-extra": "7.0.1"
+      },
       "devDependencies": {
         "@eclipse-che/api": "latest",
         "@eclipse-che/plugin": "0.0.1",
