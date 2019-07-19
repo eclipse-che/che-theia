@@ -55,18 +55,15 @@ export async function start() {
     });
 }
 
-const getHostName = async function (): Promise<string> {
+const getHostName = async () => {
     const hostName = await theia.window.showInputBox({ placeHolder: 'Please provide a Host name e.g. github.com' });
     return hostName ? hostName : '';
 };
 
-const getKeyFilePath = function (name: string): string {
-    return resolve(os.homedir(), '.ssh', name.replace('.', '_'));
-};
+const getKeyFilePath = (name: string) => resolve(os.homedir(), '.ssh', name.replace(new RegExp('\\.'), '_'));
 
-const updateConfig = async function (hostName: string): Promise<void> {
-    const sshDir = resolve(os.homedir(), '.ssh');
-    const configFile = resolve(sshDir, 'config');
+const updateConfig = async (hostName: string) => {
+    const configFile = resolve(os.homedir(), '.ssh', 'config');
     await ensureFile(configFile);
     await chmod(configFile, '644');
     const keyConfig = `\nHost ${hostName.startsWith('default-') ? '*' : hostName}\nIdentityFile ${getKeyFilePath(hostName)}\n`;
@@ -79,13 +76,13 @@ const updateConfig = async function (hostName: string): Promise<void> {
     }
 };
 
-const writeKey = async function (name: string, key: string): Promise<void> {
+const writeKey = async (name: string, key: string) => {
     const keyFile = getKeyFilePath(name);
     await appendFile(keyFile, key);
     await chmod(keyFile, '600');
 };
 
-const generateKeyPair = async function (sshkeyManager: SshKeyManager): Promise<void> {
+const generateKeyPair = async (sshkeyManager: SshKeyManager) => {
     const keyName = `default-${Date.now()}`;
     const key = await sshkeyManager.generate('vcs', keyName);
     await updateConfig(keyName);
@@ -98,7 +95,7 @@ const generateKeyPair = async function (sshkeyManager: SshKeyManager): Promise<v
     }
 };
 
-const generateKeyPairForHost = async function (sshkeyManager: SshKeyManager): Promise<void> {
+const generateKeyPairForHost = async (sshkeyManager: SshKeyManager) => {
     const hostName = await getHostName();
     const key = await sshkeyManager.generate('vcs', hostName);
     await updateConfig(hostName);
@@ -111,57 +108,52 @@ const generateKeyPairForHost = async function (sshkeyManager: SshKeyManager): Pr
     }
 };
 
-const createKeyPair = async function (sshkeyManager: SshKeyManager): Promise<void> {
+const createKeyPair = async (sshkeyManager: SshKeyManager) => {
     const hostName = await getHostName();
     const publicKey = await theia.window.showInputBox({ placeHolder: 'Enter public key' });
     const privateKey = await theia.window.showInputBox({ placeHolder: 'Enter private key' });
 
-    await sshkeyManager
-        .create({ name: hostName, service: 'vcs', publicKey: publicKey, privateKey })
-        .then(async () => {
-            theia.window.showInformationMessage(`Key pair for ${hostName} successfully created`);
-            await updateConfig(hostName);
-            await writeKey(hostName, privateKey);
-        })
-        .catch(error => {
-            theia.window.showErrorMessage(error);
-        });
+    try {
+        await sshkeyManager.create({ name: hostName, service: 'vcs', publicKey: publicKey, privateKey });
+        theia.window.showInformationMessage(`Key pair for ${hostName} successfully created`);
+        await updateConfig(hostName);
+        await writeKey(hostName, privateKey);
+    } catch (error) {
+        theia.window.showErrorMessage(error);
+    }
 };
 
-const deleteKeyPair = async function (sshkeyManager: SshKeyManager): Promise<void> {
+const deleteKeyPair = async (sshkeyManager: SshKeyManager) => {
     const keys: cheApi.ssh.SshPair[] = await sshkeyManager.getAll('vcs');
     const keyResp = await theia.window.showQuickPick<theia.QuickPickItem>(keys.map(key =>
         ({ label: key.name ? key.name : '' })), {});
     const keyName = keyResp ? keyResp.label : '';
-    await sshkeyManager
-        .delete('vcs', keyName)
-        .then(async () => {
-            const keyFile = getKeyFilePath(keyName);
-            if (await pathExists(keyFile)) {
-                await unlink(keyFile);
-                await updateConfig(keyName);
-            }
-            theia.window.showInformationMessage(`Key ${keyName} successfully deleted`);
-        })
-        .catch(error => {
-            theia.window.showErrorMessage(error);
-        });
+
+    try {
+        await sshkeyManager.delete('vcs', keyName);
+        const keyFile = getKeyFilePath(keyName);
+        if (await pathExists(keyFile)) {
+            await unlink(keyFile);
+            await updateConfig(keyName);
+        }
+        theia.window.showInformationMessage(`Key ${keyName} successfully deleted`);
+    } catch (error) {
+        theia.window.showErrorMessage(error);
+    }
 };
 
-const viewPublicKey = async function (sshkeyManager: SshKeyManager): Promise<void> {
+const viewPublicKey = async (sshkeyManager: SshKeyManager) => {
     const keys: cheApi.ssh.SshPair[] = await sshkeyManager.getAll('vcs');
     const keyResp = await theia.window.showQuickPick<theia.QuickPickItem>(keys.map(key =>
         ({ label: key.name ? key.name : '' })), {});
     const keyName = keyResp ? keyResp.label : '';
-    await sshkeyManager
-        .get('vcs', keyName)
-        .then(async key => {
-            const document = await theia.workspace.openTextDocument({ content: key.publicKey });
-            theia.window.showTextDocument(document);
-        })
-        .catch(error => {
-            theia.window.showErrorMessage(error);
-        });
+    try {
+        const key = await sshkeyManager.get('vcs', keyName);
+        const document = await theia.workspace.openTextDocument({ content: key.publicKey });
+        theia.window.showTextDocument(document);
+    } catch (error) {
+        theia.window.showErrorMessage(error);
+    }
 };
 
 export function stop() {
