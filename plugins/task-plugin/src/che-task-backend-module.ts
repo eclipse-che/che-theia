@@ -24,7 +24,12 @@ import { PreviewUrlOpenService } from './preview/preview-url-open-service';
 import { CheWorkspaceClient } from './che-workspace-client';
 import { LaunchConfigurationsExporter } from './export/launch-configs-exporter';
 import { TaskConfigurationsExporter } from './export/task-configs-exporter';
-import { ConfigurationsExporter, ExportConfigurationsManager } from './export/export-configs-manager';
+import { ExportConfigurationsManager, ConfigurationsExporter } from './export/export-configs-manager';
+import { CheTaskConfigsExtractor } from './extract/che-task-configs-extractor';
+import { ConfigFileLaunchConfigsExtractor } from './extract/config-file-launch-configs-extractor';
+import { ConfigFileTasksExtractor } from './extract/config-file-task-configs-extractor';
+import { VsCodeLaunchConfigsExtractor } from './extract/vscode-launch-configs-extractor';
+import { VsCodeTaskConfigsExtractor } from './extract/vscode-task-configs-extractor';
 
 const container = new Container();
 container.bind(CheTaskProvider).toSelf().inSingletonScope();
@@ -42,6 +47,11 @@ container.bind(PreviewUrlOpenService).toSelf().inSingletonScope();
 container.bind<ConfigurationsExporter>(ConfigurationsExporter).to(TaskConfigurationsExporter).inSingletonScope();
 container.bind<ConfigurationsExporter>(ConfigurationsExporter).to(LaunchConfigurationsExporter).inSingletonScope();
 container.bind(ExportConfigurationsManager).toSelf().inSingletonScope();
+container.bind(CheTaskConfigsExtractor).toSelf().inSingletonScope();
+container.bind(ConfigFileTasksExtractor).toSelf().inSingletonScope();
+container.bind(ConfigFileLaunchConfigsExtractor).toSelf().inSingletonScope();
+container.bind(VsCodeLaunchConfigsExtractor).toSelf().inSingletonScope();
+container.bind(VsCodeTaskConfigsExtractor).toSelf().inSingletonScope();
 
 container.bind(PreviewUrlsWidget).toSelf().inTransientScope();
 container.bind(PreviewUrlsWidgetFactory).toDynamicValue(ctx => ({
