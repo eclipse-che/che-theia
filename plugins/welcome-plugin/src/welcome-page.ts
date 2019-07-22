@@ -16,7 +16,7 @@ import * as path from 'path';
  */
 export class WelcomePage {
     static readonly ECLIPSE_CHE = 'Eclipse Che';
-    static readonly ECLIPSE_CHE_SUBTITLE = 'Welcome To Your Cloud Developer Workspace ';
+    static readonly ECLIPSE_CHE_SUBTITLE = 'Welcome To Your Cloud Developer Workspace pr - check';
 
     static readonly DOCUMENTATION = 'https://www.eclipse.org/che/docs/che-7';
     static readonly MATTERMOST = 'https://mattermost.eclipse.org/eclipse/channels/eclipse-che';
