@@ -11,7 +11,7 @@
 import { ContainerModule, Container, interfaces } from 'inversify';
 import { WidgetFactory, WebSocketConnectionProvider, KeybindingContext, QuickOpenContribution } from '@theia/core/lib/browser';
 import { TerminalQuickOpenService } from './contribution/terminal-quick-open';
-import { RemoteTerminalWidgetOptions, REMOTE_TERMINAL_WIDGET_FACTORY_ID } from './terminal-widget/remote-terminal-widget';
+import { RemoteTerminalWidgetOptions, REMOTE_TERMINAL_WIDGET_FACTORY_ID, REMOTE_TERMINAL_TARGET_SCOPE } from './terminal-widget/remote-terminal-widget';
 import { RemoteWebSocketConnectionProvider } from './server-definition/remote-connection';
 import { TerminalProxyCreator, TerminalProxyCreatorProvider, TerminalApiEndPointProvider } from './server-definition/terminal-proxy-creator';
 
@@ -27,6 +27,7 @@ import { RemoteTerminaActiveKeybingContext } from './contribution/keybinding-con
 import { RemoteTerminalServerProxy, RemoteTerminalServer, RemoteTerminalWatcher } from './server-definition/remote-terminal-protocol';
 import URI from '@theia/core/lib/common/uri';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
+import { TerminalWidgetImpl } from '@theia/terminal/lib/browser/terminal-widget-impl';
 
 export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Unbind, isBound: interfaces.IsBound, rebind: interfaces.Rebind) => {
     // bind this contstant to prevent circle dependency
@@ -69,7 +70,7 @@ export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Un
             child.bind(RemoteTerminalWidgetOptions).toConstantValue(widgetOptions);
             child.bind('terminal-dom-id').toConstantValue(domId);
 
-            return child.get(RemoteTerminalWidget);
+            return child.getNamed(TerminalWidget, REMOTE_TERMINAL_TARGET_SCOPE);
         }
     }));
 
@@ -85,7 +86,9 @@ export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Un
             try {
                 const server = await workspaceService.findTerminalServer();
                 if (server) {
-                    bind(TerminalWidget).to(RemoteTerminalWidget).inTransientScope();
+                    rebind(TerminalWidget).to(TerminalWidgetImpl).inTransientScope().whenTargetIsDefault();
+                    bind(TerminalWidget).to(RemoteTerminalWidget).inTransientScope().whenTargetNamed(REMOTE_TERMINAL_TARGET_SCOPE);
+
                     rebind(TerminalService).toService(ExecTerminalFrontendContribution);
 
                     const token = await envServer.getValue('CHE_MACHINE_TOKEN');

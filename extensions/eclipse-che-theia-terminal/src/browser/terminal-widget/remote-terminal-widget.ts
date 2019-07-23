@@ -20,6 +20,7 @@ import { TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal
 import URI from '@theia/core/lib/common/uri';
 
 const ReconnectingWebSocket = require('reconnecting-websocket');
+export const REMOTE_TERMINAL_TARGET_SCOPE = 'remote-terminal';
 export const REMOTE_TERMINAL_WIDGET_FACTORY_ID = 'remote-terminal';
 export const RemoteTerminalWidgetOptions = Symbol('RemoteTerminalWidgetOptions');
 export interface RemoteTerminalWidgetOptions extends Partial<TerminalWidgetOptions> {
