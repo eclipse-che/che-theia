@@ -21,10 +21,11 @@ export function toTaskConfiguration(command: cheApi.workspace.Command): TaskConf
         command: command.commandLine,
         target: {
             workingDir: this.getCommandAttribute(command, WORKING_DIR_ATTRIBUTE),
-            machineName: this.getCommandAttribute(command, MACHINE_NAME_ATTRIBUTE)
+            containerName: this.getCommandAttribute(command, MACHINE_NAME_ATTRIBUTE)
         },
         previewUrl: this.getCommandAttribute(command, PREVIEW_URL_ATTRIBUTE)
     };
+
     return taskConfig;
 }
 
@@ -36,7 +37,7 @@ export function toTask(command: cheApi.workspace.Command): Task {
             command: command.commandLine,
             target: {
                 workingDir: this.getCommandAttribute(command, WORKING_DIR_ATTRIBUTE),
-                machineName: this.getCommandAttribute(command, MACHINE_NAME_ATTRIBUTE)
+                containerName: this.getCommandAttribute(command, MACHINE_NAME_ATTRIBUTE)
             },
             previewUrl: this.getCommandAttribute(command, PREVIEW_URL_ATTRIBUTE)
         },
