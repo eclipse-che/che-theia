@@ -62,6 +62,7 @@ In Che-Theia, you’ll find the following capabilities:
 - [dockerfiles](./dockerfiles) contains Dockerfiles for plugin sidecars, theia-editor and theia builder,
 - [extensions](./extensions) contains Che-Theia specific extensions,
 - [plugins](./plugins) contains Che-Theia plugins.
+- [generator](./generator) contains Che-Theia [generator](./generator/README.md)
 
 Che-theia editor is a container image which contains the Che-theia IDE web application.
 
