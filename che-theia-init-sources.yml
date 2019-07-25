@@ -10,6 +10,7 @@ sources:
     - extensions/eclipse-che-theia-dashboard
     - extensions/eclipse-che-theia-activity-tracker
     - extensions/eclipse-che-theia-about
+    - extensions/eclipse-che-theia-workspace
     - extensions/eclipse-che-theia-preferences-provider-extension
   plugins:
     - plugins/containers-plugin
