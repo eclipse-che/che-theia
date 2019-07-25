@@ -66,10 +66,10 @@ You are very welcome to join our community chat [here](https://mattermost.eclips
 
 ## Project structure
 
-- [che-plugins](./che-plugins) contains Eclipse Che plugins definition
-- [dockerfiles](./dockerfiles) contains Dockerfiles
-- [extensions](./extensions) contains Theia Extensions
-- [plugins](./plugins) contains Theia Plugins
+- [dockerfiles](./dockerfiles) contains Dockerfiles for plugin sidecars, theia-editor and theia builder,
+- [extensions](./extensions) contains Che-Theia specific extensions,
+- [plugins](./plugins) contains Che-Theia plugins.
+- [generator](./generator) contains Che-Theia [generator](./generator/README.md)
 
 # Contributing
 ## How to build
