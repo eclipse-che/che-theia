@@ -10,7 +10,7 @@
 
 import { injectable, inject } from 'inversify';
 import * as che from '@eclipse-che/plugin';
-import { Task } from '@theia/plugin';
+import { Task, ShellExecution } from '@theia/plugin';
 import { CHE_TASK_TYPE, CheTaskDefinition, Target } from './task-protocol';
 import { MachinesPicker } from '../machine/machines-picker';
 import { CheWorkspaceClient } from '../che-workspace-client';
@@ -55,17 +55,20 @@ export class CheTaskProvider {
             resultTarget.workingDir = target.workingDir;
         }
 
-        const command = await che.variables.resolve(cheTaskDefinition.command);
+        const execution = task.execution as ShellExecution;
+        if (execution && execution.command) {
+            execution.command = await che.variables.resolve(execution.command as string);
+        }
+
         return {
             definition: {
                 type: taskType,
-                command: command,
                 target: resultTarget,
                 previewUrl: cheTaskDefinition.previewUrl
             },
             name: task.name,
             source: task.source,
-            execution: task.execution
+            execution: execution
         };
     }
 }
