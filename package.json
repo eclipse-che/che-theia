@@ -20,7 +20,8 @@
   "workspaces": {
     "packages": [
       "extensions/*",
-      "plugins/*"
+      "plugins/*",
+      "generator"
     ]
   }
 }

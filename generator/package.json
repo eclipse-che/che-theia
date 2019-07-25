@@ -1,0 +1,85 @@
+{
+  "name": "@eclipse-che/theia-generator",
+  "version": "0.0.1",
+  "description": "Eclipse Che - Theia tooling",
+  "author": "Florent Benoit",
+  "license": "EPL-2.0",
+  "bin": {
+    "che:theia": "./dist/index.js"
+  },
+  "dependencies": {
+    "fs-extra": "7.0.1",
+    "glob": "7.1.3",
+    "glob-promise": "3.4.0",
+    "mustache": "3.0.1",
+    "js-yaml": "3.12.0",
+    "read-pkg": "3.0.0",
+    "yargs": "12.0.5",
+    "webpack": "^4.0.0",
+    "html-webpack-plugin": "^3.2.0",
+    "axios": "0.18.0",
+    "tmp": "^0.0.33"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "5.0.4",
+    "@types/jest": "23.3.9",
+    "@types/js-yaml": "3.11.2",
+    "@types/mustache": "0.8.32",
+    "@types/node": "10.12.10",
+    "@types/read-pkg": "3.0.0",
+    "@types/tmp": "^0.0.33",
+    "@types/webpack": "^4.0.0",
+    "@types/yargs": "12.0.1",
+    "jest": "23.6.0",
+    "json2yaml": "^1.1.0",
+    "nexe": "^2.0.0-rc.34",
+    "rimraf": "2.6.2",
+    "ts-jest": "23.10.5",
+    "tslint": "5.11.0",
+    "typescript": "3.1.6",
+    "typescript-formatter": "7.2.2"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf dist",
+    "build": "yarn run compile && yarn run format-code && yarn run tslint-fix && yarn run test",
+    "compile": "tsc && chmod +x dist/index.js",
+    "watch": "tsc -w",
+    "test": "jest",
+    "test-watch": "jest --watchAll",
+    "format-code": "tsfmt -r",
+    "tslint-fix": "tslint --fix --project .",
+    "tslint": "tslint --project .",
+    "exe": "yarn run exe:alpine && yarn run exe:mac && yarn run exe:linux",
+    "exe:alpine": "rimraf exe/alpine/ && mkdir -p exe/alpine && nexe dist/yargs.js -t alpine-x64-8.12.0 -o exe/alpine/che-theia",
+    "exe:mac": "rimraf exe/macOS/ && mkdir -p exe/macOS && nexe dist/yargs.js -t mac-x64-8.12.0 -o exe/macOS/che-theia",
+    "exe:linux": "rimraf exe/linux/ && mkdir -p exe/linux && nexe dist/yargs.js -t linux-x64-8.12.0 -o exe/linux/che-theia",
+    "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "!src/yargs.ts",
+      "src/**/*.ts"
+    ],
+    "coverageDirectory": "./coverage",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "modulePathIgnorePatterns": [
+      "<rootDir>/dist"
+    ],
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json"
+    ]
+  }
+}
