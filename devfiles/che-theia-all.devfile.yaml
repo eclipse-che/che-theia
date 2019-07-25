@@ -35,7 +35,7 @@ components:
         attributes:
           protocol: http
           public: 'true'
-    memoryLimit: "2Gi"
+    memoryLimit: "3Gi"
 
   - id: redhat/vscode-yaml/latest
     type: chePlugin
@@ -47,6 +47,7 @@ components:
   - type: cheEditor
     alias: theia-editor
     id: eclipse/che-theia/7.0.0-rc-3.0
+    memoryLimit: "1Gi"
 commands:
 
   - name: init ... DEV che-theia
