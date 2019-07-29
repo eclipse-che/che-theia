@@ -284,9 +284,7 @@ export class ChePluginManager {
 
             try {
                 await this.cheApiService.stop();
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
+                window.location.href = document.referrer;
             } catch (error) {
                 this.messageService.error(`Unable to restart your workspace. ${error.message}`);
             }
