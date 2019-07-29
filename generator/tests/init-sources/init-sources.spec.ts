@@ -65,6 +65,8 @@ describe("Test Extensions", () => {
 
     function initGit(path: string) {
         cp.execSync('git init', { cwd: path });
+        cp.execSync('git config --local user.name "test user"', { cwd: path });
+        cp.execSync('git config --local user.email user@example.com', { cwd: path });
         cp.execSync(`git add ${path}`, { cwd: path });
         cp.execSync(`git commit -m "Init repo"`, { cwd: path });
 
