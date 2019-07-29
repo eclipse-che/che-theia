@@ -62,6 +62,7 @@ In Che-Theia, you’ll find the following capabilities:
 - [dockerfiles](./dockerfiles) contains Dockerfiles for plugin sidecars, theia-editor and theia builder,
 - [extensions](./extensions) contains Che-Theia specific extensions,
 - [plugins](./plugins) contains Che-Theia plugins.
+- [generator](./generator) contains Che-Theia [generator](./generator/README.md)
 
 Che-theia editor is a container image which contains the Che-theia IDE web application.
 
@@ -83,34 +84,10 @@ Contributing to che-theia section is cover in [CONTRIBUTING.md](https://github.c
 
 ## Build container images
 
-### How to build all the container images
+Building images is required only if you make some changes on `Dockerfile`s inside `dockerfiles` folder.
+If it is about testing che-theia extensions or plugins, please refere to [CONTRIBUTING.md](https://github.com/eclipse/che-theia/blob/master/CONTRIBUTING.md).
 
-If you want to build all images run `build.sh` script.
-
-CI for PR job in this repository will use `build.sh --pr`.
-> Note: `--pr` will build only limited set of docker images, see [PR_IMAGES variable](./docker_image_build.include)
-
-If you want to publish docker images use `build.sh --push`
-
-### How to build own che-theia image with Docker
-
-First you need to build `che-theia-dev` image:
-
-Run in `dockerfiles/theia-dev` dir:
-
-```bash
-    ./build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:next
-```
-
-Then in `dockerfiles/theia` run:
-
-```bash
-./build.sh --build-args:${GITHUB_TOKEN_ARG},THEIA_VERSION=master --tag:next --branch:master --git-ref:refs\\/heads\\/master
-```
-
-Where `${GITHUB_TOKEN_ARG}` is your GitHub API token, it's used for fetching some vscode library that placed on GitHub releases, without that token build may fail.
-
-That script will clone Theia from master branch and all Che related extensions from theirs master branches.
+To build che-theia docker images, please follow [dockerfiles/theia/README.md](https://github.com/eclipse/che-theia/blob/README-docker-image/dockerfiles/theia/README.md) instructions.
 
 
 # License

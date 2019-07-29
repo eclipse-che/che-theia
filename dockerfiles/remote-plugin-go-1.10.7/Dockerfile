@@ -42,7 +42,7 @@ RUN set -eux; \
 		/usr/local/go/pkg/obj \
 	; \
     export GOPATH="/go"; \
-    mkdir -p "$GOPATH/src" "$GOPATH/bin" "$GOPATH/pkg" && chmod -R 777 "$GOPATH"; \
+    mkdir -p "$GOPATH/src" "$GOPATH/bin" "$GOPATH/pkg"; \
     export PATH="$GOPATH/bin:/usr/local/go/bin:$PATH"; \
     go get -u -v github.com/ramya-rao-a/go-outline && \
     go get -u -v github.com/acroca/go-symbols &&  \
@@ -63,7 +63,8 @@ RUN set -eux; \
     go get -u -v github.com/davidrjenni/reftools/cmd/fillstruct && \
     go get -u -v github.com/alecthomas/gometalinter && \
     go get -u -v github.com/go-delve/delve/cmd/dlv && \
-    gometalinter --install \
+    gometalinter --install && \
+	chmod -R 777 "$GOPATH" \
     ; \
 	apk del .build-deps \
     ; \

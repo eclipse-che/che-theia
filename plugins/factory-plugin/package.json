@@ -1,5 +1,6 @@
 {
     "name": "@eclipse-che/theia-factory-plugin",
+    "publisher": "Eclipse Che",
     "keywords": [
         "theia-plugin"
     ],

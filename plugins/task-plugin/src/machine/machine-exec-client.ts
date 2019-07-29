@@ -68,7 +68,13 @@ export class MachineExecClient {
             throw new Error('URL for machine-exec server is not found in the current workspace.');
         }
 
-        const execServerUrl = applySegmentsToUri(machineExecServerEndpoint, CONNECT_TERMINAL_SEGMENT);
+        let execServerUrl = applySegmentsToUri(machineExecServerEndpoint, CONNECT_TERMINAL_SEGMENT);
+
+        const machineToken = process.env['CHE_MACHINE_TOKEN'];
+        if (machineToken) {
+            execServerUrl = `${execServerUrl}?token=${machineToken}`;
+        }
+
         this.connection = await createConnection(execServerUrl);
 
         this.machineExecWatcher.init(this.connection);
