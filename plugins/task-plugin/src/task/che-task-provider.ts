@@ -52,7 +52,7 @@ export class CheTaskProvider {
         }
 
         if (target && target.workingDir) {
-            resultTarget.workingDir = target.workingDir;
+            resultTarget.workingDir = await che.variables.resolve(target.workingDir);
         }
 
         const execution = task.execution as ShellExecution;
