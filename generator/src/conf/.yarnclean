@@ -59,7 +59,7 @@ testData
 
 # code coverage directories
 coverage
-.nyc_output
+!/.nyc_output
 
 # asset directories
 docs
@@ -67,10 +67,11 @@ doc
 
 # locks
 package-lock.json
-.yarn-integrity
+!/.yarn-integrity
+yarn.lock
 
 # configs
-.travis.yml
+!/.travis.yml
 tsconfig.json
 
 # all types
