@@ -13,6 +13,7 @@ import * as theia from '@theia/plugin';
 import { che as cheApi } from '@eclipse-che/api';
 import * as fileuri from './file-uri';
 import * as git from './git';
+import * as fs from 'fs';
 
 const CHE_TASK_TYPE = 'che';
 
@@ -68,7 +69,7 @@ export class TheiaCloneCommand {
         this.projectsRoot = projectsRoot;
     }
 
-    execute(): PromiseLike<void> {
+    clone(): PromiseLike<void> {
         if (!this.locationURI) {
             return new Promise(() => { });
         }
@@ -109,10 +110,31 @@ export class TheiaCloneCommand {
             }
         };
 
-        return theia.window.withProgress({
-            location: theia.ProgressLocation.Notification,
-            title: `Cloning ${this.locationURI} ...`
-        }, (progress, token) => clone(progress, token));
+        if (!fs.existsSync(this.folder)) {
+            return theia.window.withProgress({
+                location: theia.ProgressLocation.Notification,
+                title: `Cloning ${this.locationURI} ...`
+            }, (progress, token) => clone(progress, token));
+        }
+        return Promise.resolve();
+    }
+
+    updateWorkpace(): PromiseLike<void> {
+        if (!this.isInTheiaWorkspace()) {
+            return theia.commands.executeCommand('che.workspace.addFolder', theia.Uri.file(this.folder)).then(() => { });
+        }
+        return Promise.resolve();
+    }
+
+    private isInTheiaWorkspace(): boolean {
+        for (let i = 0; i < theia.workspace.workspaceFolders.length; i++) {
+            const wsFolder = theia.workspace.workspaceFolders[i];
+
+            if (wsFolder && fs.realpathSync(wsFolder.uri.fsPath) === fs.realpathSync(this.folder)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

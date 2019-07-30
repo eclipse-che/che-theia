@@ -92,9 +92,15 @@ export class FactoryInitializer {
             return;
         }
 
+        let workspaceUpdate = Promise.resolve();
         await Promise.all(
-            cloneCommands.map(command => command.execute())
+            cloneCommands.map(cloneCommand => {
+                cloneCommand.clone().then(() => {
+                    workspaceUpdate = workspaceUpdate.then(() => cloneCommand.updateWorkpace());
+                });
+            })
         );
+        await workspaceUpdate;
 
         theia.window.showInformationMessage('Che Factory: Finished cloning projects.');
     }

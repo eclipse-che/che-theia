@@ -8,8 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import * as path from 'path';
-import * as fs from 'fs';
 import { TheiaCloneCommand } from './theia-commands';
 import * as git from './git';
 import * as projectsHelper from './projects';
@@ -41,11 +39,6 @@ abstract class WorkspaceProjectsManager {
     abstract deleteProject(workspace: cheApi.workspace.Workspace, projectFolderURI: string): void;
 
     async run(workspace?: cheApi.workspace.Workspace) {
-        if (!theia.workspace.name) {
-            // no workspace opened, so nothing to clone / watch
-            return;
-        }
-
         if (!workspace) {
             workspace = await che.workspace.getCurrentWorkspace();
         }
@@ -61,9 +54,15 @@ abstract class WorkspaceProjectsManager {
         }
 
         theia.window.showInformationMessage('Che Workspace: Starting cloning projects.');
+        let workspaceUpdate = Promise.resolve();
         await Promise.all(
-            cloneCommandList.map(cloneCommand => cloneCommand.execute())
+            cloneCommandList.map(cloneCommand => {
+                cloneCommand.clone().then(() => {
+                    workspaceUpdate = workspaceUpdate.then(() => cloneCommand.updateWorkpace());
+                });
+            })
         );
+        await workspaceUpdate;
         theia.window.showInformationMessage('Che Workspace: Finished cloning projects.');
     }
 
@@ -126,10 +125,6 @@ export class DevfileProjectsManager extends WorkspaceProjectsManager {
         }
 
         return projects
-            .filter(project => {
-                const projectPath = project.clonePath ? path.join(instance.projectsRoot, project.clonePath) : path.join(instance.projectsRoot, project.name);
-                return !fs.existsSync(projectPath);
-            })
             .map(project => new TheiaCloneCommand(project, instance.projectsRoot));
     }
 
@@ -170,7 +165,6 @@ export class WorkspaceConfigProjectsManager extends WorkspaceProjectsManager {
         }
 
         return projects
-            .filter(project => !fs.existsSync(instance.projectsRoot + project.path))
             .map(project => new TheiaCloneCommand(project, instance.projectsRoot));
     }
 
