@@ -20,8 +20,8 @@ fi
 #in mac os 'cp' cannot create destination dir, so create it first
 mkdir ${LOCAL_ASSEMBLY_DIR}
 
-echo "Copying ${base_dir}/../../che-theia-init-sources.yml --> ${LOCAL_ASSEMBLY_DIR}/che-theia-init-sources.yml"
-cp "${base_dir}/../../che-theia-init-sources.yml" "${LOCAL_ASSEMBLY_DIR}/"
+echo "Compresing 'che-theia' --> ${LOCAL_ASSEMBLY_DIR}/che-theia.tar.gz"
+git ls-files -z -c -o --exclude-standard | xargs -0 tar rvf ${LOCAL_ASSEMBLY_DIR}/che-theia.tar.gz
 
 init --name:theia "$@"
 
