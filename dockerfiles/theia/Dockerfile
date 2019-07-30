@@ -64,7 +64,6 @@ ARG CDN_PREFIX=""
 ARG MONACO_CDN_PREFIX=""
 WORKDIR ${HOME}/theia-source-code
 
-#COPY che-theia/che-theia-init-sources.yml ${HOME}/che-theia-init-sources.yml
 COPY che-theia/che-theia.tar.gz ${HOME}/che-theia.tar.gz
 RUN mkdir ${HOME}/theia-source-code/che-theia && tar -xf ${HOME}/che-theia.tar.gz -C ${HOME}/theia-source-code/che-theia
 

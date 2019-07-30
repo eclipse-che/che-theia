@@ -21,12 +21,12 @@ fi
 #in mac os 'cp' cannot create destination dir, so create it first
 mkdir ${LOCAL_ASSEMBLY_DIR}
 
-FILE="${base_dir}"/../../generator/eclipse-che-theia-generator-v0.0.1.tgz
+FILE="${base_dir}"/../../generator/eclipse-che-theia-generator.tgz
 if [ -f "$FILE" ]; then
     cp "${FILE}" "${LOCAL_ASSEMBLY_DIR}"
 else 
     echo "$FILE does not exist, trying to generate..."
-    cd "${base_dir}"/../../generator/ && yarn prepare && yarn pack
+    cd "${base_dir}"/../../generator/ && yarn prepare && yarn pack --filename eclipse-che-theia-generator.tgz
     cp "${FILE}" "${LOCAL_ASSEMBLY_DIR}"
 fi
 
