@@ -10,7 +10,7 @@
 base_dir=$(cd "$(dirname "$0")"; pwd)
 current_dir=$(pwd)
 if [ -z "${AKAMAI_CHE_AUTH:-}" ]; then
-  echo "CDN files will not be pushed to the Akamai directory since the 'AKAMAI_CHE_AUTH' environent variable is not set"
+  echo "CDN files will not be pushed to the Akamai directory since the 'AKAMAI_CHE_AUTH' environment variable is not set"
   exit 0
 fi
 
