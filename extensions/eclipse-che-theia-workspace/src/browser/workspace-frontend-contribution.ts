@@ -19,14 +19,16 @@ import { CommandContribution, CommandRegistry, MenuContribution, MenuModelRegist
 import {
     CommonMenus, LabelProvider, KeybindingRegistry, KeybindingContribution
 } from '@theia/core/lib/browser';
-import { WorkspaceCommands } from '@theia/workspace/lib/browser';
+import { WorkspaceCommands, WorkspaceService } from '@theia/workspace/lib/browser';
 import { ContextKeyService } from '@theia/core/lib/browser/context-key-service';
+import URI from '@theia/core/lib/common/uri';
 
 @injectable()
 export class WorkspaceFrontendContribution implements CommandContribution, KeybindingContribution, MenuContribution {
 
     @inject(LabelProvider) protected readonly labelProvider: LabelProvider;
     @inject(CommandRegistry) protected readonly commandRegistry: CommandRegistry;
+    @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService;
 
     @inject(ContextKeyService)
     protected readonly contextKeyService: ContextKeyService;
@@ -42,6 +44,12 @@ export class WorkspaceFrontendContribution implements CommandContribution, Keybi
         commands.unregisterCommand(WorkspaceCommands.CLOSE);
         commands.unregisterCommand(WorkspaceCommands.OPEN_RECENT_WORKSPACE);
         commands.unregisterCommand(WorkspaceCommands.SAVE_WORKSPACE_AS);
+
+        commands.registerCommand({
+            id: 'che.workspace.addFolder'
+        }, {
+                execute: async (uri: URI) => await this.workspaceService.addRoot(uri)
+            });
     }
 
     registerMenus(menus: MenuModelRegistry): void {
