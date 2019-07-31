@@ -64,9 +64,10 @@ ARG CDN_PREFIX=""
 ARG MONACO_CDN_PREFIX=""
 WORKDIR ${HOME}/theia-source-code
 
-COPY che-theia/che-theia.tar.gz ${HOME}/che-theia.tar.gz
-RUN mkdir ${HOME}/theia-source-code/che-theia && tar -xf ${HOME}/che-theia.tar.gz -C ${HOME}/theia-source-code/che-theia
+#add che-theia repository content
+ADD che-theia/che-theia.tar.gz ${HOME}/theia-source-code/che-theia
 
+# run che:theia init command and alias che-theia repository to use local sources insted of cloning
 RUN che:theia init -c ${HOME}/theia-source-code/che-theia/che-theia-init-sources.yml --alias https://github.com/eclipse/che-theia=${HOME}/theia-source-code/che-theia
 
 RUN che:theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"

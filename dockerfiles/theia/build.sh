@@ -21,7 +21,7 @@ fi
 mkdir ${LOCAL_ASSEMBLY_DIR}
 
 echo "Compresing 'che-theia' --> ${LOCAL_ASSEMBLY_DIR}/che-theia.tar.gz"
-git ls-files -z -c -o --exclude-standard | xargs -0 tar rvf ${LOCAL_ASSEMBLY_DIR}/che-theia.tar.gz
+cd "${DIR}"/../.. && git ls-files -z -c -o --exclude-standard | xargs -0 tar rvf ${LOCAL_ASSEMBLY_DIR}/che-theia.tar.gz
 
 init --name:theia "$@"
 
