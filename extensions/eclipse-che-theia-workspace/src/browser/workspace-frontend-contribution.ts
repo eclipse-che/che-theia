@@ -48,7 +48,7 @@ export class WorkspaceFrontendContribution implements CommandContribution, Keybi
         commands.registerCommand({
             id: 'che.workspace.addFolder'
         }, {
-                execute: async (uri: URI) => await this.workspaceService.addRoot(uri)
+                execute: async (uris: URI[]) => await this.workspaceService.spliceRoots(0, 0, ...uris)
             });
     }
 
