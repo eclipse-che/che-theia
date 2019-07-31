@@ -37,8 +37,6 @@ export class WorkspaceFrontendContribution implements CommandContribution, Keybi
         // Not visible/enabled on Windows/Linux in electron.
         commands.unregisterCommand(WorkspaceCommands.OPEN);
         // Visible/enabled only on Windows/Linux in electron.
-        commands.unregisterCommand(WorkspaceCommands.OPEN_FILE);
-        // Visible/enabled only on Windows/Linux in electron.
         commands.unregisterCommand(WorkspaceCommands.OPEN_FOLDER);
         commands.unregisterCommand(WorkspaceCommands.OPEN_RECENT_WORKSPACE);
         commands.unregisterCommand(WorkspaceCommands.CLOSE);
@@ -57,9 +55,6 @@ export class WorkspaceFrontendContribution implements CommandContribution, Keybi
             commandId: WorkspaceCommands.OPEN.id,
         }, CommonMenus.FILE_OPEN);
         menus.unregisterMenuAction({
-            commandId: WorkspaceCommands.OPEN_FILE.id,
-        }, CommonMenus.FILE_OPEN);
-        menus.unregisterMenuAction({
             commandId: WorkspaceCommands.OPEN_FOLDER.id
         });
         menus.unregisterMenuAction({
@@ -73,6 +68,11 @@ export class WorkspaceFrontendContribution implements CommandContribution, Keybi
         });
         menus.unregisterMenuAction({
             commandId: WorkspaceCommands.CLOSE.id
+        });
+        menus.registerMenuAction(CommonMenus.FILE_OPEN, {
+            commandId: WorkspaceCommands.OPEN_FILE.id,
+            label: `${WorkspaceCommands.OPEN_FILE.dialogLabel}...`,
+            order: 'a01'
         });
     }
 
