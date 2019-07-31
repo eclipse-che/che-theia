@@ -32,7 +32,7 @@ function isDevfileProjectConfig(project: cheApi.workspace.ProjectConfig | cheApi
 export class TheiaCloneCommand {
 
     private locationURI: string | undefined;
-    private folder: string;
+    private _folder: string;
     private checkoutBranch?: string | undefined;
     private checkoutTag?: string | undefined;
     private checkoutStartPoint?: string | undefined;
@@ -47,7 +47,7 @@ export class TheiaCloneCommand {
             }
 
             this.locationURI = source.location;
-            this.folder = project.clonePath ? path.join(projectsRoot, project.clonePath) : path.join(projectsRoot, project.name);
+            this._folder = project.clonePath ? path.join(projectsRoot, project.clonePath) : path.join(projectsRoot, project.name);
             this.checkoutBranch = source.branch;
             this.checkoutStartPoint = source.startPoint;
             this.checkoutTag = source.tag;
@@ -60,7 +60,7 @@ export class TheiaCloneCommand {
             const parameters = project.source.parameters;
 
             this.locationURI = project.source.location;
-            this.folder = projectsRoot + project.path;
+            this._folder = projectsRoot + project.path;
             this.checkoutBranch = parameters['branch'];
             this.checkoutStartPoint = parameters['startPoint'];
             this.checkoutTag = project.source.parameters['tag'];
@@ -75,7 +75,7 @@ export class TheiaCloneCommand {
         }
 
         const clone = async (progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken): Promise<void> => {
-            const args: string[] = ['clone', this.locationURI, this.folder];
+            const args: string[] = ['clone', this.locationURI, this._folder];
             if (this.checkoutBranch) {
                 args.push('--branch');
                 args.push(this.checkoutBranch);
@@ -91,15 +91,15 @@ export class TheiaCloneCommand {
                     : (this.checkoutTag ? this.checkoutTag : this.checkoutCommitId);
 
                 const branch = this.checkoutBranch ? this.checkoutBranch : 'default branch';
-                const messageStart = `Project ${this.locationURI} cloned to ${this.folder} and checked out ${branch}`;
+                const messageStart = `Project ${this.locationURI} cloned to ${this._folder} and checked out ${branch}`;
 
                 if (treeish) {
-                    git.execGit(this.folder, 'reset', '--hard', treeish)
+                    git.execGit(this._folder, 'reset', '--hard', treeish)
                         .then(_ => {
                             theia.window.showInformationMessage(`${messageStart} which has been reset to ${treeish}.`);
                         }, e => {
                             theia.window.showErrorMessage(`${messageStart} but resetting to ${treeish} failed with ${e.message}.`);
-                            console.log(`Couldn't reset to ${treeish} of ${this.folder} cloned from ${this.locationURI} and checked out to ${branch}.`, e);
+                            console.log(`Couldn't reset to ${treeish} of ${this._folder} cloned from ${this.locationURI} and checked out to ${branch}.`, e);
                         });
                 } else {
                     theia.window.showInformationMessage(`${messageStart}.`);
@@ -110,7 +110,7 @@ export class TheiaCloneCommand {
             }
         };
 
-        if (!fs.existsSync(this.folder)) {
+        if (!fs.existsSync(this._folder)) {
             return theia.window.withProgress({
                 location: theia.ProgressLocation.Notification,
                 title: `Cloning ${this.locationURI} ...`
@@ -119,24 +119,20 @@ export class TheiaCloneCommand {
         return Promise.resolve();
     }
 
-    updateWorkpace(): PromiseLike<void> {
-        if (!this.isInTheiaWorkspace()) {
-            return theia.commands.executeCommand('che.workspace.addFolder', theia.Uri.file(this.folder)).then(() => { });
-        }
-        return Promise.resolve();
-    }
-
-    private isInTheiaWorkspace(): boolean {
+    isInTheiaWorkspace(): boolean {
         for (let i = 0; i < theia.workspace.workspaceFolders.length; i++) {
             const wsFolder = theia.workspace.workspaceFolders[i];
 
-            if (wsFolder && fs.realpathSync(wsFolder.uri.fsPath) === fs.realpathSync(this.folder)) {
+            if (wsFolder && fs.realpathSync(wsFolder.uri.fsPath) === fs.realpathSync(this._folder)) {
                 return true;
             }
         }
         return false;
     }
 
+    get folder(): string {
+        return this._folder;
+    }
 }
 
 export class TheiaCommand {

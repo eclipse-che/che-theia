@@ -54,15 +54,16 @@ abstract class WorkspaceProjectsManager {
         }
 
         theia.window.showInformationMessage('Che Workspace: Starting cloning projects.');
-        let workspaceUpdate = Promise.resolve();
+        const workspaceFolders: theia.Uri[] = [];
         await Promise.all(
             cloneCommandList.map(cloneCommand => {
-                cloneCommand.clone().then(() => {
-                    workspaceUpdate = workspaceUpdate.then(() => cloneCommand.updateWorkpace());
-                });
+                if (!cloneCommand.isInTheiaWorkspace()) {
+                    workspaceFolders.push(theia.Uri.file(cloneCommand.folder));
+                }
+                return cloneCommand.clone();
             })
         );
-        await workspaceUpdate;
+        await theia.commands.executeCommand('che.workspace.addFolder', workspaceFolders);
         theia.window.showInformationMessage('Che Workspace: Finished cloning projects.');
     }
 
