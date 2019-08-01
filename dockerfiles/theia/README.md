@@ -59,6 +59,8 @@ CI uses
 - `master` branch to build [`eclipse/che-theia:next`](https://ci.codenvycorp.com/job/che-theia-master-ci/)
 - the latest release `v7.0.0-rc-4.0` to build [`eclipse/che-theia:latest`](https://ci.codenvycorp.com/job/che-theia-latest-ci/)
 
+Image `eclipse/che-theia:7.0.0-next` is generated from `7.0.0` branch on each commit.
+
 ## Theia version
 
 **`${THEIA_VERSION}`**
