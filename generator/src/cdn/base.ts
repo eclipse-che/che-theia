@@ -62,62 +62,92 @@ export class CheCdnSupport {
 
     noCDN: boolean = false;
 
-    buildScripts(): void {
-        this.info.chunks.map((entry: CdnChunk) => this.url(entry.cdn, entry.chunk))
-            .forEach((url: string) => {
-                const script = document.createElement('script');
-                script.src = url;
-                script.async = true;
-                script.defer = true;
-                script.crossOrigin = 'anonymous';
-                script.charset = 'utf-8';
-                document!.head!.append(script);
-            });
+    async buildScripts(): Promise<void> {
+        const entries = await Promise.all(this.info.chunks.map((entry: CdnChunk) => this.url(entry.cdn, entry.chunk)));
+
+        entries.forEach((url: string) => {
+            const script = document.createElement('script');
+            script.src = url;
+            script.async = true;
+            script.defer = true;
+            script.crossOrigin = 'anonymous';
+            script.charset = 'utf-8';
+            document!.head!.append(script);
+        });
     }
-    buildScriptsWithoutCdn(): void {
+    buildScriptsWithoutCdn(): Promise<void> {
         this.noCDN = true;
-        this.buildScripts();
+        return this.buildScripts();
     }
-    url(withCDN: string | undefined, fallback: string): string {
-        let result = fallback;
-        if (!this.noCDN && withCDN) {
-            const request = new XMLHttpRequest();
-            request.onload = function() {
-                if (this.status >= 200 && this.status < 300 || this.status === 304) {
-                    result = withCDN;
-                }
-            };
-            request.open('HEAD', withCDN, false);
-            request.send();
+    url(withCDN: string | undefined, fallback: string): Promise<string> {
+        if (this.noCDN || !withCDN) {
+          return Promise.resolve(fallback);
         }
-        return result;
-    }
-    resourceUrl(path: string): string {
-        const cached = this.info.resources.find((entry) => entry.resource === path);
-        if (cached) {
-            return this.url(cached.cdn, cached.resource);
-        }
-        return path;
-    }
-    vsLoader(context: any): void {
-        const loaderURL = this.url(this.info.monaco.vsLoader.cdn, this.info.monaco.vsLoader.external);
+
         const request = new XMLHttpRequest();
-        request.open('GET', loaderURL, false);
-        request.send();
-        new Function(request.responseText).call(context);
-        if (this.info.monaco.vsLoader.cdn && loaderURL === this.info.monaco.vsLoader.cdn) {
-            const pathsWithCdns: any = {};
-            this.info.monaco.requirePaths
-                .forEach((path: CdnExternal) => {
-                    const jsFile = path.external + '.js';
-                    const jsCdnFile = path.cdn ? path.cdn + '.js' : undefined;
-                    if (this.url(jsCdnFile, jsFile) === jsCdnFile) {
-                        pathsWithCdns[path.external] = path.cdn;
-                    }
-                });
-            context.require.config({
-                paths: pathsWithCdns
-            });
+        request.open('HEAD', withCDN);
+
+        return new Promise(resolve => {
+            let timer = setTimeout(() => {
+               resolve(fallback);
+            }, 3000);
+            request.onload = () => {
+                  if (!timer) {
+                     return;
+                  }
+                  clearTimeout(timer);
+                  if (request.status >= 200 && request.status < 300 || request.status === 304) {
+                      resolve(withCDN);
+                  }
+                  resolve(fallback);
+            };
+            request.send();
+        });
+    }
+    async resourceUrl(path: string): Promise<string> {
+        const cached = this.info.resources.find((entry) => entry.resource === path);
+        if (!cached) {
+            return path;
         }
+
+        return this.url(cached.cdn, cached.resource);
+    }
+    async vsLoader(context: any): Promise<void> {
+        const loaderURL = await this.url(this.info.monaco.vsLoader.cdn, this.info.monaco.vsLoader.external);
+        const request = new XMLHttpRequest();
+
+        request.open('GET', loaderURL);
+
+        return new Promise(resolve => {
+            let timer = setTimeout(() => {
+                resolve();
+            }, 10000);
+            request.onload = () => {
+                if (!timer) {
+                    return;
+                }
+                clearTimeout(timer);
+                if (request.status === 200) {
+                    new Function(request.responseText).call(context);
+                    if (this.info.monaco.vsLoader.cdn && loaderURL === this.info.monaco.vsLoader.cdn) {
+                        const pathsWithCdns: any = {};
+                        this.info.monaco.requirePaths
+                            .forEach(async (path: CdnExternal) => {
+                                const jsFile = path.external + '.js';
+                                const jsCdnFile = path.cdn ? path.cdn + '.js' : undefined;
+                                const url = await this.url(jsCdnFile, jsFile);
+                                if (url === jsCdnFile) {
+                                    pathsWithCdns[path.external] = path.cdn;
+                                }
+                            });
+                        context.require.config({
+                            paths: pathsWithCdns
+                        });
+                    }
+                }
+                resolve();
+            };
+            request.send();
+        });
     }
 }
