@@ -57,7 +57,7 @@ Parameter `${THEIA_BRANCH}` is optional. If it's not specified, the default valu
 
 CI uses 
 - `master` branch to build [`eclipse/che-theia:next`](https://ci.codenvycorp.com/job/che-theia-master-ci/)
-- the last stable tag to build [`eclipse/che-theia:latest`](https://ci.codenvycorp.com/job/che-theia-latest-ci/)
+- the latest release `v7.0.0-rc-4.0` to build [`eclipse/che-theia:latest`](https://ci.codenvycorp.com/job/che-theia-latest-ci/)
 
 ## Theia version
 
