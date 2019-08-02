@@ -55,9 +55,9 @@ It specifies tag or branch for base Theia. Build script clones Theia sources, sw
 
 Parameter `${THEIA_BRANCH}` is optional. If it's not specified, the default value `'master'` will be used.
 
-CI uses 
-- [`master`](https://github.com/eclipse/che-theia) branch to build [`eclipse/che-theia:next`](https://ci.codenvycorp.com/job/che-theia-master-ci/)
-- the latest release [`v7.0.0-rc-4.0`](https://github.com/eclipse/che-theia/tree/v7.0.0-rc-4.0) to build [`eclipse/che-theia:latest`](https://ci.codenvycorp.com/job/che-theia-latest-ci/)
+To generate [docker images](https://hub.docker.com/r/eclipse/che-theia/tags) CI uses 
+- [`master`](https://github.com/eclipse/che-theia) for [`eclipse/che-theia:next`](https://ci.codenvycorp.com/job/che-theia-master-ci/)
+- the latest release [`v7.0.0-rc-4.0`](https://github.com/eclipse/che-theia/tree/v7.0.0-rc-4.0) for [`eclipse/che-theia:latest`](https://ci.codenvycorp.com/job/che-theia-latest-ci/)
 
 Image `eclipse/che-theia:7.0.0-next` is generated from [`7.0.0`](https://github.com/eclipse/che-theia/tree/7.0.0) branch on each commit.
 
