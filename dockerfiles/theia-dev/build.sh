@@ -26,7 +26,7 @@ if [ -f "$FILE" ]; then
     cp "${FILE}" "${LOCAL_ASSEMBLY_DIR}"
 else 
     echo "$FILE does not exist, trying to generate..."
-    cd "${base_dir}"/../../generator/ && yarn prepare && yarn pack --filename eclipse-che-theia-generator.tgz
+    cd "${base_dir}"/../../generator/ && yarn prepare && yarn --filename eclipse-che-theia-generator.tgz
     cp "${FILE}" "${LOCAL_ASSEMBLY_DIR}"
 fi
 
