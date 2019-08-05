@@ -23,7 +23,7 @@ Also theia-dev image includes `@theia/generator-plugin` which can be easily used
 Build script always use current Che-Theia sources. To test your changes you don't need to push your changes somewhere. Just go to `dockerfiles/theia` directory and run:
 
 ```bash	
-./build.sh --build-args:${GITHUB_TOKEN},THEIA_VERSION=master --tag:next --branch:master --git-ref:refs\\/heads\\/master
+./build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=master --tag:next --branch:master --git-ref:refs\\/heads\\/master
 ```
 
 Where [`${GITHUB_TOKEN}`](#github-token) is your GitHub API token, it's used for fetching some vscode libraries that placed on GitHub releases. Without that token build will fail.
@@ -35,7 +35,7 @@ This script will build new docker image `eclipse/che-theia:next`. The image will
 General command to build Che-Theia with all possible argiments:
 
 ```bash
-./build.sh --build-args:${GITHUB_TOKEN},THEIA_VERSION=${THEIA_VERSION} --tag:${IMAGE_TAG} --branch:${THEIA_BRANCH} --git-ref:${THEIA_GIT_REFS} --skip-tests
+./build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=${THEIA_VERSION} --tag:${IMAGE_TAG} --branch:${THEIA_BRANCH} --git-ref:${THEIA_GIT_REFS} --skip-tests
 ```
 
 ### GitHub Token
@@ -53,7 +53,7 @@ This is your GitHub token. Some Theia dependencies placed on GitHub repository a
     ./build.sh --build-args:${GITHUB_TOKEN}
     ```
 
-Parameter `${GITHUB_TOKEN}` is mandatory.
+Parameter `${GITHUB_TOKEN}` is optional. It's necessary only when exceeding the [limit of GitHub requests](https://developer.github.com/apps/building-github-apps/understanding-rate-limits-for-github-apps/).
 
 
 ## Theia Branch
