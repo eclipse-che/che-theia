@@ -82,6 +82,10 @@ const writeKey = async (name: string, key: string) => {
     await chmod(keyFile, '600');
 };
 
+const showWarning = async () => {
+    theia.window.showWarningMessage('Che Git plugin can leverage the generated keys now. To make them available in every workspace containers please restart your workspace.');
+};
+
 const generateKeyPair = async (sshkeyManager: SshKeyManager) => {
     const keyName = `default-${Date.now()}`;
     const key = await sshkeyManager.generate('vcs', keyName);
@@ -93,6 +97,7 @@ const generateKeyPair = async (sshkeyManager: SshKeyManager) => {
         const document = await theia.workspace.openTextDocument({ content: key.publicKey });
         await theia.window.showTextDocument(document);
     }
+    showWarning();
 };
 
 const generateKeyPairForHost = async (sshkeyManager: SshKeyManager) => {
@@ -106,6 +111,7 @@ const generateKeyPairForHost = async (sshkeyManager: SshKeyManager) => {
         const document = await theia.workspace.openTextDocument({ content: key.publicKey });
         await theia.window.showTextDocument(document);
     }
+    showWarning();
 };
 
 const createKeyPair = async (sshkeyManager: SshKeyManager) => {
@@ -115,9 +121,10 @@ const createKeyPair = async (sshkeyManager: SshKeyManager) => {
 
     try {
         await sshkeyManager.create({ name: hostName, service: 'vcs', publicKey: publicKey, privateKey });
-        theia.window.showInformationMessage(`Key pair for ${hostName} successfully created`);
         await updateConfig(hostName);
         await writeKey(hostName, privateKey);
+        await theia.window.showInformationMessage(`Key pair for ${hostName} successfully created`);
+        showWarning();
     } catch (error) {
         theia.window.showErrorMessage(error);
     }
