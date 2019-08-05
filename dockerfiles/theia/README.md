@@ -50,7 +50,7 @@ This is your GitHub token. Some Theia dependencies placed on GitHub repository a
     ```
 - pass the token to the script
     ```bash
-    ./build.sh --build-args:${GITHUB_TOKEN}
+    ./build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN}
     ```
 
 Parameter `${GITHUB_TOKEN}` is optional. It's necessary only when exceeding the [limit of GitHub requests](https://developer.github.com/apps/building-github-apps/understanding-rate-limits-for-github-apps/).
