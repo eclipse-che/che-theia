@@ -9,7 +9,7 @@
  **********************************************************************/
 
 import { MainPluginApiProvider } from '@theia/plugin-ext/lib/common/plugin-ext-api-contribution';
-import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
+import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { injectable, interfaces } from 'inversify';
 import { PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
 import { CheWorkspaceMainImpl } from './che-workspace-main';
