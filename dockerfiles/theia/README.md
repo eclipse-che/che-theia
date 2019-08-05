@@ -42,7 +42,16 @@ General command to build Che-Theia with all possible argiments:
 
 **`${GITHUB_TOKEN}`**
 
-Some Theia dependencies placed on GitHub repository and fetched from the GitHub by using GitHub API. For that you have to generate [new GitHub API token](https://github.com/settings/tokens) and pass it to the script to have proper build.
+This is your GitHub token. Some Theia dependencies placed on GitHub repository and fetched from the GitHub by using GitHub API. For the successful build you need to:
+- generate [new GitHub API token](https://github.com/settings/tokens)
+- set `GITHUB_TOKEN` environment variable
+    ```bash
+    export GITHUB_TOKEN=<your_github_token>
+    ```
+- pass the token to the script
+    ```bash
+    ./build.sh --build-args:${GITHUB_TOKEN}
+    ```
 
 Parameter `${GITHUB_TOKEN}` is mandatory.
 
