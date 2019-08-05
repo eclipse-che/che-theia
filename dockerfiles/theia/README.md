@@ -61,18 +61,16 @@ CI generates several tags of [docker images](https://hub.docker.com/r/eclipse/ch
 - `eclipse/che-theia:next`
   - theia branch: [master](https://github.com/theia-ide/theia/)
   - che-theia branch: [master](https://github.com/eclipse/che-theia)
-  - CI [build job](https://ci.codenvycorp.com/job/che-theia-master-ci/)
+  - CI [build job](https://ci.codenvycorp.com/job/che-theia-next/)
 
-- `eclipse/che:theia:latest`
-  - theia tag: [v0.8.0](https://github.com/theia-ide/theia/tree/v0.8.0)
-  - che-theia tag: [v7.0.0-rc-4.0](https://github.com/eclipse/che-theia/tree/v7.0.0-rc-4.0)
-  - CI [build job](https://ci.codenvycorp.com/job/che-theia-latest-ci/)
-
-- `eclipse/che-theia:7.0.0-next`
-  - theia tag: [v0.8.0](https://github.com/theia-ide/theia/tree/v0.8.0)
+- `eclipse/che-theia:7.0.0-next` Che-Theia 7.0.0 with the latest changes
+  - theia branch: [che-7.0.0](https://github.com/theia-ide/theia/tree/che-7.0.0)
   - che-theia branch: [7.0.0](https://github.com/eclipse/che-theia/tree/7.0.0)
+  - CI [build job](https://ci.codenvycorp.com/job/che-theia-7.0.0-next/)
 
-> CI rebuilds `eclipse/che-theia:7.0.0-next` on each commit to [eclipse/che-theia/7.0.0](https://github.com/eclipse/che-theia/tree/7.0.0) branch
+- `eclipse/che:theia:latest` the latest stable Che-Theia 7.0.0 release
+  - theia branch: [che-7.0.0](https://github.com/theia-ide/theia/tree/che-7.0.0)
+  - che-theia tag: [v7.0.0-rc-4.0](https://github.com/eclipse/che-theia/tree/v7.0.0-rc-4.0)
 
 
 ## Theia version
