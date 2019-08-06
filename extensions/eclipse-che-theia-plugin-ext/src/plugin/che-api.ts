@@ -10,8 +10,8 @@
 
 import * as che from '@eclipse-che/plugin';
 import { che as cheApi } from '@eclipse-che/api';
-import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
-import { Plugin } from '@theia/plugin-ext/lib/api/plugin-api';
+import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
+import { Plugin } from '@theia/plugin-ext/lib/common/plugin-api-rpc';
 import { CheWorkspaceImpl } from './che-workspace';
 import { CheVariablesImpl } from './che-variables';
 import { PLUGIN_RPC_CONTEXT } from '../common/che-protocol';

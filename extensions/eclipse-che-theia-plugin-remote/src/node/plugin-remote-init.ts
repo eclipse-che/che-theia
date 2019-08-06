@@ -16,7 +16,7 @@ import { ILogger } from '@theia/core/lib/common';
 import { Emitter } from '@theia/core/lib/common/event';
 import { MAIN_RPC_CONTEXT, PluginDeployer, PluginDeployerEntry, PluginMetadata } from '@theia/plugin-ext';
 import pluginVscodeBackendModule from '@theia/plugin-ext-vscode/lib/node/plugin-vscode-backend-module';
-import { RPCProtocolImpl } from '@theia/plugin-ext/lib/api/rpc-protocol';
+import { RPCProtocolImpl } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { PluginDeployerHandler } from '@theia/plugin-ext/lib/common';
 import { PluginHostRPC } from '@theia/plugin-ext/lib/hosted/node/plugin-host-rpc';
 import { HostedPluginReader } from '@theia/plugin-ext/lib/hosted/node/plugin-reader';

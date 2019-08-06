@@ -8,8 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
-import { Plugin, emptyPlugin, PluginManager } from '@theia/plugin-ext/lib/api/plugin-api';
+import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
+import { Plugin, emptyPlugin, PluginManager } from '@theia/plugin-ext/lib/common/plugin-api-rpc';
 import { ExtPluginApiBackendInitializationFn } from '@theia/plugin-ext/lib/common/plugin-ext-api-contribution';
 import * as che from '@eclipse-che/plugin';
 import { CheApiFactory, createAPIFactory } from '../che-api';
