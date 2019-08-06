@@ -9,7 +9,7 @@
  **********************************************************************/
 import { CheTask, CheTaskMain, PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
 import { TaskRunner, Disposable, Task, TaskInfo, TaskExitedEvent, TaskConfiguration } from '@eclipse-che/plugin';
-import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
+import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 
 export class CheTaskImpl implements CheTask {
     private readonly cheTaskMain: CheTaskMain;

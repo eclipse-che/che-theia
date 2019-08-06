@@ -10,7 +10,7 @@
 
 import { interfaces } from 'inversify';
 import { VariableRegistry, VariableResolverService } from '@theia/variable-resolver/lib/browser';
-import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
+import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { Disposable, MaybePromise } from '@theia/core';
 import { PLUGIN_RPC_CONTEXT, CheVariables, CheVariablesMain, Variable } from '../common/che-protocol';
 

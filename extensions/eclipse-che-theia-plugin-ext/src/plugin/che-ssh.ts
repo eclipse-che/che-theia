@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import { RPCProtocol } from '@theia/plugin-ext/lib/api/rpc-protocol';
+import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { PLUGIN_RPC_CONTEXT, CheSshMain, CheSsh } from '../common/che-protocol';
 import { che as cheApi } from '@eclipse-che/api';
 

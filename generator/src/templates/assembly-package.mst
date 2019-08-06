@@ -15,7 +15,6 @@
     "@theia/callhierarchy": "^{{ version }}",
     "@theia/console": "^{{ version }}",
     "@theia/core": "^{{ version }}",
-    "@theia/cpp": "^{{ version }}",
     "@theia/debug": "^{{ version }}",
     "@theia/debug-nodejs": "^{{ version }}",
     "@theia/editor": "^{{ version }}",
