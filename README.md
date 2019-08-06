@@ -12,7 +12,7 @@
 
 <div id="badges" align="center">
 
-  [![Build Status](https://ci.codenvycorp.com/buildStatus/icon?job=che-theia-master-ci)](https://ci.codenvycorp.com/job/che-theia-master-ci)
+  [![Build Status](https://ci.codenvycorp.com/buildStatus/icon?job=che-theia-7.0.0-next)](https://ci.codenvycorp.com/job/che-theia-7.0.0-next)
   [![mattermost](https://img.shields.io/badge/chat-on%20mattermost-blue.svg)](https://mattermost.eclipse.org/eclipse/channels/eclipse-che-ide2-team)
   [![Open questions](https://img.shields.io/badge/Open-questions-blue.svg?style=flat-curved)](https://github.com/eclipse/che-theia/labels/kind%2Fquestion)
   [![Open bugs](https://img.shields.io/badge/Open-bugs-red.svg?style=flat-curved)](https://github.com/eclipse/che-theia/labels/kind%2Fbug)
