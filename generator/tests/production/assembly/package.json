@@ -6,7 +6,6 @@
     "@theia/callhierarchy": "^0.3.16",
     "@theia/console": "^0.3.16",
     "@theia/core": "^0.3.16",
-    "@theia/cpp": "^0.3.16",
     "@theia/debug": "^0.3.16",
     "@theia/debug-nodejs": "^0.3.16",
     "@theia/editor": "^0.3.16",
