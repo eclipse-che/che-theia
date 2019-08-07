@@ -105,3 +105,6 @@ You are very welcome to join our community chat [here](https://mattermost.eclips
 ## Report issues
 
 Issues are tracked on the main Eclipse Che Repository: https://github.com/eclipse/che/issues
+
+
+
