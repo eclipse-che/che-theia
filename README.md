@@ -87,7 +87,7 @@ Contributing to che-theia section is cover in [CONTRIBUTING.md](https://github.c
 Building images is required only if you make some changes on `Dockerfile`s inside `dockerfiles` folder.
 If it is about testing che-theia extensions or plugins, please refere to [CONTRIBUTING.md](https://github.com/eclipse/che-theia/blob/master/CONTRIBUTING.md).
 
-To build che-theia docker images, please follow [dockerfiles/theia/README.md](https://github.com/eclipse/che-theia/blob/README-docker-image/dockerfiles/theia/README.md) instructions.
+To build che-theia docker images, please follow [dockerfiles/theia/README.md](https://github.com/eclipse/che-theia/blob/master/dockerfiles/theia/README.md) instructions.
 
 
 # License
