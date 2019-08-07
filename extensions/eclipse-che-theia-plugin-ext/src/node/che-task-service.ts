@@ -128,7 +128,7 @@ class CheTask extends Task {
     }
 
     fireTaskExited(event: TaskExitedEvent): void {
-        super.fireTaskExited({ taskId: event.taskId, code: event.code, ctx: event.ctx });
+        super.fireTaskExited({ taskId: event.taskId, code: event.code, ctx: event.ctx, config: this.options.config });
     }
 
     private toTaskInfo(runtimeInfo: TaskInfo): TaskInfo {
