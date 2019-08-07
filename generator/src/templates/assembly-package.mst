@@ -6,7 +6,8 @@
     "frontend": {
       "config": {
         "preferences": {
-          "editor.autoSave": "on"
+          "editor.autoSave": "on",
+          "workspace.supportMultiRootWorkspace": true
         }
       }
     }
