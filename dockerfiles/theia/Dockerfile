@@ -143,6 +143,8 @@ RUN adduser -D -S -u 1001 -G root -h ${HOME} -s /bin/sh theia \
     && find ${HOME} -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \;
 
 COPY --chown=theia:root --from=builder /home/theia-dev/theia-source-code/production /home/theia
+RUN mkdir -p ${HOME}/.theia && chmod -R 777 ${HOME}/.theia
+COPY ["./projects.theia-workspace", "/home/theia/.theia"]
 USER theia
 WORKDIR /projects
 ADD src/entrypoint.sh /entrypoint.sh
