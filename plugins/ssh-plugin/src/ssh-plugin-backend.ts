@@ -83,7 +83,7 @@ const writeKey = async (name: string, key: string) => {
 };
 
 const showWarning = async () => {
-    theia.window.showWarningMessage('Che Git plugin can leverage the generated keys now. To make them available in every workspace containers please restart your workspace.');
+    theia.window.showWarningMessage('The Che Git plugin can now use the generated keys. To make them available in every workspace container please restart your workspace.');
 };
 
 const generateKeyPair = async (sshkeyManager: SshKeyManager) => {
