@@ -23,7 +23,7 @@ pipeline {
         stage("Prepare to start Che on OKD") {
             failFast true
 
-
+        }
                 stage("Download oc client") {
                     steps {
                         script {
@@ -36,7 +36,7 @@ pipeline {
                 }
         }
     }
-}
+
                 /*stage("Start Kubernetes") {
                     steps {
                         script {
