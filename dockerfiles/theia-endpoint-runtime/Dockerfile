@@ -15,6 +15,8 @@ FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-dev:${BUILD_TAG} as builder
 # else check if github rate limit is enough, else will abort requiring to set GITHUB_TOKEN value
 ARG GITHUB_TOKEN
 
+ARG THEIA_GITHUB_REPO=theia-ide/theia
+
 # Check github limit
 RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
         export GITHUB_TOKEN=$GITHUB_TOKEN; \
@@ -35,11 +37,16 @@ RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
 ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/theia-ide/theia/git/refs/head /tmp/branch_info.json
 ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/eclipse/che-theia/git/refs/head /tmp/branch_info.json
 
+# Clone theia
+RUN git clone --branch ${GIT_BRANCH_NAME}  --single-branch --depth 1 https://github.com/${THEIA_GITHUB_REPO} ${HOME}/theia-source-code
+# Compile Theia
+RUN cd ${HOME}/theia-source-code && yarn
+
 # Grab dependencies
 COPY /docker-build/theia-plugin-remote/package.json /home/workspace/packages/theia-remote/
 RUN cd /home/workspace/packages/theia-remote/ && yarn install --ignore-scripts
 
-# Compile
+# Adding sources
 COPY /docker-build/configs /home/workspace/configs
 COPY /docker-build/theia-plugin-remote/*.json /home/workspace/packages/theia-remote/
 COPY /docker-build/theia-plugin-remote/src /home/workspace/packages/theia-remote/src
@@ -48,7 +55,12 @@ COPY /docker-build/theia-plugin /home/workspace/packages/theia-plugin
 COPY /docker-build/theia-plugin-remote/tsconfig.json /home/workspace/packages/theia-plugin/tsconfig.json
 
 COPY /etc/package.json /home/workspace
-RUN cd /home/workspace/ && yarn install
+# installing all dependencies
+RUN cd /home/workspace/ && yarn install --ignore-scripts
+# remove all @theia/* modules, and replace tham from builded Theia branch version
+RUN rm -rf /home/workspace/node_modules/@theia && cp -r -L ${HOME}/theia-source-code/node_modules/@theia /home/workspace/node_modules/
+# Compile
+RUN cd /home/workspace/ && yarn prepare
 
 FROM node:10.16-alpine
 ENV HOME=/home/theia
