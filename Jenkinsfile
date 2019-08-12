@@ -20,8 +20,8 @@ pipeline {
         CHE_WORKSPACE_JAVA__OPTIONS='-Xmx2500m'
         CHE_WORKSPACE_MAVEN__OPTIONS='-Xmx2500m'
     }
-
-    tage("Download and set up OC client") {
+stages {
+    stage("Download and set up OC client") {
         steps {
             script {
                 sh """
@@ -32,17 +32,12 @@ pipeline {
   
   #workaround for https://github.com/openshift/origin/issues/21404 in CCI
   sudo mount --bind --make-rshared . .
-  
-  
+    
 """
             }
         }
 
     }
-
-
-    stages {
-
         stage("Build  Che - Theia image and push to Docker registry") {
             failFast true
             parallel {
