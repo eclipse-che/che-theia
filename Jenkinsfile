@@ -43,7 +43,7 @@ pipeline {
 
     stages {
 
-        stage("Prepare to start Che on OKD") {
+        stage("Build  Che - Theia image and push to Docker registry") {
             failFast true
             parallel {
 
@@ -59,7 +59,7 @@ sh "echo1 >>>>"
 
                 }
 
-                stage("Prepare to start Che on OKD2") {
+                stage("Prepare to start Che on OKD infra") {
                     steps {
                         script {
                             sh "echo2 >>>>"
