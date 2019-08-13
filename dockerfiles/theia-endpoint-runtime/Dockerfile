@@ -38,36 +38,36 @@ ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/theia-ide/theia/g
 ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/eclipse/che-theia/git/refs/head /tmp/branch_info.json
 
 # Clone theia
-RUN git clone --branch ${GIT_BRANCH_NAME}  --single-branch --depth 1 https://github.com/${THEIA_GITHUB_REPO} ${HOME}/theia-source-code
-# Compile Theia
-RUN cd ${HOME}/theia-source-code && yarn
+RUN git clone --branch ${GIT_BRANCH_NAME}  --single-branch --depth 1 https://github.com/${THEIA_GITHUB_REPO} /home/workspace
 
 # Grab dependencies
-COPY /docker-build/theia-plugin-remote/package.json /home/workspace/packages/theia-remote/
-RUN cd /home/workspace/packages/theia-remote/ && yarn install --ignore-scripts
+COPY /docker-build/theia-plugin-remote/package.json /home/workspace/examples/assembly/
+RUN cd /home/workspace/examples/assembly/ && yarn install --ignore-scripts
 
 # Adding sources
-COPY /docker-build/configs /home/workspace/configs
-COPY /docker-build/theia-plugin-remote/*.json /home/workspace/packages/theia-remote/
-COPY /docker-build/theia-plugin-remote/src /home/workspace/packages/theia-remote/src
-COPY /docker-build/theia-plugin-ext /home/workspace/packages/theia-plugin-ext
-COPY /docker-build/theia-plugin /home/workspace/packages/theia-plugin
-COPY /docker-build/theia-plugin-remote/tsconfig.json /home/workspace/packages/theia-plugin/tsconfig.json
+COPY /docker-build/configs /home/workspace/che/configs
+COPY /docker-build/configs/tsfmt.json /home/workspace/configs/tsfmt.json
+COPY /docker-build/configs/tslint.json /home/workspace/configs/tslint.json
+COPY /docker-build/theia-plugin-remote/*.json /home/workspace/examples/assembly/
+COPY /docker-build/theia-plugin-remote/src /home/workspace/examples/assembly/src
+COPY /docker-build/theia-plugin-ext /home/workspace/che/packages/theia-plugin-ext
+COPY /docker-build/theia-plugin /home/workspace/che/packages/theia-plugin
 
-COPY /etc/package.json /home/workspace
+RUN ln -s /home/workspace/che/packages/theia-plugin-ext /home/workspace/packages/theia-plugin-ext
+RUN ln -s /home/workspace/che/packages/theia-plugin /home/workspace/packages/theia-plugin
+
 # installing all dependencies
-RUN cd /home/workspace/ && yarn install --ignore-scripts
-# remove all @theia/* modules, and replace tham from builded Theia branch version
-RUN rm -rf /home/workspace/node_modules/@theia && cp -r -L ${HOME}/theia-source-code/node_modules/@theia /home/workspace/node_modules/
-# Compile
-RUN cd /home/workspace/ && yarn prepare
+RUN cd /home/workspace/ && yarn
+
+# Run into production mode
+RUN cd /home/workspace/ && che:theia production
 
 FROM node:10.16-alpine
 ENV HOME=/home/theia
-COPY --from=builder /home/workspace/node_modules /home/theia/node_modules
+COPY --from=builder /home/workspace/production /home/theia/
 RUN rm -rf /home/theia/node_modules/@eclipse-che/theia-plugin-ext /home/theia/node_modules/@eclipse-che/theia-remote
-COPY --from=builder /home/workspace/packages/theia-plugin-ext /home/theia/node_modules/@eclipse-che/theia-plugin-ext
-COPY --from=builder /home/workspace/packages/theia-remote/lib /home/theia/lib
+COPY --from=builder /home/workspace/che/packages/theia-plugin-ext /home/theia/node_modules/@eclipse-che/theia-plugin-ext
+COPY --from=builder /home/workspace/production/lib /home/theia/lib
 RUN mkdir /projects \
     # Store passwd/group as template files
     && cat /etc/passwd | sed s#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/sh#g > ${HOME}/passwd.template \
