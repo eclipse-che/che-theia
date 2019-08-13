@@ -65,6 +65,7 @@ RUN cd /home/workspace/ && che:theia production
 FROM node:10.16-alpine
 ENV HOME=/home/theia
 COPY --from=builder /home/workspace/production /home/theia/
+COPY --from=builder /home/workspace/che/packages/theia-plugin-ext /home/theia/node_modules/@eclipse-che/theia-plugin-ext
 RUN mkdir /projects \
     # Store passwd/group as template files
     && cat /etc/passwd | sed s#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/sh#g > ${HOME}/passwd.template \
