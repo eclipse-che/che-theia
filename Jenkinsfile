@@ -39,19 +39,20 @@ pipeline {
         stage("Build Theia image and launch OKD") {
             failFast true
             parallel {
-
                 stage("Build  Che - Theia image and push to Docker registry") {
                     steps {
-                        script {
-                            sh """ 
+                        withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'maxura_docker_password')]) {
+                            script {
+                                sh """ 
                                 ${WORKSPACE}/build.sh --pr --skip-tests
                                 docker tag eclipse/che-theia:next maxura/che-theia:${ghprbPullId}
                                 docker login -u maxura -p ${password}
                                 docker push maxura/che-theia:${ghprbPullId}
                                """
+                            }
                         }
-                    }
 
+                    }
                 }
 
                 stage("Start Che on OKD infra") {
