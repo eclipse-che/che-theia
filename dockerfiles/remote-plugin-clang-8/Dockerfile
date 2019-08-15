@@ -32,6 +32,7 @@ COPY --from=endpoint /projects /projects
 COPY --from=endpoint /etc/passwd  /etc/passwd
 COPY --from=endpoint /etc/group   /etc/group
 COPY --from=endpoint /entrypoint.sh /entrypoint.sh
+
 RUN chmod -R 777 ${HOME}
 
 ENTRYPOINT ["bash", "/entrypoint.sh"]
