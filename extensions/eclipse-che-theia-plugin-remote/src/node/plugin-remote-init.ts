@@ -327,4 +327,15 @@ class PluginDeployerHandlerImpl implements PluginDeployerHandler {
         }
 
     }
+
+    async getPluginDependencies(plugin: PluginDeployerEntry): Promise<string[]> {
+        const metadata = await this.reader.getPluginMetadata(plugin.path());
+        if (metadata) {
+            if (metadata.model.extensionDependencies) {
+                return metadata.model.extensionDependencies;
+            }
+        }
+        return [];
+    }
+
 }
