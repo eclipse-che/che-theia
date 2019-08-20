@@ -86,7 +86,7 @@ export class LaunchConfigurationsExporter implements ConfigurationsExporter {
         return resolve(rootDir.toString(), CONFIG_DIR, LAUNCH_CONFIG_FILE);
     }
 
-    private saveConfigs(launchConfigFileUri: string, content: string, configurations: theia.DebugConfiguration[]) {
+    private saveConfigs(launchConfigFileUri: string, content: string, configurations: theia.DebugConfiguration[]): void {
         const result = modify(content, ['configurations'], configurations, formattingOptions);
         writeFileSync(launchConfigFileUri, result);
     }

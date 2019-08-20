@@ -102,7 +102,7 @@ export class TaskConfigurationsExporter implements ConfigurationsExporter {
         return resolve(rootDir.toString(), CONFIG_DIR, TASK_CONFIG_FILE);
     }
 
-    private saveConfigs(tasksConfigFileUri: string, content: string, configurations: TaskConfiguration[]) {
+    private saveConfigs(tasksConfigFileUri: string, content: string, configurations: TaskConfiguration[]): void {
         const result = modify(content, ['tasks'], configurations, formattingOptions);
         writeFileSync(tasksConfigFileUri, result);
     }
