@@ -10,13 +10,10 @@
 
 import { injectable, inject } from 'inversify';
 import * as che from '@eclipse-che/plugin';
-import { che as cheApi } from '@eclipse-che/api';
 import { Task } from '@theia/plugin';
-import { CHE_TASK_TYPE, MACHINE_NAME_ATTRIBUTE, PREVIEW_URL_ATTRIBUTE, WORKING_DIR_ATTRIBUTE, CheTaskDefinition, Target } from './task-protocol';
+import { CHE_TASK_TYPE, CheTaskDefinition, Target } from './task-protocol';
 import { MachinesPicker } from '../machine/machines-picker';
 import { CheWorkspaceClient } from '../che-workspace-client';
-import { VSCODE_LAUNCH_TYPE } from '../export/launch-configs-exporter';
-import { VSCODE_TASK_TYPE } from '../export/task-configs-exporter';
 
 /** Reads the commands from the current Che workspace and provides it as Task Configurations. */
 @injectable()
@@ -28,11 +25,7 @@ export class CheTaskProvider {
     protected readonly cheWorkspaceClient!: CheWorkspaceClient;
 
     async provideTasks(): Promise<Task[]> {
-        const commands = await this.cheWorkspaceClient.getCommands();
-        const filteredCommands = commands.filter(command =>
-            command.type !== VSCODE_TASK_TYPE &&
-            command.type !== VSCODE_LAUNCH_TYPE);
-        return filteredCommands.map(command => this.toTask(command));
+        return [];
     }
 
     async resolveTask(task: Task): Promise<Task> {
@@ -74,34 +67,5 @@ export class CheTaskProvider {
             source: task.source,
             execution: task.execution
         };
-    }
-
-    private toTask(command: cheApi.workspace.Command): Task {
-        return {
-            definition: {
-                type: CHE_TASK_TYPE,
-                command: command.commandLine,
-                target: {
-                    workingDir: this.getCommandAttribute(command, WORKING_DIR_ATTRIBUTE),
-                    machineName: this.getCommandAttribute(command, MACHINE_NAME_ATTRIBUTE)
-                },
-                previewUrl: this.getCommandAttribute(command, PREVIEW_URL_ATTRIBUTE)
-            },
-            name: `${command.name}`,
-            source: CHE_TASK_TYPE,
-        };
-    }
-
-    private getCommandAttribute(command: cheApi.workspace.Command, attrName: string): string | undefined {
-        if (!command.attributes) {
-            return undefined;
-        }
-
-        for (const attr in command.attributes) {
-            if (attr === attrName) {
-                return command.attributes[attr];
-            }
-        }
-        return undefined;
     }
 }

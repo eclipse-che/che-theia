@@ -22,6 +22,7 @@ import { TasksPreviewManager } from './preview/tasks-preview-manager';
 import { ExportConfigurationsManager } from './export/export-configs-manager';
 
 let pluginContext: theia.PluginContext;
+let outputChannel: theia.OutputChannel | undefined;
 
 export async function start(context: theia.PluginContext) {
     pluginContext = context;
@@ -59,4 +60,13 @@ export function getContext(): theia.PluginContext {
 // tslint:disable-next-line:no-any
 export function getSubscriptions(): { dispose(): any }[] {
     return pluginContext.subscriptions;
+}
+
+export function getOutputChannel(): theia.OutputChannel {
+    if (outputChannel) {
+        return outputChannel;
+    }
+
+    outputChannel = theia.window.createOutputChannel('task-plugin-log');
+    return outputChannel;
 }
