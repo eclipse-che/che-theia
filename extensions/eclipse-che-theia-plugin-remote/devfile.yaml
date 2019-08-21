@@ -1,0 +1,80 @@
+apiVersion: 1.0.0
+metadata:
+  name: che-theia-remote-dev
+projects:
+  - name: theia
+    source:
+      type: git
+      location: 'https://github.com/theia-ide/theia.git'
+components:
+  - type: cheEditor
+    id: eclipse/che-theia/next
+    alias: theia-editor
+  - type: chePlugin
+    id: eclipse/che-machine-exec-plugin/next
+  - type: chePlugin
+    id: che-incubator/typescript/latest
+  - type: dockerimage
+    image: eclipse/che-theia-dev:next
+    alias: theia-dev
+    mountSources: true
+    env:
+      - name: THEIA_PLUGIN_ENDPOINT_DISCOVERY_PORT
+        value: '2504'
+    memoryLimit: 3Gi
+  - type: dockerimage
+    image: eclipse/che-theia-dev:next
+    alias: theia-remote-runtime-dev
+    mountSources: true
+    env:
+      - name: THEIA_PLUGIN_ENDPOINT_DISCOVERY_PORT
+        value: '2504'
+      - name: THEIA_PLUGINS
+        value: 'local-dir:///projects/remote-plugins/'
+    memoryLimit: 1Gi
+commands:
+  - name: Init Che Theia
+    actions:
+      - type: exec
+        component: theia-dev
+        command: che:theia init
+        workdir: /projects/theia
+  - name: Clean Che Theia
+    actions:
+      - type: exec
+        component: theia-dev
+        command: che:theia clean
+        workdir: /projects/theia
+  - name: Build Che Theia
+    actions:
+      - type: exec
+        component: theia-dev
+        command: yarn
+        workdir: /projects/theia
+  - name: Watch changes in Theia Remote Extension
+    actions:
+      - type: exec
+        component: theia-dev
+        command: 'cd /projects/theia && npx run watch @eclipse-che/theia-remote & cd /projects/theia/examples/assembly && yarn watch'
+  - name: Run Dev Theia
+    actions:
+      - type: exec
+        component: theia-dev
+        command: 'yarn theia start --hostname=0.0.0.0 --port=3130'
+        workdir: /projects/theia/examples/assembly
+  - name: Run Remote Theia Plugin Endpoint
+    actions:
+      - type: exec
+        component: theia-remote-runtime-dev
+        command: 'node plugin-remote.js'
+        workdir: /projects/theia/che/che-theia/extensions/eclipse-che-theia-plugin-remote/lib/node
+  - name: Terminate all in Dev Theia
+    actions:
+      - type: exec
+        component: theia-dev
+        command: 'killall node'
+  - name: Terminate all in Remote Theia Plugin Endpoint
+    actions:
+      - type: exec
+        component: theia-remote-runtime-dev
+        command: 'killall node'
