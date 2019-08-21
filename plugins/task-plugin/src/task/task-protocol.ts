@@ -17,7 +17,6 @@ export const WORKING_DIR_ATTRIBUTE: string = 'workingDir';
 
 export interface CheTaskDefinition extends TaskDefinition {
     readonly target?: Target,
-    readonly command: string,
     readonly previewUrl?: string
 }
 
