@@ -18,7 +18,6 @@ import { MAIN_RPC_CONTEXT, PluginDeployer, PluginDeployerEntry, PluginMetadata }
 import pluginVscodeBackendModule from '@theia/plugin-ext-vscode/lib/node/plugin-vscode-backend-module';
 import { RPCProtocolImpl } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { PluginDeployerHandler } from '@theia/plugin-ext/lib/common';
-import { PluginHostRPC } from '@theia/plugin-ext/lib/hosted/node/plugin-host-rpc';
 import { HostedPluginReader } from '@theia/plugin-ext/lib/hosted/node/plugin-reader';
 import pluginExtBackendModule from '@theia/plugin-ext/lib/plugin-ext-backend-module';
 import { Container, inject, injectable } from 'inversify';
@@ -26,6 +25,7 @@ import { DummyTraceLogger } from './dummy-trace-logger';
 import pluginRemoteBackendModule from './plugin-remote-backend-module';
 import { TerminalContainerAware } from './terminal-container-aware';
 import { PluginDiscovery } from './plugin-discovery';
+import { RemotePluginHostRPC } from './remote-plugin-host-rpc';
 
 interface CheckAliveWS extends ws {
     alive: boolean;
@@ -167,7 +167,7 @@ to pick-up automatically a free port`));
             }
         });
 
-        const pluginHostRPC = new PluginHostRPC(webSocketClient.rpc);
+        const pluginHostRPC = new RemotePluginHostRPC(webSocketClient.rpc);
         pluginHostRPC.initialize();
         webSocketClient.pluginHostRPC = pluginHostRPC;
 
@@ -214,6 +214,11 @@ to pick-up automatically a free port`));
                     return;
                 }
 
+                if (jsonParsed.internal.method && jsonParsed.internal.method === 'startPlugins') {
+                    client.pluginHostRPC.remotePluginManager.startPlugins();
+                    return;
+                }
+
                 // asked to grab metadata, send them
                 if (jsonParsed.internal.metadata && 'request' === jsonParsed.internal.metadata) {
                     // apply host on all local metadata
@@ -246,7 +251,7 @@ class WebSocketClient {
 
     public rpc: RPCProtocolImpl;
 
-    public pluginHostRPC: PluginHostRPC;
+    public pluginHostRPC: RemotePluginHostRPC;
 
     // tslint:disable-next-line:no-any
     constructor(private readonly id: number, private socket: ws, private readonly emitter: Emitter<any>) {

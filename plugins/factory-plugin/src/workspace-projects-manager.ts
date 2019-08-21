@@ -18,14 +18,18 @@ import * as theia from '@theia/plugin';
 import * as che from '@eclipse-che/plugin';
 import { che as cheApi } from '@eclipse-che/api';
 
-export function handleWorkspaceProjects(pluginContext: theia.PluginContext, projectsRoot: string): void {
-    che.workspace.getCurrentWorkspace().then((workspace: cheApi.workspace.Workspace) => {
-        if (workspace.devfile) {
-            new DevfileProjectsManager(pluginContext, projectsRoot).run();
-        } else {
-            new WorkspaceConfigProjectsManager(pluginContext, projectsRoot).run();
-        }
+export function handleWorkspaceProjects(pluginContext: theia.PluginContext, projectsRoot: string): Promise<void> {
+    return new Promise<void>(resolve => {
+        che.workspace.getCurrentWorkspace().then(async (workspace: cheApi.workspace.Workspace) => {
+            if (workspace.devfile) {
+                await new DevfileProjectsManager(pluginContext, projectsRoot).run();
+            } else {
+                await new WorkspaceConfigProjectsManager(pluginContext, projectsRoot).run();
+            }
+            resolve();
+        });
     });
+
 }
 
 abstract class WorkspaceProjectsManager {

@@ -23,8 +23,13 @@ export async function start(context: theia.PluginContext) {
 
     new Devfile(context).init();
     new EphemeralWorkspaceChecker().check();
-    await new FactoryInitializer(projectsRoot).run();
-    handleWorkspaceProjects(context, projectsRoot);
+    try {
+        await new FactoryInitializer(projectsRoot).run();
+        await handleWorkspaceProjects(context, projectsRoot);
+    } finally {
+        theia.commands.executeCommand('_remote_plugin_start_');
+    }
+
 }
 
 export function stop() {

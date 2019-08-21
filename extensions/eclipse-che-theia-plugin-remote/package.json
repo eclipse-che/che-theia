@@ -28,7 +28,8 @@
   },
   "theiaExtensions": [
     {
-      "backend": "lib/node/plugin-remote-backend-module"
+      "backend": "lib/node/plugin-remote-backend-module",
+      "frontend": "lib/browser/remote-plugin-frontend-module"
     }
   ]
 }

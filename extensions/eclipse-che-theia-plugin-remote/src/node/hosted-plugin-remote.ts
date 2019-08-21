@@ -59,6 +59,16 @@ export class HostedPluginRemote {
         });
     }
 
+    startRemotePlugins(): void {
+        Array.from(this.endpointsSockets.values()).forEach(websocket => {
+            websocket.send(JSON.stringify({
+                'internal': {
+                    'method': 'startPlugins'
+                }
+            }));
+        });
+    }
+
     /**
      * Called when a client is connecting to this endpoint
      */
