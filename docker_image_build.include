@@ -32,6 +32,7 @@ dockerfiles/remote-plugin-java8
 dockerfiles/remote-plugin-java11
 dockerfiles/remote-plugin-php7
 dockerfiles/remote-plugin-go-1.10.7
+dockerfiles/remote-plugin-clang-8
 dockerfiles/remote-plugin-python-3.7.3
 dockerfiles/remote-plugin-dotnet-2.2.105
 dockerfiles/remote-plugin-kubernetes-tooling-0.1.17
@@ -49,6 +50,7 @@ eclipse/che-remote-plugin-runner-java8
 eclipse/che-remote-plugin-runner-java11
 eclipse/che-remote-plugin-php7
 eclipse/che-remote-plugin-go-1.10.7
+eclipse/che-remote-plugin-clang-8
 eclipse/che-remote-plugin-python-3.7.3
 eclipse/che-remote-plugin-dotnet-2.2.105
 eclipse/che-remote-plugin-kubernetes-tooling-0.1.17
@@ -64,7 +66,7 @@ buildImages() {
         do
             GITHUB_TOKEN_ARG="GITHUB_TOKEN="${GITHUB_TOKEN}
             if [ "$image_dir" == "dockerfiles/theia" ]; then
-                bash $(pwd)/$image_dir/build.sh --build-args:${GITHUB_TOKEN_ARG},THEIA_VERSION=${THEIA_VERSION} --tag:${IMAGE_TAG} --branch:${THEIA_BRANCH} --git-ref:${THEIA_GIT_REFS} 
+                bash $(pwd)/$image_dir/build.sh --build-args:${GITHUB_TOKEN_ARG},THEIA_VERSION=${THEIA_VERSION} --tag:${IMAGE_TAG} --branch:${THEIA_BRANCH} --git-ref:${THEIA_GIT_REFS}
             elif [ "$image_dir" == "dockerfiles/theia-dev" ]; then
                 bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:${IMAGE_TAG}
             else

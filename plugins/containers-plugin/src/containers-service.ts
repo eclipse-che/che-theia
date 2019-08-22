@@ -91,7 +91,8 @@ export class ContainersService {
             }
             if (runtime.commands) {
                 container.commands = [];
-                runtime.commands.forEach(command => {
+                const cheCommands = runtime.commands.filter(command => command.type === 'exec');
+                cheCommands.forEach(command => {
                     if (command.attributes && command.attributes.machineName && command.attributes.machineName !== name) {
                         return;
                     }
