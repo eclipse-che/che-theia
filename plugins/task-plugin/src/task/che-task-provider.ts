@@ -45,10 +45,10 @@ export class CheTaskProvider {
             resultTarget.workspaceId = await this.cheWorkspaceClient.getWorkspaceId();
         }
 
-        if (target && target.machineName) {
-            resultTarget.machineName = target.machineName;
+        if (target && target.containerName) {
+            resultTarget.containerName = target.containerName;
         } else {
-            resultTarget.machineName = await this.machinePicker.pick();
+            resultTarget.containerName = await this.machinePicker.pick();
         }
 
         if (target && target.workingDir) {
