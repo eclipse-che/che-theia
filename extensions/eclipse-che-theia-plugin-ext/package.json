@@ -17,7 +17,7 @@
     "@eclipse-che/workspace-client": "latest",
     "@theia/core": "next",
     "@theia/plugin-ext": "next",
-    "axios": "0.18.0",
+    "axios": "0.18.1",
     "js-yaml": "3.13.1"
   },
   "devDependencies": {
