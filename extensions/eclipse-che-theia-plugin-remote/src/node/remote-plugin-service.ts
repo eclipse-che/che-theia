@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 import { injectable, inject } from 'inversify';
-import { RemotePluginStarterService } from '../common/remote-plugin-protocol';
+import { RemotePluginInitializerService } from '../common/remote-plugin-protocol';
 import { HostedPluginRemote } from './hosted-plugin-remote';
 
 @injectable()
-export class RemotePluginServiceImpl implements RemotePluginStarterService {
+export class RemotePluginServiceImpl implements RemotePluginInitializerService {
 
     @inject(HostedPluginRemote)
     protected readonly hostedPluginRemote: HostedPluginRemote;

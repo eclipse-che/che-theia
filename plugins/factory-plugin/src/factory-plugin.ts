@@ -27,7 +27,7 @@ export async function start(context: theia.PluginContext) {
         await new FactoryInitializer(projectsRoot).run();
         await handleWorkspaceProjects(context, projectsRoot);
     } finally {
-        theia.commands.executeCommand('_remote_plugin_start_');
+        theia.commands.executeCommand('_remote.plugins.start');
     }
 
 }

@@ -10,23 +10,25 @@
 
 import { injectable, inject } from 'inversify';
 import { CommandRegistry, CommandContribution, Command } from '@theia/core/lib/common';
-import { RemotePluginStarterService } from '../common/remote-plugin-protocol';
+import { RemotePluginInitializerService } from '../common/remote-plugin-protocol';
 
 const COMMAND: Command = {
-    id: '_remote_plugin_start_'
+    id: '_remote.plugins.start'
 };
 
 @injectable()
 export class RemotePluginCommandContribution implements CommandContribution {
 
-    @inject(RemotePluginStarterService)
-    private starterService: RemotePluginStarterService;
+    @inject(RemotePluginInitializerService)
+    private starterService: RemotePluginInitializerService;
 
     registerCommands(commands: CommandRegistry): void {
         commands.registerCommand(COMMAND, {
             execute: () => {
                 this.starterService.loadRemotePlugins();
-            }
+            },
+            isVisible: () => false,
+            isEnabled: () => true
         });
     }
 }

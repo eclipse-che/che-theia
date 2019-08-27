@@ -16,17 +16,17 @@ import { RemoteMetadataProcessor } from './remote-metadata-processor';
 import { HostedPluginMapping } from './plugin-remote-mapping';
 import { ConnectionContainerModule } from '@theia/core/lib/node/messaging/connection-container-module';
 import { RemotePluginServiceImpl } from './remote-plugin-service';
-import { RemotePluginStarterService, remotePluginServicePath } from '../common/remote-plugin-protocol';
+import { RemotePluginInitializerService, remotePluginServicePath } from '../common/remote-plugin-protocol';
 import { ConnectionHandler } from '@theia/core/lib/common/messaging/handler';
 import { JsonRpcConnectionHandler } from '@theia/core/lib/common/messaging/proxy-factory';
 
 const localModule = ConnectionContainerModule.create(({ bind }) => {
     bind(HostedPluginRemote).toSelf().inSingletonScope();
     bind(ServerPluginRunner).to(ServerPluginProxyRunner).inSingletonScope();
-    bind(RemotePluginStarterService).to(RemotePluginServiceImpl).inSingletonScope();
+    bind(RemotePluginInitializerService).to(RemotePluginServiceImpl).inSingletonScope();
     bind(ConnectionHandler).toDynamicValue(ctx =>
         new JsonRpcConnectionHandler(remotePluginServicePath, () =>
-            ctx.container.get(RemotePluginStarterService)
+            ctx.container.get(RemotePluginInitializerService)
         )
     ).inSingletonScope();
 });

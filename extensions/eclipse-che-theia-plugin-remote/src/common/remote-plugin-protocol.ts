@@ -10,7 +10,7 @@
 
 export const remotePluginServicePath = '/services/remotePlugin';
 
-export const RemotePluginStarterService = Symbol('RemotePluginStarterService');
-export interface RemotePluginStarterService {
+export const RemotePluginInitializerService = Symbol('RemotePluginInitializer');
+export interface RemotePluginInitializerService {
     loadRemotePlugins(): Promise<void>
 }
