@@ -194,10 +194,6 @@
     box-sizing: border-box;
 }
 
-.che-plugin-list .che-plugin-content:hover {
-    background: var(--theia-layout-color2);
-}
-
 .che-plugin-list .che-plugin-icon,
 .che-plugin-list .che-plugin-default-icon {
     position: absolute;
@@ -239,34 +235,34 @@
     left: 0px;
     top: 7px;
     right: 4px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    align-content: stretch;
 }
 
 .che-plugin-list .che-plugin-name {
     font-size: var(--theia-ui-font-size0);
     font-weight: bold;
     color: var(--theia-ui-font-color2);
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    right: 66px;
-    height: 100%;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
 .che-plugin-list .che-plugin-version {
-    font-size: var(--theia-ui-font-size0);
-    color: var(--theia-ui-font-color2);
-    position: absolute;
-    right: 0px;
-    top: 0px;
-    width: 65px;
-    height: 100%;
-    text-align: right;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    height: 20px;
+    background-color: transparent;
+    border-color: transparent;
+    text-align-last: right;
+    cursor: pointer;
+}
+
+.che-plugin-list .che-plugin-version option {
+    background-color: var(--theia-layout-color2);
+    border-color: transparent;
 }
 
 .che-plugin-list .che-plugin-description {
@@ -302,7 +298,6 @@
     height: 20px;
     line-height: 20px;
     right: 85px;
-
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

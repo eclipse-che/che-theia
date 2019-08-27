@@ -431,6 +431,16 @@ export interface ChePluginRegistry {
     uri: string
 }
 
+export interface ChePlugin {
+    publisher: string;
+    name: string;
+    version: string;
+    installed: boolean;
+    versionList: {
+        [version: string]: ChePluginMetadata;
+    }
+}
+
 /**
  * Describes properties in plugin meta.yaml
  */
@@ -488,6 +498,11 @@ export interface ChePluginService {
      * Removes a plugin from workspace configuration.
      */
     removePlugin(pluginKey: string): Promise<void>;
+
+    /**
+     * Changes the plugin version.
+     */
+    updatePlugin(oldPluginKey: string, newPluginKey: string): Promise<void>;
 
 }
 
