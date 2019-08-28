@@ -422,13 +422,17 @@ export class ChePluginListItem extends React.Component<
     protected renderPluginVersion(): React.ReactNode {
         const plugin = this.props.pluginItem;
 
-        return <select className='che-plugin-version' onChange={e => this.versionChanged(e)} >
+        const versions: string[] = [];
+        Object.keys(plugin.versionList).forEach(version => versions.push(version));
+        versions.reverse();
+
+        return <select className='che-plugin-version' onChange={this.versionChanged} >
             {
-                Object.keys(plugin.versionList).map(key => {
-                    if (key === plugin.version) {
-                        return <option value={key} selected>{key}</option>;
+                versions.map(version => {
+                    if (version === plugin.version) {
+                        return <option value={version} selected>{version}</option>;
                     } else {
-                        return <option value={key}>{key}</option>;
+                        return <option value={version}>{version}</option>;
                     }
                 })
             }
