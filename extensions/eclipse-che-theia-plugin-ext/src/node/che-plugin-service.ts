@@ -332,6 +332,9 @@ export class ChePluginServiceImpl implements ChePluginService {
      */
     async setWorkspacePlugins(plugins: string[]): Promise<void> {
         const workspace: cheApi.workspace.Workspace = await this.cheApiService.currentWorkspace();
+        if (!workspace.devfile.components) {
+            workspace.devfile.components = [];
+        }
 
         if (workspace.config) {
             workspace.config.attributes = workspace.config.attributes || {};
