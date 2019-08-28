@@ -22,6 +22,6 @@ export interface CheTaskDefinition extends TaskDefinition {
 
 export interface Target {
     workspaceId?: string,
-    machineName?: string,
+    containerName?: string,
     workingDir?: string
 }

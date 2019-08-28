@@ -21,7 +21,7 @@
   "dependencies": {
     "@theia/core": "next",
     "@theia/terminal": "next",
-    "xterm": "3.9.1",
+    "xterm": "3.9.2",
     "@eclipse-che/workspace-client": "latest",
     "@eclipse-che/api": "latest"
   },

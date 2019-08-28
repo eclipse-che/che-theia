@@ -10,7 +10,7 @@
 
 import { injectable, inject, postConstruct } from 'inversify';
 import * as che from '@eclipse-che/plugin';
-import { CHE_TASK_TYPE } from './task-protocol';
+import { CHE_TASK_TYPE, Target } from './task-protocol';
 import { MachineExecClient } from '../machine/machine-exec-client';
 import { ProjectPathVariableResolver } from '../variable/project-path-variable-resolver';
 import { MachineExecWatcher } from '../machine/machine-exec-watcher';
@@ -50,14 +50,14 @@ export class CheTaskRunner {
             throw new Error(`Unsupported task type: ${type}`);
         }
 
-        const target = definition.target;
+        const target: Target = definition.target;
         if (!target) {
             throw new Error("Che task config must have 'target' property specified");
         }
 
-        const machineName = target.machineName;
-        if (!machineName) {
-            throw new Error("Che task config must have 'target.machineName' property specified");
+        const containerName = target.containerName;
+        if (!containerName) {
+            throw new Error("Che task config must have 'target.containerName' property specified");
         }
 
         try {
@@ -68,7 +68,7 @@ export class CheTaskRunner {
                 shellArgs: ['-c', `${taskConfig.command}`],
 
                 attributes: {
-                    CHE_MACHINE_NAME: machineName,
+                    CHE_MACHINE_NAME: containerName,
                     closeWidgetExitOrError: 'false',
                 }
             };
