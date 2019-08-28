@@ -32,32 +32,32 @@ export class CheTaskEventsHandler {
     protected readonly tasksPreviewManager!: TasksPreviewManager;
 
     init() {
-        theia.tasks.onDidStartTask(event => {
+        theia.tasks.onDidStartTask(async event => {
             const task = event.execution.task;
             if (task.definition.type !== CHE_TASK_TYPE) {
                 return;
             }
 
-            this.onTaskStarted(task);
+            await this.onTaskStarted(task);
         }, undefined, startPoint.getSubscriptions());
 
-        theia.tasks.onDidEndTask(event => {
+        theia.tasks.onDidEndTask(async event => {
             const task = event.execution.task;
             if (task.definition.type !== CHE_TASK_TYPE) {
                 return;
             }
-            this.onDidEndTask(task);
+            await this.onDidEndTask(task);
         }, undefined, startPoint.getSubscriptions());
     }
 
-    onTaskStarted(task: theia.Task): void {
+    async onTaskStarted(task: theia.Task): Promise<void> {
         const cheTaskDefinition = task.definition as CheTaskDefinition;
         const previewUrl = cheTaskDefinition.previewUrl;
         if (!previewUrl) {
             return;
         }
 
-        this.tasksPreviewManager.onTaskStarted(task);
+        await this.tasksPreviewManager.onTaskStarted(task);
 
         const mode = this.taskPreviewMode.get();
         switch (mode) {
@@ -73,33 +73,34 @@ export class CheTaskEventsHandler {
                 break;
             }
             default: {
-                const message = `Task ${task.name} launched a service on ${previewUrl}`;
+                const url = await this.previewUrlOpenService.resolve(previewUrl);
+                const message = `Task ${task.name} launched a service on ${url}`;
                 this.askUser(message, previewUrl);
                 break;
             }
         }
     }
 
-    onDidEndTask(task: theia.Task): void {
+    async onDidEndTask(task: theia.Task): Promise<void> {
         const cheTaskDefinition = task.definition as CheTaskDefinition;
         const previewUrl = cheTaskDefinition.previewUrl;
         if (!previewUrl) {
             return;
         }
 
-        this.tasksPreviewManager.onTaskCompleted(task);
+        await this.tasksPreviewManager.onTaskCompleted(task);
     }
 
-    async askUser(message: string, url: string) {
+    async askUser(message: string, url: string): Promise<void> {
         const item = await theia.window.showInformationMessage(message, {}, PREVIEW_URL_BUTTON_TEXT, GO_TO_BUTTON_TEXT);
 
         switch (item) {
             case PREVIEW_URL_BUTTON_TEXT: {
-                this.previewUrlOpenService.previewInternally(url);
+                await this.previewUrlOpenService.previewInternally(url);
                 break;
             }
             case GO_TO_BUTTON_TEXT: {
-                this.previewUrlOpenService.previewExternally(url);
+                await this.previewUrlOpenService.previewExternally(url);
                 break;
             }
             default: {

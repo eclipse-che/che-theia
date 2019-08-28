@@ -36,6 +36,7 @@ export class TheiaCloneCommand {
     private checkoutTag?: string | undefined;
     private checkoutStartPoint?: string | undefined;
     private checkoutCommitId?: string | undefined;
+    private projectsRoot: string;
 
     constructor(project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project, projectsRoot: string) {
         if (isDevfileProjectConfig(project)) {
@@ -64,6 +65,7 @@ export class TheiaCloneCommand {
             this.checkoutTag = project.source.parameters['tag'];
             this.checkoutCommitId = project.source.parameters['commitId'];
         }
+        this.projectsRoot = projectsRoot;
     }
 
     execute(): PromiseLike<void> {
@@ -71,8 +73,15 @@ export class TheiaCloneCommand {
             return new Promise(() => { });
         }
 
-        return theia.commands.executeCommand('git.clone', this.locationURI, this.folder, this.checkoutBranch)
-            .then(repo => {
+        const clone = async (progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken): Promise<void> => {
+            const args: string[] = ['clone', this.locationURI, this.folder];
+            if (this.checkoutBranch) {
+                args.push('--branch');
+                args.push(this.checkoutBranch);
+            }
+
+            try {
+                await git.execGit(this.projectsRoot, ...args);
                 // Figure out what to reset to.
                 // The priority order is startPoint > tag > commitId
 
@@ -81,7 +90,7 @@ export class TheiaCloneCommand {
                     : (this.checkoutTag ? this.checkoutTag : this.checkoutCommitId);
 
                 const branch = this.checkoutBranch ? this.checkoutBranch : 'default branch';
-                const messageStart = `Project ${this.locationURI} cloned to ${repo} and checked out ${branch}`;
+                const messageStart = `Project ${this.locationURI} cloned to ${this.folder} and checked out ${branch}`;
 
                 if (treeish) {
                     git.execGit(this.folder, 'reset', '--hard', treeish)
@@ -89,15 +98,21 @@ export class TheiaCloneCommand {
                             theia.window.showInformationMessage(`${messageStart} which has been reset to ${treeish}.`);
                         }, e => {
                             theia.window.showErrorMessage(`${messageStart} but resetting to ${treeish} failed with ${e.message}.`);
-                            console.log(`Couldn't reset to ${treeish} of ${repo} cloned from ${this.locationURI} and checked out to ${branch}.`, e);
+                            console.log(`Couldn't reset to ${treeish} of ${this.folder} cloned from ${this.locationURI} and checked out to ${branch}.`, e);
                         });
                 } else {
                     theia.window.showInformationMessage(`${messageStart}.`);
                 }
-            }, e => {
+            } catch (e) {
                 theia.window.showErrorMessage(`Couldn't clone ${this.locationURI}: ${e.message}`);
                 console.log(`Couldn't clone ${this.locationURI}`, e);
-            });
+            }
+        };
+
+        return theia.window.withProgress({
+            location: theia.ProgressLocation.Notification,
+            title: `Cloning ${this.locationURI} ...`
+        }, (progress, token) => clone(progress, token));
     }
 
 }

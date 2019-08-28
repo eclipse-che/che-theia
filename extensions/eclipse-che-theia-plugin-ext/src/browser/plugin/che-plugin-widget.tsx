@@ -19,16 +19,18 @@ import { Message } from '@phosphor/messaging';
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import { AlertMessage } from '@theia/core/lib/browser/widgets/alert-message';
 import * as React from 'react';
-import { ChePluginRegistry, ChePluginMetadata } from '../../common/che-protocol';
+import { ChePluginRegistry, ChePlugin } from '../../common/che-protocol';
 import { ChePluginManager } from './che-plugin-manager';
 import { ChePluginMenu } from './che-plugin-menu';
 import { Key } from '@theia/core/lib/browser';
 import { ConfirmDialog } from '@theia/core/lib/browser';
 
+export type PluginStatus = 'not_installed' | 'installed' | 'installing' | 'removing';
+
 @injectable()
 export class ChePluginWidget extends ReactWidget {
 
-    protected plugins: ChePluginMetadata[] = [];
+    protected plugins: ChePlugin[] = [];
 
     protected status: 'ready' | 'loading' | 'failed' = 'loading';
 
@@ -233,8 +235,9 @@ export class ChePluginWidget extends ReactWidget {
         }
 
         const list = this.plugins.map(plugin =>
-            <ChePlugin key={plugin.key}
-                plugin={plugin} pluginManager={this.chePluginManager}></ChePlugin>);
+            <ChePluginListItem key={plugin.publisher + '/' + plugin.name}
+                pluginItem={plugin} pluginManager={this.chePluginManager}></ChePluginListItem>);
+
         return <div className='che-plugin-list'>
             {list}
         </div>;
@@ -373,39 +376,42 @@ export class ChePluginListControls extends React.Component<
 
 }
 
-export class ChePlugin extends React.Component<ChePlugin.Props, ChePlugin.State> {
+export class ChePluginListItem extends React.Component<
+    { pluginManager: ChePluginManager; pluginItem: ChePlugin; },
+    { pluginStatus: PluginStatus }
+    > {
 
-    constructor(props: ChePlugin.Props) {
+    constructor(props: { pluginManager: ChePluginManager; pluginItem: ChePlugin; }) {
         super(props);
 
-        const plugin = props.plugin;
-        const state = props.pluginManager.isPluginInstalled(plugin) ? 'installed' : 'not_installed';
+        const status = props.pluginItem.installed ? 'installed' : 'not_installed';
 
         this.state = {
-            pluginState: state
+            pluginStatus: status
         };
     }
 
     render(): React.ReactNode {
-        const plugin = this.props.plugin;
+        const plugin = this.props.pluginItem;
+        const metadata = plugin.versionList[plugin.version];
 
         // I'm not sure whether 'key' attribute is necessary here
-        return <div key={plugin.key} className='che-plugin'>
+        return <div key={plugin.publisher + '/' + plugin.name} className='che-plugin'>
             <div className='che-plugin-content'>
                 {this.renderIcon()}
                 <div className='che-plugin-info'>
                     <div className='che-plugin-title'>
-                        <div className='che-plugin-name'>{plugin.name}</div>
-                        <div className='che-plugin-version'>{plugin.version}</div>
+                        <div className='che-plugin-name'>{metadata.name}</div>
+                        {this.renderPluginVersion()}
                     </div>
                     <div className='che-plugin-description'>
                         <div>
-                            <div>{plugin.description}</div>
+                            <div>{metadata.description}</div>
                         </div>
                     </div>
                     <div className='che-plugin-publisher'>
-                        {plugin.publisher}
-                        <span className='che-plugin-type'>{plugin.type}</span>
+                        {metadata.publisher}
+                        <span className='che-plugin-type'>{metadata.type}</span>
                     </div>
                     {this.renderAction()}
                 </div>
@@ -413,11 +419,34 @@ export class ChePlugin extends React.Component<ChePlugin.Props, ChePlugin.State>
         </div>;
     }
 
+    protected renderPluginVersion(): React.ReactNode {
+        const plugin = this.props.pluginItem;
+
+        const versions: string[] = [];
+        Object.keys(plugin.versionList).forEach(version => versions.push(version));
+        versions.reverse();
+
+        return <select className='che-plugin-version' onChange={this.versionChanged} >
+            {
+                versions.map(version => {
+                    if (version === plugin.version) {
+                        return <option value={version} selected>{version}</option>;
+                    } else {
+                        return <option value={version}>{version}</option>;
+                    }
+                })
+            }
+        </select>;
+    }
+
     protected renderIcon(): React.ReactNode {
-        if (this.props.plugin.icon) {
+        const plugin = this.props.pluginItem;
+        const metadata = plugin.versionList[plugin.version];
+
+        if (metadata.icon) {
             // return the icon
             return <div className='che-plugin-icon'>
-                <img src={this.props.plugin.icon}></img>
+                <img src={metadata.icon}></img>
             </div>;
         }
 
@@ -428,13 +457,15 @@ export class ChePlugin extends React.Component<ChePlugin.Props, ChePlugin.State>
     }
 
     protected renderAction(): React.ReactNode {
+        const plugin = this.props.pluginItem;
+        const metadata = plugin.versionList[plugin.version];
+
         // Don't show the button for 'Che Editor' plugins and for built-in plugins
-        if ('Che Editor' === this.props.plugin.type ||
-            this.props.plugin.builtIn) {
+        if ('Che Editor' === metadata.type || metadata.builtIn) {
             return undefined;
         }
 
-        switch (this.state.pluginState) {
+        switch (this.state.pluginStatus) {
             case 'installed':
                 return <div className='che-plugin-action-remove' onClick={this.removePlugin}>Installed</div>;
             case 'installing':
@@ -447,53 +478,51 @@ export class ChePlugin extends React.Component<ChePlugin.Props, ChePlugin.State>
         return <div className='che-plugin-action-add' onClick={this.installPlugin}>Install</div>;
     }
 
-    protected set(state: ChePluginState): void {
+    protected setStatus(status: PluginStatus): void {
         this.setState({
-            pluginState: state
+            pluginStatus: status
         });
     }
 
     protected installPlugin = async () => {
-        const previousState = this.state.pluginState;
-        this.set('installing');
+        const previousStatus = this.state.pluginStatus;
+        this.setStatus('installing');
 
-        const installed = await this.props.pluginManager.install(this.props.plugin);
+        const installed = await this.props.pluginManager.install(this.props.pluginItem);
         if (installed) {
-            this.set('installed');
+            this.setStatus('installed');
         } else {
-            this.set(previousState);
+            this.setStatus(previousStatus);
         }
     }
 
     protected removePlugin = async () => {
-        const previousState = this.state.pluginState;
-        this.set('removing');
+        const previousStatus = this.state.pluginStatus;
+        this.setStatus('removing');
 
-        const removed = await this.props.pluginManager.remove(this.props.plugin);
+        const removed = await this.props.pluginManager.remove(this.props.pluginItem);
         if (removed) {
-            this.set('not_installed');
+            this.setStatus('not_installed');
         } else {
-            this.set(previousState);
+            this.setStatus(previousStatus);
         }
     }
 
-}
+    protected versionChanged = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const select: HTMLSelectElement = (window.event as Event).target as HTMLSelectElement;
 
-export type ChePluginState =
-    'not_installed'
-    | 'installed'
-    | 'installing'
-    | 'removing';
+        const plugin = this.props.pluginItem;
+        const versionBefore = plugin.version;
 
-export namespace ChePlugin {
+        plugin.version = select.value;
 
-    export interface Props {
-        pluginManager: ChePluginManager;
-        plugin: ChePluginMetadata;
-    }
+        this.setState({
+            pluginStatus: this.state.pluginStatus
+        });
 
-    export interface State {
-        pluginState: ChePluginState;
+        if (plugin.installed) {
+            await this.props.pluginManager.changeVersion(this.props.pluginItem, versionBefore);
+        }
     }
 
 }

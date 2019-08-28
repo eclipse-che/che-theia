@@ -1,0 +1,7 @@
+{"type":"warning","data":"package.json: No license field"}
+{"type":"warning","data":"No license field"}
+{"type":"activityStart","data":{"id":0}}
+{"type":"activityTick","data":{"id":0,"name":"lodash@^4.17.5"}}
+{"type":"activityTick","data":{"id":0,"name":"moment@^2.22.1"}}
+{"type":"activityEnd","data":{"id":0}}
+{"type":"tree","data":{"type":"list","trees":[{"name":"lodash@4.17.5","children":[{"name":"depd@~1.1.2","color":"dim","shadow":true}],"hint":null,"color":"bold","depth":0}, {"name":"lodash@4.17.5","children":[{"name":"depd@~1.1.2","color":"dim","shadow":true}],"hint":null,"color":"bold","depth":0}]}}

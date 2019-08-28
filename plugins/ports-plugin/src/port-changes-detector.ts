@@ -8,7 +8,7 @@
 * SPDX-License-Identifier: EPL-2.0
 **********************************************************************/
 
-import { PortScanner } from './port-scanner';
+import { PortScanner, AbstractInternalScanner } from './port-scanner';
 import { Port } from './port';
 
 interface PortCallback {
@@ -24,7 +24,7 @@ export class PortChangesDetector {
     private static readonly WAIT = 3000;
     private openedPorts: Port[] = [];
 
-    private portScanner: PortScanner = new PortScanner();
+    private readonly portScanner: PortScanner;
 
     private onDidOpenPorts: ((openPort: Port) => void)[] = [];
     private onDidClosePorts: ((closedPort: Port) => void)[] = [];
@@ -35,6 +35,10 @@ export class PortChangesDetector {
 
     public onDidClosePort(callback: PortCallback): void {
         this.onDidClosePorts.push(callback);
+    }
+
+    constructor(internalScanner?: AbstractInternalScanner) {
+        this.portScanner = new PortScanner(internalScanner);
     }
 
     /**

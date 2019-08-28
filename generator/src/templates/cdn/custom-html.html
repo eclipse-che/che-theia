@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8"><%
+const { CdnHtmlTemplate } = require('./html-template');
+const cdnHtmlTemplate = new CdnHtmlTemplate(htmlWebpackPlugin, compilation);
+
+cdnHtmlTemplate.nocacheChunks.forEach((entry) => {%>
+  <script type="text/javascript" src="<%= entry.chunk %>" crossOrigin="anonymous" charset = "utf-8"></script><%
+});%>
+  <script type="text/javascript">
+<%= cdnHtmlTemplate.generateCdnScript() %>
+  </script>
+</head>
+
+<body>
+  <div class="theia-preload"></div>
+</body>
+
+</html>

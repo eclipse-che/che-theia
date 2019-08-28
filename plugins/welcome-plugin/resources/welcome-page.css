@@ -12,7 +12,6 @@
  @import "../node_modules/@fortawesome/fontawesome-free/css/all.min.css";
 
 :root {
-
   --md-red-50: #FFEBEE;
   --md-red-100: #FFCDD2;
   --md-red-200: #EF9A9A;
@@ -285,7 +284,6 @@
   --md-blue-grey-700: #455A64;
   --md-blue-grey-800: #37474F;
   --md-blue-grey-900: #263238;
-
 }
 
 html, body {
@@ -338,9 +336,6 @@ html, body {
     margin-right: 1px;
     font-size: var(--theia-ui-font-size2);
 }
-
-
-
 
 .col {
     flex: 1;
@@ -427,4 +422,25 @@ html, body {
 
 .che-welcome-keybinding > .che-welcome-keybinding-key-chord-separator {
 	width: 2px;
+}
+
+/*-----------------------------------------------------------------------------
+| Webkit scrollbars
+|----------------------------------------------------------------------------*/
+::-webkit-scrollbar {
+    height: var(--theia-scrollbar-width);
+    width: var(--theia-scrollbar-width);
+    background: var(--theia-scrollbar-rail-color);
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--theia-scrollbar-thumb-color);
+}
+
+::selection {
+    background: var(--theia-selected-text-background);
 }

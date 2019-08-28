@@ -20,8 +20,8 @@ fi
 #in mac os 'cp' cannot create destination dir, so create it first
 mkdir ${LOCAL_ASSEMBLY_DIR}
 
-echo "Copying ${base_dir}/../../che-theia-init-sources.yml --> ${LOCAL_ASSEMBLY_DIR}/che-theia-init-sources.yml"
-cp "${base_dir}/../../che-theia-init-sources.yml" "${LOCAL_ASSEMBLY_DIR}/"
+echo "Compresing 'che-theia' --> ${LOCAL_ASSEMBLY_DIR}/che-theia.tar.gz"
+cd "${DIR}"/../.. && git ls-files -z -c -o --exclude-standard | xargs -0 tar rvf ${LOCAL_ASSEMBLY_DIR}/che-theia.tar.gz
 
 init --name:theia "$@"
 
@@ -47,7 +47,5 @@ if [ -n "${LABEL_CONTENT}" ]; then
   BUILD_ARGS+="--label che-plugin.cdn.artifacts=$(echo ${LABEL_CONTENT} | sed 's/ //g') "
   echo "Rebuilding with CDN label..."
   build
-  if [ "${BUILD_BRANCH:-}" == "master" ]; then
-    "${base_dir}"/push-cdn-files-to-akamai.sh
-  fi
+  "${base_dir}"/push-cdn-files-to-akamai.sh
 fi

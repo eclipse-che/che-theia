@@ -18,15 +18,21 @@ export const ConfigurationsExporter = Symbol('ConfigurationsExporter');
 /** Exports content with configurations in the config file */
 export interface ConfigurationsExporter {
 
-    /** Type of the exporter corresponds to type of command which brings content with configs */
-    readonly type: string;
-
     /**
-     * Exports given content with configurations in the config file of given workspace folder
-     * @param configsContent content with configurations for export
+     * Exports configurations in the config file of given workspace folder
      * @param workspaceFolder workspace folder for exporting configs in the config file
+     * @param commands commands with configurations for export
      */
-    export(configsContent: string, workspaceFolder: theia.WorkspaceFolder): void;
+    export(workspaceFolder: theia.WorkspaceFolder, commands: cheApi.workspace.Command[]): void;
+}
+/** Contains configurations as array of object and as raw content and is used at getting configurations from config file for example */
+export interface Configurations<T> {
+
+    /** Raw content with configurations from config file */
+    content: string;
+
+    /** Configurations as array of objects */
+    configs: T[];
 }
 
 /** Reads the commands from the current Che workspace and exports task and launch configurations in the config files. */
@@ -47,36 +53,13 @@ export class ExportConfigurationsManager {
 
         const cheCommands = await this.cheWorkspaceClient.getCommands();
         for (const exporter of this.exporters) {
-            const configsContent = this.extractConfigsContent(exporter.type, cheCommands);
-            if (!configsContent) {
-                continue;
-            }
-
-            this.exportContent(configsContent, exporter, workspaceFolders);
+            this.doExport(workspaceFolders, cheCommands, exporter);
         }
     }
 
-    private exportContent(configsContent: string, exporter: ConfigurationsExporter, workspaceFolders: theia.WorkspaceFolder[]) {
+    private doExport(workspaceFolders: theia.WorkspaceFolder[], cheCommands: cheApi.workspace.Command[], exporter: ConfigurationsExporter) {
         for (const workspaceFolder of workspaceFolders) {
-            exporter.export(configsContent, workspaceFolder);
+            exporter.export(workspaceFolder, cheCommands);
         }
-    }
-
-    private extractConfigsContent(type: string, commands: cheApi.workspace.Command[]): string {
-        const configCommands = commands.filter(command => command.type === type);
-        if (configCommands.length === 0) {
-            return '';
-        }
-
-        if (configCommands.length > 1) {
-            console.warn(`Found duplicate entry for type ${type}`);
-        }
-
-        const configCommand = configCommands[0];
-        if (!configCommand || !configCommand.attributes || !configCommand.attributes.actionReferenceContent) {
-            return '';
-        }
-
-        return configCommand.attributes.actionReferenceContent;
     }
 }

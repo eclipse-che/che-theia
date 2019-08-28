@@ -1,33 +1,120 @@
 # How to Build Theia Image
 
 ## Build image manually using build scripts
-To build Theia image manually You could use build.sh scripts.
-Dockerfile uses multi-stage build feature, so first of all You need build builder image -
-theia-dev:
 
-Example:
-
-```shell
-$ ../theia-dev/build.sh
-```
-
-After that, You can build Theia image.
-
-Example:
+To build all the images you can easily run [build.sh](../../build.sh) script located in the repository root. It will build container with Theia editor, dev container with tools to develop on TypeScript and containers containing remote plugins. 
 
 ```bash
-$ ./build.sh --build-args:GITHUB_TOKEN=$GITHUB_TOKEN,THEIA_VERSION=0.3.18 --git-ref:refs\\/heads\\/master
+./build.sh
 ```
+
+CI for checking any pull request in this repository runs this script with `--pr` directive
+```bash
+`build.sh --pr`.
+```
+
+**Note**: `--pr` will build only [limited set](../../docker_image_build.include) of docker images.	
+
+## How to build own Che Theia image with Docker
+
+[Che-Theia](Dockerfile) image is based on [Theia-Dev](../theia-dev/Dockerfile) image, which contains a set of tools for TypeScript development.
+Also theia-dev image includes `@theia/generator-plugin` which can be easily used in both Theia-Dev and Che-Theia containers.
+
+Build script always use current Che-Theia sources. To test your changes you don't need to push your changes somewhere. Just go to `dockerfiles/theia` directory and run:
+
+```bash	
+./build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=master --tag:next --branch:master --git-ref:refs\\/heads\\/master
+```
+
+Where [`${GITHUB_TOKEN}`](#github-token) is your GitHub API token, it's used for fetching some vscode libraries that placed on GitHub releases. Without that token build will fail.
+
+This script will build new docker image `eclipse/che-theia:next`. The image will contain Che-Theia based on Theia from master branch.
+
+## Build arguments
+
+General command to build Che-Theia with all possible argiments:
+
+```bash
+./build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=${THEIA_VERSION} --tag:${IMAGE_TAG} --branch:${THEIA_BRANCH} --git-ref:${THEIA_GIT_REFS} --skip-tests
+```
+
+### GitHub Token
+
+**`${GITHUB_TOKEN}`**
+
+This is your GitHub token. Some Theia dependencies placed on GitHub repository and fetched from the GitHub by using GitHub API. For the successful build you need to:
+- generate [new GitHub API token](https://github.com/settings/tokens)
+- set `GITHUB_TOKEN` environment variable
+    ```bash
+    export GITHUB_TOKEN=<your_github_token>
+    ```
+- pass the token to the script
+    ```bash
+    ./build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN}
+    ```
+
+Parameter `${GITHUB_TOKEN}` is optional. It's necessary only when exceeding the [limit of GitHub requests](https://developer.github.com/apps/building-github-apps/understanding-rate-limits-for-github-apps/).
+
+
+## Theia Branch
+
+**`${THEIA_BRANCH}`**
+
+It specifies tag or branch for base Theia. Build script clones Theia sources, switches to that branch/tag, and only then clones Che-Theia.
+
+Parameter `${THEIA_BRANCH}` is optional. If it's not specified, the default value `'master'` will be used.
+
+
+CI generates several tags of [docker images](https://hub.docker.com/r/eclipse/che-theia/tags). Below is the list of images:
+
+- `eclipse/che-theia:next`
+  - theia branch: [master](https://github.com/theia-ide/theia/)
+  - che-theia branch: [master](https://github.com/eclipse/che-theia)
+  - CI [build job](https://ci.codenvycorp.com/job/che-theia-next/)
+
+- `eclipse/che-theia:7.0.0-next` Che-Theia 7.0.0 with the latest changes
+  - theia branch: [che-7.0.0](https://github.com/theia-ide/theia/tree/che-7.0.0)
+  - che-theia branch: [7.0.0](https://github.com/eclipse/che-theia/tree/7.0.0)
+  - CI [build job](https://ci.codenvycorp.com/job/che-theia-7.0.0-next/)
+
+- `eclipse/che:theia:latest` the latest stable Che-Theia 7.0.0 release
+  - theia branch: [che-7.0.0](https://github.com/theia-ide/theia/tree/che-7.0.0)
+  - che-theia tag: [v7.0.0-rc-4.0](https://github.com/eclipse/che-theia/tree/v7.0.0-rc-4.0)
+
 
 ## Theia version
 
-There's a default Theia version set in the script. This version is then injected in all package.jsons.
-You can override `THEIA_VERSION` by exporting the env before running the script
+**`${THEIA_VERSION}`**
 
-## GITHUB_TOKEN
+This parameter is used for finding patches. All found patches from `'/patches/${THEIA_VERSION}'` directory will be applied to Theia sources.
+You can set `THEIA_VERSION` environment variable and don't pass it to the script when building.
 
-Once of Theia dependencies calls GitHub API during build to download binaries. It may happen that GitHub API rate limit is exceeded.
-As a result build fails. It may not happen at all. If it happens, obtain GitHub API token
+Parameter `${THEIA_VERSION}` is optional. If it's not specified, the default value `'master'` will be used.
+
+
+## Image Tag
+
+**`${IMAGE_TAG}`**
+
+A newly created docker image will have this version. Passing `'--tag:1.0.0'` to the script will lead to creating `eclipse/che-theia-dev:1.0.0` docker image.
+
+Parameter `${IMAGE_TAG}` is optioal. If it's not specified, the default value `'next'` will be used.
+
+## Theia Git Prefs
+
+**`${THEIA_GIT_REFS}`**
+
+Is used to invalidate docker cache when the current che-theia branch has been changed after last build of the dockerfile. If you are building che-theia from your branch, you have to set refs to `'refs\\/heads\\/${THE_BRANCH_NAME}'`.
+
+This parameter is optional. Default value is `'refs\\/heads\\/master'`.
+
+## Skip Tests
+
+**`--skip-tests`**
+
+Add this parameter to the build command to have a quick build and to skip running tests in dedicated container.
+
+By default tests are turned on. 
 
 ## CDN Support
 

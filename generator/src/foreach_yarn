@@ -1,0 +1,47 @@
+#!/usr/bin/env node
+/*********************************************************************
+* Copyright (c) 2018 Red Hat, Inc.
+*
+* This program and the accompanying materials are made
+* available under the terms of the Eclipse Public License 2.0
+* which is available at https://www.eclipse.org/legal/epl-2.0/
+*
+* SPDX-License-Identifier: EPL-2.0
+**********************************************************************/
+const fs = require('fs');
+const spawnSync = require('child_process').spawnSync;
+
+const currentDir = __dirname;
+const targetDir = `${__dirname}/../production/plugins`
+
+mkdirSyncRecursive(targetDir);
+fs.readdirSync(currentDir).forEach((pluginFolderName) => {
+    console.log(pluginFolderName);
+    const pluginFolderPath = `${currentDir}/${pluginFolderName}`;
+    if (fs.existsSync(`${pluginFolderPath}/package.json`)) {
+        console.log(`\n✍️  Running \`yarn\` on ${pluginFolderPath}`);
+        const r = spawnSync('yarn', [], {
+            cwd: `${pluginFolderPath}`,
+            detached: true,
+            stdio: "inherit"
+        });
+        if (r.status === 1) {
+            process.exit(1);
+        }
+
+        fs.readdirSync(`${pluginFolderPath}`).forEach((fileName) => {
+            if(fileName.endsWith('.theia')){
+                console.log(`\n✍️  Copying ${pluginFolderPath}/${fileName} theia package to ${targetDir}/${fileName}`);
+                fs.copyFileSync(`${pluginFolderPath}/${fileName}`, `${targetDir}/${fileName}`);
+            }
+        })
+    }
+});
+
+function mkdirSyncRecursive(dir) {
+    const pathNodes = dir.split('/');
+    for (var i = 1; i <= pathNodes.length; i++) {
+        var curPath = pathNodes.slice(0, i).join('/');
+        curPath.length > 0 && !fs.existsSync(curPath) ? fs.mkdirSync(curPath) : null;
+    }
+};

@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/theia-containers-plugin",
-  "publisher": "theia",
+  "publisher": "Eclipse Che",
   "keywords": [
     "theia-plugin"
   ],
@@ -9,6 +9,9 @@
   "files": [
     "src",
     "resources"
+  ],
+  "activationEvents": [
+    "*"
   ],
   "contributes": {
     "viewsContainers": {

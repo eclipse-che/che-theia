@@ -64,12 +64,11 @@ ARG CDN_PREFIX=""
 ARG MONACO_CDN_PREFIX=""
 WORKDIR ${HOME}/theia-source-code
 
-COPY che-theia/che-theia-init-sources.yml ${HOME}/che-theia-init-sources.yml
+#add che-theia repository content
+ADD che-theia/che-theia.tar.gz ${HOME}/theia-source-code/che-theia
 
-#invalidate cache for che-theia extensions
-ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/eclipse/che-theia/git/${GIT_REF} /tmp/this_branch_info.json
-
-RUN che:theia init -c ${HOME}/che-theia-init-sources.yml
+# run che:theia init command and alias che-theia repository to use local sources insted of cloning
+RUN che:theia init -c ${HOME}/theia-source-code/che-theia/che-theia-init-sources.yml --alias https://github.com/eclipse/che-theia=${HOME}/theia-source-code/che-theia
 
 RUN che:theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 
@@ -78,9 +77,6 @@ RUN yarn
 
 # Run into production mode
 RUN che:theia production
-
-# FIX ME, temporary fix to restore build
-RUN cd che/che-theia && git reset --hard
 
 # Compile plugins
 RUN cd plugins && ./foreach_yarn
@@ -122,7 +118,9 @@ RUN adduser -D -S -u 1001 -G root -h ${HOME} -s /bin/sh theia \
     # Create root node_modules in order to not use node_modules in each project folder
     && mkdir /node_modules \
     # Download yeoman generator plug-in
-    && curl -L -o /default-theia-plugins/theia_yeoman_plugin.theia https://github.com/eclipse/theia-yeoman-plugin/releases/download/untagged-04f28ee329e479cc465b/theia_yeoman_plugin.theia \
+    && curl -L -o /default-theia-plugins/theia_yeoman_plugin.theia https://github.com/eclipse/theia-yeoman-plugin/releases/download/untagged-c11870b25a17d20bb7a7/theia_yeoman_plugin.theia \
+    # Download vscode git plug-in
+    && curl -L -o /default-theia-plugins/vscode-git-1.3.0.1.vsix https://github.com/che-incubator/vscode-git/releases/download/1.30.1/vscode-git-1.3.0.1.vsix \
     && for f in "${HOME}" "/etc/passwd" "/etc/group /node_modules /default-theia-plugins /projects"; do\
            sudo chgrp -R 0 ${f} && \
            sudo chmod -R g+rwX ${f}; \
@@ -130,7 +128,7 @@ RUN adduser -D -S -u 1001 -G root -h ${HOME} -s /bin/sh theia \
     && cat /etc/passwd | sed s#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g > ${HOME}/passwd.template \
     && cat /etc/group | sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g > ${HOME}/group.template \
     # Add yeoman, theia plugin generator and typescript (to have tsc/typescript working)
-    && yarn global add yo @theia/generator-plugin@0.0.1-1540209403 typescript@2.9.2 \
+    && yarn global add yo @theia/generator-plugin@0.0.1-1562578105 typescript@2.9.2 \
     && mkdir -p ${HOME}/.config/insight-nodejs/ \
     && chmod -R 777 ${HOME}/.config/ \
     # Disable the statistics for yeoman

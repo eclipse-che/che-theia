@@ -1,0 +1,31 @@
+{
+  "name": "@che-theia/extension-example2",
+  "keywords": [
+    "theia-extension"
+  ],
+  "version": "9.8.7",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "@theia/core": "0.3.15"
+  },
+  "devDependencies": {
+    "unknown-dependencies": "0.0.1",
+    "rimraf": "2.6.2",
+    "typescript": "2.9.2"
+  },
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "theiaExtensions": [
+    {
+      "frontend": "lib/browser/che-theia-activity-tracker-frontend-module",
+      "backend": "lib/node/che-theia-activity-tracker-server-module"
+    }
+  ]
+}

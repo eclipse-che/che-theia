@@ -77,7 +77,17 @@ change_change_che_theia_init_baranch () {
 
 # first is path to dir which contains 'package.json', second is Theia version
 updateTheiaDependencies() {
-    sed -i -r -e 's/("@theia\/..*": )(".*")/\1"'$2'"/' ./$1/package.json
+    sed -i -r -e '/plugin-packager/!s/("@theia\/..*": )(".*")/\1"'$2'"/' ./$1/package.json
+}
+
+# set version attribute in 'package.json', first path to dir with 'package.json', secod the new version
+updateVersion() {
+    sed -i -r -e 's/("version": )(".*")/\1"'$2'"/' ./$1/package.json
+}
+
+# first is path to dir which contains 'package.json', second is che-Theia version
+updateChePluginDependencies() {
+    sed -i -r -e '/@eclipse-che\/api|@eclipse-che\/workspace-client/!s/("@eclipse-che\/..*": )(".*")/\1"'$2'"/' ./$1/package.json
 }
 
 
@@ -86,7 +96,7 @@ ask_for_change_che_theia_init_baranch
 read -p "Enter Theia version : "  theiaVersion
 
 sed -i -e "s/RUN git clone -b 'master'/RUN git clone -b 'v${theiaVersion}'/" ./dockerfiles/theia-dev/e2e/Dockerfile
-sed -i -e "s/ARG THEIA_VERSION=..*/ARG THEIA_VERSION=${theiaVersion}" ./dockerfiles/theia/Dockerfile
+sed -i -e "s/ARG THEIA_VERSION=..*/ARG THEIA_VERSION=${theiaVersion}/" ./dockerfiles/theia/Dockerfile
 
 for dir in extensions/*
 do
@@ -117,5 +127,19 @@ sed -i -e 's/THEIA_VERSION="..*"/THEIA_VERSION="'${theiaVersion}'"/' docker_imag
 sed -i -e 's/THEIA_BRANCH="..*"/THEIA_BRANCH="'${theiaBranchName}'"/' docker_image_build.include
 sed -i -e 's/THEIA_GIT_REFS="..*"/THEIA_GIT_REFS="'${theiaGitRefs}'"/g' docker_image_build.include
 sed -i -e 's/THEIA_DOCKER_IMAGE_VERSION=.*/THEIA_DOCKER_IMAGE_VERSION="'${cheTheiaVersion}'"/' docker_image_build.include
+
+if ask "Do you want to update extension/plugin version with '${cheTheiaVersion}'?" Y; then
+    for dir in extensions/*
+    do
+        updateVersion ${dir} ${cheTheiaVersion}
+        updateChePluginDependencies ${dir} ${cheTheiaVersion}
+    done
+
+    for dir in plugins/*
+    do
+        updateVersion ${dir} ${cheTheiaVersion}
+        updateChePluginDependencies ${dir} ${cheTheiaVersion}
+    done
+fi
 
 echo "All done..."
