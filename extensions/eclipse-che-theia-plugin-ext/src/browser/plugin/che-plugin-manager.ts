@@ -202,7 +202,7 @@ export class ChePluginManager {
         const installedPluginsInfo = this.getInstalledPluginsInfo();
 
         // update `installed` field for all the plugin
-        // if the plugin is installed, we ned to set the proper version
+        // if the plugin is installed, we need to set the proper version
         grouppedPlugins.forEach(plugin => {
             const publisherName = `${plugin.publisher}/${plugin.name}`;
             installedPluginsInfo.forEach(info => {
@@ -300,7 +300,7 @@ export class ChePluginManager {
 
             const version = plugin.substring(plugin.lastIndexOf('/') + 1);
 
-            // remove the version by deleting all the text withing the last '/' character
+            // remove the version by deleting all the text after the last '/' character, including '/'
             plugin = plugin.substring(0, plugin.lastIndexOf('/'));
 
             // remove registry URI from the start of the plugin
@@ -323,11 +323,11 @@ export class ChePluginManager {
      * Groups all versions of the same plugin in one structure.
      */
     private groupPlugins(rawPlugins: ChePluginMetadata[]): ChePlugin[] {
-        const mapa: { [pluginKey: string]: ChePlugin } = {};
+        const pluginMap: { [pluginKey: string]: ChePlugin } = {};
 
         rawPlugins.forEach(plugin => {
             const pluginKey = `${plugin.publisher}/${plugin.name}`;
-            let installationItem = mapa[pluginKey];
+            let installationItem = pluginMap[pluginKey];
             if (!installationItem) {
                 installationItem = {
                     publisher: plugin.publisher,
@@ -337,7 +337,7 @@ export class ChePluginManager {
                     versionList: {}
                 };
 
-                mapa[pluginKey] = installationItem;
+                pluginMap[pluginKey] = installationItem;
             } else {
                 installationItem.version = plugin.version;
             }
@@ -345,21 +345,21 @@ export class ChePluginManager {
             installationItem.versionList[plugin.version] = plugin;
         });
 
-        const items: ChePlugin[] = [];
-        for (const key in mapa) {
-            if (mapa.hasOwnProperty(key)) {
-                items.push(mapa[key]);
+        const chePlugins: ChePlugin[] = [];
+        for (const key in pluginMap) {
+            if (pluginMap.hasOwnProperty(key)) {
+                chePlugins.push(pluginMap[key]);
             }
         }
 
-        return items;
+        return chePlugins;
     }
 
     /**
      * Installs the plugin.
      */
-    async install(cp: ChePlugin): Promise<boolean> {
-        const metadata = cp.versionList[cp.version];
+    async install(plugin: ChePlugin): Promise<boolean> {
+        const metadata = plugin.versionList[plugin.version];
 
         try {
             // add the plugin to workspace configuration
@@ -381,8 +381,8 @@ export class ChePluginManager {
     /**
      * Removes the plugin.
      */
-    async remove(cp: ChePlugin): Promise<boolean> {
-        const metadata = cp.versionList[cp.version];
+    async remove(plugin: ChePlugin): Promise<boolean> {
+        const metadata = plugin.versionList[plugin.version];
 
         try {
             // remove the plugin from workspace configuration
@@ -404,9 +404,9 @@ export class ChePluginManager {
     /**
      * Changes the plugin version.
      */
-    async changeVersion(cp: ChePlugin, versionBefore: string): Promise<boolean> {
-        const metadataBefore = cp.versionList[versionBefore];
-        const metadata = cp.versionList[cp.version];
+    async changeVersion(plugin: ChePlugin, versionBefore: string): Promise<boolean> {
+        const metadataBefore = plugin.versionList[versionBefore];
+        const metadata = plugin.versionList[plugin.version];
         try {
             await this.chePluginService.updatePlugin(metadataBefore.key, metadata.key);
 
