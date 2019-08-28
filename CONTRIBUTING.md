@@ -1,6 +1,15 @@
 Contribute to Che-Theia
 ================
 
+Table of contents
+
+ - [Introduction](#introduction)
+ - [Devfiles](#devfiles)
+ - [Devfile for contributing to Theia or Che-Theia extensions or Che-plugins](#devfile-for-contributing-to-theia-or-che-theia-extensions-or-che-plugins)
+ - [Contributing to other parts of Che Theia](#contributing-to-other-parts-of-che-theia)
+
+## Introduction
+
 There are 3 contribution points:
 - Theia
 - Che-Theia extensions
@@ -129,10 +138,34 @@ To start che-theia in `dev-mode` with yarn (not using the production che-theia g
 Running dev theia would be located in the che-dev container and `theia-dev-flow` endpoint:
 ![Che-Theia-dev-endpoint](https://raw.githubusercontent.com/eclipse/che-theia/assets/theia-dev-flow-endpoint.png)
 
-
-
 ### Just want to build the plugin and run with the existing Theia image
 If you do not have any changes on Theia or Che-theia extension, you could just build the plugins with `build ... containers-plugin` or `build ... factory-plugin`
 and run these plugins with the existing che-theia app:
 `run ... HOSTED che-theia + container-plugin` or `run ... HOSTED che-theia + factory-plugin`
 
+## Contributing to other parts of Che Theia
+
+### How to develop Che Theia remote plugin mechanism
+
+_Please note, this section provides a flow how to develop remote plugin mechanism in Che Theia, but not a remote plugin._
+
+First, create a workspace from prepared [devfile](https://github.com/eclipse/che-theia/blob/master/extensions/eclipse-che-theia-plugin-remote/devfile.yaml), which could be found in the `eclipse-che-theia-plugin-remote` extension folder.
+When workspace is ready:
+ - Init Che Theia. This could be done with `che:theia init` command in `/projects/theia` folder or run the init command.
+   Che Theia sources will be awailable at `/projects/theia/che/che-theia`.
+ - Now one may make changes in Che Theia remote plugin mechanism in both (Che Theia and Remote plugin) sides.
+ - Build Che Theia from `theia-dev` container by executing `yarn` in `/projects/theia` folder or by running corresponding command.
+ - Put binaries (*.theia or *.vsix) of your remote plugin(s) into `/projects/remote-plugins/` directory.
+   Note that the plugin(s) shouldn't have any external dependencies.
+   For example, [this sample plugin](https://github.com/eclipse/che-theia-samples/tree/master/samples/hello-world-backend-plugin) might be used.
+   Or a user may generate one using `Generate Hello World plugin package` command.
+ - Run dev Che Theia and Remote plugins endpoint in `theia-dev` and `theia-remote-runtime-dev` containers correspondingly.
+   One may use predefined commands to start them.
+ - Open `theia-dev` route from `My Workspace` panel and test chenges.
+
+Also it is possible to run watchers for remote plugin mechanism.
+In `theia-dev` container run `npx run watch @eclipse-che/theia-remote` from `/projects/theia` folder to recompile the extension on changes made.
+Also run `yarn watch` in `/projects/theia/examples/assembly` to bring the changes to Che Theia binaries.
+If needed one may start watchers in plugin API extension: `npx run watch @theia/plugin-ext` from `/projects/theia` directory.
+The commands for these actions are also available.
+But please note, you have to restart server to which changes is made.

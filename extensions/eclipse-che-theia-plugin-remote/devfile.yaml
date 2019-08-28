@@ -14,6 +14,7 @@ components:
     id: eclipse/che-machine-exec-plugin/next
   - type: chePlugin
     id: che-incubator/typescript/latest
+    memoryLimit: 2Gi
   - type: dockerimage
     image: eclipse/che-theia-dev:next
     alias: theia-dev
@@ -37,25 +38,44 @@ commands:
     actions:
       - type: exec
         component: theia-dev
-        command: che:theia init
+        command: 'che:theia init'
         workdir: /projects/theia
   - name: Clean Che Theia
     actions:
       - type: exec
         component: theia-dev
-        command: che:theia clean
+        command: 'che:theia clean'
         workdir: /projects/theia
+  - name: Generate Hello World plugin package
+    actions:
+      - type: exec
+        component: theia-dev
+        command: 'yes | yo @theia/plugin && cp y/y.theia /projects/remote-plugins/hello-world-plugin.theia && rm -rf /tmp/y'
+        workdir: /tmp
   - name: Build Che Theia
     actions:
       - type: exec
         component: theia-dev
-        command: yarn
+        command: 'yarn'
         workdir: /projects/theia
   - name: Watch changes in Theia Remote Extension
     actions:
       - type: exec
         component: theia-dev
-        command: 'cd /projects/theia && npx run watch @eclipse-che/theia-remote & cd /projects/theia/examples/assembly && yarn watch'
+        command: 'npx run watch @eclipse-che/theia-remote'
+        workdir: /projects/theia
+  - name: Watch changes in Theia Plugin API Extension
+    actions:
+      - type: exec
+        component: theia-dev
+        command: 'npx run watch @theia/plugin-ext'
+        workdir: /projects/theia
+  - name: Watch changes in Theia assembly
+    actions:
+      - type: exec
+        component: theia-dev
+        command: 'yarn watch'
+        workdir: /projects/theia/examples/assembly
   - name: Run Dev Theia
     actions:
       - type: exec
