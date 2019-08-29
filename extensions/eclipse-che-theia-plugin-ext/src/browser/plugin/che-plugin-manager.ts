@@ -18,6 +18,7 @@ import { injectable, inject } from 'inversify';
 
 import {
     ChePluginRegistry,
+    ChePlugin,
     ChePluginMetadata,
     ChePluginService,
     CheApiService
@@ -167,52 +168,261 @@ export class ChePluginManager {
     /**
      * Returns plugin list from active registry
      */
-    async getPlugins(filter: string): Promise<ChePluginMetadata[]> {
+    async getPlugins(filter: string): Promise<ChePlugin[]> {
         await this.initDefaults();
 
         if (PluginFilter.hasType(filter, '@builtin')) {
-            return await this.pluginFrontentService.getBuiltInPlugins(filter);
+            return await this.getBuiltInPlugins(filter);
         }
 
-        return await this.chePluginService.getPlugins(this.activeRegistry, filter);
+        // Filter plugins if user requested the list of installed plugins
+        if (PluginFilter.hasType(filter, '@installed')) {
+            return await this.getInstalledPlugins(filter);
+        }
+
+        return await this.getAllPlugins(filter);
     }
 
-    isPluginInstalled(plugin: ChePluginMetadata): boolean {
-        return this.installedPlugins.indexOf(plugin.key) >= 0;
+    private async getBuiltInPlugins(filter: string): Promise<ChePlugin[]> {
+        const rawBuiltInPlugins = await this.pluginFrontentService.getBuiltInPlugins(filter);
+        return this.groupPlugins(rawBuiltInPlugins);
     }
 
-    async install(plugin: ChePluginMetadata): Promise<boolean> {
+    /**
+     * Returns the list of available plugins for the active plugin registry.
+     */
+    private async getAllPlugins(filter: string): Promise<ChePlugin[]> {
+        // get list of all plugins
+        const rawPlugins = await this.chePluginService.getPlugins(this.activeRegistry, filter);
+
+        // group the plugins
+        const grouppedPlugins = this.groupPlugins(rawPlugins);
+
+        // prepare list of installed plugins without versions and repository URI
+        const installedPluginsInfo = this.getInstalledPluginsInfo();
+
+        // update `installed` field for all the plugin
+        // if the plugin is installed, we need to set the proper version
+        grouppedPlugins.forEach(plugin => {
+            const publisherName = `${plugin.publisher}/${plugin.name}`;
+            installedPluginsInfo.forEach(info => {
+                if (info.publisherName === publisherName) {
+                    // set plugin is installed
+                    plugin.installed = true;
+                    // set intalled version
+                    plugin.version = info.version;
+                }
+            });
+        });
+
+        return grouppedPlugins;
+    }
+
+    /**
+     * Returns the list of installed plugins
+     */
+    private async getInstalledPlugins(filter: string): Promise<ChePlugin[]> {
+        // get list of all plugins
+        const rawPlugins: ChePluginMetadata[] = [];
+        for (let i = 0; i < this.registryList.length; i++) {
+            const registryPlugins: ChePluginMetadata[] = await this.chePluginService.getPlugins(this.registryList[i], filter);
+            registryPlugins.forEach(p => rawPlugins.push(p));
+        }
+
+        // group the plugins
+        const grouppedPlugins = this.groupPlugins(rawPlugins);
+
+        // prepare list of installed plugins without versions and repository URI
+        const installedPluginsInfo = this.getInstalledPluginsInfo();
+
+        const installedPlugins: ChePlugin[] = [];
+
+        // update `installed` field for all the plugin
+        // if the plugin is installed, we ned to set the proper version
+        grouppedPlugins.forEach(plugin => {
+            const publisherName = `${plugin.publisher}/${plugin.name}`;
+            installedPluginsInfo.forEach(info => {
+                if (info.publisherName === publisherName) {
+                    // set plugin is installed
+                    plugin.installed = true;
+                    // set intalled version
+                    plugin.version = info.version;
+
+                    installedPlugins.push(plugin);
+                }
+            });
+        });
+
+        return installedPlugins;
+    }
+
+    /**
+     * Returns list of installed plugins including installed version.
+     *
+     * Plugin should be without version and must not include plugin source.
+     *
+     * Plugin record
+     *     camel-tooling/vscode-apache-camel/0.0.14
+     * must be replaced on
+     *     camel-tooling/vscode-apache-camel
+     *
+     * Plugin record
+     *     https://raw.githubusercontent.com/vitaliy-guliy/che-theia-plugin-registry/master/plugins/eclipse-che/tree-view-sample-plugin/0.0.1/meta.yaml
+     * must be replaced on
+     *     eclipse-che/tree-view-sample-plugin
+     */
+    private getInstalledPluginsInfo(): { publisherName: string, version: string }[] {
+        // prepare the list of registries
+        // we need to remove the registry URI from the start of the plugin
+        const registries: string[] = [];
+        this.registryList.forEach(registry => {
+            let uri = registry.uri;
+            if (uri === this.defaultRegistry.uri) {
+                return;
+            }
+
+            if (uri.endsWith('.json')) {
+                uri = uri.substring(0, uri.lastIndexOf('/') + 1);
+            } else if (!uri.endsWith('/')) {
+                uri += '/';
+            }
+
+            registries.push(uri);
+        });
+
+        const plugins: { publisherName: string, version: string }[] = [];
+        this.installedPlugins.forEach(plugin => {
+            if (plugin.endsWith('/meta.yaml')) {
+                // it's non default registry
+                // we have to remove '/meta.yaml' from the end
+                plugin = plugin.substring(0, plugin.lastIndexOf('/'));
+            }
+
+            const version = plugin.substring(plugin.lastIndexOf('/') + 1);
+
+            // remove the version by deleting all the text after the last '/' character, including '/'
+            plugin = plugin.substring(0, plugin.lastIndexOf('/'));
+
+            // remove registry URI from the start of the plugin
+            registries.forEach(r => {
+                if (plugin.startsWith(r)) {
+                    plugin = plugin.substring(r.length);
+                }
+            });
+
+            plugins.push({
+                publisherName: plugin,
+                version
+            });
+        });
+
+        return plugins;
+    }
+
+    /**
+     * Groups all versions of the same plugin in one structure.
+     */
+    private groupPlugins(rawPlugins: ChePluginMetadata[]): ChePlugin[] {
+        const pluginMap: { [pluginKey: string]: ChePlugin } = {};
+
+        rawPlugins.forEach(plugin => {
+            const pluginKey = `${plugin.publisher}/${plugin.name}`;
+            let installationItem = pluginMap[pluginKey];
+            if (!installationItem) {
+                installationItem = {
+                    publisher: plugin.publisher,
+                    name: plugin.name,
+                    version: plugin.version,
+                    installed: false,
+                    versionList: {}
+                };
+
+                pluginMap[pluginKey] = installationItem;
+            } else {
+                installationItem.version = plugin.version;
+            }
+
+            installationItem.versionList[plugin.version] = plugin;
+        });
+
+        const chePlugins: ChePlugin[] = [];
+        for (const key in pluginMap) {
+            if (pluginMap.hasOwnProperty(key)) {
+                chePlugins.push(pluginMap[key]);
+            }
+        }
+
+        return chePlugins;
+    }
+
+    /**
+     * Installs the plugin.
+     */
+    async install(plugin: ChePlugin): Promise<boolean> {
+        const metadata = plugin.versionList[plugin.version];
+
         try {
             // add the plugin to workspace configuration
-            await this.chePluginService.addPlugin(plugin.key);
-            this.messageService.info(`Plugin '${plugin.publisher}/${plugin.name}/${plugin.version}' has been successfully installed`);
+            await this.chePluginService.addPlugin(metadata.key);
+            this.messageService.info(`Plugin '${metadata.publisher}/${metadata.name}/${metadata.version}' has been successfully installed`);
 
             // add the plugin to the list of workspace plugins
-            this.installedPlugins.push(plugin.key);
+            this.installedPlugins.push(metadata.key);
 
             // notify that workspace configuration has been changed
             this.notifyWorkspaceConfigurationChanged();
             return true;
         } catch (error) {
-            this.messageService.error(`Unable to install plugin '${plugin.publisher}/${plugin.name}/${plugin.version}'. ${error.message}`);
+            this.messageService.error(`Unable to install plugin '${metadata.publisher}/${metadata.name}/${metadata.version}'. ${error.message}`);
             return false;
         }
     }
 
-    async remove(plugin: ChePluginMetadata): Promise<boolean> {
+    /**
+     * Removes the plugin.
+     */
+    async remove(plugin: ChePlugin): Promise<boolean> {
+        const metadata = plugin.versionList[plugin.version];
+
         try {
             // remove the plugin from workspace configuration
-            await this.chePluginService.removePlugin(plugin.key);
-            this.messageService.info(`Plugin '${plugin.publisher}/${plugin.name}/${plugin.version}' has been successfully removed`);
+            await this.chePluginService.removePlugin(metadata.key);
+            this.messageService.info(`Plugin '${metadata.publisher}/${metadata.name}/${metadata.version}' has been successfully removed`);
 
             // remove the plugin from the list of workspace plugins
-            this.installedPlugins = this.installedPlugins.filter(p => p !== plugin.key);
+            this.installedPlugins = this.installedPlugins.filter(p => p !== metadata.key);
 
             // notify that workspace configuration has been changed
             this.notifyWorkspaceConfigurationChanged();
             return true;
         } catch (error) {
-            this.messageService.error(`Unable to remove plugin '${plugin.publisher}/${plugin.name}/${plugin.version}'. ${error.message}`);
+            this.messageService.error(`Unable to remove plugin '${metadata.publisher}/${metadata.name}/${metadata.version}'. ${error.message}`);
+            return false;
+        }
+    }
+
+    /**
+     * Changes the plugin version.
+     */
+    async changeVersion(plugin: ChePlugin, versionBefore: string): Promise<boolean> {
+        const metadataBefore = plugin.versionList[versionBefore];
+        const metadata = plugin.versionList[plugin.version];
+        try {
+            await this.chePluginService.updatePlugin(metadataBefore.key, metadata.key);
+
+            this.messageService.info(`Plugin '${metadata.publisher}/${metadata.name}' has been successfully updated`);
+
+            // remove old plugin from the list of workspace plugins
+            this.installedPlugins = this.installedPlugins.filter(p => p !== metadataBefore.key);
+
+            // add new plugin to the list of workspace plugins
+            this.installedPlugins.push(metadata.key);
+
+            // notify that workspace configuration has been changed
+            this.notifyWorkspaceConfigurationChanged();
+            return true;
+        } catch (error) {
+            this.messageService.error(`Unable to upate plugin '${metadata.publisher}/${metadata.name}'. ${error.message}`);
             return false;
         }
     }

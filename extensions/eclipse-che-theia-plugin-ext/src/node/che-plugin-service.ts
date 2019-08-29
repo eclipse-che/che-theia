@@ -118,17 +118,12 @@ export class ChePluginServiceImpl implements ChePluginService {
             await this.getDefaultRegistry();
         }
 
-        let pluginList;
-        if (filter) {
-            if (PluginFilter.hasType(filter, '@installed')) {
-                pluginList = await this.getInstalledPlugins();
-            } else {
-                pluginList = await this.getAllPlugins(registry);
-            }
+        // get list of plugins
+        let pluginList = await this.getAllPlugins(registry);
 
+        // filter plugins
+        if (filter) {
             pluginList = PluginFilter.filterPlugins(pluginList, filter);
-        } else {
-            pluginList = await this.getAllPlugins(registry);
         }
 
         // remove che_editor if type @type:che_editor is not set
@@ -151,33 +146,6 @@ export class ChePluginServiceImpl implements ChePluginService {
         const plugins: ChePluginMetadata[] = await Promise.all(
             marketplacePlugins.map(async marketplacePlugin => {
                 const pluginYamlURI = this.getPluginYampURI(registry, marketplacePlugin);
-                return await this.loadPluginMetadata(pluginYamlURI, longKeyFormat);
-            }
-            ));
-
-        return plugins.filter(plugin => plugin !== null && plugin !== undefined);
-    }
-
-    // has prefix @installed
-    async getInstalledPlugins(): Promise<ChePluginMetadata[]> {
-        const workspacePlugins = await this.getWorkspacePlugins();
-        const plugins: ChePluginMetadata[] = await Promise.all(
-            workspacePlugins.map(async workspacePlugin => {
-                let pluginYamlURI;
-                let longKeyFormat = false;
-
-                if (workspacePlugin.startsWith('http://') || workspacePlugin.startsWith('https://')) {
-                    pluginYamlURI = `${workspacePlugin}/meta.yaml`;
-                    longKeyFormat = true;
-                } else {
-                    let uri = this.defaultRegistry.uri;
-                    if (uri.endsWith('/')) {
-                        uri = uri.substring(0, uri.length - 1);
-                    }
-
-                    pluginYamlURI = `${uri}/${workspacePlugin}/meta.yaml`;
-                }
-
                 return await this.loadPluginMetadata(pluginYamlURI, longKeyFormat);
             }
             ));
@@ -364,6 +332,9 @@ export class ChePluginServiceImpl implements ChePluginService {
      */
     async setWorkspacePlugins(plugins: string[]): Promise<void> {
         const workspace: cheApi.workspace.Workspace = await this.cheApiService.currentWorkspace();
+        if (!workspace.devfile.components) {
+            workspace.devfile.components = [];
+        }
 
         if (workspace.config) {
             workspace.config.attributes = workspace.config.attributes || {};
@@ -383,7 +354,7 @@ export class ChePluginServiceImpl implements ChePluginService {
                 if (foundIndex >= 0) {
                     plugins.splice(foundIndex, 1);
                 } else {
-                    workspace.devfile.components.splice(workspace.devfile.components.indexOf(component), 1);
+                    workspace.devfile!.components!.splice(workspace.devfile!.components!.indexOf(component), 1);
                 }
             });
 
@@ -420,6 +391,25 @@ export class ChePluginServiceImpl implements ChePluginService {
         } catch (error) {
             console.error(error);
             return Promise.reject('Unable to remove plugin ' + pluginKey + ' ' + error.message);
+        }
+    }
+
+    async updatePlugin(oldPluginKey: string, newPluginKey: string): Promise<void> {
+        try {
+            // get existing plugins
+            const plugins: string[] = await this.getWorkspacePlugins();
+
+            // remove old plugin key
+            const filteredPlugins = plugins.filter(p => p !== oldPluginKey);
+
+            // add new plugin key
+            filteredPlugins.push(newPluginKey);
+
+            // set plugins
+            await this.setWorkspacePlugins(filteredPlugins);
+        } catch (error) {
+            console.error(error);
+            return Promise.reject(`Unable to update plugin from ${oldPluginKey} to ${newPluginKey}: ${error.message}`);
         }
     }
 
