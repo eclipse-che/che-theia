@@ -26,7 +26,7 @@ export class ChePluginViewContribution extends AbstractViewContribution<ChePlugi
     constructor() {
         super({
             widgetId: ChePluginViewContribution.PLUGINS_WIDGET_ID,
-            widgetName: 'Che Plugins',
+            widgetName: 'Plugins',
             defaultWidgetOptions: {
                 area: 'left',
                 rank: 400
