@@ -11,6 +11,8 @@
 import 'reflect-metadata';
 import * as http from 'http';
 import * as ws from 'ws';
+import * as fs from 'fs';
+import * as path from 'path';
 import { logger } from '@theia/core';
 import { ILogger } from '@theia/core/lib/common';
 import { Emitter } from '@theia/core/lib/common/event';
@@ -57,6 +59,8 @@ export class PluginRemoteInit {
      */
     private sessionId = 0;
 
+    private hostedPluginReader: HostedPluginReader;
+
     constructor(private pluginPort: number) {
 
     }
@@ -90,6 +94,8 @@ export class PluginRemoteInit {
         // start the deployer
         const pluginDeployer = inversifyContainer.get<PluginDeployer>(PluginDeployer);
         pluginDeployer.start();
+
+        this.hostedPluginReader = inversifyContainer.get(HostedPluginReader);
 
         // display message about process being started
         console.log(`Theia Endpoint ${process.pid}/pid listening on port`, this.pluginPort);
@@ -214,6 +220,28 @@ to pick-up automatically a free port`));
                     return;
                 }
 
+                // asked to send plugin resource
+                if (jsonParsed.internal.method === 'getResource') {
+                    const pluginId: string = jsonParsed.internal['pluginId'];
+                    const resourcePath: string = jsonParsed.internal['path'];
+
+                    // tslint:disable-next-line:no-any
+                    const pluginsIdsFiles: Map<string, string> = (this.hostedPluginReader as any).pluginsIdsFiles;
+                    const pluginRootDirectory: string = pluginsIdsFiles.get(pluginId);
+                    const resourceBinary = fs.readFileSync(path.join(pluginRootDirectory, resourcePath));
+                    const resourceBase64 = resourceBinary.toString('base64');
+
+                    client.send({
+                        'internal': {
+                            'method': 'getResource',
+                            'pluginId': pluginId,
+                            'path': resourcePath,
+                            'data': resourceBase64
+                        }
+                    });
+                    return;
+                }
+
                 // asked to grab metadata, send them
                 if (jsonParsed.internal.metadata && 'request' === jsonParsed.internal.metadata) {
                     // apply host on all local metadata
@@ -314,8 +342,8 @@ class PluginDeployerHandlerImpl implements PluginDeployerHandler {
             const metadata = await this.reader.getPluginMetadata(plugin.path());
             if (metadata) {
                 currentBackendPluginsMetadata.push(metadata);
-                const path = metadata.model.entryPoint.backend || plugin.path();
-                this.logger.info(`Backend plug-in "${metadata.model.name}@${metadata.model.version}" from "${path} is now available"`);
+                const pluginPath = metadata.model.entryPoint.backend || plugin.path();
+                this.logger.info(`Backend plug-in "${metadata.model.name}@${metadata.model.version}" from "${pluginPath} is now available"`);
             }
         }
 
