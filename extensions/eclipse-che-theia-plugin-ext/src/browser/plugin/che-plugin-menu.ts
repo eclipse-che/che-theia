@@ -20,8 +20,6 @@ import { CommandRegistry as PhosphorCommandRegistry } from '@phosphor/commands';
 import { Emitter, Event } from '@theia/core/lib/common';
 import { ChePluginManager } from './che-plugin-manager';
 import { ChePluginManagerCommands, ChePluginCommandContribution } from './che-plugin-command-contribution';
-import { MenuModelRegistry, CommandRegistry } from '@theia/core/lib/common';
-import { CommonMenus } from '@theia/core/lib/browser';
 
 @injectable()
 export class ChePluginMenu {
@@ -33,20 +31,6 @@ export class ChePluginMenu {
     protected readonly chePluginManager: ChePluginManager;
 
     protected readonly menuClosed = new Emitter<void>();
-
-    /**
-     * TEMPORARY SOLUTION
-     *
-     * Following code removes 'View/Plugins' menu item and the command that displays/hides Plugins view.
-     * In the future we will try to refactor Che Plugins view and move it to the 'plugin-ext'.
-     */
-    constructor(
-        @inject(MenuModelRegistry) menuModelRegistry: MenuModelRegistry,
-        @inject(CommandRegistry) commandRegistry: CommandRegistry
-    ) {
-        menuModelRegistry.unregisterMenuAction('pluginsView:toggle', CommonMenus.VIEW_VIEWS);
-        commandRegistry.unregisterCommand('pluginsView:toggle');
-    }
 
     get onMenuClosed(): Event<void> {
         return this.menuClosed.event;
