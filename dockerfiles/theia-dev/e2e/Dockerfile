@@ -12,6 +12,6 @@ FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-dev:${BUILD_TAG}
 ARG GITHUB_TOKEN
 
 # Just try to build the latest theia with current image
-RUN git clone -b 'master' --single-branch --depth 1 https://github.com/theia-ide/theia theia
+RUN git clone -b 'v0.10.0' --single-branch --depth 1 https://github.com/theia-ide/theia theia
 RUN cd theia && yarn
 

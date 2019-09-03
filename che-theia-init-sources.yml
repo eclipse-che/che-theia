@@ -18,4 +18,4 @@ sources:
     - plugins/task-plugin
     - plugins/welcome-plugin
     - plugins/ssh-plugin
-  checkoutTo: master
+  checkoutTo: 7.1.0
