@@ -66,7 +66,7 @@ const updateConfig = async (hostName: string) => {
     const configFile = resolve(os.homedir(), '.ssh', 'config');
     await ensureFile(configFile);
     await chmod(configFile, '644');
-    const keyConfig = `\nHost ${hostName.startsWith('default-') ? '*' : hostName}\nIdentityFile ${getKeyFilePath(hostName)}\n`;
+    const keyConfig = `\nHost ${hostName.startsWith('default-') ? '*' : hostName}\nIdentityFile ${getKeyFilePath(hostName)}\nStrictHostKeyChecking = no\n`;
     const configContentBuffer = await readFile(configFile);
     if (configContentBuffer.indexOf(keyConfig) >= 0) {
         const newConfigContent = configContentBuffer.toString().replace(keyConfig, '');
