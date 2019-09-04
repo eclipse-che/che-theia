@@ -31,7 +31,7 @@ pipeline {
             parallel {
                 stage("Build che-theia image") {
                     steps {
-                        withCredentials([string(credentialsId: 'cc890652-da70-4472-acf0-9dfe857f3a20', variable: 'github_token')]) {
+                        withCredentials([string(credentialsId: '088e51af-a9ad-4e32-9c34-82a0371ec26e', variable: 'github_token')]) {
                             script {
                                 sh """
                                   export GITHUB_TOKEN=${github_token}
