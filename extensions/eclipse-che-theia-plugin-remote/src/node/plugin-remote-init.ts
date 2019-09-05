@@ -11,6 +11,8 @@
 import 'reflect-metadata';
 import * as http from 'http';
 import * as ws from 'ws';
+import * as fs from 'fs';
+import * as path from 'path';
 import { logger } from '@theia/core';
 import { ILogger } from '@theia/core/lib/common';
 import { Emitter } from '@theia/core/lib/common/event';
@@ -26,6 +28,7 @@ import { DummyTraceLogger } from './dummy-trace-logger';
 import pluginRemoteBackendModule from './plugin-remote-backend-module';
 import { TerminalContainerAware } from './terminal-container-aware';
 import { PluginDiscovery } from './plugin-discovery';
+import { PluginReaderExtension } from './plugin-reader-extension';
 
 interface CheckAliveWS extends ws {
     alive: boolean;
@@ -56,6 +59,8 @@ export class PluginRemoteInit {
      * store session ID
      */
     private sessionId = 0;
+
+    private pluginReaderExtension: PluginReaderExtension;
 
     constructor(private pluginPort: number) {
 
@@ -90,6 +95,8 @@ export class PluginRemoteInit {
         // start the deployer
         const pluginDeployer = inversifyContainer.get<PluginDeployer>(PluginDeployer);
         pluginDeployer.start();
+
+        this.pluginReaderExtension = inversifyContainer.get(PluginReaderExtension);
 
         // display message about process being started
         console.log(`Theia Endpoint ${process.pid}/pid listening on port`, this.pluginPort);
@@ -214,6 +221,32 @@ to pick-up automatically a free port`));
                     return;
                 }
 
+                // asked to send plugin resource
+                if (jsonParsed.internal.method === 'getResource') {
+                    const pluginId: string = jsonParsed.internal['pluginId'];
+                    const resourcePath: string = jsonParsed.internal['path'];
+
+                    const pluginRootDirectory = this.pluginReaderExtension.getPluginRootDirectory(pluginId);
+                    const resourceFilePath = path.join(pluginRootDirectory!, resourcePath);
+
+                    let resourceBase64: string | undefined;
+                    if (fs.existsSync(resourceFilePath)) {
+                        const resourceBinary = fs.readFileSync(resourceFilePath);
+                        resourceBase64 = resourceBinary.toString('base64');
+                    }
+
+                    client.send({
+                        'internal': {
+                            'method': 'getResource',
+                            'pluginId': pluginId,
+                            'path': resourcePath,
+                            'data': resourceBase64
+                        }
+                    });
+
+                    return;
+                }
+
                 // asked to grab metadata, send them
                 if (jsonParsed.internal.metadata && 'request' === jsonParsed.internal.metadata) {
                     // apply host on all local metadata
@@ -314,8 +347,8 @@ class PluginDeployerHandlerImpl implements PluginDeployerHandler {
             const metadata = await this.reader.getPluginMetadata(plugin.path());
             if (metadata) {
                 currentBackendPluginsMetadata.push(metadata);
-                const path = metadata.model.entryPoint.backend || plugin.path();
-                this.logger.info(`Backend plug-in "${metadata.model.name}@${metadata.model.version}" from "${path} is now available"`);
+                const pluginPath = metadata.model.entryPoint.backend || plugin.path();
+                this.logger.info(`Backend plug-in "${metadata.model.name}@${metadata.model.version}" from "${pluginPath} is now available"`);
             }
         }
 
