@@ -25,7 +25,7 @@ export interface IContainer {
             path?: string;
         };
     },
-    commands?: string[]
+    commands?: { commandName: string, commandLine: string }[]
 }
 
 enum ContainerType {
@@ -96,7 +96,7 @@ export class ContainersService {
                     if (command.attributes && command.attributes.machineName && command.attributes.machineName !== name) {
                         return;
                     }
-                    container.commands.push(command.name);
+                    container.commands.push({ commandName: command.name, commandLine: command.commandLine });
                 });
             }
             if (machine && machine.servers) {
