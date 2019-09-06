@@ -99,14 +99,14 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                 command: { id: 'terminal-in-specific-container:new', arguments: [container.name] }
             });
             if (container.commands && container.commands.length) {
-                container.commands.forEach((commandName: string) => {
+                container.commands.forEach((command: { commandName: string, commandLine: string }) => {
                     this.treeNodeItems.push({
                         id: this.getRandId(),
                         parentId: treeItem.id,
-                        name: commandName,
-                        tooltip: 'execute the command',
+                        name: command.commandName,
+                        tooltip: command.commandLine,
                         iconPath: 'fa-cogs medium-yellow',
-                        command: { id: 'task:run', arguments: [this.getRootPath(), commandName] }
+                        command: { id: 'task:run', arguments: [this.getRootPath(), command.commandName] }
                     });
                 });
             }
