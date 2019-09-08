@@ -8,6 +8,7 @@ pipeline {
         timeout(time: 120, unit: 'MINUTES')
         buildDiscarder(logRotator(artifactDaysToKeepStr: '',
                 artifactNumToKeepStr: '', daysToKeepStr: '60', numToKeepStr: '100'))
+        ansiColor('xterm')
     }
 
     environment {
@@ -32,11 +33,13 @@ pipeline {
                 stage("Build che-theia image") {
                     steps {
                         withCredentials([string(credentialsId: '088e51af-a9ad-4e32-9c34-82a0371ec26e', variable: 'github_token')]) {
-                            script {
-                                sh """
-                                  export GITHUB_TOKEN=${github_token}
-                                  ${WORKSPACE}/build.sh --pr --skip-tests
-                                """
+                            nodejs('nodejs-10.9.0') {
+                                script {
+                                    sh """
+                                      export GITHUB_TOKEN=${github_token}
+                                      ${WORKSPACE}/build.sh --pr --skip-tests
+                                    """
+                                }
                             }
                         }
                     }
