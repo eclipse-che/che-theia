@@ -5,7 +5,7 @@ pipeline {
 
     options {
         timestamps()
-        timeout(time: 40, unit: 'MINUTES')
+        timeout(time: 120, unit: 'MINUTES')
         buildDiscarder(logRotator(artifactDaysToKeepStr: '',
                 artifactNumToKeepStr: '', daysToKeepStr: '60', numToKeepStr: '100'))
     }
@@ -25,10 +25,10 @@ pipeline {
     }
 
     stages {
-        stage("Build che-theia image and prepare to start Che on K8S") {
-            failFast true
+//        stage("Build che-theia image and prepare to start Che on K8S") {
+//            failFast true
 
-            parallel {
+//            parallel {
                 stage("Build che-theia image") {
                     steps {
                         withCredentials([string(credentialsId: '088e51af-a9ad-4e32-9c34-82a0371ec26e', variable: 'github_token')]) {
@@ -115,8 +115,8 @@ pipeline {
                         }
                     }
                 }
-            }
-        }
+//            }
+//        }
 
         stage("Push che-theia image to docker.io") {
             steps {
