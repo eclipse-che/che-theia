@@ -93,5 +93,5 @@ ENV ASPNETCORE_URLS=http://+:80 \
     NUGET_XMLDOC_MODE=skip
 
 # Trigger first run experience by running arbitrary cmd to populate local package cache
-RUN dotnet --version
+RUN dotnet help
 ENTRYPOINT ["/entrypoint.sh"]
