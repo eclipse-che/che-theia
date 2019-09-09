@@ -141,7 +141,7 @@ pipeline {
                     sh """
                       ${WORKSPACE}/chectl server:start \\
                         --k8spodreadytimeout=180000 \\
-                        -t=${WORKSPACE}/deploy/ \\
+                        -t=${WORKSPACE}/che/deploy/ \\
                         --platform=minikube \\
                         --listr-renderer=verbose
                     """
