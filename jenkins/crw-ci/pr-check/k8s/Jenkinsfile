@@ -1,7 +1,7 @@
 #!groovy
 
 pipeline {
-    agent { label 'minikube-rhel7-16gb' }
+    agent { label 'minikube-rhel7-32gb' }
 
     options {
         timestamps()
@@ -30,7 +30,7 @@ pipeline {
             failFast true
 
             parallel {
-                stage("Build che-theia image") {
+/*                stage("Build che-theia image") {
                     steps {
                         withCredentials([string(credentialsId: '088e51af-a9ad-4e32-9c34-82a0371ec26e', variable: 'github_token')]) {
                             nodejs('nodejs-10.9.0') {
@@ -44,7 +44,7 @@ pipeline {
                         }
                     }
                 }
-
+*/
                 stage("Download chectl") {
                     steps {
                         script {
@@ -120,7 +120,7 @@ pipeline {
                 }
             }
         }
-
+/*
         stage("Push che-theia image to docker.io") {
             steps {
                 withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'maxura_docker_password')]) {
@@ -134,13 +134,13 @@ pipeline {
                 }
             }
         }
-
+*/
         stage("Start Single Che") {
             steps {
                 script {
                     sh """
                       ${WORKSPACE}/chectl server:start \\
-                        --k8spodreadytimeout=180000 \\
+                        --k8spodreadytimeout=360000 \\
                         -t=${WORKSPACE}/che/deploy/ \\
                         --platform=minikube \\
                         --listr-renderer=verbose
