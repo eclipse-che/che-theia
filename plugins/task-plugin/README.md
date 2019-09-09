@@ -21,7 +21,7 @@ The format of a Che task is the following:
     "command": "",
     "target": {
         "workspaceId": "",
-        "machineName": "",
+        "containerName": "",
         "workingDir": ""
     },
     "previewUrl": ""
