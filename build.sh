@@ -22,7 +22,7 @@ else
     buildImages "${DOCKER_FILES_LOCATIONS[@]}"
 fi
 
-if [ "${1:-}" = "--push" ]; then 
+if [ "${1:-}" = "--push" ]; then
     echo "Pushing ALL images..."
     publishImages "${IMAGES_LIST[@]}"
 fi

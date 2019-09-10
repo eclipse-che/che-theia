@@ -10,6 +10,8 @@
 base_dir=$(cd "$(dirname "$0")"; pwd)
 . "${base_dir}"/../build.include
 
+check_github_limits
+
 DIR=$(cd "$(dirname "$0")"; pwd)
 LOCAL_ASSEMBLY_DIR="${DIR}"/docker-build
 
@@ -17,7 +19,7 @@ if [ -d "${LOCAL_ASSEMBLY_DIR}" ]; then
   rm -rf "${LOCAL_ASSEMBLY_DIR}"
 fi
 
-#in mac os 'cp' cannot create destination dir, so create it first
+# In mac os 'cp' cannot create destination dir, so create it first
 mkdir ${LOCAL_ASSEMBLY_DIR}
 
 echo "Copying ${base_dir}/../../extensions/eclipse-che-theia-plugin --> ${LOCAL_ASSEMBLY_DIR}/theia-plugin"
