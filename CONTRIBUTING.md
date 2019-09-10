@@ -5,8 +5,9 @@ Table of contents
 
  - [Introduction](#introduction)
  - [Devfiles](#devfiles)
- - [Devfile for contributing to Theia or Che-Theia extensions or Che-plugins](#devfile-for-contributing-to-theia-or-che-theia-extensions-or-che-plugins)
- - [Contributing to other parts of Che Theia](#contributing-to-other-parts-of-che-theia)
+ - [Contribute to Theia or Che-Theia extensions or built-in Che-Theia plugins](#contribute-to-theia-or-che-theia-extensions-or-built-in-che-theia-plugins)
+   - [Just want to build the plugin and run with the existing Theia image](####just-want-to-build-the-plugin-and-run-with-the-existing-theia-image)
+ - [How to develop Che Theia remote plugin mechanism](#how-to-develop-che-theia-remote-plugin-mechanism)
 
 ## Introduction
 
@@ -28,7 +29,7 @@ Devfile could be launched through a factory or [chectl](https://github.com/che-i
 $ chectl workspace:start -f devfiles/che-theia-all.devfile.yaml
 ```
 
-## Devfile for contributing to Theia or Che-Theia extensions or Che-plugins
+## Contribute to Theia or Che-Theia extensions or built-in Che-Theia plugins
 > Note that this devfile is going to evolve very soon and be splitted into multiple devfiles.
 
 The devfile: [<this.repo>/devfiles/che-theia-all.devfile.yaml](./devfiles/che-theia-all.devfile.yaml)
@@ -143,9 +144,8 @@ If you do not have any changes on Theia or Che-theia extension, you could just b
 and run these plugins with the existing che-theia app:
 `run ... HOSTED che-theia + container-plugin` or `run ... HOSTED che-theia + factory-plugin`
 
-## Contributing to other parts of Che Theia
 
-### How to develop Che Theia remote plugin mechanism
+## How to develop Che Theia remote plugin mechanism
 
 _Please note, this section provides a flow how to develop remote plugin mechanism in Che Theia, but not a remote plugin._
 
