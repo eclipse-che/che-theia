@@ -13,4 +13,5 @@ RUN apk --no-cache add openjdk11 --repository=http://dl-cdn.alpinelinux.org/alpi
     && apk add procps nss \
     && chmod 777 /home/theia
 ENV JAVA_HOME /usr/lib/jvm/default-jvm/
+ADD etc/before-start.sh /before-start.sh
 WORKDIR /projects
