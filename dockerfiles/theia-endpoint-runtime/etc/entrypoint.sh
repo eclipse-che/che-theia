@@ -51,6 +51,8 @@ trap 'responsible_shutdown' SIGHUP SIGTERM SIGINT
 
 cd ${HOME}
 
+[ -f "/before-start.sh" ] && . "/before-start.sh"
+
 # run theia endpoint
 node /home/theia/lib/node/plugin-remote.js &
 
