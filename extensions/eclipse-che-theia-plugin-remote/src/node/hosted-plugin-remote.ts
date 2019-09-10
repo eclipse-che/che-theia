@@ -16,6 +16,8 @@ import { Websocket } from './websocket';
 import { getPluginId } from '@theia/plugin-ext/lib/common';
 import { PluginDiscovery } from './plugin-discovery';
 
+type PromiseResolver = (value?: Buffer) => void;
+
 /**
  * Class handling remote connection for executing plug-ins.
  * @author Florent Benoit
@@ -32,14 +34,19 @@ export class HostedPluginRemote {
     protected hostedPluginMapping: HostedPluginMapping;
 
     /**
-     * mapping between endpoint name and the websockets
+     * Mapping between endpoint name and the websockets
      */
     private endpointsSockets = new Map<string, Websocket>();
 
     /**
-     * mapping between endpoint's name and the websocket endpoint
+     * Mapping between endpoint's name and the websocket endpoint
      */
     private pluginsMetadata: Map<string, PluginMetadata[]> = new Map<string, PluginMetadata[]>();
+
+    /**
+     * Mapping between resource request id (pluginId_resourcePath) and resource query callback.
+     */
+    private resourceRequests: Map<string, PromiseResolver> = new Map<string, PromiseResolver>();
 
     @postConstruct()
     protected postConstruct(): void {
@@ -155,6 +162,14 @@ export class HostedPluginRemote {
                     this.hostedPluginMapping.getPluginsEndPoints().set(entryName, jsonMessage.endpointName);
                 }
             });
+            return;
+        }
+
+        if (jsonMessage.method === 'getResource') {
+            const resourceBase64 = jsonMessage.data;
+            const resource = resourceBase64 ? Buffer.from(resourceBase64, 'base64') : undefined;
+            this.onGetResourceResponse(jsonMessage['pluginId'], jsonMessage['path'], resource);
+            return;
         }
     }
 
@@ -175,6 +190,52 @@ export class HostedPluginRemote {
      */
     async getExtraPluginMetadata(): Promise<PluginMetadata[]> {
         return [].concat.apply([], [...this.pluginsMetadata.values()]);
+    }
+
+    /**
+     * Sends request to retreive plugin resource from its sidecar.
+     * Returns undefined if plugin doesn't run in sidecar or doesn't exist.
+     * @param pluginId id of the plugin for which resource should be retreived
+     * @param resourcePath relative path of the requested resource based on plugin root directory
+     */
+    public requestPluginResource(pluginId: string, resourcePath: string): Promise<Buffer | undefined> {
+        if (this.hasEndpoint(pluginId) && resourcePath) {
+            return new Promise<Buffer | undefined>((resolve, reject) => {
+                const endpoint = this.hostedPluginMapping.getPluginsEndPoints().get(pluginId);
+                const targetWebsocket = this.endpointsSockets.get(endpoint);
+                if (!targetWebsocket) {
+                    reject(new Error(`No websocket connection for plugin: ${pluginId}`));
+                }
+
+                this.resourceRequests.set(this.getResourceRequestId(pluginId, resourcePath), resolve);
+                targetWebsocket.send(JSON.stringify({
+                    'internal': {
+                        'method': 'getResource',
+                        'pluginId': pluginId,
+                        'path': resourcePath
+                    }
+                }));
+            });
+        }
+        return undefined;
+    }
+
+    /**
+     * Handles all responses from all remote plugins.
+     * Resolves promise from getResource method with requested data.
+     */
+    onGetResourceResponse(pluginId: string, resourcePath: string, resource: Buffer | undefined): void {
+        const key = this.getResourceRequestId(pluginId, resourcePath);
+        const resourceResponsePromiseResolver = this.resourceRequests.get(key);
+        if (resourceResponsePromiseResolver) {
+            // This response is being waited for
+            this.resourceRequests.delete(key);
+            resourceResponsePromiseResolver(resource);
+        }
+    }
+
+    private getResourceRequestId(pluginId: string, resourcePath: string): string {
+        return pluginId + '_' + resourcePath;
     }
 
 }
