@@ -6,7 +6,7 @@ Table of contents
  - [Introduction](#introduction)
  - [Devfiles](#devfiles)
  - [Contribute to Theia or Che-Theia extensions or built-in Che-Theia plugins](#contribute-to-theia-or-che-theia-extensions-or-built-in-che-theia-plugins)
-   - [Just want to build the plugin and run with the existing Theia image](####just-want-to-build-the-plugin-and-run-with-the-existing-theia-image)
+   - [Just want to build the plugin and run with the existing Theia image](#just-want-to-build-the-plugin-and-run-with-the-existing-theia-image)
  - [How to develop Che Theia remote plugin mechanism](#how-to-develop-che-theia-remote-plugin-mechanism)
 
 ## Introduction
