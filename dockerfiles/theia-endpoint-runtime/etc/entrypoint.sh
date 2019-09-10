@@ -11,35 +11,6 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-set_maven_mirror() {
-    local m2="$HOME"/.m2
-    local settingsXML="$m2"/settings.xml
-
-    [ ! -d "$m2" ] && mkdir -p "$m2"
-
-    if [ ! -f "$settingsXML" ]; then
-        echo "<settings xmlns=\"http://maven.apache.org/SETTINGS/1.0.0\"" >> "$settingsXML"
-        echo "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" >> "$settingsXML"
-        echo "  xsi:schemaLocation=\"http://maven.apache.org/SETTINGS/1.0.0" >> "$settingsXML"
-        echo "                      https://maven.apache.org/xsd/settings-1.0.0.xsd\">" >> "$settingsXML"
-        echo "  <mirrors>" >> "$settingsXML"
-        echo "    <mirror>" >> "$settingsXML"
-        echo "      <url>\${env.MAVEN_MIRROR_URL}</url>" >> "$settingsXML"
-        echo "      <mirrorOf>external:*</mirrorOf>" >> "$settingsXML"
-        echo "    </mirror>" >> "$settingsXML"
-        echo "  </mirrors>" >> "$settingsXML"
-        echo "</settings>" >> "$settingsXML"
-    else
-        if ! grep -q "<url>\${env.MAVEN_MIRROR_URL}</url>" "$settingsXML"; then
-            if grep -q "<mirrors>" "$settingsXML"; then
-                sed -i 's/<mirrors>/<mirrors>\n    <mirror>\n      <url>${env.MAVEN_MIRROR_URL}<\/url>\n      <mirrorOf>external:\*<\/mirrorOf>\n    <\/mirror>/' "$settingsXML"
-            else
-                sed -i 's/<\/settings>/  <mirrors>\n    <mirror>\n      <url>${env.MAVEN_MIRROR_URL}<\/url>\n      <mirrorOf>external:*<\/mirrorOf>\n    <\/mirror>\n  <\/mirrors>\n<\/settings>/' "$settingsXML"
-            fi
-        fi
-    fi
-}
-
 export USER_ID=$(id -u)
 export GROUP_ID=$(id -g)
 
@@ -80,8 +51,7 @@ trap 'responsible_shutdown' SIGHUP SIGTERM SIGINT
 
 cd ${HOME}
 
-# generate settings.xml if needed
-[ ! -z "$MAVEN_MIRROR_URL" ] && set_maven_mirror
+[ -f "/before-start.sh" ] && . "/before-start.sh"
 
 # run theia endpoint
 node /home/theia/lib/node/plugin-remote.js &

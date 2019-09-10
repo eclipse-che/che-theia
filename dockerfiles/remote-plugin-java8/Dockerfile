@@ -11,4 +11,5 @@
 FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG}
 RUN apk --update --no-cache add openjdk8 procps nss
 ENV JAVA_HOME /usr/lib/jvm/default-jvm/
+ADD etc/before-start.sh /before-start.sh
 WORKDIR /projects
