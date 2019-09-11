@@ -120,7 +120,7 @@ pipeline {
                 }
             }
         }
-*
+
         stage("Push che-theia image to docker.io") {
             steps {
                 withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'maxura_docker_password')]) {
