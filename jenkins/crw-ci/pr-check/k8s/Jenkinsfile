@@ -30,7 +30,7 @@ pipeline {
             failFast true
 
             parallel {
-/*                stage("Build che-theia image") {
+                stage("Build che-theia image") {
                     steps {
                         withCredentials([string(credentialsId: '088e51af-a9ad-4e32-9c34-82a0371ec26e', variable: 'github_token')]) {
                             nodejs('nodejs-10.9.0') {
@@ -44,7 +44,7 @@ pipeline {
                         }
                     }
                 }
-*/
+
                 stage("Download chectl") {
                     steps {
                         script {
@@ -120,7 +120,7 @@ pipeline {
                 }
             }
         }
-/*
+*
         stage("Push che-theia image to docker.io") {
             steps {
                 withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'maxura_docker_password')]) {
@@ -134,7 +134,7 @@ pipeline {
                 }
             }
         }
-*/
+
         stage("Start Single Che") {
             steps {
                 script {
@@ -278,8 +278,6 @@ pipeline {
                    kubectl get configmaps --namespace=che che -o yaml || true                      
                 """
             }
-
-            cleanWs notFailBuild: true, disableDeferredWipeout: true, deleteDirs: true
         }
 
     }
