@@ -10,6 +10,8 @@
 base_dir=$(cd "$(dirname "$0")"; pwd)
 . "${base_dir}"/../build.include
 
+check_github_limits
+
 DIR=$(cd "$(dirname "$0")"; pwd)
 LOCAL_ASSEMBLY_DIR="${DIR}"/che-theia
 
@@ -17,7 +19,7 @@ if [ -d "${LOCAL_ASSEMBLY_DIR}" ]; then
   rm -r "${LOCAL_ASSEMBLY_DIR}"
 fi
 
-#in mac os 'cp' cannot create destination dir, so create it first
+# In mac os 'cp' cannot create destination dir, so create it first
 mkdir ${LOCAL_ASSEMBLY_DIR}
 
 echo "Compresing 'che-theia' --> ${LOCAL_ASSEMBLY_DIR}/che-theia.tar.gz"
@@ -36,7 +38,7 @@ fi
 build
 
 if ! skip_tests; then
-  bash "${base_dir}"/e2e/build.sh "$PREFIX-$NAME" "$@" 
+  bash "${base_dir}"/e2e/build.sh "$PREFIX-$NAME" "$@"
 fi
 
 echo "Extracting artifacts for the CDN"

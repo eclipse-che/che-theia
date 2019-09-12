@@ -203,3 +203,27 @@ get_mount_path() {
   CLEAN_PATH=$(get_clean_path "${POSIX_PATH}")
   echo $CLEAN_PATH
 }
+
+# Checks limit for queries to GitHub API
+# If limit has at least 10 queries then probably build will be succesfull
+# If limit has less than 10 queries but GITHUB_TOKEN environment variable is provided it should be ok
+# If limit has less than 10 queries and GITHUB_TOKEN environment variable is not provided, then the build will fail
+# Fails the script if build will probably fail
+check_github_limits() {
+  if [ -n "${GITHUB_TOKEN:-}" ]; then
+      export GITHUB_TOKEN=$GITHUB_TOKEN
+      echo "Setting GITHUB_TOKEN value from provided variable"
+    else
+      export GITHUB_LIMIT=$(curl -s 'https://api.github.com/rate_limit' | jq '.rate .remaining')
+      echo "Current API rate limit for https://api.github.com is ${GITHUB_LIMIT}"
+      if [ "${GITHUB_LIMIT}" -lt 10 ]; then
+        printf "\n\n\033[0;31m"
+        printf "Rate limit for https://api.github.com is reached."
+        printf "To be able to build this image, please provide GITHUB_TOKEN environment variable"
+        printf "\n\n\033[0m"
+        exit 1
+      else
+        echo "GITHUB_TOKEN variable is not set but https://api.github.com rate limit has enough slots"
+      fi
+    fi
+}
