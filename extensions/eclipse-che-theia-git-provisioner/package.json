@@ -1,0 +1,51 @@
+{
+    "name": "@eclipse-che/theia-git-provisioner",
+    "keywords": [
+      "theia-extension",
+      "che",
+      "preferences"
+    ],
+    "version": "0.0.1",
+    "license": "EPL-2.0",
+    "files": [
+      "lib",
+      "src"
+    ],
+    "dependencies": {
+      "@eclipse-che/theia-plugin-ext": "^0.0.1",
+      "@theia/core": "next",
+      "@theia/preferences": "next",
+      "ini": "^1.3.5",
+      "nsfw": "^1.2.2",
+      "@eclipse-che/theia-user-preferences-synchronizer": "0.0.1"
+    },
+    "scripts": {
+      "prepare": "yarn run clean && yarn run build",
+      "clean": "rimraf lib",
+      "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
+      "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
+      "compile": "tsc",
+      "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
+      "test": "jest"
+    },
+    "theiaExtensions": [
+      {
+        "frontend": "lib/browser/git-frontend-module",
+        "backend": "lib/node/git-backend-module"
+      }
+    ],
+    "jest": {
+      "testEnvironment": "jsdom",
+      "transform": {
+        "^.+\\.tsx?$": "ts-jest"
+      },
+      "testMatch": [
+        "**/tests/*.(ts)"
+      ],
+      "moduleNameMapper": {
+        "\\.(css|less)$": "<rootDir>/tests/mock.js"
+      },
+      "moduleFileExtensions": ["js", "ts"]
+    }
+  }
+  
