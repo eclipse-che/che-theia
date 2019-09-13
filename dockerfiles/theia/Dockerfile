@@ -61,14 +61,14 @@ RUN che:theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 # Unset GITHUB_TOKEN environment variable if it is empty.
 # This is needed for some tools which use this variable and will fail with 401 Unauthorized error if it is invalid.
 # For example, vscode ripgrep downloading is an example of such case.
-RUN if [ -z $GITHUB_TOKEN]; then unset GITHUB_TOKEN; fi && \
+RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
     yarn
 
 # Run into production mode
 RUN che:theia production
 
 # Compile plugins
-RUN if [ -z $GITHUB_TOKEN]; then unset GITHUB_TOKEN; fi && \
+RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
     cd plugins && ./foreach_yarn
 
 # change permissions

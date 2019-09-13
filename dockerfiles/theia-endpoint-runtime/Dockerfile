@@ -24,7 +24,7 @@ COPY /docker-build/theia-plugin-remote/package.json /home/workspace/packages/the
 # Unset GITHUB_TOKEN environment variable if it is empty.
 # This is needed for some tools which use this variable and will fail with 401 Unauthorized error if it is invalid.
 # For example, vscode ripgrep downloading is an example of such case.
-RUN if [ -z $GITHUB_TOKEN]; then unset GITHUB_TOKEN; fi && \
+RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
     cd /home/workspace/packages/theia-remote/ && yarn install --ignore-scripts
 
 # Compile
@@ -36,7 +36,7 @@ COPY /docker-build/theia-plugin /home/workspace/packages/theia-plugin
 COPY /docker-build/theia-plugin-remote/tsconfig.json /home/workspace/packages/theia-plugin/tsconfig.json
 
 COPY /etc/package.json /home/workspace
-RUN if [ -z $GITHUB_TOKEN]; then unset GITHUB_TOKEN; fi && \
+RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
     cd /home/workspace/ && yarn install
 
 FROM node:10.16-alpine
