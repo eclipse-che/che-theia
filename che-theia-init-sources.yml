@@ -11,6 +11,7 @@ sources:
     - extensions/eclipse-che-theia-activity-tracker
     - extensions/eclipse-che-theia-about
     - extensions/eclipse-che-theia-preferences-provider-extension
+    - extensions/eclipse-che-theia-git-provisioner
   plugins:
     - plugins/containers-plugin
     - plugins/factory-plugin
