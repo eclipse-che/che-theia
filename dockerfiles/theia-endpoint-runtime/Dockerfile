@@ -15,7 +15,7 @@ ARG GITHUB_TOKEN=''
 ENV GITHUB_TOKEN=$GITHUB_TOKEN
 
 # Invalidate cache if any source code has changed
-ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/theia-ide/theia/git/refs/head /tmp/branch_info.json
+ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/eclipse-theia/theia/git/refs/head /tmp/branch_info.json
 ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/eclipse/che-theia/git/refs/head /tmp/branch_info.json
 
 # Grab dependencies

@@ -13,7 +13,7 @@ ARG GITHUB_TOKEN=''
 ENV GITHUB_TOKEN=$GITHUB_TOKEN
 
 # Just try to build the latest theia with current image
-RUN git clone -b 'master' --single-branch --depth 1 https://github.com/theia-ide/theia theia
+RUN git clone -b 'master' --single-branch --depth 1 https://github.com/eclipse-theia/theia theia
 
 # Unset GITHUB_TOKEN environment variable if it is empty.
 # This is needed for some tools which use this variable and will fail with 401 Unauthorized error if it is invalid.

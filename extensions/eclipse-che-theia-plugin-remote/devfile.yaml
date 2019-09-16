@@ -5,7 +5,7 @@ projects:
   - name: theia
     source:
       type: git
-      location: 'https://github.com/theia-ide/theia.git'
+      location: 'https://github.com/eclipse-theia/theia.git'
 components:
   - type: cheEditor
     id: eclipse/che-theia/next
