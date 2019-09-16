@@ -162,7 +162,7 @@ describe('Devfile: Projects:', () => {
                     'name': 'theia',
                     'source': {
                         'type': 'git',
-                        'location': 'https://github.com/theia-ide/theia.git'
+                        'location': 'https://github.com/eclipse-theia/theia.git'
                     }
                 },
                 {
@@ -175,7 +175,7 @@ describe('Devfile: Projects:', () => {
                     }
                 }
             ];
-            expect(projects[0].source.location).toBe('https://github.com/theia-ide/theia.git');
+            expect(projects[0].source.location).toBe('https://github.com/eclipse-theia/theia.git');
             expect(projects[1].source.location).toBe('https://github.com/eclipse/che-theia-factory-extension.git');
 
             projecthelper.updateOrCreateGitProjectInDevfile(projects,
@@ -201,7 +201,7 @@ describe('Devfile: Projects:', () => {
                     'name': 'theia',
                     'source': {
                         'type': 'git',
-                        'location': 'https://github.com/theia-ide/theia.git'
+                        'location': 'https://github.com/eclipse-theia/theia.git'
                     }
                 },
                 {
@@ -214,12 +214,12 @@ describe('Devfile: Projects:', () => {
                     }
                 }
             ];
-            expect(projects[0].source.location).toBe('https://github.com/theia-ide/theia.git');
+            expect(projects[0].source.location).toBe('https://github.com/eclipse-theia/theia.git');
             expect(projects[1].source.location).toBe('https://github.com/eclipse/che-theia-factory-extension.git');
 
             projecthelper.deleteProjectFromDevfile(projects, 'che-theia-factory-extension');
             expect(projects.length).toBe(1);
-            expect(projects[0].source.location).toBe('https://github.com/theia-ide/theia.git');
+            expect(projects[0].source.location).toBe('https://github.com/eclipse-theia/theia.git');
 
             projecthelper.deleteProjectFromDevfile(projects, 'theia');
             expect(projects.length).toBe(0);
