@@ -14,9 +14,8 @@ FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-dev:${BUILD_TAG} as builder
 ARG GITHUB_TOKEN=''
 ENV GITHUB_TOKEN=$GITHUB_TOKEN
 
-# Invalidate cache if any source code has changed
-ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/theia-ide/theia/git/refs/head /tmp/branch_info.json
-ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/eclipse/che-theia/git/refs/head /tmp/branch_info.json
+# turn off caching; it's workaround to https://github.com/eclipse/che-theia/compare/che-14529
+ARG CACHEBUST=1
 
 # Grab dependencies
 COPY /docker-build/theia-plugin-remote/package.json /home/workspace/packages/theia-remote/

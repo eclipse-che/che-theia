@@ -25,8 +25,8 @@ ARG THEIA_VERSION=master
 
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-# Invalidate cache if any source code has changed
-ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/${THEIA_GITHUB_REPO}/git/${GIT_REF} /tmp/branch_info.json
+# turn off caching; it's workaround to https://github.com/eclipse/che-theia/compare/che-14529
+ARG CACHEBUST=1
 
 # Clone theia
 RUN git clone --branch ${GIT_BRANCH_NAME} --single-branch --depth 1 https://github.com/${THEIA_GITHUB_REPO} ${HOME}/theia-source-code
