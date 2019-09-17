@@ -53,15 +53,19 @@ export class AboutCheTheiaDialog extends AboutDialog {
 
         // Che-Theia
         const cheTheiaTitle = document.createElement('h4');
+
         const cheTheiaLink = document.createElement('a');
-        cheTheiaLink.setAttribute('href', `https://github.com/eclipse/che-theia/commit/${jsonDetails.cheSha1}`);
-        cheTheiaLink.innerHTML = `${jsonDetails.cheSha1}`;
+        cheTheiaLink.setAttribute('href', `https://github.com/eclipse/che-theia/commit/${jsonDetails.cheTheiaSha1}`);
+        cheTheiaLink.setAttribute('target', '_blank');
         cheTheiaLink.setAttribute('style', 'color: var(--theia-ui-dialog-font-color);');
+        cheTheiaLink.innerHTML = `${jsonDetails.cheTheiaSha1}`;
+
         const theiaLink = document.createElement('a');
         theiaLink.setAttribute('href', `https://github.com/theia-ide/theia/commit/${jsonDetails.theiaSha1}`);
+        theiaLink.setAttribute('target', '_blank');
         theiaLink.setAttribute('style', 'color: var(--theia-ui-dialog-font-color);');
+        theiaLink.innerHTML = `${jsonDetails.theiaSha1}`;
 
-        theiaLink.innerHTML = `${jsonDetails.cheSha1}`;
         cheTheiaTitle.appendChild(document.createTextNode('Che-Theia@'));
         cheTheiaTitle.appendChild(cheTheiaLink);
         cheTheiaTitle.appendChild(document.createTextNode(' using Theia@'));
