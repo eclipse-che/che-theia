@@ -8,9 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import { ContainersTreeDataProvider } from './containers-tree-data-provider';
-import { ContainersService } from './containers-service';
 import * as theia from '@theia/plugin';
+import { ContainersService } from './containers-service';
+import {
+    ContainersTreeDataProvider,
+    CONTAINERS_PLUGIN_RUN_TASK_COMMAND_ID,
+    containersTreeTaskLauncherCommandHandler
+} from './containers-tree-data-provider';
 
 export function start(context: theia.PluginContext) {
     const treeDataProvider = new ContainersTreeDataProvider();
@@ -28,6 +32,11 @@ export function start(context: theia.PluginContext) {
         console.error(error);
         theia.window.showErrorMessage(error);
     });
+
+    const containersTreeTaskLauncherCommand = { id: CONTAINERS_PLUGIN_RUN_TASK_COMMAND_ID };
+    context.subscriptions.push(
+        theia.commands.registerCommand(containersTreeTaskLauncherCommand, containersTreeTaskLauncherCommandHandler)
+    );
 }
 
 export function stop() {
