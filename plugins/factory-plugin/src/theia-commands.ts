@@ -13,6 +13,7 @@ import * as theia from '@theia/plugin';
 import { che as cheApi } from '@eclipse-che/api';
 import * as fileuri from './file-uri';
 import * as git from './git';
+import * as zip from './zip';
 
 const CHE_TASK_TYPE = 'che';
 
@@ -28,7 +29,33 @@ function isDevfileProjectConfig(project: cheApi.workspace.ProjectConfig | cheApi
     return !!project.name && !!project.source && !!project.source.type && !!project.source.location && !project.source['parameters'];
 }
 
-export class TheiaCloneCommand {
+export interface TheiaCloneCommand {
+    execute(): PromiseLike<void>;
+}
+
+export function getTheiaCloneCommand(
+    project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project,
+    projectsRoot: string
+): TheiaCloneCommand {
+
+    if (!project.source) {
+        return;
+    }
+
+    switch (project.source.type) {
+        case 'git':
+            return new TheiaGitCloneCommand(project, projectsRoot);
+        case 'zip':
+            return new TheiaZipCloneCommand(project, projectsRoot);
+        default:
+            const message = `Project type "${project.source.type}" is not supported yet.`;
+            theia.window.showWarningMessage(message);
+            console.warn(message);
+            return;
+    }
+}
+
+export class TheiaGitCloneCommand implements TheiaCloneCommand {
 
     private locationURI: string | undefined;
     private folder: string;
@@ -106,6 +133,50 @@ export class TheiaCloneCommand {
             } catch (e) {
                 theia.window.showErrorMessage(`Couldn't clone ${this.locationURI}: ${e.message}`);
                 console.log(`Couldn't clone ${this.locationURI}`, e);
+            }
+        };
+
+        return theia.window.withProgress({
+            location: theia.ProgressLocation.Notification,
+            title: `Cloning ${this.locationURI} ...`
+        }, (progress, token) => clone(progress, token));
+    }
+
+}
+
+export class TheiaZipCloneCommand implements TheiaCloneCommand {
+
+    private locationURI: string | undefined;
+    private folder: string;
+    private zipfile: string;
+
+    constructor(project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project, projectsRoot: string) {
+        if (isDevfileProjectConfig(project)) {
+            const source = project.source;
+
+            this.locationURI = source.location;
+            this.folder = path.join(projectsRoot, project.name);
+            const zipfileRE = /[^\/]+(?:\.zip)$/i;
+            const match = this.locationURI.match(zipfileRE);
+            this.zipfile = match ? match[0] : `${project.name}.zip`;
+        } else {
+            // legacy project config
+            theia.window.showErrorMessage('Legacy workspace config is not supported. Please use devfile instead');
+        }
+    }
+
+    execute(): PromiseLike<void> {
+        if (!this.locationURI) {
+            return new Promise(() => { });
+        }
+
+        const clone = async (progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken): Promise<void> => {
+            try {
+                const zipfilePath = await zip.execWget(this.locationURI, this.folder, this.zipfile);
+                await zip.execZip(this.folder, zipfilePath);
+            } catch (e) {
+                theia.window.showErrorMessage(`Couldn't download ${this.locationURI}: ${e.message}`);
+                console.error(`Couldn't download ${this.locationURI}`, e);
             }
         };
 

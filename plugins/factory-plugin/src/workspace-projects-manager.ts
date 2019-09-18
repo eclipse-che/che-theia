@@ -10,7 +10,7 @@
 
 import * as path from 'path';
 import * as fs from 'fs';
-import { TheiaCloneCommand } from './theia-commands';
+import { TheiaCloneCommand, getTheiaCloneCommand } from './theia-commands';
 import * as git from './git';
 import * as projectsHelper from './projects';
 import * as fileUri from './file-uri';
@@ -130,7 +130,7 @@ export class DevfileProjectsManager extends WorkspaceProjectsManager {
                 const projectPath = project.clonePath ? path.join(instance.projectsRoot, project.clonePath) : path.join(instance.projectsRoot, project.name);
                 return !fs.existsSync(projectPath);
             })
-            .map(project => new TheiaCloneCommand(project, instance.projectsRoot));
+            .map(project => getTheiaCloneCommand(project, instance.projectsRoot));
     }
 
     async updateOrCreateProject(workspace: cheApi.workspace.Workspace, projectFolderURI: string): Promise<void> {
@@ -171,7 +171,7 @@ export class WorkspaceConfigProjectsManager extends WorkspaceProjectsManager {
 
         return projects
             .filter(project => !fs.existsSync(instance.projectsRoot + project.path))
-            .map(project => new TheiaCloneCommand(project, instance.projectsRoot));
+            .map(project => getTheiaCloneCommand(project, instance.projectsRoot));
     }
 
     async updateOrCreateProject(workspace: cheApi.workspace.Workspace, projectFolderURI: string): Promise<void> {

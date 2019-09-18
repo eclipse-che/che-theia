@@ -10,7 +10,7 @@
 import * as theia from '@theia/plugin';
 import * as che from '@eclipse-che/plugin';
 import { che as cheApi } from '@eclipse-che/api';
-import { TheiaCloneCommand, TheiaCommand } from './theia-commands';
+import { getTheiaCloneCommand, TheiaCloneCommand, TheiaCommand } from './theia-commands';
 
 export enum ActionId {
     OPEN_FILE = 'openFile',
@@ -70,7 +70,7 @@ export class FactoryInitializer {
         }
 
         return factory.workspace.projects.map(
-            project => new TheiaCloneCommand(project, instance.projectsRoot)
+            project => getTheiaCloneCommand(project, instance.projectsRoot)
         );
     }
 
