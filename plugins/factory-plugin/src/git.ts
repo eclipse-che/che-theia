@@ -7,7 +7,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
-const { spawn } = require('child_process');
+import { execute } from './exec';
 
 export interface GitUpstreamBranch {
     remote: string;
@@ -55,17 +55,5 @@ export function getGitRootFolder(uri: string): string {
 }
 
 export async function execGit(directory: string, ...args: string[]): Promise<string | undefined> {
-    return new Promise<string | undefined>((resolve, reject) => {
-
-        const gitCommand = spawn('git', args, { cwd: directory });
-        let result = '';
-        gitCommand.stdout.on('data', (data: string) => {
-            result += data.toString();
-        });
-        gitCommand.on('close', () => {
-            result = result.trim();
-            resolve(result);
-        });
-        gitCommand.on('error', () => { resolve(undefined); });
-    });
+    return execute('git', args, { cwd: directory }).catch(() => undefined);
 }

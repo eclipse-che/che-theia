@@ -9,11 +9,13 @@
  **********************************************************************/
 
 import * as path from 'path';
+import * as fs from 'fs';
+import * as os from 'os';
 import * as theia from '@theia/plugin';
 import { che as cheApi } from '@eclipse-che/api';
 import * as fileuri from './file-uri';
+import { execute } from './exec';
 import * as git from './git';
-import * as zip from './zip';
 
 const CHE_TASK_TYPE = 'che';
 
@@ -29,14 +31,14 @@ function isDevfileProjectConfig(project: cheApi.workspace.ProjectConfig | cheApi
     return !!project.name && !!project.source && !!project.source.type && !!project.source.location && !project.source['parameters'];
 }
 
-export interface TheiaCloneCommand {
+export interface TheiaImportCommand {
     execute(): PromiseLike<void>;
 }
 
-export function getTheiaCloneCommand(
+export function buildProjectImportCommand(
     project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project,
     projectsRoot: string
-): TheiaCloneCommand {
+): TheiaImportCommand {
 
     if (!project.source) {
         return;
@@ -46,16 +48,16 @@ export function getTheiaCloneCommand(
         case 'git':
             return new TheiaGitCloneCommand(project, projectsRoot);
         case 'zip':
-            return new TheiaZipCloneCommand(project, projectsRoot);
+            return new TheiaImportZipCommand(project, projectsRoot);
         default:
-            const message = `Project type "${project.source.type}" is not supported yet.`;
+            const message = `Project type "${project.source.type}" is not supported.`;
             theia.window.showWarningMessage(message);
             console.warn(message);
             return;
     }
 }
 
-export class TheiaGitCloneCommand implements TheiaCloneCommand {
+export class TheiaGitCloneCommand implements TheiaImportCommand {
 
     private locationURI: string | undefined;
     private folder: string;
@@ -144,46 +146,57 @@ export class TheiaGitCloneCommand implements TheiaCloneCommand {
 
 }
 
-export class TheiaZipCloneCommand implements TheiaCloneCommand {
+export class TheiaImportZipCommand implements TheiaImportCommand {
 
     private locationURI: string | undefined;
-    private folder: string;
+    private projectDir: string;
+    private tmpDir: string;
     private zipfile: string;
+    private zipfilePath: string;
 
     constructor(project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project, projectsRoot: string) {
         if (isDevfileProjectConfig(project)) {
             const source = project.source;
 
             this.locationURI = source.location;
-            this.folder = path.join(projectsRoot, project.name);
-            const zipfileRE = /[^\/]+(?:\.zip)$/i;
-            const match = this.locationURI.match(zipfileRE);
-            this.zipfile = match ? match[0] : `${project.name}.zip`;
+            this.projectDir = path.join(projectsRoot, project.name);
+            this.tmpDir = fs.mkdtempSync(path.join(`${os.tmpdir()}${path.sep}`, 'factory-plugin-'));
+            this.zipfile = `${project.name}.zip`;
+            this.zipfilePath = path.join(this.tmpDir, this.zipfile);
         } else {
             // legacy project config
-            theia.window.showErrorMessage('Legacy workspace config is not supported. Please use devfile instead');
+            theia.window.showErrorMessage('Legacy workspace config is not supported. Please use devfile instead.');
         }
     }
 
     execute(): PromiseLike<void> {
-        if (!this.locationURI) {
-            return new Promise(() => { });
-        }
-
-        const clone = async (progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken): Promise<void> => {
+        const importZip = async (progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken): Promise<void> => {
             try {
-                const zipfilePath = await zip.execWget(this.locationURI, this.folder, this.zipfile);
-                await zip.execZip(this.folder, zipfilePath);
+                // download
+                const wgetArgs = [this.locationURI, '-O', this.zipfilePath];
+                await execute('wget', wgetArgs);
+
+                // expand
+                fs.mkdirSync(this.projectDir);
+                const unzipArgs = ['-q', '-n', '-d', this.projectDir, this.zipfilePath];
+                await execute('unzip', unzipArgs);
+
+                // clean
+                fs.unlinkSync(this.zipfilePath);
+                const zipfileParentDir = path.resolve(this.zipfilePath, '..');
+                if (zipfileParentDir.indexOf(os.tmpdir() + path.sep) === 0) {
+                    fs.rmdirSync(zipfileParentDir);
+                }
             } catch (e) {
-                theia.window.showErrorMessage(`Couldn't download ${this.locationURI}: ${e.message}`);
-                console.error(`Couldn't download ${this.locationURI}`, e);
+                theia.window.showErrorMessage(`Couldn't import ${this.locationURI}: ${e.message}`);
+                console.error(`Couldn't import ${this.locationURI}`, e);
             }
         };
 
         return theia.window.withProgress({
             location: theia.ProgressLocation.Notification,
-            title: `Cloning ${this.locationURI} ...`
-        }, (progress, token) => clone(progress, token));
+            title: `Importing ${this.locationURI} ...`
+        }, (progress, token) => importZip(progress, token));
     }
 
 }
