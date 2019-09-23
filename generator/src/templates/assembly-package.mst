@@ -41,7 +41,6 @@
     "@theia/search-in-workspace": "^{{ version }}",
     "@theia/task": "^{{ version }}",
     "@theia/textmate-grammars": "^{{ version }}",
-    "@theia/tslint": "^{{ version }}",
     "@theia/userstorage": "^{{ version }}",
     "@theia/variable-resolver": "^{{ version }}",
     "@theia/workspace": "^{{ version }}"
