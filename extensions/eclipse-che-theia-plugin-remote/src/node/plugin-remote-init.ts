@@ -211,7 +211,9 @@ to pick-up automatically a free port`));
                 if (jsonParsed.internal.method && jsonParsed.internal.method === 'stop') {
                     try {
                         // wait to stop plug-ins
-                        await client.pluginHostRPC.stopContext();
+                        // FIXME: we need to fix this
+                        // tslint:disable-next-line: no-any
+                        await (<any>client.pluginHostRPC).pluginManager.$stop();
 
                         // ok now we can dispose the emitter
                         client.disposeEmitter();
