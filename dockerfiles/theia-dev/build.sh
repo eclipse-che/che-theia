@@ -21,14 +21,24 @@ fi
 # In mac os 'cp' cannot create destination dir, so create it first
 mkdir ${LOCAL_ASSEMBLY_DIR}
 
-FILE="${base_dir}"/../../generator/eclipse-che-theia-generator.tgz
-if [ -f "$FILE" ]; then
-    cp "${FILE}" "${LOCAL_ASSEMBLY_DIR}"
-else
-    echo "$FILE does not exist, trying to generate..."
-    (cd "${base_dir}"/../../generator/ && yarn prepare && yarn pack --filename eclipse-che-theia-generator.tgz)
-    cp "${FILE}" "${LOCAL_ASSEMBLY_DIR}"
+CHE_THEIA_GENERATOR_PACKAGE_NAME=eclipse-che-theia-generator.tgz
+CHE_THEIA_GENERATOR_PACKAGE="${base_dir}/../../generator/${CHE_THEIA_GENERATOR_PACKAGE_NAME}"
+# Rebuild Che Theia generator if:
+#  - it hasn't been built yet
+#  - there is any changes in the generator directory
+#  - there is a commit newer than the generator build time
+cd "${base_dir}/../../"
+if [ ! -f "$CHE_THEIA_GENERATOR_PACKAGE" ] || \
+   [ -n "$(git status generator --porcelain)" ] || \
+   [ $(git log -1 --pretty=%ct -- generator) -gt $(date -r $CHE_THEIA_GENERATOR_PACKAGE +%s) ]
+then
+    # Delete previous archive if any
+    rm -f $CHE_THEIA_GENERATOR_PACKAGE
+    echo "Building Che Theia generator"
+    cd "${base_dir}"/../../generator/ && yarn prepare && yarn pack --filename $CHE_THEIA_GENERATOR_PACKAGE_NAME
 fi
+echo "Copying Che Theia generator assembly"
+cp "${CHE_THEIA_GENERATOR_PACKAGE}" "${LOCAL_ASSEMBLY_DIR}"
 
 init --name:theia-dev "$@"
 build
