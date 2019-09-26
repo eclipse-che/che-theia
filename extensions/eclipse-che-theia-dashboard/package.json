@@ -3,15 +3,15 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "0.0.1",
+  "version": "7.2.0",
   "files": [
     "lib",
     "src"
   ],
   "dependencies": {
     "@eclipse-che/api": "latest",
-    "@theia/core": "next",
-    "@eclipse-che/theia-plugin-ext": "0.0.1"
+    "@theia/core": "0.11.0",
+    "@eclipse-che/theia-plugin-ext": "7.2.0"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",

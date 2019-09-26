@@ -1,16 +1,16 @@
 {
   "name": "@eclipse-che/theia-remote",
   "author": "Florent Benoit",
-  "version": "0.0.1",
+  "version": "7.2.0",
   "license": "EPL-2.0",
   "files": [
     "lib",
     "src"
   ],
   "dependencies": {
-    "@theia/plugin-ext": "next",
-    "@theia/plugin-ext-vscode": "next",
-    "@theia/core": "next"
+    "@theia/plugin-ext": "0.11.0",
+    "@theia/plugin-ext-vscode": "0.11.0",
+    "@theia/core": "0.11.0"
   },
   "devDependencies": {
     "typescript-formatter": "7.2.2",

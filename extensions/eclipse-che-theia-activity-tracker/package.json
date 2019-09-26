@@ -3,13 +3,13 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "1.0.0",
+  "version": "7.2.0",
   "files": [
     "lib",
     "src"
   ],
   "dependencies": {
-    "@theia/core": "next"
+    "@theia/core": "0.11.0"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",

@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/welcome-plugin",
-  "version": "0.0.1",
+  "version": "7.2.0",
   "publisher": "Eclipse Che",
   "keywords": [
     "theia-plugin"
@@ -31,9 +31,9 @@
     "@fortawesome/fontawesome-free": "5.6.3"
   },
   "devDependencies": {
-    "@theia/plugin": "0.3.19",
+    "@theia/plugin": "0.11.0",
     "@theia/plugin-packager": "latest",
-    "@eclipse-che/plugin": "latest"
+    "@eclipse-che/plugin": "7.2.0"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",

@@ -4,7 +4,7 @@
       "keywords": [
         "theia-plugin"
       ],
-      "version": "0.0.1",
+      "version": "7.2.0",
       "license": "EPL-2.0",
       "contributors": [
         {
@@ -31,8 +31,8 @@
       },
       "devDependencies": {
         "@eclipse-che/api": "latest",
-        "@eclipse-che/plugin": "0.0.1",
-        "@theia/plugin": "next",
+        "@eclipse-che/plugin": "7.2.0",
+        "@theia/plugin": "0.11.0",
         "@theia/plugin-packager": "latest"
       },
       "scripts": {
