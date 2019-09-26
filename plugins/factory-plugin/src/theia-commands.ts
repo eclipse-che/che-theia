@@ -46,6 +46,7 @@ export function buildProjectImportCommand(
 
     switch (project.source.type) {
         case 'git':
+        case 'github':
             return new TheiaGitCloneCommand(project, projectsRoot);
         case 'zip':
             return new TheiaImportZipCommand(project, projectsRoot);
