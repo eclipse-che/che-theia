@@ -19,7 +19,7 @@ interface Resource {
     product: string;
     // A short description under product name
     subtitle: string;
-
+    // List of hyperlinks to be shown in Help section
     links: { [text: string]: string }
 }
 
