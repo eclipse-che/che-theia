@@ -123,7 +123,18 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         } catch (err) {
             throw new Error('Failed to create terminal server proxy. Cause: ' + err);
         }
-        this.terminalId = typeof id !== 'number' ? await this.createTerminal() : await this.attachTerminal(id);
+
+        try {
+            this.terminalId = typeof id !== 'number' ? await this.createTerminal() : await this.attachTerminal(id);
+        } catch (error) {
+            if (IBaseTerminalServer.validateId(id)) {
+                this.terminalId = id;
+                this.onDidOpenEmitter.fire(undefined);
+                return this.terminalId;
+            }
+            throw new Error('Failed to start terminal. Cause: ' + error);
+        }
+
         this.connectTerminalProcess();
 
         await this.waitForRemoteConnection;
