@@ -39,7 +39,7 @@ init() {
   BOLD='\033[1m'
   UNDERLINE='\033[4m'
 
-  ORGANIZATION="eclipse"
+  ORGANIZATION="aandrienko"
   PREFIX="che"
   TAG="next"
   SKIP_TESTS=false
