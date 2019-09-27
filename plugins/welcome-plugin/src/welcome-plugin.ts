@@ -81,7 +81,7 @@ export async function handleReadmeFiles(context: theia.PluginContext): Promise<v
 }
 
 export async function addPanel(context: theia.PluginContext): Promise<void> {
-    // Create a new panel
+    // Create new panel
     const currentPanel = theia.window.createWebviewPanel('WelcomePage', branding.title, { viewColumn: theia.ViewColumn.One, preserveFocus: false }, {
         // Enable javascript in the webview
         enableScripts: true,
