@@ -15,7 +15,7 @@ ERROR=${ERROR:-}
 DIR=${DIR:-}
 
 skip_tests() {
-  if [ $SKIP_TESTS = "true" ]; then
+  if [[ $SKIP_TESTS == "true" ]]; then
     return 0
   else
     return 1

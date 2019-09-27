@@ -42,6 +42,8 @@ cp "${CHE_THEIA_GENERATOR_PACKAGE}" "${LOCAL_ASSEMBLY_DIR}"
 
 init --name:theia-dev "$@"
 build
-if ! skip_tests; then
+if [[ $SKIP_TESTS == "false" ]]; then
   bash "${base_dir}"/e2e/build.sh "$@"
+else
+  echo "Tests skipped in $0"
 fi

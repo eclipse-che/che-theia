@@ -37,8 +37,10 @@ fi
 
 build
 
-if ! skip_tests; then
+if [[ $SKIP_TESTS == "false" ]]; then
   bash "${base_dir}"/e2e/build.sh "$PREFIX-$NAME" "$@"
+else
+  echo "Tests skipped in $0"
 fi
 
 echo "Extracting artifacts for the CDN"

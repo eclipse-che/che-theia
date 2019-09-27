@@ -12,6 +12,8 @@ base_dir=$(cd "$(dirname "$0")"; pwd)
 init --name:theia-e2e "$@"
 PARENT_IMAGE="$1"
 build
-if ! skip_tests; then
+if [[ $SKIP_TESTS == "false" ]]; then
   bash "${base_dir}"/test.sh "$@"
+else
+  echo "Tests skipped in $0"
 fi
