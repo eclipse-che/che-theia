@@ -8,8 +8,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
- 
- @import "../node_modules/@fortawesome/fontawesome-free/css/all.min.css";
+
+@import "../node_modules/@fortawesome/fontawesome-free/css/all.min.css";
 
 :root {
   --md-red-50: #FFEBEE;
@@ -296,21 +296,14 @@ html, body {
     margin-right: 5px;
 }
 
-.che-welcome-header .che-welcome-header-title .svg-container {
-  display: flex;
-  align-items: center;
+.che-welcome-header .che-welcome-header-title .image-container,
+.che-welcome-header .che-welcome-header-title .product-name {
+    display: flex;
+    align-items: center;
 }
 
 .che-welcome-command-desc {
     display: flex;
-}
-
-.che-welcome-command-desc .monaco-keybinding {
-    margin-left: 10px;
-
-}
-.che-welcome-command-desc .monaco-keybinding-key {
-    margin-right: 5px;
 }
 
 .che-welcome-header .che-welcome-header-title {
@@ -330,13 +323,6 @@ html, body {
     font-weight: 400;
 }
 
-.cheico-logo {
-    color: var(--theia-accent-color1);
-    margin-top: -1px;
-    margin-right: 1px;
-    font-size: var(--theia-ui-font-size2);
-}
-
 .col {
     flex: 1;
     align-items: center;
@@ -350,6 +336,7 @@ html, body {
 .che-welcome-action-container {
     line-height: 20px;
     color: var(--theia-ui-font-color0);
+    font-size: var(--theia-ui-font-size1);
 }
 
 .che-welcome-action-details {
@@ -397,20 +384,13 @@ html, body {
 
 .che-welcome-keybinding > .che-welcome-keybinding-key {
 	display: inline-block;
-	border: solid 1px rgba(204, 204, 204, 0.4);
-	border-bottom-color: rgba(187, 187, 187, 0.4);
 	border-radius: 3px;
-	box-shadow: inset 0 -1px 0 rgba(187, 187, 187, 0.4);
-	background-color: rgba(221, 221, 221, 0.4);
 	vertical-align: middle;
-	color: #555;
-	font-size: 11px;
 	padding: 3px 5px;
-}
-
-.che-welcome-keybinding > .che-welcome-keybinding-key {
+	margin-left: 5px;
+	margin-right: 5px;
 	background-color: rgba(128, 128, 128, 0.17);
-	color: var(--theia-ui-font-color0);
+	color: var(--theia-ui-font-color1);
 	border: solid 1px rgba(51, 51, 51, 0.6);
 	border-bottom-color: rgba(68, 68, 68, 0.6);
 	box-shadow: inset 0 -1px 0 rgba(68, 68, 68, 0.6);

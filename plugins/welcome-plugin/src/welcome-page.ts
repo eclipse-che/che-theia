@@ -11,30 +11,35 @@
 import * as theia from '@theia/plugin';
 import * as path from 'path';
 
+import * as branding from '../src/branding.json';
+
 /**
  * Welcome Page
  */
 export class WelcomePage {
-    static readonly ECLIPSE_CHE = 'Eclipse Che';
-    static readonly ECLIPSE_CHE_SUBTITLE = 'Welcome To Your Cloud Developer Workspace ';
-
-    static readonly DOCUMENTATION = 'https://www.eclipse.org/che/docs/che-7';
-    static readonly MATTERMOST = 'https://mattermost.eclipse.org/eclipse/channels/eclipse-che';
 
     constructor(readonly pluginContext: theia.PluginContext) {
     }
 
     protected renderHeader(context: theia.PluginContext): string {
+        const logo = branding.logo;
 
-        // Local path to main script run in the webview
-        const imgOnDisk = theia.Uri.file(path.join(context.extensionPath, 'resources', 'che-logo.svg'));
-        // And the uri we use to load this script in the webview
-        const imgURI = imgOnDisk.with({ scheme: 'theia-resource' });
+        let logoUri: theia.Uri;
+        if (logo.startsWith('http://') || logo.startsWith('https://')) {
+            logoUri = theia.Uri.parse(logo);
+        } else {
+            const filePath = path.join(context.extensionPath, logo);
+            const fileUri = theia.Uri.file(filePath);
+            logoUri = fileUri.with({ scheme: 'theia-resource' });
+        }
 
         return `<div class="che-welcome-header">
-         <div class="che-welcome-header-title" ><div class="svg-container"><img src=${imgURI} /></div>${WelcomePage.ECLIPSE_CHE}</div>
-        <span class='che-welcome-header-subtitle'>${WelcomePage.ECLIPSE_CHE_SUBTITLE}</span>
-    </div>`;
+            <div class="che-welcome-header-title">
+                <div class="image-container"><img src=${logoUri} /></div>
+                <div class="product-name">${branding.product}</div>
+            </div>
+            <span class='che-welcome-header-subtitle'>${branding.subtitle}</span>
+        </div>`;
     }
 
     private async renderCommandKeyBinding(commandId: string): Promise<string> {
@@ -89,11 +94,9 @@ export class WelcomePage {
             </div>
 
         </div>`;
-
     }
 
     private async renderOpen(): Promise<string> {
-
         // tslint:disable-next-line: max-line-length
         const open = `<div class="che-welcome-command-desc"><a href='#' onClick="executeCommand('workspace:open')">Open Files...</a>${await this.renderCommandKeyBinding('workspace:open')}</div>`;
         // tslint:disable-next-line: max-line-length
@@ -112,10 +115,7 @@ export class WelcomePage {
 
     private async renderSettings(): Promise<string> {
         return `<div class='che-welcome-section'>
-            <h3 class='che-welcome-section-header'>
-                <i class='fa fa-cog'></i>
-                Settings
-            </h3>
+            <h3 class='che-welcome-section-header'><i class='fa fa-cog'></i>Settings</h3>
             <div class='che-welcome-action-container'>
                 <div class="che-welcome-command-desc">
                     <a href='#' onClick="executeCommand('preferences:open')">Open Preferences</a>${await this.renderCommandKeyBinding('preferences:open')}
@@ -131,17 +131,16 @@ export class WelcomePage {
     }
 
     private async renderHelp(): Promise<string> {
+        const links = branding.links;
+        const list = Object.keys(links).map(link =>
+            `<div class='che-welcome-action-container'>
+                <a href=${links[link]} target='_blank'>${link}</a>
+            </div>`
+        ).join('');
+
         return `<div class='che-welcome-section'>
-            <h3 class='che-welcome-section-header'>
-                <i class='fa fa-question-circle'></i>
-                Help
-            </h3>
-            <div class='che-welcome-action-container'>
-                <a href=${WelcomePage.DOCUMENTATION} target='_blank'>Documentation</a>
-            </div>
-            <div class='che-welcome-action-container'>
-                <a href=${WelcomePage.MATTERMOST} target='_blank'>Community chat</a>
-            </div>
+            <h3 class='che-welcome-section-header'><i class='fa fa-question-circle'></i>Help</h3>
+            ${list}
         </div>`;
     }
 
@@ -170,4 +169,5 @@ export class WelcomePage {
             </div>
         </div>`;
     }
+
 }

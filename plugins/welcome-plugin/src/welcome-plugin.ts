@@ -12,13 +12,14 @@ import * as theia from '@theia/plugin';
 import * as path from 'path';
 import { WelcomePage } from './welcome-page';
 
+import * as branding from '../src/branding.json';
+
 export namespace Settings {
     export const CHE_CONFIGURATION = 'che';
     export const SHOW_WELCOME_PAGE = 'welcome.enable';
 }
 
 async function getHtmlForWebview(context: theia.PluginContext): Promise<string> {
-
     // Local path to main script run in the webview
     const scriptPathOnDisk = theia.Uri.file(path.join(context.extensionPath, 'resources', 'welcome-page.js'));
     // And the uri we use to load this script in the webview
@@ -58,7 +59,6 @@ export async function doStart(context: theia.PluginContext): Promise<void> {
 
 // Open Readme file is there is one
 export async function handleReadmeFiles(context: theia.PluginContext): Promise<void> {
-
     const roots: theia.WorkspaceFolder[] | undefined = await theia.workspace.workspaceFolders;
     // In case of only one workspace
     if (roots && roots.length === 1) {
@@ -81,9 +81,8 @@ export async function handleReadmeFiles(context: theia.PluginContext): Promise<v
 }
 
 export async function addPanel(context: theia.PluginContext): Promise<void> {
-
-    // Otherwise, create a new panel
-    const currentPanel = theia.window.createWebviewPanel('WelcomePage', 'Welcome', { viewColumn: theia.ViewColumn.One, preserveFocus: false }, {
+    // Create a new panel
+    const currentPanel = theia.window.createWebviewPanel('WelcomePage', branding.title, { viewColumn: theia.ViewColumn.One, preserveFocus: false }, {
         // Enable javascript in the webview
         enableScripts: true,
 
@@ -113,10 +112,13 @@ export async function addPanel(context: theia.PluginContext): Promise<void> {
         context.subscriptions
     );
 
-    // Local icon paths in the webview
-    const iconUri = theia.Uri.file(path.join(context.extensionPath, 'resources', 'che-logo.png'));
-    currentPanel.iconPath = iconUri;
-
+    const icon = branding.icon;
+    if (icon.startsWith('http://') || icon.startsWith('https://')) {
+        currentPanel.iconPath = theia.Uri.parse(icon);
+    } else {
+        const filePath = path.join(context.extensionPath, icon);
+        currentPanel.iconPath = theia.Uri.file(filePath);
+    }
 }
 
 export function start(context: theia.PluginContext): void {
@@ -133,5 +135,4 @@ export function start(context: theia.PluginContext): void {
 }
 
 export function stop() {
-
 }
