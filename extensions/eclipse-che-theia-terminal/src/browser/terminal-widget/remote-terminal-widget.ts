@@ -17,6 +17,8 @@ import { RemoteWebSocketConnectionProvider } from '../server-definition/remote-c
 import { Deferred } from '@theia/core/lib/common/promise-util';
 import { Disposable } from 'vscode-jsonrpc';
 import { TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal-widget';
+import { MessageService } from '@theia/core/lib/common';
+import { OutputChannelManager, OutputChannel } from '@theia/output/lib/common/output-channel';
 import URI from '@theia/core/lib/common/uri';
 
 const ReconnectingWebSocket = require('reconnecting-websocket');
@@ -37,6 +39,7 @@ export interface RemoteTerminalWidgetFactoryOptions extends Partial<TerminalWidg
 
 @injectable()
 export class RemoteTerminalWidget extends TerminalWidgetImpl {
+    public static OUTPUT_CHANNEL_NAME = 'remote-terminal';
 
     protected termServer: RemoteTerminalServerProxy | undefined;
     protected waitForRemoteConnection: Deferred<WebSocket> | undefined = new Deferred<WebSocket>();
@@ -52,12 +55,20 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     @inject(RemoteTerminalWidgetOptions)
     options: RemoteTerminalWidgetOptions;
 
+    @inject(MessageService)
+    protected readonly messageService: MessageService;
+
+    @inject(OutputChannelManager)
+    protected readonly outputChannelManager: OutputChannelManager;
+
     protected terminalId = -1;
     private isOpen: boolean = false;
+    protected channel: OutputChannel;
 
     @postConstruct()
     protected init(): void {
         super.init();
+        this.channel = this.outputChannelManager.getChannel(RemoteTerminalWidget.OUTPUT_CHANNEL_NAME);
 
         this.toDispose.push(this.remoteTerminalWatcher.onTerminalExecExit(exitEvent => {
             if (this.terminalId === exitEvent.id) {
@@ -69,6 +80,8 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
             }
         }));
 
+        const badDefaultLoginErr = 'command terminated with exit code 126';
+        const missedPrivilegesErr = 'cannot create resource "pods/exec"';
         this.toDispose.push(this.remoteTerminalWatcher.onTerminalExecError(errEvent => {
             if (this.terminalId === errEvent.id) {
                 if (this.options.closeWidgetOnExitOrError) {
@@ -76,7 +89,18 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
                 }
                 this.onTermDidClose.fire(this);
                 this.onTermDidClose.dispose();
+
                 this.logger.error(`Terminal error: ${errEvent.stack}`);
+                this.channel.appendLine(errEvent.stack);
+
+                let reason = '';
+                if (errEvent.stack.indexOf(badDefaultLoginErr) !== -1) {
+                    reason = ' Possible reason is bad default login.';
+                } else if (errEvent.stack.indexOf(missedPrivilegesErr) !== -1) {
+                    reason = ' Possible reason is workspace service account lacks some privileges.';
+                }
+                reason += ' See more in "Output".';
+                this.messageService.error(`Terminal failed to open.${reason}`);
             }
         }));
     }
