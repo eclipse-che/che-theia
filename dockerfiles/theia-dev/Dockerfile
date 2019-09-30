@@ -71,7 +71,7 @@ RUN npm config set prefix "${HOME}/.npm-global" && \
         chmod -R g+rwX ${f}; \
     done
 
-WORKDIR "/projects"
+WORKDIR /projects
 
 ADD src/entrypoint.sh /entrypoint.sh
 
