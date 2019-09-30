@@ -11,9 +11,9 @@ set -e
 set -u
 
 IMAGE_TAG="next"
-THEIA_VERSION="0.11.0"
-THEIA_BRANCH="v0.11.0"
-THEIA_GIT_REFS="refs\\/tags\\/v0.11.0"
+THEIA_VERSION="master"
+THEIA_BRANCH="master"
+THEIA_GIT_REFS="refs\\/heads\\/master"
 THEIA_DOCKER_IMAGE_VERSION=
 
 # KEEP RIGHT ORDER!!!

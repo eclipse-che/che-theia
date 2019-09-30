@@ -9,9 +9,9 @@
     "node"
   ],
   "dependencies": {
-    "@theia/core": "0.11.0",
-    "@theia/plugin-dev": "0.11.0",
-    "@theia/plugin-ext": "0.11.0",
+    "@theia/core": "next",
+    "@theia/plugin-dev": "next",
+    "@theia/plugin-ext": "next",
     "@eclipse-che/workspace-client": "latest",
     "@eclipse-che/api": "latest"
   },
