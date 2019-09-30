@@ -95,12 +95,12 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
                 let reason = '';
                 if (errEvent.stack.indexOf(badDefaultLoginErr) !== -1) {
-                    reason = ' Possible reason is bad default login.';
+                    reason = 'Possible reason is terminal cannot open default login shell. ';
                 } else if (errEvent.stack.indexOf(missedPrivilegesErr) !== -1) {
-                    reason = ' Possible reason is workspace service account lacks some privileges.';
+                    reason = 'Possible reason is workspace service account lacks some privileges. ';
                 }
-                reason += ' See more in "Output".';
-                this.messageService.error(`Terminal failed to open.${reason}`);
+                reason += 'See more in "Output".';
+                this.messageService.error(`Terminal failed to connect. ${reason}`);
             }
         }));
     }
