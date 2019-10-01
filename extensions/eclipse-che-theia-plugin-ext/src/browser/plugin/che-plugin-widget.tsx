@@ -66,7 +66,7 @@ export class ChePluginWidget extends ReactWidget {
 
         this.node.ondrop = event => {
             event.preventDefault();
-            const text = event.dataTransfer.getData('text');
+            const text = event.dataTransfer!.getData('text');
             this.onDrop(text);
         };
 
@@ -243,11 +243,11 @@ export class ChePluginWidget extends ReactWidget {
         </div>;
     }
 
-    protected restartWorkspace = async e => {
+    protected restartWorkspace = async () => {
         await this.chePluginManager.restartWorkspace();
     }
 
-    protected hideNotification = async e => {
+    protected hideNotification = async () => {
         this.hidingRestartWorkspaceNotification = true;
         this.update();
 
@@ -301,7 +301,7 @@ export class ChePluginListControls extends React.Component<
         }
     }
 
-    protected readonly handleChange = event => {
+    protected readonly handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target) {
             this.setState(
                 {
@@ -360,8 +360,8 @@ export class ChePluginListControls extends React.Component<
         }
     }
 
-    protected onFocus = async param => {
-        const rect = document.activeElement.getBoundingClientRect();
+    protected onFocus = async () => {
+        const rect = document.activeElement!.getBoundingClientRect();
 
         const left = rect.left;
         const top = rect.top + rect.height - 2;

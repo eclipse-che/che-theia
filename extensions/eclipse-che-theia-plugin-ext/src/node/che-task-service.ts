@@ -11,7 +11,7 @@ import { CheTaskClient, CheTaskService } from '../common/che-protocol';
 import { injectable, interfaces } from 'inversify';
 import { Task, TaskManager, TaskOptions, TaskRunnerRegistry } from '@theia/task/lib/node';
 import { Disposable, ILogger } from '@theia/core';
-import { TaskConfiguration, TaskInfo } from '@theia/task/lib/common/task-protocol';
+import { TaskConfiguration } from '@theia/task/lib/common/task-protocol';
 import { TaskExitedEvent } from '@eclipse-che/plugin';
 
 @injectable()
@@ -128,12 +128,12 @@ class CheTask extends Task {
     }
 
     fireTaskExited(event: TaskExitedEvent): void {
-        super.fireTaskExited({ taskId: event.taskId, code: event.code, ctx: event.ctx, config: this.options.config });
+        super.fireTaskExited({ taskId: event.taskId!, code: event.code, ctx: event.ctx, config: this.options.config });
     }
 
     private toTaskInfo(runtimeInfo: TaskInfo): TaskInfo {
         const { taskId, terminalId, ctx, config, ...properties } = runtimeInfo;
-        const result = {
+        const result: TaskInfo = {
             taskId: this.taskId,
             terminalId,
             ctx,
@@ -151,4 +151,13 @@ class CheTask extends Task {
         }
         return result;
     }
+}
+
+interface TaskInfo {
+    taskId: number,
+    terminalId?: number,
+    ctx?: string,
+    config: TaskConfiguration,
+    // tslint:disable-next-line:no-any
+    [key: string]: any;
 }

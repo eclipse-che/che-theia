@@ -90,12 +90,12 @@ const generateKeyPair = async (sshkeyManager: SshKeyManager) => {
     const keyName = `default-${Date.now()}`;
     const key = await sshkeyManager.generate('vcs', keyName);
     await updateConfig(keyName);
-    await writeKey(keyName, key.privateKey);
+    await writeKey(keyName, key.privateKey!);
     const viewAction = 'View';
     const action = await theia.window.showInformationMessage('Key pair successfully generated, do you want to view the public key?', viewAction);
     if (action === viewAction && key.privateKey) {
-        const document = await theia.workspace.openTextDocument({ content: key.publicKey });
-        await theia.window.showTextDocument(document);
+        const document = await theia.workspace.openTextDocument({ content: key.publicKey })!;
+        await theia.window.showTextDocument(document!);
     }
     showWarning();
 };
@@ -104,12 +104,12 @@ const generateKeyPairForHost = async (sshkeyManager: SshKeyManager) => {
     const hostName = await getHostName();
     const key = await sshkeyManager.generate('vcs', hostName);
     await updateConfig(hostName);
-    await writeKey(hostName, key.privateKey);
+    await writeKey(hostName, key.privateKey!);
     const viewAction = 'View';
     const action = await theia.window.showInformationMessage(`Key pair for ${hostName} successfully generated, do you want to view the public key?`, viewAction);
     if (action === viewAction && key.privateKey) {
         const document = await theia.workspace.openTextDocument({ content: key.publicKey });
-        await theia.window.showTextDocument(document);
+        await theia.window.showTextDocument(document!);
     }
     showWarning();
 };
@@ -122,7 +122,7 @@ const createKeyPair = async (sshkeyManager: SshKeyManager) => {
     try {
         await sshkeyManager.create({ name: hostName, service: 'vcs', publicKey: publicKey, privateKey });
         await updateConfig(hostName);
-        await writeKey(hostName, privateKey);
+        await writeKey(hostName, privateKey!);
         await theia.window.showInformationMessage(`Key pair for ${hostName} successfully created`);
         showWarning();
     } catch (error) {
@@ -157,7 +157,7 @@ const viewPublicKey = async (sshkeyManager: SshKeyManager) => {
     try {
         const key = await sshkeyManager.get('vcs', keyName);
         const document = await theia.workspace.openTextDocument({ content: key.publicKey });
-        theia.window.showTextDocument(document);
+        theia.window.showTextDocument(document!);
     } catch (error) {
         theia.window.showErrorMessage(error);
     }

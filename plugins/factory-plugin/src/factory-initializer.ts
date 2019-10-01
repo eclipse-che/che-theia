@@ -62,7 +62,7 @@ export class FactoryInitializer {
     /**
      * Returns a list of commands to clone Factory projects
      */
-    private async getCloneCommands(factory: cheApi.factory.Factory) {
+    private async getCloneCommands(factory: cheApi.factory.Factory): Promise<TheiaImportCommand[]> {
         const instance = this;
 
         if (!factory.workspace || !factory.workspace.projects) {
@@ -70,7 +70,7 @@ export class FactoryInitializer {
         }
 
         return factory.workspace.projects.map(
-            project => buildProjectImportCommand(project, instance.projectsRoot)
+            project => buildProjectImportCommand(project, instance.projectsRoot)!
         );
     }
 

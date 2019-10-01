@@ -52,7 +52,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     @inject(RemoteTerminalWidgetOptions)
     options: RemoteTerminalWidgetOptions;
 
-    protected terminalId = -1;
+    protected terminalId: number = -1;
     private isOpen: boolean = false;
 
     @postConstruct()
@@ -88,7 +88,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
                 this.termServer = termProxyCreator.create();
 
                 this.toDispose.push(this.termServer.onDidCloseConnection(() => {
-                    const disposable = this.termServer.onDidOpenConnection(async () => {
+                    const disposable = this.termServer!.onDidOpenConnection(async () => {
                         disposable.dispose();
                         this.waitForRemoteConnection = new Deferred<WebSocket>();
                         await this.reconnectTerminalProcess();
@@ -139,7 +139,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         }
         const socket = this.createWebSocket(id.toString());
 
-        const sendListener = data => socket.send(data);
+        const sendListener = (data: string) => socket.send(data);
 
         socket.onopen = () => {
             this.term.reset();
@@ -182,15 +182,16 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         });
     }
 
-    protected async attachTerminal(id: number): Promise<number | undefined> {
-        const termId = await this.termServer.check({ id: id });
+    protected async attachTerminal(id: number): Promise<number> {
+        const termId = await this.termServer!.check({ id: id });
         if (IBaseTerminalServer.validateId(termId)) {
             return termId;
         }
-        this.logger.error(`Error attaching to terminal id ${id}`);
+        this.logger.error(`Error attaching to terminal id ${id}, the terminal is most likely gone. Starting up a new terminal instead.`);
+        return this.createTerminal();
     }
 
-    protected async createTerminal(): Promise<number | undefined> {
+    protected async createTerminal(): Promise<number> {
         const cols = this.term.cols;
         const rows = this.term.rows;
         let cmd: string[] = [];
@@ -210,7 +211,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
             tty: true,
         };
 
-        const termId = await this.termServer.create(machineExec);
+        const termId = await this.termServer!.create(machineExec);
         if (IBaseTerminalServer.validateId(termId)) {
             return termId;
         }

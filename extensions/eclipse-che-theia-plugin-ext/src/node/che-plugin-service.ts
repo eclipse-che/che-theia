@@ -35,7 +35,7 @@ export interface ChePluginMetadataInternal {
     description: string,
     publisher: string,
     links: {
-        self?: string,
+        'self': string,
         [link: string]: string
     }
 }
@@ -146,7 +146,7 @@ export class ChePluginServiceImpl implements ChePluginService {
         const plugins: ChePluginMetadata[] = await Promise.all(
             marketplacePlugins.map(async marketplacePlugin => {
                 const pluginYamlURI = this.getPluginYampURI(registry, marketplacePlugin);
-                return await this.loadPluginMetadata(pluginYamlURI, longKeyFormat);
+                return await this.loadPluginMetadata(pluginYamlURI!, longKeyFormat);
             }
             ));
 
@@ -332,8 +332,8 @@ export class ChePluginServiceImpl implements ChePluginService {
      */
     async setWorkspacePlugins(plugins: string[]): Promise<void> {
         const workspace: cheApi.workspace.Workspace = await this.cheApiService.currentWorkspace();
-        if (!workspace.devfile.components) {
-            workspace.devfile.components = [];
+        if (!workspace.devfile!.components) {
+            workspace.devfile!.components = [];
         }
 
         if (workspace.config) {
@@ -350,7 +350,7 @@ export class ChePluginServiceImpl implements ChePluginService {
 
             components.forEach((component: cheApi.workspace.devfile.Component) => {
                 const id = component.reference ? this.normalizeId(component.reference) : component.id;
-                const foundIndex = plugins.indexOf(id);
+                const foundIndex = plugins.indexOf(id!);
                 if (foundIndex >= 0) {
                     plugins.splice(foundIndex, 1);
                 } else {
@@ -359,11 +359,11 @@ export class ChePluginServiceImpl implements ChePluginService {
             });
 
             plugins.forEach((plugin: string) => {
-                workspace.devfile.components.push(this.createPluginComponent(plugin));
+                workspace.devfile!.components!.push(this.createPluginComponent(plugin));
             });
         }
 
-        await this.cheApiService.updateWorkspace(workspace.id, workspace);
+        await this.cheApiService.updateWorkspace(workspace.id!, workspace);
     }
 
     /**

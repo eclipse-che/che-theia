@@ -19,7 +19,7 @@ import { PluginReaderExtension } from './plugin-reader-extension';
 
 const localModule = ConnectionContainerModule.create(({ bind }) => {
     bind(HostedPluginRemote).toSelf().inSingletonScope().onActivation((ctx: interfaces.Context, hostedPluginRemote: HostedPluginRemote) => {
-        const pluginReaderExtension = ctx.container.parent.get(PluginReaderExtension);
+        const pluginReaderExtension = ctx.container.parent!.get(PluginReaderExtension);
         pluginReaderExtension.setRemotePluginConnection(hostedPluginRemote);
         return hostedPluginRemote;
     });

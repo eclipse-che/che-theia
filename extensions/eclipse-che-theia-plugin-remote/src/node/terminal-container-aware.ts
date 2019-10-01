@@ -54,9 +54,9 @@ export class TerminalContainerAware {
 
     overrideTerminalCreationOptionForDebug(debugExt: DebugExtImpl) {
         debugExt.doGetTerminalCreationOptions = (debugType: string) => {
-            const options: theia.TerminalOptions = {
+            const options = {
                 attributes: {
-                    'CHE_MACHINE_NAME': process.env.CHE_MACHINE_NAME
+                    'CHE_MACHINE_NAME': process.env.CHE_MACHINE_NAME!
                 }
             };
 

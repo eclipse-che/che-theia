@@ -28,7 +28,7 @@ export class WorkspaceHandler {
             const machineServers = runtimeMachines[machineName].servers || {};
             Object.keys(machineServers).forEach((serverName: string) => {
                 const url = machineServers[serverName].url!;
-                const portNumber = machineServers[serverName].attributes.port!;
+                const portNumber = machineServers[serverName].attributes!.port!;
                 ports.push({ portNumber, serverName, url });
             });
 

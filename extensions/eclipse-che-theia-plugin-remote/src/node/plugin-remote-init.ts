@@ -363,7 +363,7 @@ class PluginDeployerHandlerImpl implements PluginDeployerHandler {
 
     }
 
-    getPluginMetadata(pluginToBeInstalled: PluginDeployerEntry): Promise<PluginMetadata> {
+    getPluginMetadata(pluginToBeInstalled: PluginDeployerEntry): Promise<PluginMetadata | undefined> {
         return this.reader.getPluginMetadata(pluginToBeInstalled.path());
     }
 

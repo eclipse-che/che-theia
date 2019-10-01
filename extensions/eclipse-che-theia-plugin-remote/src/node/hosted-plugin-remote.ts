@@ -198,17 +198,17 @@ export class HostedPluginRemote {
      * @param pluginId id of the plugin for which resource should be retreived
      * @param resourcePath relative path of the requested resource based on plugin root directory
      */
-    public requestPluginResource(pluginId: string, resourcePath: string): Promise<Buffer | undefined> {
+    public requestPluginResource(pluginId: string, resourcePath: string): Promise<Buffer | undefined> | undefined {
         if (this.hasEndpoint(pluginId) && resourcePath) {
             return new Promise<Buffer | undefined>((resolve, reject) => {
                 const endpoint = this.hostedPluginMapping.getPluginsEndPoints().get(pluginId);
-                const targetWebsocket = this.endpointsSockets.get(endpoint);
+                const targetWebsocket = this.endpointsSockets.get(endpoint!);
                 if (!targetWebsocket) {
                     reject(new Error(`No websocket connection for plugin: ${pluginId}`));
                 }
 
                 this.resourceRequests.set(this.getResourceRequestId(pluginId, resourcePath), resolve);
-                targetWebsocket.send(JSON.stringify({
+                targetWebsocket!.send(JSON.stringify({
                     'internal': {
                         'method': 'getResource',
                         'pluginId': pluginId,
