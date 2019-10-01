@@ -2,13 +2,13 @@
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
-#
+#                                                                                                                                                                                    
 # SPDX-License-Identifier: EPL-2.0
 #
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG}
+FROM node:10.16-alpine
 
 RUN set -eux; \
 	apk add --update --no-cache  --virtual .build-deps \
@@ -32,7 +32,7 @@ RUN set -eux; \
 		x86) export GO386='387' ;; \
 	esac; \
 	\
-    wget -qO- https://dl.google.com/go/go1.10.7.linux-amd64.tar.gz | tar xvz -C /usr/local; \
+    wget -qO- https://dl.google.com/go/go1.11.linux-amd64.tar.gz | tar xvz -C /usr/local; \
 	\
 	cd /usr/local/go/src; \
 	./make.bash; \
@@ -77,3 +77,7 @@ ENV GOPATH /go
 ENV GOCACHE /.cache
 ENV GOROOT /usr/local/go
 ENV PATH $GOPATH/bin:$GOROOT/bin:$PATH
+
+COPY entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

@@ -8,7 +8,6 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG} as endpoint
 FROM node:10.16-stretch-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -50,22 +49,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
                 libssl1.0.2 \
                 libstdc++6 \
                 zlib1g \
-    &&  rm -rf /var/lib/apt/lists/* \
+    &&  rm -rf /var/lib/apt/lists/*
 
-    # Install typescript@2.9.2 and node-gyp
-
-    &&  yarn global add typescript@2.9.2 node-gyp \
-    &&  node-gyp install
-
-ENV HOME=/home/theia
-COPY --from=endpoint /home/theia /home/theia
-COPY --from=endpoint /projects /projects
-COPY --from=endpoint /etc/passwd  /etc/passwd
-COPY --from=endpoint /etc/group   /etc/group
-COPY --from=endpoint /entrypoint.sh /entrypoint.sh
-
-RUN find /home/theia/ -name "binding.gyp" |  xargs -i sh -c 'cd $(dirname {}) && node-gyp rebuild' \
-    && sed -i 's/SIGHUP SIGTERM SIGINT/HUP TERM INT/g' /entrypoint.sh
+COPY entrypoint.sh /entrypoint.sh
 
 # Install .NET Core SDK
 ENV DOTNET_SDK_VERSION 2.2.105

@@ -8,9 +8,10 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG}
+FROM node:10.16-alpine
 RUN apk --update --no-cache add openjdk8 procps nss maven
 ENV JAVA_HOME /usr/lib/jvm/default-jvm/
+ENV HOME /home/user
 
 ENV MAVEN_VERSION 3.5.4
 ENV MAVEN_HOME /usr/lib/mvn
@@ -21,4 +22,15 @@ RUN wget http://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/ap
   rm apache-maven-$MAVEN_VERSION-bin.tar.gz && \
   mv apache-maven-$MAVEN_VERSION /usr/lib/mvn
 
+RUN mkdir ${HOME} /projects \
+    # Change permissions to let any arbitrary user
+    && for f in "${HOME}" "/projects"; do \
+        echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+        chmod -R g+rwX ${f}; \
+    done
+
 WORKDIR /projects
+
+COPY entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT [ "/entrypoint.sh" ]

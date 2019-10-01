@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG}
+FROM alpine:3.10.2
 
 RUN apk --update --no-cache add \
         ca-certificates \
@@ -24,3 +24,7 @@ RUN apk --update --no-cache add \
     && echo "xdebug.remote_autostart=true" >> /etc/php7/php.ini
 
 WORKDIR /projects
+
+COPY entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

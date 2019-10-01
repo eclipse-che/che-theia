@@ -8,8 +8,22 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG}
+FROM alpine:3.10.2
+
+ENV HOME=/home/theia
+
+RUN mkdir /home/theia /projects \
+    # Change permissions to let any arbitrary user
+    && for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
+        echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+        chmod -R g+rwX ${f}; \
+    done
+ADD etc/entrypoint.sh /entrypoint.sh
+
 RUN apk --update --no-cache add openjdk8 procps nss
 ENV JAVA_HOME /usr/lib/jvm/default-jvm/
 ADD etc/before-start.sh /before-start.sh
+
 WORKDIR /projects
+
+ENTRYPOINT ["/entrypoint.sh"]
