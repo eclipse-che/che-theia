@@ -11,7 +11,7 @@ import { CheTaskClient, CheTaskService } from '../common/che-protocol';
 import { injectable, interfaces } from 'inversify';
 import { Task, TaskManager, TaskOptions, TaskRunnerRegistry } from '@theia/task/lib/node';
 import { Disposable, ILogger } from '@theia/core';
-import { TaskConfiguration } from '@theia/task/lib/common/task-protocol';
+import { TaskConfiguration, TaskInfo } from '@theia/task/lib/common/task-protocol';
 import { TaskExitedEvent } from '@eclipse-che/plugin';
 
 @injectable()
@@ -137,27 +137,10 @@ class CheTask extends Task {
             taskId: this.taskId,
             terminalId,
             ctx,
-            config
+            config,
+            ...properties
         };
 
-        if (!properties) {
-            return result;
-        }
-
-        for (const key in properties) {
-            if (properties.hasOwnProperty(key)) {
-                result[key] = properties[key];
-            }
-        }
         return result;
     }
-}
-
-interface TaskInfo {
-    taskId: number,
-    terminalId?: number,
-    ctx?: string,
-    config: TaskConfiguration,
-    // tslint:disable-next-line:no-any
-    [key: string]: any;
 }
