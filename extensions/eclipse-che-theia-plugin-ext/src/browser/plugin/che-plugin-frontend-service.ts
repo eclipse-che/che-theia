@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 import { injectable, inject } from 'inversify';
-import { HostedPluginServer, PluginMetadata } from '@theia/plugin-ext/lib/common/plugin-protocol';
+import { HostedPluginServer, PluginMetadata, DeployedPlugin } from '@theia/plugin-ext/lib/common/plugin-protocol';
 import { ChePluginMetadata } from '../../common/che-protocol';
 import { PluginFilter } from '../../common/plugin/plugin-filter';
 
@@ -36,18 +36,19 @@ export class ChePluginFrontentService {
      * Returns non-filtered list of the deployed plugins.
      */
     private async getAllDeployedPlugins(): Promise<ChePluginMetadata[]> {
-        const metadata = await this.hostedPluginServer.getDeployedMetadata();
+        const pluginIds = await this.hostedPluginServer.getDeployedPluginIds();
+        const metadata = await this.hostedPluginServer.getDeployedPlugins({ pluginIds });
 
-        const plugins: ChePluginMetadata[] = metadata.map((meta: PluginMetadata) => {
-            const publisher = meta.source.publisher;
-            const name = meta.source.name;
-            const version = meta.source.version;
-            const type = this.determinePluginType(meta);
-            const displayName = meta.source.displayName ? meta.source.displayName : meta.source.name;
+        const plugins: ChePluginMetadata[] = metadata.map((meta: DeployedPlugin) => {
+            const publisher = meta.metadata.model.publisher;
+            const name = meta.metadata.model.name;
+            const version = meta.metadata.model.version;
+            const type = this.determinePluginType(meta.metadata);
+            const displayName = meta.metadata.model.displayName ? meta.metadata.model.displayName : meta.metadata.model.name;
 
             const title = name;
 
-            const description = meta.source.description;
+            const description = meta.metadata.model.description;
 
             // Temporary disabled.
             // We don't have an ability for now to display icons from the file system.

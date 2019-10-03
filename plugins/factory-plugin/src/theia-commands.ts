@@ -9,9 +9,12 @@
  **********************************************************************/
 
 import * as path from 'path';
+import * as fs from 'fs';
+import * as os from 'os';
 import * as theia from '@theia/plugin';
 import { che as cheApi } from '@eclipse-che/api';
 import * as fileuri from './file-uri';
+import { execute } from './exec';
 import * as git from './git';
 
 const CHE_TASK_TYPE = 'che';
@@ -28,7 +31,34 @@ function isDevfileProjectConfig(project: cheApi.workspace.ProjectConfig | cheApi
     return !!project.name && !!project.source && !!project.source.type && !!project.source.location && !project.source['parameters'];
 }
 
-export class TheiaCloneCommand {
+export interface TheiaImportCommand {
+    execute(): PromiseLike<void>;
+}
+
+export function buildProjectImportCommand(
+    project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project,
+    projectsRoot: string
+): TheiaImportCommand {
+
+    if (!project.source) {
+        return;
+    }
+
+    switch (project.source.type) {
+        case 'git':
+        case 'github':
+            return new TheiaGitCloneCommand(project, projectsRoot);
+        case 'zip':
+            return new TheiaImportZipCommand(project, projectsRoot);
+        default:
+            const message = `Project type "${project.source.type}" is not supported.`;
+            theia.window.showWarningMessage(message);
+            console.warn(message);
+            return;
+    }
+}
+
+export class TheiaGitCloneCommand implements TheiaImportCommand {
 
     private locationURI: string | undefined;
     private folder: string;
@@ -113,6 +143,61 @@ export class TheiaCloneCommand {
             location: theia.ProgressLocation.Notification,
             title: `Cloning ${this.locationURI} ...`
         }, (progress, token) => clone(progress, token));
+    }
+
+}
+
+export class TheiaImportZipCommand implements TheiaImportCommand {
+
+    private locationURI: string | undefined;
+    private projectDir: string;
+    private tmpDir: string;
+    private zipfile: string;
+    private zipfilePath: string;
+
+    constructor(project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project, projectsRoot: string) {
+        if (isDevfileProjectConfig(project)) {
+            const source = project.source;
+
+            this.locationURI = source.location;
+            this.projectDir = path.join(projectsRoot, project.name);
+            this.tmpDir = fs.mkdtempSync(path.join(`${os.tmpdir()}${path.sep}`, 'factory-plugin-'));
+            this.zipfile = `${project.name}.zip`;
+            this.zipfilePath = path.join(this.tmpDir, this.zipfile);
+        } else {
+            // legacy project config
+            theia.window.showErrorMessage('Legacy workspace config is not supported. Please use devfile instead.');
+        }
+    }
+
+    execute(): PromiseLike<void> {
+        const importZip = async (progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken): Promise<void> => {
+            try {
+                // download
+                const wgetArgs = [this.locationURI, '-O', this.zipfilePath];
+                await execute('wget', wgetArgs);
+
+                // expand
+                fs.mkdirSync(this.projectDir);
+                const unzipArgs = ['-q', '-n', '-d', this.projectDir, this.zipfilePath];
+                await execute('unzip', unzipArgs);
+
+                // clean
+                fs.unlinkSync(this.zipfilePath);
+                const zipfileParentDir = path.resolve(this.zipfilePath, '..');
+                if (zipfileParentDir.indexOf(os.tmpdir() + path.sep) === 0) {
+                    fs.rmdirSync(zipfileParentDir);
+                }
+            } catch (e) {
+                theia.window.showErrorMessage(`Couldn't import ${this.locationURI}: ${e.message}`);
+                console.error(`Couldn't import ${this.locationURI}`, e);
+            }
+        };
+
+        return theia.window.withProgress({
+            location: theia.ProgressLocation.Notification,
+            title: `Importing ${this.locationURI} ...`
+        }, (progress, token) => importZip(progress, token));
     }
 
 }

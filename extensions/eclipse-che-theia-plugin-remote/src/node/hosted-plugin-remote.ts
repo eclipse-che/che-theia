@@ -10,7 +10,7 @@
 
 import { injectable, inject, postConstruct } from 'inversify';
 import { ILogger } from '@theia/core/lib/common';
-import { HostedPluginClient, PluginMetadata } from '@theia/plugin-ext';
+import { HostedPluginClient, DeployedPlugin } from '@theia/plugin-ext';
 import { HostedPluginMapping } from './plugin-remote-mapping';
 import { Websocket } from './websocket';
 import { getPluginId } from '@theia/plugin-ext/lib/common';
@@ -39,9 +39,9 @@ export class HostedPluginRemote {
     private endpointsSockets = new Map<string, Websocket>();
 
     /**
-     * Mapping between endpoint's name and the websocket endpoint
+     * Mapping between endpoint's name and the deployed plugins
      */
-    private pluginsMetadata: Map<string, PluginMetadata[]> = new Map<string, PluginMetadata[]>();
+    private pluginsDeployedPlugins: Map<string, DeployedPlugin[]> = new Map<string, DeployedPlugin[]>();
 
     /**
      * Mapping between resource request id (pluginId_resourcePath) and resource query callback.
@@ -153,11 +153,11 @@ export class HostedPluginRemote {
     // tslint:disable-next-line:no-any
     handleLocalMessage(jsonMessage: any): void {
         if (jsonMessage.metadata && jsonMessage.metadata.result) {
-            const metadatas: PluginMetadata[] = jsonMessage.metadata.result;
-            this.pluginsMetadata.set(jsonMessage.endpointName, metadatas);
+            const deployedPlugins: DeployedPlugin[] = jsonMessage.metadata.result;
+            this.pluginsDeployedPlugins.set(jsonMessage.endpointName, deployedPlugins);
             // add the mapping retreived from external plug-in if not defined
-            metadatas.forEach(metadata => {
-                const entryName = getPluginId(metadata.model);
+            deployedPlugins.forEach(deployedPlugin => {
+                const entryName = getPluginId(deployedPlugin.metadata.model);
                 if (!this.hostedPluginMapping.getPluginsEndPoints().has(entryName)) {
                     this.hostedPluginMapping.getPluginsEndPoints().set(entryName, jsonMessage.endpointName);
                 }
@@ -186,10 +186,17 @@ export class HostedPluginRemote {
     }
 
     /**
-     * Return plugin metadata found remotely
+     * Provides additional plugin ids.
      */
-    async getExtraPluginMetadata(): Promise<PluginMetadata[]> {
-        return [].concat.apply([], [...this.pluginsMetadata.values()]);
+    public async getExtraDeployedPluginIds(): Promise<string[]> {
+        return [].concat.apply([], [...this.pluginsDeployedPlugins.values()]).map((deployedPlugin: DeployedPlugin) => deployedPlugin.metadata.model.id);
+    }
+
+    /**
+     * Provides additional deployed plugins.
+     */
+    public async getExtraDeployedPlugins(): Promise<DeployedPlugin[]> {
+        return [].concat.apply([], [...this.pluginsDeployedPlugins.values()]);
     }
 
     /**
@@ -198,17 +205,20 @@ export class HostedPluginRemote {
      * @param pluginId id of the plugin for which resource should be retreived
      * @param resourcePath relative path of the requested resource based on plugin root directory
      */
-    public requestPluginResource(pluginId: string, resourcePath: string): Promise<Buffer | undefined> {
+    public requestPluginResource(pluginId: string, resourcePath: string): Promise<Buffer> | undefined {
         if (this.hasEndpoint(pluginId) && resourcePath) {
-            return new Promise<Buffer | undefined>((resolve, reject) => {
+            return new Promise<Buffer>((resolve, reject) => {
                 const endpoint = this.hostedPluginMapping.getPluginsEndPoints().get(pluginId);
-                const targetWebsocket = this.endpointsSockets.get(endpoint);
+                if (!endpoint) {
+                    reject(new Error(`No endpoint for plugin: ${pluginId}`));
+                }
+                const targetWebsocket = this.endpointsSockets.get(endpoint!);
                 if (!targetWebsocket) {
                     reject(new Error(`No websocket connection for plugin: ${pluginId}`));
                 }
 
                 this.resourceRequests.set(this.getResourceRequestId(pluginId, resourcePath), resolve);
-                targetWebsocket.send(JSON.stringify({
+                targetWebsocket!.send(JSON.stringify({
                     'internal': {
                         'method': 'getResource',
                         'pluginId': pluginId,

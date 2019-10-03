@@ -106,7 +106,10 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                         name: command.commandName,
                         tooltip: command.commandLine,
                         iconPath: 'fa-cogs medium-yellow',
-                        command: { id: 'task:run', arguments: [this.getRootPath(), command.commandName] }
+                        command: {
+                            id: CONTAINERS_PLUGIN_RUN_TASK_COMMAND_ID,
+                            arguments: [this.getRootPath(), command.commandName, container.name]
+                        }
                     });
                 });
             }
@@ -266,4 +269,28 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
             return this.treeNodeItems.filter(item => item.parentId === undefined);
         }
     }
+}
+
+export const CONTAINERS_PLUGIN_RUN_TASK_COMMAND_ID = 'containers-plugin-run-task';
+/**
+ * Command handler which is invoked when a user clicks on a task in the Workspace panel.
+ * This is needed if a command doesn't have container to be run in specified.
+ * In such case we run the command in the container under which this command was clicked.
+ */
+export async function containersTreeTaskLauncherCommandHandler(source: string, label: string, containerName: string): Promise<void> {
+    const tasks: theia.Task[] = await theia.tasks.fetchTasks({ type: 'che' });
+    for (const task of tasks) {
+        if (task.name === label && task.source === source) {
+            if (!task.definition.target) {
+                task.definition.target = {};
+            }
+            task.definition.target.containerName = containerName;
+
+            theia.tasks.executeTask(task);
+            return;
+        }
+    }
+
+    // Shouldn't happen. Fallback to default behaviour.
+    theia.commands.executeCommand('task:run', source, label);
 }

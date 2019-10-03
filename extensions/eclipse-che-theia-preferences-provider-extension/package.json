@@ -12,9 +12,9 @@
   "dependencies": {
     "@eclipse-che/api": "^7.0.0-beta-4.0-80162ea6d2",
     "@eclipse-che/theia-plugin-ext": "0.0.1",
-    "@theia/core": "^0.6.1",
-    "@theia/preferences": "^0.6.1",
-    "@theia/workspace": "^0.6.1"
+    "@theia/core": "next",
+    "@theia/preferences": "next",
+    "@theia/workspace": "next"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
