@@ -55,6 +55,8 @@ export async function start() {
     });
 }
 
+const RESTART_WARNING_MESSAGE = 'Che Git plugin can leverage the generated keys now. To make them available in every workspace containers please restart your workspace.';
+
 const getHostName = async () => {
     const hostName = await theia.window.showInputBox({ placeHolder: 'Please provide a Host name e.g. github.com' });
     return hostName ? hostName : '';
@@ -82,8 +84,8 @@ const writeKey = async (name: string, key: string) => {
     await chmod(keyFile, '600');
 };
 
-const showWarning = async () => {
-    theia.window.showWarningMessage('Che Git plugin can leverage the generated keys now. To make them available in every workspace containers please restart your workspace.');
+const showWarning = async (message: string) => {
+    theia.window.showWarningMessage(message);
 };
 
 const generateKeyPair = async (sshkeyManager: SshKeyManager) => {
@@ -97,7 +99,7 @@ const generateKeyPair = async (sshkeyManager: SshKeyManager) => {
         const document = await theia.workspace.openTextDocument({ content: key.publicKey })!;
         await theia.window.showTextDocument(document!);
     }
-    showWarning();
+    showWarning(RESTART_WARNING_MESSAGE);
 };
 
 const generateKeyPairForHost = async (sshkeyManager: SshKeyManager) => {
@@ -111,7 +113,7 @@ const generateKeyPairForHost = async (sshkeyManager: SshKeyManager) => {
         const document = await theia.workspace.openTextDocument({ content: key.publicKey });
         await theia.window.showTextDocument(document!);
     }
-    showWarning();
+    showWarning(RESTART_WARNING_MESSAGE);
 };
 
 const createKeyPair = async (sshkeyManager: SshKeyManager) => {
@@ -124,14 +126,28 @@ const createKeyPair = async (sshkeyManager: SshKeyManager) => {
         await updateConfig(hostName);
         await writeKey(hostName, privateKey!);
         await theia.window.showInformationMessage(`Key pair for ${hostName} successfully created`);
-        showWarning();
+        showWarning(RESTART_WARNING_MESSAGE);
     } catch (error) {
         theia.window.showErrorMessage(error);
     }
 };
 
+const getKeys = async (sshKeyManager: SshKeyManager): Promise<cheApi.ssh.SshPair[]> => {
+    const keys: cheApi.ssh.SshPair[] = await sshKeyManager.getAll('vcs');
+    if (!keys || keys.length < 1) {
+        throw new Error('No SSH key pair has been defined.');
+    }
+    return keys;
+};
+
 const deleteKeyPair = async (sshkeyManager: SshKeyManager) => {
-    const keys: cheApi.ssh.SshPair[] = await sshkeyManager.getAll('vcs');
+    let keys: cheApi.ssh.SshPair[];
+    try {
+        keys = await getKeys(sshkeyManager);
+    } catch (error) {
+        showWarning('Delete SSH key operation is interrupted: ' + error.message);
+        return;
+    }
     const keyResp = await theia.window.showQuickPick<theia.QuickPickItem>(keys.map(key =>
         ({ label: key.name ? key.name : '' })), {});
     const keyName = keyResp ? keyResp.label : '';
@@ -150,7 +166,13 @@ const deleteKeyPair = async (sshkeyManager: SshKeyManager) => {
 };
 
 const viewPublicKey = async (sshkeyManager: SshKeyManager) => {
-    const keys: cheApi.ssh.SshPair[] = await sshkeyManager.getAll('vcs');
+    let keys: cheApi.ssh.SshPair[];
+    try {
+        keys = await getKeys(sshkeyManager);
+    } catch (error) {
+        showWarning('View public SSH key operation is interrupted: ' + error.message);
+        return;
+    }
     const keyResp = await theia.window.showQuickPick<theia.QuickPickItem>(keys.map(key =>
         ({ label: key.name ? key.name : '' })), {});
     const keyName = keyResp ? keyResp.label : '';

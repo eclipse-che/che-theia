@@ -11,9 +11,9 @@ set -e
 set -u
 
 IMAGE_TAG="next"
-THEIA_VERSION="0.11.0"
-THEIA_BRANCH="v0.11.0"
-THEIA_GIT_REFS="refs\\/tags\\/v0.11.0"
+THEIA_VERSION="master"
+THEIA_BRANCH="master"
+THEIA_GIT_REFS="refs\\/heads\\/master"
 THEIA_DOCKER_IMAGE_VERSION=
 
 # KEEP RIGHT ORDER!!!
@@ -32,6 +32,7 @@ dockerfiles/remote-plugin-java8
 dockerfiles/remote-plugin-java11
 dockerfiles/remote-plugin-php7
 dockerfiles/remote-plugin-go-1.10.7
+dockerfiles/remote-plugin-go-1.12.9
 dockerfiles/remote-plugin-clang-8
 dockerfiles/remote-plugin-python-3.7.3
 dockerfiles/remote-plugin-python-3.7.4
@@ -51,6 +52,7 @@ eclipse/che-remote-plugin-runner-java8
 eclipse/che-remote-plugin-runner-java11
 eclipse/che-remote-plugin-php7
 eclipse/che-remote-plugin-go-1.10.7
+eclipse/che-remote-plugin-go-1.12.9
 eclipse/che-remote-plugin-clang-8
 eclipse/che-remote-plugin-python-3.7.3
 eclipse/che-remote-plugin-python-3.7.4

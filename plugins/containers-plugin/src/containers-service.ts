@@ -98,6 +98,7 @@ export class ContainersService {
                     }
                     container.commands!.push({ commandName: command.name!, commandLine: command.commandLine! });
                 });
+                container.commands.sort((a, b) => a.commandName.localeCompare(b.commandName));
             }
             if (machine && machine.servers) {
                 container.servers = {};

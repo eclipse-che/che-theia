@@ -22,7 +22,7 @@ export class ChePluginApiProvider implements ExtPluginApiProvider {
                 initFunction: 'initializeApi',
                 initVariable: 'che_api_provider'
             },
-            backendInitPath: path.join(__dirname, '../plugin/node/che-api-node-provider.js')
+            backendInitPath: path.join('@eclipse-che/theia-plugin-ext/lib/plugin/node/che-api-node-provider.js')
         };
     }
 

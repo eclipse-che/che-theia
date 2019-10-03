@@ -8,9 +8,9 @@
     "src"
   ],
   "dependencies": {
-    "@theia/plugin-ext": "0.11.0",
-    "@theia/plugin-ext-vscode": "0.11.0",
-    "@theia/core": "0.11.0"
+    "@theia/plugin-ext": "next",
+    "@theia/plugin-ext-vscode": "next",
+    "@theia/core": "next"
   },
   "devDependencies": {
     "@types/escape-html": "0.0.20",
