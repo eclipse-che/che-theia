@@ -14,7 +14,7 @@ ENV GLIBC_VERSION=2.30-r0 \
     ODO_VERSION=v1.0.0-beta5 \
     OC_VERSION=v3.11.0 \
     OC_TAG=0cbc58b \
-    KUBECTL_VERSION=v1.11.0
+    KUBECTL_VERSION=v1.16.1
 
 # the plugin executes the commands relying on Bash
 RUN apk add --update --no-cache bash --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community && \
