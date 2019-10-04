@@ -108,7 +108,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                         iconPath: 'fa-cogs medium-yellow',
                         command: {
                             id: CONTAINERS_PLUGIN_RUN_TASK_COMMAND_ID,
-                            arguments: [this.getRootPath(), command.commandName, container.name]
+                            arguments: [this.getRootUri().toString(), command.commandName, container.name]
                         }
                     });
                 });
@@ -217,12 +217,12 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
         this.onDidChangeTreeDataEmitter.fire();
     }
 
-    private getRootPath(): string {
+    private getRootUri(): theia.Uri {
         const workspaceFolders = theia.workspace.workspaceFolders;
         if (!workspaceFolders || workspaceFolders.length < 1) {
-            return '/projects';
+            return theia.Uri.file('/projects');
         }
-        return workspaceFolders[0].uri.path;
+        return workspaceFolders[0].uri;
     }
 
     private getRandId(): string {
