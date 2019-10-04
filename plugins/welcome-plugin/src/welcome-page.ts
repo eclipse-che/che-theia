@@ -9,9 +9,7 @@
  **********************************************************************/
 
 import * as theia from '@theia/plugin';
-import * as path from 'path';
-
-import * as branding from '../src/branding.json';
+import * as che from '@eclipse-che/plugin';
 
 /**
  * Welcome Page
@@ -21,24 +19,35 @@ export class WelcomePage {
     constructor(readonly pluginContext: theia.PluginContext) {
     }
 
-    protected renderHeader(context: theia.PluginContext): string {
-        const logo = branding.logo;
-
-        let logoUri: theia.Uri;
+    /**
+     * Returns the Logo URI for usinf as an image in webview frame.
+     */
+    protected getLogoUri(logo: string): theia.Uri {
+        // Leave the Uri as it is in case HTTP resources
         if (logo.startsWith('http://') || logo.startsWith('https://')) {
-            logoUri = theia.Uri.parse(logo);
-        } else {
-            const filePath = path.join(context.extensionPath, logo);
-            const fileUri = theia.Uri.file(filePath);
-            logoUri = fileUri.with({ scheme: 'theia-resource' });
+            return theia.Uri.parse(logo);
         }
+
+        // Remove 'file://' prefix from the start of image URI
+        if (logo.startsWith('file://')) {
+            logo = logo.substring(7);
+        }
+
+        // Return new Uri with 'theia-resource' scheme.
+        return theia.Uri.file(logo).with({ scheme: 'theia-resource' });
+    }
+
+    protected renderHeader(context: theia.PluginContext): string {
+        const name = che.product.name;
+        const welcome = che.product.description;
+        const logo = this.getLogoUri(che.product.logo);
 
         return `<div class="che-welcome-header">
             <div class="che-welcome-header-title">
-                <div class="image-container"><img src=${logoUri} /></div>
-                <div class="product-name">${branding.product}</div>
+                <div class="image-container"><img src=${logo} /></div>
+                <div class="product-name">${name}</div>
             </div>
-            <span class='che-welcome-header-subtitle'>${branding.subtitle}</span>
+            <span class='che-welcome-header-subtitle'>${welcome}</span>
         </div>`;
     }
 
@@ -131,7 +140,7 @@ export class WelcomePage {
     }
 
     private async renderHelp(): Promise<string> {
-        const links = branding.links;
+        const links = che.product.links;
         const list = Object.keys(links).map(link =>
             `<div class='che-welcome-action-container'>
                 <a href=${links[link]} target='_blank'>${link}</a>

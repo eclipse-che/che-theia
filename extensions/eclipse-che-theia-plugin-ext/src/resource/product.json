@@ -1,0 +1,9 @@
+{
+    "name": "Eclipse Che",
+    "logo": "che-logo.svg",
+    "description": "Welcome To Your Cloud Developer Workspace",
+    "links": {
+        "Documentation": "https://www.eclipse.org/che/docs/che-7",
+        "Community chat": "https://mattermost.eclipse.org/eclipse/channels/eclipse-che"
+    }
+}

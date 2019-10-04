@@ -369,6 +369,9 @@ export const PLUGIN_RPC_CONTEXT = {
 
     CHE_USER: <ProxyIdentifier<CheUser>>createProxyIdentifier<CheUser>('CheUser'),
     CHE_USER_MAIN: <ProxyIdentifier<CheUserMain>>createProxyIdentifier<CheUserMain>('CheUserMain'),
+
+    CHE_PRODUCT: <ProxyIdentifier<CheProduct>>createProxyIdentifier<CheProduct>('CheProduct'),
+    CHE_PRODUCT_MAIN: <ProxyIdentifier<CheProductMain>>createProxyIdentifier<CheProductMain>('CheProductMain')
 };
 
 // Theia RPC protocol
@@ -513,4 +516,45 @@ export interface CheUserMain {
     $updateUserPreferences(preferences: Preferences): Promise<Preferences>;
     $replaceUserPreferences(preferences: Preferences): Promise<Preferences>;
     $deleteUserPreferences(list?: string[]): Promise<void>;
+}
+
+export interface CheProduct {
+    $setName(name: string): Promise<void>;
+    $setLogo(logo: string): Promise<void>;
+    $setDescription(description: string): Promise<void>;
+    $setLinks(links: { [text: string]: string }): Promise<void>;
+}
+
+export interface CheProductMain {
+}
+
+export const CHE_PRODUCT_SERVICE_PATH = '/che-product-service';
+
+export const CheProductService = Symbol('CheProductService');
+
+export interface CheProductService {
+
+    /**
+     * Returns the product info.
+     */
+    getProductInfo(): Promise<ProductInfo>;
+
+}
+
+export interface ProductInfo {
+    // Product name
+    name: string;
+
+    // Product logo
+    logo: string;
+
+    // Short description
+    description: string;
+
+    // Helpful links
+    links: Links;
+}
+
+export interface Links {
+    [text: string]: string;
 }

@@ -12,7 +12,7 @@ import * as theia from '@theia/plugin';
 import * as path from 'path';
 import { WelcomePage } from './welcome-page';
 
-import * as branding from '../src/branding.json';
+import * as che from '@eclipse-che/plugin';
 
 export namespace Settings {
     export const CHE_CONFIGURATION = 'che';
@@ -52,11 +52,6 @@ async function getHtmlForWebview(context: theia.PluginContext): Promise<string> 
 
 }
 
-export async function doStart(context: theia.PluginContext): Promise<void> {
-    addPanel(context);
-    handleReadmeFiles(context);
-}
-
 // Open Readme file is there is one
 export async function handleReadmeFiles(context: theia.PluginContext): Promise<void> {
     const roots: theia.WorkspaceFolder[] | undefined = await theia.workspace.workspaceFolders;
@@ -81,8 +76,8 @@ export async function handleReadmeFiles(context: theia.PluginContext): Promise<v
 }
 
 export async function addPanel(context: theia.PluginContext): Promise<void> {
-    // Create new panel
-    const currentPanel = theia.window.createWebviewPanel('WelcomePage', branding.title, { viewColumn: theia.ViewColumn.One, preserveFocus: false }, {
+    // Open Welcome tab
+    const currentPanel = theia.window.createWebviewPanel('WelcomePage', che.product.name, { viewColumn: theia.ViewColumn.One, preserveFocus: false }, {
         // Enable javascript in the webview
         enableScripts: true,
 
@@ -112,13 +107,7 @@ export async function addPanel(context: theia.PluginContext): Promise<void> {
         context.subscriptions
     );
 
-    const icon = branding.icon;
-    if (icon.startsWith('http://') || icon.startsWith('https://')) {
-        currentPanel.iconPath = theia.Uri.parse(icon);
-    } else {
-        const filePath = path.join(context.extensionPath, icon);
-        currentPanel.iconPath = theia.Uri.file(filePath);
-    }
+    currentPanel.iconPath = theia.Uri.parse(che.product.logo);
 }
 
 export function start(context: theia.PluginContext): void {
@@ -130,7 +119,10 @@ export function start(context: theia.PluginContext): void {
     }
 
     if (showWelcomePage) {
-        setTimeout(async () => doStart(context), 1000);
+        setTimeout(async () => {
+            addPanel(context);
+            handleReadmeFiles(context);
+        }, 1000);
     }
 }
 

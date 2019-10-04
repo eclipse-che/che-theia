@@ -17,10 +17,12 @@ import {
     CHE_API_SERVICE_PATH,
     CHE_TASK_SERVICE_PATH,
     CHE_PLUGIN_SERVICE_PATH,
+    CHE_PRODUCT_SERVICE_PATH,
     CheApiService,
     CheTaskClient,
     CheTaskService,
-    ChePluginService
+    ChePluginService,
+    CheProductService
 } from '../common/che-protocol';
 import { WebSocketConnectionProvider, bindViewContribution, WidgetFactory } from '@theia/core/lib/browser';
 import { CommandContribution } from '@theia/core/lib/common';
@@ -71,4 +73,9 @@ export default new ContainerModule(bind => {
 
     bind(ChePluginCommandContribution).toSelf().inSingletonScope();
     bind(CommandContribution).toService(ChePluginCommandContribution);
+
+    bind(CheProductService).toDynamicValue(ctx => {
+        const provider = ctx.container.get(WebSocketConnectionProvider);
+        return provider.createProxy<CheProductService>(CHE_PRODUCT_SERVICE_PATH);
+    }).inSingletonScope();
 });
