@@ -1,0 +1,3 @@
+# Compile plugins
+RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
+    cd plugins && ./foreach_yarn

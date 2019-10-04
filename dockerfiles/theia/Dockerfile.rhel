@@ -15,6 +15,10 @@ FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-dev:${BUILD_TAG} as builder
 
 ${INCLUDE:instructions/builder-setup.env}
 
+# patch electron module by removing native keymap module (no need to have some X11 libraries)
+RUN line_to_delete=$(grep -n native-keymap dev-packages/electron/package.json | cut -d ":" -f 1) && \
+    sed -i -e "${line_to_delete},1d" dev-packages/electron/package.json
+
 ${INCLUDE:instructions/builder-compile-theia.run}
 ${INCLUDE:instructions/builder-make-production.run}
 ${INCLUDE:instructions/builder-compile-plugins.run}
@@ -25,10 +29,11 @@ ${INCLUDE:instructions/builder-change-production-permissions.run}
 #
 
 # Use node image
-FROM node:10.16-alpine as runtime
+FROM registry.access.redhat.com/ubi8/nodejs-10 as runtime
 
 ${INCLUDE:instructions/runtime-setup.env}
 ${INCLUDE:instructions/runtime-ports.expose}
+
 
 COPY --from=builder /home/theia-dev/theia-source-code/production/plugins /default-theia-plugins
 

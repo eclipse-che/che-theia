@@ -1,0 +1,2 @@
+# change permissions
+RUN find production -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt

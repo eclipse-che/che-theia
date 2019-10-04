@@ -52,6 +52,7 @@ init() {
   PARENT_IMAGE=""
   BRANCH=""
   GIT_REF=""
+  BUILD_IMAGE_TARGET="default"
 
   while [ $# -gt 0 ]; do
     case $1 in
@@ -120,6 +121,7 @@ build() {
        if [ ${dockerfile} != "Dockerfile" ]; then
          TAG=${ORIGINAL_TAG}-$(echo ${dockerfile} | sed -e "s/^Dockerfile.//")
        fi
+       BUILD_IMAGE_TARGET=$(echo ${dockerfile} | sed -e "s/^Dockerfile//" | sed -e "s/^\.//" | sed -e "s/^$/default/")
        IMAGE_NAME="$ORGANIZATION/$PREFIX-$NAME:$TAG"
        DOCKERFILE=${dockerfile}
        build_image
@@ -129,6 +131,8 @@ build() {
     TAG=${ORIGINAL_TAG}
     IMAGE_NAME="$ORGANIZATION/$PREFIX-$NAME:$TAG"
   else
+    dockerfile=$(basename ${DOCKERFILE})
+    BUILD_IMAGE_TARGET=$(echo ${dockerfile} | sed -e "s/^Dockerfile//" | sed -e "s/^\.//" | sed -e "s/^$/default/")
     # else if specified, build only the one specified
     build_image
   fi
@@ -138,7 +142,35 @@ build() {
 build_image() {
   printf "${BOLD}Building Docker Image ${IMAGE_NAME} from $DIR directory with tag $TAG${NC}\n"
   # Replace macros in Dockerfiles
-  cat ${DIR}/${DOCKERFILE} | sed s/\$\{BUILD_ORGANIZATION\}/${ORGANIZATION}/ | sed s/\$\{BUILD_PREFIX\}/${PREFIX}/ | sed s/\$\{BUILD_TAG\}/${TAG}/ | sed s/\$\{BUILD_PARENT_IMAGE\}/${PARENT_IMAGE}/ | sed s/\$\{GIT_BRANCH_NAME\}/${BRANCH}/ | sed s/\$\{GIT_REF\}/"${GIT_REF}"/ > ${DIR}/.Dockerfile
+  cat ${DIR}/${DOCKERFILE} | sed s/\$\{BUILD_ORGANIZATION\}/${ORGANIZATION}/ | sed s/\$\{BUILD_PREFIX\}/${PREFIX}/ \
+  | sed s/\$\{BUILD_TAG\}/${TAG}/ | sed s/\$\{BUILD_PARENT_IMAGE\}/${PARENT_IMAGE}/ \
+  | sed s/\$\{BUILD_IMAGE_TARGET\}/${BUILD_IMAGE_TARGET}/  \
+  | sed s/\$\{GIT_BRANCH_NAME\}/${BRANCH}/ | sed s/\$\{GIT_REF\}/"${GIT_REF}"/ > ${DIR}/.Dockerfile
+
+  # grab includes
+  to_include=$(sed -n 's/\${INCLUDE:\(.*\)\}/\1/p' ${DIR}/.Dockerfile)
+
+  # perform includes (not use sed {r} to be portable)
+  echo "$to_include" | while IFS= read -r filename_to_include ; do
+    if [ ! -z "$filename_to_include" ]; then
+      # trim argument
+      filename_to_include=$(echo $filename_to_include | xargs)
+      local line_to_insert=$(grep -n "\${INCLUDE:${filename_to_include}}" ${DIR}/.Dockerfile | cut -d ":" -f 1 | head -n 1) 
+      local head_line=$(($line_to_insert - 1))
+      local tail_line=$(($line_to_insert + 1))
+      (head -n ${head_line} "${DIR}/.Dockerfile" && cat "${DIR}/$filename_to_include" && tail -n +${tail_line} "${DIR}/.Dockerfile") > ${DIR}/.Dockerfile2
+      mv ${DIR}/.Dockerfile2 ${DIR}/.Dockerfile
+    fi
+  done
+  cp ${DIR}/.Dockerfile ${DIR}/.Dockerfile2
+  cat ${DIR}/.Dockerfile2 | sed s/\$\{BUILD_ORGANIZATION\}/${ORGANIZATION}/ | sed s/\$\{BUILD_PREFIX\}/${PREFIX}/ \
+  | sed s/\$\{BUILD_TAG\}/${TAG}/ | sed s/\$\{BUILD_PARENT_IMAGE\}/${PARENT_IMAGE}/ \
+  | sed s/\$\{BUILD_IMAGE_TARGET\}/${BUILD_IMAGE_TARGET}/  \
+  | sed s/\$\{GIT_BRANCH_NAME\}/${BRANCH}/ | sed s/\$\{GIT_REF\}/"${GIT_REF}"/ > ${DIR}/.Dockerfile
+  rm ${DIR}/.Dockerfile2
+
+
+
   cd "${DIR}" && docker build -f ${DIR}/.Dockerfile -t ${IMAGE_NAME} ${BUILD_ARGS} .
   rm ${DIR}/.Dockerfile
   if [ $? -eq 0 ]; then

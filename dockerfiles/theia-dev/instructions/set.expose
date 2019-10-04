@@ -1,0 +1,2 @@
+# Exposing Theia ports
+EXPOSE 3000 3030

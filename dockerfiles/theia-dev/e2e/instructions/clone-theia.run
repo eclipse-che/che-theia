@@ -1,0 +1,2 @@
+# Just try to build the latest theia with current image
+RUN git clone -b 'master' --single-branch --depth 1 https://github.com/eclipse-theia/theia theia

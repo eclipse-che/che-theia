@@ -1,0 +1,2 @@
+# Run into production mode
+RUN che:theia production
