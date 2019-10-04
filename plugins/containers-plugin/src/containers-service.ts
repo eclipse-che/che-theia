@@ -81,9 +81,9 @@ export class ContainersService {
                     container.volumes = {};
                     container.env = {};
                 } else if (workspace.config) {
-                    const machinesConfig = workspace.config.environments[workspace.config.defaultEnv].machines;
-                    container.volumes = machinesConfig[name].volumes;
-                    container.env = machinesConfig[name].env;
+                    const machinesConfig = workspace.config.environments![workspace.config.defaultEnv!].machines;
+                    container.volumes = machinesConfig![name].volumes;
+                    container.env = machinesConfig![name].env;
                 } else {
                     // should never happen
                     throw new Error('Invalid workspace structure');
@@ -96,16 +96,16 @@ export class ContainersService {
                     if (command.attributes && command.attributes.machineName && command.attributes.machineName !== name) {
                         return;
                     }
-                    container.commands.push({ commandName: command.name, commandLine: command.commandLine });
+                    container.commands!.push({ commandName: command.name!, commandLine: command.commandLine! });
                 });
                 container.commands.sort((a, b) => a.commandName.localeCompare(b.commandName));
             }
             if (machine && machine.servers) {
                 container.servers = {};
                 Object.keys(machine.servers).forEach((serverName: string) => {
-                    const server = machine.servers[serverName];
+                    const server = machine.servers![serverName];
                     if (server && server.url) {
-                        container.servers[serverName] = { url: server.url };
+                        container.servers![serverName] = { url: server.url };
                     }
                 });
             }

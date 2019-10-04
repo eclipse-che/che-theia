@@ -38,8 +38,8 @@ export class PreviewUrlOpenService {
      * Tries to resolve the variable in the given URL.
      * @param previewURL an URL to resolve
      */
-    async resolve(previewURL: string): Promise<string> {
-        return await che.variables.resolve(previewURL);
+    async resolve(previewURL: string): Promise<string | undefined> {
+        return che.variables.resolve(previewURL);
     }
 
     private async preview(url: string, commandId: string): Promise<void> {

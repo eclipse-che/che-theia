@@ -116,7 +116,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
             const serverKeys = container.servers ? Object.keys(container.servers) : [];
             if (serverKeys.length) {
                 serverKeys.forEach((serverName: string) => {
-                    const server = container.servers[serverName];
+                    const server = container.servers![serverName];
                     if (!server) {
                         return;
                     }
@@ -150,7 +150,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                     this.treeNodeItems.push({
                         id: this.getRandId(),
                         parentId: envsId,
-                        name: `${envName} : ${container.env[envName]}`,
+                        name: `${envName} : ${container.env![envName]}`,
                         tooltip: `environment variable ${envName}`,
                         iconPath: 'fa-info-circle medium-blue'
                     });
@@ -168,8 +168,8 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                 });
                 volumesKeys.forEach((volumeName: string) => {
                     const volume: {
-                        [paramRef: string]: string;
-                    } = container.volumes[volumeName];
+                        [paramRef: string]: string | undefined;
+                    } = container.volumes![volumeName];
                     if (!volume) {
                         return;
                     }

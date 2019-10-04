@@ -60,12 +60,12 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
         const containers = await this.getContainerList();
 
         for (const container of containers) {
-            const servers = container.servers || [];
+            const servers = container.servers || {};
             for (const serverName in servers) {
                 if (!servers.hasOwnProperty(serverName)) {
                     continue;
                 }
-                const attrs = servers[serverName].attributes || [];
+                const attrs = servers[serverName].attributes || {};
 
                 for (const attrName in attrs) {
                     if (attrName === TYPE && attrs[attrName] === TERMINAL_SERVER_TYPE) {
@@ -82,12 +82,12 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
         const containers = await this.getContainerList();
 
         for (const container of containers) {
-            const servers = container.servers || [];
+            const servers = container.servers || {};
             for (const serverName in servers) {
                 if (!servers.hasOwnProperty(serverName)) {
                     continue;
                 }
-                const attrs = servers[serverName].attributes || [];
+                const attrs = servers[serverName].attributes || {};
                 for (const attrName in attrs) {
                     if (attrName === TYPE && attrs[attrName] === EDITOR_SERVER_TYPE) {
                         return container.name;

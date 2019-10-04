@@ -61,8 +61,8 @@ export class GitConfigurationController {
                     const userConfig = await this.getUserConfigurationFromGitConfig();
                     const preferences = await this.preferencesService.getPreferences();
 
-                    preferences[GIT_USER_NAME] = userConfig.name;
-                    preferences[GIT_USER_EMAIL] = userConfig.email;
+                    (preferences as { [index: string]: string })[GIT_USER_NAME] = userConfig.name!;
+                    (preferences as { [index: string]: string })[GIT_USER_EMAIL] = userConfig.email!;
 
                     await this.preferencesService.setPreferences(preferences);
                 }
@@ -100,7 +100,8 @@ export class GitConfigurationController {
         });
     }
 
-    protected getUserConfiguration(preferences: object): UserConfiguration {
+    // tslint:disable-next-line: no-any
+    protected getUserConfiguration(preferences: any): UserConfiguration {
         return {
             name: preferences[GIT_USER_NAME],
             email: preferences[GIT_USER_EMAIL]
@@ -122,8 +123,8 @@ export class GitConfigurationController {
             gitConfig.user.email = config.email;
         }
 
-        await this.gitConfigWatcher.stop();
+        await this.gitConfigWatcher!.stop();
         await writeFile(GIT_CONFIG_PATH, ini.stringify(gitConfig));
-        await this.gitConfigWatcher.start();
+        await this.gitConfigWatcher!.start();
     }
 }

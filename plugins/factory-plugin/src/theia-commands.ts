@@ -28,7 +28,7 @@ export enum ActionId {
 }
 
 function isDevfileProjectConfig(project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project): project is cheApi.workspace.devfile.Project {
-    return !!project.name && !!project.source && !!project.source.type && !!project.source.location && !project.source['parameters'];
+    return !!project.name && !!project.source && !!project.source.type && !!project.source.location && !(project.source as { [index: string]: string })['parameters'];
 }
 
 export interface TheiaImportCommand {
@@ -38,7 +38,7 @@ export interface TheiaImportCommand {
 export function buildProjectImportCommand(
     project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project,
     projectsRoot: string
-): TheiaImportCommand {
+): TheiaImportCommand | undefined {
 
     if (!project.source) {
         return;
@@ -76,7 +76,7 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
             }
 
             this.locationURI = source.location;
-            this.folder = project.clonePath ? path.join(projectsRoot, project.clonePath) : path.join(projectsRoot, project.name);
+            this.folder = project.clonePath ? path.join(projectsRoot, project.clonePath) : path.join(projectsRoot, project.name!);
             this.checkoutBranch = source.branch;
             this.checkoutStartPoint = source.startPoint;
             this.checkoutTag = source.tag;
@@ -104,7 +104,7 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
         }
 
         const clone = async (progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken): Promise<void> => {
-            const args: string[] = ['clone', this.locationURI, this.folder];
+            const args: string[] = ['clone', this.locationURI!, this.folder];
             if (this.checkoutBranch) {
                 args.push('--branch');
                 args.push(this.checkoutBranch);
@@ -159,8 +159,8 @@ export class TheiaImportZipCommand implements TheiaImportCommand {
         if (isDevfileProjectConfig(project)) {
             const source = project.source;
 
-            this.locationURI = source.location;
-            this.projectDir = path.join(projectsRoot, project.name);
+            this.locationURI = source!.location;
+            this.projectDir = path.join(projectsRoot, project.name!);
             this.tmpDir = fs.mkdtempSync(path.join(`${os.tmpdir()}${path.sep}`, 'factory-plugin-'));
             this.zipfile = `${project.name}.zip`;
             this.zipfilePath = path.join(this.tmpDir, this.zipfile);
@@ -174,7 +174,7 @@ export class TheiaImportZipCommand implements TheiaImportCommand {
         const importZip = async (progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken): Promise<void> => {
             try {
                 // download
-                const wgetArgs = [this.locationURI, '-O', this.zipfilePath];
+                const wgetArgs = [this.locationURI!, '-O', this.zipfilePath];
                 await execute('wget', wgetArgs);
 
                 // expand
