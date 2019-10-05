@@ -156,7 +156,7 @@ build_image() {
   printf "${NC}\n"
   # Replace macros in Dockerfiles
   # TODO why do we need to do this replacement TWICE?
-  cat ${DIR}/${DOCKERFILE} | sed s/\$\{BUILD_ORGANIZATION\}/${ORGANIZATION}/ | sed s/\$\{BUILD_PREFIX\}/${PREFIX}/ \
+  cat ${DIR}/${DOCKERFILE} | sed s@\$\{BUILD_ORGANIZATION\}@${ORGANIZATION}@ | sed s/\$\{BUILD_PREFIX\}/${PREFIX}/ \
   | sed s/\$\{BUILD_TAG\}/${TAG}/ | sed s/\$\{BUILD_PARENT_IMAGE\}/${PARENT_IMAGE}/ \
   | sed s/\$\{BUILD_IMAGE_TARGET\}/${BUILD_IMAGE_TARGET}/  \
   | sed s/\$\{GIT_BRANCH_NAME\}/${BRANCH}/ | sed s/\$\{GIT_REF\}/"${GIT_REF}"/ > ${DIR}/.Dockerfile
@@ -177,7 +177,7 @@ build_image() {
     fi
   done
   cp ${DIR}/.Dockerfile ${DIR}/.Dockerfile2
-  cat ${DIR}/.Dockerfile2 | sed s/\$\{BUILD_ORGANIZATION\}/${ORGANIZATION}/ | sed s/\$\{BUILD_PREFIX\}/${PREFIX}/ \
+  cat ${DIR}/.Dockerfile2 | sed s@\$\{BUILD_ORGANIZATION\}@${ORGANIZATION}@ | sed s/\$\{BUILD_PREFIX\}/${PREFIX}/ \
   | sed s/\$\{BUILD_TAG\}/${TAG}/ | sed s/\$\{BUILD_PARENT_IMAGE\}/${PARENT_IMAGE}/ \
   | sed s/\$\{BUILD_IMAGE_TARGET\}/${BUILD_IMAGE_TARGET}/  \
   | sed s/\$\{GIT_BRANCH_NAME\}/${BRANCH}/ | sed s/\$\{GIT_REF\}/"${GIT_REF}"/ > ${DIR}/.Dockerfile
