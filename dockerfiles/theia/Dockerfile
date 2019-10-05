@@ -13,7 +13,7 @@
 #
 FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-dev:${BUILD_TAG} as builder
 
-${INCLUDE:instructions/builder-setup.env}
+${INCLUDE:instructions/${BUILD_IMAGE_TARGET}/builder-setup.env}
 
 ${INCLUDE:instructions/builder-compile-theia.run}
 ${INCLUDE:instructions/builder-make-production.run}
@@ -37,11 +37,12 @@ ${INCLUDE:instructions/${BUILD_IMAGE_TARGET}/runtime-install-dependencies.run}
 
 RUN \
     ${INCLUDE:instructions/${BUILD_IMAGE_TARGET}/runtime-adduser.run}
-    ${INCLUDE:instructions/runtime-configure.run}
+    ${INCLUDE:instructions/${BUILD_IMAGE_TARGET}/runtime-yarninstall.run}
 
+${INCLUDE:instructions/${BUILD_IMAGE_TARGET}/runtime-getplugins.run}
 
+${INCLUDE:instructions/runtime-configure.run}
 ${INCLUDE:instructions/runtime-theia-production.copy}
 ${INCLUDE:instructions/runtime-theia.user}
 ${INCLUDE:instructions/runtime-projects.workdir}
-
 ${INCLUDE:instructions/runtime-define.entrypoint}

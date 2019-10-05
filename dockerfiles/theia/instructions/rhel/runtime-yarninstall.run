@@ -1,0 +1,12 @@
+    # Add yeoman, theia plugin generator and typescript (to have tsc/typescript working)
+    if [[ ! -f /tmp/root-local.tgz ]]; then \
+        # online install
+        npm install -g yarn@1.17.3 && \
+        yarn global add yo @theia/generator-plugin@0.0.1-1562578105 typescript@2.9.2; \
+    else \
+        # offline install (Brew)
+        tar xf /tmp/root-local.tgz -C /; rm -fr /tmp/root-local.tgz; \
+    fi; \
+    echo -n "yarn " && yarn --version && \
+    echo "Installed npm Packages" && npm ls -g | sort | uniq && yarn global list && \
+    echo "End Of Installed npm Packages"

@@ -39,7 +39,7 @@ init() {
   BOLD='\033[1m'
   UNDERLINE='\033[4m'
 
-  ORGANIZATION="eclipse"
+  ORGANIZATION="docker.io/eclipse"
   PREFIX="che"
   TAG="next"
   SKIP_TESTS=false
@@ -53,6 +53,7 @@ init() {
   BRANCH=""
   GIT_REF=""
   BUILD_IMAGE_TARGET="default"
+  OFFLINE="false"
 
   while [ $# -gt 0 ]; do
     case $1 in
@@ -93,6 +94,9 @@ init() {
       --git-ref:*)
         GIT_REF="${1#*:}"
         shift ;;
+      --offline)
+        OFFLINE=true
+        shift ;;
       --*)
         printf "${RED}Unknown parameter: $1${NC}\n"; exit 2 ;;
       *)
@@ -121,7 +125,8 @@ build() {
        if [ ${dockerfile} != "Dockerfile" ]; then
          TAG=${ORIGINAL_TAG}-$(echo ${dockerfile} | sed -e "s/^Dockerfile.//")
        fi
-       BUILD_IMAGE_TARGET=$(echo ${dockerfile} | sed -e "s/^Dockerfile//" | sed -e "s/^\.//" | sed -e "s/^$/default/")
+       # support both foo.Dockerfile and Dockerfile.foo
+       BUILD_IMAGE_TARGET=$(echo ${dockerfile} | sed -e "s/^Dockerfile\.//" | sed -e "s/\.Dockerfile//" | sed -e "s/^$/default/")
        IMAGE_NAME="$ORGANIZATION/$PREFIX-$NAME:$TAG"
        DOCKERFILE=${dockerfile}
        build_image
@@ -131,8 +136,9 @@ build() {
     TAG=${ORIGINAL_TAG}
     IMAGE_NAME="$ORGANIZATION/$PREFIX-$NAME:$TAG"
   else
+    # support both foo.Dockerfile and Dockerfile.foo
     dockerfile=$(basename ${DOCKERFILE})
-    BUILD_IMAGE_TARGET=$(echo ${dockerfile} | sed -e "s/^Dockerfile//" | sed -e "s/^\.//" | sed -e "s/^$/default/")
+    BUILD_IMAGE_TARGET=$(echo ${dockerfile} | sed -e "s/^Dockerfile\.//" | sed -e "s/\.Dockerfile//" | sed -e "s/^$/default/")
     # else if specified, build only the one specified
     build_image
   fi
@@ -140,8 +146,16 @@ build() {
 }
 
 build_image() {
-  printf "${BOLD}Building Docker Image ${IMAGE_NAME} from $DIR directory with tag $TAG${NC}\n"
+  printf "${BOLD}Building container image ${IMAGE_NAME} from $DIR/ with:\n"
+  printf " * ORGANIZATION = $ORGANIZATION\n"
+  printf " * PREFIX = $PREFIX\n"
+  printf " * TAG = $TAG\n"
+  printf " * PARENT_IMAGE = $PARENT_IMAGE\n"
+  printf " * BRANCH = $BRANCH\n"
+  printf " * GIT_REF = $GIT_REF\n"
+  printf "${NC}\n"
   # Replace macros in Dockerfiles
+  # TODO why do we need to do this replacement TWICE?
   cat ${DIR}/${DOCKERFILE} | sed s/\$\{BUILD_ORGANIZATION\}/${ORGANIZATION}/ | sed s/\$\{BUILD_PREFIX\}/${PREFIX}/ \
   | sed s/\$\{BUILD_TAG\}/${TAG}/ | sed s/\$\{BUILD_PARENT_IMAGE\}/${PARENT_IMAGE}/ \
   | sed s/\$\{BUILD_IMAGE_TARGET\}/${BUILD_IMAGE_TARGET}/  \
@@ -169,9 +183,7 @@ build_image() {
   | sed s/\$\{GIT_BRANCH_NAME\}/${BRANCH}/ | sed s/\$\{GIT_REF\}/"${GIT_REF}"/ > ${DIR}/.Dockerfile
   rm ${DIR}/.Dockerfile2
 
-
-
-  cd "${DIR}" && docker build -f ${DIR}/.Dockerfile -t ${IMAGE_NAME} ${BUILD_ARGS} .
+  cd "${DIR}" && docker build -f ${DIR}/.Dockerfile -t ${IMAGE_NAME} ${BUILD_ARGS} . --squash
   rm ${DIR}/.Dockerfile
   if [ $? -eq 0 ]; then
     printf "Build of ${BLUE}${IMAGE_NAME} ${GREEN}[OK]${NC}\n"

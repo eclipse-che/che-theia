@@ -1,11 +1,17 @@
-# Install sudo
-# Install git
-# Install bzip2 to unpack files
-# Install which tool in order to search git
-# Install curl and bash
-# Install ssh for cloning ssh-repositories
-# Install less for handling git diff properly
+# 0. Enable this script to collect intalled node deps into a single folder for easier tarballing
+COPY collect.installed.dependencies.sh /usr/local/bin/
+
+# 1. extract files in the container to your local filesystem
+# CONTAINERNAME="quay.io/crw/crw-theia-dev:next" && rm -f root-local.tgz eclipse-che-theia-generator.tgz; ./build.sh
+# mkdir -p /tmp/root-local/ && docker run --rm -v /tmp/root-local/:/tmp/root-local/ ${CONTAINERNAME} /bin/bash -c "collect.installed.dependencies.sh"
+# pushd /tmp/root-local >/dev/null && sudo tar czf /tmp/root-local.tgz ./* && popd >/dev/null && sudo mv -f /tmp/root-local.tgz . && sudo rm -fr /tmp/root-local/
+
+# 2. then add it to dist-git so it's part of this repo
+#    rhpkg new-sources root-local.tgz 
+
+# 3. built in Brew, use tarball in lookaside cache; built locally, comment this out
+# COPY root-local.tgz /tmp/root-local.tgz
+
 RUN yum install -y sudo git bzip2 which bash curl openssh less && \
     yum -y clean all && rm -rf /var/cache/yum && \
-    # install yarn dependency \
-    npm install -g yarn@1.17.3
+    echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
