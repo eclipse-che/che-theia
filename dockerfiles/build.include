@@ -138,7 +138,7 @@ build() {
 build_image() {
   printf "${BOLD}Building Docker Image ${IMAGE_NAME} from $DIR directory with tag $TAG${NC}\n"
   # Replace macros in Dockerfiles
-  cat ${DIR}/${DOCKERFILE} | sed s/\$\{BUILD_ORGANIZATION\}/${ORGANIZATION}/ | sed s/\$\{BUILD_PREFIX\}/${PREFIX}/ | sed s/\$\{BUILD_TAG\}/${TAG}/ | sed s/\$\{BUILD_PARENT_IMAGE\}/${PARENT_IMAGE}/ | sed s/\$\{GIT_BRANCH_NAME\}/${BRANCH}/ | sed s/\$\{GIT_REF\}/"${GIT_REF}"/ > ${DIR}/.Dockerfile
+  cat ${DIR}/${DOCKERFILE} | sed s@\$\{BUILD_ORGANIZATION\}@${ORGANIZATION}@ | sed s/\$\{BUILD_PREFIX\}/${PREFIX}/ | sed s/\$\{BUILD_TAG\}/${TAG}/ | sed s/\$\{BUILD_PARENT_IMAGE\}/${PARENT_IMAGE}/ | sed s/\$\{GIT_BRANCH_NAME\}/${BRANCH}/ | sed s/\$\{GIT_REF\}/"${GIT_REF}"/ > ${DIR}/.Dockerfile
   cd "${DIR}" && docker build -f ${DIR}/.Dockerfile -t ${IMAGE_NAME} ${BUILD_ARGS} .
   rm ${DIR}/.Dockerfile
   if [ $? -eq 0 ]; then
