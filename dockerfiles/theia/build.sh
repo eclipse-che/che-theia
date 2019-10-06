@@ -13,17 +13,23 @@ base_dir=$(cd "$(dirname "$0")"; pwd)
 check_github_limits
 
 DIR=$(cd "$(dirname "$0")"; pwd)
-LOCAL_ASSEMBLY_DIR="${DIR}"/che-theia
 
-if [ -d "${LOCAL_ASSEMBLY_DIR}" ]; then
-  rm -r "${LOCAL_ASSEMBLY_DIR}"
+# create che-theia archive
+echo "Compresing 'che-theia' --> ${DIR}/asset-che-theia.tar.gz"
+cd "${DIR}"/../.. && git ls-files -z -c -o --exclude-standard | xargs -0 tar rf ${DIR}/asset-che-theia.tar.gz
+
+# Download plugins
+THEIA_YEOMAN_PLUGIN="${DIR}/asset-untagged-c11870b25a17d20bb7a7-theia_yeoman_plugin.theia"
+if [ ! -f "${THEIA_YEOMAN_PLUGIN}" ]; then
+    curl -L -o ${THEIA_YEOMAN_PLUGIN} https://github.com/eclipse/theia-yeoman-plugin/releases/download/untagged-c11870b25a17d20bb7a7/theia_yeoman_plugin.theia
 fi
 
-# In mac os 'cp' cannot create destination dir, so create it first
-mkdir ${LOCAL_ASSEMBLY_DIR}
+# VS Code git plug-in
+VSCODE_GIT_PLUGIN="${DIR}/asset-vscode-git-1.3.0.1.vsix"
+if [ ! -f "${VSCODE_GIT_PLUGIN}" ]; then
+    curl -L -o ${VSCODE_GIT_PLUGIN} https://github.com/che-incubator/vscode-git/releases/download/1.30.1/vscode-git-1.3.0.1.vsix
+fi
 
-echo "Compresing 'che-theia' --> ${LOCAL_ASSEMBLY_DIR}/che-theia.tar.gz"
-cd "${DIR}"/../.. && git ls-files -z -c -o --exclude-standard | xargs -0 tar rvf ${LOCAL_ASSEMBLY_DIR}/che-theia.tar.gz
 
 init --name:theia "$@"
 
@@ -41,13 +47,15 @@ if ! skip_tests; then
   bash "${base_dir}"/e2e/build.sh "$PREFIX-$NAME" "$@"
 fi
 
-echo "Extracting artifacts for the CDN"
-mkdir -p "${base_dir}/theia_artifacts"
-"${base_dir}"/extract-for-cdn.sh "$IMAGE_NAME" "${base_dir}/theia_artifacts"
-LABEL_CONTENT=$(cat "${base_dir}"/theia_artifacts/cdn.json || true 2>/dev/null)
-if [ -n "${LABEL_CONTENT}" ]; then
-  BUILD_ARGS+="--label che-plugin.cdn.artifacts=$(echo ${LABEL_CONTENT} | sed 's/ //g') "
-  echo "Rebuilding with CDN label..."
-  build
-  "${base_dir}"/push-cdn-files-to-akamai.sh
+if [[ -z "$DOCKER_BUILD_TARGET" ]]; then
+  echo "Extracting artifacts for the CDN"
+  mkdir -p "${base_dir}/theia_artifacts"
+  "${base_dir}"/extract-for-cdn.sh "$IMAGE_NAME" "${base_dir}/theia_artifacts"
+  LABEL_CONTENT=$(cat "${base_dir}"/theia_artifacts/cdn.json || true 2>/dev/null)
+  if [ -n "${LABEL_CONTENT}" ]; then
+    BUILD_ARGS+="--label che-plugin.cdn.artifacts=$(echo ${LABEL_CONTENT} | sed 's/ //g') "
+    echo "Rebuilding with CDN label..."
+    build
+    "${base_dir}"/push-cdn-files-to-akamai.sh
+  fi
 fi
