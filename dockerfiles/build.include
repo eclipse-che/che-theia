@@ -92,6 +92,9 @@ init() {
       --git-ref:*)
         GIT_REF="${1#*:}"
         shift ;;
+      --image-name:*)
+        IMAGE_NAME="${1#*:}"
+        shift ;;
       --*)
         printf "${RED}Unknown parameter: $1${NC}\n"; exit 2 ;;
       *)
@@ -99,7 +102,7 @@ init() {
     esac
   done
 
-  IMAGE_NAME="$ORGANIZATION/$PREFIX-$NAME:$TAG"
+  IMAGE_NAME="${IMAGE_NAME:-$ORGANIZATION/$PREFIX-$NAME:$TAG}"
 }
 
 build() {
