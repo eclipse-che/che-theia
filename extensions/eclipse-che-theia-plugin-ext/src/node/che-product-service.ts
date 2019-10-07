@@ -14,32 +14,45 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 
 const PRODUCT_JSON = '../../src/resource/product.json';
-// const PRODUCT_JSON = 'product.json';
 
 @injectable()
 export class CheProductServiceImpl implements CheProductService {
 
+    private product: ProductInfo;
+
     async getProductInfo(): Promise<ProductInfo> {
+        if (this.product) {
+            return this.product;
+        }
+
         const productJsonPath = this.jsonFilePath();
 
         try {
             const product: ProductInfo = await fs.readJson(productJsonPath) as ProductInfo;
-            const logo = this.getLogo(product, productJsonPath);
-            return {
+            const logo = this.getLogo(product.logo, productJsonPath);
+            this.product = {
                 name: product.name,
                 logo: logo,
                 description: product.description,
                 links: product.links
             };
+
+            return this.product;
         } catch (error) {
             console.error(error);
         }
 
+        /**
+         * Return defaults
+         */
         return {
-            name: '',
-            logo: '',
-            description: '',
-            links: {}
+            name: 'Eclipse Che',
+            logo: this.getLogo('che-logo.svg', './'),
+            description: 'Welcome To Your Cloud Developer Workspace',
+            links: {
+                'Documentation': 'https://www.eclipse.org/che/docs/che-7',
+                'Community chat': 'https://mattermost.eclipse.org/eclipse/channels/eclipse-che'
+            }
         };
     }
 
@@ -55,9 +68,7 @@ export class CheProductServiceImpl implements CheProductService {
     /**
      * Returns string URI to Product Logo.
      */
-    getLogo(product: ProductInfo, productJsonPath: string): string {
-        const logo = product.logo;
-
+    getLogo(logo: string, productJsonPath: string): string {
         if (logo.startsWith('http://') || logo.startsWith('https://')) {
             // HTTP resource
             return logo;

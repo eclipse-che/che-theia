@@ -11,7 +11,6 @@
 import * as theia from '@theia/plugin';
 import * as path from 'path';
 import { WelcomePage } from './welcome-page';
-
 import * as che from '@eclipse-che/plugin';
 
 export namespace Settings {

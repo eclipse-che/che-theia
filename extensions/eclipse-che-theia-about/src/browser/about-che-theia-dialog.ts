@@ -11,6 +11,7 @@
 import { AboutDialog, AboutDialogProps, ABOUT_EXTENSIONS_CLASS, ABOUT_CONTENT_CLASS } from '@theia/core/lib/browser/about-dialog';
 import { injectable, inject, postConstruct } from 'inversify';
 import { ThemeService, Theme } from '@theia/core/lib/browser/theming';
+import { CheProductService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
 const logoDark = require('../../src/browser/style/che-logo-dark.svg');
 const logoLight = require('../../src/browser/style/che-logo-light.svg');
 const jsonDetails = require('../../conf/about-details.json');
@@ -21,6 +22,9 @@ export class AboutCheTheiaDialog extends AboutDialog {
     @inject(ThemeService)
     protected readonly themeService: ThemeService;
 
+    @inject(CheProductService)
+    private productService: CheProductService;
+
     constructor(
         @inject(AboutDialogProps) protected readonly props: AboutDialogProps
     ) {
@@ -29,6 +33,9 @@ export class AboutCheTheiaDialog extends AboutDialog {
 
     @postConstruct()
     protected async init(): Promise<void> {
+        const product = await this.productService.getProductInfo();
+        console.log(product);
+
         const messageNode = document.createElement('div');
         messageNode.classList.add(ABOUT_CONTENT_CLASS);
         const imgObject = document.createElement('img');
