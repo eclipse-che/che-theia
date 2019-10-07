@@ -17,13 +17,13 @@ import { CHE_TASK_TYPE, MACHINE_NAME_ATTRIBUTE, PREVIEW_URL_ATTRIBUTE, WORKING_D
 export function toTaskConfiguration(command: cheApi.workspace.Command): TaskConfiguration {
     const taskConfig: TaskConfiguration = {
         type: CHE_TASK_TYPE,
-        label: command.name,
+        label: command.name!,
         command: command.commandLine,
         target: {
-            workingDir: this.getCommandAttribute(command, WORKING_DIR_ATTRIBUTE),
-            containerName: this.getCommandAttribute(command, MACHINE_NAME_ATTRIBUTE)
+            workingDir: getCommandAttribute(command, WORKING_DIR_ATTRIBUTE),
+            containerName: getCommandAttribute(command, MACHINE_NAME_ATTRIBUTE)
         },
-        previewUrl: this.getCommandAttribute(command, PREVIEW_URL_ATTRIBUTE)
+        previewUrl: getCommandAttribute(command, PREVIEW_URL_ATTRIBUTE)
     };
 
     return taskConfig;
@@ -36,10 +36,10 @@ export function toTask(command: cheApi.workspace.Command): Task {
             type: CHE_TASK_TYPE,
             command: command.commandLine,
             target: {
-                workingDir: this.getCommandAttribute(command, WORKING_DIR_ATTRIBUTE),
-                containerName: this.getCommandAttribute(command, MACHINE_NAME_ATTRIBUTE)
+                workingDir: getCommandAttribute(command, WORKING_DIR_ATTRIBUTE),
+                containerName: getCommandAttribute(command, MACHINE_NAME_ATTRIBUTE)
             },
-            previewUrl: this.getCommandAttribute(command, PREVIEW_URL_ATTRIBUTE)
+            previewUrl: getCommandAttribute(command, PREVIEW_URL_ATTRIBUTE)
         },
         name: `${command.name}`,
         source: CHE_TASK_TYPE,

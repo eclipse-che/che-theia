@@ -120,17 +120,17 @@ export class DevfileProjectsManager extends WorkspaceProjectsManager {
     async selectProjectToCloneCommands(workspace: cheApi.workspace.Workspace): Promise<TheiaImportCommand[]> {
         const instance = this;
 
-        const projects = workspace.devfile.projects;
+        const projects = workspace.devfile!.projects;
         if (!projects) {
             return [];
         }
 
         return projects
             .filter(project => {
-                const projectPath = project.clonePath ? path.join(instance.projectsRoot, project.clonePath) : path.join(instance.projectsRoot, project.name);
+                const projectPath = project.clonePath ? path.join(instance.projectsRoot, project.clonePath) : path.join(instance.projectsRoot, project.name!);
                 return !fs.existsSync(projectPath);
             })
-            .map(project => buildProjectImportCommand(project, instance.projectsRoot));
+            .map(project => buildProjectImportCommand(project, instance.projectsRoot)!);
     }
 
     async updateOrCreateProject(workspace: cheApi.workspace.Workspace, projectFolderURI: string): Promise<void> {
@@ -141,7 +141,7 @@ export class DevfileProjectsManager extends WorkspaceProjectsManager {
         }
 
         projectsHelper.updateOrCreateGitProjectInDevfile(
-            workspace.devfile.projects,
+            workspace.devfile!.projects!,
             fileUri.convertToCheProjectPath(projectFolderURI, this.projectsRoot),
             projectUpstreamBranch.remoteURL,
             projectUpstreamBranch.branch);
@@ -149,7 +149,7 @@ export class DevfileProjectsManager extends WorkspaceProjectsManager {
 
     deleteProject(workspace: cheApi.workspace.Workspace, projectFolderURI: string): void {
         projectsHelper.deleteProjectFromDevfile(
-            workspace.devfile.projects,
+            workspace.devfile!.projects!,
             fileUri.convertToCheProjectPath(projectFolderURI, this.projectsRoot)
         );
     }
@@ -171,7 +171,7 @@ export class WorkspaceConfigProjectsManager extends WorkspaceProjectsManager {
 
         return projects
             .filter(project => !fs.existsSync(instance.projectsRoot + project.path))
-            .map(project => buildProjectImportCommand(project, instance.projectsRoot));
+            .map(project => buildProjectImportCommand(project, instance.projectsRoot)!);
     }
 
     async updateOrCreateProject(workspace: cheApi.workspace.Workspace, projectFolderURI: string): Promise<void> {

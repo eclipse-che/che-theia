@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@eclipse-che/plugin": "0.0.1",
-    "@theia/plugin": "0.11.0",
+    "@theia/plugin": "next",
     "@theia/plugin-packager": "latest"
   },
   "scripts": {
@@ -66,7 +66,7 @@
     "inversify": "4.14.0",
     "reflect-metadata": "0.1.8",
     "vscode-uri": "1.0.5",
-    "vscode-ws-jsonrpc": "^0.0.2-1",
+    "vscode-ws-jsonrpc": "^0.1.1",
     "ws": "^5.2.2",
     "jsonc-parser": "^2.0.2"
   }

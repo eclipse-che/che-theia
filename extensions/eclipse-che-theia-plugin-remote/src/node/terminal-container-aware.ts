@@ -11,6 +11,7 @@
 import * as theia from '@theia/plugin';
 import { TerminalServiceExtImpl } from '@theia/plugin-ext/lib/plugin/terminal-ext';
 import { DebugExtImpl } from '@theia/plugin-ext/lib/plugin/node/debug/debug';
+import { TerminalOptionsExt } from '@theia/plugin-ext';
 
 /**
  * Allow to override createTerminal to be container-aware and then create terminal to the sidecar container
@@ -54,9 +55,9 @@ export class TerminalContainerAware {
 
     overrideTerminalCreationOptionForDebug(debugExt: DebugExtImpl) {
         debugExt.doGetTerminalCreationOptions = (debugType: string) => {
-            const options: theia.TerminalOptions = {
+            const options: TerminalOptionsExt = {
                 attributes: {
-                    'CHE_MACHINE_NAME': process.env.CHE_MACHINE_NAME
+                    'CHE_MACHINE_NAME': process.env.CHE_MACHINE_NAME!
                 }
             };
 

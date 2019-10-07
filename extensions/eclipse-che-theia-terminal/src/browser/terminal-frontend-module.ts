@@ -93,7 +93,7 @@ export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Un
 
                     const token = await envServer.getValue('CHE_MACHINE_TOKEN');
                     let uri = new URI(server.url);
-                    if (token.value) {
+                    if (token && token.value) {
                         uri = uri.withQuery('token=' + token.value);
                     }
                     return uri;
