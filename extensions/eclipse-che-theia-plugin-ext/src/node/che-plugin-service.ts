@@ -81,15 +81,8 @@ export class ChePluginServiceImpl implements ChePluginService {
 
             return Promise.reject('Plugin registry URI is not set.');
         } catch (error) {
-            // console.log('ERROR', error);
-            // return Promise.reject('Unable to get default plugin registry URI. ' + error.message);
-
-            // A temporary solution. Should throw an error instead.
-            this.defaultRegistry = {
-                name: 'Eclipse Che plugin registry',
-                uri: 'https://che-plugin-registry.openshift.io/v3/plugins/'
-            };
-            return this.defaultRegistry;
+            console.error(error);
+            return Promise.reject(`Unable to get default plugin registry URI. ${error.message}`);
         }
     }
 
