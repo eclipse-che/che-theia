@@ -25,8 +25,5 @@ RUN apt-get update && \
     update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-8 100 && \
     update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-8 100
 
-RUN mkdir /projects ${HOME} && \
-    chmod -R g+rwX /projects && \
+RUN mkdir ${HOME} && \
     chmod -R 777 ${HOME}
-
-ENTRYPOINT ["bash", "/entrypoint.sh"]
