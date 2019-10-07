@@ -10,7 +10,7 @@
 
 import * as path from 'path';
 import * as fs from 'fs';
-import { TheiaCloneCommand } from './theia-commands';
+import { TheiaImportCommand, buildProjectImportCommand } from './theia-commands';
 import * as git from './git';
 import * as projectsHelper from './projects';
 import * as fileUri from './file-uri';
@@ -36,7 +36,7 @@ abstract class WorkspaceProjectsManager {
         protected projectsRoot: string
     ) { }
 
-    abstract async selectProjectToCloneCommands(workspace: cheApi.workspace.Workspace): Promise<TheiaCloneCommand[]>;
+    abstract async selectProjectToCloneCommands(workspace: cheApi.workspace.Workspace): Promise<TheiaImportCommand[]>;
     abstract async updateOrCreateProject(workspace: cheApi.workspace.Workspace, projectFolderURI: string): Promise<void>;
     abstract deleteProject(workspace: cheApi.workspace.Workspace, projectFolderURI: string): void;
 
@@ -55,16 +55,16 @@ abstract class WorkspaceProjectsManager {
         await this.startSyncWorkspaceProjects();
     }
 
-    private async executeCloneCommands(cloneCommandList: TheiaCloneCommand[]) {
+    private async executeCloneCommands(cloneCommandList: TheiaImportCommand[]) {
         if (cloneCommandList.length === 0) {
             return;
         }
 
-        theia.window.showInformationMessage('Che Workspace: Starting cloning projects.');
+        theia.window.showInformationMessage('Che Workspace: Starting importing projects.');
         await Promise.all(
             cloneCommandList.map(cloneCommand => cloneCommand.execute())
         );
-        theia.window.showInformationMessage('Che Workspace: Finished cloning projects.');
+        theia.window.showInformationMessage('Che Workspace: Finished importing projects.');
     }
 
     async startSyncWorkspaceProjects() {
@@ -117,20 +117,20 @@ abstract class WorkspaceProjectsManager {
  */
 export class DevfileProjectsManager extends WorkspaceProjectsManager {
 
-    async selectProjectToCloneCommands(workspace: cheApi.workspace.Workspace): Promise<TheiaCloneCommand[]> {
+    async selectProjectToCloneCommands(workspace: cheApi.workspace.Workspace): Promise<TheiaImportCommand[]> {
         const instance = this;
 
-        const projects = workspace.devfile.projects;
+        const projects = workspace.devfile!.projects;
         if (!projects) {
             return [];
         }
 
         return projects
             .filter(project => {
-                const projectPath = project.clonePath ? path.join(instance.projectsRoot, project.clonePath) : path.join(instance.projectsRoot, project.name);
+                const projectPath = project.clonePath ? path.join(instance.projectsRoot, project.clonePath) : path.join(instance.projectsRoot, project.name!);
                 return !fs.existsSync(projectPath);
             })
-            .map(project => new TheiaCloneCommand(project, instance.projectsRoot));
+            .map(project => buildProjectImportCommand(project, instance.projectsRoot)!);
     }
 
     async updateOrCreateProject(workspace: cheApi.workspace.Workspace, projectFolderURI: string): Promise<void> {
@@ -141,7 +141,7 @@ export class DevfileProjectsManager extends WorkspaceProjectsManager {
         }
 
         projectsHelper.updateOrCreateGitProjectInDevfile(
-            workspace.devfile.projects,
+            workspace.devfile!.projects!,
             fileUri.convertToCheProjectPath(projectFolderURI, this.projectsRoot),
             projectUpstreamBranch.remoteURL,
             projectUpstreamBranch.branch);
@@ -149,7 +149,7 @@ export class DevfileProjectsManager extends WorkspaceProjectsManager {
 
     deleteProject(workspace: cheApi.workspace.Workspace, projectFolderURI: string): void {
         projectsHelper.deleteProjectFromDevfile(
-            workspace.devfile.projects,
+            workspace.devfile!.projects!,
             fileUri.convertToCheProjectPath(projectFolderURI, this.projectsRoot)
         );
     }
@@ -161,7 +161,7 @@ export class DevfileProjectsManager extends WorkspaceProjectsManager {
  */
 export class WorkspaceConfigProjectsManager extends WorkspaceProjectsManager {
 
-    async selectProjectToCloneCommands(workspace: cheApi.workspace.Workspace): Promise<TheiaCloneCommand[]> {
+    async selectProjectToCloneCommands(workspace: cheApi.workspace.Workspace): Promise<TheiaImportCommand[]> {
         const instance = this;
 
         const projects = workspace.config!.projects;
@@ -171,7 +171,7 @@ export class WorkspaceConfigProjectsManager extends WorkspaceProjectsManager {
 
         return projects
             .filter(project => !fs.existsSync(instance.projectsRoot + project.path))
-            .map(project => new TheiaCloneCommand(project, instance.projectsRoot));
+            .map(project => buildProjectImportCommand(project, instance.projectsRoot)!);
     }
 
     async updateOrCreateProject(workspace: cheApi.workspace.Workspace, projectFolderURI: string): Promise<void> {

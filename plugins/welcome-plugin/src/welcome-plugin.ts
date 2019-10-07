@@ -120,7 +120,7 @@ export async function addPanel(context: theia.PluginContext): Promise<void> {
 }
 
 export function start(context: theia.PluginContext): void {
-    let showWelcomePage = true;
+    let showWelcomePage: boolean | undefined = true;
 
     const configuration = theia.workspace.getConfiguration(Settings.CHE_CONFIGURATION);
     if (configuration) {

@@ -9,5 +9,7 @@
 base_dir=$(cd "$(dirname "$0")"; pwd)
 . "${base_dir}/../../build.include"
 
+check_github_limits
+
 init --name:theia-builder-e2e "$@"
 build

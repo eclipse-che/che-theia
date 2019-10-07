@@ -23,7 +23,7 @@ const ERROR_MESSAGE_TEMPLATE = 'Can not resolve \'current.project.path\' variabl
  */
 @injectable()
 export class ProjectPathVariableResolver {
-    private projectsRoot: string;
+    private projectsRoot: string | undefined;
     private isResolved: boolean = false;
 
     async registerVariables(): Promise<void> {
@@ -39,7 +39,7 @@ export class ProjectPathVariableResolver {
         }
 
         const selections = await theia.commands.executeCommand<Uri[]>(SELECTED_CONTEXT_COMMAND);
-        if (selections.length < 1) {
+        if (!selections || selections.length < 1) {
             return this.onError('Please select a project.');
         }
 

@@ -147,7 +147,7 @@ export class ChePluginManager {
         this.registryList.push(registry);
 
         // Save list of custom repositories to preferences
-        const prefs = {};
+        const prefs: { [index: string]: string } = {};
         this.registryList.forEach(r => {
             if (r.name !== 'Default') {
                 prefs[r.name] = r.uri;
@@ -460,7 +460,7 @@ export class ChePluginManager {
      *
      * Returns VS Code extension `publisher.ID`
      */
-    checkVsCodeExtension(input: string): string {
+    checkVsCodeExtension(input: string): string | undefined {
         try {
             const idPublisher = this.getIdPublisher(input);
             if (idPublisher) {

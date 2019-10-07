@@ -16,7 +16,7 @@ import * as path from 'path';
 import { logger } from '@theia/core';
 import { ILogger } from '@theia/core/lib/common';
 import { Emitter } from '@theia/core/lib/common/event';
-import { MAIN_RPC_CONTEXT, PluginDeployer, PluginDeployerEntry, PluginMetadata } from '@theia/plugin-ext';
+import { MAIN_RPC_CONTEXT, PluginDeployer, PluginDeployerEntry, PluginDependencies, DeployedPlugin, PluginEntryPoint } from '@theia/plugin-ext';
 import pluginVscodeBackendModule from '@theia/plugin-ext-vscode/lib/node/plugin-vscode-backend-module';
 import { RPCProtocolImpl } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { PluginDeployerHandler } from '@theia/plugin-ext/lib/common';
@@ -29,6 +29,7 @@ import pluginRemoteBackendModule from './plugin-remote-backend-module';
 import { TerminalContainerAware } from './terminal-container-aware';
 import { PluginDiscovery } from './plugin-discovery';
 import { PluginReaderExtension } from './plugin-reader-extension';
+import { Deferred } from '@theia/core/lib/common/promise-util';
 
 interface CheckAliveWS extends ws {
     alive: boolean;
@@ -164,7 +165,8 @@ to pick-up automatically a free port`));
 
     // create a new client on top of socket
     newClient(id: number, socket: ws): WebSocketClient {
-        const emitter = new Emitter();
+        // tslint:disable-next-line:no-any
+        const emitter = new Emitter<any>();
         const webSocketClient = new WebSocketClient(id, socket, emitter);
         webSocketClient.rpc = new RPCProtocolImpl({
             onMessage: emitter.event,
@@ -180,9 +182,9 @@ to pick-up automatically a free port`));
 
         // override window.createTerminal to be container aware
         // tslint:disable-next-line:no-any
-        new TerminalContainerAware().overrideTerminal((webSocketClient.rpc as any).locals[MAIN_RPC_CONTEXT.TERMINAL_EXT.id]);
+        new TerminalContainerAware().overrideTerminal((webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.TERMINAL_EXT.id));
         // tslint:disable-next-line:no-any
-        new TerminalContainerAware().overrideTerminalCreationOptionForDebug((webSocketClient.rpc as any).locals[MAIN_RPC_CONTEXT.DEBUG_EXT.id]);
+        new TerminalContainerAware().overrideTerminalCreationOptionForDebug((webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.DEBUG_EXT.id));
 
         return webSocketClient;
     }
@@ -211,7 +213,9 @@ to pick-up automatically a free port`));
                 if (jsonParsed.internal.method && jsonParsed.internal.method === 'stop') {
                     try {
                         // wait to stop plug-ins
-                        await client.pluginHostRPC.stopContext();
+                        // FIXME: we need to fix this
+                        // tslint:disable-next-line: no-any
+                        await (<any>client.pluginHostRPC).pluginManager.$stop();
 
                         // ok now we can dispose the emitter
                         client.disposeEmitter();
@@ -250,16 +254,15 @@ to pick-up automatically a free port`));
                 // asked to grab metadata, send them
                 if (jsonParsed.internal.metadata && 'request' === jsonParsed.internal.metadata) {
                     // apply host on all local metadata
-                    currentBackendPluginsMetadata.forEach(metadata => metadata.host = jsonParsed.internal.endpointName);
+                    currentBackendDeployedPlugins.forEach(deployedPlugin => deployedPlugin.metadata.host = jsonParsed.internal.endpointName);
                     const metadataResult = {
                         'internal': {
                             'endpointName': jsonParsed.internal.endpointName,
                             'metadata': {
-                                'result': currentBackendPluginsMetadata
+                                'result': currentBackendDeployedPlugins
                             }
                         }
                     };
-
                     client.send(metadataResult);
                 }
                 return;
@@ -317,7 +320,7 @@ class WebSocketClient {
 // list of clients
 const webSocketClients = new Map<number, WebSocketClient>();
 
-const currentBackendPluginsMetadata: PluginMetadata[] = [];
+const currentBackendDeployedPlugins: DeployedPlugin[] = [];
 
 @injectable()
 class PluginDeployerHandlerImpl implements PluginDeployerHandler {
@@ -331,9 +334,29 @@ class PluginDeployerHandlerImpl implements PluginDeployerHandler {
     // announced ?
     private announced = false;
 
-    constructor(
-        @inject(HostedPluginReader) private readonly reader: HostedPluginReader,
-    ) {
+    /**
+     * Managed plugin metadata backend entries.
+     */
+    private readonly deployedBackendPlugins = new Map<string, DeployedPlugin>();
+
+    @inject(HostedPluginReader)
+    private readonly reader: HostedPluginReader;
+
+    private backendPluginsMetadataDeferred = new Deferred<void>();
+
+    async getDeployedFrontendPluginIds(): Promise<string[]> {
+        return [];
+    }
+
+    async getDeployedBackendPluginIds(): Promise<string[]> {
+        // await first deploy
+        await this.backendPluginsMetadataDeferred.promise;
+        // fetch the last deployed state
+        return [...this.deployedBackendPlugins.keys()];
+    }
+
+    getDeployedPlugin(pluginId: string): DeployedPlugin | undefined {
+        return this.deployedBackendPlugins.get(pluginId);
     }
 
     async deployFrontendPlugins(frontendPlugins: PluginDeployerEntry[]): Promise<void> {
@@ -344,13 +367,10 @@ class PluginDeployerHandlerImpl implements PluginDeployerHandler {
 
     async deployBackendPlugins(backendPlugins: PluginDeployerEntry[]): Promise<void> {
         for (const plugin of backendPlugins) {
-            const metadata = await this.reader.getPluginMetadata(plugin.path());
-            if (metadata) {
-                currentBackendPluginsMetadata.push(metadata);
-                const pluginPath = metadata.model.entryPoint.backend || plugin.path();
-                this.logger.info(`Backend plug-in "${metadata.model.name}@${metadata.model.version}" from "${pluginPath} is now available"`);
-            }
+            await this.deployPlugin(plugin, 'backend');
         }
+        // resolve on first deploy
+        this.backendPluginsMetadataDeferred.resolve(undefined);
 
         // ok now we're ready to announce as plugins have been deployed
         if (!this.announced) {
@@ -360,9 +380,47 @@ class PluginDeployerHandlerImpl implements PluginDeployerHandler {
         }
 
     }
+    async getPluginDependencies(pluginToBeInstalled: PluginDeployerEntry): Promise<PluginDependencies | undefined> {
+        const pluginPath = pluginToBeInstalled.path();
+        try {
+            const manifest = await this.reader.readPackage(pluginPath);
+            if (!manifest) {
+                return undefined;
+            }
+            const metadata = this.reader.readMetadata(manifest);
+            const dependencies: PluginDependencies = { metadata };
+            dependencies.mapping = this.reader.readDependencies(manifest);
+            return dependencies;
+        } catch (e) {
+            console.error(`Failed to load plugin dependencies from '${pluginPath}' path`, e);
+            return undefined;
+        }
+    }
 
-    getPluginMetadata(pluginToBeInstalled: PluginDeployerEntry): Promise<PluginMetadata> {
-        return this.reader.getPluginMetadata(pluginToBeInstalled.path());
+    /**
+     * @throws never! in order to isolate plugin deployment
+     */
+    protected async deployPlugin(entry: PluginDeployerEntry, entryPoint: keyof PluginEntryPoint): Promise<void> {
+        const pluginPath = entry.path();
+        try {
+            const manifest = await this.reader.readPackage(pluginPath);
+            if (!manifest) {
+                return;
+            }
+
+            const metadata = this.reader.readMetadata(manifest);
+            if (this.deployedBackendPlugins.has(metadata.model.id)) {
+                return;
+            }
+
+            const deployed: DeployedPlugin = { metadata };
+            deployed.contributes = this.reader.readContribution(manifest);
+            this.deployedBackendPlugins.set(metadata.model.id, deployed);
+            currentBackendDeployedPlugins.push(deployed);
+            this.logger.info(`Deploying ${entryPoint} plugin "${metadata.model.name}@${metadata.model.version}" from "${metadata.model.entryPoint[entryPoint] || pluginPath}"`);
+        } catch (e) {
+            console.error(`Failed to deploy ${entryPoint} plugin from '${pluginPath}' path`, e);
+        }
     }
 
 }

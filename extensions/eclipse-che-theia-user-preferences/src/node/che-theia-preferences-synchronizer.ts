@@ -22,6 +22,7 @@ import { homedir } from 'os';
 import { resolve, dirname } from 'path';
 import * as nsfw from 'nsfw';
 import { CheApiService, Preferences } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
+import { Emitter, Event } from '@theia/core';
 
 export const THEIA_PREFERENCES_KEY = 'theia-user-preferences';
 export const THEIA_USER_PREFERENCES_PATH = resolve(homedir(), '.theia', 'settings.json');
@@ -34,6 +35,13 @@ export class CheTheiaUserPreferencesSynchronizer {
 
     protected settingsJsonWatcher: nsfw.NSFW | undefined;
 
+    protected readonly onUserPreferencesModifyEmitter = new Emitter<object>();
+    readonly onUserPreferencesModify: Event<object> = this.onUserPreferencesModifyEmitter.event;
+
+    protected fireUserPreferencesModify(userPreferences: object): void {
+        this.onUserPreferencesModifyEmitter.fire(userPreferences);
+    }
+
     /**
      * Provides stored Theia user preferences into workspace.
      */
@@ -42,6 +50,18 @@ export class CheTheiaUserPreferencesSynchronizer {
         const theiaPreferences = chePreferences[THEIA_PREFERENCES_KEY] ? chePreferences[THEIA_PREFERENCES_KEY] : '{}';
         const theiaPreferencesBeautified = JSON.stringify(JSON.parse(theiaPreferences), undefined, 3);
         await ensureDir(dirname(THEIA_USER_PREFERENCES_PATH));
+        await writeFile(THEIA_USER_PREFERENCES_PATH, theiaPreferencesBeautified, 'utf8');
+    }
+
+    public async getPreferences(): Promise<object> {
+        const userPreferencesContent = await readFile(THEIA_USER_PREFERENCES_PATH, 'utf8');
+        const userPreferences = JSON.parse(userPreferencesContent);
+
+        return userPreferences;
+    }
+
+    public async setPreferences(preferences: object): Promise<void> {
+        const theiaPreferencesBeautified = JSON.stringify(preferences, undefined, 3);
         await writeFile(THEIA_USER_PREFERENCES_PATH, theiaPreferencesBeautified, 'utf8');
     }
 
@@ -73,17 +93,19 @@ export class CheTheiaUserPreferencesSynchronizer {
      * Updates Theia user preferences which stored in Che
      */
     protected async updateTheiaUserPreferencesInCheSettings(): Promise<void> {
-        let userPreferences = await readFile(THEIA_USER_PREFERENCES_PATH, 'utf8');
+        let userPreferencesContent = await readFile(THEIA_USER_PREFERENCES_PATH, 'utf8');
         try {
             // check json validity and remove indents
-            userPreferences = JSON.stringify(JSON.parse(userPreferences));
+            const userPreferences = JSON.parse(userPreferencesContent);
+            this.fireUserPreferencesModify(userPreferences);
+            userPreferencesContent = JSON.stringify(userPreferences);
         } catch (error) {
             // settings.json has syntax error, do not update anything
             return;
         }
 
         const update: Preferences = {};
-        update[THEIA_PREFERENCES_KEY] = userPreferences;
+        update[THEIA_PREFERENCES_KEY] = userPreferencesContent;
         await this.cheApiService.updateUserPreferences(update);
     }
 

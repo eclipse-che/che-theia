@@ -14,38 +14,22 @@
 FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-dev:${BUILD_TAG} as builder
 WORKDIR ${HOME}
 
-# define in env variable GITHUB_TOKEN only if it is defined
-# else check if github rate limit is enough, else will abort requiring to set GITHUB_TOKEN value
-ARG GITHUB_TOKEN
+# Export GITHUB_TOKEN into environment variable
+ARG GITHUB_TOKEN=''
+ENV GITHUB_TOKEN=$GITHUB_TOKEN
 
-ARG THEIA_GITHUB_REPO=theia-ide/theia
+ARG THEIA_GITHUB_REPO=eclipse-theia/theia
 
 # Define upstream version of theia to use
 ARG THEIA_VERSION=master
 
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-# Check github limit
-RUN if [ ! -z "${GITHUB_TOKEN-}" ]; then \
-      export GITHUB_TOKEN=$GITHUB_TOKEN; \
-      echo "Setting GITHUB_TOKEN value as provided"; \
-    else \
-      export GITHUB_LIMIT=$(curl -s 'https://api.github.com/rate_limit' | jq '.rate .remaining'); \
-      echo "Current API rate limit https://api.github.com is ${GITHUB_LIMIT}"; \
-      if [ "${GITHUB_LIMIT}" -lt 10 ]; then \
-        printf "\033[0;31m\n\n\nRate limit on https://api.github.com is reached so in order to build this image, "; \
-        printf "the build argument GITHUB_TOKEN needs to be provided so build will not fail.\n\n\n\033[0m"; \
-        exit 1; \
-      else \
-        echo "GITHUB_TOKEN variable is not set but https://api.github.com rate limit has enough slots"; \
-      fi \
-    fi
-
-#invalidate cache
+# Invalidate cache if any source code has changed
 ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/${THEIA_GITHUB_REPO}/git/${GIT_REF} /tmp/branch_info.json
 
 # Clone theia
-RUN git clone --branch ${GIT_BRANCH_NAME}  --single-branch --depth 1 https://github.com/${THEIA_GITHUB_REPO} ${HOME}/theia-source-code
+RUN git clone --branch ${GIT_BRANCH_NAME} --single-branch --depth 1 https://github.com/${THEIA_GITHUB_REPO} ${HOME}/theia-source-code
 
 # Add patches
 ADD src/patches ${HOME}/patches
@@ -64,7 +48,7 @@ ARG CDN_PREFIX=""
 ARG MONACO_CDN_PREFIX=""
 WORKDIR ${HOME}/theia-source-code
 
-#add che-theia repository content
+# Add che-theia repository content
 ADD che-theia/che-theia.tar.gz ${HOME}/theia-source-code/che-theia
 
 # run che:theia init command and alias che-theia repository to use local sources insted of cloning
@@ -73,13 +57,19 @@ RUN che:theia init -c ${HOME}/theia-source-code/che-theia/che-theia-init-sources
 RUN che:theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 
 # Compile Theia
-RUN yarn
+
+# Unset GITHUB_TOKEN environment variable if it is empty.
+# This is needed for some tools which use this variable and will fail with 401 Unauthorized error if it is invalid.
+# For example, vscode ripgrep downloading is an example of such case.
+RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
+    yarn
 
 # Run into production mode
 RUN che:theia production
 
 # Compile plugins
-RUN cd plugins && ./foreach_yarn
+RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
+    cd plugins && ./foreach_yarn
 
 # change permissions
 RUN find production -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt
@@ -88,6 +78,7 @@ RUN find production -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt
 ###
 # Runtime Image
 #
+
 # Use node image
 FROM node:10.16-alpine as runtime
 ENV USE_LOCAL_GIT=true \

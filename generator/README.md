@@ -33,7 +33,7 @@ Once the tool is installed, the following commands are available:
 This command needs to be launched inside a cloned directory of Eclipse Theia cloned directory
 
 ```
-$ git clone https://github.com/theia-ide/theia
+$ git clone https://github.com/eclipse-theia/theia
 $ cd theia
 $ che:theia init
 ```

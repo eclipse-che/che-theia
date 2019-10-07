@@ -9,8 +9,9 @@
  **********************************************************************/
 
 import { injectable, inject } from 'inversify';
-import { HostedPluginClient, ServerPluginRunner, PluginMetadata } from '@theia/plugin-ext/lib/common/plugin-protocol';
+import { HostedPluginClient, ServerPluginRunner } from '@theia/plugin-ext/lib/common/plugin-protocol';
 import { HostedPluginRemote } from './hosted-plugin-remote';
+import { DeployedPlugin } from '@theia/plugin-ext';
 
 /**
  * Proxy runner being a facade for loading plugins locally or remotely
@@ -51,8 +52,18 @@ export class ServerPluginProxyRunner implements ServerPluginRunner {
 
     }
 
-    getExtraPluginMetadata(): Promise<PluginMetadata[]> {
-        return this.hostedPluginRemote.getExtraPluginMetadata();
+    /**
+     * Provides additional deployed plugins.
+     */
+    public getExtraDeployedPlugins(): Promise<DeployedPlugin[]> {
+        return this.hostedPluginRemote.getExtraDeployedPlugins();
+    }
+
+    /**
+     * Provides additional plugin ids.
+     */
+    public getExtraDeployedPluginIds(): Promise<string[]> {
+        return this.hostedPluginRemote.getExtraDeployedPluginIds();
     }
 
 }

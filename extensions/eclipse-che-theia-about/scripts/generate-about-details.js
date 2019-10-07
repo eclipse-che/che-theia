@@ -9,6 +9,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
+const os = require('os');
 const path = require('path');
 const fs = require('fs-extra');
 const util = require('util');
@@ -16,31 +17,47 @@ const exec = util.promisify(require('child_process').exec);
 
 // grab sha1 of theia
 async function getTheiaGitSha1() {
-    // check if there is a theia directory
-    const theiaDir = path.resolve(__dirname, '../../../../..');
-    const packagesDir = path.resolve(theiaDir, 'packages');
-    const dotTheiaDir = path.resolve(theiaDir, '.theia');
-    const inTheia = await fs.pathExists(packagesDir) && await fs.pathExists(dotTheiaDir);
-
-    // not in a theia context, N/A
-    if (!inTheia) {
-        return ('N/A');
+    // checks if given directory is Theia directory
+    async function checkIfTheiaDir(directoryPath) {
+        const packagesDir = path.resolve(directoryPath, 'packages');
+        const dotTheiaDir = path.resolve(directoryPath, '.theia');
+        const gitDir = path.resolve(directoryPath, '.git');
+        const inTheiaDir = await fs.pathExists(packagesDir) && await fs.pathExists(dotTheiaDir) && await fs.pathExists(gitDir);
+        return inTheiaDir;
     }
 
-    // run git command in theia directory
-    const { stdout, stderr } = await exec('git rev-parse --short HEAD', {
-        cwd: theiaDir
-    });
-    if (stderr) {
-        throw new Error(`Unable to get current SHA-1: ${stderr}`);
+    // returns short (first 7 symbols) version of HEAD commit hash
+    async function getLastCommitHash(theiaDir) {
+        // run git command in theia directory
+        const { stdout, stderr } = await exec('git rev-parse --short HEAD', {
+            cwd: theiaDir
+        });
+        if (stderr) {
+            throw new Error(`Unable to get current SHA-1: ${stderr}`);
+        }
+        return stdout.trim();
     }
-    return stdout.trim();
+
+    // suppose Che Theia is located inside theia folder in 'che/che-theia'
+    let theiaDir = path.resolve(__dirname, '../../../../..');
+    if (await checkIfTheiaDir(theiaDir)) {
+        return await getLastCommitHash(theiaDir);
+    }
+
+    // try to look at ~/theia-source-code which is used during docker image build
+    theiaDir = path.resolve(os.homedir(), 'theia-source-code');
+    if (await checkIfTheiaDir(theiaDir)) {
+        return await getLastCommitHash(theiaDir);
+    }
+
+    // still not found theia context, give up
+    return ('N/A');
 }
 
 /**
- * Grab sha1 of che
+ * Grab sha1 of Che Theia
  */
-async function getCheGitSha1() {
+async function getCheTheiaGitSha1() {
 
     const { stdout, stderr } = await exec('git rev-parse --short HEAD');
     if (stderr) {
@@ -51,7 +68,7 @@ async function getCheGitSha1() {
 
 (async () => {
     const theiaSha1 = await getTheiaGitSha1();
-    const cheSha1 = await getCheGitSha1();
+    const cheTheiaSha1 = await getCheTheiaGitSha1();
 
     // grab current time for build time
     const date = new Date(Date.now()).toLocaleString();
@@ -61,7 +78,7 @@ async function getCheGitSha1() {
 
     // write the file
     await fs.ensureDir(confDir);
-    await fs.writeFile(confFile, JSON.stringify({ date, theiaSha1, cheSha1 }, null, 2));
+    await fs.writeFile(confFile, JSON.stringify({ date, theiaSha1, cheTheiaSha1 }, null, 2));
     console.log(`Writing build details to ${confFile}`);
 
 })().catch(e => {

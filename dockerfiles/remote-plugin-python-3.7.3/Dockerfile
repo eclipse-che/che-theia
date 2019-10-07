@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG} as endpoint
 
-FROM python:3.7.4-slim
+FROM python:3.7.3-slim
 
 ENV HOME=/home/theia
 

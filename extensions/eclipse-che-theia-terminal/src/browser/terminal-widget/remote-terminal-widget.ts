@@ -17,6 +17,8 @@ import { RemoteWebSocketConnectionProvider } from '../server-definition/remote-c
 import { Deferred } from '@theia/core/lib/common/promise-util';
 import { Disposable } from 'vscode-jsonrpc';
 import { TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal-widget';
+import { MessageService } from '@theia/core/lib/common';
+import { OutputChannelManager, OutputChannel } from '@theia/output/lib/common/output-channel';
 import URI from '@theia/core/lib/common/uri';
 
 const ReconnectingWebSocket = require('reconnecting-websocket');
@@ -37,6 +39,7 @@ export interface RemoteTerminalWidgetFactoryOptions extends Partial<TerminalWidg
 
 @injectable()
 export class RemoteTerminalWidget extends TerminalWidgetImpl {
+    public static OUTPUT_CHANNEL_NAME = 'remote-terminal';
 
     protected termServer: RemoteTerminalServerProxy | undefined;
     protected waitForRemoteConnection: Deferred<WebSocket> | undefined = new Deferred<WebSocket>();
@@ -52,12 +55,20 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     @inject(RemoteTerminalWidgetOptions)
     options: RemoteTerminalWidgetOptions;
 
-    protected terminalId = -1;
+    @inject(MessageService)
+    protected readonly messageService: MessageService;
+
+    @inject(OutputChannelManager)
+    protected readonly outputChannelManager: OutputChannelManager;
+
+    protected terminalId: number = -1;
     private isOpen: boolean = false;
+    protected channel: OutputChannel;
 
     @postConstruct()
     protected init(): void {
         super.init();
+        this.channel = this.outputChannelManager.getChannel(RemoteTerminalWidget.OUTPUT_CHANNEL_NAME);
 
         this.toDispose.push(this.remoteTerminalWatcher.onTerminalExecExit(exitEvent => {
             if (this.terminalId === exitEvent.id) {
@@ -69,6 +80,8 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
             }
         }));
 
+        const badDefaultLoginErr = 'command terminated with exit code 126';
+        const missedPrivilegesErr = 'cannot create resource "pods/exec"';
         this.toDispose.push(this.remoteTerminalWatcher.onTerminalExecError(errEvent => {
             if (this.terminalId === errEvent.id) {
                 if (this.options.closeWidgetOnExitOrError) {
@@ -76,7 +89,18 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
                 }
                 this.onTermDidClose.fire(this);
                 this.onTermDidClose.dispose();
+
                 this.logger.error(`Terminal error: ${errEvent.stack}`);
+                this.channel.appendLine(errEvent.stack);
+
+                let reason = '';
+                if (errEvent.stack.indexOf(badDefaultLoginErr) !== -1) {
+                    reason = 'Possible reason is terminal cannot open default login shell. ';
+                } else if (errEvent.stack.indexOf(missedPrivilegesErr) !== -1) {
+                    reason = 'Possible reason is workspace service account lacks some privileges. ';
+                }
+                reason += 'See more in "Output".';
+                this.messageService.error(`Terminal failed to connect. ${reason}`);
             }
         }));
     }
@@ -88,7 +112,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
                 this.termServer = termProxyCreator.create();
 
                 this.toDispose.push(this.termServer.onDidCloseConnection(() => {
-                    const disposable = this.termServer.onDidOpenConnection(async () => {
+                    const disposable = this.termServer!.onDidOpenConnection(async () => {
                         disposable.dispose();
                         this.waitForRemoteConnection = new Deferred<WebSocket>();
                         await this.reconnectTerminalProcess();
@@ -99,7 +123,18 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         } catch (err) {
             throw new Error('Failed to create terminal server proxy. Cause: ' + err);
         }
-        this.terminalId = typeof id !== 'number' ? await this.createTerminal() : await this.attachTerminal(id);
+
+        try {
+            this.terminalId = typeof id !== 'number' ? await this.createTerminal() : await this.attachTerminal(id);
+        } catch (error) {
+            if (IBaseTerminalServer.validateId(id)) {
+                this.terminalId = id!;
+                this.onDidOpenEmitter.fire(undefined);
+                return this.terminalId;
+            }
+            throw new Error('Failed to start terminal. Cause: ' + error);
+        }
+
         this.connectTerminalProcess();
 
         await this.waitForRemoteConnection;
@@ -139,7 +174,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         }
         const socket = this.createWebSocket(id.toString());
 
-        const sendListener = data => socket.send(data);
+        const sendListener = (data: string) => socket.send(data);
 
         socket.onopen = () => {
             this.term.reset();
@@ -182,15 +217,16 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         });
     }
 
-    protected async attachTerminal(id: number): Promise<number | undefined> {
-        const termId = await this.termServer.check({ id: id });
+    protected async attachTerminal(id: number): Promise<number> {
+        const termId = await this.termServer!.check({ id: id });
         if (IBaseTerminalServer.validateId(termId)) {
             return termId;
         }
-        this.logger.error(`Error attaching to terminal id ${id}`);
+        this.logger.error(`Error attaching to terminal id ${id}, the terminal is most likely gone. Starting up a new terminal instead.`);
+        return this.createTerminal();
     }
 
-    protected async createTerminal(): Promise<number | undefined> {
+    protected async createTerminal(): Promise<number> {
         const cols = this.term.cols;
         const rows = this.term.rows;
         let cmd: string[] = [];
@@ -210,7 +246,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
             tty: true,
         };
 
-        const termId = await this.termServer.create(machineExec);
+        const termId = await this.termServer!.create(machineExec);
         if (IBaseTerminalServer.validateId(termId)) {
             return termId;
         }

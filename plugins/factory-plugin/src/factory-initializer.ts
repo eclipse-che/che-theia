@@ -10,7 +10,7 @@
 import * as theia from '@theia/plugin';
 import * as che from '@eclipse-che/plugin';
 import { che as cheApi } from '@eclipse-che/api';
-import { TheiaCloneCommand, TheiaCommand } from './theia-commands';
+import { buildProjectImportCommand, TheiaImportCommand, TheiaCommand } from './theia-commands';
 
 export enum ActionId {
     OPEN_FILE = 'openFile',
@@ -62,7 +62,7 @@ export class FactoryInitializer {
     /**
      * Returns a list of commands to clone Factory projects
      */
-    private async getCloneCommands(factory: cheApi.factory.Factory) {
+    private async getCloneCommands(factory: cheApi.factory.Factory): Promise<TheiaImportCommand[]> {
         const instance = this;
 
         if (!factory.workspace || !factory.workspace.projects) {
@@ -70,7 +70,7 @@ export class FactoryInitializer {
         }
 
         return factory.workspace.projects.map(
-            project => new TheiaCloneCommand(project, instance.projectsRoot)
+            project => buildProjectImportCommand(project, instance.projectsRoot)!
         );
     }
 
@@ -87,7 +87,7 @@ export class FactoryInitializer {
         );
     }
 
-    private async executeCloneCommands(cloneCommands: TheiaCloneCommand[]) {
+    private async executeCloneCommands(cloneCommands: TheiaImportCommand[]) {
         if (cloneCommands.length === 0) {
             return;
         }
