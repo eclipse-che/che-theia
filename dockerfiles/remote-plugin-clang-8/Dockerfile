@@ -8,11 +8,9 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG} as endpoint
-
 FROM debian:10-slim
 
-ENV HOME=/home/theia
+ENV HOME=/home/user
 
 RUN apt-get update && \
     apt-get install wget gnupg -y && \
@@ -27,12 +25,8 @@ RUN apt-get update && \
     update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-8 100 && \
     update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-8 100
 
-COPY --from=endpoint /home/theia /home/theia
-COPY --from=endpoint /projects /projects
-COPY --from=endpoint /etc/passwd  /etc/passwd
-COPY --from=endpoint /etc/group   /etc/group
-COPY --from=endpoint /entrypoint.sh /entrypoint.sh
-
-RUN chmod -R 777 ${HOME}
+RUN mkdir /projects ${HOME} && \
+    chmod -R g+rwX /projects && \
+    chmod -R 777 ${HOME}
 
 ENTRYPOINT ["bash", "/entrypoint.sh"]
