@@ -57,10 +57,16 @@ export async function start() {
 
 const RESTART_WARNING_MESSAGE = 'Che Git plugin can leverage the generated keys now. To make them available in every workspace containers please restart your workspace.';
 
-const getHostName = async () => {
-    const hostName = await theia.window.showInputBox({ placeHolder: 'Please provide a Host name e.g. github.com' });
-    return hostName ? hostName : '';
-};
+const hostNamePattern = new RegExp('[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*');
+
+const getHostName = async () => await theia.window.showInputBox({
+    placeHolder: 'Please provide a hostname e.g. github.com',
+    validateInput: text => {
+        if (!hostNamePattern.test(text)) {
+            return 'Invalid hostname';
+        }
+    }
+});
 
 const getKeyFilePath = (name: string) => resolve(os.homedir(), '.ssh', name.replace(new RegExp('\\.'), '_'));
 
@@ -104,6 +110,9 @@ const generateKeyPair = async (sshkeyManager: SshKeyManager) => {
 
 const generateKeyPairForHost = async (sshkeyManager: SshKeyManager) => {
     const hostName = await getHostName();
+    if (!hostName) {
+        return;
+    }
     const key = await sshkeyManager.generate('vcs', hostName);
     await updateConfig(hostName);
     await writeKey(hostName, key.privateKey!);
@@ -118,6 +127,9 @@ const generateKeyPairForHost = async (sshkeyManager: SshKeyManager) => {
 
 const createKeyPair = async (sshkeyManager: SshKeyManager) => {
     const hostName = await getHostName();
+    if (!hostName) {
+        return;
+    }
     const publicKey = await theia.window.showInputBox({ placeHolder: 'Enter public key' });
     const privateKey = await theia.window.showInputBox({ placeHolder: 'Enter private key' });
 
