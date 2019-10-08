@@ -17,7 +17,7 @@ ENV GLIBC_VERSION=2.30-r0 \
     KUBECTL_VERSION=v1.16.1
 
 # the plugin executes the commands relying on Bash
-RUN apk add --update --no-cache bash --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community && \
+RUN apk add --update --no-cache bash && \
     # install glibc compatibility layer package for Alpine Linux
     # see https://github.com/openshift/origin/issues/18942 for the details
     wget -O glibc-${GLIBC_VERSION}.apk https://github.com/andyshinn/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk && \
