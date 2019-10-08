@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM eclipse/che-theia-endpoint-runtime:next
+FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG}
 
 ENV GLIBC_VERSION=2.30-r0 \
     ODO_VERSION=v1.0.0-beta5 \
