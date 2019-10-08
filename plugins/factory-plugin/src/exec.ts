@@ -18,12 +18,14 @@ export async function execute(commandLine: string, args?: string[], options?: Sp
     return new Promise<string>((resolve, reject) => {
         const command = spawn(commandLine, args, options);
         let result = '';
+        let error = '';
         // tslint:disable-next-line:no-any
         command.stdout.on('data', (data: any) => {
             result += data.toString();
         });
         // tslint:disable-next-line:no-any
         command.stderr.on('data', (data: any) => {
+            error += data.toString();
             console.error(`Child process ${commandLine} stderr: ${data}`);
         });
         command.on('close', (code: number | null) => {
@@ -33,7 +35,7 @@ export async function execute(commandLine: string, args?: string[], options?: Sp
                 resolve(result.trim());
                 console.log(message);
             } else {
-                reject(new Error(message));
+                reject(new Error(error.length > 0 ? error : message));
                 console.error(message);
             }
         });
