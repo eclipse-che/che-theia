@@ -32,7 +32,7 @@ RUN set -eux; \
 		x86) export GO386='387' ;; \
 	esac; \
 	\
-    wget -qO- https://dl.google.com/go/go1.11.linux-amd64.tar.gz | tar xvz -C /usr/local; \
+    wget -qO- https://dl.google.com/go/go1.10.7.linux-amd64.tar.gz | tar xvz -C /usr/local; \
 	\
 	cd /usr/local/go/src; \
 	./make.bash; \

@@ -10,7 +10,7 @@
 
 FROM debian:10-slim
 
-ENV HOME=/home/user
+ENV HOME=/home/theia
 
 RUN apt-get update && \
     apt-get install wget gnupg -y && \
