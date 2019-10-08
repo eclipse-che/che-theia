@@ -106,14 +106,17 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                         name: command.commandName,
                         tooltip: command.commandLine,
                         iconPath: 'fa-cogs medium-yellow',
-                        command: { id: 'task:run', arguments: [this.getRootPath(), command.commandName] }
+                        command: {
+                            id: CONTAINERS_PLUGIN_RUN_TASK_COMMAND_ID,
+                            arguments: [this.getRootUri().toString(), command.commandName, container.name]
+                        }
                     });
                 });
             }
             const serverKeys = container.servers ? Object.keys(container.servers) : [];
             if (serverKeys.length) {
                 serverKeys.forEach((serverName: string) => {
-                    const server = container.servers[serverName];
+                    const server = container.servers![serverName];
                     if (!server) {
                         return;
                     }
@@ -147,7 +150,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                     this.treeNodeItems.push({
                         id: this.getRandId(),
                         parentId: envsId,
-                        name: `${envName} : ${container.env[envName]}`,
+                        name: `${envName} : ${container.env![envName]}`,
                         tooltip: `environment variable ${envName}`,
                         iconPath: 'fa-info-circle medium-blue'
                     });
@@ -165,8 +168,8 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                 });
                 volumesKeys.forEach((volumeName: string) => {
                     const volume: {
-                        [paramRef: string]: string;
-                    } = container.volumes[volumeName];
+                        [paramRef: string]: string | undefined;
+                    } = container.volumes![volumeName];
                     if (!volume) {
                         return;
                     }
@@ -214,12 +217,12 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
         this.onDidChangeTreeDataEmitter.fire();
     }
 
-    private getRootPath(): string {
+    private getRootUri(): theia.Uri {
         const workspaceFolders = theia.workspace.workspaceFolders;
         if (!workspaceFolders || workspaceFolders.length < 1) {
-            return '/projects';
+            return theia.Uri.file('/projects');
         }
-        return workspaceFolders[0].uri.path;
+        return workspaceFolders[0].uri;
     }
 
     private getRandId(): string {
@@ -266,4 +269,28 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
             return this.treeNodeItems.filter(item => item.parentId === undefined);
         }
     }
+}
+
+export const CONTAINERS_PLUGIN_RUN_TASK_COMMAND_ID = 'containers-plugin-run-task';
+/**
+ * Command handler which is invoked when a user clicks on a task in the Workspace panel.
+ * This is needed if a command doesn't have container to be run in specified.
+ * In such case we run the command in the container under which this command was clicked.
+ */
+export async function containersTreeTaskLauncherCommandHandler(source: string, label: string, containerName: string): Promise<void> {
+    const tasks: theia.Task[] = await theia.tasks.fetchTasks({ type: 'che' });
+    for (const task of tasks) {
+        if (task.name === label && task.source === source) {
+            if (!task.definition.target) {
+                task.definition.target = {};
+            }
+            task.definition.target.containerName = containerName;
+
+            theia.tasks.executeTask(task);
+            return;
+        }
+    }
+
+    // Shouldn't happen. Fallback to default behaviour.
+    theia.commands.executeCommand('task:run', source, label);
 }

@@ -13,11 +13,14 @@
     ],
     "dependencies": {
       "@eclipse-che/theia-plugin-ext": "^0.0.1",
-      "@theia/core": "0.11.0",
-      "@theia/preferences": "0.11.0",
+      "@theia/core": "next",
+      "@theia/preferences": "next",
       "ini": "^1.3.5",
       "nsfw": "^1.2.2",
       "@eclipse-che/theia-user-preferences-synchronizer": "0.0.1"
+    },
+    "devDependencies": {
+      "@types/ini": "^1.3.5"
     },
     "scripts": {
       "prepare": "yarn run clean && yarn run build",

@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM python:3.7.4-slim
+FROM python:3.7.3-slim
 
 RUN apt-get update && \
     pip install pylint python-language-server[all] ptvsd 'jedi<0.15,>=0.14.1'

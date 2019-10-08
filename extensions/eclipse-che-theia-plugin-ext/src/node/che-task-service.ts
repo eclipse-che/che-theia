@@ -128,27 +128,19 @@ class CheTask extends Task {
     }
 
     fireTaskExited(event: TaskExitedEvent): void {
-        super.fireTaskExited({ taskId: event.taskId, code: event.code, ctx: event.ctx, config: this.options.config });
+        super.fireTaskExited({ taskId: event.taskId!, code: event.code, ctx: event.ctx, config: this.options.config });
     }
 
     private toTaskInfo(runtimeInfo: TaskInfo): TaskInfo {
         const { taskId, terminalId, ctx, config, ...properties } = runtimeInfo;
-        const result = {
+        const result: TaskInfo = {
             taskId: this.taskId,
             terminalId,
             ctx,
-            config
+            config,
+            ...properties
         };
 
-        if (!properties) {
-            return result;
-        }
-
-        for (const key in properties) {
-            if (properties.hasOwnProperty(key)) {
-                result[key] = properties[key];
-            }
-        }
         return result;
     }
 }

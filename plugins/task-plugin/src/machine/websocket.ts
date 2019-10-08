@@ -35,13 +35,13 @@ export class ReconnectingWebSocket {
     }
 
     private getOptions(): WS.ClientOptions {
-        let options: WS.ClientOptions;
+        let options: WS.ClientOptions = {};
         if (fs.existsSync(SS_CRT_PATH)) {
             const SS_SRT = fs.readFileSync(SS_CRT_PATH).toString();
             options = { ca: SS_SRT };
         }
 
-        return options || {};
+        return options;
     }
 
     /** Open the websocket. If error, try to reconnect. */

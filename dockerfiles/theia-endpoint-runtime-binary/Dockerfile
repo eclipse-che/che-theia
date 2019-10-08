@@ -10,17 +10,21 @@
 
 FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia:${BUILD_TAG} as builder
 
-USER root
+WORKDIR /home/theia
 
-RUN cd /home/theia && \
-    yarn global add nexe@3.3.2 && nexe -v && \
-    # Build remote binary with node runtime 10.14.2 and che-theia node dependencies. nexe icludes to the binary only
+# Apply node libs installed globally to the PATH
+ENV PATH=${HOME}/.yarn/bin:${PATH}
+
+RUN yarn global add nexe@3.3.2
+
+RUN nexe -v && \
+    # Build remote binary with node runtime 10.16.0 and che-theia node dependencies. nexe icludes to the binary only
     # necessary dependencies.
-    nexe node_modules/@eclipse-che/theia-remote/lib/node/plugin-remote.js -t alpine-x64-10.16.0 -o /plugin-remote-endpoint
+    nexe node_modules/@eclipse-che/theia-remote/lib/node/plugin-remote.js -t alpine-x64-10.16.0 -o ${HOME}/plugin-remote-endpoint
 
 # Light image without node. We include remote binary to this image.
 FROM alpine:3.10.2
 
-COPY --from=builder  /plugin-remote-endpoint /plugin-remote-endpoint
+COPY --from=builder /home/theia/plugin-remote-endpoint /plugin-remote-endpoint
 
 ENTRYPOINT cp -rf /plugin-remote-endpoint /remote-endpoint/plugin-remote-endpoint

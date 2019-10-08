@@ -8,13 +8,14 @@
     "src"
   ],
   "dependencies": {
-    "@theia/plugin-ext": "0.11.0",
-    "@theia/plugin-ext-vscode": "0.11.0",
-    "@theia/core": "0.11.0"
+    "@theia/plugin-ext": "next",
+    "@theia/plugin-ext-vscode": "next",
+    "@theia/core": "next"
   },
   "devDependencies": {
-    "typescript-formatter": "7.2.2",
-    "concurrently": "^3.5.0"
+    "@types/escape-html": "0.0.20",
+    "concurrently": "^3.5.0",
+    "typescript-formatter": "7.2.2"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",

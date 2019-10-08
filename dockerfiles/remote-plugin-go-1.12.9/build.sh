@@ -11,5 +11,5 @@
 base_dir=$(cd "$(dirname "$0")"; pwd)
 . "${base_dir}"/../build.include
 
-init --name:theia-endpoint-runtime-binary "$@"
+init --name:remote-plugin-go-1.12.9 "$@"
 build

@@ -11,5 +11,5 @@
 base_dir=$(cd "$(dirname "$0")"; pwd)
 . "${base_dir}"/../build.include
 
-init --name:theia-endpoint-runtime-binary "$@"
+init --name:remote-plugin-openshift-connector-0.1.0 "$@"
 build

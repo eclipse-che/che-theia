@@ -56,7 +56,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     protected readonly baseEnvVariablesServer: EnvVariablesServer;
 
     private readonly mainMenuId = 'theia:menubar';
-    private editorContainerName;
+    private editorContainerName: string | undefined;
 
     async registerCommands(registry: CommandRegistry) {
         const serverUrl = <URI | undefined>await this.termApiEndPointProvider();
@@ -101,7 +101,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
                 created: new Date().toString(),
                 machineName: containerName,
                 workspaceId,
-                endpoint: termApiEndPoint.toString(true),
+                endpoint: termApiEndPoint!.toString(true),
                 closeWidgetOnExitOrError,
                 ...options
             });
@@ -114,7 +114,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
 
     async openTerminalByContainerName(containerName: string): Promise<void> {
         const editorContainer = await this.getEditorContainerName();
-        let cwd: string;
+        let cwd: string | undefined;
         // use information about volumes to cover cwd for development containers too. Depends on https://github.com/eclipse/che/issues/13290
         if (containerName === editorContainer) {
             cwd = await this.selectTerminalCwd();
