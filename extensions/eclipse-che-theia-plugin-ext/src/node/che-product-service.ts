@@ -13,8 +13,6 @@ import { CheProductService, ProductInfo } from '../common/che-protocol';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 
-const PRODUCT_JSON = '../../src/resource/product.json';
-
 @injectable()
 export class CheProductServiceImpl implements CheProductService {
 
@@ -25,21 +23,23 @@ export class CheProductServiceImpl implements CheProductService {
             return this.product;
         }
 
-        const productJsonPath = this.jsonFilePath();
+        if (process.env.PRODUCT_JSON) {
+            let jsonPath = process.env.PRODUCT_JSON;
+            jsonPath = jsonPath.startsWith('/') ? jsonPath : path.join(__dirname, jsonPath);
 
-        try {
-            const product: ProductInfo = await fs.readJson(productJsonPath) as ProductInfo;
-            const logo = this.getLogo(product.logo, productJsonPath);
-            this.product = {
-                name: product.name,
-                logo: logo,
-                description: product.description,
-                links: product.links
-            };
+            try {
+                const product: ProductInfo = await fs.readJson(jsonPath) as ProductInfo;
+                this.product = {
+                    name: product.name,
+                    logo: this.getLogo(product.logo, jsonPath),
+                    description: product.description,
+                    links: product.links
+                };
 
-            return this.product;
-        } catch (error) {
-            console.error(error);
+                return this.product;
+            } catch (error) {
+                console.error(error);
+            }
         }
 
         /**
@@ -47,22 +47,13 @@ export class CheProductServiceImpl implements CheProductService {
          */
         return {
             name: 'Eclipse Che',
-            logo: this.getLogo('che-logo.svg', './'),
+            logo: path.join(__dirname, '/../../src/resource/che-logo.svg'),
             description: 'Welcome To Your Cloud Developer Workspace',
             links: {
                 'Documentation': 'https://www.eclipse.org/che/docs/che-7',
                 'Community chat': 'https://mattermost.eclipse.org/eclipse/channels/eclipse-che'
             }
         };
-    }
-
-    /**
-     * Returns path to Product JSON file.
-     */
-    jsonFilePath(): string {
-        let productJson = process.env.PRODUCT_JSON ? process.env.PRODUCT_JSON : PRODUCT_JSON;
-        productJson = productJson.startsWith('/') ? productJson : path.join(__dirname, productJson);
-        return productJson;
     }
 
     /**
