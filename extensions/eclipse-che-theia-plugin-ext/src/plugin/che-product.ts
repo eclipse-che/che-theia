@@ -9,49 +9,38 @@
  **********************************************************************/
 
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
-import { CheProduct } from '../common/che-protocol';
+import { PLUGIN_RPC_CONTEXT, CheProduct, ProductInfo } from '../common/che-protocol';
 
 export class CheProductImpl implements CheProduct {
 
-    private name: string = '';
-    private logo: string = '';
-    private description: string = '';
-    private links: { [text: string]: string } = {};
+    private product: ProductInfo = {
+        name: '',
+        logo: '',
+        description: '',
+        links: {}
+    };
 
     constructor(rpc: RPCProtocol) {
-        // this.productMain = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_PRODUCT_MAIN);
-    }
-
-    async $setName(name: string): Promise<void> {
-        this.name = name;
-    }
-
-    async $setLogo(logo: string): Promise<void> {
-        this.logo = logo;
-    }
-
-    async $setDescription(description: string): Promise<void> {
-        this.description = description;
-    }
-
-    async $setLinks(links: { [text: string]: string }): Promise<void> {
-        this.links = links;
+        const productMain = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_PRODUCT_MAIN);
+        productMain.$getProductInfo().then((product: ProductInfo) => {
+            this.product = product;
+        });
     }
 
     getName(): string {
-        return this.name;
+        return this.product.name;
     }
 
     getLogo(): string {
-        return this.logo;
+        return this.product.logo;
     }
 
     getDescription(): string {
-        return this.description;
+        return this.product.description;
     }
 
     getLinks(): { [text: string]: string } {
-        return this.links;
+        return this.product.links;
     }
 
 }

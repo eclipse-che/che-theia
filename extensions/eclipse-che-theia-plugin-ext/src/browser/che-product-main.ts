@@ -9,34 +9,19 @@
  **********************************************************************/
 
 import { interfaces } from 'inversify';
-import { CheProduct, CheProductMain, PLUGIN_RPC_CONTEXT, CheProductService, ProductInfo } from '../common/che-protocol';
+import { CheProductMain, CheProductService, ProductInfo } from '../common/che-protocol';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 
 export class CheProductMainImpl implements CheProductMain {
 
-    private proxy: CheProduct;
-
     private readonly cheProductService: CheProductService;
 
-    private productInfo: ProductInfo;
-
     constructor(container: interfaces.Container, rpc: RPCProtocol) {
-        this.proxy = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_PRODUCT);
         this.cheProductService = container.get(CheProductService);
-        this.initialize();
     }
 
-    async initialize(): Promise<void> {
-        this.productInfo = await this.cheProductService.getProductInfo();
-
-        // Temporary solution.
-        // We should wait for some time until proxy is being fully initialized.
-        setTimeout(() => {
-            this.proxy.$setName(this.productInfo.name);
-            this.proxy.$setLogo(this.productInfo.logo);
-            this.proxy.$setDescription(this.productInfo.description);
-            this.proxy.$setLinks(this.productInfo.links);
-        }, 500);
+    async $getProductInfo(): Promise<ProductInfo> {
+        return await this.cheProductService.getProductInfo();
     }
 
 }

@@ -519,13 +519,10 @@ export interface CheUserMain {
 }
 
 export interface CheProduct {
-    $setName(name: string): Promise<void>;
-    $setLogo(logo: string): Promise<void>;
-    $setDescription(description: string): Promise<void>;
-    $setLinks(links: { [text: string]: string }): Promise<void>;
 }
 
 export interface CheProductMain {
+    $getProductInfo(): Promise<ProductInfo>;
 }
 
 export const CHE_PRODUCT_SERVICE_PATH = '/che-product-service';
