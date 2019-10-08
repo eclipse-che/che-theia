@@ -112,14 +112,9 @@ declare module '@eclipse-che/plugin' {
     /** A Task Runner knows how to run a Task of a particular type. */
     export interface TaskRunner {
         /** Runs a task based on the given task configuration. */
-        run(taskConfig: TaskConfiguration, ctx?: string): Promise<Task>;
-    }
-
-    export interface Task {
-        /** Terminates the task. */
-        kill(): Promise<void>;
-        /** Returns runtime information about task. */
-        getRuntimeInfo(): TaskInfo;
+        run(taskConfig: TaskConfiguration, ctx?: string): Promise<TaskInfo>;
+        /** Terminates a task based on the given info. */
+        kill(taskInfo: TaskInfo): Promise<void>;
     }
 
     /** Runtime information about Task. */

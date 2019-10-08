@@ -14,63 +14,32 @@ import { TaskConfiguration, TaskInfo } from '@eclipse-che/plugin';
 
 @injectable()
 export class CheTaskClientImpl implements CheTaskClient {
-    private readonly onKillEventEmitter: Emitter<number>;
-    private taskInfoHandlers: ((id: number) => Promise<TaskInfo>)[] = [];
-    private runTaskHandlers: ((id: number, config: TaskConfiguration, ctx?: string) => Promise<void>)[] = [];
-    private taskExitedHandlers: ((id: number) => Promise<void>)[] = [];
+    private readonly onKillEventEmitter: Emitter<TaskInfo>;
+    private runTaskHandlers: ((config: TaskConfiguration, ctx?: string) => Promise<TaskInfo>)[] = [];
 
     constructor() {
-        this.onKillEventEmitter = new Emitter<number>();
+        this.onKillEventEmitter = new Emitter<TaskInfo>();
     }
 
-    async runTask(id: number, taskConfig: TaskConfiguration, ctx?: string): Promise<void> {
+    async runTask(taskConfig: TaskConfiguration, ctx?: string): Promise<TaskInfo> {
         for (const runTaskHandler of this.runTaskHandlers) {
-            await runTaskHandler(id, taskConfig, ctx);
-        }
-        return undefined;
-    }
-
-    async getTaskInfo(id: number): Promise<TaskInfo | undefined> {
-        for (const taskInfoHandler of this.taskInfoHandlers) {
-            try {
-                const taskInfo = await taskInfoHandler(id);
-                if (taskInfo) {
-                    return taskInfo;
-                }
-            } catch (e) {
-                // allow another handlers to handle request
+            const taskInfo = await runTaskHandler(taskConfig, ctx);
+            if (taskInfo) {
+                return taskInfo;
             }
         }
-        return undefined;
+        throw new Error(`Failed to process configuration with label ${taskConfig.label} by Che Task Handler`);
     }
 
-    async onTaskExited(id: number): Promise<void> {
-        for (const taskExitedHandler of this.taskExitedHandlers) {
-            try {
-                await taskExitedHandler(id);
-            } catch (e) {
-                // allow another handlers to handle request
-            }
-        }
-    }
-
-    get onKillEvent(): Event<number> {
+    get onKillEvent(): Event<TaskInfo> {
         return this.onKillEventEmitter.event;
     }
 
-    async killTask(id: number): Promise<void> {
-        this.onKillEventEmitter.fire(id);
+    async killTask(taskInfo: TaskInfo): Promise<void> {
+        this.onKillEventEmitter.fire(taskInfo);
     }
 
-    addTaskInfoHandler(handler: (id: number) => Promise<TaskInfo>) {
-        this.taskInfoHandlers.push(handler);
-    }
-
-    addRunTaskHandler(handler: (id: number, config: TaskConfiguration, ctx?: string) => Promise<void>) {
+    addRunTaskHandler(handler: (config: TaskConfiguration, ctx?: string) => Promise<TaskInfo>) {
         this.runTaskHandlers.push(handler);
-    }
-
-    addTaskExitedHandler(handler: (id: number) => Promise<void>) {
-        this.taskExitedHandlers.push(handler);
     }
 }
