@@ -10,17 +10,12 @@
 
 import { AboutDialog, AboutDialogProps, ABOUT_EXTENSIONS_CLASS, ABOUT_CONTENT_CLASS } from '@theia/core/lib/browser/about-dialog';
 import { injectable, inject, postConstruct } from 'inversify';
-import { ThemeService, Theme } from '@theia/core/lib/browser/theming';
-import { CheProductService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
-const logoDark = require('../../src/browser/style/che-logo-dark.svg');
-const logoLight = require('../../src/browser/style/che-logo-light.svg');
+import { CheProductService, ProductInfo } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
+import '../../src/browser/style/che-theia-about.css';
 const jsonDetails = require('../../conf/about-details.json');
 
 @injectable()
 export class AboutCheTheiaDialog extends AboutDialog {
-
-    @inject(ThemeService)
-    protected readonly themeService: ThemeService;
 
     @inject(CheProductService)
     private productService: CheProductService;
@@ -28,35 +23,67 @@ export class AboutCheTheiaDialog extends AboutDialog {
     constructor(
         @inject(AboutDialogProps) protected readonly props: AboutDialogProps
     ) {
-        super(props);
+        // use empty header by default
+        super({
+            title: ''
+        });
+    }
+
+    /**
+     * Returns suitable URI as a string for the logo image
+     */
+    protected getLogo(logo: string): string {
+        if (logo.startsWith('http://') || logo.startsWith('https://')) {
+            // HTTP resource
+            return logo;
+        }
+
+        if (logo.startsWith('file://')) {
+            // file resource
+            logo = logo.substring(7);
+        }
+
+        if (logo.startsWith('/')) {
+            return `/webview${logo}`;
+        } else {
+            return `/webview/${logo}`;
+        }
+    }
+
+    /**
+     * Returns product header element
+     */
+    protected async getProductHeader(product: ProductInfo): Promise<HTMLElement> {
+        const header = document.createElement('div');
+        header.setAttribute('class', 'che-theia-about-product-header');
+
+        const logo = document.createElement('div');
+        logo.setAttribute('class', 'che-theia-about-product-logo');
+        const image = document.createElement('img');
+        image.setAttribute('src', this.getLogo(product.logo));
+        logo.appendChild(image);
+
+        const name = document.createElement('div');
+        name.setAttribute('class', 'che-theia-about-product-name');
+        name.innerHTML = product.name;
+
+        header.appendChild(logo);
+        header.appendChild(name);
+
+        return header;
     }
 
     @postConstruct()
     protected async init(): Promise<void> {
+        // Get product info
         const product = await this.productService.getProductInfo();
-        console.log(product);
+
+        // Set dialog title
+        this.titleNode.textContent = product.name;
 
         const messageNode = document.createElement('div');
         messageNode.classList.add(ABOUT_CONTENT_CLASS);
-        const imgObject = document.createElement('img');
-
-        if (this.isDark(this.themeService.getCurrentTheme())) {
-            imgObject.src = logoDark;
-        } else {
-            imgObject.src = logoLight;
-        }
-
-        // listen on events when the theme is changing to update the logo
-        this.themeService.onThemeChange(e => {
-            if (this.isDark(e.newTheme)) {
-                imgObject.src = logoDark;
-            } else {
-                imgObject.src = logoLight;
-            }
-
-        });
-
-        messageNode.appendChild(imgObject);
+        messageNode.appendChild(await this.getProductHeader(product));
 
         // Che-Theia
         const cheTheiaTitle = document.createElement('h4');
@@ -105,14 +132,6 @@ export class AboutCheTheiaDialog extends AboutDialog {
         date.textContent = `Built ${jsonDetails.date}`;
         messageNode.appendChild(date);
         this.appendAcceptButton('Ok');
-    }
-
-    /**
-     * Check if theme is dark or not
-     */
-    private isDark(theme: Theme): boolean {
-        const currentThemeId: string = theme.id;
-        return !currentThemeId.includes('light');
     }
 
 }

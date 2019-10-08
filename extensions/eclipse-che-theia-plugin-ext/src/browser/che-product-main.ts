@@ -29,10 +29,14 @@ export class CheProductMainImpl implements CheProductMain {
     async initialize(): Promise<void> {
         this.productInfo = await this.cheProductService.getProductInfo();
 
-        this.proxy.$setName(this.productInfo.name);
-        this.proxy.$setLogo(this.productInfo.logo);
-        this.proxy.$setDescription(this.productInfo.description);
-        this.proxy.$setLinks(this.productInfo.links);
+        // Temporary solution.
+        // We should wait for some time until proxy is being fully initialized.
+        setTimeout(() => {
+            this.proxy.$setName(this.productInfo.name);
+            this.proxy.$setLogo(this.productInfo.logo);
+            this.proxy.$setDescription(this.productInfo.description);
+            this.proxy.$setLinks(this.productInfo.links);
+        }, 500);
     }
 
 }
