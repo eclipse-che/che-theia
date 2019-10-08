@@ -44,7 +44,7 @@ export class CheTaskRunner {
     /**
      * Runs a task from the given task configuration which must have a target property specified.
      */
-    async run(taskConfig: che.TaskConfiguration, ctx?: string): Promise<che.Task> {
+    async run(taskConfig: che.TaskConfiguration, ctx?: string): Promise<che.TaskInfo> {
         const { type, label, ...definition } = taskConfig;
         if (type !== CHE_TASK_TYPE) {
             throw new Error(`Unsupported task type: ${type}`);
@@ -77,20 +77,19 @@ export class CheTaskRunner {
             const execId = await terminal.processId;
 
             return {
-                kill: () => {
-                    throw new Error('Stopping a Che task currently is not supported.');
-                },
-                getRuntimeInfo: () =>
-                    ({
-                        taskId: STUB_TASK_ID,
-                        ctx: ctx,
-                        config: taskConfig,
-                        execId: execId
-                    })
+                taskId: STUB_TASK_ID,
+                ctx: ctx,
+                config: taskConfig,
+                execId: execId
             };
         } catch (error) {
             console.error('Failed to execute Che command:', error);
             throw new Error(`Failed to execute Che command: ${error.message}`);
         }
+    }
+
+    /** Terminates a task based on the given info. */
+    async kill(taskInfo: che.TaskInfo): Promise<void> {
+        throw new Error('Stopping a Che task currently is not supported.');
     }
 }
