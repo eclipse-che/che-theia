@@ -30,7 +30,3 @@ RUN mkdir ${HOME} /projects \
     done
 
 WORKDIR /projects
-
-COPY entrypoint.sh /entrypoint.sh
-
-ENTRYPOINT [ "/entrypoint.sh" ]

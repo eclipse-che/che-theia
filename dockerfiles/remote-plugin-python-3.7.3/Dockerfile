@@ -13,8 +13,4 @@ FROM python:3.7.4-slim
 RUN apt-get update && \
     pip install pylint python-language-server[all] ptvsd 'jedi<0.15,>=0.14.1'
 
-COPY entrypoint.sh /entrypoint.sh
-
 RUN chmod -R 777 ${HOME}
-
-ENTRYPOINT ["bash", "/entrypoint.sh"]

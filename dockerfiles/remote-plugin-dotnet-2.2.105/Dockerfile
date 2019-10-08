@@ -51,8 +51,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
                 zlib1g \
     &&  rm -rf /var/lib/apt/lists/*
 
-COPY entrypoint.sh /entrypoint.sh
-
 # Install .NET Core SDK
 ENV DOTNET_SDK_VERSION 2.2.105
 
@@ -80,4 +78,3 @@ ENV ASPNETCORE_URLS=http://+:80 \
 
 # Trigger first run experience by running arbitrary cmd to populate local package cache
 RUN dotnet help
-ENTRYPOINT ["/entrypoint.sh"]

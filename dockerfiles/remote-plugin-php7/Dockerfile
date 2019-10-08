@@ -23,8 +23,13 @@ RUN apk --update --no-cache add \
     && echo "xdebug.remote_log=/tmp/xdebug.log" >> /etc/php7/php.ini \
     && echo "xdebug.remote_autostart=true" >> /etc/php7/php.ini
 
+ENV HOME=/home/theia
+
+RUN mkdir ${HOME} /projects \
+    # Change permissions to let any arbitrary user
+    && for f in "${HOME}" "/projects"; do \
+        echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+        chmod -R g+rwX ${f}; \
+    done
+
 WORKDIR /projects
-
-COPY entrypoint.sh /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]
