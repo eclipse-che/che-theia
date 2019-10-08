@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG}
+FROM alpine:3.10.2
 
 ENV KUBECTL_VERSION v1.14.0
 ENV HELM_VERSION v2.13.1
@@ -18,3 +18,12 @@ RUN apk add --update --no-cache ca-certificates && \
     chmod +x /usr/local/bin/kubectl && \
     wget -O- https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz | tar xvz -C /usr/local/bin --strip 1 && \
     helm init --client-only
+
+ENV HOME=/home/theia
+
+RUN mkdir /home/theia /projects \
+    # Change permissions to let any arbitrary user
+    && for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
+        echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+        chmod -R g+rwX ${f}; \
+    done
