@@ -11,6 +11,20 @@
 FROM python:3.7.3-slim
 
 RUN apt-get update && \
+    apt-get install wget -y && \
+	wget -O - https://deb.nodesource.com/setup_10.x | bash - && \
+    apt-get update && \
+	apt-get install nodejs -y && \
+	apt-get clean && apt-get -y autoremove && rm -rf /var/lib/apt/lists/* && \
     pip install pylint python-language-server[all] ptvsd 'jedi<0.15,>=0.14.1'
+
+ENV HOME=/home/theia
+
+RUN mkdir ${HOME} /projects \
+    # Change permissions to let any arbitrary user
+    && for f in "${HOME}" "/projects"; do \
+        echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+        chmod -R g+rwX ${f}; \
+    done
 
 RUN chmod -R 777 ${HOME}

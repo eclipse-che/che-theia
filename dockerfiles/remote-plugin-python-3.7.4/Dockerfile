@@ -7,7 +7,6 @@
 #
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG} as endpoint
 
 FROM python:3.7.4-slim
 
@@ -21,12 +20,11 @@ RUN apt-get update && \
 	apt-get clean && apt-get -y autoremove && rm -rf /var/lib/apt/lists/* && \
     pip install pylint python-language-server[all] ptvsd 'jedi<0.15,>=0.14.1'
 
-COPY --from=endpoint /home/theia /home/theia
-COPY --from=endpoint /projects /projects
-COPY --from=endpoint /etc/passwd  /etc/passwd
-COPY --from=endpoint /etc/group   /etc/group
-COPY --from=endpoint /entrypoint.sh /entrypoint.sh
+RUN mkdir -p ${HOME} /projects \
+    # Change permissions to let any arbitrary user
+    && for f in "${HOME}" "/projects"; do \
+        echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+        chmod -R g+rwX ${f}; \
+    done
 
 RUN chmod -R 777 ${HOME}
-
-ENTRYPOINT ["bash", "/entrypoint.sh"]
