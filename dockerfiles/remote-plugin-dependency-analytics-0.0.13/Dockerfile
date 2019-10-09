@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG}
+FROM node:10.16-alpine
 # npm comes from the base image, install maven and python3.
 RUN apk --update --no-cache add openjdk8 procps nss maven python3 && [[ ! -e /usr/bin/python ]] && \
     ln -sf /usr/bin/python3 /usr/bin/python
@@ -22,5 +22,14 @@ RUN wget http://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/ap
   tar -zxvf apache-maven-$MAVEN_VERSION-bin.tar.gz && \
   rm apache-maven-$MAVEN_VERSION-bin.tar.gz && \
   mv apache-maven-$MAVEN_VERSION /usr/lib/mvn
+
+ENV HOME /home/theia
+
+RUN mkdir ${HOME} /projects \
+    # Change permissions to let any arbitrary user
+    && for f in "${HOME}" "/projects"; do \
+        echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+        chmod -R g+rwX ${f}; \
+    done
 
 WORKDIR /projects
