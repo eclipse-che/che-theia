@@ -18,9 +18,21 @@ import { ContainerModule } from 'inversify';
 import { GitConfigurationListenerContribution } from './git-configuration-contribution';
 import { GitConfigurationController } from './git-configuration-controller';
 import { BackendApplicationContribution } from '@theia/core/lib/node/backend-application';
+import { CheGitNoticationServer, CheGitNoticationClient } from '../common/git-notification-proxy';
+import { ConnectionHandler, JsonRpcConnectionHandler } from '@theia/core';
 
 export default new ContainerModule(bind => {
     bind(GitConfigurationController).toSelf().inSingletonScope();
+    bind(CheGitNoticationServer).toService(GitConfigurationController);
     bind(GitConfigurationListenerContribution).toSelf().inSingletonScope();
     bind(BackendApplicationContribution).toService(GitConfigurationListenerContribution);
+    bind(ConnectionHandler).toDynamicValue(ctx =>
+        new JsonRpcConnectionHandler<CheGitNoticationClient>('/che-git-notification', client => {
+            const server: CheGitNoticationServer = ctx.container.get<CheGitNoticationServer>(CheGitNoticationServer);
+            console.log('+++++++++++++ server modeule', client);
+            server.setClient(client);
+            client.onDidCloseConnection(() => server.disconectClient(client));
+            return server;
+        })
+    ).inSingletonScope();
 });
