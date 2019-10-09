@@ -16,7 +16,12 @@ export interface GitUpstreamBranch {
 }
 
 export async function getUpstreamBranch(projectPath: string): Promise<GitUpstreamBranch | undefined> {
-    const remoteBranchRef = await execGit(projectPath, 'rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{upstream}');
+    let remoteBranchRef;
+    try {
+        remoteBranchRef = await execGit(projectPath, 'rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{upstream}');
+    } catch (e) {
+        console.log(e);
+    }
     if (!remoteBranchRef) {
         return;
     }
@@ -27,8 +32,12 @@ export async function getUpstreamBranch(projectPath: string): Promise<GitUpstrea
     return gitUpstreamBranch;
 }
 
-export function getRemoteURL(remote: string, projectPath: string): Promise<string | undefined> {
-    return execGit(projectPath, 'config', '--get', `remote.${remote}.url`);
+export async function getRemoteURL(remote: string, projectPath: string): Promise<string | undefined> {
+    try {
+        return execGit(projectPath, 'config', '--get', `remote.${remote}.url`);
+    } catch (e) {
+        console.log(e);
+    }
 }
 
 export function parseGitUpstreamBranch(gitBranchvvOutput: string): GitUpstreamBranch | undefined {
@@ -55,5 +64,5 @@ export function getGitRootFolder(uri: string): string {
 }
 
 export async function execGit(directory: string, ...args: string[]): Promise<string | undefined> {
-    return execute('git', args, { cwd: directory }).catch(() => undefined);
+    return execute('git', args, { cwd: directory });
 }

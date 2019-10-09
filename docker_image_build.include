@@ -45,6 +45,7 @@ dockerfiles/remote-plugin-openshift-connector-0.0.17
 dockerfiles/remote-plugin-openshift-connector-0.0.21
 dockerfiles/remote-plugin-openshift-connector-0.1.0
 dockerfiles/remote-plugin-dependency-analytics-0.0.12
+dockerfiles/remote-plugin-dependency-analytics-0.0.13
 )
 
 IMAGES_LIST=(
@@ -67,6 +68,7 @@ eclipse/che-remote-plugin-openshift-connector-0.0.17
 eclipse/che-remote-plugin-openshift-connector-0.0.21
 eclipse/che-remote-plugin-openshift-connector-0.1.0
 eclipse/che-remote-plugin-dependency-analytics-0.0.12
+eclipse/che-remote-plugin-dependency-analytics-0.0.13
 )
 
 buildImages() {
