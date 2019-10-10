@@ -31,6 +31,8 @@ pipeline {
 
         PR_CHECK_FILES_DIR="${WORKSPACE}/pr-check-files/che-theia/${ghprbPullId}"
         PR_CHECK_FILES_GITHUB_URL="https://raw.githubusercontent.com/chepullreq4/pr-check-files/master/che-theia/${ghprbPullId}"
+
+        LOGS_AND_CONFIGS="${WORKSPACE}/logs-and-configs"
     }
 
     stages {
@@ -46,10 +48,14 @@ pipeline {
                                     sh """
                                       export GITHUB_TOKEN=${github_token}
                                       ${WORKSPACE}/build.sh --skip-tests
-
-                                      docker login -u maxura -p ${password}
                                     """
                                 }
+                            }
+                        }
+
+                        withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'docker_password')]) {
+                            script {
+                                sh "docker login -u maxura -p ${docker_password}"
                             }
                         }
                     }
@@ -157,52 +163,44 @@ pipeline {
             parallel {
                 stage("Push che-theia image") {
                     steps {
-                        withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'maxura_docker_password')]) {
-                            script {
-                                sh """
-                                docker tag eclipse/che-theia:next maxura/che-theia:${ghprbPullId}
-                                docker push maxura/che-theia:${ghprbPullId}
-                                """
-                            }
+                        script {
+                            sh """
+                            docker tag eclipse/che-theia:next maxura/che-theia:${ghprbPullId}
+                            docker push maxura/che-theia:${ghprbPullId}
+                            """
                         }
                     }
                 }
 
                 stage("Push che-theia-endpoint-runtime image") {
                     steps {
-                        withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'maxura_docker_password')]) {
-                            script {
-                                sh """
-                                docker tag eclipse/che-theia-endpoint-runtime:next maxura/che-theia-endpoint-runtime:${ghprbPullId}
-                                docker push maxura/che-theia-endpoint-runtime:${ghprbPullId}
-                                """
-                            }
+                        script {
+                            sh """
+                            docker tag eclipse/che-theia-endpoint-runtime:next maxura/che-theia-endpoint-runtime:${ghprbPullId}
+                            docker push maxura/che-theia-endpoint-runtime:${ghprbPullId}
+                            """
                         }
                     }
                 }
 
                 stage("Push che-remote-plugin-runner-java8 image") {
                     steps {
-                        withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'maxura_docker_password')]) {
-                            script {
-                                sh """
-                                docker tag eclipse/che-remote-plugin-runner-java8:next maxura/che-remote-plugin-runner-java8:${ghprbPullId}
-                                docker push maxura/che-remote-plugin-runner-java8:${ghprbPullId}
-                                """
-                            }
+                        script {
+                            sh """
+                            docker tag eclipse/che-remote-plugin-runner-java8:next maxura/che-remote-plugin-runner-java8:${ghprbPullId}
+                            docker push maxura/che-remote-plugin-runner-java8:${ghprbPullId}
+                            """
                         }
                     }
                 }
 
                 stage("Push che-remote-plugin-kubernetes-tooling-1.0.0 image") {
                     steps {
-                        withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'maxura_docker_password')]) {
-                            script {
-                                sh """
-                                docker tag eclipse/che-remote-plugin-kubernetes-tooling-1.0.0:next maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
-                                docker push maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
-                                """
-                            }
+                        script {
+                            sh """
+                            docker tag eclipse/che-remote-plugin-kubernetes-tooling-1.0.0:next maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
+                            docker push maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
+                            """
                         }
                     }
                 }
