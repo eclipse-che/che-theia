@@ -12,32 +12,39 @@ pipeline {
     }
 
     environment {
-        PATH = "/tmp:/qa/tools/opt/apache-maven-3.5.4/bin:$PATH"
-        JENKINS_BUILD = "true"
+        PATH="/tmp:/qa/tools/opt/apache-maven-3.5.4/bin:$PATH"
+        JENKINS_BUILD="true"
 
-        DEVFILE_URL = "${WORKSPACE}/che/e2e/files/happy-path/happy-path-workspace.yaml"
-        SUCCESS_THRESHOLD = 5
+        DEVFILE_URL="${WORKSPACE}/che/e2e/files/happy-path/happy-path-workspace.yaml"
+        SUCCESS_THRESHOLD=5
 
-        CHE_IMAGE_REPO = "maxura/che-server"
-        CHE_IMAGE_TAG = "nightly"
+        CHE_IMAGE_REPO="maxura/che-server"
+        CHE_IMAGE_TAG="nightly"
 
-        META_YAML_URL='https://raw.githubusercontent.com/eclipse/che-plugin-registry/master/v3/plugins/eclipse/che-theia/latest/meta.yaml'
+        CHE_THEIA_META_YAML_URL='https://raw.githubusercontent.com/eclipse/che-plugin-registry/master/v3/plugins/eclipse/che-theia-endpoint-runtime/next/meta.yaml'
+        VSCODE_YAML_META_YAML_URL='https://raw.githubusercontent.com/eclipse/che-plugin-registry/master/v3/plugins/redhat/vscode-yaml/latest/meta.yaml'
+        JAVA8_META_YAML_URL='https://raw.githubusercontent.com/eclipse/che-plugin-registry/master/v3/plugins/redhat/java8/latest/meta.yaml'
+        VSCODE_KUBERNETES_TOOLS_META_YAML_URL='https://raw.githubusercontent.com/eclipse/che-plugin-registry/master/v3/plugins/ms-kubernetes-tools/vscode-kubernetes-tools/latest/meta.yaml'
+
         YQ_TOOL_URL='https://github.com/mikefarah/yq/releases/download/2.4.0/yq_linux_amd64'
+
+        PR_CHECK_FILES_DIR="${WORKSPACE}/pr-check-files/che-theia-endpoint-runtime/${ghprbPullId}"
+        PR_CHECK_FILES_GITHUB_URL="https://raw.githubusercontent.com/chepullreq4/pr-check-files/master/che-theia-endpoint-runtime/${ghprbPullId}"
     }
 
     stages {
-        stage("Build che-theia image and prepare to start Che on K8S") {
+        stage("Build che-theia-endpoint-runtime image and prepare to start Che on K8S") {
             failFast true
 
             parallel {
-                stage("Build che-theia image") {
+                stage("Build che-theia-endpoint-runtime image") {
                     steps {
                         withCredentials([string(credentialsId: '088e51af-a9ad-4e32-9c34-82a0371ec26e', variable: 'github_token')]) {
                             nodejs('nodejs-10.9.0') {
                                 script {
                                     sh """
                                       export GITHUB_TOKEN=${github_token}
-                                      ${WORKSPACE}/build.sh --pr --skip-tests
+                                      ${WORKSPACE}/build.sh --skip-tests
                                     """
                                 }
                             }
@@ -71,25 +78,41 @@ pipeline {
                     }
                 }
 
-                stage("Prepare meta.yaml and launch httpd-server") {
+                stage("Prepare meta.yaml's") {
                     steps {
                         script {
                             sh """
-                              wget $YQ_TOOL_URL
-                              
-                              sudo chmod +x yq_linux_amd64
-                              
-                              wget $META_YAML_URL
-                              ./yq_linux_amd64 w -i meta.yaml spec.containers[0].image maxura/che-theia:${ghprbPullId}
-                             
-                              mkdir -p ${WORKSPACE}/httpd
-                              
-                              cp ${WORKSPACE}/meta.yaml ${WORKSPACE}/httpd
-                              
-                              docker run -d --rm -t \\
-                                 -v ${WORKSPACE}/httpd:/var/www/localhost/htdocs \\
-                                 -p 8080:80 \\
-                                 sebp/lighttpd
+                                git clone https://chepullreq4:315b4ea6d5732bc88da7203dbd2eb67ead17f80f@github.com/chepullreq4/pr-check-files.git
+                                mkdir -p $PR_CHECK_FILES_DIR
+
+                                wget $YQ_TOOL_URL
+                                sudo chmod +x yq_linux_amd64
+
+                                wget $CHE_THEIA_META_YAML_URL -O $PR_CHECK_FILES_DIR/che_theia_meta.yaml
+                                ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/che_theia_meta.yaml spec.containers[0].image maxura/che-theia-endpoint-runtime:${ghprbPullId}
+
+                                wget $VSCODE_YAML_META_YAML_URL -O $PR_CHECK_FILES_DIR/vscode_yaml_meta.yaml
+                                ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_yaml_meta.yaml spec.containers[0].image maxura/che-theia-endpoint-runtime-endpoint-runtime:${ghprbPullId}
+
+                                wget $JAVA8_META_YAML_URL -O $PR_CHECK_FILES_DIR/java8_meta.yaml
+                                ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/java8_meta.yaml spec.containers[0].image maxura/che-remote-plugin-runner-java8:${ghprbPullId}
+
+                                wget $VSCODE_KUBERNETES_TOOLS_META_YAML_URL -O $PR_CHECK_FILES_DIR/vscode_kubernetes_tools_meta.yaml
+                                ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_kubernetes_tools_meta.yaml spec.containers[0].image maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
+                                
+                                # patch che/e2e/files/happy-path/happy-path-workspace.yaml
+                                sed -i "s|id: eclipse/che-theia-endpoint-runtime/next|alias: che-theia-endpoint-runtime\n    reference: $PR_CHECK_FILES_GITHUB_URL/che_theia_meta.yaml|" ${DEVFILE_URL}
+
+                                sed -i "s|id: redhat/java/latest|alias: java8\n    reference: $PR_CHECK_FILES_GITHUB_URL/java8_meta.yaml|" ${DEVFILE_URL}
+                                sed -i "s|id: redhat/vscode-yaml/latest|alias: vscode_yaml\n    reference: $PR_CHECK_FILES_GITHUB_URL/vscode_yaml_meta.yaml\n  - type: chePlugin\n    alias: vscode_kubernetes_tools\n    reference: $PR_CHECK_FILES_GITHUB_URL/vscode_kubernetes_tools_meta.yaml|" ${DEVFILE_URL}
+
+                                cat ${DEVFILE_URL}
+
+                                cp ${DEVFILE_URL} ${PR_CHECK_FILES_DIR}
+                                cd ${PR_CHECK_FILES_DIR}
+                                git add -A
+                                git diff-index --quiet HEAD || git commit -m "Che PR ${ghprbPullId} files for build: https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/che-pr-tests/view/K8S/job/$JOB_NAME"
+                                git push
                             """
                         }
                     }
@@ -99,6 +122,8 @@ pipeline {
                     steps {
                         script {
                             sh """
+                              sudo setenforce 0  
+
                               export MINIKUBE_WANTUPDATENOTIFICATION=false
                               export MINIKUBE_WANTREPORTERRORPROMPT=false
                               export MINIKUBE_HOME=$HOME
@@ -121,26 +146,74 @@ pipeline {
             }
         }
 
-        stage("Push che-theia image to docker.io") {
-            steps {
-                withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'maxura_docker_password')]) {
-                    script {
-                        sh """
-                          docker tag eclipse/che-theia:next maxura/che-theia:${ghprbPullId}
-                          docker login -u maxura -p ${maxura_docker_password}
-                          docker push maxura/che-theia:${ghprbPullId}
-                        """
+        stage("Push che-theia images") {
+            failFast true
+
+            parallel {
+                stage("Push che-theia image") {
+                    steps {
+                        withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'maxura_docker_password')]) {
+                            script {
+                                sh """
+                                docker tag eclipse/che-theia:next maxura/che-theia:${ghprbPullId}
+                                docker login -u maxura -p ${maxura_docker_password}
+                                docker push maxura/che-theia:${ghprbPullId}
+                                """
+                            }
+                        }
+                    }
+                }
+
+                stage("Push che-theia-endpoint-runtime-endpoint-runtime image") {
+                    steps {
+                        withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'maxura_docker_password')]) {
+                            script {
+                                sh """
+                                docker tag eclipse/che-theia-endpoint-runtime:next maxura/che-theia-endpoint-runtime:${ghprbPullId}
+                                docker login -u maxura -p ${maxura_docker_password}
+                                docker push maxura/che-theia-endpoint-runtime:${ghprbPullId}
+                                """
+                            }
+                        }
+                    }
+                }
+
+                stage("Push che-theia-endpoint-runtime-endpoint-runtime image") {
+                    steps {
+                        withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'maxura_docker_password')]) {
+                            script {
+                                sh """
+                                docker tag eclipse/che-theia-endpoint-runtime-endpoint-runtime:next maxura/che-theia-endpoint-runtime-endpoint-runtime:${ghprbPullId}
+                                docker login -u maxura -p ${maxura_docker_password}
+                                docker push maxura/che-theia-endpoint-runtime-endpoint-runtime:${ghprbPullId}
+                                """
+                            }
+                        }
+                    }
+                }
+
+                stage("Push che-remote-plugin-kubernetes-tooling-1.0.0 image") {
+                    steps {
+                        withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'maxura_docker_password')]) {
+                            script {
+                                sh """
+                                docker tag eclipse/che-remote-plugin-kubernetes-tooling-1.0.0:next maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
+                                docker login -u maxura -p ${maxura_docker_password}
+                                docker push maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
+                                """
+                            }
+                        }
                     }
                 }
             }
         }
 
-        stage("Start Single Che") {
+        stage("Start Single Eclipse Che") {
             steps {
                 script {
                     sh """
-                      ${WORKSPACE}/chectl server:start \\
-                        --k8spodreadytimeout=360000 \\
+                    ${WORKSPACE}/chectl server:start \\
+                        --k8spodreadytimeout=180000 \\
                         -t=${WORKSPACE}/che/deploy/ \\
                         --platform=minikube \\
                         --listr-renderer=verbose
@@ -178,51 +251,7 @@ pipeline {
                 }
             }
         }
-
-        stage("Patch Che to use che-theia which was built from pull request") {
-            steps {
-                script {
-                    sh """
-                      PUBLIC_IP=\$(docker run --rm --net host eclipse/che-ip:6.19.0)
-                      PATCH_DATA="{\\"data\\":{\\"CHE_WORKSPACE_DEVFILE_DEFAULT__EDITOR\\":\\"http://\${PUBLIC_IP}:8080/meta.yaml\\"}}"
-                      kubectl --namespace=che patch cm che --patch \${PATCH_DATA}
-                      kubectl scale deployments/che --namespace=che --replicas=0
-                      kubectl scale deployments/che --namespace=che --replicas=1
-                    """
-
-                    // wait che-server to be available
-                    sh """
-                         CHE_URL=\$(kubectl get ingress che-ingress -n=che -o=jsonpath={'.spec.rules[0].host'})
-                         
-                         COUNTER=0;
-                         SUCCESS_RATE_COUNTER=0;
-                         while true; do
-                          if [ \$COUNTER -gt 180 ]; then
-                          echo "Unable to get stable route. Exiting"
-                            exit 1
-                          fi
-                          
-                          ((COUNTER+=1))
-                          
-                          
-                          STATUS_CODE=\$(curl -sL -w "%{http_code}" -I \${CHE_URL} -o /dev/null; true) || true
-                          
-                          echo "Try \${COUNTER}. Status code: \${STATUS_CODE}"
-                          if [ "\$STATUS_CODE" == "200" ]; then 
-                            ((SUCCESS_RATE_COUNTER+=1))
-                          fi
-                          sleep 1;
-                        
-                          if [ \$SUCCESS_RATE_COUNTER == \$SUCCESS_THRESHOLD ]; then 
-                            echo "Route is stable enough. Continuing running tests"
-                            break
-                          fi
-                         done
-                    """
-                }
-            }
-        }
-
+ 
         stage("Create test workspace") {
             steps {
                 script {
@@ -243,6 +272,7 @@ pipeline {
                            -e TS_SELENIUM_LOAD_PAGE_TIMEOUT=240000 \\
                            -e TS_SELENIUM_WORKSPACE_STATUS_POLLING=20000 \\
                            -e TS_SELENIUM_BASE_URL=\${CHE_URL} \\
+                           -e TS_SELENIUM_LOG_LEVEL='DEBUG' \\
                            -v ${WORKSPACE}/che/e2e:/tmp/e2e:Z \\
                            eclipse/che-e2e:nightly
                     """
@@ -271,12 +301,26 @@ pipeline {
         }
 
         cleanup {
-            archiveArtifacts allowEmptyArchive: true, artifacts: "che/e2e/report/**"
-
             script {
-                sh """
-                   kubectl get configmaps --namespace=che che -o yaml || true                      
+                sh """                      
+                      mkdir -p $LOGS_AND_CONFIGS/kubectl
+                      kubectl --namespace=che get events > $LOGS_AND_CONFIGS/kubectl/events.txt || true
+                      mkdir -p $LOGS_AND_CONFIGS/che-config
+                      kubectl get configmaps --namespace=che che -o yaml > $LOGS_AND_CONFIGS/che-config/configmap.yaml || true
+                      kubectl get ingresses --namespace=che > $LOGS_AND_CONFIGS/che-config/ingresses.txt || true
+                      kubectl get all -n che -o yaml > $LOGS_AND_CONFIGS/che-config/all.yaml || true
+                      mkdir -p $LOGS_AND_CONFIGS/che-logs
+                      kubectl logs --namespace=che \$(kubectl get pods --namespace=che | grep che- | awk {'print \$1'})>$LOGS_AND_CONFIGS/che-logs/che-server.log || true
+                      kubectl logs --namespace=che \$(kubectl get pods --namespace=che | grep devfile-registry- | awk {'print \$1'})>$LOGS_AND_CONFIGS/che-logs/devfile-registry.log || true
+                      kubectl logs --namespace=che \$(kubectl get pods --namespace=che | grep plugin-registry- | awk {'print \$1'})>$LOGS_AND_CONFIGS/che-logs/plugin-registry.log || true
+                        
+                      mkdir -p $LOGS_AND_CONFIGS/workspace-logs
+                      export WS_POD=\$(kubectl get pod --namespace=che | grep  workspace | awk '{print \$1}')
+                      for c in \$(kubectl get pod --namespace=che \$WS_POD -o jsonpath="{.spec.containers[*].name}") ; do kubectl logs \$(kubectl get pod --namespace=che | grep  workspace | awk '{print \$1}') "\${c}" -n che > $LOGS_AND_CONFIGS/workspace-logs/"\${c}"-container.log || true; done
+                      kubectl describe pod --namespace=che \$WS_POD > $LOGS_AND_CONFIGS/che-config/workspace-pod-description.txt || true
                 """
+
+                archiveArtifacts allowEmptyArchive: true, artifacts: "che/e2e/report/**, logs-and-configs/**"
             }
         }
 
