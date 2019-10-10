@@ -12,7 +12,7 @@ yarn-error.log
 
 # Generated files
 *.theia
-
+asset-*
 
 # MacOS
 .DS_Store

@@ -22,6 +22,14 @@ skip_tests() {
   fi
 }
 
+dry_run() {
+  if [ "${DRY_RUN}" = "true" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 prepare_build_args() {
     IFS=',' read -r -a BUILD_ARGS_ARRAY <<< "$@"
     for i in ${BUILD_ARGS_ARRAY[@]+"${BUILD_ARGS_ARRAY[@]}"}; do
@@ -42,6 +50,8 @@ init() {
   ORGANIZATION="eclipse"
   PREFIX="che"
   TAG="next"
+  DRY_RUN=false
+  DOCKER_BUILD_TARGET=""
   SKIP_TESTS=false
   NAME="che"
   ARGS=""
@@ -52,6 +62,7 @@ init() {
   PARENT_IMAGE=""
   BRANCH=""
   GIT_REF=""
+  BUILD_IMAGE_TARGET="alpine"
 
   while [ $# -gt 0 ]; do
     case $1 in
@@ -64,8 +75,14 @@ init() {
     esac
 
     case $1 in
+      --dry-run)
+        DRY_RUN=true
+        shift ;;
       --tag:*)
         TAG="${1#*:}"
+        shift ;;
+      --target:*)
+        DOCKER_BUILD_TARGET="--target ${1#*:}"
         shift ;;
       --organization:*)
         ORGANIZATION="${1#*:}"
@@ -111,17 +128,24 @@ build() {
 
   # If Dockerfile is empty, build all Dockerfiles
   if [ -z ${DOCKERFILE} ]; then
-    DOCKERFILES_TO_BUILD="$(ls ${DIR}/Dockerfile*)"
+    DOCKERFILE_TARGET_TO_BUILD=$(ls -d1 ${DIR}/docker/* 2>/dev/null || echo '')
+    if [ -z "$DOCKERFILE_TARGET_TO_BUILD" ]; then
+      DOCKERFILE_TARGET_TO_BUILD="alpine"
+    fi
     ORIGINAL_TAG=${TAG}
     # Build image for each Dockerfile
-    for dockerfile in ${DOCKERFILES_TO_BUILD}; do
-       dockerfile=$(basename $dockerfile)
+    for docker_target in ${DOCKERFILE_TARGET_TO_BUILD}; do
+       target=$(basename $docker_target)
        # extract TAG from Dockerfile
-       if [ ${dockerfile} != "Dockerfile" ]; then
-         TAG=${ORIGINAL_TAG}-$(echo ${dockerfile} | sed -e "s/^Dockerfile.//")
+       if [ "${target}" != "alpine" ]; then
+         TAG="${ORIGINAL_TAG}-${target}"
+       else
+         TAG=${ORIGINAL_TAG}
        fi
+       BUILD_IMAGE_TARGET=$target
        IMAGE_NAME="$ORGANIZATION/$PREFIX-$NAME:$TAG"
-       DOCKERFILE=${dockerfile}
+       DOCKERFILE="Dockerfile"
+       printf "${BOLD}Use of target: ${BUILD_IMAGE_TARGET}${NC}\n"
        build_image
     done
 
@@ -129,18 +153,75 @@ build() {
     TAG=${ORIGINAL_TAG}
     IMAGE_NAME="$ORGANIZATION/$PREFIX-$NAME:$TAG"
   else
+    BUILD_IMAGE_TARGET=$(echo ${DOCKERFILE} | sed -e "s/^Dockerfile//" | sed -e "s/^\.//" | sed -e "s/^$/alpine/")
+    DOCKERFILE="Dockerfile"
     # else if specified, build only the one specified
     build_image
   fi
 
 }
 
+update_macros() {
+  echo "$@" | sed s@\$\{BUILD_ORGANIZATION\}@${ORGANIZATION}@ | sed s/\$\{BUILD_PREFIX\}/${PREFIX}/ \
+  | sed s/\$\{BUILD_TAG\}/${TAG}/ | sed s/\$\{BUILD_PARENT_IMAGE\}/${PARENT_IMAGE}/ \
+  | sed s/\$\{BUILD_IMAGE_TARGET\}/${BUILD_IMAGE_TARGET}/  \
+  | sed s/\$\{GIT_BRANCH_NAME\}/${BRANCH}/ | sed s/\$\{GIT_REF\}/"${GIT_REF}"/
+}
+
 build_image() {
-  printf "${BOLD}Building Docker Image ${IMAGE_NAME} from $DIR directory with tag $TAG${NC}\n"
+  printf "${BOLD}Building Docker Image ${IMAGE_NAME} (target ${BUILD_IMAGE_TARGET}) from $DIR directory with tag $TAG${NC}\n"
   # Replace macros in Dockerfiles
-  cat ${DIR}/${DOCKERFILE} | sed s/\$\{BUILD_ORGANIZATION\}/${ORGANIZATION}/ | sed s/\$\{BUILD_PREFIX\}/${PREFIX}/ | sed s/\$\{BUILD_TAG\}/${TAG}/ | sed s/\$\{BUILD_PARENT_IMAGE\}/${PARENT_IMAGE}/ | sed s/\$\{GIT_BRANCH_NAME\}/${BRANCH}/ | sed s/\$\{GIT_REF\}/"${GIT_REF}"/ > ${DIR}/.Dockerfile
-  cd "${DIR}" && docker build -f ${DIR}/.Dockerfile -t ${IMAGE_NAME} ${BUILD_ARGS} .
-  rm ${DIR}/.Dockerfile
+  content_docker=$(cat ${DIR}/${DOCKERFILE})
+  update_macros "${content_docker}" > ${DIR}/.Dockerfile
+
+  # apply IF
+  if_patterns=$(sed -n 's/.*\#{IF:\(.*\)\}/\1/p' ${DIR}/.Dockerfile)
+   echo "$if_patterns" | while IFS= read -r conditional_arg ; do
+    if [ ! -z "$conditional_arg" ]; then
+      # trim argument
+      conditional_arg=$(echo $conditional_arg | xargs)
+
+      for i in ${BUILD_ARGS_ARRAY[@]+"${BUILD_ARGS_ARRAY[@]}"}; do
+        IFS='=' read -r PROPERTY_NAME PROPERTY_VALUE <<< "$i"
+        # If the conditional property is there, check
+        if [[ "$PROPERTY_NAME" == "$conditional_arg" ]]; then
+          # Is it false ?
+          if [[ "$PROPERTY_VALUE" = "false" ]]; then
+            # ok,need to filter out the lines
+            local if_line=$(grep -n "\#{IF:${PROPERTY_NAME}}" ${DIR}/.Dockerfile | cut -d ":" -f 1 | head -n 1) 
+            local endif_line=$(grep -n "\#ENDIF" ${DIR}/.Dockerfile | cut -d ":" -f 1 | head -n 1) 
+            sed -e "${if_line},${endif_line}d" ${DIR}/.Dockerfile > ${DIR}/.Dockerfile2
+            mv ${DIR}/.Dockerfile2 ${DIR}/.Dockerfile
+            echo "Filter lines with the IF ${PROPERTY_NAME}"
+          fi
+        fi
+      done
+    fi
+  done
+
+
+  # grab includes
+  to_include=$(sed -n 's/.*\#{INCLUDE:\(.*\)\}/\1/p' ${DIR}/.Dockerfile)
+
+  # perform includes (not use sed {r} to be portable)
+  echo "$to_include" | while IFS= read -r filename_to_include ; do
+    if [ ! -z "$filename_to_include" ]; then
+      # trim argument
+      filename_to_include=$(echo $filename_to_include | xargs)
+      local line_to_insert=$(grep -n "\#{INCLUDE:${filename_to_include}}" ${DIR}/.Dockerfile | cut -d ":" -f 1 | head -n 1) 
+      local head_line=$(($line_to_insert - 1))
+      local tail_line=$(($line_to_insert + 1))
+      local content_to_include=$(cat "${DIR}/$filename_to_include")
+      (head -n ${head_line} "${DIR}/.Dockerfile" && update_macros "$content_to_include" && tail -n +${tail_line} "${DIR}/.Dockerfile") > ${DIR}/.Dockerfile2
+      mv ${DIR}/.Dockerfile2 ${DIR}/.Dockerfile
+    fi
+  done
+
+  if ! dry_run; then
+    cd "${DIR}" && docker build -f ${DIR}/.Dockerfile -t ${IMAGE_NAME} ${BUILD_ARGS} ${DOCKER_BUILD_TARGET} .
+    rm ${DIR}/.Dockerfile
+  fi
+  
   if [ $? -eq 0 ]; then
     printf "Build of ${BLUE}${IMAGE_NAME} ${GREEN}[OK]${NC}\n"
     if [ ! -z "${IMAGE_ALIASES}" ]; then

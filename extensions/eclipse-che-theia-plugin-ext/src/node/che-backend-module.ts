@@ -18,14 +18,17 @@ import {
     CHE_API_SERVICE_PATH,
     CHE_TASK_SERVICE_PATH,
     CHE_PLUGIN_SERVICE_PATH,
+    CHE_PRODUCT_SERVICE_PATH,
     CheApiService,
     CheTaskClient,
     CheTaskService,
-    ChePluginService
+    ChePluginService,
+    CheProductService
 } from '../common/che-protocol';
 import { CheApiServiceImpl } from './che-api-service';
 import { CheTaskServiceImpl } from './che-task-service';
 import { ChePluginServiceImpl } from './che-plugin-service';
+import { CheProductServiceImpl } from './che-product-service';
 
 export default new ContainerModule(bind => {
     bind(ChePluginApiProvider).toSelf().inSingletonScope();
@@ -51,11 +54,17 @@ export default new ContainerModule(bind => {
         })
     ).inSingletonScope();
 
-    // bind(ChePluginService).to(ChePluginServiceImpl).inSingletonScope();
     bind(ChePluginService).toDynamicValue(ctx => new ChePluginServiceImpl(ctx.container)).inSingletonScope();
     bind(ConnectionHandler).toDynamicValue(ctx =>
         new JsonRpcConnectionHandler(CHE_PLUGIN_SERVICE_PATH, () =>
             ctx.container.get(ChePluginService)
+        )
+    ).inSingletonScope();
+
+    bind(CheProductService).to(CheProductServiceImpl).inSingletonScope();
+    bind(ConnectionHandler).toDynamicValue(ctx =>
+        new JsonRpcConnectionHandler(CHE_PRODUCT_SERVICE_PATH, () =>
+            ctx.container.get(CheProductService)
         )
     ).inSingletonScope();
 

@@ -1,3 +1,4 @@
 /theia_artifacts/
 che-theia/
 .Dockerfile
+asset-*

@@ -33,7 +33,7 @@
   "devDependencies": {
     "@theia/plugin": "next",
     "@theia/plugin-packager": "latest",
-    "@eclipse-che/plugin": "latest"
+    "@eclipse-che/plugin": "0.0.1"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
