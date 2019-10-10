@@ -111,10 +111,10 @@ pipeline {
                                     ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_kubernetes_tools_meta.yaml spec.containers[0].image maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
                                     
                                     # patch che/e2e/files/happy-path/happy-path-workspace.yaml
-                                    sed -i "s|id: eclipse/che-theia-endpoint-runtime/next|alias: che-theia-endpoint-runtime\n    reference: $PR_CHECK_FILES_GITHUB_URL/che_theia_meta.yaml|" ${DEVFILE_URL}
+                                    sed -i "s|id: eclipse/che-theia-endpoint-runtime/next|alias: che-theia-endpoint-runtime\\n    reference: $PR_CHECK_FILES_GITHUB_URL/che_theia_meta.yaml|" ${DEVFILE_URL}
 
-                                    sed -i "s|id: redhat/java/latest|alias: java8\n    reference: $PR_CHECK_FILES_GITHUB_URL/java8_meta.yaml|" ${DEVFILE_URL}
-                                    sed -i "s|id: redhat/vscode-yaml/latest|alias: vscode_yaml\n    reference: $PR_CHECK_FILES_GITHUB_URL/vscode_yaml_meta.yaml\n  - type: chePlugin\n    alias: vscode_kubernetes_tools\n    reference: $PR_CHECK_FILES_GITHUB_URL/vscode_kubernetes_tools_meta.yaml|" ${DEVFILE_URL}
+                                    sed -i "s|id: redhat/java/latest|alias: java8\\n    reference: $PR_CHECK_FILES_GITHUB_URL/java8_meta.yaml|" ${DEVFILE_URL}
+                                    sed -i "s|id: redhat/vscode-yaml/latest|alias: vscode_yaml\\n    reference: $PR_CHECK_FILES_GITHUB_URL/vscode_yaml_meta.yaml\\n  - type: chePlugin\\n    alias: vscode_kubernetes_tools\\n    reference: $PR_CHECK_FILES_GITHUB_URL/vscode_kubernetes_tools_meta.yaml|" ${DEVFILE_URL}
 
                                     cat ${DEVFILE_URL}
 
