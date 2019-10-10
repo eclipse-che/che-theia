@@ -21,23 +21,24 @@ pipeline {
         CHE_IMAGE_REPO="maxura/che-server"
         CHE_IMAGE_TAG="nightly"
 
-        CHE_THEIA_META_YAML_URL='https://raw.githubusercontent.com/eclipse/che-plugin-registry/master/v3/plugins/eclipse/che-theia-endpoint-runtime/next/meta.yaml'
-        VSCODE_YAML_META_YAML_URL='https://raw.githubusercontent.com/eclipse/che-plugin-registry/master/v3/plugins/redhat/vscode-yaml/latest/meta.yaml'
-        JAVA8_META_YAML_URL='https://raw.githubusercontent.com/eclipse/che-plugin-registry/master/v3/plugins/redhat/java8/latest/meta.yaml'
-        VSCODE_KUBERNETES_TOOLS_META_YAML_URL='https://raw.githubusercontent.com/eclipse/che-plugin-registry/master/v3/plugins/ms-kubernetes-tools/vscode-kubernetes-tools/latest/meta.yaml'
+        CHE_PLUGIN_REGISTRY_URL="https://raw.githubusercontent.com/eclipse/che-plugin-registry/master/v3/plugins"
+        CHE_THEIA_META_YAML_URL="${CHE_PLUGIN_REGISTRY_URL}/eclipse/che-theia/next/meta.yaml"
+        VSCODE_YAML_META_YAML_URL="${CHE_PLUGIN_REGISTRY_URL}/redhat/vscode-yaml/latest/meta.yaml"
+        JAVA8_META_YAML_URL="${CHE_PLUGIN_REGISTRY_URL}/redhat/java8/latest/meta.yaml"
+        VSCODE_KUBERNETES_TOOLS_META_YAML_URL="${CHE_PLUGIN_REGISTRY_URL}/ms-kubernetes-tools/vscode-kubernetes-tools/latest/meta.yaml"
 
         YQ_TOOL_URL='https://github.com/mikefarah/yq/releases/download/2.4.0/yq_linux_amd64'
 
-        PR_CHECK_FILES_DIR="${WORKSPACE}/pr-check-files/che-theia-endpoint-runtime/${ghprbPullId}"
-        PR_CHECK_FILES_GITHUB_URL="https://raw.githubusercontent.com/chepullreq4/pr-check-files/master/che-theia-endpoint-runtime/${ghprbPullId}"
+        PR_CHECK_FILES_DIR="${WORKSPACE}/pr-check-files/che-theia/${ghprbPullId}"
+        PR_CHECK_FILES_GITHUB_URL="https://raw.githubusercontent.com/chepullreq4/pr-check-files/master/che-theia/${ghprbPullId}"
     }
 
     stages {
-        stage("Build che-theia-endpoint-runtime image and prepare to start Che on K8S") {
+        stage("Build che-theia image and prepare to start Che on K8S") {
             failFast true
 
             parallel {
-                stage("Build che-theia-endpoint-runtime image") {
+                stage("Build che-theia image") {
                     steps {
                         withCredentials([string(credentialsId: 'e45af3e6-8061-4d02-b187-b1c3bb133d3a', variable: 'github_token')]) {
                             nodejs('nodejs-10.9.0') {
@@ -45,6 +46,8 @@ pipeline {
                                     sh """
                                       export GITHUB_TOKEN=${github_token}
                                       ${WORKSPACE}/build.sh --skip-tests
+
+                                      docker login -u maxura -p ${password}
                                     """
                                 }
                             }
@@ -90,7 +93,7 @@ pipeline {
                                     sudo chmod +x yq_linux_amd64
 
                                     wget $CHE_THEIA_META_YAML_URL -O $PR_CHECK_FILES_DIR/che_theia_meta.yaml
-                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/che_theia_meta.yaml spec.containers[0].image maxura/che-theia-endpoint-runtime:${ghprbPullId}
+                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/che_theia_meta.yaml spec.containers[0].image maxura/che-theia:${ghprbPullId}
 
                                     wget $VSCODE_YAML_META_YAML_URL -O $PR_CHECK_FILES_DIR/vscode_yaml_meta.yaml
                                     ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_yaml_meta.yaml spec.containers[0].image maxura/che-theia-endpoint-runtime-endpoint-runtime:${ghprbPullId}
@@ -158,7 +161,6 @@ pipeline {
                             script {
                                 sh """
                                 docker tag eclipse/che-theia:next maxura/che-theia:${ghprbPullId}
-                                docker login -u maxura -p ${maxura_docker_password}
                                 docker push maxura/che-theia:${ghprbPullId}
                                 """
                             }
@@ -166,13 +168,12 @@ pipeline {
                     }
                 }
 
-                stage("Push che-theia-endpoint-runtime-endpoint-runtime image") {
+                stage("Push che-theia-endpoint-runtime image") {
                     steps {
                         withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'maxura_docker_password')]) {
                             script {
                                 sh """
                                 docker tag eclipse/che-theia-endpoint-runtime:next maxura/che-theia-endpoint-runtime:${ghprbPullId}
-                                docker login -u maxura -p ${maxura_docker_password}
                                 docker push maxura/che-theia-endpoint-runtime:${ghprbPullId}
                                 """
                             }
@@ -180,14 +181,13 @@ pipeline {
                     }
                 }
 
-                stage("Push che-theia-endpoint-runtime-endpoint-runtime image") {
+                stage("Push che-remote-plugin-runner-java8 image") {
                     steps {
                         withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'maxura_docker_password')]) {
                             script {
                                 sh """
-                                docker tag eclipse/che-theia-endpoint-runtime-endpoint-runtime:next maxura/che-theia-endpoint-runtime-endpoint-runtime:${ghprbPullId}
-                                docker login -u maxura -p ${maxura_docker_password}
-                                docker push maxura/che-theia-endpoint-runtime-endpoint-runtime:${ghprbPullId}
+                                docker tag eclipse/che-remote-plugin-runner-java8:next maxura/che-remote-plugin-runner-java8:${ghprbPullId}
+                                docker push maxura/che-remote-plugin-runner-java8:${ghprbPullId}
                                 """
                             }
                         }
@@ -200,7 +200,6 @@ pipeline {
                             script {
                                 sh """
                                 docker tag eclipse/che-remote-plugin-kubernetes-tooling-1.0.0:next maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
-                                docker login -u maxura -p ${maxura_docker_password}
                                 docker push maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
                                 """
                             }
