@@ -209,7 +209,7 @@ pipeline {
             }
         }
 
-        stage("Start Single Eclipse Che") {
+        stage("Start Single User Eclipse Che") {
             steps {
                 script {
                     sh """
