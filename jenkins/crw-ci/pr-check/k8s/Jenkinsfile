@@ -39,7 +39,7 @@ pipeline {
             parallel {
                 stage("Build che-theia-endpoint-runtime image") {
                     steps {
-                        withCredentials([string(credentialsId: '088e51af-a9ad-4e32-9c34-82a0371ec26e', variable: 'github_token')]) {
+                        withCredentials([string(credentialsId: 'e45af3e6-8061-4d02-b187-b1c3bb133d3a', variable: 'github_token')]) {
                             nodejs('nodejs-10.9.0') {
                                 script {
                                     sh """
@@ -80,40 +80,42 @@ pipeline {
 
                 stage("Prepare meta.yaml's") {
                     steps {
-                        script {
-                            sh """
-                                git clone https://chepullreq4:315b4ea6d5732bc88da7203dbd2eb67ead17f80f@github.com/chepullreq4/pr-check-files.git
-                                mkdir -p $PR_CHECK_FILES_DIR
+                        withCredentials([string(credentialsId: 'e45af3e6-8061-4d02-b187-b1c3bb133d3a', variable: 'github_token')]) {
+                            script {
+                                sh """
+                                    git clone https://chepullreq4:${github_token}@github.com/chepullreq4/pr-check-files.git
+                                    mkdir -p $PR_CHECK_FILES_DIR
 
-                                wget $YQ_TOOL_URL
-                                sudo chmod +x yq_linux_amd64
+                                    wget $YQ_TOOL_URL
+                                    sudo chmod +x yq_linux_amd64
 
-                                wget $CHE_THEIA_META_YAML_URL -O $PR_CHECK_FILES_DIR/che_theia_meta.yaml
-                                ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/che_theia_meta.yaml spec.containers[0].image maxura/che-theia-endpoint-runtime:${ghprbPullId}
+                                    wget $CHE_THEIA_META_YAML_URL -O $PR_CHECK_FILES_DIR/che_theia_meta.yaml
+                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/che_theia_meta.yaml spec.containers[0].image maxura/che-theia-endpoint-runtime:${ghprbPullId}
 
-                                wget $VSCODE_YAML_META_YAML_URL -O $PR_CHECK_FILES_DIR/vscode_yaml_meta.yaml
-                                ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_yaml_meta.yaml spec.containers[0].image maxura/che-theia-endpoint-runtime-endpoint-runtime:${ghprbPullId}
+                                    wget $VSCODE_YAML_META_YAML_URL -O $PR_CHECK_FILES_DIR/vscode_yaml_meta.yaml
+                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_yaml_meta.yaml spec.containers[0].image maxura/che-theia-endpoint-runtime-endpoint-runtime:${ghprbPullId}
 
-                                wget $JAVA8_META_YAML_URL -O $PR_CHECK_FILES_DIR/java8_meta.yaml
-                                ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/java8_meta.yaml spec.containers[0].image maxura/che-remote-plugin-runner-java8:${ghprbPullId}
+                                    wget $JAVA8_META_YAML_URL -O $PR_CHECK_FILES_DIR/java8_meta.yaml
+                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/java8_meta.yaml spec.containers[0].image maxura/che-remote-plugin-runner-java8:${ghprbPullId}
 
-                                wget $VSCODE_KUBERNETES_TOOLS_META_YAML_URL -O $PR_CHECK_FILES_DIR/vscode_kubernetes_tools_meta.yaml
-                                ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_kubernetes_tools_meta.yaml spec.containers[0].image maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
-                                
-                                # patch che/e2e/files/happy-path/happy-path-workspace.yaml
-                                sed -i "s|id: eclipse/che-theia-endpoint-runtime/next|alias: che-theia-endpoint-runtime\n    reference: $PR_CHECK_FILES_GITHUB_URL/che_theia_meta.yaml|" ${DEVFILE_URL}
+                                    wget $VSCODE_KUBERNETES_TOOLS_META_YAML_URL -O $PR_CHECK_FILES_DIR/vscode_kubernetes_tools_meta.yaml
+                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_kubernetes_tools_meta.yaml spec.containers[0].image maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
+                                    
+                                    # patch che/e2e/files/happy-path/happy-path-workspace.yaml
+                                    sed -i "s|id: eclipse/che-theia-endpoint-runtime/next|alias: che-theia-endpoint-runtime\n    reference: $PR_CHECK_FILES_GITHUB_URL/che_theia_meta.yaml|" ${DEVFILE_URL}
 
-                                sed -i "s|id: redhat/java/latest|alias: java8\n    reference: $PR_CHECK_FILES_GITHUB_URL/java8_meta.yaml|" ${DEVFILE_URL}
-                                sed -i "s|id: redhat/vscode-yaml/latest|alias: vscode_yaml\n    reference: $PR_CHECK_FILES_GITHUB_URL/vscode_yaml_meta.yaml\n  - type: chePlugin\n    alias: vscode_kubernetes_tools\n    reference: $PR_CHECK_FILES_GITHUB_URL/vscode_kubernetes_tools_meta.yaml|" ${DEVFILE_URL}
+                                    sed -i "s|id: redhat/java/latest|alias: java8\n    reference: $PR_CHECK_FILES_GITHUB_URL/java8_meta.yaml|" ${DEVFILE_URL}
+                                    sed -i "s|id: redhat/vscode-yaml/latest|alias: vscode_yaml\n    reference: $PR_CHECK_FILES_GITHUB_URL/vscode_yaml_meta.yaml\n  - type: chePlugin\n    alias: vscode_kubernetes_tools\n    reference: $PR_CHECK_FILES_GITHUB_URL/vscode_kubernetes_tools_meta.yaml|" ${DEVFILE_URL}
 
-                                cat ${DEVFILE_URL}
+                                    cat ${DEVFILE_URL}
 
-                                cp ${DEVFILE_URL} ${PR_CHECK_FILES_DIR}
-                                cd ${PR_CHECK_FILES_DIR}
-                                git add -A
-                                git diff-index --quiet HEAD || git commit -m "Che PR ${ghprbPullId} files for build: https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/che-pr-tests/view/K8S/job/$JOB_NAME"
-                                git push
-                            """
+                                    cp ${DEVFILE_URL} ${PR_CHECK_FILES_DIR}
+                                    cd ${PR_CHECK_FILES_DIR}
+                                    git add -A
+                                    git diff-index --quiet HEAD || git commit -m "Che PR ${ghprbPullId} files for build: https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/che-pr-tests/view/K8S/job/$JOB_NAME"
+                                    git push
+                                """
+                            }
                         }
                     }
                 }
