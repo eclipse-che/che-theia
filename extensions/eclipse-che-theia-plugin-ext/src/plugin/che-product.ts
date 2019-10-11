@@ -9,37 +9,43 @@
  **********************************************************************/
 
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
-import { PLUGIN_RPC_CONTEXT, CheProduct, ProductInfo } from '../common/che-protocol';
+import { PLUGIN_RPC_CONTEXT, CheProduct, Product } from '../common/che-protocol';
+import { Logo, Welcome, LinkMap } from '@eclipse-che/plugin';
 
 export class CheProductImpl implements CheProduct {
 
-    private product: ProductInfo = {
-        name: '',
+    private product: Product = {
+        icon: '',
         logo: '',
-        description: '',
+        name: '',
+        welcome: undefined,
         links: {}
     };
 
     constructor(rpc: RPCProtocol) {
         const productMain = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_PRODUCT_MAIN);
-        productMain.$getProductInfo().then((product: ProductInfo) => {
+        productMain.$getProduct().then((product: Product) => {
             this.product = product;
         });
+    }
+
+    getIcon(): string {
+        return this.product.icon;
+    }
+
+    getLogo(): string | Logo {
+        return this.product.logo;
     }
 
     getName(): string {
         return this.product.name;
     }
 
-    getLogo(): string {
-        return this.product.logo;
+    getWelcome(): Welcome | undefined {
+        return this.product.welcome;
     }
 
-    getDescription(): string {
-        return this.product.description;
-    }
-
-    getLinks(): { [text: string]: string } {
+    getLinks(): LinkMap {
         return this.product.links;
     }
 

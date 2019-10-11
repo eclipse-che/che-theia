@@ -12,6 +12,7 @@ import { ProxyIdentifier, createProxyIdentifier } from '@theia/plugin-ext/lib/co
 import { che as cheApi } from '@eclipse-che/api';
 import * as che from '@eclipse-che/plugin';
 import { Event, JsonRpcServer } from '@theia/core';
+
 /**
  * Workspace plugin API
  */
@@ -516,7 +517,7 @@ export interface CheProduct {
 }
 
 export interface CheProductMain {
-    $getProductInfo(): Promise<ProductInfo>;
+    $getProduct(): Promise<Product>;
 }
 
 export const CHE_PRODUCT_SERVICE_PATH = '/che-product-service';
@@ -528,24 +529,19 @@ export interface CheProductService {
     /**
      * Returns the product info.
      */
-    getProductInfo(): Promise<ProductInfo>;
+    getProduct(): Promise<Product>;
 
 }
 
-export interface ProductInfo {
+export interface Product {
+    // Product icon
+    icon: string;
+    // Product logo. Provides images for dark and white themes
+    logo: string | che.Logo;
     // Product name
     name: string;
-
-    // Product logo
-    logo: string;
-
-    // Short description
-    description: string;
-
+    // Welcome page
+    welcome: che.Welcome | undefined;
     // Helpful links
-    links: Links;
-}
-
-export interface Links {
-    [text: string]: string;
+    links: che.LinkMap;
 }

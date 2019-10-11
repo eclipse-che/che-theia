@@ -10,8 +10,12 @@
 
 import { AboutDialog, AboutDialogProps, ABOUT_EXTENSIONS_CLASS, ABOUT_CONTENT_CLASS } from '@theia/core/lib/browser/about-dialog';
 import { injectable, inject, postConstruct } from 'inversify';
-import { CheProductService, ProductInfo } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
+import { CheProductService, Product } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
+import { ThemeService, Theme } from '@theia/core/lib/browser/theming';
+import { Logo } from '@eclipse-che/plugin';
+
 import '../../src/browser/style/che-theia-about.css';
+
 const jsonDetails = require('../../conf/about-details.json');
 
 @injectable()
@@ -19,6 +23,9 @@ export class AboutCheTheiaDialog extends AboutDialog {
 
     @inject(CheProductService)
     private productService: CheProductService;
+
+    @inject(ThemeService)
+    protected readonly themeService: ThemeService;
 
     constructor(
         @inject(AboutDialogProps) protected readonly props: AboutDialogProps
@@ -51,24 +58,47 @@ export class AboutCheTheiaDialog extends AboutDialog {
     }
 
     /**
+     * Check if theme is dark or not
+     */
+    private isDark(theme: Theme): boolean {
+        const currentThemeId: string = theme.id;
+        return !currentThemeId.includes('light');
+    }
+
+    /**
      * Returns product header element
      */
-    protected async getProductHeader(product: ProductInfo): Promise<HTMLElement> {
+    protected async getProductHeader(product: Product): Promise<HTMLElement> {
         const header = document.createElement('div');
         header.setAttribute('class', 'che-theia-about-product-header');
 
         const logo = document.createElement('div');
         logo.setAttribute('class', 'che-theia-about-product-logo');
         const image = document.createElement('img');
-        image.setAttribute('src', this.getLogo(product.logo));
+
+        if (typeof product.logo === 'object') {
+            const productLogo: Logo  = product.logo as Logo;
+            if (this.isDark(this.themeService.getCurrentTheme())) {
+                image.setAttribute('src', this.getLogo(productLogo.dark));
+            } else {
+                image.setAttribute('src', this.getLogo(productLogo.light));
+            }
+
+            // listen on events when the theme is changing to update the logo
+            this.themeService.onThemeChange(e => {
+                if (this.isDark(e.newTheme)) {
+                    image.setAttribute('src', this.getLogo(productLogo.dark));
+                } else {
+                    image.setAttribute('src', this.getLogo(productLogo.light));
+                }
+            });
+
+        } else {
+            image.setAttribute('src', this.getLogo(product.logo));
+        }
+
         logo.appendChild(image);
-
-        const name = document.createElement('div');
-        name.setAttribute('class', 'che-theia-about-product-name');
-        name.innerHTML = product.name;
-
         header.appendChild(logo);
-        header.appendChild(name);
 
         return header;
     }
@@ -76,7 +106,7 @@ export class AboutCheTheiaDialog extends AboutDialog {
     @postConstruct()
     protected async init(): Promise<void> {
         // Get product info
-        const product = await this.productService.getProductInfo();
+        const product = await this.productService.getProduct();
 
         // Set dialog title
         this.titleNode.textContent = product.name;

@@ -9,7 +9,7 @@
  **********************************************************************/
 
 import { interfaces } from 'inversify';
-import { CheProductMain, CheProductService, ProductInfo } from '../common/che-protocol';
+import { CheProductMain, CheProductService, Product } from '../common/che-protocol';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 
 export class CheProductMainImpl implements CheProductMain {
@@ -20,8 +20,8 @@ export class CheProductMainImpl implements CheProductMain {
         this.cheProductService = container.get(CheProductService);
     }
 
-    async $getProductInfo(): Promise<ProductInfo> {
-        return await this.cheProductService.getProductInfo();
+    async $getProduct(): Promise<Product> {
+        return await this.cheProductService.getProduct();
     }
 
 }
