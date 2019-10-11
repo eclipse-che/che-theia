@@ -147,7 +147,12 @@ declare module '@eclipse-che/plugin' {
         readonly type: string;
         /** A label that uniquely identifies a task configuration */
         readonly label: string;
-
+        /**
+         * For a provided task, it is the string representation of the URI where the task is supposed to run from. It is `undefined` for global tasks.
+         * For a configured task, it is workspace URI that task belongs to.
+         * This field is not supposed to be used in `tasks.json`
+         */
+        readonly _scope: string | undefined;
         /** Additional task type specific properties. */
         readonly [key: string]: any;
     }
