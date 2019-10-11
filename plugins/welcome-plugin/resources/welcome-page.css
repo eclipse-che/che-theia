@@ -292,12 +292,11 @@ html, body {
 }
 
 .che-welcome-header .che-welcome-header-title img {
-    height: 60px;
-    margin-right: 5px;
+    max-height: 80px;
+    margin-bottom: 10px;
 }
 
-.che-welcome-header .che-welcome-header-title .image-container,
-.che-welcome-header .che-welcome-header-title .product-name {
+.che-welcome-header .che-welcome-header-title .image-container {
     display: flex;
     align-items: center;
 }
@@ -314,6 +313,14 @@ html, body {
     margin-block-end: 10px;
     margin-block-start: 10px;
     display: flex;
+}
+
+body[class="vscode-light"] .product-logo-dark {
+    display: none;
+}
+
+body[class="vscode-dark"] .product-logo-light {
+    display: none;
 }
 
 .che-welcome-header-subtitle {
