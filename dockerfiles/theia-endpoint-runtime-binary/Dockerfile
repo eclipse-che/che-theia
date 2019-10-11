@@ -8,22 +8,26 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia:${BUILD_TAG} as builder
+FROM #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-from.dockerfile}
 
 WORKDIR /home/theia
 
 # Apply node libs installed globally to the PATH
 ENV PATH=${HOME}/.yarn/bin:${PATH}
+ENV NEXE_FLAGS="-t alpine-x64-10.16.0"
 
-RUN yarn global add nexe@3.3.2
 
+# setup extra stuff
+#{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-setup.dockerfile}
+RUN yarn global add ${YARN_FLAGS} nexe@3.3.2
 RUN nexe -v && \
     # Build remote binary with node runtime 10.16.0 and che-theia node dependencies. nexe icludes to the binary only
     # necessary dependencies.
-    nexe node_modules/@eclipse-che/theia-remote/lib/node/plugin-remote.js -t alpine-x64-10.16.0 -o ${HOME}/plugin-remote-endpoint
+    nexe node_modules/@eclipse-che/theia-remote/lib/node/plugin-remote.js ${NEXE_FLAGS} -o ${HOME}/plugin-remote-endpoint
 
 # Light image without node. We include remote binary to this image.
-FROM alpine:3.10.2
+#{INCLUDE:docker/${BUILD_IMAGE_TARGET}/runtime-from.dockerfile}
+#{INCLUDE:docker/${BUILD_IMAGE_TARGET}/runtime-post-env.dockerfile}
 
 COPY --from=builder /home/theia/plugin-remote-endpoint /plugin-remote-endpoint
 
