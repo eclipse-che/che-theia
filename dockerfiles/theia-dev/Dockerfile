@@ -67,7 +67,7 @@ RUN npm config set prefix "${HOME}/.npm-global" && \
 
 WORKDIR /projects
 
-ADD src/entrypoint.sh /entrypoint.sh
+COPY src/entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 
