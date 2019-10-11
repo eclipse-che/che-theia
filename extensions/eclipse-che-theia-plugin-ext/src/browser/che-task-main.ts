@@ -20,11 +20,10 @@ export class CheTaskMainImpl implements CheTaskMain {
         const proxy: CheTask = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_TASK);
         this.delegate = container.get(CheTaskService);
         this.cheTaskClient = container.get(CheTaskClient);
-        this.cheTaskClient.onKillEvent(id => proxy.$killTask(id));
-        this.cheTaskClient.addTaskInfoHandler(id => proxy.$getTaskInfo(id));
-        this.cheTaskClient.addTaskExitedHandler(id => proxy.$onTaskExited(id));
-        this.cheTaskClient.addRunTaskHandler((id, config, ctx) => proxy.$runTask(id, config, ctx));
+        this.cheTaskClient.onKillEvent(taskInfo => proxy.$killTask(taskInfo));
+        this.cheTaskClient.addRunTaskHandler((config, ctx) => proxy.$runTask(config, ctx));
     }
+
     $registerTaskRunner(type: string): Promise<void> {
         return this.delegate.registerTaskRunner(type);
     }

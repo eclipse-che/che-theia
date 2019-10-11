@@ -22,14 +22,12 @@ export class CheTaskServiceImpl implements CheTaskService {
     private readonly disposableMap: Map<string, Disposable>;
     private readonly cheTasks: CheTask[] = [];
     private readonly clients: CheTaskClient[];
-    private taskId: number;
     constructor(container: interfaces.Container) {
         this.runnerRegistry = container.get(TaskRunnerRegistry);
         this.taskManager = container.get(TaskManager);
         this.logger = container.get(ILogger);
         this.disposableMap = new Map();
         this.clients = [];
-        this.taskId = 0;
     }
 
     async registerTaskRunner(type: string): Promise<void> {
@@ -40,13 +38,15 @@ export class CheTaskServiceImpl implements CheTaskService {
         };
         this.disposableMap.set(type, this.runnerRegistry.registerRunner(type, runner));
         const runTask = async (config: TaskConfiguration, ctx?: string): Promise<Task> => {
-            const id = this.taskId++;
             for (const client of this.clients) {
-                await client.runTask(id, config, ctx);
+                const taskInfo = await client.runTask(config, ctx);
+                const options: CheTaskOptions = { label: config.label, config, context: ctx, runtimeInfo: taskInfo };
+
+                const cheTask = new CheTask(this.taskManager, this.logger, this.clients, options);
+                this.cheTasks.push(cheTask);
+                return cheTask;
             }
-            const cheTask = new CheTask(id, this.taskManager, this.logger, { label: config.label, config, context: ctx }, this.clients);
-            this.cheTasks.push(cheTask);
-            return cheTask;
+            throw new Error(`Failed to process configuration with label ${config.label} by Che Task Client`);
         };
     }
 
@@ -74,57 +74,45 @@ export class CheTaskServiceImpl implements CheTaskService {
 
     async fireTaskExited(event: TaskExitedEvent): Promise<void> {
         for (const task of this.cheTasks) {
-            try {
-                const runtimeInfo = await task.getRuntimeInfo();
-                if (runtimeInfo.execId === event.execId || runtimeInfo.taskId === event.taskId) {
+            const runtimeInfo = task.getRuntimeInfo();
+            if (runtimeInfo.execId === event.execId || runtimeInfo.taskId === event.taskId) {
 
-                    task.fireTaskExited({ taskId: task.id, code: event.code, ctx: runtimeInfo.ctx });
+                task.fireTaskExited({ taskId: task.id, code: event.code, ctx: runtimeInfo.ctx });
 
-                    task.onTaskExited();
-
-                    const index = this.cheTasks.indexOf(task);
-                    if (index > -1) {
-                        this.cheTasks.splice(index, 1);
-                    }
-                    break;
+                const index = this.cheTasks.indexOf(task);
+                if (index > -1) {
+                    this.cheTasks.splice(index, 1);
                 }
-            } catch (e) {
-                // allow another handlers to handle request
+                break;
             }
         }
     }
 }
 
+export interface CheTaskOptions extends TaskOptions {
+    runtimeInfo: TaskInfo;
+}
+
 class CheTask extends Task {
     private readonly clients: CheTaskClient[];
-    constructor(id: number,
+    private taskInfo: TaskInfo;
+    constructor(
         taskManager: TaskManager,
         logger: ILogger,
-        options: TaskOptions,
-        clients: CheTaskClient[]) {
+        clients: CheTaskClient[],
+        options: CheTaskOptions) {
+
         super(taskManager, logger, options);
         this.clients = clients;
-        this.taskId = id;
+        this.taskInfo = this.toTaskInfo(options.runtimeInfo);
     }
 
-    async getRuntimeInfo(): Promise<TaskInfo> {
-        for (const client of this.clients) {
-            const taskInfo = await client.getTaskInfo(this.taskId);
-            if (taskInfo) {
-                return this.toTaskInfo(taskInfo);
-            }
-        }
-        throw new Error(`Runtime Information for task ${this.options.label} is not found`);
-    }
-
-    async onTaskExited(): Promise<void> {
-        for (const client of this.clients) {
-            await client.onTaskExited(this.taskId);
-        }
+    getRuntimeInfo(): TaskInfo {
+        return this.taskInfo;
     }
 
     async kill(): Promise<void> {
-        this.clients.forEach(client => client.killTask(this.taskId));
+        this.clients.forEach(client => client.killTask(this.taskInfo));
     }
 
     fireTaskExited(event: TaskExitedEvent): void {
