@@ -111,7 +111,7 @@ pipeline {
                                   --logtostderr
                             """
                         }
-                        
+
                         echo "Start Single User Eclipse Che nightly"
                         script {
                             sh """
@@ -317,8 +317,8 @@ pipeline {
                       kubectl describe pod --namespace=che \$WS_POD > $LOGS_AND_CONFIGS/che-config/workspace-pod-description.txt || true
 
                       mkdir -p $LOGS_AND_CONFIGS/docker
-                      docker image ls > $LOGS_AND_CONFIGS/docker/image-list.txt || true
-                      docker ps -a > $LOGS_AND_CONFIGS/docker/containers-list.txt || true
+                      docker image ls > $LOGS_AND_CONFIGS/docker/images.txt || true
+                      docker ps -a > $LOGS_AND_CONFIGS/docker/containers.txt || true
                 """
 
                 archiveArtifacts allowEmptyArchive: true, artifacts: "che/e2e/report/**, logs-and-configs/**"
