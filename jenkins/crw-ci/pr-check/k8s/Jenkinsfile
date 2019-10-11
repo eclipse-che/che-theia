@@ -87,8 +87,10 @@ pipeline {
                     }
                 }
 
-                stage("Start Kubernetes") {
+                stage("Start Kubernetes and Single User Eclipse Che nightly") {
                     steps {
+                        echo "Start Kubernetes"
+
                         script {
                             sh """
                               sudo setenforce 0  
@@ -108,6 +110,50 @@ pipeline {
                                   --cpus 4 \\
                                   --memory 12288 \\
                                   --logtostderr
+                            """
+                        }
+                    }
+
+                    steps {
+                        echo "Start Single User Eclipse Che nightly"
+
+                        script {
+                            sh """
+                                ${WORKSPACE}/chectl server:start \\
+                                    --k8spodreadytimeout=180000 \\
+                                    -t=${WORKSPACE}/che/deploy/ \\
+                                    --platform=minikube \\
+                                    --listr-renderer=verbose
+                                """
+
+                            // wait che-server to be available
+                            sh """
+                                CHE_URL=\$(kubectl get ingress che-ingress -n=che -o=jsonpath={'.spec.rules[0].host'})
+                                
+                                COUNTER=0;
+                                SUCCESS_RATE_COUNTER=0;
+                                while true; do
+                                if [ \$COUNTER -gt 180 ]; then
+                                echo "Unable to get stable route. Exiting"
+                                exit 1
+                                fi
+                                
+                                ((COUNTER+=1))
+                                
+                                
+                                STATUS_CODE=\$(curl -sL -w "%{http_code}" -I \${CHE_URL} -o /dev/null; true) || true
+                                
+                                echo "Try \${COUNTER}. Status code: \${STATUS_CODE}"
+                                if [ "\$STATUS_CODE" == "200" ]; then 
+                                ((SUCCESS_RATE_COUNTER+=1))
+                                fi
+                                sleep 1;
+                                
+                                if [ \$SUCCESS_RATE_COUNTER == \$SUCCESS_THRESHOLD ]; then 
+                                echo "Route is stable enough. Continuing running tests"
+                                break
+                                fi
+                                done
                             """
                         }
                     }
@@ -206,50 +252,6 @@ pipeline {
                 }
             }
         }
-
-        stage("Start Single User Eclipse Che") {
-            steps {
-                script {
-                    sh """
-                    ${WORKSPACE}/chectl server:start \\
-                        --k8spodreadytimeout=180000 \\
-                        -t=${WORKSPACE}/che/deploy/ \\
-                        --platform=minikube \\
-                        --listr-renderer=verbose
-                    """
-
-                    // wait che-server to be available
-                    sh """
-                        CHE_URL=\$(kubectl get ingress che-ingress -n=che -o=jsonpath={'.spec.rules[0].host'})
-                        
-                        COUNTER=0;
-                        SUCCESS_RATE_COUNTER=0;
-                        while true; do
-                        if [ \$COUNTER -gt 180 ]; then
-                        echo "Unable to get stable route. Exiting"
-                        exit 1
-                        fi
-                        
-                        ((COUNTER+=1))
-                        
-                        
-                        STATUS_CODE=\$(curl -sL -w "%{http_code}" -I \${CHE_URL} -o /dev/null; true) || true
-                        
-                        echo "Try \${COUNTER}. Status code: \${STATUS_CODE}"
-                        if [ "\$STATUS_CODE" == "200" ]; then 
-                        ((SUCCESS_RATE_COUNTER+=1))
-                        fi
-                        sleep 1;
-                        
-                        if [ \$SUCCESS_RATE_COUNTER == \$SUCCESS_THRESHOLD ]; then 
-                        echo "Route is stable enough. Continuing running tests"
-                        break
-                        fi
-                        done
-                    """
-                }
-            }
-        }
  
         stage("Create test workspace") {
             steps {
@@ -317,6 +319,10 @@ pipeline {
                       export WS_POD=\$(kubectl get pod --namespace=che | grep  workspace | awk '{print \$1}')
                       for c in \$(kubectl get pod --namespace=che \$WS_POD -o jsonpath="{.spec.containers[*].name}") ; do kubectl logs \$(kubectl get pod --namespace=che | grep  workspace | awk '{print \$1}') "\${c}" -n che > $LOGS_AND_CONFIGS/workspace-logs/"\${c}"-container.log || true; done
                       kubectl describe pod --namespace=che \$WS_POD > $LOGS_AND_CONFIGS/che-config/workspace-pod-description.txt || true
+
+                      mkdir -p $LOGS_AND_CONFIGS/docker
+                      docker image ls > $LOGS_AND_CONFIGS/docker/image-list.txt || true
+                      docker ps -a > $LOGS_AND_CONFIGS/docker/containers-list.txt || true
                 """
 
                 archiveArtifacts allowEmptyArchive: true, artifacts: "che/e2e/report/**, logs-and-configs/**"
