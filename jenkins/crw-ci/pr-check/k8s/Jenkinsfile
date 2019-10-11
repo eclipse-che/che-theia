@@ -43,7 +43,7 @@ pipeline {
                 stage("Build che-theia image") {
                     steps {
                         withCredentials([string(credentialsId: 'e45af3e6-8061-4d02-b187-b1c3bb133d3a', variable: 'github_token')]) {
-                            nodejs('nodejs-10.9.0') {
+                            nodejs('nodejs-10.15.3') {
                                 script {
                                     sh """
                                       export GITHUB_TOKEN=${github_token}
