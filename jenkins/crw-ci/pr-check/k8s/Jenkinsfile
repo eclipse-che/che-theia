@@ -90,7 +90,6 @@ pipeline {
                 stage("Start Kubernetes and Single User Eclipse Che nightly") {
                     steps {
                         echo "Start Kubernetes"
-
                         script {
                             sh """
                               sudo setenforce 0  
@@ -112,11 +111,8 @@ pipeline {
                                   --logtostderr
                             """
                         }
-                    }
-
-                    steps {
+                        
                         echo "Start Single User Eclipse Che nightly"
-
                         script {
                             sh """
                                 ${WORKSPACE}/chectl server:start \\
