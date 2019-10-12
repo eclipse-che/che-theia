@@ -148,28 +148,14 @@ export class WelcomePage {
         if (che.product.welcome && che.product.welcome.links) {
             const tags = che.product.welcome.links;
 
-            console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> LINK NAMES ', tags);
-            console.log('>> TYPE ', typeof tags);
-
-            // Object.entries(tags).forEach(tag => {
-            //     // const tag = tags[i];
-            //     console.log('>> TAG', tag);
-            // });
-
-            // html = Object.keys(tags).map(tag =>
-            //     `<div class='che-welcome-action-container'>
-            //         <a href=${allLinks[tags[tag]].url} target='_blank'>${allLinks[tags[tag]].name}</a>
-            //     </div>`
-            // ).join('');
-
-            // for (const linkName in linkNames) {
-            //     const theLink = allLinks[linkName];
-            //     if (theLink) {
-            //         html += `<div class='che-welcome-action-container'>
-            //                     <a href=${theLink.url} target='_blank'>${theLink.name}</a>
-            //                 </div>`;
-            //     }
-            // }
+            tags.forEach(data => {
+                const link = allLinks[data];
+                if (link) {
+                    html += `<div class='che-welcome-action-container'>
+                                <a href=${link.url} target='_blank'>${link.name}</a>
+                            </div>`;
+                }
+            });
         } else {
             html = Object.keys(allLinks).map(tag =>
                 `<div class='che-welcome-action-container'>
