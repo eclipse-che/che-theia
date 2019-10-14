@@ -9,16 +9,16 @@
  **********************************************************************/
 
 import { injectable } from 'inversify';
-import { CheProductService, ProductInfo } from '../common/che-protocol';
+import { CheProductService, Product } from '../common/che-protocol';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 
 @injectable()
 export class CheProductServiceImpl implements CheProductService {
 
-    private product: ProductInfo;
+    private product: Product;
 
-    async getProductInfo(): Promise<ProductInfo> {
+    async getProduct(): Promise<Product> {
         if (this.product) {
             return this.product;
         }
@@ -28,11 +28,16 @@ export class CheProductServiceImpl implements CheProductService {
             jsonPath = jsonPath.startsWith('/') ? jsonPath : path.join(__dirname, jsonPath);
 
             try {
-                const product: ProductInfo = await fs.readJson(jsonPath) as ProductInfo;
+                const product: Product = await fs.readJson(jsonPath) as Product;
+
                 this.product = {
+                    icon: this.getResource(product.icon, jsonPath),
+                    logo: typeof product.logo === 'object' ? {
+                        dark: this.getResource(product.logo.dark, jsonPath),
+                        light: this.getResource(product.logo.light, jsonPath)
+                    } : this.getResource(product.logo, jsonPath),
                     name: product.name,
-                    logo: this.getLogo(product.logo, jsonPath),
-                    description: product.description,
+                    welcome: product.welcome,
                     links: product.links
                 };
 
@@ -46,30 +51,43 @@ export class CheProductServiceImpl implements CheProductService {
          * Return defaults
          */
         return {
+            icon: path.join(__dirname, '/../../src/resource/che-logo.svg'),
+            logo: {
+                dark: path.join(__dirname, '/../../src/resource/che-logo-dark.svg'),
+                light: path.join(__dirname, '/../../src/resource/che-logo-light.svg')
+            },
             name: 'Eclipse Che',
-            logo: path.join(__dirname, '/../../src/resource/che-logo.svg'),
-            description: 'Welcome To Your Cloud Developer Workspace',
+            welcome: {
+                title: 'Welcome To Your Cloud Developer Workspace',
+                links: undefined
+            },
             links: {
-                'Documentation': 'https://www.eclipse.org/che/docs/che-7',
-                'Community chat': 'https://mattermost.eclipse.org/eclipse/channels/eclipse-che'
+                'documentation': {
+                    'name': 'Documentation',
+                    'url': 'https://www.eclipse.org/che/docs/che-7'
+                },
+                'help': {
+                    'name': 'Community chat',
+                    'url': 'https://mattermost.eclipse.org/eclipse/channels/eclipse-che'
+                }
             }
         };
     }
 
     /**
-     * Returns string URI to Product Logo.
+     * Returns string URI to the resource.
      */
-    getLogo(logo: string, productJsonPath: string): string {
-        if (logo.startsWith('http://') || logo.startsWith('https://')) {
+    getResource(resource: string, productJsonPath: string): string {
+        if (resource.startsWith('http://') || resource.startsWith('https://')) {
             // HTTP resource
-            return logo;
-        } else if (logo.startsWith('/')) {
+            return resource;
+        } else if (resource.startsWith('/')) {
             // absolute path
-            return `file://${logo}`;
+            return `file://${resource}`;
         } else {
             // relative path
             const productJsonDir = path.dirname(productJsonPath);
-            return 'file://' + path.join(productJsonDir, logo);
+            return 'file://' + path.join(productJsonDir, resource);
         }
     }
 
