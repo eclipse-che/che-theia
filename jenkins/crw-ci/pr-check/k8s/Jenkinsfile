@@ -1,7 +1,7 @@
 #!groovy
 
 pipeline {
-    agent { label 'minikube-rhel7-32gb' }
+    agent { label "${params.jenkinsNodeLabel}" }
 
     options {
         timestamps()
@@ -29,10 +29,20 @@ pipeline {
 
         YQ_TOOL_URL='https://github.com/mikefarah/yq/releases/download/2.4.0/yq_linux_amd64'
 
-        PR_CHECK_FILES_DIR="${WORKSPACE}/pr-check-files/che-theia/${ghprbPullId}"
-        PR_CHECK_FILES_GITHUB_URL="https://raw.githubusercontent.com/chepullreq4/pr-check-files/master/che-theia/${ghprbPullId}"
+        PR_CHECK_FILES_DIR="${WORKSPACE}/pr-check-files/che-theia/${cheTheiaImagesTag}"
+        PR_CHECK_FILES_GITHUB_URL="https://raw.githubusercontent.com/chepullreq4/pr-check-files/master/che-theia/${cheTheiaImagesTag}"
 
         LOGS_AND_CONFIGS="${WORKSPACE}/logs-and-configs"
+    }
+
+    parameters {
+        string(name: 'jenkinsNodeLabel',
+               defaultValue: 'minikube-rhel7-32gb',
+               description: 'Label of Jenkins node which will be used to run the tests')
+
+        string(name: 'cheTheiaImagesTag',
+               defaultValue: "${ghprbPullId}",
+               description: 'Tag of Che-Theia images')
     }
 
     stages {
@@ -165,8 +175,8 @@ pipeline {
                     steps {
                         script {
                             sh """
-                            docker tag eclipse/che-theia:next maxura/che-theia:${ghprbPullId}
-                            docker push maxura/che-theia:${ghprbPullId}
+                            docker tag eclipse/che-theia:next maxura/che-theia:${cheTheiaImagesTag}
+                            docker push maxura/che-theia:${cheTheiaImagesTag}
                             """
                         }
                     }
@@ -176,8 +186,8 @@ pipeline {
                     steps {
                         script {
                             sh """
-                            docker tag eclipse/che-theia-endpoint-runtime:next maxura/che-theia-endpoint-runtime:${ghprbPullId}
-                            docker push maxura/che-theia-endpoint-runtime:${ghprbPullId}
+                            docker tag eclipse/che-theia-endpoint-runtime:next maxura/che-theia-endpoint-runtime:${cheTheiaImagesTag}
+                            docker push maxura/che-theia-endpoint-runtime:${cheTheiaImagesTag}
                             """
                         }
                     }
@@ -187,8 +197,8 @@ pipeline {
                     steps {
                         script {
                             sh """
-                            docker tag eclipse/che-remote-plugin-runner-java8:next maxura/che-remote-plugin-runner-java8:${ghprbPullId}
-                            docker push maxura/che-remote-plugin-runner-java8:${ghprbPullId}
+                            docker tag eclipse/che-remote-plugin-runner-java8:next maxura/che-remote-plugin-runner-java8:${cheTheiaImagesTag}
+                            docker push maxura/che-remote-plugin-runner-java8:${cheTheiaImagesTag}
                             """
                         }
                     }
@@ -198,8 +208,8 @@ pipeline {
                     steps {
                         script {
                             sh """
-                            docker tag eclipse/che-remote-plugin-kubernetes-tooling-1.0.0:next maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
-                            docker push maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
+                            docker tag eclipse/che-remote-plugin-kubernetes-tooling-1.0.0:next maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${cheTheiaImagesTag}
+                            docker push maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${cheTheiaImagesTag}
                             """
                         }
                     }
@@ -217,16 +227,16 @@ pipeline {
                                     sudo chmod +x yq_linux_amd64
 
                                     wget $CHE_THEIA_META_YAML_URL -O $PR_CHECK_FILES_DIR/che_theia_meta.yaml
-                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/che_theia_meta.yaml spec.containers[0].image maxura/che-theia:${ghprbPullId}
+                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/che_theia_meta.yaml spec.containers[0].image maxura/che-theia:${cheTheiaImagesTag}
 
                                     wget $VSCODE_YAML_META_YAML_URL -O $PR_CHECK_FILES_DIR/vscode_yaml_meta.yaml
-                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_yaml_meta.yaml spec.containers[0].image maxura/che-theia-endpoint-runtime-endpoint-runtime:${ghprbPullId}
+                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_yaml_meta.yaml spec.containers[0].image maxura/che-theia-endpoint-runtime-endpoint-runtime:${cheTheiaImagesTag}
 
                                     wget $JAVA8_META_YAML_URL -O $PR_CHECK_FILES_DIR/java8_meta.yaml
-                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/java8_meta.yaml spec.containers[0].image maxura/che-remote-plugin-runner-java8:${ghprbPullId}
+                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/java8_meta.yaml spec.containers[0].image maxura/che-remote-plugin-runner-java8:${cheTheiaImagesTag}
 
                                     wget $VSCODE_KUBERNETES_TOOLS_META_YAML_URL -O $PR_CHECK_FILES_DIR/vscode_kubernetes_tools_meta.yaml
-                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_kubernetes_tools_meta.yaml spec.containers[0].image maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
+                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_kubernetes_tools_meta.yaml spec.containers[0].image maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${cheTheiaImagesTag}
                                     
                                     # patch che/e2e/files/happy-path/happy-path-workspace.yaml
                                     sed -i "s|id: eclipse/che-theia-endpoint-runtime/next|alias: che-theia-endpoint-runtime\\n    reference: $PR_CHECK_FILES_GITHUB_URL/che_theia_meta.yaml|" ${DEVFILE_URL}
@@ -239,7 +249,7 @@ pipeline {
                                     cp ${DEVFILE_URL} ${PR_CHECK_FILES_DIR}
                                     cd ${PR_CHECK_FILES_DIR}
                                     git add -A
-                                    git diff-index --quiet HEAD || git commit -m "Che PR ${ghprbPullId} files for build: https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/che-pr-tests/view/K8S/job/$JOB_NAME"
+                                    git diff-index --quiet HEAD || git commit -m "Che PR ${cheTheiaImagesTag} files for build: https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/che-pr-tests/view/K8S/job/$JOB_NAME"
                                     git push
                                 """
                             }
