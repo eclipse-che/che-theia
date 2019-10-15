@@ -10,12 +10,19 @@
 
 import { JsonRpcServer } from '@theia/core';
 
-export const CheGitNoticationServer = Symbol('CheGitNoticationServer');
-export interface CheGitNoticationServer extends JsonRpcServer<CheGitNoticationClient> {
-    disconectClient(client: CheGitNoticationClient): void;
-}
+export const GIT_USER_NAME = 'git.user.name';
+export const GIT_USER_EMAIL = 'git.user.email';
+
+export const CheGitNoticationPath = '/services/che-git-notification';
 
 export const CheGitNoticationClient = Symbol('CheGitNoticationClient');
+
 export interface CheGitNoticationClient {
     notify(): void;
 }
+
+export const CheGitNoticationServer = Symbol('CheGitNoticationServer');
+
+export interface CheGitNoticationServer extends JsonRpcServer<CheGitNoticationClient> { }
+
+export interface GitConfigChanged { }

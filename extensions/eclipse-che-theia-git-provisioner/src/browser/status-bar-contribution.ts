@@ -15,14 +15,14 @@
  ********************************************************************************/
 
 import { injectable, inject, postConstruct } from 'inversify';
-import { FrontendApplicationContribution } from '@theia/core/lib/browser';
+import { FrontendApplicationContribution, CommonCommands } from '@theia/core/lib/browser';
 import { StatusBar, StatusBarAlignment } from '@theia/core/lib/browser/status-bar/status-bar';
-// import { GitPreferences } from './git-preferences';
 import { CheApiService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
-import { CheGitNoticationClient } from '../common/git-notification-proxy';
+import { CheGitNoticationServer, GIT_USER_EMAIL, GIT_USER_NAME } from '../common/git-notification-proxy';
+import { CheGitNoticationClientImpl } from './git-config-changes-tracker';
 
 @injectable()
-export class CheTheiaStatusBarFrontendContribution implements FrontendApplicationContribution, CheGitNoticationClient {
+export class CheTheiaStatusBarFrontendContribution implements FrontendApplicationContribution {
 
     @inject(StatusBar)
     private statusBar: StatusBar;
@@ -30,49 +30,52 @@ export class CheTheiaStatusBarFrontendContribution implements FrontendApplicatio
     @inject(CheApiService)
     protected cheApiService: CheApiService;
 
+    @inject(CheGitNoticationServer)
+    protected cheGitNoticationServer: CheGitNoticationServer;
+
+    @inject(CheGitNoticationClientImpl)
+    protected cheGitNoticationClientImpl: CheGitNoticationClientImpl;
+
+    private message = 'Git: set your username/email config';
+    private tooltip = 'Set git.username and git.useremail in UserPrefrences';
+    private warnId = 'id.git.config.warning';
+
     @postConstruct()
     initialize(): void {
-        this.cheApiService.getUserPreferences('theia-user-preferences').then(chePreferences => {
-            const theiaPreferences = JSON.parse(chePreferences['theia-user-preferences'] ? chePreferences['theia-user-preferences'] : '{}');
-            // const theiaPreferencesBeautified = JSON.stringify(JSON.parse(theiaPreferences), undefined, 3);
-            console.log(theiaPreferences);
-            Object.keys(theiaPreferences).forEach(key => {
-                console.log('Found.nn' + key);
-            });
-
-            const email = theiaPreferences['git.user.email'];
-            const name = theiaPreferences['git.user.name'];
-            //    this.setStatusItem(email);
-            let msg = '';
-            if (!email) {
-                msg += ' user.email ';
-            }
-            if (!name) {
-                msg += ' user.name ';
-            }
-            if (msg) {
-                this.setStatusItem('Git' + msg + ' hjhj');
-            }
-
-        }).catch(function (error1) {
-            console.log(error1);
+        this.checkGitCommiterSettings();
+        this.cheGitNoticationClientImpl.changeEvent(() => {
+            this.checkGitCommiterSettings();
         });
     }
 
-    public setStatusItem(chePreferences: string) {
-        const entry = {
-            text: chePreferences,
-            alignment: StatusBarAlignment.LEFT
-        };
-        this.statusBar.setElement('id.git.config', entry);
+    checkGitCommiterSettings() {
+        this.cheApiService.getUserPreferences('theia-user-preferences').then(chePreferences => {
+            const theiaPreferences = JSON.parse(chePreferences['theia-user-preferences'] ? chePreferences['theia-user-preferences'] : '{}');
+            const email = theiaPreferences[GIT_USER_EMAIL];
+            const name = theiaPreferences[GIT_USER_NAME];
+            if (!email || !name) {
+                this.showWarn(this.message);
+            } else {
+                this.hideWarn();
+            }
+        }).catch(error => {
+            console.log(error);
+        });
     }
 
-    notify() {
-        alert('hhhh .  ');
-        const entry = {
-            text: '',
-            alignment: StatusBarAlignment.LEFT
-        };
-        this.statusBar.setElement('id.git.config', entry);
+    public showWarn(gitWarning: string) {
+        if (gitWarning) {
+            const entry = {
+                text: gitWarning,
+                tooltip: this.tooltip,
+                command: CommonCommands.OPEN_PREFERENCES.id,
+                alignment: StatusBarAlignment.LEFT
+            };
+            this.statusBar.setElement(this.warnId, entry);
+        }
+    }
+
+    public hideWarn() {
+        this.statusBar.removeElement(this.warnId);
     }
 }
