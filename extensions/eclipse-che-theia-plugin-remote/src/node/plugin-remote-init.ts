@@ -13,10 +13,11 @@ import * as http from 'http';
 import * as ws from 'ws';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 import { logger } from '@theia/core';
 import { ILogger } from '@theia/core/lib/common';
 import { Emitter } from '@theia/core/lib/common/event';
-import { MAIN_RPC_CONTEXT, PluginDeployer, PluginDeployerEntry, PluginDependencies, DeployedPlugin, PluginEntryPoint } from '@theia/plugin-ext';
+import { MAIN_RPC_CONTEXT, PluginDeployer, PluginDeployerEntry, PluginDependencies, DeployedPlugin, PluginEntryPoint, PluginManagerStartParams } from '@theia/plugin-ext';
 import pluginVscodeBackendModule from '@theia/plugin-ext-vscode/lib/node/plugin-vscode-backend-module';
 import { RPCProtocolImpl } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { PluginDeployerHandler } from '@theia/plugin-ext/lib/common';
@@ -30,9 +31,14 @@ import { TerminalContainerAware } from './terminal-container-aware';
 import { PluginDiscovery } from './plugin-discovery';
 import { PluginReaderExtension } from './plugin-reader-extension';
 import { Deferred } from '@theia/core/lib/common/promise-util';
+import { PluginManagerExtImpl } from '@theia/plugin-ext/lib/plugin/plugin-manager';
 
 interface CheckAliveWS extends ws {
     alive: boolean;
+}
+
+function modifyPathToLocal(origPath: string): string {
+    return path.join(os.homedir(), origPath.substr(0, '/home/theia/'.length));
 }
 
 @injectable()
@@ -98,6 +104,15 @@ export class PluginRemoteInit {
         pluginDeployer.start();
 
         this.pluginReaderExtension = inversifyContainer.get(PluginReaderExtension);
+
+        // Modify 'configStorage' objects path, to use current user home directory
+        // in remote plugin image '/home/theia' doesn't exist
+        const originalStart = PluginManagerExtImpl.prototype.$start;
+        PluginManagerExtImpl.prototype.$start = async function (params: PluginManagerStartParams): Promise<void> {
+            params.configStorage = { hostLogPath: modifyPathToLocal(params.configStorage.hostLogPath), hostStoragePath: modifyPathToLocal(params.configStorage.hostLogPath) };
+            // call original method
+            return originalStart.call(this, params);
+        };
 
         // display message about process being started
         console.log(`Theia Endpoint ${process.pid}/pid listening on port`, this.pluginPort);
