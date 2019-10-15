@@ -56,8 +56,12 @@ pipeline {
                             nodejs('nodejs-10.15.3') {
                                 script {
                                     sh """
+                                      docker image ls
+
                                       export GITHUB_TOKEN=${github_token}
                                       ${WORKSPACE}/build.sh --skip-tests --dockerfile:Dockerfile.alpine
+
+                                      docker image ls
                                     """
                                 }
                             }
@@ -175,6 +179,7 @@ pipeline {
                     steps {
                         script {
                             sh """
+                            docker image ls
                             docker tag eclipse/che-theia:next maxura/che-theia:${cheTheiaImagesTag}
                             docker push maxura/che-theia:${cheTheiaImagesTag}
                             """
@@ -186,6 +191,7 @@ pipeline {
                     steps {
                         script {
                             sh """
+                            docker image ls
                             docker tag eclipse/che-theia-endpoint-runtime:next maxura/che-theia-endpoint-runtime:${cheTheiaImagesTag}
                             docker push maxura/che-theia-endpoint-runtime:${cheTheiaImagesTag}
                             """
@@ -197,6 +203,7 @@ pipeline {
                     steps {
                         script {
                             sh """
+                            docker image ls
                             docker tag eclipse/che-remote-plugin-runner-java8:next maxura/che-remote-plugin-runner-java8:${cheTheiaImagesTag}
                             docker push maxura/che-remote-plugin-runner-java8:${cheTheiaImagesTag}
                             """
@@ -208,6 +215,7 @@ pipeline {
                     steps {
                         script {
                             sh """
+                            docker image ls
                             docker tag eclipse/che-remote-plugin-kubernetes-tooling-1.0.0:next maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${cheTheiaImagesTag}
                             docker push maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${cheTheiaImagesTag}
                             """
