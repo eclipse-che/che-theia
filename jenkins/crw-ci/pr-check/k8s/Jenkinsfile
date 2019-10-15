@@ -1,7 +1,7 @@
 #!groovy
 
 pipeline {
-    agent { label "${params.jenkinsNodeLabel}" }
+    agent { label "${jenkinsNodeLabel}" }
 
     options {
         timestamps()
@@ -41,7 +41,7 @@ pipeline {
                description: 'Label of Jenkins node which will be used to run the tests')
 
         string(name: 'cheTheiaImagesTag',
-               defaultValue: "${ghprbPullId}",
+               defaultValue: "master",
                description: 'Tag of Che-Theia images')
     }
 
@@ -69,6 +69,11 @@ pipeline {
 
                         withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'docker_password')]) {
                             script {
+                                if ($ghprbPullId != null) {
+                                    $cheTheiaImagesTag = $ghprbPullId
+                                    echo $cheTheiaImagesTag
+                                }
+
                                 sh "docker login -u maxura -p ${docker_password}"
                             }
                         }
