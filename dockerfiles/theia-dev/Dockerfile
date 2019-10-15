@@ -9,25 +9,15 @@
 #   Red Hat, Inc. - initial API and implementation
 
 ###
-# Builder Image
+# Theia dev Image
 #
-FROM node:10.16-alpine
+FROM #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-image-from.dockerfile}
 
-RUN apk add --update --no-cache \
-    # Download some files
-    curl \
-    # To play with json in shell
-    jq \
-    # compile some javascript native stuff (node-gyp)
-    make gcc g++ python \
-    # clone repositories (and also using ssh repositories)
-    git openssh openssh-keygen \
-    # Handle git diff properly
-    less \
-    # bash shell
-    bash \
-    # some lib to compile 'native-keymap' npm mpdule
-    libx11-dev libxkbfile-dev
+# Install packages
+#{INCLUDE:docker/${BUILD_IMAGE_TARGET}/install-dependencies.dockerfile}
+
+# setup yarn (if missing)
+#{INCLUDE:docker/${BUILD_IMAGE_TARGET}/setup-yarn.dockerfile}
 
 # Add npm global bin directory to the path
 ENV HOME=/home/theia-dev \
@@ -36,10 +26,14 @@ ENV HOME=/home/theia-dev \
     USE_LOCAL_GIT=true \
     LOCAL_GIT_DIRECTORY=/usr \
     GIT_EXEC_PATH=/usr/libexec/git-core \
-    THEIA_ELECTRON_SKIP_REPLACE_FFMPEG=true
+    THEIA_ELECTRON_SKIP_REPLACE_FFMPEG=true \
+    YARN_FLAGS=""
+
+# setup extra stuff
+#{INCLUDE:docker/${BUILD_IMAGE_TARGET}/post-env.dockerfile}
 
 # Define package of the theia generator to use
-COPY generator/eclipse-che-theia-generator.tgz ${HOME}/eclipse-che-theia-generator.tgz
+COPY asset-eclipse-che-theia-generator.tgz ${HOME}/eclipse-che-theia-generator.tgz
 
 WORKDIR ${HOME}
 
@@ -50,7 +44,7 @@ EXPOSE 3000 3030
 RUN npm config set prefix "${HOME}/.npm-global" && \
     echo "--global-folder \"${HOME}/.yarn-global\"" > ${HOME}/.yarnrc && \
     # add eclipse che theia generator
-    yarn global add yo @theia/generator-plugin@0.0.1-1562578105 file:${HOME}/eclipse-che-theia-generator.tgz && \
+    yarn ${YARN_FLAGS} global add yo @theia/generator-plugin@0.0.1-1562578105 file:${HOME}/eclipse-che-theia-generator.tgz && \
     # Generate .passwd.template \
     cat /etc/passwd | \
     sed s#root:x.*#theia-dev:x:\${USER_ID}:\${GROUP_ID}::${HOME}:/bin/bash#g \
@@ -73,7 +67,7 @@ RUN npm config set prefix "${HOME}/.npm-global" && \
 
 WORKDIR /projects
 
-ADD src/entrypoint.sh /entrypoint.sh
+COPY src/entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 

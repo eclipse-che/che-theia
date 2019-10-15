@@ -12,14 +12,6 @@ base_dir=$(cd "$(dirname "$0")"; pwd)
 
 
 DIR=$(cd "$(dirname "$0")"; pwd)
-LOCAL_ASSEMBLY_DIR="${DIR}"/generator
-
-if [ -d "${LOCAL_ASSEMBLY_DIR}" ]; then
-  rm -r "${LOCAL_ASSEMBLY_DIR}"
-fi
-
-# In mac os 'cp' cannot create destination dir, so create it first
-mkdir ${LOCAL_ASSEMBLY_DIR}
 
 CHE_THEIA_GENERATOR_PACKAGE_NAME=eclipse-che-theia-generator.tgz
 CHE_THEIA_GENERATOR_PACKAGE="${base_dir}/../../generator/${CHE_THEIA_GENERATOR_PACKAGE_NAME}"
@@ -37,11 +29,13 @@ then
     echo "Building Che Theia generator"
     cd "${base_dir}"/../../generator/ && yarn prepare && yarn pack --filename $CHE_THEIA_GENERATOR_PACKAGE_NAME
 fi
-echo "Copying Che Theia generator assembly"
-cp "${CHE_THEIA_GENERATOR_PACKAGE}" "${LOCAL_ASSEMBLY_DIR}"
+echo "Copying Che Theia generator"
+cp "${CHE_THEIA_GENERATOR_PACKAGE}" "${base_dir}/asset-${CHE_THEIA_GENERATOR_PACKAGE_NAME}"
 
 init --name:theia-dev "$@"
 build
-if ! skip_tests; then
-  bash "${base_dir}"/e2e/build.sh "$@"
-fi
+if ! dry_run; then
+  if ! skip_tests; then
+    bash "${base_dir}"/e2e/build.sh "$@"
+  fi
+fi  
