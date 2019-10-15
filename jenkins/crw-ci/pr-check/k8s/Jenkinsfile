@@ -58,6 +58,10 @@ pipeline {
                                     sh """
                                       docker image ls
 
+                                      # CRW-344, work around "unable to get local issuer certificate" error
+                                      rm /home/hudson/.npmrc
+                                      rm /home/hudson/.yarnrc
+
                                       export GITHUB_TOKEN=${github_token}
                                       ${WORKSPACE}/build.sh --skip-tests --dockerfile:Dockerfile.alpine
 
