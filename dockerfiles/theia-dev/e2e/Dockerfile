@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Red Hat, Inc.
+# Copyright (c) 2018-2019 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -14,6 +14,9 @@ ENV GITHUB_TOKEN=$GITHUB_TOKEN
 
 # Just try to build the latest theia with current image
 RUN git clone -b 'master' --single-branch --depth 1 https://github.com/eclipse-theia/theia theia
+
+# setup extra step
+#{INCLUDE:docker/${BUILD_IMAGE_TARGET}/post-clone.dockerfile}
 
 # Unset GITHUB_TOKEN environment variable if it is empty.
 # This is needed for some tools which use this variable and will fail with 401 Unauthorized error if it is invalid.

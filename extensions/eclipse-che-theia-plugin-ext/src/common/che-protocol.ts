@@ -12,6 +12,7 @@ import { ProxyIdentifier, createProxyIdentifier } from '@theia/plugin-ext/lib/co
 import { che as cheApi } from '@eclipse-che/api';
 import * as che from '@eclipse-che/plugin';
 import { Event, JsonRpcServer } from '@theia/core';
+
 /**
  * Workspace plugin API
  */
@@ -76,10 +77,8 @@ export interface CheVariablesMain {
 export interface CheTask {
     registerTaskRunner(type: string, runner: che.TaskRunner): Promise<che.Disposable>;
     fireTaskExited(event: che.TaskExitedEvent): Promise<void>;
-    $runTask(id: number, config: che.TaskConfiguration, ctx?: string): Promise<void>;
-    $onTaskExited(id: number): Promise<void>;
-    $killTask(id: number): Promise<void>;
-    $getTaskInfo(id: number): Promise<che.TaskInfo | undefined>;
+    $runTask(config: che.TaskConfiguration, ctx?: string): Promise<che.TaskInfo>;
+    $killTask(taskInfo: che.TaskInfo): Promise<void>;
 }
 
 export const CheTaskMain = Symbol('CheTaskMain');
@@ -369,6 +368,9 @@ export const PLUGIN_RPC_CONTEXT = {
 
     CHE_USER: <ProxyIdentifier<CheUser>>createProxyIdentifier<CheUser>('CheUser'),
     CHE_USER_MAIN: <ProxyIdentifier<CheUserMain>>createProxyIdentifier<CheUserMain>('CheUserMain'),
+
+    CHE_PRODUCT: <ProxyIdentifier<CheProduct>>createProxyIdentifier<CheProduct>('CheProduct'),
+    CHE_PRODUCT_MAIN: <ProxyIdentifier<CheProductMain>>createProxyIdentifier<CheProductMain>('CheProductMain')
 };
 
 // Theia RPC protocol
@@ -416,14 +418,10 @@ export interface CheTaskService extends JsonRpcServer<CheTaskClient> {
 
 export const CheTaskClient = Symbol('CheTaskClient');
 export interface CheTaskClient {
-    runTask(id: number, taskConfig: che.TaskConfiguration, ctx?: string): Promise<void>;
-    killTask(id: number): Promise<void>;
-    getTaskInfo(id: number): Promise<che.TaskInfo | undefined>;
-    onTaskExited(id: number): Promise<void>;
-    addTaskInfoHandler(func: (id: number) => Promise<che.TaskInfo | undefined>): void;
-    addRunTaskHandler(func: (id: number, config: che.TaskConfiguration, ctx?: string) => Promise<void>): void;
-    addTaskExitedHandler(func: (id: number) => Promise<void>): void;
-    onKillEvent: Event<number>
+    runTask(taskConfig: che.TaskConfiguration, ctx?: string): Promise<che.TaskInfo>;
+    killTask(taskInfo: che.TaskInfo): Promise<void>;
+    addRunTaskHandler(func: (config: che.TaskConfiguration, ctx?: string) => Promise<che.TaskInfo>): void;
+    onKillEvent: Event<che.TaskInfo>
 }
 
 export interface ChePluginRegistry {
@@ -513,4 +511,37 @@ export interface CheUserMain {
     $updateUserPreferences(preferences: Preferences): Promise<Preferences>;
     $replaceUserPreferences(preferences: Preferences): Promise<Preferences>;
     $deleteUserPreferences(list?: string[]): Promise<void>;
+}
+
+export interface CheProduct {
+}
+
+export interface CheProductMain {
+    $getProduct(): Promise<Product>;
+}
+
+export const CHE_PRODUCT_SERVICE_PATH = '/che-product-service';
+
+export const CheProductService = Symbol('CheProductService');
+
+export interface CheProductService {
+
+    /**
+     * Returns the product info.
+     */
+    getProduct(): Promise<Product>;
+
+}
+
+export interface Product {
+    // Product icon
+    icon: string;
+    // Product logo. Provides images for dark and white themes
+    logo: string | che.Logo;
+    // Product name
+    name: string;
+    // Welcome page
+    welcome: che.Welcome | undefined;
+    // Helpful links
+    links: che.LinkMap;
 }

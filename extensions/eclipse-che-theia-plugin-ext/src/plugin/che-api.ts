@@ -20,6 +20,7 @@ import { CheDevfileImpl } from './che-devfile';
 import { CheTaskImpl } from './che-task-impl';
 import { CheSshImpl } from './che-ssh';
 import { CheUserImpl } from './che-user';
+import { CheProductImpl } from './che-product';
 
 export interface CheApiFactory {
     (plugin: Plugin): typeof che;
@@ -33,6 +34,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
     const cheTaskImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_TASK, new CheTaskImpl(rpc));
     const cheSshImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_SSH, new CheSshImpl(rpc));
     const cheUserImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_USER, new CheUserImpl(rpc));
+    const cheProductImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_PRODUCT, new CheProductImpl(rpc));
 
     return function (plugin: Plugin): typeof che {
         const workspace: typeof che.workspace = {
@@ -141,6 +143,24 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             }
         };
 
+        const product: typeof che.product = {
+            get icon(): string {
+                return cheProductImpl.getIcon();
+            },
+            get logo(): string | che.Logo {
+                return cheProductImpl.getLogo();
+            },
+            get name(): string {
+                return cheProductImpl.getName();
+            },
+            get welcome(): che.Welcome | undefined {
+                return cheProductImpl.getWelcome();
+            },
+            get links(): che.LinkMap {
+                return cheProductImpl.getLinks();
+            }
+        };
+
         return <typeof che>{
             workspace,
             factory,
@@ -148,7 +168,8 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             variables,
             task,
             ssh,
-            user
+            user,
+            product
         };
     };
 
