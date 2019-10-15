@@ -170,11 +170,31 @@ declare module '@eclipse-che/plugin' {
         [key: string]: string;
     }
 
+    export interface Logo {
+        dark: string,
+        light: string
+    }
+
+    export interface Welcome {
+        title: string | undefined;
+        links: string[] | undefined;
+    }
+
+    export interface Link {
+        name: string;
+        url: string;
+    }
+
+    export interface LinkMap {
+        [tag: string]: Link;
+    }
+
     export namespace product {
+        export let icon: string;
+        export let logo: string | Logo;
         export let name: string;
-        export let logo: string;
-        export let description: string;
-        export let links: { [text: string]: string }
+        export let welcome: Welcome | undefined;
+        export let links: LinkMap;
     }
 
 }

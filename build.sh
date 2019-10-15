@@ -8,21 +8,15 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 # See: https://sipb.mit.edu/doc/safe-shell/
-. ./docker_image_build.include
+. ./build.include
 set -e
 set -o pipefail
 
+parse "$@"
 yarn
 
-if [ "${1:-}" = "--pr" ]; then
-    echo "Building PR images..."
-    buildImages "${PR_IMAGES[@]}"
-else
-    echo "Building ALL images..."
-    buildImages "${DOCKER_FILES_LOCATIONS[@]}"
-fi
+buildImages
 
-if [ "${1:-}" = "--push" ]; then
-    echo "Pushing ALL images..."
-    publishImages "${IMAGES_LIST[@]}"
+if is_publish_images; then
+    publishImages
 fi

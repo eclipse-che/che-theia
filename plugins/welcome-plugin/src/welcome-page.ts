@@ -38,16 +38,17 @@ export class WelcomePage {
     }
 
     protected renderHeader(context: theia.PluginContext): string {
-        const name = che.product.name;
-        const welcome = che.product.description;
-        const logo = this.getLogoUri(che.product.logo);
+        const logoDark = typeof che.product.logo === 'object' ? this.getLogoUri(che.product.logo.dark) : this.getLogoUri(che.product.logo);
+        const logoLight = typeof che.product.logo === 'object' ? this.getLogoUri(che.product.logo.light) : this.getLogoUri(che.product.logo);
+
+        const welcome = (che.product.welcome && che.product.welcome.title) ?
+            `<span class='che-welcome-header-subtitle'>${che.product.welcome.title}</span>` : '';
 
         return `<div class="che-welcome-header">
             <div class="che-welcome-header-title">
-                <div class="image-container"><img src=${logo} /></div>
-                <div class="product-name">${name}</div>
+                <div class="image-container"><img class="product-logo-dark" src=${logoDark} /><img class="product-logo-light" src=${logoLight} /></div>
             </div>
-            <span class='che-welcome-header-subtitle'>${welcome}</span>
+            ${welcome}
         </div>`;
     }
 
@@ -140,16 +141,32 @@ export class WelcomePage {
     }
 
     private async renderHelp(): Promise<string> {
-        const links = che.product.links;
-        const list = Object.keys(links).map(link =>
-            `<div class='che-welcome-action-container'>
-                <a href=${links[link]} target='_blank'>${link}</a>
-            </div>`
-        ).join('');
+        const allLinks = che.product.links;
+
+        let html = '';
+
+        if (che.product.welcome && che.product.welcome.links) {
+            const tags = che.product.welcome.links;
+
+            tags.forEach(data => {
+                const link = allLinks[data];
+                if (link) {
+                    html += `<div class='che-welcome-action-container'>
+                                <a href=${link.url} target='_blank'>${link.name}</a>
+                            </div>`;
+                }
+            });
+        } else {
+            html = Object.keys(allLinks).map(tag =>
+                `<div class='che-welcome-action-container'>
+                    <a href=${allLinks[tag].url} target='_blank'>${allLinks[tag].name}</a>
+                </div>`
+            ).join('');
+        }
 
         return `<div class='che-welcome-section'>
             <h3 class='che-welcome-section-header'><i class='fa fa-question-circle'></i>Help</h3>
-            ${list}
+            ${html}
         </div>`;
     }
 
