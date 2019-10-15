@@ -57,7 +57,7 @@ pipeline {
                                 script {
                                     sh """
                                       export GITHUB_TOKEN=${github_token}
-                                      ${WORKSPACE}/build.sh --skip-tests
+                                      ${WORKSPACE}/build.sh --skip-tests --dockerfile:Dockerfile.alpine
                                     """
                                 }
                             }
