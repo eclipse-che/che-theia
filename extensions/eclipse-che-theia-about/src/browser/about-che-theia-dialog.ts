@@ -77,7 +77,7 @@ export class AboutCheTheiaDialog extends AboutDialog {
         const image = document.createElement('img');
 
         if (typeof product.logo === 'object') {
-            const productLogo: Logo  = product.logo as Logo;
+            const productLogo: Logo = product.logo as Logo;
             if (this.isDark(this.themeService.getCurrentTheme())) {
                 image.setAttribute('src', this.getLogo(productLogo.dark));
             } else {
