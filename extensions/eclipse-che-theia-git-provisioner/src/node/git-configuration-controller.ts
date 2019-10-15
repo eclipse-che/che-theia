@@ -25,7 +25,6 @@ import { writeFile, pathExists, createFile, readFile } from 'fs-extra';
 import * as ini from 'ini';
 import * as nsfw from 'nsfw';
 import { Disposable } from '@theia/core';
-import { CheGitNoticationServer, CheGitNoticationClient } from '../common/git-notification-proxy';
 
 export const GIT_CONFIG_PATH = resolve(homedir(), '.gitconfig');
 export const GIT_USER_NAME = 'git.user.name';
@@ -37,7 +36,7 @@ export interface UserConfiguration {
 }
 
 @injectable()
-export class GitConfigurationController implements CheGitNoticationServer {
+export class GitConfigurationController {
 
     @inject(CheTheiaUserPreferencesSynchronizer)
     protected preferencesService: CheTheiaUserPreferencesSynchronizer;
@@ -45,8 +44,6 @@ export class GitConfigurationController implements CheGitNoticationServer {
     protected preferencesHandler: Disposable | undefined;
 
     protected gitConfigWatcher: nsfw.NSFW | undefined;
-
-    private client: CheGitNoticationClient;
 
     public async watchGitConfigChanges(): Promise<void> {
         if (this.gitConfigWatcher) {
@@ -93,16 +90,13 @@ export class GitConfigurationController implements CheGitNoticationServer {
     }
 
     public async watchUserPreferencesChanges(): Promise<void> {
-        console.log('>>>>>>>>>>>>>>>>>>>>::::: ');
         if (this.preferencesHandler) {
             return;
         }
 
         this.preferencesHandler = this.preferencesService.onUserPreferencesModify(preferences => {
-            console.log('>>>>>>>>>>>>>>>>>>>> ');
             const config = this.getUserConfiguration(preferences);
             this.updateGlobalGitConfig(config);
-            this.client.notify();
         });
     }
 
@@ -132,18 +126,5 @@ export class GitConfigurationController implements CheGitNoticationServer {
         await this.gitConfigWatcher!.stop();
         await writeFile(GIT_CONFIG_PATH, ini.stringify(gitConfig));
         await this.gitConfigWatcher!.start();
-    }
-
-    setClient(client: CheGitNoticationClient) {
-        console.log('>>>>>>>>>>>>>> (((((' + client);
-        this.client = client;
-    }
-
-    disconectClient(client: CheGitNoticationClient) {
-        // TODO:
-    }
-
-    dispose() {
-
     }
 }
