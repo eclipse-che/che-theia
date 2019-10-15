@@ -63,6 +63,13 @@ async function getCheTheiaGitSha1() {
     if (stderr) {
         throw new Error(`Unable to get current SHA-1: ${stderr}`);
     }
+
+    // try to look at ~/theia-source-code/che-theia/.git-che-theia-sha1 if docker build
+    sha1InsideCheTheia = path.resolve(os.homedir(), 'theia-source-code', 'che-theia', '.git-che-theia-sha1');
+    if (await fs.pathExists(sha1InsideCheTheia)) {
+        return (await fs.readFile(sha1InsideCheTheia, 'utf8')).trim();
+    }
+
     return stdout.trim();
 }
 
