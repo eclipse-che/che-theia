@@ -122,11 +122,11 @@ theiaGitRefs="${theiaGitRefs:="refs\\\\\\\\\\/tags\\\\\\\\\\/v${theiaVersion}"}"
 read -p "Enter che-theia image version [${theiaVersion}]: "  cheTheiaVersion
 cheTheiaVersion="${cheTheiaVersion:=${theiaVersion}}"
 
-sed -i -e 's/IMAGE_TAG="..*"/IMAGE_TAG="'${theiaTag}'"/' docker_image_build.include
-sed -i -e 's/THEIA_VERSION="..*"/THEIA_VERSION="'${theiaVersion}'"/' docker_image_build.include
-sed -i -e 's/THEIA_BRANCH="..*"/THEIA_BRANCH="'${theiaBranchName}'"/' docker_image_build.include
-sed -i -e 's/THEIA_GIT_REFS="..*"/THEIA_GIT_REFS="'${theiaGitRefs}'"/g' docker_image_build.include
-sed -i -e 's/THEIA_DOCKER_IMAGE_VERSION=.*/THEIA_DOCKER_IMAGE_VERSION="'${cheTheiaVersion}'"/' docker_image_build.include
+sed -i -e 's/IMAGE_TAG="..*"/IMAGE_TAG="'${theiaTag}'"/' build.include
+sed -i -e 's/THEIA_VERSION="..*"/THEIA_VERSION="'${theiaVersion}'"/' build.include
+sed -i -e 's/THEIA_BRANCH="..*"/THEIA_BRANCH="'${theiaBranchName}'"/' build.include
+sed -i -e 's/THEIA_GIT_REFS="..*"/THEIA_GIT_REFS="'${theiaGitRefs}'"/g' build.include
+sed -i -e 's/THEIA_DOCKER_IMAGE_VERSION=.*/THEIA_DOCKER_IMAGE_VERSION="'${cheTheiaVersion}'"/' build.include
 
 if ask "Do you want to update extension/plugin version with '${cheTheiaVersion}'?" Y; then
     for dir in extensions/*
