@@ -13,7 +13,7 @@ CI for checking any pull request in this repository runs this script with `--pr`
 `build.sh --pr`.
 ```
 
-**Note**: `--pr` will build only [limited set](../../docker_image_build.include) of docker images.	
+**Note**: `--pr` will build only [limited set](../../build.include) of docker images.	
 
 ## How to build own Che Theia image with Docker
 
