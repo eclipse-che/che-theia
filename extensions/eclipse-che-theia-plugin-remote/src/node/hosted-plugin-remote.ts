@@ -160,6 +160,7 @@ export class HostedPluginRemote {
                 const entryName = getPluginId(deployedPlugin.metadata.model);
                 if (!this.hostedPluginMapping.getPluginsEndPoints().has(entryName)) {
                     this.hostedPluginMapping.getPluginsEndPoints().set(entryName, jsonMessage.endpointName);
+                    this.client.onDidDeploy();
                 }
             });
             return;
