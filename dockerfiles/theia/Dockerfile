@@ -21,7 +21,7 @@ ENV GITHUB_TOKEN=$GITHUB_TOKEN
 ARG THEIA_GITHUB_REPO=eclipse-theia/theia
 
 # Define upstream version of theia to use
-ARG THEIA_VERSION=master
+ARG THEIA_VERSION=1d67c3854e65445f0a5f66ce7e25793a51b662e1
 
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 

@@ -14,7 +14,7 @@ ENV GITHUB_TOKEN=$GITHUB_TOKEN
 
 # Just try to build the latest theia with current image
 RUN git clone -b 'master' --single-branch --depth 1 https://github.com/eclipse-theia/theia theia
-
+RUN cd theia && git checkout 1d67c3854e65445f0a5f66ce7e25793a51b662e1
 # setup extra step
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/post-clone.dockerfile}
 
