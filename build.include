@@ -13,7 +13,7 @@ set -u
 IMAGE_TAG="latest"
 THEIA_VERSION="0.12.0-next.1d67c385"
 THEIA_BRANCH="master"
-THEIA_GIT_REFS="refs\\/tags\\/v0.12.0-next.1d67c385"
+THEIA_GIT_REFS="refs\\/heads\\/master"
 THEIA_DOCKER_IMAGE_VERSION="7.3.0"
 
 parse() {
