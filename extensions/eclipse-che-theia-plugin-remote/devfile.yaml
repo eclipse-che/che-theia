@@ -50,7 +50,7 @@ commands:
     actions:
       - type: exec
         component: theia-dev
-        command: 'yes | yo @theia/plugin && cp y/y.theia /projects/remote-plugins/hello-world-plugin.theia && rm -rf /tmp/y'
+        command: 'yes | yo @theia/plugin && mkdir -p /projects/remote-plugins && cp y/y.theia /projects/remote-plugins/hello-world-plugin.theia && rm -rf /tmp/y'
         workdir: /tmp
   - name: Build Che Theia
     actions:
