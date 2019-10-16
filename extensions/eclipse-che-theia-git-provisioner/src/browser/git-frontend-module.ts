@@ -15,8 +15,20 @@
  ********************************************************************************/
 
 import { ContainerModule } from 'inversify';
+import { FrontendApplicationContribution, WebSocketConnectionProvider } from '@theia/core/lib/browser';
 import { bindGitPreferences } from './git-preferences';
+import { CheTheiaStatusBarFrontendContribution } from './status-bar-contribution';
+import { CheGitNoticationServer, CheGitNoticationPath, CheGitNoticationClient } from '../common/git-notification-proxy';
+import { CheGitNoticationClientImpl } from './git-config-changes-tracker';
 
 export default new ContainerModule(bind => {
     bindGitPreferences(bind);
+    bind(FrontendApplicationContribution).to(CheTheiaStatusBarFrontendContribution).inSingletonScope();
+    bind(CheGitNoticationClientImpl).toSelf().inSingletonScope();
+    bind(CheGitNoticationClient).toService(CheGitNoticationClientImpl);
+    bind(CheGitNoticationServer).toDynamicValue(ctx => {
+        const provider = ctx.container.get(WebSocketConnectionProvider);
+        const client = ctx.container.get(CheGitNoticationClient);
+        return provider.createProxy<CheGitNoticationServer>(CheGitNoticationPath, client);
+    }).inSingletonScope();
 });

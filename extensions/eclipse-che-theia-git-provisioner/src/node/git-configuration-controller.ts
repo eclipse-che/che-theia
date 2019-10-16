@@ -25,10 +25,9 @@ import { writeFile, pathExists, createFile, readFile } from 'fs-extra';
 import * as ini from 'ini';
 import * as nsfw from 'nsfw';
 import { Disposable } from '@theia/core';
+import { CheGitNoticationServer, CheGitNoticationClient, GIT_USER_NAME, GIT_USER_EMAIL } from '../common/git-notification-proxy';
 
 export const GIT_CONFIG_PATH = resolve(homedir(), '.gitconfig');
-export const GIT_USER_NAME = 'git.user.name';
-export const GIT_USER_EMAIL = 'git.user.email';
 
 export interface UserConfiguration {
     name: string | undefined;
@@ -36,7 +35,7 @@ export interface UserConfiguration {
 }
 
 @injectable()
-export class GitConfigurationController {
+export class GitConfigurationController implements CheGitNoticationServer {
 
     @inject(CheTheiaUserPreferencesSynchronizer)
     protected preferencesService: CheTheiaUserPreferencesSynchronizer;
@@ -44,6 +43,8 @@ export class GitConfigurationController {
     protected preferencesHandler: Disposable | undefined;
 
     protected gitConfigWatcher: nsfw.NSFW | undefined;
+
+    protected client: CheGitNoticationClient;
 
     public async watchGitConfigChanges(): Promise<void> {
         if (this.gitConfigWatcher) {
@@ -97,6 +98,7 @@ export class GitConfigurationController {
         this.preferencesHandler = this.preferencesService.onUserPreferencesModify(preferences => {
             const config = this.getUserConfiguration(preferences);
             this.updateGlobalGitConfig(config);
+            this.client.notify();
         });
     }
 
@@ -126,5 +128,13 @@ export class GitConfigurationController {
         await this.gitConfigWatcher!.stop();
         await writeFile(GIT_CONFIG_PATH, ini.stringify(gitConfig));
         await this.gitConfigWatcher!.start();
+    }
+
+    setClient(client: CheGitNoticationClient) {
+        this.client = client;
+    }
+
+    dispose() {
+        // nothing todo
     }
 }
