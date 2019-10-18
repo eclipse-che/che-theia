@@ -16,14 +16,18 @@ import { RemoteMetadataProcessor } from './remote-metadata-processor';
 import { HostedPluginMapping } from './plugin-remote-mapping';
 import { ConnectionContainerModule } from '@theia/core/lib/node/messaging/connection-container-module';
 import { PluginReaderExtension } from './plugin-reader-extension';
+import { HostedPluginProcess } from '@theia/plugin-ext/lib/hosted/node/hosted-plugin-process';
+import { LogHostedPluginProcess } from './hosted-plugin-process-log';
 
-const localModule = ConnectionContainerModule.create(({ bind }) => {
+const localModule = ConnectionContainerModule.create(({ bind, unbind, isBound, rebind }) => {
     bind(HostedPluginRemote).toSelf().inSingletonScope().onActivation((ctx: interfaces.Context, hostedPluginRemote: HostedPluginRemote) => {
         const pluginReaderExtension = ctx.container.parent!.get(PluginReaderExtension);
         pluginReaderExtension.setRemotePluginConnection(hostedPluginRemote);
         return hostedPluginRemote;
     });
     bind(ServerPluginRunner).to(ServerPluginProxyRunner).inSingletonScope();
+    bind(LogHostedPluginProcess).toSelf().inSingletonScope();
+    rebind(HostedPluginProcess).toService(LogHostedPluginProcess);
 });
 
 export default new ContainerModule(bind => {
