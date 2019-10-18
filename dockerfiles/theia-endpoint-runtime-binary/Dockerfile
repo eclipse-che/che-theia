@@ -30,5 +30,6 @@ RUN nexe -v && \
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/runtime-post-env.dockerfile}
 
 COPY --from=builder /home/theia/plugin-remote-endpoint /plugin-remote-endpoint
+COPY src/entrypoint.sh /
 
-ENTRYPOINT cp -rf /plugin-remote-endpoint /remote-endpoint/plugin-remote-endpoint
+ENTRYPOINT cp -rf /plugin-remote-endpoint /entrypoint.sh /remote-endpoint/
