@@ -10,6 +10,7 @@
 
 import 'reflect-metadata';
 import * as http from 'http';
+import * as theia from '@theia/plugin';
 import * as ws from 'ws';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -17,15 +18,16 @@ import * as os from 'os';
 import { logger } from '@theia/core';
 import { ILogger } from '@theia/core/lib/common';
 import { Emitter } from '@theia/core/lib/common/event';
-import { MAIN_RPC_CONTEXT, PluginDeployer, PluginDeployerEntry, PluginDependencies, DeployedPlugin, PluginEntryPoint, PluginManagerStartParams } from '@theia/plugin-ext';
+import { MAIN_RPC_CONTEXT, PluginDeployer, PluginDeployerEntry, PluginDependencies } from '@theia/plugin-ext';
+import { DeployedPlugin, PluginEntryPoint, PluginManagerStartParams, PluginInfo } from '@theia/plugin-ext';
 import pluginVscodeBackendModule from '@theia/plugin-ext-vscode/lib/node/plugin-vscode-backend-module';
 import { RPCProtocolImpl } from '@theia/plugin-ext/lib/common/rpc-protocol';
-import { PluginDeployerHandler } from '@theia/plugin-ext/lib/common';
+import { PluginDeployerHandler, OutputChannelRegistryExt } from '@theia/plugin-ext/lib/common';
 import { PluginHostRPC } from '@theia/plugin-ext/lib/hosted/node/plugin-host-rpc';
 import { HostedPluginReader } from '@theia/plugin-ext/lib/hosted/node/plugin-reader';
 import pluginExtBackendModule from '@theia/plugin-ext/lib/plugin-ext-backend-module';
 import { Container, inject, injectable } from 'inversify';
-import { DummyTraceLogger } from './dummy-trace-logger';
+import { RemoteHostTraceLogger, LogCallback } from './remote-trace-logger';
 import pluginRemoteBackendModule from './plugin-remote-backend-module';
 import { TerminalContainerAware } from './terminal-container-aware';
 import { PluginDiscovery } from './plugin-discovery';
@@ -68,6 +70,7 @@ export class PluginRemoteInit {
     private sessionId = 0;
 
     private pluginReaderExtension: PluginReaderExtension;
+    private remoteTraceLogger: RemoteHostTraceLogger;
 
     constructor(private pluginPort: number) {
 
@@ -81,8 +84,13 @@ export class PluginRemoteInit {
         // Create inversify container
         const inversifyContainer = new Container();
 
+        this.remoteTraceLogger = new RemoteHostTraceLogger();
+
+        // init the logger
+        this.remoteTraceLogger.init();
+
         // bind logger to make it work
-        inversifyContainer.bind(ILogger).to(DummyTraceLogger).inSingletonScope();
+        inversifyContainer.bind(ILogger).toConstantValue(this.remoteTraceLogger);
 
         // Bind Plug-in system
         inversifyContainer.load(pluginExtBackendModule);
@@ -201,6 +209,19 @@ to pick-up automatically a free port`));
         // tslint:disable-next-line:no-any
         new TerminalContainerAware().overrideTerminalCreationOptionForDebug((webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.DEBUG_EXT.id));
 
+        let channelName = '';
+        if (process.env.CHE_MACHINE_NAME) {
+            channelName = `Extension host (${process.env.CHE_MACHINE_NAME}) log`;
+        } else {
+            channelName = `Extension host (${this.pluginPort}) log`;
+        }
+        const pluginInfo: PluginInfo = { id: channelName, name: channelName };
+        // tslint:disable-next-line: no-any
+        const outputChannelRegistryExt: OutputChannelRegistryExt = (webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.OUTPUT_CHANNEL_REGISTRY_EXT.id);
+        const outputChannel = outputChannelRegistryExt.createOutputChannel(channelName, pluginInfo);
+        const outputChannelLogCallback = new OutputChannelLogCallback(outputChannel);
+        this.remoteTraceLogger.addCallback(webSocketClient, outputChannelLogCallback);
+
         return webSocketClient;
     }
 
@@ -215,6 +236,7 @@ to pick-up automatically a free port`));
         });
 
         socket.on('close', (code, reason) => {
+            this.remoteTraceLogger.removeCallback(channelId);
             webSocketClients.delete(channelId);
         });
 
@@ -293,7 +315,7 @@ to pick-up automatically a free port`));
 /**
  * Wrapper for adding Message ID on every message that is sent.
  */
-class WebSocketClient {
+export class WebSocketClient {
 
     public rpc: RPCProtocolImpl;
 
@@ -436,6 +458,42 @@ class PluginDeployerHandlerImpl implements PluginDeployerHandler {
         } catch (e) {
             console.error(`Failed to deploy ${entryPoint} plugin from '${pluginPath}' path`, e);
         }
+    }
+
+}
+
+class OutputChannelLogCallback implements LogCallback {
+
+    constructor(readonly outputChannel: theia.OutputChannel) {
+
+    }
+    // tslint:disable-next-line:no-any
+    async log(message: any, ...params: any[]): Promise<void> {
+        this.outputChannel.appendLine('LOG:' + message + params);
+    }
+    // tslint:disable-next-line:no-any
+    async trace(message: any, ...params: any[]): Promise<void> {
+        this.outputChannel.appendLine('TRACE:' + message + params);
+    }
+    // tslint:disable-next-line:no-any
+    async debug(message: any, ...params: any[]): Promise<void> {
+        this.outputChannel.appendLine('DEBUG:' + message + params);
+    }
+    // tslint:disable-next-line:no-any
+    async info(message: any, ...params: any[]): Promise<void> {
+        this.outputChannel.appendLine('INFO:' + message + params);
+    }
+    // tslint:disable-next-line:no-any
+    async warn(message: any, ...params: any[]): Promise<void> {
+        this.outputChannel.appendLine('WARN:' + message + params);
+    }
+    // tslint:disable-next-line:no-any
+    async error(message: any, ...params: any[]): Promise<void> {
+        this.outputChannel.appendLine('ERROR:' + message + params);
+    }
+    // tslint:disable-next-line:no-any
+    async fatal(message: any, ...params: any[]): Promise<void> {
+        this.outputChannel.appendLine('FATAL:' + message + params);
     }
 
 }
