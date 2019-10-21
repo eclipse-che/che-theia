@@ -9,6 +9,9 @@
     "files": [
         "src"
     ],
+    "dependencies": {
+        "fs-extra": "7.0.1"
+    },
     "devDependencies": {
         "@types/node": "^10.0.0",
         "@eclipse-che/api": "latest",
