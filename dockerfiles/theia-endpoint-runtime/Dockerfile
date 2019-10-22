@@ -24,7 +24,7 @@ ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/eclipse/che-theia
 #ENDIF
 
 # Grab dependencies
-COPY /docker-build/theia-plugin-remote/package.json /home/workspace/packages/theia-remote/
+COPY ./docker-build/theia-plugin-remote/package.json /home/workspace/packages/theia-remote/
 
 # Unset GITHUB_TOKEN environment variable if it is empty.
 # This is needed for some tools which use this variable and will fail with 401 Unauthorized error if it is invalid.
@@ -33,14 +33,14 @@ RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
     cd /home/workspace/packages/theia-remote/ && yarn ${YARN_FLAGS} install --ignore-scripts
 
 # Compile
-COPY /docker-build/configs /home/workspace/configs
-COPY /docker-build/theia-plugin-remote/*.json /home/workspace/packages/theia-remote/
-COPY /docker-build/theia-plugin-remote/src /home/workspace/packages/theia-remote/src
-COPY /docker-build/theia-plugin-ext /home/workspace/packages/theia-plugin-ext
-COPY /docker-build/theia-plugin /home/workspace/packages/theia-plugin
-COPY /docker-build/theia-plugin-remote/tsconfig.json /home/workspace/packages/theia-plugin/tsconfig.json
+COPY ./docker-build/configs /home/workspace/configs
+COPY ./docker-build/theia-plugin-remote/*.json /home/workspace/packages/theia-remote/
+COPY ./docker-build/theia-plugin-remote/src /home/workspace/packages/theia-remote/src
+COPY ./docker-build/theia-plugin-ext /home/workspace/packages/theia-plugin-ext
+COPY ./docker-build/theia-plugin /home/workspace/packages/theia-plugin
+COPY ./docker-build/theia-plugin-remote/tsconfig.json /home/workspace/packages/theia-plugin/tsconfig.json
 
-COPY /etc/package.json /home/workspace
+COPY ./etc/package.json /home/workspace
 RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
     cd /home/workspace/ && yarn ${YARN_FLAGS} install
 
