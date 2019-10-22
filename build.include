@@ -62,7 +62,6 @@ PR_IMAGES=(
 
 # KEEP RIGHT ORDER!!!
 DOCKER_FILES_LOCATIONS=(
-  dockerfiles/podman
   dockerfiles/theia-dev
   dockerfiles/theia
   dockerfiles/theia-endpoint-runtime
@@ -76,6 +75,7 @@ DOCKER_FILES_LOCATIONS=(
   dockerfiles/remote-plugin-python-3.7.3
   dockerfiles/remote-plugin-python-3.7.4
   dockerfiles/remote-plugin-dotnet-2.2.105
+  dockerfiles/podman
   dockerfiles/remote-plugin-kubernetes-tooling-0.1.17
   dockerfiles/remote-plugin-kubernetes-tooling-1.0.0
   dockerfiles/remote-plugin-kubernetes-tooling-1.0.4
@@ -88,7 +88,6 @@ DOCKER_FILES_LOCATIONS=(
 )
 
 PUBLISH_IMAGES_LIST=(
-  eclipse/che-podman
   eclipse/che-theia-dev
   eclipse/che-theia
   eclipse/che-theia-endpoint-runtime
@@ -102,6 +101,7 @@ PUBLISH_IMAGES_LIST=(
   eclipse/che-remote-plugin-python-3.7.3
   eclipse/che-remote-plugin-python-3.7.4
   eclipse/che-remote-plugin-dotnet-2.2.105
+  eclipse/che-podman
   eclipse/che-remote-plugin-kubernetes-tooling-0.1.17
   eclipse/che-remote-plugin-kubernetes-tooling-1.0.0
   eclipse/che-remote-plugin-kubernetes-tooling-1.0.4
