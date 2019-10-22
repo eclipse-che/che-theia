@@ -46,6 +46,10 @@ export interface CheFactoryMain {
 export interface CheDevfile {
 }
 
+export interface CheGithub {
+    uploadPublicSshKey(publicKey: string): Promise<void>;
+}
+
 export interface CheDevfileMain {
     $createWorkspace(devfilePath: string): Promise<void>;
 }
@@ -59,6 +63,10 @@ export interface CheSshMain {
     $get(service: string, name: string): Promise<cheApi.ssh.SshPair>;
     $getAll(service: string): Promise<cheApi.ssh.SshPair[]>;
     $deleteKey(service: string, name: string): Promise<void>;
+}
+
+export interface CheGithubMain {
+    $uploadPublicSshKey(publicKey: string): Promise<void>;
 }
 
 /**
@@ -365,6 +373,9 @@ export const PLUGIN_RPC_CONTEXT = {
 
     CHE_SSH: <ProxyIdentifier<CheSsh>>createProxyIdentifier<CheSsh>('CheSsh'),
     CHE_SSH_MAIN: <ProxyIdentifier<CheSshMain>>createProxyIdentifier<CheSshMain>('CheSshMain'),
+
+    CHE_GITHUB: <ProxyIdentifier<CheGithub>>createProxyIdentifier<CheGithub>('CheGithub'),
+    CHE_GITHUB_MAIN: <ProxyIdentifier<CheGithubMain>>createProxyIdentifier<CheGithubMain>('CheGithubMain'),
 
     CHE_USER: <ProxyIdentifier<CheUser>>createProxyIdentifier<CheUser>('CheUser'),
     CHE_USER_MAIN: <ProxyIdentifier<CheUserMain>>createProxyIdentifier<CheUserMain>('CheUserMain'),
