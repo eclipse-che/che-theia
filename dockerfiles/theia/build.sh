@@ -16,7 +16,10 @@ DIR=$(cd "$(dirname "$0")"; pwd)
 
 # create che-theia archive
 echo "Compresing 'che-theia' --> ${DIR}/asset-che-theia.tar.gz"
-cd "${DIR}"/../.. && git ls-files -c -o --exclude-standard | tar czf ${DIR}/asset-che-theia.tar.gz  -T -
+cd "${DIR}"/../.. && git ls-files -c -o --exclude-standard | tar cf ${DIR}/asset-che-theia.tar  -T -
+echo $(git rev-parse --short HEAD) > .git-che-theia-sha1
+tar rf ${DIR}/asset-che-theia.tar .git-che-theia-sha1
+gzip -f ${DIR}/asset-che-theia.tar
 
 # Download plugins
 THEIA_YEOMAN_PLUGIN="${DIR}/asset-untagged-c11870b25a17d20bb7a7-theia_yeoman_plugin.theia"

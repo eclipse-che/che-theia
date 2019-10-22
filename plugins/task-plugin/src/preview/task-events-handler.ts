@@ -75,7 +75,7 @@ export class CheTaskEventsHandler {
             default: {
                 const url = await this.previewUrlOpenService.resolve(previewUrl);
                 const message = `Task ${task.name} launched a service on ${url}`;
-                this.askUser(message, previewUrl);
+                this.askUser(message, url || previewUrl);
                 break;
             }
         }

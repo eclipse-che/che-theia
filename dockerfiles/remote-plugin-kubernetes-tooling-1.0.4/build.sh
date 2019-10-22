@@ -7,16 +7,9 @@
 #
 # SPDX-License-Identifier: EPL-2.0
 #
-# See: https://sipb.mit.edu/doc/safe-shell/
-. ./build.include
-set -e
-set -o pipefail
 
-parse "$@"
-yarn
+base_dir=$(cd "$(dirname "$0")"; pwd)
+. "${base_dir}"/../build.include
 
-buildImages
-
-if is_publish_images; then
-    publishImages
-fi
+init --name:remote-plugin-kubernetes-tooling-1.0.4 "$@"
+build

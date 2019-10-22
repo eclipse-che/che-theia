@@ -58,6 +58,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
         let hasRuntimeContainers = false;
 
         containers.forEach((container: IContainer) => {
+            // container node
             const treeItem: ITreeNodeItem = {
                 id: this.getRandId(),
                 name: container.name,
@@ -90,6 +91,8 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                 treeItem.parentId = pluginsGroup.id;
             }
             this.treeNodeItems.push(treeItem);
+
+            // terminal
             this.treeNodeItems.push({
                 id: this.getRandId(),
                 parentId: treeItem.id,
@@ -98,7 +101,13 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                 tooltip: `open a new terminal for ${container.name}`,
                 command: { id: 'terminal-in-specific-container:new', arguments: [container.name] }
             });
+
+            // commands
             if (container.commands && container.commands.length) {
+                if (!container.isDev) {
+                    // if there is a command in a plugin container, expand whole plugins containers group
+                    pluginsGroup.isExpanded = true;
+                }
                 container.commands.forEach((command: { commandName: string, commandLine: string }) => {
                     this.treeNodeItems.push({
                         id: this.getRandId(),
@@ -113,6 +122,8 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                     });
                 });
             }
+
+            // routes
             const serverKeys = container.servers ? Object.keys(container.servers) : [];
             if (serverKeys.length) {
                 serverKeys.forEach((serverName: string) => {
@@ -136,6 +147,8 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                     this.treeNodeItems.push(treeNodeItem);
                 });
             }
+
+            // environment
             const envKeys = container.env ? Object.keys(container.env) : [];
             if (envKeys.length) {
                 const envsId = this.getRandId();
@@ -156,6 +169,8 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                     });
                 });
             }
+
+            // volumes
             const volumesKeys = container.volumes ? Object.keys(container.volumes) : [];
             if (volumesKeys.length) {
                 const volumesId = this.getRandId();

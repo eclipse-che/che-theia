@@ -128,8 +128,8 @@ COPY --from=builder /home/theia-dev/theia-source-code/production/plugins /defaul
        done \
     && cat /etc/passwd | sed s#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g > ${HOME}/passwd.template \
     && cat /etc/group | sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g > ${HOME}/group.template \
-    # Add yeoman, theia plugin generator and typescript (to have tsc/typescript working)
-    && yarn global add ${YARN_FLAGS} yo @theia/generator-plugin@0.0.1-1562578105 typescript@2.9.2 \
+    # Add yeoman, theia plugin & VS Code generator and typescript (to have tsc/typescript working)
+    && yarn global add ${YARN_FLAGS} yo @theia/generator-plugin@0.0.1-1562578105 generator-code typescript@2.9.2 \
     && mkdir -p ${HOME}/.config/insight-nodejs/ \
     && chmod -R 777 ${HOME}/.config/ \
     # Disable the statistics for yeoman

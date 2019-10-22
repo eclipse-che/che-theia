@@ -9,7 +9,7 @@
  **********************************************************************/
 
 import * as path from 'path';
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import * as os from 'os';
 import * as theia from '@theia/plugin';
 import { che as cheApi } from '@eclipse-che/api';
@@ -39,7 +39,6 @@ export function buildProjectImportCommand(
     project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project,
     projectsRoot: string
 ): TheiaImportCommand | undefined {
-
     if (!project.source) {
         return;
     }
@@ -60,89 +59,119 @@ export function buildProjectImportCommand(
 
 export class TheiaGitCloneCommand implements TheiaImportCommand {
 
-    private locationURI: string | undefined;
-    private folder: string;
+    private projectName: string | undefined;
+    private locationURI: string;
+    private projectPath: string;
     private checkoutBranch?: string | undefined;
     private checkoutTag?: string | undefined;
     private checkoutStartPoint?: string | undefined;
     private checkoutCommitId?: string | undefined;
+    private sparseCheckoutDir: string | undefined;
     private projectsRoot: string;
 
     constructor(project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project, projectsRoot: string) {
         if (isDevfileProjectConfig(project)) {
             const source = project.source;
-            if (!source) {
-                return;
+            if (!source || !source.location) {
+                throw new Error('Source location is not defined for "' + this.projectName + '" project.');
             }
 
+            this.projectName = project.name;
             this.locationURI = source.location;
-            this.folder = project.clonePath ? path.join(projectsRoot, project.clonePath) : path.join(projectsRoot, project.name!);
+            this.projectPath = project.clonePath ? path.join(projectsRoot, project.clonePath) : path.join(projectsRoot, project.name!);
             this.checkoutBranch = source.branch;
             this.checkoutStartPoint = source.startPoint;
             this.checkoutTag = source.tag;
             this.checkoutCommitId = source.commitId;
+            this.sparseCheckoutDir = source.sparseCheckoutDir;
         } else {
             // legacy project config
             if (!project.source || !project.source.parameters) {
-                return;
+                throw new Error('Project with name "' + this.projectName + '" is not defined correctly.');
             }
             const parameters = project.source.parameters;
 
-            this.locationURI = project.source.location;
-            this.folder = projectsRoot + project.path;
+            this.projectName = project.name;
+            this.locationURI = project.source.location!;
+            this.projectPath = projectsRoot + project.path;
             this.checkoutBranch = parameters['branch'];
             this.checkoutStartPoint = parameters['startPoint'];
             this.checkoutTag = project.source.parameters['tag'];
             this.checkoutCommitId = project.source.parameters['commitId'];
+            this.sparseCheckoutDir = project.source.parameters['keepDir'];
         }
+
         this.projectsRoot = projectsRoot;
     }
 
     execute(): PromiseLike<void> {
-        if (!this.locationURI) {
-            return new Promise(() => { });
+        let cloneFunc: (progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken) => Promise<void>;
+        if (this.sparseCheckoutDir) {
+            // Sparse checkout
+            cloneFunc = this.gitSparseCheckout;
+        } else {
+            // Regular clone
+            cloneFunc = this.gitClone;
         }
-
-        const clone = async (progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken): Promise<void> => {
-            const args: string[] = ['clone', this.locationURI!, this.folder];
-            if (this.checkoutBranch) {
-                args.push('--branch');
-                args.push(this.checkoutBranch);
-            }
-
-            try {
-                await git.execGit(this.projectsRoot, ...args);
-                // Figure out what to reset to.
-                // The priority order is startPoint > tag > commitId
-
-                const treeish = this.checkoutStartPoint
-                    ? this.checkoutStartPoint
-                    : (this.checkoutTag ? this.checkoutTag : this.checkoutCommitId);
-
-                const branch = this.checkoutBranch ? this.checkoutBranch : 'default branch';
-                const messageStart = `Project ${this.locationURI} cloned to ${this.folder} and checked out ${branch}`;
-
-                if (treeish) {
-                    git.execGit(this.folder, 'reset', '--hard', treeish)
-                        .then(_ => {
-                            theia.window.showInformationMessage(`${messageStart} which has been reset to ${treeish}.`);
-                        }, e => {
-                            theia.window.showErrorMessage(`${messageStart} but resetting to ${treeish} failed with ${e.message}.`);
-                            console.log(`Couldn't reset to ${treeish} of ${this.folder} cloned from ${this.locationURI} and checked out to ${branch}.`, e);
-                        });
-                } else {
-                    theia.window.showInformationMessage(`${messageStart}.`);
-                }
-            } catch (e) {
-                theia.window.showErrorMessage(`Couldn't clone ${this.locationURI}: ${e.message}`);
-                console.log(`Couldn't clone ${this.locationURI}`, e);
-            }
-        };
 
         return theia.window.withProgress({
             location: theia.ProgressLocation.Notification,
             title: `Cloning ${this.locationURI} ...`
-        }, (progress, token) => clone(progress, token));
+        }, (progress, token) => cloneFunc.call(this, progress, token));
+    }
+
+    // Clones git repository
+    private async gitClone(progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken): Promise<void> {
+        const args: string[] = ['clone', this.locationURI, this.projectPath];
+        if (this.checkoutBranch) {
+            args.push('--branch');
+            args.push(this.checkoutBranch);
+        }
+
+        try {
+            await git.execGit(this.projectsRoot, ...args);
+            // Figure out what to reset to.
+            // The priority order is startPoint > tag > commitId
+
+            const treeish = this.checkoutStartPoint
+                ? this.checkoutStartPoint
+                : (this.checkoutTag ? this.checkoutTag : this.checkoutCommitId);
+
+            const branch = this.checkoutBranch ? this.checkoutBranch : 'default branch';
+            const messageStart = `Project ${this.locationURI} cloned to ${this.projectPath} and checked out ${branch}`;
+
+            if (treeish) {
+                git.execGit(this.projectPath, 'reset', '--hard', treeish)
+                    .then(_ => {
+                        theia.window.showInformationMessage(`${messageStart} which has been reset to ${treeish}.`);
+                    }, e => {
+                        theia.window.showErrorMessage(`${messageStart} but resetting to ${treeish} failed with ${e.message}.`);
+                        console.log(`Couldn't reset to ${treeish} of ${this.projectPath} cloned from ${this.locationURI} and checked out to ${branch}.`, e);
+                    });
+            } else {
+                theia.window.showInformationMessage(`${messageStart}.`);
+            }
+        } catch (e) {
+            theia.window.showErrorMessage(`Couldn't clone ${this.locationURI}: ${e.message}`);
+            console.log(`Couldn't clone ${this.locationURI}`, e);
+        }
+    }
+
+    // Gets only specified directory from given repository
+    private async gitSparseCheckout(progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken): Promise<void> {
+        if (!this.sparseCheckoutDir) {
+            throw new Error('Parameter "sparseCheckoutDir" is not set for "' + this.projectName + '" project.');
+        }
+
+        const commitReference = this.checkoutStartPoint ? this.checkoutStartPoint :
+            this.checkoutTag ? this.checkoutTag :
+                this.checkoutCommitId ? this.checkoutCommitId :
+                    this.checkoutBranch ? this.checkoutBranch : 'master';
+        await fs.ensureDir(this.projectPath);
+
+        await git.sparseCheckout(this.projectPath, this.locationURI, this.sparseCheckoutDir, commitReference);
+
+        theia.window.showInformationMessage(`Directory ${this.sparseCheckoutDir} of ${this.locationURI} was cloned to ${this.projectPath}.`);
     }
 
 }
