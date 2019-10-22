@@ -54,7 +54,7 @@ cd ${HOME}
 [ -f "/before-start.sh" ] && . "/before-start.sh"
 
 # run theia endpoint
-node --inspect-brk /home/theia/lib/node/plugin-remote.js &
+node --inspect-brk=0.0.0.0:9229 /home/theia/lib/node/plugin-remote.js &
 
 PID=$!
 
