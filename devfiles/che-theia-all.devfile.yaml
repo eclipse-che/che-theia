@@ -46,7 +46,7 @@ components:
 
   - type: cheEditor
     alias: theia-editor
-    id: eclipse/che-theia/7.0.0-rc-3.0
+    id: eclipse/che-theia/next
     memoryLimit: "1Gi"
 commands:
 

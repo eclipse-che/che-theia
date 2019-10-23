@@ -20,3 +20,4 @@ asset-*
 .idea
 che-editor-plugin.tar.gz
 inner-theia
+.git-che-theia-sha1

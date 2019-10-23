@@ -272,4 +272,28 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         }
     }
 
+    dispose(): void {
+        if (!this.closeOnDispose || !this.options.attributes || !this.options.attributes.interruptProcessOnClose) {
+            super.dispose();
+            return;
+        }
+
+        this.interruptProcess().then(() => {
+            super.dispose();
+        });
+    }
+
+    private async interruptProcess(): Promise<void> {
+        try {
+            const termId = await this.termServer!.check({ id: this.terminalId });
+            if (!IBaseTerminalServer.validateId(termId)) {
+                return;
+            }
+
+            if (this.waitForRemoteConnection) {
+                const socket = await this.waitForRemoteConnection.promise;
+                socket.send('\x03');
+            }
+        } catch (error) { }
+    }
 }
