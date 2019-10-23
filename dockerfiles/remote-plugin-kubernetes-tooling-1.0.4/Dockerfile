@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG} as endpoint
-FROM quay.io/buildah/stable:v1.11.3
+FROM quay.io/buildah/stable:v1.11.2
 
 ENV KUBECTL_VERSION v1.16.1
 ENV HELM_VERSION v2.14.3
