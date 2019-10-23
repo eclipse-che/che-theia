@@ -59,43 +59,44 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
 
         containers.forEach((container: IContainer) => {
             // container node
-            const treeItem: ITreeNodeItem = {
+            const containerNode: ITreeNodeItem = {
                 id: this.getRandId(),
                 name: container.name,
-                tooltip: 'container name',
-                isExpanded: true
+                tooltip: 'container name'
             };
             switch (container.status) {
                 case 'STARTING':
-                    treeItem.iconPath = 'fa-circle medium-yellow';
-                    treeItem.tooltip = 'container is STARTING';
+                    containerNode.iconPath = 'fa-circle medium-yellow';
+                    containerNode.tooltip = 'container is STARTING';
                     break;
                 case 'RUNNING':
-                    treeItem.iconPath = 'fa-circle medium-green';
-                    treeItem.tooltip = 'container is RUNNING';
+                    containerNode.iconPath = 'fa-circle medium-green';
+                    containerNode.tooltip = 'container is RUNNING';
                     break;
                 case 'FAILED':
-                    treeItem.iconPath = 'fa-circle medium-red';
-                    treeItem.tooltip = 'container is FAILED';
+                    containerNode.iconPath = 'fa-circle medium-red';
+                    containerNode.tooltip = 'container is FAILED';
                     break;
                 default:
-                    treeItem.iconPath = 'fa-circle-o';
+                    containerNode.iconPath = 'fa-circle-o';
             }
             if (container.isDev) {
                 hasRuntimeContainers = true;
-                treeItem.tooltip = 'dev ' + treeItem.tooltip;
-                treeItem.parentId = runtimesGroup.id;
+                containerNode.tooltip = 'dev ' + containerNode.tooltip;
+                containerNode.parentId = runtimesGroup.id;
+                containerNode.isExpanded = true;
             } else {
                 hasPlugin = true;
-                treeItem.tooltip = 'che-plugin ' + treeItem.tooltip;
-                treeItem.parentId = pluginsGroup.id;
+                containerNode.tooltip = 'che-plugin ' + containerNode.tooltip;
+                containerNode.parentId = pluginsGroup.id;
+                containerNode.isExpanded = false;
             }
-            this.treeNodeItems.push(treeItem);
+            this.treeNodeItems.push(containerNode);
 
             // terminal
             this.treeNodeItems.push({
                 id: this.getRandId(),
-                parentId: treeItem.id,
+                parentId: containerNode.id,
                 name: 'New terminal',
                 iconPath: 'fa-terminal medium-yellow',
                 tooltip: `open a new terminal for ${container.name}`,
@@ -107,11 +108,13 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                 if (!container.isDev) {
                     // if there is a command in a plugin container, expand whole plugins containers group
                     pluginsGroup.isExpanded = true;
+                    // if there is a command defined for this plugin container, show its items by default
+                    containerNode.isExpanded = true;
                 }
                 container.commands.forEach((command: { commandName: string, commandLine: string }) => {
                     this.treeNodeItems.push({
                         id: this.getRandId(),
-                        parentId: treeItem.id,
+                        parentId: containerNode.id,
                         name: command.commandName,
                         tooltip: command.commandLine,
                         iconPath: 'fa-cogs medium-yellow',
@@ -133,7 +136,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                     }
                     const treeNodeItem: ITreeNodeItem = {
                         id: this.getRandId(),
-                        parentId: treeItem.id,
+                        parentId: containerNode.id,
                         name: serverName,
                         iconPath: 'fa-info-circle medium-blue',
                         tooltip: server.url ? server.url : 'endpoint'
@@ -154,7 +157,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                 const envsId = this.getRandId();
                 this.treeNodeItems.push({
                     id: envsId,
-                    parentId: treeItem.id,
+                    parentId: containerNode.id,
                     name: 'env',
                     tooltip: 'environment variables',
                     isExpanded: false
@@ -176,7 +179,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                 const volumesId = this.getRandId();
                 this.treeNodeItems.push({
                     id: volumesId,
-                    parentId: treeItem.id,
+                    parentId: containerNode.id,
                     name: 'volumes',
                     tooltip: 'volumes',
                     isExpanded: false
