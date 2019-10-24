@@ -18,14 +18,11 @@ ENV GLIBC_VERSION=2.30-r0 \
 
 ENV HOME=/home/theia
 
-RUN mkdir /projects && mkdir /home/theia \
-    # Store passwd/group as template files
-    && cat /etc/passwd | sed s#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/sh#g > ${HOME}/passwd.template \
-    && cat /etc/group | sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g > ${HOME}/group.template \
+RUN mkdir /projects ${HOME} && \
     # Change permissions to let any arbitrary user
-    && for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
-        echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
-        chmod -R g+rwX ${f}; \
+    for f in "${HOME}" "/etc/passwd" "/projects"; do \
+      echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+      chmod -R g+rwX ${f}; \
     done
 
 # the plugin executes the commands relying on Bash
@@ -40,5 +37,7 @@ RUN dnf install -y bash wget && \
     chmod +x /usr/local/bin/kubectl
 
 # ODO doesn't work without fixing user id
-ADD entrypoint.sh entrypoint.sh
+ADD etc/entrypoint.sh entrypoint.sh
+
 ENTRYPOINT [ "/entrypoint.sh" ]
+CMD ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}

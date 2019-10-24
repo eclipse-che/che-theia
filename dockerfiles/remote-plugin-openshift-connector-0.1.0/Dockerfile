@@ -12,14 +12,11 @@ FROM alpine:3.10.2
 
 ENV HOME=/home/theia
 
-RUN mkdir /projects && mkdir /home/theia \
-    # Store passwd/group as template files
-    && cat /etc/passwd | sed s#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/sh#g > ${HOME}/passwd.template \
-    && cat /etc/group | sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g > ${HOME}/group.template \
+RUN mkdir /projects ${HOME} && \
     # Change permissions to let any arbitrary user
-    && for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
-        echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
-        chmod -R g+rwX ${f}; \
+    for f in "${HOME}" "/etc/passwd" "/projects"; do \
+      echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+      chmod -R g+rwX ${f}; \
     done
 
 ENV GLIBC_VERSION=2.30-r0 \
@@ -44,6 +41,7 @@ RUN apk add --update --no-cache bash && \
     wget -O /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl && \
     chmod +x /usr/local/bin/kubectl
 
-ADD entrypoint.sh entrypoint.sh
+ADD etc/entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT [ "/entrypoint.sh" ]
+CMD ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}

@@ -12,6 +12,13 @@ FROM python:3.7.4-slim
 
 ENV HOME=/home/theia
 
+RUN mkdir /projects ${HOME} && \
+    # Change permissions to let any arbitrary user
+    for f in "${HOME}" "/etc/passwd" "/projects"; do \
+      echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+      chmod -R g+rwX ${f}; \
+    done
+
 RUN apt-get update && \
     apt-get install wget -y && \
 	wget -O - https://deb.nodesource.com/setup_10.x | bash - && \
@@ -20,11 +27,6 @@ RUN apt-get update && \
 	apt-get clean && apt-get -y autoremove && rm -rf /var/lib/apt/lists/* && \
     pip install pylint python-language-server[all] ptvsd 'jedi<0.15,>=0.14.1'
 
-RUN mkdir -p ${HOME} /projects \
-    # Change permissions to let any arbitrary user
-    && for f in "${HOME}" "/projects"; do \
-        echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
-        chmod -R g+rwX ${f}; \
-    done
-
-RUN chmod -R 777 ${HOME}
+ADD etc/entrypoint.sh /entrypoint.sh
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}

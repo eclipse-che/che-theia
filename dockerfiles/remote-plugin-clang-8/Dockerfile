@@ -25,5 +25,14 @@ RUN apt-get update && \
     update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-8 100 && \
     update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-8 100
 
-RUN mkdir ${HOME} && \
-    chmod -R 777 ${HOME}
+RUN mkdir /projects ${HOME} && \
+    # Change permissions to let any arbitrary user
+    for f in "${HOME}" "/etc/passwd" "/projects"; do \
+      echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+      chmod -R g+rwX ${f}; \
+    done
+
+ADD etc/entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}

@@ -12,6 +12,14 @@ FROM alpine:3.10.2
 
 ENV KUBECTL_VERSION v1.14.0
 ENV HELM_VERSION v2.13.1
+ENV HOME=/home/theia
+
+RUN mkdir /projects ${HOME} && \
+    # Change permissions to let any arbitrary user
+    for f in "${HOME}" "/etc/passwd" "/projects"; do \
+      echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+      chmod -R g+rwX ${f}; \
+    done
 
 RUN apk add --update --no-cache ca-certificates && \
     wget -q https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl -O /usr/local/bin/kubectl && \
@@ -19,11 +27,7 @@ RUN apk add --update --no-cache ca-certificates && \
     wget -O- https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz | tar xvz -C /usr/local/bin --strip 1 && \
     helm init --client-only
 
-ENV HOME=/home/theia
+ADD etc/entrypoint.sh /entrypoint.sh
 
-RUN mkdir /home/theia /projects \
-    # Change permissions to let any arbitrary user
-    && for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
-        echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
-        chmod -R g+rwX ${f}; \
-    done
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}

@@ -8,10 +8,10 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM quay.io/buildah/stable:v1.9.0
+FROM quay.io/buildah/stable:v1.11.3
 
-ENV KUBECTL_VERSION v1.14.1
-ENV HELM_VERSION v2.13.1
+ENV KUBECTL_VERSION v1.16.1
+ENV HELM_VERSION v2.14.3
 ENV HOME=/home/theia
 
 RUN mkdir /projects ${HOME} && \
@@ -20,8 +20,6 @@ RUN mkdir /projects ${HOME} && \
       echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
       chmod -R g+rwX ${f}; \
     done
-
-ADD etc/docker.sh /usr/local/bin/docker
 
 RUN curl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl && \
     chmod +x /usr/local/bin/kubectl && \

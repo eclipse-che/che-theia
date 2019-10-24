@@ -14,56 +14,17 @@
 export USER_ID=$(id -u)
 export GROUP_ID=$(id -g)
 
-# Ensure $HOME exists when starting
-if [ ! -d "${HOME}" ]; then
-  mkdir -p "${HOME}"
-fi
 
-# Setup $PS1 for a consistent and reasonable prompt
-if [ -w "${HOME}" ] && [ ! -f "${HOME}"/.bashrc ]; then
-  echo "PS1='\s-\v \w \$ '" > "${HOME}"/.bashrc
-fi
-
-# Add current (arbitrary) user to /etc/passwd
+# Add current (arbitrary) user `theia` to /etc/passwd
 if ! whoami &> /dev/null; then
-  if [ -w /etc/passwd ]; then
-    echo "${USER_NAME:-user}:x:$(id -u):0:${USER_NAME:-user} user:${HOME}:/bin/sh" >> /etc/passwd
-  fi
+  echo "${USER_NAME:-theia}:x:${USER_ID}:0:${USER_NAME:-theia}:${HOME}:/bin/sh" >> /etc/passwd
 fi
 
 # Grant access to projects volume in case of non root user with sudo rights
-if [ "$(id -u)" -ne 0 ] && command -v sudo >/dev/null 2>&1 && sudo -n true > /dev/null 2>&1; then
-    sudo chown ${USER_ID}:${GROUP_ID} /projects
+if [ "${USER_ID}" -ne 0 ] && command -v sudo >/dev/null 2>&1 && sudo -n true > /dev/null 2>&1; then
+    sudo chown "${USER_ID}:${GROUP_ID}" /projects
 fi
-
-# SITTERM / SIGINT
-responsible_shutdown() {
-  echo ""
-  echo "Received SIGTERM"
-  kill -INT ${PID}
-  wait ${PID}
-  exit;
-}
-
-set -e
-
-# setup handlers
-# on callback, kill the last background process, which is `tail -f /dev/null` and execute the specified handler
-trap 'responsible_shutdown' HUP TERM INT
 
 [ -f "/before-start.sh" ] && . "/before-start.sh"
 
-${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
-
-PID=$!
-
-# See: http://veithen.github.io/2014/11/16/sigterm-propagation.html
-wait ${PID}
-wait ${PID}
-EXIT_STATUS=$?
-
-# wait forever
-while true
-do
-  tail -f /dev/null & wait ${!}
-done
+exec "$@"

@@ -14,11 +14,11 @@ ENV KUBECTL_VERSION v1.16.1
 ENV HELM_VERSION v2.14.3
 ENV HOME=/home/theia
 
-RUN mkdir /home/theia /projects \
+RUN mkdir /projects ${HOME} && \
     # Change permissions to let any arbitrary user
-    && for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
-        echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
-        chmod -R g+rwX ${f}; \
+    for f in "${HOME}" "/etc/passwd" "/projects"; do \
+      echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+      chmod -R g+rwX ${f}; \
     done
 
 RUN curl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl && \
@@ -28,3 +28,8 @@ RUN curl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VER
     helm init --client-only && \
     # 'which' utility is used by VS Code Kubernetes extension to find the binaries, e.g. 'kubectl'
     dnf install -y which nodejs
+
+ADD etc/entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
