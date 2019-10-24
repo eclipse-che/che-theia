@@ -43,6 +43,10 @@ declare module '@eclipse-che/plugin' {
         export function createWorkspace(devfilePath: string): Promise<void>;
     }
 
+    export namespace github {
+        export function uploadPublicSshKey(publicKey: string): Promise<void>;
+    }
+
     export namespace ssh {
         export function generate(service: string, name: string): Promise<cheApi.ssh.SshPair>;
 
