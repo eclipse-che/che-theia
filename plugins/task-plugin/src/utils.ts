@@ -16,6 +16,20 @@ import { FormattingOptions, ParseError, JSONPath } from 'jsonc-parser';
 
 const fs = require('fs');
 
+/** Allows to get attribute by given name, returns `undefined` if attribute is not found */
+export function getAttribute(attributeName: string, attributes?: { [key: string]: string; }): string | undefined {
+    if (!attributes) {
+        return undefined;
+    }
+
+    for (const attribute in attributes) {
+        if (attribute === attributeName) {
+            return attributes[attribute];
+        }
+    }
+    return undefined;
+}
+
 /**
  * Apply segments to the url endpoint, where are:
  * @param endPointUrl - url endpoint, for example 'http://ws:/some-server/api'

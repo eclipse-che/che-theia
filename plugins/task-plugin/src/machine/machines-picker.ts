@@ -12,7 +12,8 @@ import { injectable, inject } from 'inversify';
 import * as theia from '@theia/plugin';
 import { CheWorkspaceClient } from '../che-workspace-client';
 
-const MACHINES_PLACE_HOLDER = 'Pick a machine to run the task';
+const CONTAINERS_PLACE_HOLDER = 'Pick a container to run the task';
+export const COMPONENT_ATTRIBUTE: string = 'component';
 
 @injectable()
 export class MachinesPicker {
@@ -21,42 +22,26 @@ export class MachinesPicker {
     protected readonly cheWorkspaceClient!: CheWorkspaceClient;
 
     /**
-     * Returns a machine name if there's just one machine in the current workspace.
-     * Shows a quick open widget allows to pick a machine if there are several ones.
+     * Returns a container name if there's just one container in the current workspace.
+     * Shows a quick open widget and allows to pick a container if there are several ones.
+     * @param containerNames containers for displaying in quick open widget,
+     *        all containers of the current workspace will be displayed if the optional parameter is absent
      */
-    async pick(): Promise<string> {
-        const machines = await this.getMachines();
-        if (machines.length === 1) {
-            return Promise.resolve(machines[0]);
+    async pick(containerNames?: string[]): Promise<string> {
+        if (!containerNames) {
+            containerNames = await this.cheWorkspaceClient.getContainersNames();
         }
 
-        const items: string[] = [];
-        for (const machineName of machines) {
-            items.push(machineName);
+        if (containerNames.length === 1) {
+            return Promise.resolve(containerNames[0]);
         }
-
-        return this.showMachineQuickPick(items);
-    }
-
-    protected async getMachines(): Promise<string[]> {
-        const machineNames: string[] = [];
-        const machines = await this.cheWorkspaceClient.getMachines();
-        if (!machines) {
-            return machineNames;
-        }
-
-        for (const machineName in machines) {
-            if (machines.hasOwnProperty(machineName)) {
-                machineNames.push(machineName);
-            }
-        }
-        return machineNames;
+        return this.showMachineQuickPick(containerNames);
     }
 
     private showMachineQuickPick(items: string[]): Promise<string> {
         return new Promise<string>(resolve => {
 
-            const options = { placeHolder: MACHINES_PLACE_HOLDER } as theia.QuickPickOptions;
+            const options = { placeHolder: CONTAINERS_PLACE_HOLDER } as theia.QuickPickOptions;
             options.onDidSelectItem = (item => {
                 const machineName = typeof item === 'string' ? item : item.label;
                 resolve(machineName);
