@@ -60,18 +60,9 @@ pipeline {
                             nodejs('nodejs-10.15.3') {
                                 script {
                                     sh """
-                                      set -ex
-
                                       # CRW-344, work around "unable to get local issuer certificate" error
-                                      sleep 100000
-                                      rm /home/hudson/.npmrc || true
-                                      rm /home/hudson/.yarnrc || true
-
-                                      docker image ls
-
-                                      # CRW-344, work around "unable to get local issuer certificate" error
-                                      rm /home/hudson/.npmrc
-                                      rm /home/hudson/.yarnrc
+                                      rm -rf /home/hudson/.npmrc || true
+                                      rm -rf /home/hudson/.yarnrc || true
 
                                       export GITHUB_TOKEN=${github_token}
                                       ${WORKSPACE}/build.sh --skip-tests --dockerfile:Dockerfile.alpine
