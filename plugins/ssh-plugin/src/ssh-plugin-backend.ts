@@ -9,6 +9,7 @@
  **********************************************************************/
 
 import * as theia from '@theia/plugin';
+import * as che from '@eclipse-che/plugin';
 import { RemoteSshKeyManager, SshKeyManager } from './node/ssh-key-manager';
 import { che as cheApi } from '@eclipse-che/api';
 import { resolve } from 'path';
@@ -16,6 +17,98 @@ import { pathExists, unlink, ensureFile, chmod, readFile, writeFile, appendFile 
 import * as os from 'os';
 
 export async function start() {
+
+    let gitLogHandlerInitialized: boolean;
+    /* Git log handler, listens to Git events, catches the clone and push events.
+    Asks to Upload a public SSH key if needed before these operations.
+    Authenticates to Github if needed. */
+    const onChange = () => {
+        // Get the vscode Git plugin if the plugin is started.
+        const gitExtension = theia.plugins.getPlugin('vscode.git');
+        if (!gitLogHandlerInitialized && gitExtension && gitExtension.exports) {
+            // Set the initialized flag to true state, to not to initialize the handler again on plugin change event.
+            gitLogHandlerInitialized = true;
+            // tslint:disable-next-line:no-any
+            const git: any = gitExtension.exports._model.git;
+            let command: string;
+            let url: string;
+            let path: string;
+            const listener = async (out: string) => {
+                // Parse Git log events.
+                const split = out.split(' ');
+                if (out.startsWith('> git clone') || out.startsWith('> git push')) {
+                    command = split[2];
+                    url = split[3];
+                    path = split[4];
+                    // Catch the remote access error.
+                } else if (out.indexOf('Permission denied (publickey).') > -1) {
+                    let keys: cheApi.ssh.SshPair[] = [];
+                    try {
+                        keys = await getKeys(sshKeyManager);
+                    } catch (e) {
+                        // No SSH key pair has been defined, do nothing.
+                    }
+                    // If the remote repository is a GitHub repository, ask to upload a public SSH key.
+                    if (out.indexOf('git@github.com') > -1) {
+                        // Currently multi-user che-theia doesn't support GiHub oAuth.
+                        if (isMultiUser()) {
+                            showWarningMessage(keys.length === 0, 'GitHub');
+                            return;
+                        }
+                        switch (command) {
+                            case 'clone': {
+                                if (await askToGenerateIfEmptyAndUploadKeyToGithub(keys, true)) {
+                                    await git.clone(url, path.substring(0, path.lastIndexOf('/')));
+                                    theia.window.showInformationMessage(`Project ${url} successfully cloned to ${path}`);
+                                }
+                                break;
+                            }
+                            case 'push': {
+                                if (await askToGenerateIfEmptyAndUploadKeyToGithub(keys, false)) {
+                                    theia.window.showInformationMessage('The public SSH key has been uploaded to Github, please try to push again.');
+                                }
+                                break;
+                            }
+                        }
+                        // If the remote repository is not a GitHub repository, show a proposal to manually add a public SSH key to related Git provider.
+                    } else {
+                        showWarningMessage(keys.length === 0);
+                    }
+                }
+            };
+            // Set the git log listener.
+            git.onOutput.addListener('log', listener);
+        }
+    };
+
+    const isMultiUser = (): boolean => !!process.env['KEYCLOAK_SERVICE_HOST'];
+
+    const showWarningMessage = (showGenerate: boolean, gitProviderName?: string) =>
+        theia.window.showWarningMessage(`Permission denied, please ${showGenerate ? 'generate (F1 => ' + GENERATE.label + ') and ' : ''}
+        upload your public SSH key to ${gitProviderName ? gitProviderName : 'the Git provider'} and try again. To get the public key press F1 => ${VIEW.label}`);
+
+    theia.plugins.onDidChange(onChange);
+
+    const askToGenerateIfEmptyAndUploadKeyToGithub = async (keys: cheApi.ssh.SshPair[], tryAgain: boolean): Promise<boolean> => {
+        let key = keys.find(k => !!k.publicKey && !!k.name && (k.name.startsWith('github.com') || k.name.startsWith('default-')));
+        const message = `Permission denied, would you like to ${!key ? 'generate and ' : ''}upload the public SSH key to GitHub${tryAgain ? ' and try again' : ''}?`;
+        const action = await theia.window.showWarningMessage(message, key ? 'Upload' : 'Generate and upload');
+        if (action) {
+            if (!key) {
+                key = await sshKeyManager.generate('vcs', 'github.com');
+                await updateConfig('github.com');
+                await writeKey('github.com', key.privateKey!);
+            }
+            if (key && key.publicKey) {
+                await che.github.uploadPublicSshKey(key.publicKey);
+                return true;
+            }
+            return false;
+        } else {
+            return false;
+        }
+    };
+
     const sshKeyManager = new RemoteSshKeyManager();
     const GENERATE_FOR_HOST: theia.CommandDescription = {
         id: 'ssh:generate_for_host',

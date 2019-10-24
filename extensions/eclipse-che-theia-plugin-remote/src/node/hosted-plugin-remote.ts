@@ -25,7 +25,7 @@ type PromiseResolver = (value?: Buffer) => void;
 @injectable()
 export class HostedPluginRemote {
 
-    private client: HostedPluginClient;
+    private client: HostedPluginClient | undefined;
 
     @inject(ILogger)
     protected readonly logger: ILogger;
@@ -160,7 +160,9 @@ export class HostedPluginRemote {
                 const entryName = getPluginId(deployedPlugin.metadata.model);
                 if (!this.hostedPluginMapping.getPluginsEndPoints().has(entryName)) {
                     this.hostedPluginMapping.getPluginsEndPoints().set(entryName, jsonMessage.endpointName);
-                    this.client.onDidDeploy();
+                    if (this.client) {
+                        this.client.onDidDeploy();
+                    }
                 }
             });
             return;

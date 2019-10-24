@@ -171,7 +171,7 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
 
         await git.sparseCheckout(this.projectPath, this.locationURI, this.sparseCheckoutDir, commitReference);
 
-        theia.window.showInformationMessage(`Directory ${this.sparseCheckoutDir} of ${this.locationURI} was cloned to ${this.projectPath}.`);
+        theia.window.showInformationMessage(`Sources by template ${this.sparseCheckoutDir} of ${this.locationURI} was cloned to ${this.projectPath}.`);
     }
 
 }

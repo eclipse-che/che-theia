@@ -14,14 +14,15 @@ ENV KUBECTL_VERSION v1.16.1
 ENV HELM_VERSION v2.14.3
 ENV HOME=/home/theia
 
+ADD etc/storage.conf $HOME/.config/containers/storage.conf
+
 RUN mkdir /projects ${HOME} && \
     # Change permissions to let any arbitrary user
     for f in "${HOME}" "/etc/passwd" "/projects"; do \
       echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
       chmod -R g+rwX ${f}; \
-    done
-
-RUN curl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl && \
+    done \
+    && curl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl && \
     chmod +x /usr/local/bin/kubectl && \
     curl -o- -L https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz | tar xvz -C /usr/local/bin --strip 1 && \
     # set up local Helm configuration skipping Tiller installation

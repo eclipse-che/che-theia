@@ -76,21 +76,19 @@ export class PreviewUrlsWidget {
     }
 
     private async renderPreviews(): Promise<Array<string>> {
-        return await Promise.all(
-            this.options.tasks.map(
-                async (cheTask: theia.Task) => {
-                    const previewUrl = cheTask.definition.previewUrl;
-                    const url = await this.previewUrlOpenService.resolve(previewUrl);
+        const previews = [];
+        for (const cheTask of this.options.tasks) {
+            const previewUrl = cheTask.definition.previewUrl;
+            const url = await this.previewUrlOpenService.resolve(previewUrl);
 
-                    const server = `<a class="task-link" href="${url}" target="_blank">${url}</a>`;
-                    const taskLabel = `<label>${cheTask.name}</label>`;
-                    const previewButton = `<button class='button' type="button" onclick="preview('${INTERNALLY_CHOICE}', '${url}')">${PREVIEW_BUTTON_NAME}</button>`;
-                    const goToButton = `<button class='button' type="button" onclick="preview('${EXTERNALLY_CHOICE}', '${url}')">${GO_TO_BUTTON_NAME}</button>`;
+            const server = `<a class="task-link" href="${url}" target="_blank">${url}</a>`;
+            const taskLabel = `<label>${cheTask.name}</label>`;
+            const previewButton = `<button class='button' type="button" onclick="preview('${INTERNALLY_CHOICE}', '${url}')">${PREVIEW_BUTTON_NAME}</button>`;
+            const goToButton = `<button class='button' type="button" onclick="preview('${EXTERNALLY_CHOICE}', '${url}')">${GO_TO_BUTTON_NAME}</button>`;
 
-                    return this.renderTemplate(server, taskLabel, previewButton, goToButton);
-                }
-            )
-        );
+            previews.push(this.renderTemplate(server, taskLabel, previewButton, goToButton));
+        }
+        return previews;
     }
 
     private renderTemplate(server: string, taskLabel: string, previewButton: string, goToButton: string) {

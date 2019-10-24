@@ -21,6 +21,7 @@ import { CheTaskImpl } from './che-task-impl';
 import { CheSshImpl } from './che-ssh';
 import { CheUserImpl } from './che-user';
 import { CheProductImpl } from './che-product';
+import { CheGithubImpl } from './che-github';
 
 export interface CheApiFactory {
     (plugin: Plugin): typeof che;
@@ -33,6 +34,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
     const cheVariablesImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_VARIABLES, new CheVariablesImpl(rpc));
     const cheTaskImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_TASK, new CheTaskImpl(rpc));
     const cheSshImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_SSH, new CheSshImpl(rpc));
+    const cheGithubImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_GITHUB, new CheGithubImpl(rpc));
     const cheUserImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_USER, new CheUserImpl(rpc));
     const cheProductImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_PRODUCT, new CheProductImpl(rpc));
 
@@ -97,6 +99,12 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             },
             resolve(value: string): Promise<string | undefined> {
                 return cheVariablesImpl.resolve(value);
+            }
+        };
+
+        const github: typeof che.github = {
+            uploadPublicSshKey(publicKey: string): Promise<void> {
+                return cheGithubImpl.uploadPublicSshKey(publicKey);
             }
         };
 
@@ -169,7 +177,8 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             task,
             ssh,
             user,
-            product
+            product,
+            github
         };
     };
 

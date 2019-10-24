@@ -70,6 +70,7 @@ export class CheTaskRunner {
                 attributes: {
                     CHE_MACHINE_NAME: containerName,
                     closeWidgetExitOrError: 'false',
+                    interruptProcessOnClose: 'true'
                 }
             };
             const terminal = theia.window.createTerminal(terminalOptions);
@@ -90,6 +91,17 @@ export class CheTaskRunner {
 
     /** Terminates a task based on the given info. */
     async kill(taskInfo: che.TaskInfo): Promise<void> {
-        throw new Error('Stopping a Che task currently is not supported.');
+        for (const terminal of theia.window.terminals) {
+            try {
+                const processId = await terminal.processId;
+                if (processId === taskInfo.execId) {
+                    terminal.sendText('\x03');
+                    return;
+                }
+            } catch (e) {
+                // allow to get process id for other terminals
+            }
+        }
+        throw new Error(`Failed to terminate Che command: ${taskInfo.config.label}: the corresponging terminal is not found`);
     }
 }

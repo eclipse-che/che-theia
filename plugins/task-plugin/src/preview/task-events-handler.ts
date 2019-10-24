@@ -59,23 +59,25 @@ export class CheTaskEventsHandler {
 
         await this.tasksPreviewManager.onTaskStarted(task);
 
+        const url = await this.previewUrlOpenService.resolve(previewUrl) || previewUrl;
+
         const mode = this.taskPreviewMode.get();
         switch (mode) {
             case PreviewMode.AlwaysGoTo: {
-                this.previewUrlOpenService.previewExternally(previewUrl);
+                this.previewUrlOpenService.previewExternally(url);
                 break;
             }
             case PreviewMode.AlwaysPreview: {
-                this.previewUrlOpenService.previewInternally(previewUrl);
+                this.previewUrlOpenService.previewInternally(url);
                 break;
             }
             case PreviewMode.Off: {
                 break;
             }
             default: {
-                const url = await this.previewUrlOpenService.resolve(previewUrl);
+
                 const message = `Task ${task.name} launched a service on ${url}`;
-                this.askUser(message, url || previewUrl);
+                this.askUser(message, url);
                 break;
             }
         }

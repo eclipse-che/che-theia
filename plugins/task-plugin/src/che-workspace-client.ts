@@ -17,6 +17,12 @@ const TERMINAL_SERVER_TYPE = 'terminal';
 @injectable()
 export class CheWorkspaceClient {
 
+    /** Returns 'key -> url' map of links for the current workspace. */
+    async getLinks(): Promise<{ [key: string]: string } | undefined> {
+        const workspace = await this.getCurrentWorkspace();
+        return workspace.links;
+    }
+
     async getMachines(): Promise<{ [attrName: string]: cheApi.workspace.Machine }> {
         const workspace = await this.getCurrentWorkspace();
         const runtime = workspace.runtime;
