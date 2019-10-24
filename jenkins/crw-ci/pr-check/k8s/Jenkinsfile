@@ -60,6 +60,10 @@ pipeline {
                             nodejs('nodejs-10.15.3') {
                                 script {
                                     sh """
+                                      # CRW-344, work around "unable to get local issuer certificate" error
+                                      rm /home/hudson/.npmrc || true
+                                      rm /home/hudson/.yarnrc || true
+
                                       docker image ls
 
                                       # CRW-344, work around "unable to get local issuer certificate" error
@@ -224,8 +228,8 @@ pipeline {
                         script {
                             sh """
                             docker image ls
-                            docker tag eclipse/che-remote-plugin-kubernetes-tooling-1.0.0:next maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
-                            docker push maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
+                            docker tag eclipse/che-remote-plugin-kubernetes-tooling-1.0.4:next maxura/che-remote-plugin-kubernetes-tooling-1.0.4:${ghprbPullId}
+                            docker push maxura/che-remote-plugin-kubernetes-tooling-1.0.4:${ghprbPullId}
                             """
                         }
                     }
@@ -252,7 +256,7 @@ pipeline {
                                     ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/java8_meta.yaml spec.containers[0].image maxura/che-remote-plugin-runner-java8:${ghprbPullId}
 
                                     wget $VSCODE_KUBERNETES_TOOLS_META_YAML_URL -O $PR_CHECK_FILES_DIR/vscode_kubernetes_tools_meta.yaml
-                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_kubernetes_tools_meta.yaml spec.containers[0].image maxura/che-remote-plugin-kubernetes-tooling-1.0.0:${ghprbPullId}
+                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_kubernetes_tools_meta.yaml spec.containers[0].image maxura/che-remote-plugin-kubernetes-tooling-1.0.4:${ghprbPullId}
                                     
                                     # patch che/e2e/files/happy-path/happy-path-workspace.yaml
                                     sed -i "s|id: eclipse/che-theia-endpoint-runtime/next|alias: che-theia-endpoint-runtime\\n    reference: $PR_CHECK_FILES_GITHUB_URL/che_theia_meta.yaml|" ${DEVFILE_URL}
