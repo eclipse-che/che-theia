@@ -23,6 +23,23 @@ export class CheWorkspaceClient {
         return workspace.links;
     }
 
+    /** Returns array of containers' names for the current workspace. */
+    async getContainersNames(): Promise<string[]> {
+        const containerNames: string[] = [];
+
+        try {
+            const containers = await this.getMachines();
+            for (const containerName in containers) {
+                if (containers.hasOwnProperty(containerName)) {
+                    containerNames.push(containerName);
+                }
+            }
+        } catch (error) {
+        } finally {
+            return containerNames;
+        }
+    }
+
     async getMachines(): Promise<{ [attrName: string]: cheApi.workspace.Machine }> {
         const workspace = await this.getCurrentWorkspace();
         const runtime = workspace.runtime;

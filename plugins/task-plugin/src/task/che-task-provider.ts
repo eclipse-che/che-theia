@@ -10,10 +10,12 @@
 
 import { injectable, inject } from 'inversify';
 import * as che from '@eclipse-che/plugin';
+import { che as cheApi } from '@eclipse-che/api';
 import { Task, ShellExecution } from '@theia/plugin';
 import { CHE_TASK_TYPE, CheTaskDefinition, Target } from './task-protocol';
-import { MachinesPicker } from '../machine/machines-picker';
+import { MachinesPicker, COMPONENT_ATTRIBUTE } from '../machine/machines-picker';
 import { CheWorkspaceClient } from '../che-workspace-client';
+import { getAttribute } from '../utils';
 
 /** Reads the commands from the current Che workspace and provides it as Task Configurations. */
 @injectable()
@@ -45,11 +47,7 @@ export class CheTaskProvider {
             resultTarget.workspaceId = await this.cheWorkspaceClient.getWorkspaceId();
         }
 
-        if (target && target.containerName) {
-            resultTarget.containerName = target.containerName;
-        } else {
-            resultTarget.containerName = await this.machinePicker.pick();
-        }
+        resultTarget.containerName = await this.getContainerName(target);
 
         if (target && target.workingDir) {
             resultTarget.workingDir = await che.variables.resolve(target.workingDir);
@@ -70,5 +68,48 @@ export class CheTaskProvider {
             source: task.source,
             execution: execution
         };
+    }
+
+    private async getContainerName(target?: Target): Promise<string> {
+        if (!target) {
+            return this.machinePicker.pick();
+        }
+
+        const containers = await this.cheWorkspaceClient.getMachines();
+
+        const containerName = target.containerName;
+        if (containerName && containers.hasOwnProperty(containerName)) {
+            return containerName;
+        }
+
+        return await this.getContainerNameByComponent(target.component, containers) || this.machinePicker.pick();
+    }
+
+    private async getContainerNameByComponent(targetComponent: string | undefined, containers: { [attrName: string]: cheApi.workspace.Machine }): Promise<string | undefined> {
+        if (!targetComponent) {
+            return undefined;
+        }
+
+        const names = [];
+        for (const containerName in containers) {
+            if (!containers.hasOwnProperty(containerName)) {
+                continue;
+            }
+
+            const container = containers[containerName];
+            const component = getAttribute(COMPONENT_ATTRIBUTE, container.attributes);
+            if (component && component === targetComponent) {
+                names.push(containerName);
+            }
+        }
+
+        if (names.length === 1) {
+            return names[0];
+        }
+
+        if (names.length > 1) {
+            return this.machinePicker.pick(names);
+        }
+        return undefined;
     }
 }

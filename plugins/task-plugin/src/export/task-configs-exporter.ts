@@ -19,6 +19,7 @@ import { CheTaskConfigsExtractor } from '../extract/che-task-configs-extractor';
 import { VsCodeTaskConfigsExtractor } from '../extract/vscode-task-configs-extractor';
 import { ConfigurationsExporter } from './export-configs-manager';
 import { ConfigFileTasksExtractor } from '../extract/config-file-task-configs-extractor';
+import { BackwardCompatibilityResolver } from '../task/backward-compatibility';
 
 const CONFIG_DIR = '.theia';
 const TASK_CONFIG_FILE = 'tasks.json';
@@ -39,17 +40,21 @@ export class TaskConfigurationsExporter implements ConfigurationsExporter {
     @inject(VsCodeTaskConfigsExtractor)
     protected readonly vsCodeTaskConfigsExtractor: VsCodeTaskConfigsExtractor;
 
-    export(workspaceFolder: theia.WorkspaceFolder, commands: cheApi.workspace.Command[]): void {
+    @inject(BackwardCompatibilityResolver)
+    protected readonly backwardCompatibilityResolver: BackwardCompatibilityResolver;
+
+    async export(workspaceFolder: theia.WorkspaceFolder, commands: cheApi.workspace.Command[]): Promise<void> {
         const tasksConfigFileUri = this.getConfigFileUri(workspaceFolder.uri.path);
         const configFileTasks = this.configFileTasksExtractor.extract(tasksConfigFileUri);
 
         const cheTasks = this.cheTaskConfigsExtractor.extract(commands);
         const vsCodeTasks = this.vsCodeTaskConfigsExtractor.extract(commands);
         const devfileConfigs = this.merge(cheTasks, vsCodeTasks.configs, this.getOutputChannelConflictLogger());
+        const configFileConfigs = await this.backwardCompatibilityResolver.resolveComponent(configFileTasks.configs);
 
         const configFileContent = configFileTasks.content;
         if (configFileContent) {
-            this.saveConfigs(tasksConfigFileUri, configFileContent, this.merge(configFileTasks.configs, devfileConfigs, this.getConsoleConflictLogger()));
+            this.saveConfigs(tasksConfigFileUri, configFileContent, this.merge(configFileConfigs, devfileConfigs, this.getConsoleConflictLogger()));
             return;
         }
 

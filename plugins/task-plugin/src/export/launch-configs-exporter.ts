@@ -31,7 +31,7 @@ export class LaunchConfigurationsExporter implements ConfigurationsExporter {
     @inject(VsCodeLaunchConfigsExtractor)
     protected readonly vsCodeLaunchConfigsExtractor: VsCodeLaunchConfigsExtractor;
 
-    export(workspaceFolder: theia.WorkspaceFolder, commands: cheApi.workspace.Command[]): void {
+    async export(workspaceFolder: theia.WorkspaceFolder, commands: cheApi.workspace.Command[]): Promise<void> {
         const launchConfigFileUri = this.getConfigFileUri(workspaceFolder.uri.path);
         const configFileConfigs = this.configFileLaunchConfigsExtractor.extract(launchConfigFileUri);
         const vsCodeConfigs = this.vsCodeLaunchConfigsExtractor.extract(commands);

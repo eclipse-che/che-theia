@@ -23,7 +23,7 @@ export interface ConfigurationsExporter {
      * @param workspaceFolder workspace folder for exporting configs in the config file
      * @param commands commands with configurations for export
      */
-    export(workspaceFolder: theia.WorkspaceFolder, commands: cheApi.workspace.Command[]): void;
+    export(workspaceFolder: theia.WorkspaceFolder, commands: cheApi.workspace.Command[]): Promise<void>;
 }
 /** Contains configurations as array of object and as raw content and is used at getting configurations from config file for example */
 export interface Configurations<T> {
