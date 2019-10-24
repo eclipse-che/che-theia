@@ -37,6 +37,6 @@ RUN apk add --no-cache bash && \
     # install oc
     wget -O- https://github.com/openshift/origin/releases/download/${OC_VERSION}/openshift-origin-client-tools-${OC_VERSION}-${OC_TAG}-linux-64bit.tar.gz | tar xvz -C /usr/local/bin --strip 1
 
-ADD entrypoint.sh entrypoint.sh
+ADD etc/entrypoint.sh entrypoint.sh
 
 ENTRYPOINT [ "/entrypoint.sh" ]

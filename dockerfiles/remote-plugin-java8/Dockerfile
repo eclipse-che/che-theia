@@ -18,12 +18,14 @@ RUN mkdir /projects ${HOME} && \
       echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
       chmod -R g+rwX ${f}; \
     done
-ADD etc/entrypoint.sh /entrypoint.sh
 
 RUN apk --update --no-cache add openjdk8 procps nss
 ENV JAVA_HOME /usr/lib/jvm/default-jvm/
 ADD etc/before-start.sh /before-start.sh
 
+ADD etc/entrypoint.sh /entrypoint.sh
+
 WORKDIR /projects
 
 ENTRYPOINT ["/entrypoint.sh"]
+CMD ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
