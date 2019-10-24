@@ -15,7 +15,7 @@ export USER_ID=$(id -u)
 export GROUP_ID=$(id -g)
 
 if ! whoami >/dev/null 2>&1; then
-    echo "${USER_NAME:-theia}:x:${USER_ID}:0:${USER_NAME:-theia}:${HOME}:/bin/sh" >> /etc/passwd
+    echo "${USER_NAME:-user}:x:${USER_ID}:0:${USER_NAME:-user} user:${HOME}:/bin/sh" >> /etc/passwd
 fi
 
 # Grant access to projects volume in case of non root user with sudo rights

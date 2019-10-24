@@ -66,6 +66,7 @@ DOCKER_FILES_LOCATIONS=(
   dockerfiles/theia
   dockerfiles/theia-endpoint-runtime
   dockerfiles/theia-endpoint-runtime-binary
+  dockerfiles/remote-plugin-node
   dockerfiles/remote-plugin-java8
   dockerfiles/remote-plugin-java11
   dockerfiles/remote-plugin-php7
@@ -91,6 +92,7 @@ PUBLISH_IMAGES_LIST=(
   eclipse/che-theia
   eclipse/che-theia-endpoint-runtime
   eclipse/che-theia-endpoint-runtime-binary
+  eclipse/remote-plugin-node
   eclipse/che-remote-plugin-runner-java8
   eclipse/che-remote-plugin-runner-java11
   eclipse/che-remote-plugin-php7
