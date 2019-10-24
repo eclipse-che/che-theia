@@ -60,6 +60,8 @@ pipeline {
                             nodejs('nodejs-10.15.3') {
                                 script {
                                     sh """
+                                      set -ex
+
                                       # CRW-344, work around "unable to get local issuer certificate" error
                                       rm /home/hudson/.npmrc || true
                                       rm /home/hudson/.yarnrc || true
