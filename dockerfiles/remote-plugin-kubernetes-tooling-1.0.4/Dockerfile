@@ -8,7 +8,6 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG} as endpoint
 FROM quay.io/buildah/stable:v1.11.3
 
 ENV KUBECTL_VERSION v1.16.1
@@ -17,7 +16,13 @@ ENV HOME=/home/theia
 
 ADD etc/storage.conf $HOME/.config/containers/storage.conf
 
-RUN curl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl && \
+RUN mkdir /projects && \
+    # Change permissions to let any arbitrary user
+    for f in "${HOME}" "/etc/passwd" "/projects"; do \
+      echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+      chmod -R g+rwX ${f}; \
+    done \
+    && curl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl && \
     chmod +x /usr/local/bin/kubectl && \
     curl -o- -L https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz | tar xvz -C /usr/local/bin --strip 1 && \
     # set up local Helm configuration skipping Tiller installation
@@ -25,12 +30,7 @@ RUN curl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VER
     # 'which' utility is used by VS Code Kubernetes extension to find the binaries, e.g. 'kubectl'
     dnf install -y which nodejs
 
-COPY --from=endpoint /home/theia /home/theia
-COPY --from=endpoint /projects /projects
-COPY --from=endpoint /etc/passwd /etc/passwd
-COPY --from=endpoint /etc/group /etc/group
-COPY --from=endpoint /entrypoint.sh /entrypoint.sh
+ADD etc/entrypoint.sh /entrypoint.sh
 
-RUN chmod g+w /home/theia
-
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}

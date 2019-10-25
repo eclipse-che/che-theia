@@ -8,12 +8,18 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG} as endpoint
 FROM quay.io/buildah/stable:v1.9.0
 
 ENV KUBECTL_VERSION v1.14.1
 ENV HELM_VERSION v2.13.1
 ENV HOME=/home/theia
+
+RUN mkdir /projects ${HOME} && \
+    # Change permissions to let any arbitrary user
+    for f in "${HOME}" "/etc/passwd" "/projects"; do \
+      echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+      chmod -R g+rwX ${f}; \
+    done
 
 ADD etc/docker.sh /usr/local/bin/docker
 
@@ -25,12 +31,7 @@ RUN curl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VER
     # 'which' utility is used by VS Code Kubernetes extension to find the binaries, e.g. 'kubectl'
     dnf install -y which nodejs
 
-COPY --from=endpoint /home/theia /home/theia
-COPY --from=endpoint /projects /projects
-COPY --from=endpoint /etc/passwd /etc/passwd
-COPY --from=endpoint /etc/group /etc/group
-COPY --from=endpoint /entrypoint.sh /entrypoint.sh
+ADD etc/entrypoint.sh /entrypoint.sh
 
-RUN chmod g+w /home/theia
-
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}

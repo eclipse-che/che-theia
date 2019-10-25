@@ -8,7 +8,6 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG} as endpoint
 FROM node:10.16-stretch-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -50,25 +49,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
                 libssl1.0.2 \
                 libstdc++6 \
                 zlib1g \
-    &&  rm -rf /var/lib/apt/lists/* \
-
-    # Install typescript@2.9.2 and node-gyp
-
-    &&  yarn global add typescript@2.9.2 node-gyp \
-    &&  node-gyp install
-
-ENV HOME=/home/theia
-COPY --from=endpoint /home/theia /home/theia
-COPY --from=endpoint /projects /projects
-COPY --from=endpoint /etc/passwd  /etc/passwd
-COPY --from=endpoint /etc/group   /etc/group
-COPY --from=endpoint /entrypoint.sh /entrypoint.sh
-
-RUN find /home/theia/ -name "binding.gyp" |  xargs -i sh -c 'cd $(dirname {}) && node-gyp rebuild' \
-    && sed -i 's/SIGHUP SIGTERM SIGINT/HUP TERM INT/g' /entrypoint.sh
+    &&  rm -rf /var/lib/apt/lists/*
 
 # Install .NET Core SDK
 ENV DOTNET_SDK_VERSION 2.2.105
+
+ENV HOME=/home/theia
+
+RUN mkdir /projects ${HOME} && \
+    # Change permissions to let any arbitrary user
+    for f in "${HOME}" "/etc/passwd" "/projects"; do \
+      echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+      chmod -R g+rwX ${f}; \
+    done
 
 RUN curl -SL --output dotnet.tar.gz https://dotnetcli.azureedge.net/dotnet/Sdk/$DOTNET_SDK_VERSION/dotnet-sdk-$DOTNET_SDK_VERSION-linux-x64.tar.gz \
     && dotnet_sha512='b7ad26b344995de91848adec56bda5dfe5fef0b83abaa3e4376dc790cf9786e945b625de1ae4cecaf5c5bef86284652886ed87696581553aeda89ee2e2e99517' \
@@ -94,4 +87,8 @@ ENV ASPNETCORE_URLS=http://+:80 \
 
 # Trigger first run experience by running arbitrary cmd to populate local package cache
 RUN dotnet help
-ENTRYPOINT ["/entrypoint.sh"]
+
+ADD etc/entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
