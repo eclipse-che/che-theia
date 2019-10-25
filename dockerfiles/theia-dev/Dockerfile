@@ -45,7 +45,6 @@ RUN npm config set prefix "${HOME}/.npm-global" && \
     echo "--global-folder \"${HOME}/.yarn-global\"" > ${HOME}/.yarnrc && \
     # add eclipse che theia generator
     yarn ${YARN_FLAGS} global add yo @theia/generator-plugin@0.0.1-1562578105 file:${HOME}/eclipse-che-theia-generator.tgz && \
-    echo "Installed npm Packages" && npm ls -g | sort | uniq && yarn global list && echo "End Of Installed npm Packages" && \
     # Generate .passwd.template \
     cat /etc/passwd | \
     sed s#root:x.*#theia-dev:x:\${USER_ID}:\${GROUP_ID}::${HOME}:/bin/bash#g \
@@ -64,7 +63,7 @@ RUN npm config set prefix "${HOME}/.npm-global" && \
     for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
         echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
         chmod -R g+rwX ${f}; \
-    done 
+    done
 
 WORKDIR /projects
 
