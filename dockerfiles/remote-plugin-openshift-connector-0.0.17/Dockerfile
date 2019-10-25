@@ -37,3 +37,4 @@ RUN wget -O glibc-${GLIBC_VERSION}.apk https://github.com/andyshinn/alpine-pkg-g
 
 ADD etc/entrypoint.sh entrypoint.sh
 ENTRYPOINT [ "/entrypoint.sh" ]
+CMD ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
