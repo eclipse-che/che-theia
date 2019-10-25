@@ -54,32 +54,32 @@ pipeline {
             failFast true
 
             parallel {
-//                stage("Build che-theia image") {
-//                    steps {
-//                        withCredentials([string(credentialsId: 'e45af3e6-8061-4d02-b187-b1c3bb133d3a', variable: 'github_token')]) {
-//                            nodejs('nodejs-10.15.3') {
-//                                script {
-//                                    sh """
-//                                      # CRW-344, work around "unable to get local issuer certificate" error
-//                                      rm -rf /home/hudson/.npmrc || true
-//                                      rm -rf /home/hudson/.yarnrc || true
-//
-//                                      export GITHUB_TOKEN=${github_token}
-//                                      ${WORKSPACE}/build.sh --skip-tests --dockerfile:Dockerfile.alpine
-//
-//                                      docker image ls
-//                                    """
-//                                }
-//                            }
-//                        }
-//
-//                        withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'docker_password')]) {
-//                            script {
-//                                sh "docker login -u maxura -p ${docker_password}"
-//                            }
-//                        }
-//                    }
-//                }
+                stage("Build che-theia image") {
+                    steps {
+                        withCredentials([string(credentialsId: 'e45af3e6-8061-4d02-b187-b1c3bb133d3a', variable: 'github_token')]) {
+                            nodejs('nodejs-10.15.3') {
+                                script {
+                                    sh """
+                                      # CRW-344, work around "unable to get local issuer certificate" error
+                                      rm -rf /home/hudson/.npmrc || true
+                                      rm -rf /home/hudson/.yarnrc || true
+
+                                      export GITHUB_TOKEN=${github_token}
+                                      ${WORKSPACE}/build.sh --skip-tests --dockerfile:Dockerfile.alpine
+
+                                      docker image ls
+                                    """
+                                }
+                            }
+                        }
+
+                        withCredentials([string(credentialsId: 'ed71c034-60bc-4fb1-bfdf-9570209076b5', variable: 'docker_password')]) {
+                            script {
+                                sh "docker login -u maxura -p ${docker_password}"
+                            }
+                        }
+                    }
+                }
 
                 stage("Download chectl") {
                     steps {
@@ -181,53 +181,53 @@ pipeline {
             failFast true
 
             parallel {
-//                stage("Push che-theia image") {
-//                    steps {
-//                        script {
-//                            sh """
-//                            docker image ls
-//                            docker tag eclipse/che-theia:next maxura/che-theia:${ghprbPullId}
-//                            docker push maxura/che-theia:${ghprbPullId}
-//                            """
-//                        }
-//                    }
-//                }
-//
-//                stage("Push che-theia-endpoint-runtime image") {
-//                    steps {
-//                        script {
-//                            sh """
-//                            docker image ls
-//                            docker tag eclipse/che-theia-endpoint-runtime:next maxura/che-theia-endpoint-runtime:${ghprbPullId}
-//                            docker push maxura/che-theia-endpoint-runtime:${ghprbPullId}
-//                            """
-//                        }
-//                    }
-//                }
-//
-//                stage("Push che-remote-plugin-runner-java8 image") {
-//                    steps {
-//                        script {
-//                            sh """
-//                            docker image ls
-//                            docker tag eclipse/che-remote-plugin-runner-java8:next maxura/che-remote-plugin-runner-java8:${ghprbPullId}
-//                            docker push maxura/che-remote-plugin-runner-java8:${ghprbPullId}
-//                            """
-//                        }
-//                    }
-//                }
-//
-//                stage("Push che-remote-plugin-kubernetes-tooling-1.0.0 image") {
-//                    steps {
-//                        script {
-//                            sh """
-//                            docker image ls
-//                            docker tag eclipse/che-remote-plugin-kubernetes-tooling-1.0.4:next maxura/che-remote-plugin-kubernetes-tooling-1.0.4:${ghprbPullId}
-//                            docker push maxura/che-remote-plugin-kubernetes-tooling-1.0.4:${ghprbPullId}
-//                            """
-//                        }
-//                    }
-//                }
+                stage("Push che-theia image") {
+                    steps {
+                        script {
+                            sh """
+                            docker image ls
+                            docker tag eclipse/che-theia:next maxura/che-theia:${ghprbPullId}
+                            docker push maxura/che-theia:${ghprbPullId}
+                            """
+                        }
+                    }
+                }
+
+                stage("Push che-theia-endpoint-runtime image") {
+                    steps {
+                        script {
+                            sh """
+                            docker image ls
+                            docker tag eclipse/che-theia-endpoint-runtime:next maxura/che-theia-endpoint-runtime:${ghprbPullId}
+                            docker push maxura/che-theia-endpoint-runtime:${ghprbPullId}
+                            """
+                        }
+                    }
+                }
+
+                stage("Push che-remote-plugin-runner-java8 image") {
+                    steps {
+                        script {
+                            sh """
+                            docker image ls
+                            docker tag eclipse/che-remote-plugin-runner-java8:next maxura/che-remote-plugin-runner-java8:${ghprbPullId}
+                            docker push maxura/che-remote-plugin-runner-java8:${ghprbPullId}
+                            """
+                        }
+                    }
+                }
+
+                stage("Push che-remote-plugin-kubernetes-tooling-1.0.0 image") {
+                    steps {
+                        script {
+                            sh """
+                            docker image ls
+                            docker tag eclipse/che-remote-plugin-kubernetes-tooling-1.0.4:next maxura/che-remote-plugin-kubernetes-tooling-1.0.4:${ghprbPullId}
+                            docker push maxura/che-remote-plugin-kubernetes-tooling-1.0.4:${ghprbPullId}
+                            """
+                        }
+                    }
+                }
 
                 stage("Prepare meta.yaml's") {
                     steps {
