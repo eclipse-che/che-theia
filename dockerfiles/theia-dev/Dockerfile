@@ -65,6 +65,9 @@ RUN npm config set prefix "${HOME}/.npm-global" && \
         chmod -R g+rwX ${f}; \
     done
 
+# post yarn config
+#{INCLUDE:docker/${BUILD_IMAGE_TARGET}/post-yarn-config.dockerfile}
+
 WORKDIR /projects
 
 COPY src/entrypoint.sh /entrypoint.sh
