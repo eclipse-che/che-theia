@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM ${BUILD_ORGANIZATION}/${BUILD_PREFIX}-theia-endpoint-runtime:${BUILD_TAG}
+FROM node:10.16-alpine
 
 RUN apk --update --no-cache add \
         ca-certificates \
@@ -23,4 +23,18 @@ RUN apk --update --no-cache add \
     && echo "xdebug.remote_log=/tmp/xdebug.log" >> /etc/php7/php.ini \
     && echo "xdebug.remote_autostart=true" >> /etc/php7/php.ini
 
+ENV HOME=/home/theia
+
+RUN mkdir /projects ${HOME} && \
+    # Change permissions to let any arbitrary user
+    for f in "${HOME}" "/etc/passwd" "/projects"; do \
+      echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+      chmod -R g+rwX ${f}; \
+    done
+
 WORKDIR /projects
+
+ADD etc/entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
