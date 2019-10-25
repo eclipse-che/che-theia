@@ -23,9 +23,9 @@ pipeline {
 
         CHE_PLUGIN_REGISTRY_URL="https://raw.githubusercontent.com/eclipse/che-plugin-registry/master/v3/plugins"
         CHE_THEIA_META_YAML_URL="${CHE_PLUGIN_REGISTRY_URL}/eclipse/che-theia/next/meta.yaml"
-        VSCODE_YAML_META_YAML_DIR_URL='https://raw.githubusercontent.com/eclipse/che-plugin-registry/master/v3/plugins/redhat/vscode-yaml/'
-        JAVA8_META_YAML_DIR_URL='https://raw.githubusercontent.com/eclipse/che-plugin-registry/master/v3/plugins/redhat/java8/'
-        VSCODE_KUBERNETES_TOOLS_META_YAML_DIR_URL='https://raw.githubusercontent.com/eclipse/che-plugin-registry/master/v3/plugins/ms-kubernetes-tools/vscode-kubernetes-tools/'
+        VSCODE_YAML_META_YAML_DIR_URL="${CHE_PLUGIN_REGISTRY_URL}/redhat/vscode-yaml/"
+        JAVA8_META_YAML_DIR_URL="${CHE_PLUGIN_REGISTRY_URL}/redhat/java8/"
+        VSCODE_KUBERNETES_TOOLS_META_YAML_DIR_URL="${CHE_PLUGIN_REGISTRY_URL}/ms-kubernetes-tools/vscode-kubernetes-tools/"
 
         YQ_TOOL_URL='https://github.com/mikefarah/yq/releases/download/2.4.0/yq_linux_amd64'
 
@@ -244,15 +244,15 @@ pipeline {
                                     ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/che_theia_meta.yaml spec.containers[0].image maxura/che-theia:${ghprbPullId}
 
                                     VSCODE_YAML_META_YAML_URL="$VSCODE_YAML_META_YAML_DIR_URL/\$(curl $VSCODE_YAML_META_YAML_DIR_URL/latest.txt)/meta.yaml"
-                                    wget $VSCODE_YAML_META_YAML_URL -O $PR_CHECK_FILES_DIR/vscode_yaml_meta.yaml
+                                    wget \$VSCODE_YAML_META_YAML_URL -O $PR_CHECK_FILES_DIR/vscode_yaml_meta.yaml
                                     ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_yaml_meta.yaml spec.containers[0].image maxura/che-theia-endpoint-runtime-endpoint-runtime:${ghprbPullId}
 
                                     JAVA8_META_YAML_URL="$JAVA8_META_YAML_DIR_URL/\$(curl $JAVA8_META_YAML_DIR_URL/latest.txt)/meta.yaml"
-                                    wget $JAVA8_META_YAML_URL -O $PR_CHECK_FILES_DIR/java8_meta.yaml
+                                    wget \$JAVA8_META_YAML_URL -O $PR_CHECK_FILES_DIR/java8_meta.yaml
                                     ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/java8_meta.yaml spec.containers[0].image maxura/che-remote-plugin-runner-java8:${ghprbPullId}
 
                                     VSCODE_KUBERNETES_TOOLS_META_YAML_URL="$VSCODE_KUBERNETES_TOOLS_META_YAML_DIR_URL/\$(curl $VSCODE_KUBERNETES_TOOLS_META_YAML_DIR_URL/latest.txt)/meta.yaml"
-                                    wget $VSCODE_KUBERNETES_TOOLS_META_YAML_URL -O $PR_CHECK_FILES_DIR/vscode_kubernetes_tools_meta.yaml
+                                    wget \$VSCODE_KUBERNETES_TOOLS_META_YAML_URL -O $PR_CHECK_FILES_DIR/vscode_kubernetes_tools_meta.yaml
                                     ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_kubernetes_tools_meta.yaml spec.containers[0].image maxura/che-remote-plugin-kubernetes-tooling-1.0.4:${ghprbPullId}
                                     
                                     # patch che/e2e/files/happy-path/happy-path-workspace.yaml
