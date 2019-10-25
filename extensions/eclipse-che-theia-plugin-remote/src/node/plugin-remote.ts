@@ -20,6 +20,39 @@ process.on('SIGINT', () => {
     process.exit();
 });
 
+process.on('uncaughtException', (err: Error) => {
+    console.error('Remote plugin node: got an uncaught exception', err);
+});
+
+// tslint:disable-next-line: no-any
+const unhandledPromises: Promise<any>[] = [];
+
+// tslint:disable-next-line: no-any
+process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+    unhandledPromises.push(promise);
+    setTimeout(() => {
+        const index = unhandledPromises.indexOf(promise);
+        if (index >= 0) {
+            promise.catch(err => {
+                unhandledPromises.splice(index, 1);
+                const containerName = process.env['CHE_MACHINE_NAME'];
+                console.error(`Remote plugin in ${containerName}: promise rejection is not handled in two seconds: ${err}`);
+                if (err.stack) {
+                    console.error(`Remote plugin in ${containerName}: promise rejection stack trace: ${err.stack}`);
+                }
+            });
+        }
+    }, 2000);
+});
+
+// tslint:disable-next-line: no-any
+process.on('rejectionHandled', (promise: Promise<any>) => {
+    const index = unhandledPromises.indexOf(promise);
+    if (index >= 0) {
+        unhandledPromises.splice(index, 1);
+    }
+});
+
 // configured port number
 const pluginPort = parseInt(process.env.THEIA_PLUGIN_ENDPOINT_PORT || '2503', 10);
 
