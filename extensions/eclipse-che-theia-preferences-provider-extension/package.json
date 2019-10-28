@@ -3,7 +3,7 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "0.0.1",
+  "version": "7.3.1",
   "license": "EPL-2.0",
   "files": [
     "lib",
@@ -11,10 +11,10 @@
   ],
   "dependencies": {
     "@eclipse-che/api": "^7.0.0-beta-4.0-80162ea6d2",
-    "@eclipse-che/theia-plugin-ext": "0.0.1",
-    "@theia/core": "next",
-    "@theia/preferences": "next",
-    "@theia/workspace": "next"
+    "@eclipse-che/theia-plugin-ext": "7.3.1",
+    "@theia/core": "0.12.0-next.f255f5a8",
+    "@theia/preferences": "0.12.0-next.f255f5a8",
+    "@theia/workspace": "0.12.0-next.f255f5a8"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
@@ -41,6 +41,9 @@
     "moduleNameMapper": {
       "\\.(css|less)$": "<rootDir>/tests/mock.js"
     },
-    "moduleFileExtensions": ["js", "ts"]
+    "moduleFileExtensions": [
+      "js",
+      "ts"
+    ]
   }
 }

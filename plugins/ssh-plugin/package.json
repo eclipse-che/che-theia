@@ -1,56 +1,56 @@
 {
-      "name": "@eclipse-che/theia-ssh-plugin",
-      "publisher": "Eclipse Che",
-      "keywords": [
-        "theia-plugin"
-      ],
-      "version": "0.0.1",
-      "license": "EPL-2.0",
-      "contributors": [
-        {
-          "name": "Artem Zatsarynnyi",
-          "email": "azatsary@redhat.com"
-        },
-        {
-          "name": "Igor Vinokur",
-          "email": "ivinokur@redhat.com"
-        },
-        {
-          "name": "Vitalii Parfonov",
-          "email": "vparfono@redhat.com"
-        }
-      ],
-      "files": [
-        "src"
-      ],
-      "activationEvents": [
-        "*"
-      ],
-      "dependencies": {
-        "axios": "0.18.1",
-        "fs-extra": "7.0.1",
-        "@eclipse-che/plugin": "0.0.1"
-      },
-      "devDependencies": {
-        "@eclipse-che/api": "latest",
-        "@eclipse-che/plugin": "0.0.1",
-        "@theia/plugin": "next",
-        "@theia/plugin-packager": "latest"
-      },
-      "scripts": {
-        "prepare": "yarn run clean && yarn run build",
-        "clean": "rimraf lib",
-        "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
-        "watch": "tsc -watch",
-        "compile": "tsc",
-        "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
-        "lint:fix": "tslint -c ../../configs/tslint.json --fix --project .",
-        "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia:plugin pack"
-      },
-      "engines": {
-        "theiaPlugin": "next"
-      },
-      "theiaPlugin": {
-            "backend": "lib/ssh-plugin-backend.js"
-      }
+  "name": "@eclipse-che/theia-ssh-plugin",
+  "publisher": "Eclipse Che",
+  "keywords": [
+    "theia-plugin"
+  ],
+  "version": "7.3.1",
+  "license": "EPL-2.0",
+  "contributors": [
+    {
+      "name": "Artem Zatsarynnyi",
+      "email": "azatsary@redhat.com"
+    },
+    {
+      "name": "Igor Vinokur",
+      "email": "ivinokur@redhat.com"
+    },
+    {
+      "name": "Vitalii Parfonov",
+      "email": "vparfono@redhat.com"
+    }
+  ],
+  "files": [
+    "src"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "dependencies": {
+    "axios": "0.18.1",
+    "fs-extra": "7.0.1",
+    "@eclipse-che/plugin": "7.3.1"
+  },
+  "devDependencies": {
+    "@eclipse-che/api": "latest",
+    "@eclipse-che/plugin": "7.3.1",
+    "@theia/plugin": "0.12.0-next.f255f5a8",
+    "@theia/plugin-packager": "latest"
+  },
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
+    "watch": "tsc -watch",
+    "compile": "tsc",
+    "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
+    "lint:fix": "tslint -c ../../configs/tslint.json --fix --project .",
+    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia:plugin pack"
+  },
+  "engines": {
+    "theiaPlugin": "next"
+  },
+  "theiaPlugin": {
+    "backend": "lib/ssh-plugin-backend.js"
+  }
 }

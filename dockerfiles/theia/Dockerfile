@@ -21,7 +21,7 @@ ENV GITHUB_TOKEN=$GITHUB_TOKEN
 ARG THEIA_GITHUB_REPO=eclipse-theia/theia
 
 # Define upstream version of theia to use
-ARG THEIA_VERSION=master
+ARG THEIA_VERSION=0.12.0-next.f255f5a8
 
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
@@ -39,11 +39,11 @@ ADD src/patches ${HOME}/patches
 
 # Apply patches
 RUN if [ -d "${HOME}/patches/${THEIA_VERSION}" ]; then \
-      echo "Applying patches for Theia version ${THEIA_VERSION}"; \
-      for file in $(find "${HOME}/patches/${THEIA_VERSION}" -name '*.patch'); do \
-        echo "Patching with ${file}"; \
-        cd ${HOME}/theia-source-code && patch -p1 < ${file}; \
-      done \
+    echo "Applying patches for Theia version ${THEIA_VERSION}"; \
+    for file in $(find "${HOME}/patches/${THEIA_VERSION}" -name '*.patch'); do \
+    echo "Patching with ${file}"; \
+    cd ${HOME}/theia-source-code && patch -p1 < ${file}; \
+    done \
     fi
 
 # Generate che-theia
@@ -129,7 +129,7 @@ COPY --from=builder /home/theia-dev/theia-source-code/production/plugins /defaul
 # setup yarn (if missing)
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/runtime-setup-yarn.dockerfile}
 
- RUN \
+RUN \
     #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/runtime-adduser.sh}
     && echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
     # Create /projects for Che
@@ -137,9 +137,9 @@ COPY --from=builder /home/theia-dev/theia-source-code/production/plugins /defaul
     # Create root node_modules in order to not use node_modules in each project folder
     && mkdir /node_modules \
     && for f in "${HOME}" "/etc/passwd" "/etc/group /node_modules /default-theia-plugins /projects"; do\
-           sudo chgrp -R 0 ${f} && \
-           sudo chmod -R g+rwX ${f}; \
-       done \
+    sudo chgrp -R 0 ${f} && \
+    sudo chmod -R g+rwX ${f}; \
+    done \
     && cat /etc/passwd | sed s#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g > ${HOME}/passwd.template \
     && cat /etc/group | sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g > ${HOME}/group.template \
     # Add yeoman, theia plugin & VS Code generator and typescript (to have tsc/typescript working)
