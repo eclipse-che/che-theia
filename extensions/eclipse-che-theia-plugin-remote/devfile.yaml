@@ -58,6 +58,24 @@ commands:
         component: theia-dev
         command: 'yarn'
         workdir: /projects/theia
+  - name: Build plugin-ext
+    actions:
+      - type: exec
+        component: theia-dev
+        command: 'npx run build @theia/plugin-ext'
+        workdir: /projects/theia
+  - name: Build theia-remote
+    actions:
+      - type: exec
+        component: theia-dev
+        command: 'npx run build @eclipse-che/theia-remote'
+        workdir: /projects/theia
+  - name: Build assembly
+    actions:
+      - type: exec
+        component: theia-dev
+        command: 'yarn'
+        workdir: /projects/theia/examples/assembly
   - name: Watch changes in Theia Remote Extension
     actions:
       - type: exec
