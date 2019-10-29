@@ -27,6 +27,7 @@
     "@theia/markers": "^{{ version }}",
     "@theia/merge-conflicts": "^{{ version }}",
     "@theia/messages": "^{{ version }}",
+    "@theia/metrics": "^{{ version }}",
     "@theia/mini-browser": "^{{ version }}",
     "@theia/monaco": "^{{ version }}",
     "@theia/navigator": "^{{ version }}",
