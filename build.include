@@ -33,7 +33,6 @@ parse() {
       shift;;
     esac
   done
-  
 }
 
 is_pull_request_mode() {
