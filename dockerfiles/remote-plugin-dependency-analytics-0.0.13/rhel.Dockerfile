@@ -16,16 +16,22 @@ RUN dnf install -y \
     && dnf clean all \
     && if [[ ! -e "/usr/bin/python" ]] ; then ln -sf /usr/bin/python3 /usr/bin/python; fi
 
-ENV JAVA_HOME /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.232.b09-0.el8_0.x86_64/bin/
+ENV JAVA_HOME /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.232.b09-0.el8_0.x86_64/
 ENV MAVEN_HOME /usr/share/maven/bin/
+ENV PATH $MAVEN_HOME/bin:$PATH
 
 ENV HOME /home/theia
 
 RUN mkdir ${HOME} /projects \
     # Change permissions to let any arbitrary user
-    && for f in "${HOME}" "/projects"; do \
+    && for f in "${HOME}" "/etc/passwd" "/projects"; do \
         echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
         chmod -R g+rwX ${f}; \
     done
 
 WORKDIR /projects
+
+ADD etc/entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
