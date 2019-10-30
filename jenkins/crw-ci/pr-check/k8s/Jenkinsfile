@@ -193,13 +193,13 @@ pipeline {
                     }
                 }
 
-                stage("Push che-theia-endpoint-runtime image") {
+                stage("Push che-remote-plugin-node image") {
                     steps {
                         script {
                             sh """
                             docker image ls
-                            docker tag eclipse/che-theia-endpoint-runtime:next maxura/che-theia-endpoint-runtime:${ghprbPullId}
-                            docker push maxura/che-theia-endpoint-runtime:${ghprbPullId}
+                            docker tag eclipse/che-remote-plugin-node:next maxura/che-remote-plugin-node:${ghprbPullId}
+                            docker push maxura/che-remote-plugin-node:${ghprbPullId}
                             """
                         }
                     }
@@ -245,7 +245,7 @@ pipeline {
 
                                     VSCODE_YAML_META_YAML_URL="$VSCODE_YAML_META_YAML_DIR_URL/\$(curl $VSCODE_YAML_META_YAML_DIR_URL/latest.txt)/meta.yaml"
                                     wget \$VSCODE_YAML_META_YAML_URL -O $PR_CHECK_FILES_DIR/vscode_yaml_meta.yaml
-                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_yaml_meta.yaml spec.containers[0].image maxura/che-theia-endpoint-runtime-endpoint-runtime:${ghprbPullId}
+                                    ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_yaml_meta.yaml spec.containers[0].image maxura/che-remote-plugin-node-endpoint-runtime:${ghprbPullId}
 
                                     JAVA8_META_YAML_URL="$JAVA8_META_YAML_DIR_URL/\$(curl $JAVA8_META_YAML_DIR_URL/latest.txt)/meta.yaml"
                                     wget \$JAVA8_META_YAML_URL -O $PR_CHECK_FILES_DIR/java8_meta.yaml
@@ -256,7 +256,7 @@ pipeline {
                                     ./yq_linux_amd64 w -i $PR_CHECK_FILES_DIR/vscode_kubernetes_tools_meta.yaml spec.containers[0].image maxura/che-remote-plugin-kubernetes-tooling-1.0.4:${ghprbPullId}
                                     
                                     # patch che/e2e/files/happy-path/happy-path-workspace.yaml
-                                    sed -i "s|id: eclipse/che-theia-endpoint-runtime/next|alias: che-theia-endpoint-runtime\\n    reference: $PR_CHECK_FILES_GITHUB_URL/che_theia_meta.yaml|" ${DEVFILE_URL}
+                                    sed -i "s|id: eclipse/che-theia/next|alias: che-theia\\n    reference: $PR_CHECK_FILES_GITHUB_URL/che_theia_meta.yaml|" ${DEVFILE_URL}
 
                                     sed -i "s|id: redhat/java/latest|alias: java8\\n    reference: $PR_CHECK_FILES_GITHUB_URL/java8_meta.yaml|" ${DEVFILE_URL}
                                     sed -i "s|id: redhat/vscode-yaml/latest|alias: vscode_yaml\\n    reference: $PR_CHECK_FILES_GITHUB_URL/vscode_yaml_meta.yaml\\n  - type: chePlugin\\n    alias: vscode_kubernetes_tools\\n    reference: $PR_CHECK_FILES_GITHUB_URL/vscode_kubernetes_tools_meta.yaml|" ${DEVFILE_URL}
