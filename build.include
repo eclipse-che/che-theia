@@ -33,7 +33,6 @@ parse() {
       shift;;
     esac
   done
-  
 }
 
 is_pull_request_mode() {
@@ -56,7 +55,6 @@ is_publish_images() {
 PR_IMAGES=(
   dockerfiles/theia-dev
   dockerfiles/theia
-  dockerfiles/theia-endpoint-runtime
   dockerfiles/theia-endpoint-runtime-binary
 )
 
@@ -64,7 +62,6 @@ PR_IMAGES=(
 DOCKER_FILES_LOCATIONS=(
   dockerfiles/theia-dev
   dockerfiles/theia
-  dockerfiles/theia-endpoint-runtime
   dockerfiles/theia-endpoint-runtime-binary
   dockerfiles/remote-plugin-node
   dockerfiles/remote-plugin-java8
@@ -90,7 +87,6 @@ DOCKER_FILES_LOCATIONS=(
 PUBLISH_IMAGES_LIST=(
   eclipse/che-theia-dev
   eclipse/che-theia
-  eclipse/che-theia-endpoint-runtime
   eclipse/che-theia-endpoint-runtime-binary
   eclipse/che-remote-plugin-node
   eclipse/che-remote-plugin-runner-java8

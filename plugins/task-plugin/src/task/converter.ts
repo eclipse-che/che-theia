@@ -11,7 +11,8 @@
 import { che as cheApi } from '@eclipse-che/api';
 import { Task } from '@theia/plugin';
 import { TaskConfiguration } from '@eclipse-che/plugin';
-import { CHE_TASK_TYPE, MACHINE_NAME_ATTRIBUTE, PREVIEW_URL_ATTRIBUTE, WORKING_DIR_ATTRIBUTE } from './task-protocol';
+import { CHE_TASK_TYPE, PREVIEW_URL_ATTRIBUTE, WORKING_DIR_ATTRIBUTE, COMPONENT_ALIAS_ATTRIBUTE } from './task-protocol';
+import { getAttribute } from '../utils';
 
 /** Converts the Che command to Theia Task Configuration */
 export function toTaskConfiguration(command: cheApi.workspace.Command): TaskConfiguration {
@@ -21,10 +22,10 @@ export function toTaskConfiguration(command: cheApi.workspace.Command): TaskConf
         command: command.commandLine,
         _scope: undefined, // not to put into tasks.json
         target: {
-            workingDir: getCommandAttribute(command, WORKING_DIR_ATTRIBUTE),
-            containerName: getCommandAttribute(command, MACHINE_NAME_ATTRIBUTE)
+            workingDir: getAttribute(WORKING_DIR_ATTRIBUTE, command.attributes),
+            component: getAttribute(COMPONENT_ALIAS_ATTRIBUTE, command.attributes)
         },
-        previewUrl: getCommandAttribute(command, PREVIEW_URL_ATTRIBUTE)
+        previewUrl: getAttribute(PREVIEW_URL_ATTRIBUTE, command.attributes)
     };
 
     return taskConfig;
@@ -37,10 +38,10 @@ export function toTask(command: cheApi.workspace.Command): Task {
             type: CHE_TASK_TYPE,
             command: command.commandLine,
             target: {
-                workingDir: getCommandAttribute(command, WORKING_DIR_ATTRIBUTE),
-                containerName: getCommandAttribute(command, MACHINE_NAME_ATTRIBUTE)
+                workingDir: getAttribute(WORKING_DIR_ATTRIBUTE, command.attributes),
+                component: getAttribute(COMPONENT_ALIAS_ATTRIBUTE, command.attributes)
             },
-            previewUrl: getCommandAttribute(command, PREVIEW_URL_ATTRIBUTE)
+            previewUrl: getAttribute(PREVIEW_URL_ATTRIBUTE, command.attributes)
         },
         name: `${command.name}`,
         source: CHE_TASK_TYPE,
