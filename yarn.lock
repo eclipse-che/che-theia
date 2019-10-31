@@ -976,6 +976,22 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.7.0.tgz#9a06f4f137ee84d7df0460c1fdb1135ffa6c50fd"
   integrity sha512-ONhaKPIufzzrlNbqtWFFd+jlnemX6lJAgq9ZeiZtS7I1PIf/la7CW4m83rTXRnVnsMbW2k56pGYu7AUFJD9Pow==
 
+"@theia/application-package@0.12.0-next.8dae8636":
+  version "0.12.0-next.8dae8636"
+  resolved "https://registry.yarnpkg.com/@theia/application-package/-/application-package-0.12.0-next.8dae8636.tgz#bef355363190870807c06467c520f4d9218ec675"
+  integrity sha512-bZPPofs5b39fbYwNqs0yzJ53vKu48AAmD++ILui0lVHbPqWctrMonV+8FOnA6KdJmIxe9LptzXchJcmQaLL3lg==
+  dependencies:
+    "@types/fs-extra" "^4.0.2"
+    "@types/request" "^2.0.3"
+    "@types/semver" "^5.4.0"
+    "@types/write-json-file" "^2.2.1"
+    changes-stream "^2.2.0"
+    fs-extra "^4.0.2"
+    is-electron "^2.1.0"
+    request "^2.82.0"
+    semver "^5.4.1"
+    write-json-file "^2.2.0"
+
 "@theia/application-package@0.12.0-next.f255f5a8":
   version "0.12.0-next.f255f5a8"
   resolved "https://registry.yarnpkg.com/@theia/application-package/-/application-package-0.12.0-next.f255f5a8.tgz#92707881978fc027fcf5aae587e3f34874be5ed0"
@@ -1061,6 +1077,52 @@
     vscode-uri "^1.0.8"
     vscode-ws-jsonrpc "^0.1.1"
     ws "^5.2.2"
+    yargs "^11.1.0"
+
+"@theia/core@0.12.0-next.8dae8636":
+  version "0.12.0-next.8dae8636"
+  resolved "https://registry.yarnpkg.com/@theia/core/-/core-0.12.0-next.8dae8636.tgz#6f427120443357415b899b182ef72345b687b040"
+  integrity sha512-XnIkVnvtcirxfXXJ/3I0y9vwBCUlHvqOhwMJglpb9wmYA6KmTLFGIqMzQqaLmLATH47yqzjTJmtJfiQb3yhR8g==
+  dependencies:
+    "@babel/runtime" "^7.5.5"
+    "@phosphor/widgets" "^1.5.0"
+    "@primer/octicons-react" "^9.0.0"
+    "@theia/application-package" "0.12.0-next.8dae8636"
+    "@types/body-parser" "^1.16.4"
+    "@types/bunyan" "^1.8.0"
+    "@types/express" "^4.16.0"
+    "@types/fs-extra" "^4.0.2"
+    "@types/lodash.debounce" "4.0.3"
+    "@types/lodash.throttle" "^4.1.3"
+    "@types/react" "^16.4.1"
+    "@types/react-dom" "^16.0.6"
+    "@types/react-virtualized" "^9.18.3"
+    "@types/route-parser" "^0.1.1"
+    "@types/ws" "^5.1.2"
+    "@types/yargs" "^11.1.0"
+    ajv "^6.5.3"
+    body-parser "^1.17.2"
+    es6-promise "^4.2.4"
+    express "^4.16.3"
+    file-icons-js "^1.0.3"
+    font-awesome "^4.7.0"
+    fs-extra "^4.0.2"
+    fuzzy "^0.1.3"
+    inversify "^5.0.1"
+    lodash.debounce "^4.0.8"
+    lodash.throttle "^4.1.1"
+    nsfw "^1.2.2"
+    perfect-scrollbar "^1.3.0"
+    react "^16.4.1"
+    react-dom "^16.4.1"
+    react-virtualized "^9.20.0"
+    reconnecting-websocket "^3.0.7"
+    reflect-metadata "^0.1.10"
+    route-parser "^0.0.5"
+    vscode-languageserver-types "^3.15.0-next"
+    vscode-uri "^1.0.8"
+    vscode-ws-jsonrpc "^0.1.1"
+    ws "^7.1.2"
     yargs "^11.1.0"
 
 "@theia/core@0.12.0-next.f255f5a8", "@theia/core@next":
@@ -1174,6 +1236,32 @@
     "@theia/workspace" "0.12.0-next.f255f5a8"
     fuzzy "^0.1.3"
     vscode-ripgrep "^1.2.4"
+
+"@theia/filesystem@0.12.0-next.8dae8636":
+  version "0.12.0-next.8dae8636"
+  resolved "https://registry.yarnpkg.com/@theia/filesystem/-/filesystem-0.12.0-next.8dae8636.tgz#062220ac896d78e72da6ce84dcfa0f7a0fc2a741"
+  integrity sha512-okLu9FqMMx+Lv/6NiQAuXyfwWU5/68AzCMqF4uvaN1S1bqk55ygNfnLhHVJwnx9+3dNN2W/J9ljya68FuDyO3g==
+  dependencies:
+    "@theia/application-package" "0.12.0-next.8dae8636"
+    "@theia/core" "0.12.0-next.8dae8636"
+    "@types/body-parser" "^1.17.0"
+    "@types/rimraf" "^2.0.2"
+    "@types/tar-fs" "^1.16.1"
+    "@types/touch" "0.0.1"
+    "@types/uuid" "^3.4.3"
+    body-parser "^1.18.3"
+    drivelist "^6.4.3"
+    http-status-codes "^1.3.0"
+    iconv-lite "0.4.23"
+    jschardet "1.6.0"
+    minimatch "^3.0.4"
+    mv "^2.1.1"
+    rimraf "^2.6.2"
+    tar-fs "^1.16.2"
+    touch "^3.1.0"
+    trash "^4.0.1"
+    uuid "^3.2.1"
+    zip-dir "^1.0.2"
 
 "@theia/filesystem@0.12.0-next.f255f5a8":
   version "0.12.0-next.f255f5a8"
@@ -1315,6 +1403,17 @@
   dependencies:
     "@theia/core" "0.12.0-next.f255f5a8"
     "@theia/filesystem" "0.12.0-next.f255f5a8"
+    "@types/mime-types" "^2.1.0"
+    mime-types "^2.1.18"
+    pdfobject "^2.0.201604172"
+
+"@theia/mini-browser@next":
+  version "0.12.0-next.8dae8636"
+  resolved "https://registry.yarnpkg.com/@theia/mini-browser/-/mini-browser-0.12.0-next.8dae8636.tgz#b7c646bff68ac2eca4481e420c429b58b1ed7caf"
+  integrity sha512-8Jq+guCdnUwCCRb8a9sKzP2B1OJ7L9mfZPmi+KM3ael+O8EGNLBMKeSA940r2DBe2lBc8vIcuOOd6j66pO9Svw==
+  dependencies:
+    "@theia/core" "0.12.0-next.8dae8636"
+    "@theia/filesystem" "0.12.0-next.8dae8636"
     "@types/mime-types" "^2.1.0"
     mime-types "^2.1.18"
     pdfobject "^2.0.201604172"

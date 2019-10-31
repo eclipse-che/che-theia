@@ -36,8 +36,10 @@ import { ChePluginMenu } from './plugin/che-plugin-menu';
 import { ChePluginCommandContribution } from './plugin/che-plugin-command-contribution';
 import { bindChePluginPreferences } from './plugin/che-plugin-preferences';
 import { CheSideCarContentReaderRegistryImpl, CheSideCarResourceResolver } from './che-sidecar-resource';
+import { CheMiniBrowserOpenHandler } from './che-mini-browser-open-handler';
+import { MiniBrowserOpenHandler } from '@theia/mini-browser/lib/browser/mini-browser-open-handler';
 
-export default new ContainerModule(bind => {
+export default new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(CheApiProvider).toSelf().inSingletonScope();
     bind(MainPluginApiProvider).toService(CheApiProvider);
 
@@ -84,4 +86,7 @@ export default new ContainerModule(bind => {
     bind(CheSideCarContentReaderRegistry).to(CheSideCarContentReaderRegistryImpl).inSingletonScope();
     bind(CheSideCarResourceResolver).toSelf().inSingletonScope();
     bind(ResourceResolver).toService(CheSideCarResourceResolver);
+
+    bind(CheMiniBrowserOpenHandler).toSelf().inSingletonScope();
+    rebind(MiniBrowserOpenHandler).to(CheMiniBrowserOpenHandler).inSingletonScope();
 });
