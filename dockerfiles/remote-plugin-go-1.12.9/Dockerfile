@@ -70,7 +70,7 @@ RUN set -e \
 	go get -u -v github.com/rogpeppe/godef && \
 	go get -u -v github.com/uudashr/gopkgs/cmd/gopkgs && \
 	go get -u -v golang.org/x/tools/cmd/gotype && \
-	go get golang.org/x/tools/gopls && \
+	GO111MODULE=on go get -v golang.org/x/tools/gopls@latest && \
 	go build -o /go/bin/gocode-gomod github.com/stamblerre/gocode && \
     gometalinter --install && \
 	chmod -R 777 "$GOPATH" && \
