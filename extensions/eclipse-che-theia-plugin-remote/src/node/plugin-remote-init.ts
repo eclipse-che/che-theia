@@ -15,8 +15,8 @@ import * as ws from 'ws';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+import * as util from 'util';
 import { logger } from '@theia/core';
-import { ILogger } from '@theia/core/lib/common';
 import { Emitter } from '@theia/core/lib/common/event';
 import { MAIN_RPC_CONTEXT, PluginDeployer, PluginDeployerEntry, PluginDependencies } from '@theia/plugin-ext';
 import { DeployedPlugin, PluginEntryPoint, PluginManagerStartParams, PluginInfo } from '@theia/plugin-ext';
@@ -26,7 +26,7 @@ import { PluginDeployerHandler, OutputChannelRegistryExt } from '@theia/plugin-e
 import { PluginHostRPC } from '@theia/plugin-ext/lib/hosted/node/plugin-host-rpc';
 import { HostedPluginReader } from '@theia/plugin-ext/lib/hosted/node/plugin-reader';
 import pluginExtBackendModule from '@theia/plugin-ext/lib/plugin-ext-backend-module';
-import { Container, inject, injectable } from 'inversify';
+import { Container, inject, injectable, ContainerModule, interfaces } from 'inversify';
 import { RemoteHostTraceLogger, LogCallback } from './remote-trace-logger';
 import pluginRemoteBackendModule from './plugin-remote-backend-module';
 import { TerminalContainerAware } from './terminal-container-aware';
@@ -34,6 +34,13 @@ import { PluginDiscovery } from './plugin-discovery';
 import { PluginReaderExtension } from './plugin-reader-extension';
 import { Deferred } from '@theia/core/lib/common/promise-util';
 import { PluginManagerExtImpl } from '@theia/plugin-ext/lib/plugin/plugin-manager';
+import { CliManager, CliContribution } from '@theia/core/lib/node';
+import { bindContributionProvider } from '@theia/core/lib/common/contribution-provider';
+import { ILogger, LoggerFactory, Logger, setRootLogger, LoggerName, rootLoggerName } from '@theia/core/lib/common/logger';
+// import { ConsoleLogger } from '@theia/core/lib/common/logger-protocol';
+import { LoggerWatcher } from '@theia/core/lib/common/logger-watcher';
+import { LogLevelCliContribution } from '@theia/core/lib/node/logger-cli-contribution';
+import { ILoggerServer, LogLevel } from '@theia/core/lib/common/logger-protocol';
 
 interface CheckAliveWS extends ws {
     alive: boolean;
@@ -70,27 +77,34 @@ export class PluginRemoteInit {
     private sessionId = 0;
 
     private pluginReaderExtension: PluginReaderExtension;
-    private remoteTraceLogger: RemoteHostTraceLogger;
 
     constructor(private pluginPort: number) {
 
     }
 
-    async init(): Promise<void> {
+    private bindLogger(bind: interfaces.Bind): void {
+        bind(ILoggerServer).to(RemoteHostTraceLogger).inSingletonScope();
+        bind(LoggerName).toConstantValue(rootLoggerName);
+        bind(ILogger).to(Logger).inSingletonScope().whenTargetIsDefault();
+        bind(LoggerWatcher).toSelf().inSingletonScope();
+        bind(LogLevelCliContribution).toSelf().inSingletonScope();
+        bind(CliContribution).toService(LogLevelCliContribution);
+        bind(LoggerFactory).toFactory(ctx =>
+            (name: string) => {
+                const child = new Container({ defaultScope: 'Singleton' });
+                child.parent = ctx.container;
+                child.bind(ILogger).to(Logger).inTransientScope();
+                child.bind(LoggerName).toConstantValue(name);
+                return child.get(ILogger);
+            }
+        );
+    }
+
+    async init(argv?: string[]): Promise<void> {
 
         this.webSocketServer = await this.initWebSocket();
-        this.initWebsocketServer();
-
         // Create inversify container
         const inversifyContainer = new Container();
-
-        this.remoteTraceLogger = new RemoteHostTraceLogger();
-
-        // init the logger
-        this.remoteTraceLogger.init();
-
-        // bind logger to make it work
-        inversifyContainer.bind(ILogger).toConstantValue(this.remoteTraceLogger);
 
         // Bind Plug-in system
         inversifyContainer.load(pluginExtBackendModule);
@@ -104,8 +118,21 @@ export class PluginRemoteInit {
 
         // bind local stuff
         inversifyContainer.load(pluginRemoteBackendModule);
-
+        inversifyContainer.load(new ContainerModule(bind => {
+            bind(CliManager).toSelf().inSingletonScope();
+            bindContributionProvider(bind, CliContribution);
+            this.bindLogger(bind);
+        }));
         inversifyContainer.bind<number>('plugin.port').toConstantValue(this.pluginPort);
+
+        if (argv === undefined) {
+            argv = process.argv;
+        }
+
+        const cliManager = inversifyContainer.get(CliManager);
+        await cliManager.initializeCli(argv!);
+
+        setRootLogger(inversifyContainer.get(ILogger));
 
         // start the deployer
         const pluginDeployer = inversifyContainer.get<PluginDeployer>(PluginDeployer);
@@ -122,15 +149,16 @@ export class PluginRemoteInit {
             return originalStart.call(this, params);
         };
 
+        this.initWebsocketServer(inversifyContainer.get(ILoggerServer));
         // display message about process being started
         console.log(`Theia Endpoint ${process.pid}/pid listening on port`, this.pluginPort);
     }
 
-    initWebsocketServer() {
+    initWebsocketServer(remoteLogger: RemoteHostTraceLogger) {
         this.webSocketServer.on('connection', (socket: CheckAliveWS, request: http.IncomingMessage) => {
             socket.alive = true;
             socket.on('pong', () => socket.alive = true);
-            this.handleConnection(socket, request);
+            this.handleConnection(socket, request, remoteLogger);
         });
         setInterval(() => {
             this.webSocketServer.clients.forEach((socket: CheckAliveWS) => {
@@ -187,7 +215,7 @@ to pick-up automatically a free port`));
     }
 
     // create a new client on top of socket
-    newClient(id: number, socket: ws): WebSocketClient {
+    newClient(id: number, socket: ws, remoteLogger: RemoteHostTraceLogger): WebSocketClient {
         // tslint:disable-next-line:no-any
         const emitter = new Emitter<any>();
         const webSocketClient = new WebSocketClient(id, socket, emitter);
@@ -220,23 +248,23 @@ to pick-up automatically a free port`));
         const outputChannelRegistryExt: OutputChannelRegistryExt = (webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.OUTPUT_CHANNEL_REGISTRY_EXT.id);
         const outputChannel = outputChannelRegistryExt.createOutputChannel(channelName, pluginInfo);
         const outputChannelLogCallback = new OutputChannelLogCallback(outputChannel);
-        this.remoteTraceLogger.addCallback(webSocketClient, outputChannelLogCallback);
+        remoteLogger.addCallback(webSocketClient, outputChannelLogCallback);
 
         return webSocketClient;
     }
 
     // Handle the connection received
-    handleConnection(socket: ws, request: http.IncomingMessage): void {
+    handleConnection(socket: ws, request: http.IncomingMessage, remoteLogger: RemoteHostTraceLogger): void {
         // create channel for discussing with this new client
         const channelId = this.sessionId++;
-        const client = this.newClient(channelId, socket);
+        const client = this.newClient(channelId, socket, remoteLogger);
         webSocketClients.set(channelId, client);
 
         socket.on('error', err => {
         });
 
         socket.on('close', (code, reason) => {
-            this.remoteTraceLogger.removeCallback(channelId);
+            remoteLogger.removeCallback(channelId);
             webSocketClients.delete(channelId);
         });
 
@@ -467,33 +495,10 @@ class OutputChannelLogCallback implements LogCallback {
     constructor(readonly outputChannel: theia.OutputChannel) {
 
     }
-    // tslint:disable-next-line:no-any
-    async log(message: any, ...params: any[]): Promise<void> {
-        this.outputChannel.appendLine('LOG:' + message + params);
-    }
-    // tslint:disable-next-line:no-any
-    async trace(message: any, ...params: any[]): Promise<void> {
-        this.outputChannel.appendLine('TRACE:' + message + params);
-    }
-    // tslint:disable-next-line:no-any
-    async debug(message: any, ...params: any[]): Promise<void> {
-        this.outputChannel.appendLine('DEBUG:' + message + params);
-    }
-    // tslint:disable-next-line:no-any
-    async info(message: any, ...params: any[]): Promise<void> {
-        this.outputChannel.appendLine('INFO:' + message + params);
-    }
-    // tslint:disable-next-line:no-any
-    async warn(message: any, ...params: any[]): Promise<void> {
-        this.outputChannel.appendLine('WARN:' + message + params);
-    }
-    // tslint:disable-next-line:no-any
-    async error(message: any, ...params: any[]): Promise<void> {
-        this.outputChannel.appendLine('ERROR:' + message + params);
-    }
-    // tslint:disable-next-line:no-any
-    async fatal(message: any, ...params: any[]): Promise<void> {
-        this.outputChannel.appendLine('FATAL:' + message + params);
-    }
 
+    // tslint:disable-next-line:no-any
+    async log(name: string, logLevel: number, message: string, params: any[]): Promise<void> {
+        const severity = (LogLevel.strings.get(logLevel) || 'unknown').toUpperCase();
+        this.outputChannel.appendLine(`${name} ${severity} ${util.format(message, ...params)}`);
+    }
 }

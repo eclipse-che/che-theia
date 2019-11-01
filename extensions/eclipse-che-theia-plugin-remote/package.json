@@ -10,12 +10,14 @@
   "dependencies": {
     "@theia/plugin-ext": "next",
     "@theia/plugin-ext-vscode": "next",
-    "@theia/core": "next"
+    "@theia/core": "next",
+    "cls-hooked": "^4.2.2"
   },
   "devDependencies": {
     "@types/escape-html": "0.0.20",
     "concurrently": "^3.5.0",
-    "typescript-formatter": "7.2.2"
+    "typescript-formatter": "7.2.2",
+    "@types/cls-hooked": "^4.2.2"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",
