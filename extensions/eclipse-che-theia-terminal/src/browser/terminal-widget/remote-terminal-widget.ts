@@ -261,7 +261,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         const cols = this.term.cols;
         const rows = this.term.rows;
 
-        if (this.termServer) {
+        if (this.termServer && this.termServer.resize) {
             this.termServer.resize({ id: this.terminalId, cols, rows });
         }
     }
