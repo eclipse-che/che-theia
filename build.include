@@ -81,6 +81,7 @@ DOCKER_FILES_LOCATIONS=(
   dockerfiles/remote-plugin-openshift-connector-0.1.0
   dockerfiles/remote-plugin-openshift-connector-0.1.1
   dockerfiles/remote-plugin-camelk-0.0.9
+  dockerfiles/remote-plugin-camelk-0.0.10
   dockerfiles/remote-plugin-dependency-analytics-0.0.12
   dockerfiles/remote-plugin-dependency-analytics-0.0.13
 )
@@ -107,6 +108,7 @@ PUBLISH_IMAGES_LIST=(
   eclipse/che-remote-plugin-openshift-connector-0.1.0
   eclipse/che-remote-plugin-openshift-connector-0.1.1
   eclipse/che-remote-plugin-camelk-0.0.9
+  eclipse/che-remote-plugin-camelk-0.0.10
   eclipse/che-remote-plugin-dependency-analytics-0.0.12
   eclipse/che-remote-plugin-dependency-analytics-0.0.13
 )
