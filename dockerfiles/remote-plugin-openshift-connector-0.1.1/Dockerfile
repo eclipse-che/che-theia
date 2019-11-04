@@ -25,7 +25,7 @@ ENV GLIBC_VERSION=2.30-r0 \
     OC_TAG=0cbc58b \
     KUBECTL_VERSION=v1.16.2
 
-# the plugin executes the commands relying on Bash
+# plugin executes the commands relying on Bash
 RUN apk add --update --no-cache bash && \
     # install glibc compatibility layer package for Alpine Linux
     # see https://github.com/openshift/origin/issues/18942 for the details
