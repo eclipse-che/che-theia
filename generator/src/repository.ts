@@ -43,18 +43,21 @@ export class Repository {
      * @param checkoutFolder the CWD / directory where to launch the clone operation
      * @param dest the destination folder of the clone
      * @param checkoutTo the optional branch/tag to use when cloning
+     * @param keepHistory the optional flag to keep / omit git history
      */
-    public async clone(checkoutFolder: string, dest: string, checkoutTo?: string): Promise<string> {
+    public async clone(checkoutFolder: string, dest: string, checkoutTo?: string, keepHistory: boolean = true): Promise<string> {
         const commandTheiaFolder = new Command(checkoutFolder);
-        await commandTheiaFolder.exec(`git clone ${this.uri} ${dest}`);
+
+        // Use -b to clone the specific branch
+        let opts = checkoutTo ? `-b ${checkoutTo}` : '';
+
+        // Use --single-branch and --depth to omit git history
+        opts += keepHistory ? '' : ' --single-branch --depth 1';
+
+        await commandTheiaFolder.exec(`git clone ${opts} ${this.uri} ${dest}`);
 
         const clonedDir = path.resolve(checkoutFolder, dest);
-        if (checkoutTo) {
-            // need to change checkout
-            const commandClonedDir = new Command(clonedDir);
-            await commandClonedDir.exec(`git checkout -f ${checkoutTo}`);
-        }
-
         return clonedDir;
     }
+
 }
