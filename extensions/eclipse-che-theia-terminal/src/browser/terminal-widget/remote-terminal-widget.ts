@@ -158,6 +158,14 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         await this.connectSocket(this.terminalId);
     }
 
+    get cwd(): Promise<URI> {
+        // It is not possible to retrieve current working directory of a terminal process which is run via exec mechanism.
+        // But we have to override this method to avoid requesting wrong terminal backend.
+        // Returning empty cwd will result in some features not working in some cases (for example opening files in editor by
+        //  relative link from terminal with exec backend), however it will prevent some errors.
+        return Promise.resolve(new URI());
+    }
+
     get processId(): Promise<number> {
         return (async () => {
             if (!IBaseTerminalServer.validateId(this.terminalId)) {
@@ -186,8 +194,8 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
             socket.onmessage = ev => this.write(ev.data);
 
             this.toDispose.push(Disposable.create(() => {
-                socket.close();
                 this.term.off('data', sendListener);
+                socket.close();
             }));
 
             this.isOpen = true;
