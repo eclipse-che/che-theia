@@ -54,6 +54,11 @@ export class InitSources {
     private globalDevDependencies = new Map<string, string>();
 
     /**
+     * Will clone sources keeping or omiting the history
+     */
+    private keepHistory: boolean = true;
+
+    /**
      * Constructor
      */
     constructor(readonly rootFolder: string,
@@ -62,7 +67,13 @@ export class InitSources {
         readonly cheTheiaFolder: string,
         readonly assemblyFolder: string,
         readonly theiaVersion: string) {
+    }
 
+    /**
+     * Keep or omit git history when cloning sources
+     */
+    set keepGitHistory(value: boolean) {
+        this.keepHistory = value;
     }
 
     /**
@@ -272,7 +283,7 @@ export class InitSources {
         } else {
             Logger.info(`Cloning ${extension.source}...`);
             const repository = new Repository(extension.source);
-            extension.clonedDir = await repository.clone(this.cheTheiaFolder, repository.getRepositoryName(), extension.checkoutTo);
+            extension.clonedDir = await repository.clone(this.cheTheiaFolder, repository.getRepositoryName(), extension.checkoutTo, this.keepHistory);
         }
     }
 

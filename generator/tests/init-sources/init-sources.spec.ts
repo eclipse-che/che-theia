@@ -21,6 +21,9 @@ import { YargsMockup } from "../cdn.spec";
 
 describe("Test Extensions", () => {
 
+    // Increase timeout to 30 seconds
+    jest.setTimeout(30000);
+
     const THEIA_DUMMY_VERSION = '1.2.3';
     const rootFolder = process.cwd();
     const assemblyExamplePath = path.resolve(rootFolder, "tests/init-sources/assembly-example");
@@ -46,7 +49,6 @@ describe("Test Extensions", () => {
         sourceExtension2Tmp = path.resolve(rootFolderTmp, 'source-code2');
         extensionYamlTmp = path.resolve(rootFolderTmp, 'extensions.yml');
 
-
         await fs.ensureDir(rootFolderTmp);
         await fs.ensureDir(packagesFolderTmp);
         await fs.ensureDir(pluginsFolderTmp);
@@ -69,7 +71,6 @@ describe("Test Extensions", () => {
         cp.execSync('git config --local user.email user@example.com', { cwd: path });
         cp.execSync(`git add ${path}`, { cwd: path });
         cp.execSync(`git commit -m "Init repo"`, { cwd: path });
-
     }
 
     afterEach(() => {
@@ -77,10 +78,14 @@ describe("Test Extensions", () => {
         fs.removeSync(rootFolderTmp);
     });
 
-
     test("test init sources generator", async () => {
-
-        const initSources = new InitSources(assemblyExamplePath, packagesFolderTmp, pluginsFolderTmp, cheTheiaFolderTmp, assemblyFolderTmp, THEIA_DUMMY_VERSION);
+        const initSources = new InitSources(
+            assemblyExamplePath,
+            packagesFolderTmp,
+            pluginsFolderTmp,
+            cheTheiaFolderTmp,
+            assemblyFolderTmp,
+            THEIA_DUMMY_VERSION);
 
         const yamlExtensionsContent = {
             sources: [
@@ -98,6 +103,7 @@ describe("Test Extensions", () => {
         const yml = json2yaml.stringify(yamlExtensionsContent);
         fs.writeFileSync(extensionYamlTmp, yml);
 
+        initSources.keepGitHistory = false;
         await initSources.generate(extensionYamlTmp);
 
         // need to perform checks
@@ -135,18 +141,29 @@ describe("Test Extensions", () => {
         expect(assemblyPackage.dependencies['@che-theia/sample1']).toBe('0.1.2');
         expect(assemblyPackage.dependencies['@che-theia/sample2']).toBe('6.7.8');
         expect(assemblyPackage.dependencies['@che-theia/extension-example2']).toBe('9.8.7');
-
-
     });
 
     test('extension with empty dependencies', async () => {
-        const initSources = new InitSources(assemblyExamplePath, packagesFolderTmp, pluginsFolderTmp, cheTheiaFolderTmp, assemblyFolderTmp, THEIA_DUMMY_VERSION);
+        const initSources = new InitSources(
+            assemblyExamplePath,
+            packagesFolderTmp,
+            pluginsFolderTmp,
+            cheTheiaFolderTmp,
+            assemblyFolderTmp,
+            THEIA_DUMMY_VERSION);
+
         await initSources.updateDependencies({ extSymbolicLinks: [path.resolve(rootFolder, "tests/init-sources/extension-empty")] } as ISource, false);
         expect(true).toBeTruthy();
     });
 
     test('extensions with dev mode', async () => {
-        const initSources = new InitSources(assemblyExamplePath, packagesFolderTmp, pluginsFolderTmp, cheTheiaFolderTmp, assemblyFolderTmp, THEIA_DUMMY_VERSION);
+        const initSources = new InitSources(
+            assemblyExamplePath,
+            packagesFolderTmp,
+            pluginsFolderTmp,
+            cheTheiaFolderTmp,
+            assemblyFolderTmp,
+            THEIA_DUMMY_VERSION);
 
         const yamlExtensionsContent = {
             sources: [
@@ -164,6 +181,7 @@ describe("Test Extensions", () => {
         const yml = json2yaml.stringify(yamlExtensionsContent);
         fs.writeFileSync(extensionYamlTmp, yml);
 
+        initSources.keepGitHistory = false;
         await initSources.generate(extensionYamlTmp, true);
 
         // check symlink are ok as well
@@ -174,7 +192,13 @@ describe("Test Extensions", () => {
     });
 
     test('use provided extensions', async () => {
-        const initSources = new InitSources(assemblyExamplePath, packagesFolderTmp, pluginsFolderTmp, cheTheiaFolderTmp, assemblyFolderTmp, THEIA_DUMMY_VERSION);
+        const initSources = new InitSources(
+            assemblyExamplePath,
+            packagesFolderTmp,
+            pluginsFolderTmp,
+            cheTheiaFolderTmp,
+            assemblyFolderTmp,
+            THEIA_DUMMY_VERSION);
 
         const yamlExtensionsContent = {
             sources: [
@@ -192,6 +216,7 @@ describe("Test Extensions", () => {
         const yml = json2yaml.stringify(yamlExtensionsContent);
         fs.writeFileSync(extensionYamlTmp, yml);
 
+        initSources.keepGitHistory = false;
         await initSources.readConfigurationAndGenerate(extensionYamlTmp, false);
 
         const ext1Folder1Link = await fs.readlink(path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder1`));
@@ -201,13 +226,28 @@ describe("Test Extensions", () => {
     });
 
     test('use default extensions', async () => {
-        const initSources = new InitSources(assemblyExamplePath, packagesFolderTmp, pluginsFolderTmp, cheTheiaFolderTmp, assemblyFolderTmp, THEIA_DUMMY_VERSION);
+        const initSources = new InitSources(
+            assemblyExamplePath,
+            packagesFolderTmp,
+            pluginsFolderTmp,
+            cheTheiaFolderTmp,
+            assemblyFolderTmp,
+            THEIA_DUMMY_VERSION);
+
+        initSources.keepGitHistory = false;
         await initSources.readConfigurationAndGenerate(undefined, false);
+
         expect(fs.readdirSync(packagesFolderTmp).length).toBeGreaterThan(0);
     });
 
     test('use provided extensions with dev mode', async () => {
-        const initSources = new InitSources(assemblyExamplePath, packagesFolderTmp, pluginsFolderTmp, cheTheiaFolderTmp, assemblyFolderTmp, THEIA_DUMMY_VERSION);
+        const initSources = new InitSources(
+            assemblyExamplePath,
+            packagesFolderTmp,
+            pluginsFolderTmp,
+            cheTheiaFolderTmp,
+            assemblyFolderTmp,
+            THEIA_DUMMY_VERSION);
 
         const yamlExtensionsContent = {
             sources: [
@@ -225,6 +265,7 @@ describe("Test Extensions", () => {
         const yml = json2yaml.stringify(yamlExtensionsContent);
         fs.writeFileSync(extensionYamlTmp, yml);
 
+        initSources.keepGitHistory = false;
         await initSources.readConfigurationAndGenerate(extensionYamlTmp, true);
 
         const ext1Folder1Link = await fs.readlink(path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder1`));
@@ -234,7 +275,14 @@ describe("Test Extensions", () => {
     });
 
     test('use default extensions with dev mode', async () => {
-        const initSources = new InitSources(assemblyExamplePath, packagesFolderTmp, pluginsFolderTmp, cheTheiaFolderTmp, assemblyFolderTmp, THEIA_DUMMY_VERSION);
+        const initSources = new InitSources(
+            assemblyExamplePath,
+            packagesFolderTmp,
+            pluginsFolderTmp,
+            cheTheiaFolderTmp,
+            assemblyFolderTmp,
+            THEIA_DUMMY_VERSION);
+
         let generateCalled = false;
         let configurationContent = undefined;
         initSources.generate = jest.fn(async (path: string) => {
@@ -242,6 +290,7 @@ describe("Test Extensions", () => {
             configurationContent = fs.readFileSync(path).toString();
         });
 
+        initSources.keepGitHistory = false;
         await initSources.readConfigurationAndGenerate(undefined, true);
 
         expect(generateCalled).toBe(true);
@@ -249,7 +298,14 @@ describe("Test Extensions", () => {
     });
 
     test('throw error if path to configuration does not exist', async () => {
-        const initSources = new InitSources(assemblyExamplePath, packagesFolderTmp, pluginsFolderTmp, cheTheiaFolderTmp, assemblyFolderTmp, THEIA_DUMMY_VERSION);
+        const initSources = new InitSources(
+            assemblyExamplePath,
+            packagesFolderTmp,
+            pluginsFolderTmp,
+            cheTheiaFolderTmp,
+            assemblyFolderTmp,
+            THEIA_DUMMY_VERSION);
+
         try {
             await initSources.readConfigurationAndGenerate('some/path/foo/bar.yaml', false);
         } catch (e) {
@@ -259,7 +315,14 @@ describe("Test Extensions", () => {
     });
 
     test('default extension uri is unreachable', async () => {
-        const initSources = new InitSources(assemblyExamplePath, packagesFolderTmp, pluginsFolderTmp, cheTheiaFolderTmp, assemblyFolderTmp, THEIA_DUMMY_VERSION);
+        const initSources = new InitSources(
+            assemblyExamplePath,
+            packagesFolderTmp,
+            pluginsFolderTmp,
+            cheTheiaFolderTmp,
+            assemblyFolderTmp,
+            THEIA_DUMMY_VERSION);
+
         let uri: string = InitSources.DEFAULT_EXTENSIONS_URI;
         try {
             (<any>InitSources)['DEFAULT_EXTENSIONS_URI'] = 'https://foobarfoo.com/foo/bar';
@@ -287,8 +350,15 @@ describe("Test Extensions", () => {
             default: false,
         });
     });
+
     test('use extensions and plugins', async () => {
-        const initSources = new InitSources(assemblyExamplePath, packagesFolderTmp, pluginsFolderTmp, cheTheiaFolderTmp, assemblyFolderTmp, THEIA_DUMMY_VERSION);
+        const initSources = new InitSources(
+            assemblyExamplePath,
+            packagesFolderTmp,
+            pluginsFolderTmp,
+            cheTheiaFolderTmp,
+            assemblyFolderTmp,
+            THEIA_DUMMY_VERSION);
 
         const yamlExtensionsContent = {
             sources: [
@@ -307,6 +377,7 @@ describe("Test Extensions", () => {
         const yml = json2yaml.stringify(yamlExtensionsContent);
         fs.writeFileSync(extensionYamlTmp, yml);
 
+        initSources.keepGitHistory = false;
         await initSources.readConfigurationAndGenerate(extensionYamlTmp, false);
 
         const ext1Folder1Link = await fs.readlink(path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder1`));
@@ -322,9 +393,18 @@ describe("Test Extensions", () => {
     });
 
     test('aliases replace with local source folder', async () => {
-        const initSources = new InitSources(assemblyExamplePath, packagesFolderTmp, pluginsFolderTmp, cheTheiaFolderTmp, assemblyFolderTmp, THEIA_DUMMY_VERSION);
+        const initSources = new InitSources(
+            assemblyExamplePath,
+            packagesFolderTmp,
+            pluginsFolderTmp,
+            cheTheiaFolderTmp,
+            assemblyFolderTmp,
+            THEIA_DUMMY_VERSION);
+
         const aliases = ['https://github.com/eclipse/che-theia=../che-theia', 'key1=value1', '../test=https://github.com/eclipse/che-theia'];
+
         initSources.initSourceLocationAliases(aliases);
+
         expect(initSources.sourceLocationAliases.get('https://github.com/eclipse/che-theia')).toBe('../che-theia');
         expect(initSources.sourceLocationAliases.get('../test')).toBe('https://github.com/eclipse/che-theia');
         expect(initSources.sourceLocationAliases.get('test')).toBeUndefined();
@@ -342,8 +422,18 @@ describe("Test Extensions", () => {
             extSymbolicLinks: [],
             pluginSymbolicLinks: []
         };
-        const initSources = new InitSources(assemblyExamplePath, packagesFolderTmp, pluginsFolderTmp, cheTheiaFolderTmp, assemblyFolderTmp, THEIA_DUMMY_VERSION);
+
+        const initSources = new InitSources(
+            assemblyExamplePath,
+            packagesFolderTmp,
+            pluginsFolderTmp,
+            cheTheiaFolderTmp,
+            assemblyFolderTmp,
+            THEIA_DUMMY_VERSION);
+
+        initSources.keepGitHistory = false;
         initSources.clone(source);
+
         expect(source.clonedDir).toBe(sourceExtension1Tmp);
     })
 });
