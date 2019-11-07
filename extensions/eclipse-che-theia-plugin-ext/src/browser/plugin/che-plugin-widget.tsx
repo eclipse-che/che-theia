@@ -199,13 +199,14 @@ export class ChePluginWidget extends ReactWidget {
             const notificationStyle = this.hidingRestartWorkspaceNotification ? 'notification hiding' : 'notification';
             return <div className='che-plugins-notification' >
                 <div className={notificationStyle}>
-                    <div className='notification-message' onClick={this.restartWorkspace}>
-                        <i className='fa fa-check-circle'></i>&nbsp;
-                        Click here to apply changes and restart your workspace
+                    <div className='notification-message' onClick={this.restartWorkspace}
+                        title='Click to restart your workspace with applying changes'>
+                        <div className='notification-message-icon'><i className='fa fa-check-circle'></i></div>
+                        <div className='notification-message-text'>Click here to apply changes and restart your workspace</div>
                     </div>
 
                     <div className='notification-control'>
-                        <div className='notification-hide' onClick={this.hideNotification}>
+                        <div className='notification-hide' onClick={this.hideNotification} title='Hide'>
                             <i className='fa fa-close alert-close' ></i>
                         </div>
                     </div>

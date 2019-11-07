@@ -50,12 +50,31 @@
     top: 9px;
     right: 28px;
     height: 28px;
+    line-height: 28px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 28px;
-    padding-left: 9px;
     cursor: pointer;
+}
+
+.notification-message-icon {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 28px;
+    height: 28px;
+    text-align: center;
+}
+
+.notification-message-text {
+    position: absolute;
+    left: 28px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .che-plugins-notification .notification:hover {
