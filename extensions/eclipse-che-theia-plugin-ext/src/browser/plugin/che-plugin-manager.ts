@@ -528,10 +528,13 @@ export class ChePluginManager {
             try {
                 await this.cheApiService.stop();
                 this.messageService.info('STOP request has been sent');
+                return true;
             } catch (error) {
                 this.messageService.error(`Unable to restart your workspace. ${error.message}`);
             }
         }
+
+        return false;
     }
 
     async waitOfflineMode(): Promise<void> {
