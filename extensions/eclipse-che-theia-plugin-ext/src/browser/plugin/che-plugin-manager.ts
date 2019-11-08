@@ -23,11 +23,10 @@ import {
     ChePluginService,
     CheApiService
 } from '../../common/che-protocol';
-
 import { PluginServer } from '@theia/plugin-ext/lib/common/plugin-protocol';
 import { MessageService, Emitter, Event } from '@theia/core/lib/common';
 import { ConfirmDialog } from '@theia/core/lib/browser';
-
+import { ConnectionStatusService, ConnectionStatus } from '@theia/core/lib/browser/connection-status-service';
 import { ChePluginPreferences } from './che-plugin-preferences';
 import { ChePluginFrontentService } from './che-plugin-frontend-service';
 import { PreferenceService, PreferenceScope } from '@theia/core/lib/browser/preferences';
@@ -79,16 +78,43 @@ export class ChePluginManager {
     @inject(ChePluginFrontentService)
     protected readonly pluginFrontentService: ChePluginFrontentService;
 
-    protected readonly pluginRegistryChanged = new Emitter<ChePluginRegistry>();
+    @inject(ConnectionStatusService)
+    protected readonly connectionStatusService: ConnectionStatusService;
 
-    protected readonly workspaceConfigurationChanged = new Emitter<boolean>();
+    /********************************************************************************
+     * Changing the Plugin Registry
+     ********************************************************************************/
+
+    protected readonly pluginRegistryChanged = new Emitter<ChePluginRegistry>();
 
     get onPluginRegistryChanged(): Event<ChePluginRegistry> {
         return this.pluginRegistryChanged.event;
     }
 
+    /********************************************************************************
+     * Changing the Workspace Configuration
+     ********************************************************************************/
+
+    protected readonly workspaceConfigurationChanged = new Emitter<boolean>();
+
     get onWorkspaceConfigurationChanged(): Event<boolean> {
         return this.workspaceConfigurationChanged.event;
+    }
+
+    /********************************************************************************
+     * Changing current filter
+     ********************************************************************************/
+
+    protected readonly filterChanged = new Emitter<string>();
+
+    get onFilterChanged(): Event<string> {
+        return this.filterChanged.event;
+    }
+
+    async changeFilter(filter: string, sendNotification: boolean = false) {
+        if (sendNotification) {
+            this.filterChanged.fire(filter);
+        }
     }
 
     /**
@@ -483,6 +509,13 @@ export class ChePluginManager {
     }
 
     async restartWorkspace(): Promise<void> {
+        if (await this.stopWorkspace()) {
+            await this.waitOfflineMode();
+            await this.reloadPage();
+        }
+    }
+
+    async stopWorkspace(): Promise<boolean> {
         const confirm = new ConfirmDialog({
             title: 'Restart Workspace',
             msg: 'Are you sure you want to restart your workspace?',
@@ -494,22 +527,37 @@ export class ChePluginManager {
 
             try {
                 await this.cheApiService.stop();
-                window.location.href = document.referrer;
+                this.messageService.info('STOP request has been sent');
             } catch (error) {
                 this.messageService.error(`Unable to restart your workspace. ${error.message}`);
             }
         }
     }
 
-    protected readonly filterChanged = new Emitter<string>();
+    async waitOfflineMode(): Promise<void> {
+        return new Promise(resolve => {
+            if (ConnectionStatus.OFFLINE === this.connectionStatusService.currentStatus) {
+                resolve();
+            }
 
-    get onFilterChanged(): Event<string> {
-        return this.filterChanged.event;
+            this.connectionStatusService.onStatusChange(status => {
+                if (ConnectionStatus.OFFLINE === status) {
+                    resolve();
+                }
+            }
+            );
+        });
     }
 
-    async changeFilter(filter: string, sendNotification: boolean = false) {
-        if (sendNotification) {
-            this.filterChanged.fire(filter);
+    async reloadPage(): Promise<void> {
+        const confirm = new ConfirmDialog({
+            title: 'Page reload',
+            msg: 'Are you sure you want to RELOAD the page?',
+            ok: 'Reload'
+        });
+
+        if (await confirm.open()) {
+            window.location.href = document.referrer;
         }
     }
 
