@@ -37,14 +37,14 @@ export interface TheiaThemeConfiguration {
 export const TheiaThemePreferences = Symbol('TheiaThemePreferences');
 export type TheiaThemePreferences = PreferenceProxy<TheiaThemeConfiguration>;
 
-export function createNavigatorPreferences(preferences: PreferenceService): TheiaThemePreferences {
+export function createTheiaThemePreferences(preferences: PreferenceService): TheiaThemePreferences {
     return createPreferenceProxy(preferences, TheiaThemeConfigurationSchema);
 }
 
 export function bindTheiaThemePreferences(bind: interfaces.Bind): void {
     bind(TheiaThemePreferences).toDynamicValue(ctx => {
         const preferences = ctx.container.get<PreferenceService>(PreferenceService);
-        return createNavigatorPreferences(preferences);
+        return createTheiaThemePreferences(preferences);
     });
     bind(PreferenceContribution).toConstantValue({ schema: TheiaThemeConfigurationSchema });
 }
