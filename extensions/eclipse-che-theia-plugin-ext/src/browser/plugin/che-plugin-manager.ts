@@ -538,7 +538,7 @@ export class ChePluginManager {
     }
 
     async waitOfflineMode(): Promise<void> {
-        return new Promise(resolve => {
+        return new Promise<void>(resolve => {
             if (ConnectionStatus.OFFLINE === this.connectionStatusService.currentStatus) {
                 resolve();
             }
