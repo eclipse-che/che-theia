@@ -20,8 +20,7 @@ import { TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal
 import { MessageService } from '@theia/core/lib/common';
 import { OutputChannelManager, OutputChannel } from '@theia/output/lib/common/output-channel';
 import URI from '@theia/core/lib/common/uri';
-
-const ReconnectingWebSocket = require('reconnecting-websocket');
+import ReconnectingWebSocket from 'reconnecting-websocket';
 export const REMOTE_TERMINAL_TARGET_SCOPE = 'remote-terminal';
 export const REMOTE_TERMINAL_WIDGET_FACTORY_ID = 'remote-terminal';
 export const RemoteTerminalWidgetOptions = Symbol('RemoteTerminalWidgetOptions');
@@ -42,7 +41,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     public static OUTPUT_CHANNEL_NAME = 'remote-terminal';
 
     protected termServer: RemoteTerminalServerProxy | undefined;
-    protected waitForRemoteConnection: Deferred<WebSocket> | undefined = new Deferred<WebSocket>();
+    protected waitForRemoteConnection: Deferred<ReconnectingWebSocket> | undefined = new Deferred<ReconnectingWebSocket>();
 
     @inject('TerminalProxyCreatorProvider')
     protected readonly termProxyCreatorProvider: TerminalProxyCreatorProvider;
@@ -114,7 +113,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
                 this.toDispose.push(this.termServer.onDidCloseConnection(() => {
                     const disposable = this.termServer!.onDidOpenConnection(async () => {
                         disposable.dispose();
-                        this.waitForRemoteConnection = new Deferred<WebSocket>();
+                        this.waitForRemoteConnection = new Deferred<ReconnectingWebSocket>();
                         await this.reconnectTerminalProcess();
                     });
                     this.toDispose.push(disposable);
@@ -213,7 +212,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         };
     }
 
-    protected createWebSocket(pid: string): WebSocket {
+    protected createWebSocket(pid: string): ReconnectingWebSocket {
         const url = new URI(this.options.endpoint).resolve(ATTACH_TERMINAL_SEGMENT).resolve(this.terminalId + '');
         return new ReconnectingWebSocket(url.toString(true), undefined, {
             maxReconnectionDelay: 10000,
