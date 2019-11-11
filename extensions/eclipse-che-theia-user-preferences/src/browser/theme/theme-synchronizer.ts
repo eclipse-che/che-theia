@@ -15,9 +15,9 @@
  ********************************************************************************/
 import { injectable, inject } from 'inversify';
 import { FrontendApplicationContribution, PreferenceServiceImpl, PreferenceScope } from '@theia/core/lib/browser';
-import { MaybePromise, Disposable } from '@theia/core';
 import { TheiaThemePreferences } from './theme-preferences';
 import { ThemeService } from '@theia/core/lib/browser/theming';
+import { MaybePromise } from '@theia/core';
 
 @injectable()
 export class TheiaThemePreferenceSynchronizer implements FrontendApplicationContribution {
@@ -30,7 +30,7 @@ export class TheiaThemePreferenceSynchronizer implements FrontendApplicationCont
 
     private uiChange = true;
     private preferenceChange = false;
-    private themeListener: Disposable | undefined;
+
     initialize(): void {
         this.preferenceService.onPreferenceChanged(preference => {
             if (preference.preferenceName === 'workbench.appearance.colorTheme') {
@@ -42,16 +42,15 @@ export class TheiaThemePreferenceSynchronizer implements FrontendApplicationCont
                 ThemeService.get().setCurrentTheme(preference.newValue);
             }
         });
-        if (!this.themeListener) {
-            this.themeListener = ThemeService.get().onThemeChange(e => {
-                if (this.preferenceChange) {
-                    this.preferenceChange = false;
-                    return;
-                }
-                this.uiChange = true;
-                this.preferenceService.set('workbench.appearance.colorTheme', e.newTheme.id, PreferenceScope.User);
-            });
-        }
+
+        ThemeService.get().onThemeChange(e => {
+            if (this.preferenceChange) {
+                this.preferenceChange = false;
+                return;
+            }
+            this.uiChange = true;
+            this.preferenceService.set('workbench.appearance.colorTheme', e.newTheme.id, PreferenceScope.User);
+        });
     }
 
     configure(): MaybePromise<void> {
