@@ -17,7 +17,10 @@ export const CONTAINER_SOURCE_ATTRIBUTE = 'source';
  * Return list containers with recipe source attribute.
  */
 export function filterRecipeContainers(containers: WorkspaceContainer[]): WorkspaceContainer[] {
-    return containers.filter((container: WorkspaceContainer) =>
-        container.attributes && (!container.attributes[CONTAINER_SOURCE_ATTRIBUTE] || container.attributes[CONTAINER_SOURCE_ATTRIBUTE] === RECIPE_CONTAINER_SOURCE)
-    );
+    return containers.filter(container => isDevContainer(container));
+}
+
+export function isDevContainer(container: WorkspaceContainer): boolean {
+    return container.attributes !== undefined
+        && (!container.attributes[CONTAINER_SOURCE_ATTRIBUTE] || container.attributes[CONTAINER_SOURCE_ATTRIBUTE] === RECIPE_CONTAINER_SOURCE);
 }
