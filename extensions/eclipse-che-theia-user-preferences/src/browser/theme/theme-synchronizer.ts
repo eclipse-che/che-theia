@@ -28,7 +28,7 @@ export class TheiaThemePreferenceSynchronizer implements FrontendApplicationCont
     @inject(PreferenceServiceImpl)
     protected readonly preferenceService: PreferenceServiceImpl;
 
-    private uiChange = true;
+    private uiChange = false;
     private preferenceChange = false;
 
     initialize(): void {
