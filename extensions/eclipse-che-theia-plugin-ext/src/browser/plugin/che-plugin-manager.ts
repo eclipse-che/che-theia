@@ -23,15 +23,14 @@ import {
     ChePluginService,
     CheApiService
 } from '../../common/che-protocol';
-
 import { PluginServer } from '@theia/plugin-ext/lib/common/plugin-protocol';
 import { MessageService, Emitter, Event } from '@theia/core/lib/common';
 import { ConfirmDialog } from '@theia/core/lib/browser';
-
 import { ChePluginPreferences } from './che-plugin-preferences';
 import { ChePluginFrontentService } from './che-plugin-frontend-service';
 import { PreferenceService, PreferenceScope } from '@theia/core/lib/browser/preferences';
 import { PluginFilter } from '../../common/plugin/plugin-filter';
+import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 
 @injectable()
 export class ChePluginManager {
@@ -70,6 +69,9 @@ export class ChePluginManager {
     @inject(MessageService)
     protected readonly messageService: MessageService;
 
+    @inject(EnvVariablesServer)
+    protected readonly envVariablesServer: EnvVariablesServer;
+
     @inject(ChePluginPreferences)
     protected readonly chePluginPreferences: ChePluginPreferences;
 
@@ -79,16 +81,40 @@ export class ChePluginManager {
     @inject(ChePluginFrontentService)
     protected readonly pluginFrontentService: ChePluginFrontentService;
 
-    protected readonly pluginRegistryChanged = new Emitter<ChePluginRegistry>();
+    /********************************************************************************
+     * Changing the Plugin Registry
+     ********************************************************************************/
 
-    protected readonly workspaceConfigurationChanged = new Emitter<boolean>();
+    protected readonly pluginRegistryChanged = new Emitter<ChePluginRegistry>();
 
     get onPluginRegistryChanged(): Event<ChePluginRegistry> {
         return this.pluginRegistryChanged.event;
     }
 
+    /********************************************************************************
+     * Changing the Workspace Configuration
+     ********************************************************************************/
+
+    protected readonly workspaceConfigurationChanged = new Emitter<boolean>();
+
     get onWorkspaceConfigurationChanged(): Event<boolean> {
         return this.workspaceConfigurationChanged.event;
+    }
+
+    /********************************************************************************
+     * Changing current filter
+     ********************************************************************************/
+
+    protected readonly filterChanged = new Emitter<string>();
+
+    get onFilterChanged(): Event<string> {
+        return this.filterChanged.event;
+    }
+
+    async changeFilter(filter: string, sendNotification: boolean = false) {
+        if (sendNotification) {
+            this.filterChanged.fire(filter);
+        }
     }
 
     /**
@@ -482,7 +508,20 @@ export class ChePluginManager {
         }, 500);
     }
 
+    /**
+     * Checks whether it's possible to restart the workspace.
+     */
+    restartEnabled(): boolean {
+        return window.parent !== window;
+    }
+
     async restartWorkspace(): Promise<void> {
+        // Uncomment this for production
+        // if (!this.restartEnabled()) {
+        //     this.messageService.info('Use dashboard to restart your workspace.');
+        //     return;
+        // }
+
         const confirm = new ConfirmDialog({
             title: 'Restart Workspace',
             msg: 'Are you sure you want to restart your workspace?',
@@ -490,26 +529,15 @@ export class ChePluginManager {
         });
 
         if (await confirm.open()) {
-            this.messageService.info('Workspace is restarting...');
-
-            try {
-                await this.cheApiService.stop();
-                window.location.href = document.referrer;
-            } catch (error) {
-                this.messageService.error(`Unable to restart your workspace. ${error.message}`);
+            // get workspace ID
+            const cheWorkspaceID = await this.envVariablesServer.getValue('CHE_WORKSPACE_ID');
+            // get machine token
+            const cheMachineToken = await this.envVariablesServer.getValue('CHE_MACHINE_TOKEN');
+            if (cheWorkspaceID && cheWorkspaceID.value && cheMachineToken && cheMachineToken.value) {
+                this.messageService.info('Workspace is restarting...');
+                // ask Dashboard to restart the workspace giving him workpace ID & machine token
+                window.parent.postMessage(`restart-workspace:${cheWorkspaceID.value}:${cheMachineToken.value}`, '*');
             }
-        }
-    }
-
-    protected readonly filterChanged = new Emitter<string>();
-
-    get onFilterChanged(): Event<string> {
-        return this.filterChanged.event;
-    }
-
-    async changeFilter(filter: string, sendNotification: boolean = false) {
-        if (sendNotification) {
-            this.filterChanged.fire(filter);
         }
     }
 
