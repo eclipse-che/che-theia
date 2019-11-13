@@ -516,6 +516,12 @@ export class ChePluginManager {
     }
 
     async restartWorkspace(): Promise<void> {
+        // Uncomment this for production
+        // if (!this.restartEnabled()) {
+        //     this.messageService.info('Use dashboard to restart your workspace.');
+        //     return;
+        // }
+
         const confirm = new ConfirmDialog({
             title: 'Restart Workspace',
             msg: 'Are you sure you want to restart your workspace?',
