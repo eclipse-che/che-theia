@@ -11,9 +11,9 @@ import { CheApiService, Preferences, WorkspaceSettings } from '../common/che-pro
 import { che as cheApi } from '@eclipse-che/api';
 import WorkspaceClient, { IRestAPIConfig, IRemoteAPI } from '@eclipse-che/workspace-client';
 import { injectable } from 'inversify';
+import { SS_CRT_PATH } from './che-https';
 
 const ENV_WORKSPACE_ID_IS_NOT_SET = 'Environment variable CHE_WORKSPACE_ID is not set';
-const SS_CRT_PATH = '/tmp/che/secret/ca.crt';
 
 @injectable()
 export class CheApiServiceImpl implements CheApiService {
