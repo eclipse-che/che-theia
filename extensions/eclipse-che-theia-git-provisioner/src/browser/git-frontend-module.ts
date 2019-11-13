@@ -28,7 +28,7 @@ export default new ContainerModule(bind => {
     bind(CheGitNoticationClient).toService(CheGitNoticationClientImpl);
     bind(CheGitNoticationServer).toDynamicValue(ctx => {
         const provider = ctx.container.get(WebSocketConnectionProvider);
-        const client = ctx.container.get(CheGitNoticationClient);
+        const client = ctx.container.get<CheGitNoticationClient>(CheGitNoticationClient);
         return provider.createProxy<CheGitNoticationServer>(CheGitNoticationPath, client);
     }).inSingletonScope();
 });

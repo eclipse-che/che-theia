@@ -13,7 +13,7 @@ import { WebSocketOptions } from '@theia/core/lib/browser';
 import { JsonRpcProxy, JsonRpcProxyFactory } from '@theia/core/lib/common/messaging/proxy-factory';
 import { ConnectionHandler } from '@theia/core/lib/common/messaging';
 import { listen as doListen, Logger, ConsoleLogger } from 'vscode-ws-jsonrpc/lib';
-const ReconnectingWebSocket = require('reconnecting-websocket');
+import ReconnectingWebSocket from 'reconnecting-websocket';
 
 @injectable()
 export class RemoteWebSocketConnectionProvider {
@@ -31,12 +31,15 @@ export class RemoteWebSocketConnectionProvider {
         const webSocket = this.createWebSocket(handler.path);
 
         const logger = this.createLogger();
-        webSocket.onerror = function (error: Event) {
+        webSocket.onerror = function (error: ErrorEvent) {
             logger.error('' + error);
             return;
         };
         doListen({
-            webSocket,
+            // We cast webSocket to any because despite ReconnectingWebSocket implements all methods of WebSocket,
+            // typescript thinks that they are not compatible because of dispatchEvent method (which is not in the WebSocket specification).
+            // tslint:disable-next-line: no-any
+            webSocket: webSocket as any,
             onConnection: handler.onConnection.bind(handler),
             logger
         });
@@ -46,7 +49,7 @@ export class RemoteWebSocketConnectionProvider {
         return new ConsoleLogger();
     }
 
-    createWebSocket(url: string): WebSocket {
+    createWebSocket(url: string): ReconnectingWebSocket {
         return new ReconnectingWebSocket(url, undefined, {
             maxReconnectionDelay: 10000,
             minReconnectionDelay: 1000,

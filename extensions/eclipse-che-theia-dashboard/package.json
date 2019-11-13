@@ -10,7 +10,7 @@
   ],
   "dependencies": {
     "@eclipse-che/api": "latest",
-    "@theia/core": "0.11.0",
+    "@theia/core": "next",
     "@eclipse-che/theia-plugin-ext": "0.0.1"
   },
   "scripts": {
