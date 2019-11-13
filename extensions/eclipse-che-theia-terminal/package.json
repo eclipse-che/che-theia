@@ -22,6 +22,7 @@
     "@theia/core": "next",
     "@theia/terminal": "next",
     "xterm": "3.9.2",
+    "reconnecting-websocket": "^4.2.0",
     "@eclipse-che/workspace-client": "latest",
     "@eclipse-che/api": "latest"
   },

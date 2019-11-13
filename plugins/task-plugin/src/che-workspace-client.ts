@@ -14,6 +14,13 @@ import { injectable } from 'inversify';
 
 const TERMINAL_SERVER_TYPE = 'terminal';
 
+export const RECIPE_CONTAINER_SOURCE = 'recipe';
+export const CONTAINER_SOURCE_ATTRIBUTE = 'source';
+
+export interface WorkspaceContainer extends cheApi.workspace.Machine {
+    name: string
+}
+
 @injectable()
 export class CheWorkspaceClient {
 
@@ -52,6 +59,28 @@ export class CheWorkspaceClient {
             throw new Error('No machines for current workspace is found.');
         }
         return machines;
+    }
+
+    async getContainers(): Promise<WorkspaceContainer[]> {
+        const containers: WorkspaceContainer[] = [];
+        try {
+            const workspace = await this.getCurrentWorkspace();
+
+            if (workspace.runtime && workspace.runtime.machines) {
+                const machines = workspace.runtime.machines;
+                for (const machineName in machines) {
+                    if (!machines.hasOwnProperty(machineName)) {
+                        continue;
+                    }
+                    const container: WorkspaceContainer = { name: machineName, ...machines[machineName] };
+                    containers.push(container);
+                }
+            }
+        } catch (e) {
+            throw new Error('Unable to get list workspace containers. Cause: ' + e);
+        }
+
+        return containers;
     }
 
     async getCommands(): Promise<cheApi.workspace.Command[]> {

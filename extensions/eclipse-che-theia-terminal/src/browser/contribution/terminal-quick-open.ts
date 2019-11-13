@@ -11,20 +11,18 @@
 import { injectable, inject } from 'inversify';
 import {
     QuickOpenMode, QuickOpenOptions, ApplicationShell, KeybindingRegistry,
-    QuickOpenModel, QuickOpenItem, QuickOpenHandler, QuickOpenService
+    QuickOpenModel, QuickOpenItem, QuickOpenHandler, QuickOpenService, QuickOpenGroupItem, QuickOpenGroupItemOptions, QuickOpenItemOptions
 } from '@theia/core/lib/browser';
 import { CHEWorkspaceService } from '../../common/workspace-service';
 import { TerminalApiEndPointProvider } from '../server-definition/terminal-proxy-creator';
 import { OpenTerminalHandler } from './exec-terminal-contribution';
-import { filterRecipeContainers } from './terminal-command-filter';
+import { isDevContainer } from './terminal-command-filter';
 
 @injectable()
 export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenModel {
     prefix: string = 'term ';
     description: string = 'Create new terminal for specific container.';
     private items: QuickOpenItem[] = [];
-    private isOpen: boolean;
-    private hideToolContainers: boolean;
 
     @inject(QuickOpenService)
     private readonly quickOpenService: QuickOpenService;
@@ -45,29 +43,56 @@ export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenMode
     protected readonly terminalInSpecificContainerCommandId: string;
 
     async displayListMachines(doOpen: OpenTerminalHandler) {
-        const items: QuickOpenItem[] = [];
+        this.items = [];
 
-        let containers = await this.workspaceService.getContainerList();
+        const containers = await this.workspaceService.getContainerList();
 
-        if (this.isOpen) {
-            // trigger show/hide tool containers
-            this.hideToolContainers = !this.hideToolContainers;
-        } else {
-            this.isOpen = true;
-            this.hideToolContainers = true;
-        }
+        const devContainers = containers.filter(container => isDevContainer(container));
+        const toolingContainers = containers.filter(container => !isDevContainer(container));
 
-        if (this.hideToolContainers) {
-            containers = filterRecipeContainers(containers);
-        }
+        this.items.push(
+            ...devContainers.map((container, index) => {
+                const options: QuickOpenItemOptions = {
+                    label: container.name,
+                    run(mode: QuickOpenMode): boolean {
+                        if (mode !== QuickOpenMode.OPEN) {
+                            return false;
+                        }
+                        doOpen(container.name);
 
-        for (const container of containers) {
-            items.push(new NewTerminalItem(container.name, async newTermItemFunc => {
-                doOpen(newTermItemFunc.machineName);
-            }));
-        }
+                        return true;
+                    }
+                };
 
-        this.items = Array.isArray(items) ? items : [items];
+                const group: QuickOpenGroupItemOptions = {
+                    groupLabel: index === 0 ? devContainers.length === 1 ? 'Developer Container' : 'Developer Containers' : '',
+                    showBorder: false
+                };
+
+                return new QuickOpenGroupItem<QuickOpenGroupItemOptions>({ ...options, ...group });
+            }),
+            ...toolingContainers.map((container, index) => {
+                const options: QuickOpenItemOptions = {
+                    label: container.name,
+                    run(mode: QuickOpenMode): boolean {
+                        if (mode !== QuickOpenMode.OPEN) {
+                            return false;
+                        }
+                        doOpen(container.name);
+
+                        return true;
+                    }
+                };
+
+                const group: QuickOpenGroupItemOptions = {
+                    groupLabel: devContainers.length <= 0 ? '' : index === 0 ? toolingContainers.length === 1 ? 'Tooling Container' : 'Tooling Containers' : '',
+                    showBorder: devContainers.length <= 0 ? false : index === 0 ? true : false
+                };
+
+                return new QuickOpenGroupItem<QuickOpenGroupItemOptions>({ ...options, ...group });
+            })
+        );
+
         this.showTerminalItems();
     }
 
@@ -82,19 +107,12 @@ export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenMode
     }
 
     getOptions(): QuickOpenOptions {
-        let placeholder = 'Select container to create new terminal';
-        const keybinding = this.getShortCutCommand();
-        if (keybinding) {
-            placeholder += ` (Press ${keybinding} to show/hide tool containers)`;
-        }
+        const placeholder = 'Select container to create new terminal';
         return {
             placeholder: placeholder,
             fuzzyMatchLabel: true,
             fuzzyMatchDescription: true,
-            fuzzySort: false,
-            onClose: () => {
-                this.isOpen = false;
-            }
+            fuzzySort: false
         };
     }
 
