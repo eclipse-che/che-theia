@@ -99,6 +99,7 @@ export class ChePluginServiceImpl implements ChePluginService {
             } else {
                 this.axiosInstance = axios;
             }
+            this.axiosInstance.defaults.headers.common['Cache-Control'] = 'no-cache';
         }
 
         return this.axiosInstance;
@@ -157,7 +158,6 @@ export class ChePluginServiceImpl implements ChePluginService {
         const plugins: ChePluginMetadata[] = await Promise.all(
             marketplacePlugins.map(async marketplacePlugin => {
                 const pluginYamlURI = this.getPluginYampURI(registry, marketplacePlugin);
-                console.log(`Plugin meta.yaml url: ${pluginYamlURI}`);
                 return await this.loadPluginMetadata(pluginYamlURI!, longKeyFormat);
             }
             ));
@@ -173,9 +173,7 @@ export class ChePluginServiceImpl implements ChePluginService {
      */
     private async loadPluginList(registry: ChePluginRegistry): Promise<ChePluginMetadataInternal[] | undefined> {
         try {
-            const noCache = { headers: { 'Cache-Control': 'no-cache' } };
-            console.log(`Trying to get plugin list from registry with url: ${registry.uri}`);
-            return (await this.getAxiosInstance().get<ChePluginMetadataInternal[]>(registry.uri, noCache)).data;
+            return (await this.getAxiosInstance().get<ChePluginMetadataInternal[]>(registry.uri)).data;
         } catch (error) {
             console.error(error);
             return undefined;
@@ -220,12 +218,10 @@ export class ChePluginServiceImpl implements ChePluginService {
     }
 
     private async loadPluginYaml(yamlURI: string): Promise<ChePluginMetadata> {
-        const noCache = { headers: { 'Cache-Control': 'no-cache' } };
 
         let err;
         try {
-            console.log(`Trying to get meta.yaml with url: ${yamlURI}`);
-            const data = (await this.getAxiosInstance().get<ChePluginMetadata[]>(yamlURI, noCache)).data;
+            const data = (await this.getAxiosInstance().get<ChePluginMetadata[]>(yamlURI)).data;
             return yaml.safeLoad(data);
         } catch (error) {
             console.error(error);
@@ -237,8 +233,7 @@ export class ChePluginServiceImpl implements ChePluginService {
                 yamlURI += '/';
             }
             yamlURI += 'meta.yaml';
-            console.log(`Next trying to get meta.yaml with url: ${yamlURI}`);
-            const data = (await this.getAxiosInstance().get<ChePluginMetadata[]>(yamlURI, noCache)).data;
+            const data = (await this.getAxiosInstance().get<ChePluginMetadata[]>(yamlURI)).data;
             return yaml.safeLoad(data);
         } catch (error) {
             console.error(error);
