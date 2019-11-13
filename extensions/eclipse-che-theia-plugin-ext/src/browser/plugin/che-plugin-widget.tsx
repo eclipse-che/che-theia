@@ -41,6 +41,8 @@ export class ChePluginWidget extends ReactWidget {
 
     protected currentFilter: string;
 
+    protected restartEnabled: boolean;
+
     constructor(
         @inject(ChePluginManager) protected chePluginManager: ChePluginManager,
         @inject(ChePluginMenu) protected chePluginMenu: ChePluginMenu
@@ -73,6 +75,8 @@ export class ChePluginWidget extends ReactWidget {
         this.node.ondragover = event => {
             event.preventDefault();
         };
+
+        this.restartEnabled = this.chePluginManager.restartEnabled();
     }
 
     protected onAfterShow(msg: Message) {
@@ -196,16 +200,29 @@ export class ChePluginWidget extends ReactWidget {
     // Restart your workspace to apply changes
     protected renderUpdateWorkspaceNotification(): React.ReactNode {
         if (this.needToRestartWorkspace) {
-            const notificationStyle = this.hidingRestartWorkspaceNotification ? 'notification hiding' : 'notification';
+
+            let notificationStyle = this.hidingRestartWorkspaceNotification ? 'notification hiding' : 'notification';
+            if (this.restartEnabled) {
+                notificationStyle += ' notification-button-panel';
+            }
+
+            const notification = this.restartEnabled ?
+                <div className='notification-button' onClick={this.restartWorkspace}
+                    title='Click to restart your workspace with applying changes'>
+                    <div className='notification-message-icon'><i className='fa fa-check-circle'></i></div>
+                    <div className='notification-message-text'>Click here to apply changes and restart your workspace</div>
+                </div>
+                :
+                <div className='notification-message'>
+                    <div className='notification-message-icon'><i className='fa fa-exclamation-triangle'></i></div>
+                    <div className='notification-message-text'>Use dashboard to apply changes and restart your workspace</div>
+                </div>;
+
             return <div className='che-plugins-notification' >
                 <div className={notificationStyle}>
-                    <div className='notification-message' onClick={this.restartWorkspace}>
-                        <i className='fa fa-check-circle'></i>&nbsp;
-                        Click here to apply changes and restart your workspace
-                    </div>
-
+                    {notification}
                     <div className='notification-control'>
-                        <div className='notification-hide' onClick={this.hideNotification}>
+                        <div className='notification-hide' onClick={this.hideNotification} title='Hide'>
                             <i className='fa fa-close alert-close' ></i>
                         </div>
                     </div>
