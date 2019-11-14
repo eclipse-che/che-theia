@@ -9,20 +9,23 @@
  **********************************************************************/
 
 import { JsonRpcServer } from '@theia/core';
+import { UserConfiguration } from '../node/git-configuration-controller';
 
 export const GIT_USER_NAME = 'git.user.name';
 export const GIT_USER_EMAIL = 'git.user.email';
 
-export const CheGitNoticationPath = '/services/che-git-notification';
+export const CheGitServicePath = '/services/che-git-service';
 
-export const CheGitNoticationClient = Symbol('CheGitNoticationClient');
+export const CheGitClient = Symbol('CheGitClient');
 
-export interface CheGitNoticationClient {
-    notify(): void;
+export interface CheGitClient {
+    firePreferencesChanged(): void;
 }
 
-export const CheGitNoticationServer = Symbol('CheGitNoticationServer');
+export const CheGitService = Symbol('CheGitService');
 
-export interface CheGitNoticationServer extends JsonRpcServer<CheGitNoticationClient> { }
+export interface CheGitService extends JsonRpcServer<CheGitClient> {
+    getUserConfigurationFromGitConfig(): Promise<UserConfiguration>
+}
 
 export interface GitConfigChanged { }

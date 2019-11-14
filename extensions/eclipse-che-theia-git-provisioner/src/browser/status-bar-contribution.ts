@@ -18,8 +18,8 @@ import { injectable, inject, postConstruct } from 'inversify';
 import { FrontendApplicationContribution, CommonCommands } from '@theia/core/lib/browser';
 import { StatusBar, StatusBarAlignment } from '@theia/core/lib/browser/status-bar/status-bar';
 import { CheApiService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
-import { CheGitNoticationServer, GIT_USER_EMAIL, GIT_USER_NAME } from '../common/git-notification-proxy';
-import { CheGitNoticationClientImpl } from './git-config-changes-tracker';
+import { CheGitService, GIT_USER_EMAIL, GIT_USER_NAME } from '../common/git-protocol';
+import { CheGitClientImpl } from './git-config-changes-tracker';
 
 @injectable()
 export class CheTheiaStatusBarFrontendContribution implements FrontendApplicationContribution {
@@ -30,11 +30,11 @@ export class CheTheiaStatusBarFrontendContribution implements FrontendApplicatio
     @inject(CheApiService)
     protected cheApiService: CheApiService;
 
-    @inject(CheGitNoticationServer)
-    protected cheGitNoticationServer: CheGitNoticationServer;
+    @inject(CheGitService)
+    protected gitService: CheGitService;
 
-    @inject(CheGitNoticationClientImpl)
-    protected cheGitNoticationClientImpl: CheGitNoticationClientImpl;
+    @inject(CheGitClientImpl)
+    protected gitClient: CheGitClientImpl;
 
     private message = 'Git: set your username/email config';
     private tooltip = 'Set git.username and git.useremail in UserPrefrences';
@@ -43,20 +43,25 @@ export class CheTheiaStatusBarFrontendContribution implements FrontendApplicatio
     @postConstruct()
     initialize(): void {
         this.checkGitCommiterSettings();
-        this.cheGitNoticationClientImpl.changeEvent(() => {
+        this.gitClient.changeEvent(() => {
             this.checkGitCommiterSettings();
         });
     }
 
     checkGitCommiterSettings() {
-        this.cheApiService.getUserPreferences('theia-user-preferences').then(chePreferences => {
+        this.cheApiService.getUserPreferences('theia-user-preferences').then(async chePreferences => {
             const theiaPreferences = JSON.parse(chePreferences['theia-user-preferences'] ? chePreferences['theia-user-preferences'] : '{}');
             const email = theiaPreferences[GIT_USER_EMAIL];
             const name = theiaPreferences[GIT_USER_NAME];
-            if (!email || !name) {
-                this.showWarn(this.message);
-            } else {
+            if (email && name) {
                 this.hideWarn();
+            } else {
+                const config = await this.gitService.getUserConfigurationFromGitConfig();
+                if (config.name && config.email) {
+                    this.hideWarn();
+                } else {
+                    this.showWarn(this.message);
+                }
             }
         }).catch(error => {
             console.log(error);
