@@ -66,14 +66,15 @@ export class ChePluginServiceImpl implements ChePluginService {
             if (workspaceSettings && workspaceSettings['cheWorkspacePluginRegistryUrl']) {
                 let uri = workspaceSettings['cheWorkspacePluginRegistryUrl'];
 
-                if (uri.endsWith('/')) {
-                    uri = uri.substring(0, uri.length - 1);
-                }
+                if (!uri.endsWith('/plugins/')) {
+                    if (uri.endsWith('/')) {
+                        uri = uri.substring(0, uri.length - 1);
+                    }
 
-                if (!uri.endsWith('/plugins')) {
-                    uri += '/plugins/';
+                    if (!uri.endsWith('/plugins')) {
+                        uri += '/plugins/';
+                    }
                 }
-
                 this.defaultRegistry = {
                     name: 'Eclipse Che plugins',
                     uri: uri
