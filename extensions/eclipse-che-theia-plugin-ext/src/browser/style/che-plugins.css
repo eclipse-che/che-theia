@@ -40,11 +40,21 @@
     color: #FFFFFF;
 }
 
+.che-plugins-notification .notification-button-panel:hover {
+    background-color: var(--theia-success-color1);
+}
+
+.che-plugins-notification .notification-button-panel:active {
+    box-shadow: 0px 0px 2px 0px var(--theia-success-color2);
+    outline: none;
+}
+
 .che-plugins-notification .notification.hiding {
     opacity: 0;
 }
 
-.che-plugins-notification .notification-message {
+.che-plugins-notification .notification-message,
+.che-plugins-notification .notification-button {
     position: absolute;
     left: 0px;
     top: 9px;
@@ -52,6 +62,9 @@
     height: 28px;
     line-height: 28px;
     overflow: hidden;
+}
+
+.che-plugins-notification .notification-button {
     cursor: pointer;
 }
 
@@ -73,15 +86,6 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-}
-
-.che-plugins-notification .notification:hover {
-    background-color: var(--theia-success-color1);
-}
-
-.che-plugins-notification .notification:active {
-    box-shadow: 0px 0px 2px 0px var(--theia-success-color2);
-    outline: none;
 }
 
 .che-plugins-notification .notification-control {
