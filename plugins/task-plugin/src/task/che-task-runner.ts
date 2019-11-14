@@ -61,11 +61,17 @@ export class CheTaskRunner {
         }
 
         try {
+            const command = taskConfig.commandLine
+            ? taskConfig.commandLine
+            : (taskConfig.command + (taskConfig.args
+                                        ? ' ' + taskConfig.args.join(' ')
+                                        : ''));
+
             const terminalOptions: theia.TerminalOptions = {
                 cwd: target.workingDir,
                 name: taskConfig.label,
                 shellPath: 'sh',
-                shellArgs: ['-c', `${taskConfig.command}`],
+                shellArgs: ['-c', `${command}`],
 
                 attributes: {
                     CHE_MACHINE_NAME: containerName,

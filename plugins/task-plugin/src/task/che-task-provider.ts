@@ -54,8 +54,25 @@ export class CheTaskProvider {
         }
 
         const execution = task.execution as ShellExecution;
-        if (execution && execution.command) {
-            execution.command = await che.variables.resolve(execution.command as string);
+        if (execution) {
+            if (execution.commandLine) {
+                execution.commandLine = await che.variables.resolve(execution.commandLine as string);
+            }
+            if (execution.command) {
+                execution.command = await che.variables.resolve(execution.command as string);
+            }
+            if (execution.args) {
+                for (const i in execution.args) {
+                    if (execution.args[i]) {
+                        const arg = execution.args[i];
+                        if (typeof arg === 'string') {
+                            execution.args[i] = await che.variables.resolve(arg as string) || '';
+                        } else if (typeof arg.value === 'string') {
+                            arg.value = await che.variables.resolve(arg.value as string) || '';
+                        }
+                    }
+                }
+            }
         }
 
         return {
