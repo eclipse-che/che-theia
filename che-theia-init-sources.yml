@@ -19,4 +19,4 @@ sources:
     - plugins/task-plugin
     - plugins/welcome-plugin
     - plugins/ssh-plugin
-  checkoutTo: 7.3.1
+  checkoutTo: 7.3.2
