@@ -19,6 +19,9 @@ import axios, { AxiosInstance } from 'axios';
 import { che as cheApi } from '@eclipse-che/api';
 import URI from '@theia/core/lib/common/uri';
 import { PluginFilter } from '../common/plugin/plugin-filter';
+import * as fs from 'fs-extra';
+import * as https from 'https';
+import { SS_CRT_PATH } from './che-https';
 
 const yaml = require('js-yaml');
 
@@ -43,7 +46,7 @@ export interface ChePluginMetadataInternal {
 @injectable()
 export class ChePluginServiceImpl implements ChePluginService {
 
-    private axiosInstance: AxiosInstance = axios;
+    private axiosInstance: AxiosInstance;
 
     private cheApiService: CheApiService;
 
@@ -63,14 +66,15 @@ export class ChePluginServiceImpl implements ChePluginService {
             if (workspaceSettings && workspaceSettings['cheWorkspacePluginRegistryUrl']) {
                 let uri = workspaceSettings['cheWorkspacePluginRegistryUrl'];
 
-                if (uri.endsWith('/')) {
-                    uri = uri.substring(0, uri.length - 1);
-                }
+                if (!uri.endsWith('/plugins/')) {
+                    if (uri.endsWith('/')) {
+                        uri = uri.substring(0, uri.length - 1);
+                    }
 
-                if (!uri.endsWith('/plugins')) {
-                    uri += '/plugins/';
+                    if (!uri.endsWith('/plugins')) {
+                        uri += '/plugins/';
+                    }
                 }
-
                 this.defaultRegistry = {
                     name: 'Eclipse Che plugins',
                     uri: uri
@@ -84,6 +88,22 @@ export class ChePluginServiceImpl implements ChePluginService {
             console.error(error);
             return Promise.reject(`Unable to get default plugin registry URI. ${error.message}`);
         }
+    }
+
+    private getAxiosInstance(): AxiosInstance {
+        if (!this.axiosInstance) {
+            if (fs.pathExistsSync(SS_CRT_PATH)) {
+                const agent = new https.Agent({
+                    ca: fs.readFileSync(SS_CRT_PATH)
+                });
+                this.axiosInstance = axios.create({ httpsAgent: agent });
+            } else {
+                this.axiosInstance = axios;
+            }
+            this.axiosInstance.defaults.headers.common['Cache-Control'] = 'no-cache';
+        }
+
+        return this.axiosInstance;
     }
 
     /**
@@ -154,9 +174,9 @@ export class ChePluginServiceImpl implements ChePluginService {
      */
     private async loadPluginList(registry: ChePluginRegistry): Promise<ChePluginMetadataInternal[] | undefined> {
         try {
-            const noCache = { headers: { 'Cache-Control': 'no-cache' } };
-            return (await this.axiosInstance.get<ChePluginMetadataInternal[]>(registry.uri, noCache)).data;
+            return (await this.getAxiosInstance().get<ChePluginMetadataInternal[]>(registry.uri)).data;
         } catch (error) {
+            console.error(error);
             return undefined;
         }
     }
@@ -199,13 +219,13 @@ export class ChePluginServiceImpl implements ChePluginService {
     }
 
     private async loadPluginYaml(yamlURI: string): Promise<ChePluginMetadata> {
-        const noCache = { headers: { 'Cache-Control': 'no-cache' } };
 
         let err;
         try {
-            const data = (await this.axiosInstance.get<ChePluginMetadata[]>(yamlURI, noCache)).data;
+            const data = (await this.getAxiosInstance().get<ChePluginMetadata[]>(yamlURI)).data;
             return yaml.safeLoad(data);
         } catch (error) {
+            console.error(error);
             err = error;
         }
 
@@ -214,9 +234,10 @@ export class ChePluginServiceImpl implements ChePluginService {
                 yamlURI += '/';
             }
             yamlURI += 'meta.yaml';
-            const data = (await this.axiosInstance.get<ChePluginMetadata[]>(yamlURI, noCache)).data;
+            const data = (await this.getAxiosInstance().get<ChePluginMetadata[]>(yamlURI)).data;
             return yaml.safeLoad(data);
         } catch (error) {
+            console.error(error);
             return Promise.reject('Unable to load plugin metadata. ' + err.message);
         }
     }
