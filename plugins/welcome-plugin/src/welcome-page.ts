@@ -46,7 +46,10 @@ export class WelcomePage {
 
         return `<div class="che-welcome-header">
             <div class="che-welcome-header-title">
-                <div class="image-container"><img class="product-logo-dark" src=${logoDark} /><img class="product-logo-light" src=${logoLight} /></div>
+                <div class="image-container">
+                    <img style='display: none;' class="product-logo-dark" src=${logoDark} />
+                    <img style='display: none;' class="product-logo-light" src=${logoLight} />
+                </div>
             </div>
             ${welcome}
         </div>`;
