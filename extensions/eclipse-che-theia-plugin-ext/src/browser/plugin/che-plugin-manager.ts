@@ -510,7 +510,7 @@ export class ChePluginManager {
 
     /**
      * Checks whether IDE is opened inside frame in dashboard.
-     * If yes, IDE can send request to the dashboard to restart the workspace. 
+     * If yes, IDE can send request to the dashboard to restart the workspace.
      */
     restartEnabled(): boolean {
         return window.parent !== window;
