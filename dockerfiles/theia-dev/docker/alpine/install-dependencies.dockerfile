@@ -6,7 +6,7 @@ RUN apk add --update --no-cache \
     # compile some javascript native stuff (node-gyp)
     make gcc g++ python \
     # clone repositories (and also using ssh repositories)
-    git openssh openssh-keygen \
+    git openssh openssh-keygen man git-doc \
     # Handle git diff properly
     less \
     # bash shell
