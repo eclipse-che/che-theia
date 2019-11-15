@@ -31,7 +31,8 @@
   },
   "theiaExtensions": [
     {
-      "backend": "lib/node/che-theia-user-preferences-backend-module"
+      "backend": "lib/node/che-theia-user-preferences-backend-module",
+      "frontend": "lib/browser/che-theia-user-preferences-frontend-module"
     }
   ]
 }
