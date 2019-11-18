@@ -122,6 +122,12 @@ async function onOpenPort(port: Port) {
         if (matchingWorkspacePort.serverName.startsWith(SERVER_REDIRECT_PATTERN)) {
             return;
         }
+
+        // check if endpoint has preview url, and if so do not show dialog to avoid duplication with task plugin
+        if (matchingWorkspacePort.previewUrl) {
+            return;
+        }
+
         const interactions: MessageItem[] = [{ title: 'Open Link' }];
         const msg = `A process is now listening on port ${matchingWorkspacePort.portNumber}. External URL is ${matchingWorkspacePort.url}`;
         const result = await theia.window.showInformationMessage(msg, { modal: true }, ...interactions);

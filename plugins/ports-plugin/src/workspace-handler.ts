@@ -9,7 +9,7 @@
  **********************************************************************/
 
 import * as che from '@eclipse-che/plugin';
-import { WorkspacePort } from './workspace-port';
+import { WorkspacePort, PreviewUrl } from './workspace-port';
 
 /**
  * Grab ports exposed in the workspace.
@@ -23,13 +23,25 @@ export class WorkspaceHandler {
         if (!workspace) {
             return ports;
         }
+
+        const previewUrls: PreviewUrl[] = [];
+        if (workspace.devfile && workspace.devfile.commands) {
+            const commands = workspace.devfile.commands;
+            for (const command of commands) {
+                if (command.previewUrl && command.previewUrl.port) {
+                    previewUrls.push({ port: command.previewUrl.port.toString(), path: command.previewUrl.path });
+                }
+            }
+        }
+
         const runtimeMachines = workspace!.runtime!.machines || {};
         Object.keys(runtimeMachines).forEach((machineName: string) => {
             const machineServers = runtimeMachines[machineName].servers || {};
             Object.keys(machineServers).forEach((serverName: string) => {
                 const url = machineServers[serverName].url!;
                 const portNumber = machineServers[serverName].attributes!.port!;
-                ports.push({ portNumber, serverName, url });
+                const previewUrl = previewUrls.find(previewUrlData => previewUrlData.port === portNumber);
+                ports.push({ portNumber, serverName, url, previewUrl });
             });
 
         });
