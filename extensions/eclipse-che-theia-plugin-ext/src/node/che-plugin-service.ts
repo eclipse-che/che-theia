@@ -126,6 +126,8 @@ export class ChePluginServiceImpl implements ChePluginService {
      * @return list of available plugins
      */
     async getPlugins(registry: ChePluginRegistry, filter: string): Promise<ChePluginMetadata[]> {
+        console.log('>>> GET ALL PLUGINS....');
+
         // ensure default plugin registry URI is set
         if (!this.defaultRegistry) {
             await this.getDefaultRegistry();
@@ -155,13 +157,30 @@ export class ChePluginServiceImpl implements ChePluginService {
             return Promise.reject('Unable to get plugins from marketplace');
         }
 
+        console.log('<< plugin list received');
+
         const longKeyFormat = registry.uri !== this.defaultRegistry.uri;
-        const plugins: ChePluginMetadata[] = await Promise.all(
-            marketplacePlugins.map(async marketplacePlugin => {
-                const pluginYamlURI = this.getPluginYampURI(registry, marketplacePlugin);
-                return await this.loadPluginMetadata(pluginYamlURI!, longKeyFormat);
+
+        // const plugins: ChePluginMetadata[] = await Promise.all(
+        //     marketplacePlugins.map(async marketplacePlugin => {
+        //         const pluginYamlURI = this.getPluginYampURI(registry, marketplacePlugin);
+        //         return await this.loadPluginMetadata(pluginYamlURI!, longKeyFormat);
+        //     }
+        //     ));
+
+        const plugins: ChePluginMetadata[] = [];
+        for (let i = 0; i < marketplacePlugins.length; i++) {
+            const marketplacePlugin: ChePluginMetadataInternal = marketplacePlugins[i];
+            const pluginYamlURI = this.getPluginYampURI(registry, marketplacePlugin);
+            try {
+                const pluginMetadata = await this.loadPluginMetadata(pluginYamlURI!, longKeyFormat);
+                plugins.push(pluginMetadata);
+            } catch (error) {
+                console.log('<< unable go get plugin metadata from ' + pluginYamlURI);
             }
-            ));
+
+            console.log('PLUGINS: ' + plugins.length);
+        }
 
         return plugins.filter(plugin => plugin !== null && plugin !== undefined);
     }
@@ -173,6 +192,8 @@ export class ChePluginServiceImpl implements ChePluginService {
      * @return list of available plugins
      */
     private async loadPluginList(registry: ChePluginRegistry): Promise<ChePluginMetadataInternal[] | undefined> {
+        console.log('>> LOAD PLUGIN LIST FROM ' + registry.uri);
+
         try {
             return (await this.getAxiosInstance().get<ChePluginMetadataInternal[]>(registry.uri)).data;
         } catch (error) {
@@ -219,7 +240,7 @@ export class ChePluginServiceImpl implements ChePluginService {
     }
 
     private async loadPluginYaml(yamlURI: string): Promise<ChePluginMetadata> {
-
+        console.log('> loadPluginYaml: ' + yamlURI);
         let err;
         try {
             const data = (await this.getAxiosInstance().get<ChePluginMetadata[]>(yamlURI)).data;
