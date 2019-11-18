@@ -32,8 +32,6 @@ async function getHtmlForWebview(context: theia.PluginContext): Promise<string> 
     const welcomePage = new WelcomePage(context);
     const rendering = await welcomePage.render(context);
     // tslint:disable: max-line-length
-    //
-    // tslint:disable: max-line-length
     return `<!DOCTYPE html>
             <html lang="en">
             <head>
