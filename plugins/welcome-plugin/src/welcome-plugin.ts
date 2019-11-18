@@ -32,11 +32,13 @@ async function getHtmlForWebview(context: theia.PluginContext): Promise<string> 
     const welcomePage = new WelcomePage(context);
     const rendering = await welcomePage.render(context);
     // tslint:disable: max-line-length
+    //
+    // tslint:disable: max-line-length
     return `<!DOCTYPE html>
             <html lang="en">
             <head>
                 <meta charset="UTF-8">
-                <meta http-equiv="Content-Security-Policy" content="font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'unsafe-inline' 'self';">
+                <meta http-equiv="Content-Security-Policy" content="font-src 'self' https://static.developers.redhat.com; style-src 'self' https://static.developers.redhat.com 'unsafe-inline'; script-src 'unsafe-inline' https://static.developers.redhat.com 'self';">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <link rel="stylesheet" type="text/css" href="${cssUri}">
                 </style>
