@@ -10,15 +10,18 @@
 import { CheTask, CheTaskMain, CheTaskService, CheTaskClient, PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { interfaces, injectable } from 'inversify';
-import { TaskExitedEvent } from '@eclipse-che/plugin';
+import { TaskExitedEvent, TaskJSONSchema } from '@eclipse-che/plugin';
+import { TaskSchemaUpdater } from '@theia/task/lib/browser';
 
 @injectable()
 export class CheTaskMainImpl implements CheTaskMain {
     private readonly delegate: CheTaskService;
     private readonly cheTaskClient: CheTaskClient;
+    private readonly taskSchemaUpdater: TaskSchemaUpdater;
     constructor(container: interfaces.Container, rpc: RPCProtocol) {
         const proxy: CheTask = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_TASK);
         this.delegate = container.get(CheTaskService);
+        this.taskSchemaUpdater = container.get(TaskSchemaUpdater);
         this.cheTaskClient = container.get(CheTaskClient);
         this.cheTaskClient.onKillEvent(taskInfo => proxy.$killTask(taskInfo));
         this.cheTaskClient.addRunTaskHandler((config, ctx) => proxy.$runTask(config, ctx));
@@ -34,5 +37,9 @@ export class CheTaskMainImpl implements CheTaskMain {
 
     $fireTaskExited(event: TaskExitedEvent): Promise<void> {
         return this.delegate.fireTaskExited(event);
+    }
+
+    async $addTaskSubschema(schema: TaskJSONSchema): Promise<void> {
+        this.taskSchemaUpdater.addSubschema(schema);
     }
 }

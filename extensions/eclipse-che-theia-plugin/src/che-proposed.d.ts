@@ -111,6 +111,8 @@ declare module '@eclipse-che/plugin' {
         export function registerTaskRunner(type: string, runner: TaskRunner): Promise<Disposable>;
         /** Needs to be executed when the task is finished */
         export function fireTaskExited(event: TaskExitedEvent): Promise<void>;
+        /** Add task subschema */
+        export function addTaskSubschema(schema: TaskJSONSchema): Promise<void>;
     }
 
     /** A Task Runner knows how to run a Task of a particular type. */
@@ -159,6 +161,14 @@ declare module '@eclipse-che/plugin' {
         readonly _scope: string | undefined;
         /** Additional task type specific properties. */
         readonly [key: string]: any;
+    }
+
+    export interface TaskJSONSchema {
+        $id?: string;
+        type?: string | string[];
+        required?: string[];
+        properties?: { [key: string]: any };
+        additionalProperties?: boolean
     }
 
     export namespace user {

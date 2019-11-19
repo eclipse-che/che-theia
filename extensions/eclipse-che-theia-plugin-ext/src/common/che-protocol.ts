@@ -94,6 +94,7 @@ export interface CheTaskMain {
     $registerTaskRunner(type: string): Promise<void>;
     $disposeTaskRunner(type: string): Promise<void>;
     $fireTaskExited(event: che.TaskExitedEvent): Promise<void>;
+    $addTaskSubschema(schema: che.TaskJSONSchema): Promise<void>;
 }
 
 export interface CheSideCarContentReader {

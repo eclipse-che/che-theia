@@ -136,6 +136,9 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             },
             fireTaskExited(event: che.TaskExitedEvent): Promise<void> {
                 return cheTaskImpl.fireTaskExited(event);
+            },
+            addTaskSubschema(schema: che.TaskJSONSchema): Promise<void> {
+                return cheTaskImpl.addTaskSubschema(schema);
             }
         };
 
