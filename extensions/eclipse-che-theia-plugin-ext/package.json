@@ -16,6 +16,7 @@
     "@eclipse-che/plugin": "0.0.1",
     "@eclipse-che/workspace-client": "latest",
     "@theia/core": "next",
+    "@theia/task": "next",
     "@theia/mini-browser": "next",
     "@theia/plugin-ext": "next",
     "axios": "0.19.0",

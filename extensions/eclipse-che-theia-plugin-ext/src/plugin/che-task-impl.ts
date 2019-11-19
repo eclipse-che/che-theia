@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 import { CheTask, CheTaskMain, PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
-import { TaskRunner, Disposable, TaskInfo, TaskExitedEvent, TaskConfiguration } from '@eclipse-che/plugin';
+import { TaskRunner, Disposable, TaskInfo, TaskExitedEvent, TaskConfiguration, TaskJSONSchema } from '@eclipse-che/plugin';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 
 export class CheTaskImpl implements CheTask {
@@ -46,5 +46,9 @@ export class CheTaskImpl implements CheTask {
 
     async fireTaskExited(event: TaskExitedEvent): Promise<void> {
         this.cheTaskMain.$fireTaskExited(event);
+    }
+
+    async addTaskSubschema(schema: TaskJSONSchema): Promise<void> {
+        this.cheTaskMain.$addTaskSubschema(schema);
     }
 }
