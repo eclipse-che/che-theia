@@ -319,6 +319,14 @@ body[class="vscode-light"] .product-logo-dark {
     display: none;
 }
 
+body[class="vscode-light"] .product-logo-light {
+    display: block !important;
+}
+
+body[class="vscode-dark"] .product-logo-dark {
+    display: block !important;
+}
+
 body[class="vscode-dark"] .product-logo-light {
     display: none;
 }
