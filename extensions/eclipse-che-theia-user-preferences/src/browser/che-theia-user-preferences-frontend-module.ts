@@ -14,13 +14,13 @@ import { TheiaThemePreferenceSynchronizer } from './theme/theme-synchronizer';
 import { StorageServer, storageServerPath } from '../common/storage-server';
 import { CheStorageService } from './che-storage-service';
 import { bindStorageServicePreferences } from './che-storage-preferences';
-import { LayoutStorage } from './che-storage-frontend-contribution';
+import { LayoutChangeListener } from './che-storage-frontend-contribution';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
     bindTheiaThemePreferences(bind);
     bindStorageServicePreferences(bind);
     bind(FrontendApplicationContribution).to(TheiaThemePreferenceSynchronizer).inSingletonScope();
-    bind(FrontendApplicationContribution).to(LayoutStorage).inSingletonScope();
+    bind(FrontendApplicationContribution).to(LayoutChangeListener).inSingletonScope();
 
     bind(StorageServer).toDynamicValue(ctx => {
         const connection = ctx.container.get(WebSocketConnectionProvider);

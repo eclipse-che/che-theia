@@ -12,7 +12,7 @@ import { injectable, inject } from 'inversify';
 import { StorageServicePreferences } from './che-storage-preferences';
 
 @injectable()
-export class LayoutStorage implements FrontendApplicationContribution {
+export class LayoutChangeListener implements FrontendApplicationContribution {
 
     @inject(StorageService)
     protected storageService: StorageService;
