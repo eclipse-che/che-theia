@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
+import * as path from 'path';
 import { AboutDialog, AboutDialogProps, ABOUT_EXTENSIONS_CLASS, ABOUT_CONTENT_CLASS } from '@theia/core/lib/browser/about-dialog';
 import { injectable, inject, postConstruct } from 'inversify';
 import { CheProductService, Product } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
@@ -50,11 +51,8 @@ export class AboutCheTheiaDialog extends AboutDialog {
             logo = logo.substring(7);
         }
 
-        if (logo.startsWith('/')) {
-            return `/webview${logo}`;
-        } else {
-            return `/webview/${logo}`;
-        }
+        // Use relative endpoint path
+        return path.join('mini-browser', logo);
     }
 
     /**
