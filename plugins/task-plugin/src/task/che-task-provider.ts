@@ -66,9 +66,9 @@ export class CheTaskProvider {
                     if (execution.args[i]) {
                         const arg = execution.args[i];
                         if (typeof arg === 'string') {
-                            execution.args[i] = await che.variables.resolve(arg as string) || '';
+                            execution.args[i] = await che.variables.resolve(arg as string) || arg;
                         } else if (typeof arg.value === 'string') {
-                            arg.value = await che.variables.resolve(arg.value as string) || '';
+                            arg.value = await che.variables.resolve(arg.value as string) || arg.value;
                         }
                     }
                 }
