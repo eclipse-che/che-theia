@@ -8,15 +8,16 @@
 * SPDX-License-Identifier: EPL-2.0
 **********************************************************************/
 
-import * as yargs from 'yargs';
-import { Logger } from './logger';
 import * as path from 'path';
-import { CliError } from './cli-error';
-import { Production } from './production';
-import { Init } from './init';
+import * as yargs from 'yargs';
+import { BuiltinExtensions } from './builtin-extensions';
 import { Cdn } from './cdn';
-import { InitSources } from './init-sources';
 import { Clean } from './clean';
+import { CliError } from './cli-error';
+import { Init } from './init';
+import { InitSources } from './init-sources';
+import { Logger } from './logger';
+import { Production } from './production';
 
 const ASSSEMBLY_PATH = 'examples/assembly';
 
@@ -86,6 +87,19 @@ const commandArgs = yargs
                 const nodeModules = path.resolve(process.cwd(), 'node_modules');
                 const clean = new Clean(assemblyFolder, cheFolder, packagesFolder, pluginsFolder, nodeModules);
                 await clean.cleanCheTheia();
+            } catch (err) {
+                handleError(err);
+            }
+        }
+    })
+    .command({
+        command: 'builtin-extensions',
+        describe: 'Download builtin extensions',
+        handler: async () => {
+            try {
+                const pluginsFolder = path.resolve(process.cwd(), 'plugins');
+                const builtinExtensions = new BuiltinExtensions(pluginsFolder);
+                await builtinExtensions.download();
             } catch (err) {
                 handleError(err);
             }

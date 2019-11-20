@@ -19,10 +19,15 @@ export class Command {
      * Map between the name of the exec command and the output.
      */
     private static readonly execMap: Map<string, string> = new Map();
+    private static readonly execRegExpMap: Map<RegExp, string> = new Map();
 
     // mock any exec command by providing the output
-    public static __setExecCommandOutput(command: string, output: string): void {
-        Command.execMap.set(command, output);
+    public static __setExecCommandOutput(command: string | RegExp, output: string): void {
+        if (typeof command === 'string') {
+            Command.execMap.set(command, output);
+        } else {
+            Command.execRegExpMap.set(command, output);
+        }
     }
 
     constructor() {
@@ -34,6 +39,11 @@ export class Command {
         if (result) {
             return Promise.resolve(result);
         } else {
+            for (const entry of Command.execRegExpMap) {
+                if (entry[0].test(command)) {
+                    return entry[1];
+                }
+            }
             return Promise.resolve('');
         }
     }
