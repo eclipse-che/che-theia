@@ -14,9 +14,10 @@ RUN apt-get update && \
     apt-get install wget -y && \
 	wget -O - https://deb.nodesource.com/setup_10.x | bash - && \
     apt-get update && \
-	apt-get install nodejs -y && \
-	apt-get clean && apt-get -y autoremove && rm -rf /var/lib/apt/lists/* && \
-    pip install pylint python-language-server[all] ptvsd 'jedi<0.15,>=0.14.1'
+	apt-get install nodejs gcc build-essential -y && \
+    pip install pylint python-language-server[all] ptvsd 'jedi<0.15,>=0.14.1' && \
+    apt-get purge -y --auto-remove gcc build-essential && \
+	apt-get clean && apt-get -y autoremove && rm -rf /var/lib/apt/lists/*
 
 ENV HOME=/home/theia
 
