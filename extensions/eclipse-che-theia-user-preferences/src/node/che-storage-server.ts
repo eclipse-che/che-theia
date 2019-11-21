@@ -14,8 +14,9 @@ import { readFile, writeFile, ensureDir, pathExists } from 'fs-extra';
 import { injectable, postConstruct } from 'inversify';
 
 const THEIA_STORAGE_PATH = resolve(homedir(), '.theia', 'storage');
-const ILLEGAL_CHARACTER = /[\/\?<>\\:\*\|"]/g;
+const ILLEGAL_CHARACTERS = /[\/\?<>\\:\*\|"]/g;
 const REPLACEMENT_CHARACTER = '$';
+
 @injectable()
 export class CheStorageServer implements StorageServer {
 
@@ -25,10 +26,10 @@ export class CheStorageServer implements StorageServer {
     }
 
     setData(key: string, data: string): Promise<void> {
-        return writeFile(resolve(THEIA_STORAGE_PATH, key.replace(ILLEGAL_CHARACTER, REPLACEMENT_CHARACTER)), data);
+        return writeFile(resolve(THEIA_STORAGE_PATH, key.replace(ILLEGAL_CHARACTERS, REPLACEMENT_CHARACTER)), data);
     }
     async getData(key: string): Promise<string | undefined> {
-        const filePath = resolve(THEIA_STORAGE_PATH, key.replace(ILLEGAL_CHARACTER, REPLACEMENT_CHARACTER));
+        const filePath = resolve(THEIA_STORAGE_PATH, key.replace(ILLEGAL_CHARACTERS, REPLACEMENT_CHARACTER));
         if (await pathExists(filePath)) {
             return readFile(filePath, 'utf8');
         } else {
