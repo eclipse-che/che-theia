@@ -13,6 +13,15 @@
  */
 export interface WorkspacePort {
     url: string;
-    portNumber: string
-    serverName: string
+    portNumber: string;
+    serverName: string;
+    previewUrl?: PreviewUrl;
+}
+
+/**
+ * Exposed server preview url configuration.
+ */
+export interface PreviewUrl {
+    port: string;
+    path?: string;
 }
