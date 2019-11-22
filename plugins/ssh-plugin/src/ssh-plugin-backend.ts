@@ -12,9 +12,11 @@ import * as theia from '@theia/plugin';
 import * as che from '@eclipse-che/plugin';
 import { RemoteSshKeyManager, SshKeyManager } from './node/ssh-key-manager';
 import { che as cheApi } from '@eclipse-che/api';
-import { resolve } from 'path';
+import { resolve, join } from 'path';
 import { pathExists, unlink, ensureFile, chmod, readFile, writeFile, appendFile } from 'fs-extra';
 import * as os from 'os';
+import { accessSync, mkdtempSync, readFileSync, rmdirSync, unlinkSync } from 'fs';
+import { R_OK } from 'constants';
 
 export async function start() {
 
@@ -130,6 +132,10 @@ export async function start() {
         id: 'ssh:view',
         label: 'SSH: view public key...'
     };
+    const UPLOAD: theia.CommandDescription = {
+        id: 'ssh:upload',
+        label: 'SSH: upload private key...'
+    };
 
     theia.commands.registerCommand(GENERATE_FOR_HOST, () => {
         generateKeyPairForHost(sshKeyManager);
@@ -146,15 +152,19 @@ export async function start() {
     theia.commands.registerCommand(VIEW, () => {
         viewPublicKey(sshKeyManager);
     });
+    theia.commands.registerCommand(UPLOAD, () => {
+        uploadPrivateKey(sshKeyManager);
+    });
 }
 
 const RESTART_WARNING_MESSAGE = 'Che Git plugin can leverage the generated keys now. To make them available in every workspace containers please restart your workspace.';
+const ENTER_KEY_NAME_OR_LEAVE_EMPTY_MESSAGE = 'Please provide a hostname (e.g. github.com) or leave empty to setup default name';
 
 const hostNamePattern = new RegExp('[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*');
 
-const getHostName = async () => await theia.window.showInputBox({
-    placeHolder: 'Please provide a hostname e.g. github.com',
-    validateInput: text => {
+const getHostName = async (message?: string) => await theia.window.showInputBox({
+    placeHolder: message ? message : 'Please provide a hostname e.g. github.com',
+    validateInput: (text: string) => {
         if (!hostNamePattern.test(text)) {
             return 'Invalid hostname';
         }
@@ -184,7 +194,7 @@ const writeKey = async (name: string, key: string) => {
 };
 
 const showWarning = async (message: string) => {
-    theia.window.showWarningMessage(message);
+    await theia.window.showWarningMessage(message);
 };
 
 const generateKeyPair = async (sshkeyManager: SshKeyManager) => {
@@ -219,9 +229,9 @@ const generateKeyPairForHost = async (sshkeyManager: SshKeyManager) => {
 };
 
 const createKeyPair = async (sshkeyManager: SshKeyManager) => {
-    const hostName = await getHostName();
+    let hostName = await getHostName(ENTER_KEY_NAME_OR_LEAVE_EMPTY_MESSAGE);
     if (!hostName) {
-        return;
+        hostName = `default-${Date.now()}`;
     }
     const publicKey = await theia.window.showInputBox({ placeHolder: 'Enter public key' });
     const privateKey = await theia.window.showInputBox({ placeHolder: 'Enter private key' });
@@ -235,6 +245,40 @@ const createKeyPair = async (sshkeyManager: SshKeyManager) => {
     } catch (error) {
         theia.window.showErrorMessage(error);
     }
+};
+
+const uploadPrivateKey = async (sshkeyManager: SshKeyManager) => {
+    let hostName = await getHostName(ENTER_KEY_NAME_OR_LEAVE_EMPTY_MESSAGE);
+    if (!hostName) {
+        hostName = `default-${Date.now()}`;
+    }
+
+    const tempDir = mkdtempSync(join(os.tmpdir(), 'private-key-'));
+    const uploadedFilePaths = await theia.window.showUploadDialog({ defaultUri: theia.Uri.file(tempDir) });
+
+    if (!uploadedFilePaths || uploadPrivateKey.length === 0) {
+        theia.window.showErrorMessage('No private key has been uploaded');
+        return;
+    }
+
+    const privateKeyPath = uploadedFilePaths[0];
+
+    accessSync(privateKeyPath.path, R_OK);
+
+    const privateKeyContent = readFileSync(privateKeyPath.path).toString();
+
+    try {
+        await sshkeyManager.create({ name: hostName, service: 'vcs', privateKey: privateKeyContent });
+        await updateConfig(hostName);
+        await writeKey(hostName, privateKeyContent!);
+        theia.window.showInformationMessage(`Key pair for ${hostName} successfully uploaded`);
+        showWarning(RESTART_WARNING_MESSAGE);
+    } catch (error) {
+        theia.window.showErrorMessage(error);
+    }
+
+    unlinkSync(privateKeyPath.path);
+    rmdirSync(tempDir, { recursive: true });
 };
 
 const getKeys = async (sshKeyManager: SshKeyManager): Promise<cheApi.ssh.SshPair[]> => {
