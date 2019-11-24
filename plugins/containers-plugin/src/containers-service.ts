@@ -9,6 +9,7 @@
  **********************************************************************/
 
 import * as che from '@eclipse-che/plugin';
+import { che as cheApi } from '@eclipse-che/api';
 
 export interface IContainer {
     name: string;
@@ -90,14 +91,7 @@ export class ContainersService {
                 }
             }
             if (runtime.commands) {
-                container.commands = [];
-                const cheCommands = runtime.commands.filter(command => command.type === 'exec');
-                cheCommands.forEach(command => {
-                    if (command.attributes && command.attributes.machineName && command.attributes.machineName !== name) {
-                        return;
-                    }
-                    container.commands!.push({ commandName: command.name!, commandLine: command.commandLine! });
-                });
+                container.commands = this.getContainerCommands(name, runtime);
                 container.commands.sort((a, b) => a.commandName.localeCompare(b.commandName));
             }
             if (machine && machine.servers) {
@@ -115,5 +109,37 @@ export class ContainersService {
 
     get containers(): Array<IContainer> {
         return this._containers;
+    }
+
+    private getContainerCommands(containerName: string, runtime: cheApi.workspace.Runtime): { commandName: string, commandLine: string }[] {
+        const result: { commandName: string, commandLine: string }[] = [];
+
+        const cheCommands = runtime.commands!.filter(command => command.type === 'exec');
+        for (const cheCommand of cheCommands) {
+            const command = { commandName: cheCommand.name!, commandLine: cheCommand.commandLine! };
+
+            const commandAttributes = cheCommand.attributes;
+            const hasContainerMarker = commandAttributes && (commandAttributes.machineName || commandAttributes.componentAlias);
+
+            // this case should never happen, but if it does:
+            // a command without container marker should be available for running from any container
+            if (!hasContainerMarker) {
+                result.push(command);
+                continue;
+            }
+
+            if (commandAttributes!.machineName && commandAttributes!.machineName === containerName) {
+                result.push(command);
+                continue;
+            }
+
+            const containerAttributes = runtime.machines![containerName].attributes;
+            const containerComponent = containerAttributes ? containerAttributes.component : undefined;
+
+            if (containerComponent && containerComponent === commandAttributes!.componentAlias) {
+                result.push(command);
+            }
+        }
+        return result;
     }
 }
