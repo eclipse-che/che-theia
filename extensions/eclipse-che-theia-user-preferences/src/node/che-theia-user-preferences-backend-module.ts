@@ -18,10 +18,21 @@ import { ContainerModule } from 'inversify';
 import { BackendApplicationContribution } from '@theia/core/lib/node/backend-application';
 import { CheTheiaUserPreferencesSynchronizer } from './che-theia-preferences-synchronizer';
 import { CheTheiaPreferencesContribution } from './che-theia-preferences-contribution';
+import { StorageServer, storageServerPath } from '../common/storage-server';
+import { CheStorageServer } from './che-storage-server';
+import { JsonRpcConnectionHandler, ConnectionHandler } from '@theia/core/lib/common/messaging';
 
 export default new ContainerModule(bind => {
     bind(CheTheiaUserPreferencesSynchronizer).toSelf().inSingletonScope();
 
     bind(CheTheiaPreferencesContribution).toSelf().inSingletonScope();
     bind(BackendApplicationContribution).toService(CheTheiaPreferencesContribution);
+
+    bind(CheStorageServer).toSelf().inSingletonScope();
+    bind(StorageServer).toService(CheStorageServer);
+    bind(ConnectionHandler).toDynamicValue(ctx =>
+        new JsonRpcConnectionHandler(storageServerPath, () =>
+            ctx.container.get(StorageServer)
+        )
+    ).inSingletonScope();
 });
