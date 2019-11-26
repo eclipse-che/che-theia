@@ -54,7 +54,7 @@ export class ProjectPathVariableResolver {
             }
         } else {
             // get project folder from workspace folders, first folder in workspaceFolders is .theia
-            const folders = fs.readdirSync(this.projectsRoot, {withFileTypes: false});
+            const folders = fs.readdirSync(this.projectsRoot, { withFileTypes: false });
 
             if (folders !== undefined && folders.length === 2) {
                 value = `${this.projectsRoot}/${folders[1]}`;

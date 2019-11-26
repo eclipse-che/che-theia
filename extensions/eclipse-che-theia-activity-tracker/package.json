@@ -9,7 +9,8 @@
     "src"
   ],
   "dependencies": {
-    "@theia/core": "next"
+    "@theia/core": "next",
+    "@eclipse-che/theia-plugin-ext": "0.0.1"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",
