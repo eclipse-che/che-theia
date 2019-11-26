@@ -70,6 +70,16 @@ export interface CheGithubMain {
 }
 
 /**
+ * Telemetry plugin API
+ */
+export interface CheTelemetry {
+}
+
+export interface CheTelemetryMain {
+    $event(id: string, ownerId: string, properties: [string, string][]): Promise<void>;
+}
+
+/**
  * Variables plugin API
  */
 export interface CheVariables {
@@ -375,6 +385,9 @@ export const PLUGIN_RPC_CONTEXT = {
     CHE_DEVFILE: <ProxyIdentifier<CheDevfile>>createProxyIdentifier<CheDevfile>('CheDevfile'),
     CHE_DEVFILE_MAIN: <ProxyIdentifier<CheDevfileMain>>createProxyIdentifier<CheDevfileMain>('CheDevfileMain'),
 
+    CHE_TELEMETRY: <ProxyIdentifier<CheTelemetry>>createProxyIdentifier<CheTelemetry>('CheTelemetry'),
+    CHE_TELEMETRY_MAIN: <ProxyIdentifier<CheTelemetryMain>>createProxyIdentifier<CheTelemetryMain>('CheTelemetryMain'),
+
     CHE_VARIABLES: <ProxyIdentifier<CheVariables>>createProxyIdentifier<CheVariables>('CheVariables'),
     CHE_VARIABLES_MAIN: <ProxyIdentifier<CheVariablesMain>>createProxyIdentifier<CheVariablesMain>('CheVariablesMain'),
     CHE_TASK: <ProxyIdentifier<CheTask>>createProxyIdentifier<CheTask>('CheTask'),
@@ -429,6 +442,8 @@ export interface CheApiService {
     getSshKey(service: string, name: string): Promise<cheApi.ssh.SshPair>;
     deleteSshKey(service: string, name: string): Promise<void>;
     getAllSshKey(service: string): Promise<cheApi.ssh.SshPair[]>;
+    submitTelemetryEvent(id: string, ownerId: string, ip: string, agent: string, resolution: string, properties: [string, string][]): Promise<void>;
+    submitTelemetryActivity(): Promise<void>;
 }
 
 export const CHE_TASK_SERVICE_PATH = '/che-task-service';
