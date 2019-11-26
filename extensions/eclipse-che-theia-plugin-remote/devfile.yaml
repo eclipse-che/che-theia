@@ -11,8 +11,6 @@ components:
     id: eclipse/che-theia/next
     alias: theia-editor
   - type: chePlugin
-    id: eclipse/che-machine-exec-plugin/next
-  - type: chePlugin
     id: che-incubator/typescript/latest
     memoryLimit: 2Gi
   - type: dockerimage
