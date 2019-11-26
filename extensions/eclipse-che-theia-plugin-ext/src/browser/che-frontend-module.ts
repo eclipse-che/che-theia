@@ -38,6 +38,8 @@ import { bindChePluginPreferences } from './plugin/che-plugin-preferences';
 import { CheSideCarContentReaderRegistryImpl, CheSideCarResourceResolver } from './che-sidecar-resource';
 import { CheMiniBrowserOpenHandler } from './che-mini-browser-open-handler';
 import { MiniBrowserOpenHandler } from '@theia/mini-browser/lib/browser/mini-browser-open-handler';
+import { WebviewEnvironment } from '@theia/plugin-ext/lib/main/browser/webview/webview-environment';
+import { CheWebviewEnvironment } from './che-webview-environment';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(CheApiProvider).toSelf().inSingletonScope();
@@ -61,6 +63,8 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
         const provider = ctx.container.get(WebSocketConnectionProvider);
         return provider.createProxy<CheApiService>(CHE_PLUGIN_SERVICE_PATH);
     }).inSingletonScope();
+
+    rebind(WebviewEnvironment).to(CheWebviewEnvironment).inSingletonScope();
 
     bind(ChePluginFrontentService).toSelf().inSingletonScope();
     bind(ChePluginManager).toSelf().inSingletonScope();
