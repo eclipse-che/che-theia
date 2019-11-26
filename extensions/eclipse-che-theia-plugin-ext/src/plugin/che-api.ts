@@ -23,6 +23,7 @@ import { CheUserImpl } from './che-user';
 import { CheProductImpl } from './che-product';
 import { CheSideCarContentReaderImpl } from './che-sidecar-content-reader';
 import { CheGithubImpl } from './che-github';
+import { CheTelemetryImpl } from './che-telemetry';
 
 export interface CheApiFactory {
     (plugin: Plugin): typeof che;
@@ -40,6 +41,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
     rpc.set(PLUGIN_RPC_CONTEXT.CHE_SIDERCAR_CONTENT_READER, new CheSideCarContentReaderImpl(rpc));
 
     const cheProductImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_PRODUCT, new CheProductImpl(rpc));
+    const cheTelemetryImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_TELEMETRY, new CheTelemetryImpl(rpc));
 
     return function (plugin: Plugin): typeof che {
         const workspace: typeof che.workspace = {
@@ -93,6 +95,12 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
         const devfile: typeof che.devfile = {
             createWorkspace(devfilePath: string): Promise<void> {
                 return cheDevfileImpl.createWorkspace(devfilePath);
+            }
+        };
+
+        const telemetry: typeof che.telemetry = {
+            event(id: string, ownerId: string, properties: [string, string][]): Promise<void> {
+                return cheTelemetryImpl.event(id, ownerId, properties);
             }
         };
 
@@ -184,7 +192,8 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             ssh,
             user,
             product,
-            github
+            github,
+            telemetry
         };
     };
 

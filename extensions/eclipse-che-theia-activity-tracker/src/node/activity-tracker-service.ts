@@ -14,9 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 import URI from '@theia/core/lib/common/uri';
 import { ActivityTrackerService } from '../common/activity-tracker-protocol';
+import { CheApiService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
 import * as http from 'http';
 
 /**
@@ -49,6 +50,9 @@ export class ActivityTrackerServiceImpl implements ActivityTrackerService {
     // http or https module to make requestst to Che API.
     private pinger: { request(option: http.RequestOptions): http.ClientRequest };
     private activityRequestOptions: http.RequestOptions;
+
+    @inject(CheApiService)
+    protected cheApiService: CheApiService;
 
     constructor() {
         const workspaceId = process.env[ActivityTrackerServiceImpl.WORKSPACE_ID_ENV_VAR_NAME];
@@ -115,6 +119,7 @@ export class ActivityTrackerServiceImpl implements ActivityTrackerService {
     }
 
     private sendRequest(attemptsLeft: number = ActivityTrackerServiceImpl.RETRY_COUNT): void {
+        this.cheApiService.submitTelemetryActivity();
         const request = this.pinger.request(this.activityRequestOptions);
         request.on('error', (error: Error) => {
             if (attemptsLeft > 0) {

@@ -19,4 +19,5 @@ sources:
     - plugins/task-plugin
     - plugins/welcome-plugin
     - plugins/ssh-plugin
+    - plugins/telemetry-plugin
   checkoutTo: master
