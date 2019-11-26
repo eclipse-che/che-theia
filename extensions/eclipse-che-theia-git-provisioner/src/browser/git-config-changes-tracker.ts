@@ -10,17 +10,17 @@
 
 import { injectable } from 'inversify';
 import { Emitter, Event } from '@theia/core';
-import { CheGitNoticationClient, GitConfigChanged } from '../common/git-notification-proxy';
+import { CheGitClient, GitConfigChanged } from '../common/git-protocol';
 
 @injectable()
-export class CheGitNoticationClientImpl implements CheGitNoticationClient {
+export class CheGitClientImpl implements CheGitClient {
 
     private onChangedEmitter = new Emitter<GitConfigChanged>();
 
     get changeEvent(): Event<GitConfigChanged> {
         return this.onChangedEmitter.event;
     }
-    notify() {
+    firePreferencesChanged() {
         const event: GitConfigChanged = {};
         this.onChangedEmitter.fire(event);
     }
