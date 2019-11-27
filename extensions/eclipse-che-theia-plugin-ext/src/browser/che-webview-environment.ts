@@ -28,8 +28,8 @@ export class CheWebviewEnvironment extends WebviewEnvironment {
     protected async init(): Promise<void> {
         try {
             const variable = await this.environments.getValue(WebviewExternalEndpoint.pattern);
-            const constainers = await this.cheApi.getCurrentWorkspacesContainers();
-            const ideServer = this.findIdeServer(constainers);
+            const containers = await this.cheApi.getCurrentWorkspacesContainers();
+            const ideServer = this.findIdeServer(containers);
             let domain;
             if (ideServer && ideServer.url) {
                 domain = this.getUrlDomain(ideServer.url);
@@ -44,10 +44,10 @@ export class CheWebviewEnvironment extends WebviewEnvironment {
     private findIdeServer(containers: { [key: string]: cheApi.workspace.Machine }): cheApi.workspace.Server | undefined {
         try {
             if (containers) {
-                for (const containerName in containers) {
+                for (const containerName of Object.keys(containers)) {
                     const servers = containers[containerName].servers;
                     if (servers) {
-                        for (const serverName in servers) {
+                        for (const serverName of Object.keys(servers)) {
                             const server = servers[serverName];
                             if (server && server.attributes && server.attributes['type'] === 'ide') {
                                 return server;

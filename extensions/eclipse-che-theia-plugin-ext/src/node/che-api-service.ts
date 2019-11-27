@@ -124,12 +124,12 @@ export class CheApiServiceImpl implements CheApiService {
             const workspace = await this.currentWorkspace();
             const containers = workspace.runtime!.machines;
             if (containers) {
-                for (const containerName in containers) {
+                for (const containerName of Object.keys(containers)) {
                     const container = containers[containerName];
                     if (container) {
                         result[containerName] = container;
                     }
-                };
+                }
             }
         } catch (e) {
             throw new Error(`Unable to get workspace containers. Cause: ${e}`);
