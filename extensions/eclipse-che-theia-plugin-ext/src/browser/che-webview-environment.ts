@@ -41,31 +41,30 @@ export class CheWebviewEnvironment extends WebviewEnvironment {
             if (ideServer && ideServer.url) {
                 domain = this.getUrlDomain(ideServer.url);
             }
-            console.log('>>>>>>>>>>>>>>>>>', domain);
             const value = variable && variable.value || domain || WebviewExternalEndpoint.pattern;
             this.externalEndpointHost.resolve(value.replace('{{hostname}}', window.location.host || 'localhost'));
         } catch (e) {
-            console.log('>>>>>>>>>>> Total fail ', e);
             this.externalEndpointHost.reject(e);
         }
     }
 
-    private findIdeServer(containers: Map<string, cheApi.workspace.Machine>): cheApi.workspace.Server | undefined {
+    private findIdeServer(containers: { [key: string]: cheApi.workspace.Machine }): cheApi.workspace.Server | undefined {
         try {
             if (containers) {
-                containers.forEach(container => {
-                    if (container && container.servers) {
-                        Object.values(container.servers).forEach(server => {
-                            const attributes = server.attributes;
-                            if (attributes && attributes['ide']) {
+                for (const containerName in containers) {
+                    const servers = containers[containerName].servers;
+                    if (servers) {
+                        for (const serverName in servers) {
+                            const server = servers[serverName];
+                            if (server && server.attributes && server.attributes['type'] === 'ide') {
                                 return server;
                             }
-                        });
+                        }
                     }
-                });
+                }
             }
         } catch (e) {
-            throw new Error('Unable to get workspace servers.');
+            throw new Error(`Unable to get workspace servers. Cause: ${e}`);
         }
         return undefined;
     }
@@ -81,22 +80,3 @@ export class CheWebviewEnvironment extends WebviewEnvironment {
         return webviewDomain;
     }
 }
-
-// private async getCheTheiaServer(): Promise<cheApi.workspace.Server> {
-//     const servers = new Map<string, cheApi.workspace.Server>();
-//     try {
-//         const containers = await this.getCurrentWorkspacesContainers();
-//         if (containers) {
-//             containers.forEach((container, containerName) => {
-//                 if (container && container.servers) {
-//                     Object.keys(container.servers).forEach((server) => {
-//                         servers.set();
-//                     })
-//                 }
-//             });
-//         }
-//     } catch (e) {
-//         throw new Error('Unable to get workspace servers.');
-//     }
-//     return servers;
-// }

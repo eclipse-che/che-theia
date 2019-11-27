@@ -408,7 +408,7 @@ export interface CheApiService {
 
     currentWorkspace(): Promise<cheApi.workspace.Workspace>;
     getWorkspaceById(workspaceId: string): Promise<cheApi.workspace.Workspace>;
-    getCurrentWorkspacesContainers(): Promise<Map<string, cheApi.workspace.Machine>>;
+    getCurrentWorkspacesContainers(): Promise<{ [key: string]: cheApi.workspace.Machine }>;
 
     updateWorkspace(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<cheApi.workspace.Workspace>;
     stop(): Promise<void>;
