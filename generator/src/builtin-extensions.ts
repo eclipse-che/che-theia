@@ -97,10 +97,22 @@ export class BuiltinExtensions {
             fs.ensureDirSync(dirname);
 
             await new Command(path.resolve(this.pluginsFolder)).exec(`tar -xf ${archive} -C ${dirname} --strip-components 1`);
+            await this.unpackNodeModules(dirname);
+
             return true;
         } catch (e) {
             Logger.error(e);
             return false;
+        } finally {
+            fs.removeSync(archive);
+        }
+    }
+
+    protected async unpackNodeModules(extensionDir: string): Promise<void> {
+        try {
+            await new Command(path.resolve(extensionDir)).exec('find vscode_node_modules.zip | xargs unzip $1 -d node_modules');
+        } catch (e) {
+            // do nothing, probably there is no node_modules
         }
     }
 }
