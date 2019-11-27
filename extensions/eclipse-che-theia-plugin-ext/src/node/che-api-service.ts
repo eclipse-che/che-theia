@@ -118,6 +118,25 @@ export class CheApiServiceImpl implements CheApiService {
         return await cheApiClient.stop(workspaceId);
     }
 
+    async getCurrentWorkspacesContainers(): Promise<{ [key: string]: cheApi.workspace.Machine }> {
+        const result: { [key: string]: cheApi.workspace.Machine } = {};
+        try {
+            const workspace = await this.currentWorkspace();
+            const containers = workspace.runtime!.machines;
+            if (containers) {
+                for (const containerName in containers) {
+                    const container = containers[containerName];
+                    if (container) {
+                        result[containerName] = container;
+                    }
+                };
+            }
+        } catch (e) {
+            throw new Error(`Unable to get workspace containers. Cause: ${e}`);
+        }
+        return result;
+    }
+
     async getFactoryById(factoryId: string): Promise<cheApi.factory.Factory> {
         try {
             const client = await this.getCheApiClient();
