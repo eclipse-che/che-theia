@@ -77,7 +77,6 @@ fi
 shopt -u nocasematch
 
 # run Che Theia
-export THEIA_WEBVIEW_EXTERNAL_ENDPOINT=$(node get-webview-route.js)
 node src-gen/backend/main.js /projects --hostname=0.0.0.0 --port=${THEIA_PORT} &
 
 PID=$!
