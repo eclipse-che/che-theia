@@ -116,6 +116,9 @@ EXPOSE 3100 3130
 
 COPY --from=builder /home/theia-dev/theia-source-code/production/plugins /default-theia-plugins
 
+# run che:theia builtin:extensions to download vscode builtin extensions into production plugins
+RUN che:theia builtin:extensions --plugins /default-theia-plugins
+
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/runtime-install-dependencies.dockerfile}
 
 # setup yarn (if missing)

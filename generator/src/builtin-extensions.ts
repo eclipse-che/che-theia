@@ -10,6 +10,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as tmp from 'tmp';
+import * as yargs from 'yargs';
 import { Command } from './command';
 import { Logger } from './logger';
 
@@ -18,6 +19,13 @@ import { Logger } from './logger';
  * @author Anatolii Bazko
  */
 export class BuiltinExtensions {
+    static argBuilder = (theYargs: yargs.Argv) => {
+        return theYargs.option('plugins', {
+            description: 'Plugins folder to download VS Code builtin extension into.',
+            alias: 'p',
+        });
+    }
+
     constructor(protected readonly pluginsFolder: string) {
     }
 
@@ -29,7 +37,7 @@ export class BuiltinExtensions {
         const confDir = path.join(srcDir, 'conf');
         const extensions = await fs.readFile(path.join(confDir, 'builtin-extensions'));
 
-        Logger.info('Downloading extensions started.');
+        Logger.info(`Downloading extensions into '${this.pluginsFolder}' started`);
 
         for (const extension of extensions.toString().split('\n')) {
             if (!extension.trim() || extension.startsWith('//')) {
@@ -109,10 +117,9 @@ export class BuiltinExtensions {
     }
 
     protected async unpackNodeModules(extensionDir: string): Promise<void> {
-        try {
-            await new Command(path.resolve(extensionDir)).exec('find vscode_node_modules.zip | xargs unzip $1 -d node_modules');
-        } catch (e) {
-            // do nothing, probably there is no node_modules
+        const nodeModules = fs.existsSync(path.resolve(extensionDir, 'vscode_node_modules.zip'));
+        if (nodeModules) {
+            await new Command(extensionDir).exec('mkdir node_modules | unzip vscode_node_modules.zip -d node_modules');
         }
     }
 }

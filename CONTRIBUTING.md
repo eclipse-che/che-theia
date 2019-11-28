@@ -78,7 +78,7 @@ Basically, this command will perform:
 [che-dev]
 $ che:theia init --dev
 ```
-
+h
 This command will checkout all extensions in `/projects/theia/che` folder and create symbolic link into `/projects/theia/packages` folder.
 
 By default, extensions list is retrieved from https://github.com/eclipse/che-theia/blob/master/che-theia-init-sources.yml

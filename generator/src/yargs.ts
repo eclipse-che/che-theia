@@ -29,7 +29,7 @@ const commandArgs = yargs
     .usage('$0 <cmd> [args]')
     .command({
         command: 'init',
-        describe: 'Initialize current theia to beahve like a Che/Theia',
+        describe: 'Initialize current theia to behave like a Che/Theia',
         builder: InitSources.argBuilder,
         handler: async (args) => {
             try {
@@ -95,9 +95,10 @@ const commandArgs = yargs
     .command({
         command: 'builtin-extensions',
         describe: 'Download builtin extensions',
-        handler: async () => {
+        builder: BuiltinExtensions.argBuilder,
+        handler: async (args) => {
             try {
-                const pluginsFolder = path.resolve(process.cwd(), 'plugins');
+                const pluginsFolder = args.plugins ? path.resolve(args.plugins) : path.resolve(process.cwd(), 'plugins');
                 const builtinExtensions = new BuiltinExtensions(pluginsFolder);
                 await builtinExtensions.download();
             } catch (err) {
