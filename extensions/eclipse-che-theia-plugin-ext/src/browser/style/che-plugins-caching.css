@@ -14,26 +14,30 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { injectable } from 'inversify';
-import { AbstractViewContribution } from '@theia/core/lib/browser/shell/view-contribution';
-import { ChePluginView } from './che-plugin-view';
+/*-----------------------------------------------------------------------------
+| Caching the plugins
+|----------------------------------------------------------------------------*/
 
-@injectable()
-export class ChePluginViewContribution extends AbstractViewContribution<ChePluginView> {
+.che-plugins-caching {
+}
 
-    public static PLUGINS_WIDGET_ID = 'che-plugins';
+.che-plugins-caching-spinner {
+    margin-top: 40%;
+}
 
-    constructor() {
-        super({
-            widgetId: ChePluginViewContribution.PLUGINS_WIDGET_ID,
-            widgetName: 'Plugins',
-            defaultWidgetOptions: {
-                area: 'left',
-                rank: 400
-            },
-            toggleCommandId: 'chePluginsView:toggle',
-            toggleKeybinding: 'ctrlcmd+shift+j'
-        });
-    }
+.che-plugins-caching-progress {
+    text-align: center;
+    margin-top: 10%;
+}
 
+.che-plugins-caching-progress-label {
+    line-height: 25px;
+}
+
+.che-plugins-caching-progress-status {
+
+}
+
+.che-plugins-caching-progress-status b {
+    color: var(--theia-success-color2);
 }

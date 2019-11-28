@@ -16,7 +16,7 @@
 
 import { injectable, inject } from 'inversify';
 import { HostedPluginServer, PluginMetadata, DeployedPlugin } from '@theia/plugin-ext/lib/common/plugin-protocol';
-import { ChePluginMetadata } from '../../common/che-protocol';
+import { ChePluginMetadata } from '../../common/che-plugin-protocol';
 import { PluginFilter } from '../../common/plugin/plugin-filter';
 
 @injectable()
