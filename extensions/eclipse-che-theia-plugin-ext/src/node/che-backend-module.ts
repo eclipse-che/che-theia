@@ -29,13 +29,17 @@ import { CheApiServiceImpl } from './che-api-service';
 import { CheTaskServiceImpl } from './che-task-service';
 import { ChePluginServiceImpl } from './che-plugin-service';
 import { CheProductServiceImpl } from './che-product-service';
+import { PluginApiContributionIntercepted } from './plugin-service';
+import { PluginApiContribution } from '@theia/plugin-ext/lib/main/node/plugin-service';
 
-export default new ContainerModule(bind => {
+export default new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(ChePluginApiProvider).toSelf().inSingletonScope();
     bind(Symbol.for(ExtPluginApiProvider)).toService(ChePluginApiProvider);
 
     bind(ChePluginApiContribution).toSelf().inSingletonScope();
     bind(BackendApplicationContribution).toService(ChePluginApiContribution);
+
+    rebind(PluginApiContribution).to(PluginApiContributionIntercepted).inSingletonScope();
 
     bind(CheApiService).to(CheApiServiceImpl).inSingletonScope();
     bind(ConnectionHandler).toDynamicValue(ctx =>

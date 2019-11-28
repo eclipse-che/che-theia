@@ -137,6 +137,28 @@ export class CheApiServiceImpl implements CheApiService {
         return result;
     }
 
+    async findUniqueServerByAttribute(attributeName: string, attributeValue: string): Promise<cheApi.workspace.Server> {
+        const containers = await this.getCurrentWorkspacesContainers();
+        try {
+            if (containers) {
+                for (const containerName of Object.keys(containers)) {
+                    const servers = containers[containerName].servers;
+                    if (servers) {
+                        for (const serverName of Object.keys(servers)) {
+                            const server = servers[serverName];
+                            if (server && server.attributes && server.attributes[attributeName] === attributeValue) {
+                                return server;
+                            }
+                        }
+                    }
+                }
+            }
+            return Promise.reject(`Server by attributes '${attributeName}'='${attributeValue}' was not found.`);
+        } catch (e) {
+            return Promise.reject(`Unable to get workspace servers. Cause: ${e}`);
+        }
+    }
+
     async getFactoryById(factoryId: string): Promise<cheApi.factory.Factory> {
         try {
             const client = await this.getCheApiClient();
