@@ -18,7 +18,6 @@ import { injectable, inject } from 'inversify';
 import { Menu } from '@phosphor/widgets';
 import { CommandRegistry as PhosphorCommandRegistry } from '@phosphor/commands';
 import { Emitter, Event } from '@theia/core/lib/common';
-import { ChePluginManager } from './che-plugin-manager';
 import { ChePluginManagerCommands, ChePluginCommandContribution } from './che-plugin-command-contribution';
 
 @injectable()
@@ -26,9 +25,6 @@ export class ChePluginMenu {
 
     @inject(ChePluginCommandContribution)
     protected readonly chePluginCommandContribution: ChePluginCommandContribution;
-
-    @inject(ChePluginManager)
-    protected readonly chePluginManager: ChePluginManager;
 
     protected readonly menuClosed = new Emitter<void>();
 
@@ -58,27 +54,27 @@ export class ChePluginMenu {
 
         commands.addCommand(ChePluginManagerCommands.SHOW_AVAILABLE_PLUGINS.id, {
             label: ChePluginManagerCommands.SHOW_AVAILABLE_PLUGINS.label,
-            execute: () => this.chePluginCommandContribution.showAvailablePlugins()
+            execute: () => this.showAvailablePlugins()
         });
 
         commands.addCommand(ChePluginManagerCommands.SHOW_INSTALLED_PLUGINS.id, {
             label: ChePluginManagerCommands.SHOW_INSTALLED_PLUGINS.label,
-            execute: () => this.chePluginCommandContribution.showInstalledPlugins()
+            execute: () => this.showInstalledPlugins()
         });
 
         commands.addCommand(ChePluginManagerCommands.SHOW_BUILT_IN_PLUGINS.id, {
             label: ChePluginManagerCommands.SHOW_BUILT_IN_PLUGINS.label,
-            execute: () => this.chePluginCommandContribution.showBuiltInPlugins()
-        });
-
-        commands.addCommand(ChePluginManagerCommands.CHANGE_REGISTRY.id, {
-            label: ChePluginManagerCommands.CHANGE_REGISTRY.label,
-            execute: () => this.chePluginCommandContribution.changePluginRegistry()
+            execute: () => this.showBuiltInPlugins()
         });
 
         commands.addCommand(ChePluginManagerCommands.ADD_REGISTRY.id, {
             label: ChePluginManagerCommands.ADD_REGISTRY.label,
             execute: () => this.chePluginCommandContribution.addPluginRegistry()
+        });
+
+        commands.addCommand(ChePluginManagerCommands.REFRESH.id, {
+            label: ChePluginManagerCommands.REFRESH.label,
+            execute: () => this.refreshPluginList()
         });
 
         menu.addItem({
@@ -102,13 +98,52 @@ export class ChePluginMenu {
 
         menu.addItem({
             type: 'command',
-            command: ChePluginManagerCommands.CHANGE_REGISTRY.id
+            command: ChePluginManagerCommands.ADD_REGISTRY.id
         });
 
         menu.addItem({
             type: 'command',
-            command: ChePluginManagerCommands.ADD_REGISTRY.id
+            command: ChePluginManagerCommands.REFRESH.id
         });
+    }
+
+    /********************************************************************************
+     * Changing current filter
+     ********************************************************************************/
+
+    protected readonly changeFilterEvent = new Emitter<string>();
+
+    get onChangeFilter(): Event<string> {
+        return this.changeFilterEvent.event;
+    }
+
+    async showAvailablePlugins() {
+        this.changeFilterEvent.fire('');
+    }
+
+    // @installed
+    async showInstalledPlugins() {
+        this.changeFilterEvent.fire('@installed');
+    }
+
+    // @builtin
+    // Displays a list of built in plugins provided inside Theia editor container.
+    async showBuiltInPlugins() {
+        this.changeFilterEvent.fire('@builtin');
+    }
+
+    /********************************************************************************
+     * Refreshing the list of plugins
+     ********************************************************************************/
+
+    protected readonly refreshPluginListEvent = new Emitter<void>();
+
+    get onRefreshPluginList(): Event<void> {
+        return this.refreshPluginListEvent.event;
+    }
+
+    async refreshPluginList() {
+        this.refreshPluginListEvent.fire();
     }
 
 }

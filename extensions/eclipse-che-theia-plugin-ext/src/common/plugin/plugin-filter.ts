@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { ChePluginMetadata } from '../che-protocol';
+import { ChePluginMetadata } from '../che-plugin-protocol';
 
 export namespace PluginFilter {
 
@@ -32,16 +32,24 @@ export namespace PluginFilter {
         return false;
     }
 
-    export function filterByType(plugins: ChePluginMetadata[], type: string): ChePluginMetadata[] {
-        return plugins.filter(plugin => {
-            const regex = / /gi;
-            const t = plugin.type.toLowerCase().replace(regex, '_');
-            return t === type;
-        });
-    }
-
     export function filterByText(plugins: ChePluginMetadata[], text: string): ChePluginMetadata[] {
-        return plugins;
+        // return plugins;
+        return plugins.filter(plugin => {
+
+            if (plugin.publisher && plugin.publisher.toLowerCase().indexOf(text.toLowerCase()) >= 0) {
+                return true;
+            }
+
+            if (plugin.name && plugin.name.toLowerCase().indexOf(text.toLowerCase()) >= 0) {
+                return true;
+            }
+
+            if (plugin.description && plugin.description.toLowerCase().indexOf(text.toLowerCase()) >= 0) {
+                return true;
+            }
+
+            return false;
+        });
     }
 
     export function filterPlugins(plugins: ChePluginMetadata[], filter: string): ChePluginMetadata[] {
@@ -50,12 +58,7 @@ export namespace PluginFilter {
 
         filters.forEach(f => {
             if (f) {
-                if (f.startsWith('@')) {
-                    if (f.startsWith('@type:')) {
-                        const type = f.substring('@type:'.length);
-                        filteredPlugins = PluginFilter.filterByType(filteredPlugins, type);
-                    }
-                } else {
+                if (!f.startsWith('@')) {
                     filteredPlugins = PluginFilter.filterByText(filteredPlugins, f);
                 }
             }

@@ -15,14 +15,14 @@
  ********************************************************************************/
 
 import { injectable, inject } from 'inversify';
-
+import { CheApiService } from '../../common/che-protocol';
 import {
-    ChePluginRegistry,
-    ChePlugin,
-    ChePluginMetadata,
     ChePluginService,
-    CheApiService
-} from '../../common/che-protocol';
+    ChePluginRegistry,
+    ChePluginRegistries,
+    ChePlugin,
+    ChePluginMetadata
+} from '../../common/che-plugin-protocol';
 import { PluginServer } from '@theia/plugin-ext/lib/common/plugin-protocol';
 import { MessageService, Emitter, Event } from '@theia/core/lib/common';
 import { ConfirmDialog } from '@theia/core/lib/browser';
@@ -39,12 +39,6 @@ export class ChePluginManager {
      * Default plugin registry
      */
     private defaultRegistry: ChePluginRegistry;
-
-    /**
-     * Active plugin registry.
-     * Plugin widget should display the list of plugins from this registry.
-     */
-    private activeRegistry: ChePluginRegistry;
 
     /**
      * Registry list
@@ -82,39 +76,23 @@ export class ChePluginManager {
     protected readonly pluginFrontentService: ChePluginFrontentService;
 
     /********************************************************************************
-     * Changing the Plugin Registry
-     ********************************************************************************/
-
-    protected readonly pluginRegistryChanged = new Emitter<ChePluginRegistry>();
-
-    get onPluginRegistryChanged(): Event<ChePluginRegistry> {
-        return this.pluginRegistryChanged.event;
-    }
-
-    /********************************************************************************
      * Changing the Workspace Configuration
      ********************************************************************************/
 
-    protected readonly workspaceConfigurationChanged = new Emitter<boolean>();
+    protected readonly workspaceConfigurationChangedEvent = new Emitter<void>();
 
-    get onWorkspaceConfigurationChanged(): Event<boolean> {
-        return this.workspaceConfigurationChanged.event;
+    get onWorkspaceConfigurationChanged(): Event<void> {
+        return this.workspaceConfigurationChangedEvent.event;
     }
 
     /********************************************************************************
-     * Changing current filter
+     * Changing the list of Plugin Registries
      ********************************************************************************/
 
-    protected readonly filterChanged = new Emitter<string>();
+    protected readonly pluginRegistryListChangedEvent = new Emitter<void>();
 
-    get onFilterChanged(): Event<string> {
-        return this.filterChanged.event;
-    }
-
-    async changeFilter(filter: string, sendNotification: boolean = false) {
-        if (sendNotification) {
-            this.filterChanged.fire(filter);
-        }
+    get onPluginRegistryListChanged(): Event<void> {
+        return this.pluginRegistryListChangedEvent.event;
     }
 
     /**
@@ -145,10 +123,6 @@ export class ChePluginManager {
             this.defaultRegistry = await this.chePluginService.getDefaultRegistry();
         }
 
-        if (!this.activeRegistry) {
-            this.activeRegistry = this.defaultRegistry;
-        }
-
         if (!this.registryList) {
             this.registryList = [this.defaultRegistry];
             await this.restoreRegistryList();
@@ -158,15 +132,6 @@ export class ChePluginManager {
             // Get list of plugins from workspace config
             this.installedPlugins = await this.chePluginService.getWorkspacePlugins();
         }
-    }
-
-    getDefaultRegistry(): ChePluginRegistry {
-        return this.defaultRegistry;
-    }
-
-    changeRegistry(registry: ChePluginRegistry): void {
-        this.activeRegistry = registry;
-        this.pluginRegistryChanged.fire(registry);
     }
 
     addRegistry(registry: ChePluginRegistry): void {
@@ -181,6 +146,9 @@ export class ChePluginManager {
         });
 
         this.preferenceService.set('chePlugins.repositories', prefs, PreferenceScope.User);
+
+        // notify that plugin registry list has been changed
+        this.pluginRegistryListChangedEvent.fire();
     }
 
     removeRegistry(registry: ChePluginRegistry): void {
@@ -192,13 +160,40 @@ export class ChePluginManager {
     }
 
     /**
+     * Udates the Plugin cache
+     */
+    async updateCache(): Promise<void> {
+        await this.initDefaults();
+
+        /**
+         * Need to prepare this object to pass the plugins array through RPC.
+         *
+         * https://github.com/eclipse-theia/theia/issues/4310
+         * https://github.com/eclipse-theia/theia/issues/4757
+         * https://github.com/eclipse-theia/theia/issues/4343
+         */
+        const registries: ChePluginRegistries = {};
+        for (let i = 0; i < this.registryList.length; i++) {
+            const registry = this.registryList[i];
+            registries[registry.name] = registry;
+        }
+
+        await this.chePluginService.updateCache(registries);
+    }
+
+    /**
      * Returns plugin list from active registry
      */
     async getPlugins(filter: string): Promise<ChePlugin[]> {
         await this.initDefaults();
 
         if (PluginFilter.hasType(filter, '@builtin')) {
-            return await this.getBuiltInPlugins(filter);
+            try {
+                return await this.getBuiltInPlugins(filter);
+            } catch (error) {
+                console.log(error);
+                return [];
+            }
         }
 
         // Filter plugins if user requested the list of installed plugins
@@ -219,7 +214,7 @@ export class ChePluginManager {
      */
     private async getAllPlugins(filter: string): Promise<ChePlugin[]> {
         // get list of all plugins
-        const rawPlugins = await this.chePluginService.getPlugins(this.activeRegistry, filter);
+        const rawPlugins = await this.chePluginService.getPlugins(filter);
 
         // group the plugins
         const grouppedPlugins = this.groupPlugins(rawPlugins);
@@ -248,12 +243,7 @@ export class ChePluginManager {
      * Returns the list of installed plugins
      */
     private async getInstalledPlugins(filter: string): Promise<ChePlugin[]> {
-        // get list of all plugins
-        const rawPlugins: ChePluginMetadata[] = [];
-        for (let i = 0; i < this.registryList.length; i++) {
-            const registryPlugins: ChePluginMetadata[] = await this.chePluginService.getPlugins(this.registryList[i], filter);
-            registryPlugins.forEach(p => rawPlugins.push(p));
-        }
+        const rawPlugins: ChePluginMetadata[] = await this.chePluginService.getPlugins(filter);
 
         // group the plugins
         const grouppedPlugins = this.groupPlugins(rawPlugins);
@@ -504,7 +494,7 @@ export class ChePluginManager {
 
     private notifyWorkspaceConfigurationChanged() {
         setTimeout(() => {
-            this.workspaceConfigurationChanged.fire(true);
+            this.workspaceConfigurationChangedEvent.fire();
         }, 500);
     }
 

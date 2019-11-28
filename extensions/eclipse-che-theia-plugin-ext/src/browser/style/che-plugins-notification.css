@@ -1,0 +1,115 @@
+/********************************************************************************
+ * Copyright (C) 2019 Red Hat, Inc. and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+
+/*-----------------------------------------------------------------------------
+| Notification informing that workspace devfile has been changed
+|----------------------------------------------------------------------------*/
+
+.che-plugins-notification {
+    position: relative;
+    width: 100%;
+    height: 46px;
+}
+
+.che-plugins-notification .notification {
+    width: calc(100% - 2px);
+    height: 28px;
+    margin-top: 9px;
+    margin-bottom: 9px;
+    margin-left: 1px;
+    overflow: hidden;
+    transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, opacity 500ms ease-in-out 0ms;
+    background-color: var(--theia-success-color0);
+    color: #FFFFFF;
+}
+
+.che-plugins-notification .notification-button-panel:hover {
+    background-color: var(--theia-success-color1);
+}
+
+.che-plugins-notification .notification-button-panel:active {
+    box-shadow: 0px 0px 2px 0px var(--theia-success-color2);
+    outline: none;
+}
+
+.che-plugins-notification .notification.hiding {
+    opacity: 0;
+}
+
+.che-plugins-notification .notification-message,
+.che-plugins-notification .notification-button {
+    position: absolute;
+    left: 0px;
+    top: 9px;
+    right: 28px;
+    height: 28px;
+    line-height: 28px;
+    overflow: hidden;
+}
+
+.che-plugins-notification .notification-button {
+    cursor: pointer;
+}
+
+.notification-message-icon {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 28px;
+    height: 28px;
+    text-align: center;
+}
+
+.notification-message-text {
+    position: absolute;
+    left: 28px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.che-plugins-notification .notification-control {
+    position: absolute;
+    right: 1px;
+    top: 9px;
+    width: 28px;
+    height: 28px;
+    overflow: hidden;
+}
+
+.che-plugins-notification .notification-hide {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 20px;
+    height: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    text-align: center;
+    line-height: 20px;
+    opacity: 0.7;
+}
+
+.che-plugins-notification .notification-hide:hover {
+    opacity: 1;
+}
+
+.che-plugins-notification .notification-hide:active {
+    opacity: 0.8;
+}

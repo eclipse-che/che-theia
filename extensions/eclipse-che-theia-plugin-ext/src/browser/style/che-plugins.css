@@ -18,105 +18,8 @@
     content: "\F14A";
 }
 
-/*-----------------------------------------------------------------------------
-| Notification informing that workspace has been changed
-|----------------------------------------------------------------------------*/
-
-.che-plugins-notification {
-    position: relative;
-    width: 100%;
-    height: 46px;
-}
-
-.che-plugins-notification .notification {
-    width: calc(100% - 2px);
-    height: 28px;
-    margin-top: 9px;
-    margin-bottom: 9px;
-    margin-left: 1px;
-    overflow: hidden;
-    transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, opacity 500ms ease-in-out 0ms;
-    background-color: var(--theia-success-color0);
-    color: #FFFFFF;
-}
-
-.che-plugins-notification .notification-button-panel:hover {
-    background-color: var(--theia-success-color1);
-}
-
-.che-plugins-notification .notification-button-panel:active {
-    box-shadow: 0px 0px 2px 0px var(--theia-success-color2);
-    outline: none;
-}
-
-.che-plugins-notification .notification.hiding {
-    opacity: 0;
-}
-
-.che-plugins-notification .notification-message,
-.che-plugins-notification .notification-button {
-    position: absolute;
-    left: 0px;
-    top: 9px;
-    right: 28px;
-    height: 28px;
-    line-height: 28px;
-    overflow: hidden;
-}
-
-.che-plugins-notification .notification-button {
-    cursor: pointer;
-}
-
-.notification-message-icon {
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    width: 28px;
-    height: 28px;
-    text-align: center;
-}
-
-.notification-message-text {
-    position: absolute;
-    left: 28px;
-    right: 0px;
-    top: 0px;
-    bottom: 0px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-
-.che-plugins-notification .notification-control {
-    position: absolute;
-    right: 1px;
-    top: 9px;
-    width: 28px;
-    height: 28px;
-    overflow: hidden;
-}
-
-.che-plugins-notification .notification-hide {
-    position: absolute;
-    left: 4px;
-    top: 4px;
-    width: 20px;
-    height: 20px;
-    overflow: hidden;
-    cursor: pointer;
-    text-align: center;
-    line-height: 20px;
-    opacity: 0.7;
-}
-
-.che-plugins-notification .notification-hide:hover {
-    opacity: 1;
-}
-
-.che-plugins-notification .notification-hide:active {
-    opacity: 0.8;
-}
+@import './che-plugins-caching.css';
+@import './che-plugins-notification.css';
 
 /*-----------------------------------------------------------------------------
 | Control pane. Contains text box to filter plugins and menu button
@@ -161,7 +64,9 @@
 | Menu button
 |----------------------------------------------------------------------------*/
 
-.che-plugin-control-panel .menu-button {
+.che-plugin-control-panel .menu-button,
+.che-plugin-control-panel .menu-button-active,
+.che-plugin-control-panel .menu-button-disabled {
     position: absolute;
     width: 24px;
     height: 24px;
@@ -170,9 +75,12 @@
     overflow: hidden;
     text-align: center;
     line-height: 26px;
+    box-sizing: border-box;
+}
+
+.che-plugin-control-panel .menu-button {
     cursor: pointer;
     color: var(--theia-ui-font-color2);
-    box-sizing: border-box;
 }
 
 .che-plugin-control-panel .menu-button:hover {
@@ -184,6 +92,11 @@
     border: none;
     background: var(--theia-menu-color1);
     box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
+}
+
+.che-plugin-control-panel .menu-button-disabled {
+    outline: none;
+    color: var(--theia-ui-font-color3);
 }
 
 /*-----------------------------------------------------------------------------
@@ -247,6 +160,10 @@
     left: 84px;
     top: 8px;
     right: 2px;
+}
+
+.che-plugin-list .highlighted {
+    background: var(--theia-word-highlight-match-color1);
 }
 
 .che-plugin-list .che-plugin-title {

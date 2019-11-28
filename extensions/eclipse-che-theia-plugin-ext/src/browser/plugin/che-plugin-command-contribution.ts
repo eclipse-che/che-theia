@@ -17,11 +17,9 @@
 import { injectable, inject } from 'inversify';
 import { MenuModelRegistry, CommandRegistry, CommandContribution } from '@theia/core/lib/common';
 import { MessageService, Command } from '@theia/core/lib/common';
-import { ChePluginRegistry } from '../../common/che-protocol';
 import { ChePluginManager } from './che-plugin-manager';
 import { CommonMenus, QuickInputService } from '@theia/core/lib/browser';
 import { MonacoQuickOpenService } from '@theia/monaco/lib/browser/monaco-quick-open-service';
-import { QuickOpenModel, QuickOpenItem, QuickOpenMode } from '@theia/core/lib/browser/quick-open/quick-open-model';
 import { FrontendApplicationStateService } from '@theia/core/lib/browser/frontend-application-state';
 
 function cmd(id: string, label: string): Command {
@@ -41,8 +39,8 @@ export namespace ChePluginManagerCommands {
     export const SHOW_INSTALLED_PLUGINS = cmd('show-installed-plugins', 'Show Installed Plugins');
     export const SHOW_BUILT_IN_PLUGINS = cmd('show-built-in-plugins', 'Show Built-in Plugins');
 
-    export const CHANGE_REGISTRY = cmd('change-registry', 'Change Registry');
     export const ADD_REGISTRY = cmd('add-registry', 'Add Registry');
+    export const REFRESH = cmd('refresh', 'Refresh');
 }
 
 @injectable()
@@ -78,30 +76,9 @@ export class ChePluginCommandContribution implements CommandContribution {
     }
 
     registerCommands(commands: CommandRegistry): void {
-        commands.registerCommand(ChePluginManagerCommands.CHANGE_REGISTRY, {
-            execute: () => this.changePluginRegistry()
-        });
-
         commands.registerCommand(ChePluginManagerCommands.ADD_REGISTRY, {
             execute: () => this.addPluginRegistry()
         });
-    }
-
-    //
-    async showAvailablePlugins() {
-        this.chePluginManager.changeFilter('', true);
-    }
-
-    // @installed
-    async showInstalledPlugins() {
-        this.chePluginManager.changeFilter('@installed', true);
-    }
-
-    // @builtin
-    // Displays a list of built in plugins provided inside Theia editor container.
-    // Will be implemented soon.
-    async showBuiltInPlugins() {
-        this.chePluginManager.changeFilter('@builtin', true);
     }
 
     /**
@@ -131,69 +108,6 @@ export class ChePluginCommandContribution implements CommandContribution {
         };
 
         this.chePluginManager.addRegistry(registry);
-        this.chePluginManager.changeRegistry(registry);
-    }
-
-    private async pickPluginRegistry(): Promise<ChePluginRegistry | undefined> {
-        const registryList = this.chePluginManager.getRegistryList();
-
-        return new Promise<ChePluginRegistry | undefined>((resolve, reject) => {
-            // Return undefined if registry list is empty
-            if (!registryList || registryList.length === 0) {
-                resolve(undefined);
-                return;
-            }
-
-            // Active before appearing the pick menu
-            const activeElement: HTMLElement | undefined = window.document.activeElement as HTMLElement;
-
-            // ChePluginRegistry to be returned
-            let returnValue: ChePluginRegistry | undefined;
-
-            const items = registryList.map(registry =>
-                new QuickOpenItem({
-                    label: registry.name,
-                    detail: registry.uri,
-                    run: mode => {
-                        if (mode === QuickOpenMode.OPEN) {
-                            returnValue = {
-                                name: registry.name,
-                                uri: registry.uri
-                            } as ChePluginRegistry;
-                        }
-                        return true;
-                    }
-                })
-            );
-
-            // Create quick open model
-            const model = {
-                onType(lookFor: string, acceptor: (items: QuickOpenItem[]) => void): void {
-                    acceptor(items);
-                }
-            } as QuickOpenModel;
-
-            // Show pick menu
-            this.monacoQuickOpenService.open(model, {
-                fuzzyMatchLabel: true,
-                fuzzyMatchDetail: true,
-                fuzzyMatchDescription: true,
-                onClose: () => {
-                    if (activeElement) {
-                        activeElement.focus();
-                    }
-
-                    resolve(returnValue);
-                }
-            });
-        });
-    }
-
-    async changePluginRegistry(): Promise<void> {
-        const registry = await this.pickPluginRegistry();
-        if (registry) {
-            this.chePluginManager.changeRegistry(registry);
-        }
     }
 
 }
