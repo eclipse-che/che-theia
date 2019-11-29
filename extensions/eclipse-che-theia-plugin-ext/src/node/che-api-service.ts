@@ -118,6 +118,47 @@ export class CheApiServiceImpl implements CheApiService {
         return await cheApiClient.stop(workspaceId);
     }
 
+    async getCurrentWorkspacesContainers(): Promise<{ [key: string]: cheApi.workspace.Machine }> {
+        const result: { [key: string]: cheApi.workspace.Machine } = {};
+        try {
+            const workspace = await this.currentWorkspace();
+            const containers = workspace.runtime!.machines;
+            if (containers) {
+                for (const containerName of Object.keys(containers)) {
+                    const container = containers[containerName];
+                    if (container) {
+                        result[containerName] = container;
+                    }
+                }
+            }
+        } catch (e) {
+            throw new Error(`Unable to get workspace containers. Cause: ${e}`);
+        }
+        return result;
+    }
+
+    async findUniqueServerByAttribute(attributeName: string, attributeValue: string): Promise<cheApi.workspace.Server> {
+        const containers = await this.getCurrentWorkspacesContainers();
+        try {
+            if (containers) {
+                for (const containerName of Object.keys(containers)) {
+                    const servers = containers[containerName].servers;
+                    if (servers) {
+                        for (const serverName of Object.keys(servers)) {
+                            const server = servers[serverName];
+                            if (server && server.attributes && server.attributes[attributeName] === attributeValue) {
+                                return server;
+                            }
+                        }
+                    }
+                }
+            }
+            return Promise.reject(`Server by attributes '${attributeName}'='${attributeValue}' was not found.`);
+        } catch (e) {
+            return Promise.reject(`Unable to get workspace servers. Cause: ${e}`);
+        }
+    }
+
     async getFactoryById(factoryId: string): Promise<cheApi.factory.Factory> {
         try {
             const client = await this.getCheApiClient();

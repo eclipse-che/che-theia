@@ -163,6 +163,5 @@ COPY --from=builder /home/theia-dev/theia-source-code/production/plugins /defaul
 COPY --chown=theia:root --from=builder /home/theia-dev/theia-source-code/production /home/theia
 USER theia
 WORKDIR /projects
-COPY src/get-webview-route.js ${HOME}/get-webview-route.js
 COPY src/entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
