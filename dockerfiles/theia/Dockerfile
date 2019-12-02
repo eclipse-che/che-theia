@@ -34,23 +34,14 @@ ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/${THEIA_GITHUB_RE
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-clone-theia.dockerfile}
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-post-clone.dockerfile}
 
-# Add patches
-ADD src/patches ${HOME}/patches
-
-# Apply patches
-RUN if [ -d "${HOME}/patches/${THEIA_VERSION}" ]; then \
-      echo "Applying patches for Theia version ${THEIA_VERSION}"; \
-      for file in $(find "${HOME}/patches/${THEIA_VERSION}" -name '*.patch'); do \
-        echo "Patching with ${file}"; \
-        cd ${HOME}/theia-source-code && patch -p1 < ${file}; \
-      done \
-    fi
+# Patch theia
+#{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-patch-theia.dockerfile}
+#{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-post-patch.dockerfile}
 
 # Generate che-theia
 ARG CDN_PREFIX=""
 ARG MONACO_CDN_PREFIX=""
 WORKDIR ${HOME}/theia-source-code
-
 
 # Add che-theia repository content
 COPY asset-che-theia.tar.gz /tmp/asset-che-theia.tar.gz
