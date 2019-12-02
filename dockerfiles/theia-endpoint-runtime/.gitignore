@@ -1,8 +1,0 @@
-theia-plugin-ext
-docker-build
-.browser_modules
-*.log
-*-app/*
-!*-app/package.json
-.idea
-.Dockerfile

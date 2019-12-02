@@ -18,12 +18,11 @@ THEIA_DOCKER_IMAGE_VERSION=
 
 parse() {
   PUBLISH_IMAGES=false
-  PULL_REQUEST_MODE=false
   FILTERED_ARGS=""
   while [ $# -gt 0 ]; do
     case $1 in
       --pr)
-        PULL_REQUEST_MODE=true
+      # For compatibility issue
       shift ;;
       --push)
         PUBLISH_IMAGES=true
@@ -35,14 +34,6 @@ parse() {
   done
 }
 
-is_pull_request_mode() {
-  if [[ "${PULL_REQUEST_MODE}" == "true" ]]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
 is_publish_images() {
   if [[ "${PUBLISH_IMAGES}" == "true" ]]; then
     return 0
@@ -52,73 +43,20 @@ is_publish_images() {
 }
 
 # KEEP RIGHT ORDER!!!
-PR_IMAGES=(
-  dockerfiles/theia-dev
-  dockerfiles/theia
-  dockerfiles/theia-endpoint-runtime-binary
-)
-
-# KEEP RIGHT ORDER!!!
 DOCKER_FILES_LOCATIONS=(
   dockerfiles/theia-dev
   dockerfiles/theia
   dockerfiles/theia-endpoint-runtime-binary
-  dockerfiles/remote-plugin-node
-  dockerfiles/remote-plugin-java8
-  dockerfiles/remote-plugin-java11
-  dockerfiles/remote-plugin-php7
-  dockerfiles/remote-plugin-go-1.10.7
-  dockerfiles/remote-plugin-go-1.12.9
-  dockerfiles/remote-plugin-clang-8
-  dockerfiles/remote-plugin-python-3.7.3
-  dockerfiles/remote-plugin-python-3.7.4
-  dockerfiles/remote-plugin-dotnet-2.2.105
-  dockerfiles/remote-plugin-kubernetes-tooling-0.1.17
-  dockerfiles/remote-plugin-kubernetes-tooling-1.0.0
-  dockerfiles/remote-plugin-kubernetes-tooling-1.0.4
-  dockerfiles/remote-plugin-openshift-connector-0.0.17
-  dockerfiles/remote-plugin-openshift-connector-0.0.21
-  dockerfiles/remote-plugin-openshift-connector-0.1.0
-  dockerfiles/remote-plugin-openshift-connector-0.1.1
-  dockerfiles/remote-plugin-camelk-0.0.9
-  dockerfiles/remote-plugin-camelk-0.0.10
-  dockerfiles/remote-plugin-dependency-analytics-0.0.12
-  dockerfiles/remote-plugin-dependency-analytics-0.0.13
 )
 
 PUBLISH_IMAGES_LIST=(
   eclipse/che-theia-dev
   eclipse/che-theia
   eclipse/che-theia-endpoint-runtime-binary
-  eclipse/che-remote-plugin-node
-  eclipse/che-remote-plugin-runner-java8
-  eclipse/che-remote-plugin-runner-java11
-  eclipse/che-remote-plugin-php7
-  eclipse/che-remote-plugin-go-1.10.7
-  eclipse/che-remote-plugin-go-1.12.9
-  eclipse/che-remote-plugin-clang-8
-  eclipse/che-remote-plugin-python-3.7.3
-  eclipse/che-remote-plugin-python-3.7.4
-  eclipse/che-remote-plugin-dotnet-2.2.105
-  eclipse/che-remote-plugin-kubernetes-tooling-0.1.17
-  eclipse/che-remote-plugin-kubernetes-tooling-1.0.0
-  eclipse/che-remote-plugin-kubernetes-tooling-1.0.4
-  eclipse/che-remote-plugin-openshift-connector-0.0.17
-  eclipse/che-remote-plugin-openshift-connector-0.0.21
-  eclipse/che-remote-plugin-openshift-connector-0.1.0
-  eclipse/che-remote-plugin-openshift-connector-0.1.1
-  eclipse/che-remote-plugin-camelk-0.0.9
-  eclipse/che-remote-plugin-camelk-0.0.10
-  eclipse/che-remote-plugin-dependency-analytics-0.0.12
-  eclipse/che-remote-plugin-dependency-analytics-0.0.13
 )
 
 getImages() {
-  if is_pull_request_mode; then
-    echo "${PR_IMAGES[@]}"
-  else
-    echo "${DOCKER_FILES_LOCATIONS[@]}"
-  fi
+  echo "${DOCKER_FILES_LOCATIONS[@]}"
 }
 
 buildImages() {
