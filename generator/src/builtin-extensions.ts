@@ -119,7 +119,8 @@ export class BuiltinExtensions {
     protected async unpackNodeModules(extensionDir: string): Promise<void> {
         const nodeModules = fs.existsSync(path.resolve(extensionDir, 'vscode_node_modules.zip'));
         if (nodeModules) {
-            await new Command(extensionDir).exec('mkdir node_modules | unzip vscode_node_modules.zip -d node_modules');
+            fs.ensureDirSync(path.resolve(extensionDir, 'node_modules'));
+            await new Command(extensionDir).exec('unzip vscode_node_modules.zip -d node_modules');
         }
     }
 }

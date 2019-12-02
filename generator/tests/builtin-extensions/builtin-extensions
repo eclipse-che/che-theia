@@ -5,6 +5,7 @@
 @theia/vscode-builtin-cpp@0.2.1
 @theia/vscode-builtin-csharp@0.2.1
 @theia/vscode-builtin-css@0.2.1
+@theia/vscode-builtin-debug-auto-launch@0.2.1
 @theia/vscode-builtin-docker@0.2.1
 @theia/vscode-builtin-emmet@0.2.1
 @theia/vscode-builtin-fsharp@0.2.1
@@ -32,7 +33,6 @@
 @theia/vscode-builtin-npm@0.2.1
 @theia/vscode-builtin-objective-c@0.2.1
 @theia/vscode-builtin-perl@0.2.1
-@theia/vscode-builtin-php@0.2.1
 @theia/vscode-builtin-powershell@0.2.1
 @theia/vscode-builtin-pug@0.2.1
 @theia/vscode-builtin-python@0.2.1
