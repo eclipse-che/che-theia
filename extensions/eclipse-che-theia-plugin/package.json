@@ -1,6 +1,6 @@
 {
     "name": "@eclipse-che/plugin",
-    "version": "7.5.0",
+    "version": "7.5.1",
     "description": "Eclipse Che specific Theia plugin API",
     "publishConfig": {
         "access": "public"
@@ -20,6 +20,5 @@
         "watch": "",
         "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
     },
-    "devDependencies": {
-    }
+    "devDependencies": {}
 }

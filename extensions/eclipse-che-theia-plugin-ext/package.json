@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/theia-plugin-ext",
-  "version": "7.5.0",
+  "version": "7.5.1",
   "description": "Theia extension",
   "author": "Yevhen Vydolob",
   "license": "EPL-2.0",
@@ -13,7 +13,7 @@
     "src"
   ],
   "dependencies": {
-    "@eclipse-che/plugin": "7.5.0",
+    "@eclipse-che/plugin": "7.5.1",
     "@eclipse-che/workspace-client": "latest",
     "@theia/core": "0.13.0-next.b9969ba4",
     "@theia/task": "0.13.0-next.b9969ba4",
