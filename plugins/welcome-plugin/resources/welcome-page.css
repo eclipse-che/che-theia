@@ -287,8 +287,8 @@
 }
 
 html, body {
-    font-family: var(--theia-ui-font-family);
-    background: var(--theia-layout-color0);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: var(--vscode-editor-background);
 }
 
 .che-welcome-header .che-welcome-header-title img {
@@ -306,13 +306,20 @@ html, body {
 }
 
 .che-welcome-header .che-welcome-header-title {
-    color: var(--theia-ui-font-color0);
     font-size: 45px;
     white-space: nowrap;
     font-weight: 400;
     margin-block-end: 10px;
     margin-block-start: 10px;
     display: flex;
+}
+
+.vscode-dark .che-welcome-header .che-welcome-header-title {
+    color: var(--md-grey-100);
+}
+
+.vscode-light .che-welcome-header .che-welcome-header-title {
+    color: var(--md-grey-900);
 }
 
 body[class="vscode-light"] .product-logo-dark {
@@ -332,10 +339,17 @@ body[class="vscode-dark"] .product-logo-light {
 }
 
 .che-welcome-header-subtitle {
-    color: var(--theia-ui-font-color2);
     font-size: 32px;
     text-transform: capitalize;
     font-weight: 400;
+}
+
+.vscode-dark .che-welcome-header-subtitle {
+    color: var(--md-grey-500);
+}
+
+.vscode-light .che-welcome-header-subtitle {
+    color: var(--md-grey-500);
 }
 
 .col {
@@ -350,13 +364,27 @@ body[class="vscode-dark"] .product-logo-light {
 
 .che-welcome-action-container {
     line-height: 20px;
-    color: var(--theia-ui-font-color0);
-    font-size: var(--theia-ui-font-size1);
+    font-size: var(--vscode-font-size);
+}
+
+.vscode-dark .che-welcome-action-container {
+    color: var(--md-grey-100);
+}
+
+.vscode-light .che-welcome-action-container {
+    color: var(--md-grey-900);
 }
 
 .che-welcome-action-details {
     padding-left: 5px;
-    color: var(--theia-ui-font-color1);
+}
+
+.vscode-dark .che-welcome-action-details {
+    color: var(--md-grey-100);
+}
+
+.vscode-light .che-welcome-action-details {
+    color: var(--md-grey-900);
 }
 
 .che-welcome-container {
@@ -369,11 +397,18 @@ body[class="vscode-dark"] .product-logo-light {
 
 .che-welcome-section a {
     border: none;
-    color: var(--theia-accent-color1);
     font-weight: 500;
     outline: 0;
     text-decoration: none;
     padding-right: 5px;
+}
+
+.vscode-dark .che-welcome-section a {
+    color: #259fd8;
+}
+
+.vscode-light .che-welcome-section a {
+    color: #2b75c0;
 }
 
 .che-welcome-section a:hover {
@@ -381,10 +416,17 @@ body[class="vscode-dark"] .product-logo-light {
 }
 
 .che-welcome-section-header {
-    color: var(--theia-ui-font-color0);
-    font-size: var(--theia-ui-font-size2);
+    font-size: calc(var(--vscode-font-size) * 1.2);
     font-weight: 600;
     margin-bottom: 5px;
+}
+
+.vscode-dark .che-welcome-section-header {
+    color: var(--md-grey-100);
+}
+
+.vscode-light .che-welcome-section-header {
+    color: var(--md-grey-900);
 }
 
 .che-welcome-section-header i {
@@ -405,10 +447,17 @@ body[class="vscode-dark"] .product-logo-light {
 	margin-left: 5px;
 	margin-right: 5px;
 	background-color: rgba(128, 128, 128, 0.17);
-	color: var(--theia-ui-font-color1);
 	border: solid 1px rgba(51, 51, 51, 0.6);
 	border-bottom-color: rgba(68, 68, 68, 0.6);
 	box-shadow: inset 0 -1px 0 rgba(68, 68, 68, 0.6);
+}
+
+.vscode-dark .che-welcome-keybinding > .che-welcome-keybinding-key {
+    color: var(--md-grey-300);
+}
+
+.vscode-light .che-welcome-keybinding > .che-welcome-keybinding-key {
+    color: var(--md-grey-700);
 }
 
 .che-welcome-keybinding > .che-welcome-keybinding-key-separator {
@@ -422,20 +471,19 @@ body[class="vscode-dark"] .product-logo-light {
 /*-----------------------------------------------------------------------------
 | Webkit scrollbars
 |----------------------------------------------------------------------------*/
-::-webkit-scrollbar {
-    height: var(--theia-scrollbar-width);
-    width: var(--theia-scrollbar-width);
-    background: var(--theia-scrollbar-rail-color);
-}
 
 ::-webkit-scrollbar-corner {
     background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--theia-scrollbar-thumb-color);
+    background: var(--vscode-scrollbarSlider-background);
 }
 
-::selection {
-    background: var(--theia-selected-text-background);
+.vscode-dark ::selection {
+    background: #217daf;
+}
+
+.vscode-light ::selection {
+    background: #c0dbf1;
 }
