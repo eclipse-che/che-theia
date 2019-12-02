@@ -78,7 +78,7 @@ Basically, this command will perform:
 [che-dev]
 $ che:theia init --dev
 ```
-h
+
 This command will checkout all extensions in `/projects/theia/che` folder and create symbolic link into `/projects/theia/packages` folder.
 
 By default, extensions list is retrieved from https://github.com/eclipse/che-theia/blob/master/che-theia-init-sources.yml
@@ -128,7 +128,7 @@ $ node /projects/theia/production/src-gen/backend/main.js /tmp/theiadev_projects
 You can then access to your modified Che-theia from the Container view `theia-dev` endpoint
 ![Che-Theia-dev-endpoint](https://raw.githubusercontent.com/eclipse/che-theia/assets/theia-dev-endpoint.png)
 
-### Step 7bis: Run che-theia + plugin in dev mode
+### Step 7: Run che-theia + plugin in dev mode
 In this section we show how to run the che-theia assembly but in `dev mode`: keeping all the information for debugging.
 
 You can use the che command `run ... DEV yarn start ... che-theia + factory-plugin` or
@@ -144,6 +144,9 @@ If you do not have any changes on Theia or Che-theia extension, you could just b
 and run these plugins with the existing che-theia app:
 `run ... HOSTED che-theia + container-plugin` or `run ... HOSTED che-theia + factory-plugin`
 
+### How to run Che Theia with VS Code builtin extensions
+
+First of all it is needed to download extensions: `download builtin extensions ... DEV che-theia`. Then start che-theia: `run ... HOSTED che-theia + builtin extensions`.
 
 ## How to develop Che Theia remote plugin mechanism
 
