@@ -88,6 +88,8 @@ ENV ASPNETCORE_URLS=http://+:80 \
 # Trigger first run experience by running arbitrary cmd to populate local package cache
 RUN dotnet help
 
+WORKDIR /projects
+
 ADD etc/entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT [ "/entrypoint.sh" ]
