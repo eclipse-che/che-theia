@@ -164,7 +164,7 @@ When workspace is ready:
    Or a user may generate one using `Generate Hello World plugin package` command.
  - Run dev Che Theia and Remote plugins endpoint in `theia-dev` and `theia-remote-runtime-dev` containers correspondingly.
    One may use predefined commands to start them.
- - Open `theia-dev` route from `My Workspace` panel and test chenges.
+ - Open `theia-dev` route from `My Workspace` panel and test changes.
 
 Also it is possible to run watchers for remote plugin mechanism.
 In `theia-dev` container run `npx run watch @eclipse-che/theia-remote` from `/projects/theia` folder to recompile the extension on changes made.

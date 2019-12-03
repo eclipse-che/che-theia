@@ -79,6 +79,9 @@ RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-before-production.dockerfile}
 RUN che:theia production
 
+# run che:theia builtin-extensions to download vscode builtin extensions
+RUN che:theia builtin-extensions --plugins builtin-extensions
+
 # Compile plugins
 RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
     cd plugins && ./foreach_yarn
@@ -115,16 +118,13 @@ ENV USE_LOCAL_GIT=true \
 EXPOSE 3100 3130
 
 COPY --from=builder /home/theia-dev/theia-source-code/production/plugins /default-theia-plugins
-
-# run che:theia builtin:extensions to download vscode builtin extensions into production plugins
-RUN che:theia builtin:extensions --plugins /default-theia-plugins
-
+COPY --from=builder /home/theia-dev/theia-source-code/builtin-extensions /default-theia-plugins
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/runtime-install-dependencies.dockerfile}
 
 # setup yarn (if missing)
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/runtime-setup-yarn.dockerfile}
 
- RUN \
+RUN \
     #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/runtime-adduser.sh}
     && echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
     # Create /projects for Che
