@@ -52,10 +52,10 @@ export async function start(context: theia.PluginContext) {
     const taskRunnerSubscription = await che.task.registerTaskRunner(CHE_TASK_TYPE, cheTaskRunner);
     getSubscriptions().push(taskRunnerSubscription);
 
+    await che.task.addTaskSubschema(CHE_TASK_SCHEMA);
+
     const exportConfigurationsManager = container.get<ExportConfigurationsManager>(ExportConfigurationsManager);
     exportConfigurationsManager.export();
-
-    che.task.addTaskSubschema(CHE_TASK_SCHEMA);
 }
 
 export function stop() { }

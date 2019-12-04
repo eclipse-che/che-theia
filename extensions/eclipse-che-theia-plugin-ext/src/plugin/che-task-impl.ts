@@ -49,6 +49,6 @@ export class CheTaskImpl implements CheTask {
     }
 
     async addTaskSubschema(schema: TaskJSONSchema): Promise<void> {
-        this.cheTaskMain.$addTaskSubschema(schema);
+        return this.cheTaskMain.$addTaskSubschema(schema);
     }
 }
