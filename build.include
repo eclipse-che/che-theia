@@ -10,7 +10,7 @@
 set -e
 set -u
 
-IMAGE_TAG="7.3.2"
+IMAGE_TAG="7.3.3"
 THEIA_VERSION="0.12.0-next.f255f5a8"
 THEIA_BRANCH="master"
 THEIA_GIT_REFS="refs\\/heads\\/master"
