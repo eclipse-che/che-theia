@@ -9,8 +9,6 @@
 @theia/vscode-builtin-docker@0.2.1
 @theia/vscode-builtin-emmet@0.2.1
 @theia/vscode-builtin-fsharp@0.2.1
-@theia/vscode-builtin-git@0.2.1
-@theia/vscode-builtin-git-ui@latest
 @theia/vscode-builtin-go@0.2.1
 @theia/vscode-builtin-groovy@0.2.1
 @theia/vscode-builtin-grunt@0.2.1
@@ -41,7 +39,6 @@
 @theia/vscode-builtin-ruby@0.2.1
 @theia/vscode-builtin-rust@0.2.1
 @theia/vscode-builtin-scss@0.2.1
-@theia/vscode-builtin-search-result@next
 @theia/vscode-builtin-shaderlab@0.2.1
 @theia/vscode-builtin-shellscript@0.2.1
 @theia/vscode-builtin-sql@0.2.1
