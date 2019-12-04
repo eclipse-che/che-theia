@@ -45,21 +45,26 @@ export class ExportConfigurationsManager {
     @multiInject(ConfigurationsExporter)
     protected readonly exporters: ConfigurationsExporter[];
 
-    async export() {
+    async export(): Promise<void> {
         const workspaceFolders = theia.workspace.workspaceFolders;
         if (!workspaceFolders || workspaceFolders.length < 1) {
             return;
         }
 
+        const exportPromises = [];
         const cheCommands = await this.cheWorkspaceClient.getCommands();
         for (const exporter of this.exporters) {
-            this.doExport(workspaceFolders, cheCommands, exporter);
+            exportPromises.push(this.doExport(workspaceFolders, cheCommands, exporter));
         }
+
+        await Promise.all(exportPromises);
     }
 
-    private doExport(workspaceFolders: theia.WorkspaceFolder[], cheCommands: cheApi.workspace.Command[], exporter: ConfigurationsExporter) {
+    private async doExport(workspaceFolders: theia.WorkspaceFolder[], cheCommands: cheApi.workspace.Command[], exporter: ConfigurationsExporter): Promise<void> {
+        const exportConfigsPromises = [];
         for (const workspaceFolder of workspaceFolders) {
-            exporter.export(workspaceFolder, cheCommands);
+            exportConfigsPromises.push(exporter.export(workspaceFolder, cheCommands));
         }
+        await Promise.all(exportConfigsPromises);
     }
 }
