@@ -109,6 +109,7 @@ RUN find production -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt
 
 ENV USE_LOCAL_GIT=true \
     HOME=/home/theia \
+    SHELL=/bin/bash \
     THEIA_DEFAULT_PLUGINS=local-dir:///default-theia-plugins \
     # Specify the directory of git (avoid to search at init of Theia)
     LOCAL_GIT_DIRECTORY=/usr \
