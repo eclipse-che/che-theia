@@ -61,17 +61,11 @@ export class CheTaskRunner {
         }
 
         try {
-            const command = taskConfig.commandLine
-            ? taskConfig.commandLine
-            : (taskConfig.command + (taskConfig.args
-                                        ? ' ' + taskConfig.args.join(' ')
-                                        : ''));
-
             const terminalOptions: theia.TerminalOptions = {
                 cwd: target.workingDir,
                 name: taskConfig.label,
                 shellPath: 'sh',
-                shellArgs: ['-c', `${command}`],
+                shellArgs: ['-c', `${taskConfig.commandLine}`],
 
                 attributes: {
                     CHE_MACHINE_NAME: containerName,
@@ -108,6 +102,6 @@ export class CheTaskRunner {
                 // allow to get process id for other terminals
             }
         }
-        throw new Error(`Failed to terminate Che command: ${taskInfo.config.label}: the corresponging terminal is not found`);
+        throw new Error(`Failed to terminate Che command: ${taskInfo.config.label}: the corresponding terminal is not found`);
     }
 }
