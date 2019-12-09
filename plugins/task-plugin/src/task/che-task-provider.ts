@@ -54,8 +54,8 @@ export class CheTaskProvider {
         }
 
         const execution = task.execution as ShellExecution;
-        if (execution && execution.command) {
-            execution.command = await che.variables.resolve(execution.command as string);
+        if (execution && execution.commandLine) {
+            execution.commandLine = await che.variables.resolve(execution.commandLine as string);
         }
 
         return {
