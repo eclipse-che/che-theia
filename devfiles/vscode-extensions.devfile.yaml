@@ -1,0 +1,79 @@
+# A devfile to develop VS Code extensions.
+# For developers who would like to create his plugin inside Che-Theia.
+
+apiVersion: 1.0.0
+metadata:
+  name: che-theia-all
+
+projects:
+
+  - name: che-theia
+    source:
+      type: git
+      location: 'https://github.com/eclipse/che-theia.git'
+
+components:
+
+  - id: eclipse/che-theia/next
+    type: cheEditor
+    alias: che-theia
+
+  - alias: che-dev
+    type: dockerimage
+    image: eclipse/che-theia-dev:next
+    mountSources: true
+    endpoints:
+      - name: "theia-dev-flow"
+        port: 3010
+        attributes:
+          protocol: http
+          public: 'true'
+    memoryLimit: "3Gi"
+
+  - id: redhat/vscode-yaml/latest
+    type: chePlugin
+
+  - id: che-incubator/typescript/latest
+    type: chePlugin
+    memoryLimit: 2048M
+
+commands:
+
+  - name: 1. generate ... Create extension
+    actions:
+      - workdir: /projects
+        type: exec
+        command: >
+          yes | yo code \
+            --extensionType="command-ts" \
+            --extensionName='helloworld-vscode' \
+            --extensionDescription='Helloworld extension for VS Code' \
+            --extensionDisplayName='helloworld-vscode' > /dev/null;
+          echo -e "\e[32mDone.\e[0m Generating complete"
+        component: che-dev
+
+  - name: 2. package ... Hello World extension
+    actions:
+      - workdir: /projects/helloworld-vscode
+        type: exec
+        command: >
+          npm install;
+          yes | vsce package;
+          echo -e "\e[32mDone.\e[0m Packaging complete"
+        component: che-dev
+
+  - name: 3. run ... HOSTED Che-Theia + Hello World extension
+    actions:
+      - workdir: /home/theia
+        type: exec
+        command: >
+          kill `cat /tmp/node_theiadev.pid` &> /dev/null;
+          mkdir -p /tmp/theiadev_projects;
+          export THEIA_PLUGINS="local-dir:///projects/helloworld-vscode";
+          node \
+            src-gen/backend/main.js \
+            /tmp/theiadev_projects \
+            --hostname=0.0.0.0 \
+            --port=3130 & echo $!> /tmp/node_theiadev.pid;
+          wait `cat /tmp/node_theiadev.pid`
+        component: che-theia
