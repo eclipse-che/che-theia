@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (C) 2018 Red Hat, Inc. and others.
+ * Copyright (C) 2019 Red Hat, Inc. and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,6 +15,7 @@
  ********************************************************************************/
 
 import * as path from 'path';
+import * as http_proxy from 'http-proxy';
 import connect = require('connect');
 import serveStatic = require('serve-static');
 const vhost = require('vhost');
@@ -23,8 +24,9 @@ import { injectable, inject } from 'inversify';
 import { WebviewExternalEndpoint } from '@theia/plugin-ext/lib/main/common/webview-protocol';
 import { PluginApiContribution } from '@theia/plugin-ext/lib/main/node/plugin-service';
 import { CheApiService } from '../common/che-protocol';
-import { getUrlDomain, SERVER_TYPE_ATTR, SERVER_IDE_ATTR_VALUE } from '../common/che-server-common';
+import { getUrlDomain, SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE } from '../common/che-server-common';
 import { Deferred } from '@theia/core/lib/common/promise-util';
+import { che } from '@eclipse-che/api';
 
 const pluginPath = (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + './theia/plugins/';
 
@@ -42,11 +44,15 @@ export class PluginApiContributionIntercepted extends PluginApiContribution {
             res.sendFile(pluginPath + filePath);
         });
 
-        const webviewApp = connect();
+        http_proxy.createProxyServer({
+            target: 'http://localhost:3100'
+        }).listen(3101);
+
+        const webviewApp = connect(); // Add 404 on / or redirect to /webview
         const pluginExtModulePath = path.dirname(require.resolve('@theia/plugin-ext/package.json'));
         const webviewStaticResources = path.join(pluginExtModulePath, 'src/main/browser/webview/pre');
 
-        this.cheApi.findUniqueServerByAttribute(SERVER_TYPE_ATTR, SERVER_IDE_ATTR_VALUE).then(server => {
+        const configureWebview = (server: che.workspace.Server) => {
             let domain;
             if (server.url) {
                 domain = getUrlDomain(server.url);
@@ -58,10 +64,14 @@ export class PluginApiContributionIntercepted extends PluginApiContribution {
             app.use(vhost(new RegExp(hostName, 'i'), webviewApp));
 
             this.waitWebviewEndpoint.resolve();
-        }).catch(err => {
-            console.log('Unable to configure webview domain: ', err);
-            this.waitWebviewEndpoint.resolve();
-        });
+        };
+
+        this.cheApi.findUniqueServerByAttribute(SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE)
+            .then(server => configureWebview(server))
+            .catch(err => {
+                console.error('Security problem: Unable to configure separate webviews domain: ', err);
+                this.waitWebviewEndpoint.resolve();
+            });
     }
 
     async onStart(): Promise<void> {

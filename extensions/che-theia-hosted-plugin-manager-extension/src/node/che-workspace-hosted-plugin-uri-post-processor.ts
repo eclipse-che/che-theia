@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
+// import * as fs from 'fs';
 import { injectable } from 'inversify';
 import URI from '@theia/core/lib/common/uri';
 import { HostedPluginUriPostProcessor } from '@theia/plugin-dev';
@@ -27,6 +28,9 @@ export class CheWorkspaceHostedPluginUriPostProcessor implements HostedPluginUri
             restAPIConfig.headers = {};
             restAPIConfig.headers['Authorization'] = 'Bearer ' + token;
         }
+        // if (fs.existsSync(cert)) {
+
+        // }
         this.restApiClient = WorkspaceClient.getRestApi(restAPIConfig);
     }
 
