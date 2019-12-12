@@ -59,6 +59,7 @@ export class CheTheiaActivityTrackerFrontendContribution implements FrontendAppl
 
     private sendRequestAndSetTimer(): void {
         this.activityService.resetTimeout();
+        this.messageUpdateKeycloakToken();
         this.isAnyActivity = false;
 
         setTimeout(() => this.checkActivityTimerCallback(), CheTheiaActivityTrackerFrontendContribution.REQUEST_PERIOD_MS);
@@ -70,6 +71,10 @@ export class CheTheiaActivityTrackerFrontendContribution implements FrontendAppl
         if (this.isAnyActivity) {
             this.sendRequestAndSetTimer();
         }
+    }
+
+    private messageUpdateKeycloakToken(): void {
+        window.parent.postMessage(`update-token:${CheTheiaActivityTrackerFrontendContribution.REQUEST_PERIOD_MS}`, '*');
     }
 
 }
