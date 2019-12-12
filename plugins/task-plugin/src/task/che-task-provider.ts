@@ -8,14 +8,14 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import { injectable, inject } from 'inversify';
-import * as che from '@eclipse-che/plugin';
 import { che as cheApi } from '@eclipse-che/api';
-import { Task, ShellExecution } from '@theia/plugin';
-import { CHE_TASK_TYPE, CheTaskDefinition, Target } from './task-protocol';
-import { MachinesPicker, COMPONENT_ATTRIBUTE } from '../machine/machines-picker';
+import * as che from '@eclipse-che/plugin';
+import { ShellExecution, Task } from '@theia/plugin';
+import { inject, injectable } from 'inversify';
 import { CheWorkspaceClient } from '../che-workspace-client';
+import { COMPONENT_ATTRIBUTE, MachinesPicker } from '../machine/machines-picker';
 import { getAttribute } from '../utils';
+import { CheTaskDefinition, CHE_TASK_TYPE, Target } from './task-protocol';
 
 /** Reads the commands from the current Che workspace and provides it as Task Configurations. */
 @injectable()
@@ -54,8 +54,8 @@ export class CheTaskProvider {
         }
 
         const execution = task.execution as ShellExecution;
-        if (execution && execution.command) {
-            execution.command = await che.variables.resolve(execution.command as string);
+        if (execution && execution.commandLine) {
+            execution.commandLine = await che.variables.resolve(execution.commandLine as string);
         }
 
         return {
