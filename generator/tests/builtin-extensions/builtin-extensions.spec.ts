@@ -31,7 +31,7 @@ describe('Test Builtin Extensions', () => {
     });
 
     test('test download extensions', async () => {
-        (Command as any).__setExecCommandOutput(new RegExp('npm info .*'), 'some info');
+        (Command as any).__setExecCommandOutput(new RegExp('wget .*'), '...');
         const expected = fs.readFileSync('tests/builtin-extensions/builtin-extensions')
             .toString()
             .split('\n')

@@ -9,7 +9,6 @@
 **********************************************************************/
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import * as tmp from 'tmp';
 import * as yargs from 'yargs';
 import { Command } from './command';
 import { Logger } from './logger';
@@ -23,10 +22,14 @@ export class BuiltinExtensions {
         return theYargs.option('plugins', {
             description: 'Plugins folder to download VS Code builtin extension into.',
             alias: 'p',
+        }).option('extensions', {
+            description: 'List of VS Code builtin extensions to download.',
+            alias: 'e',
         });
     }
 
-    constructor(protected readonly pluginsFolder: string) {
+    constructor(
+        protected readonly pluginsFolder: string, protected readonly extensions?: string) {
     }
 
     async download(): Promise<string[]> {
@@ -35,7 +38,7 @@ export class BuiltinExtensions {
         await fs.ensureDir(this.pluginsFolder);
         const srcDir = path.resolve(__dirname, '../src');
         const confDir = path.join(srcDir, 'conf');
-        const extensions = await fs.readFile(path.join(confDir, 'builtin-extensions'));
+        const extensions = this.extensions || await fs.readFile(path.join(confDir, 'builtin-extensions'));
 
         Logger.info(`Downloading extensions into '${this.pluginsFolder}' started`);
 
@@ -45,14 +48,11 @@ export class BuiltinExtensions {
             }
 
             Logger.info(`Downloading '${extension}'`);
-
-            const url = await this.getExtensionUrl(extension);
-            if (url) {
-                const archive = await this.downloadExtension(url);
-                if (archive) {
-                    await this.unpackExtension(extension, archive);
-                    downloaded.push(extension);
-                }
+            try {
+                await this.downloadExtension(extension);
+                downloaded.push(extension);
+            } catch (error) {
+                Logger.error(error);
             }
         }
 
@@ -60,67 +60,7 @@ export class BuiltinExtensions {
         return downloaded;
     }
 
-    protected async getExtensionUrl(extension: string): Promise<string | undefined> {
-        try {
-            const url = await new Command(path.resolve(this.pluginsFolder)).exec(`npm info ${extension} dist.tarball`);
-            if (url) {
-                return url.trim();
-            }
-            Logger.error(`Tarball archive for '${extension}' not found.`);
-        } catch (e) {
-            Logger.error(e);
-        }
-    }
-
-    protected async getExtensionName(extension: string): Promise<string | undefined> {
-        try {
-            const name = await new Command(path.resolve(this.pluginsFolder)).exec(`npm info ${extension} name`);
-            if (name) {
-                return name.trim();
-            }
-            Logger.error(`'${extension}' name not found.`);
-        } catch (e) {
-            Logger.error(e);
-        }
-    }
-
-    protected async downloadExtension(downloadUrl: string): Promise<string | undefined> {
-        try {
-            const tmpFile = tmp.fileSync();
-            await new Command(path.resolve(this.pluginsFolder)).exec(`wget -O ${tmpFile.name} ${downloadUrl}`);
-            return tmpFile.name;
-        } catch (e) {
-            Logger.error(e);
-        }
-    }
-
-    protected async unpackExtension(extension: string, archive: string): Promise<boolean> {
-        try {
-            const name = await this.getExtensionName(extension);
-            if (!name) {
-                return false;
-            }
-
-            const dirname = path.resolve(this.pluginsFolder, name.slice('@theia/'.length));
-            fs.ensureDirSync(dirname);
-
-            await new Command(path.resolve(this.pluginsFolder)).exec(`tar -xf ${archive} -C ${dirname} --strip-components 1`);
-            await this.unpackNodeModules(dirname);
-
-            return true;
-        } catch (e) {
-            Logger.error(e);
-            return false;
-        } finally {
-            fs.removeSync(archive);
-        }
-    }
-
-    protected async unpackNodeModules(extensionDir: string): Promise<void> {
-        const nodeModules = fs.existsSync(path.resolve(extensionDir, 'vscode_node_modules.zip'));
-        if (nodeModules) {
-            fs.ensureDirSync(path.resolve(extensionDir, 'node_modules'));
-            await new Command(extensionDir).exec('unzip vscode_node_modules.zip -d node_modules');
-        }
+    protected async downloadExtension(downloadUrl: string): Promise<void> {
+        await new Command(path.resolve(this.pluginsFolder)).exec(`wget -P ${this.pluginsFolder} ${downloadUrl}`);
     }
 }

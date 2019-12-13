@@ -99,7 +99,7 @@ const commandArgs = yargs
         handler: async (args) => {
             try {
                 const pluginsFolder = args.plugins ? path.resolve(args.plugins) : path.resolve(process.cwd(), 'plugins');
-                const builtinExtensions = new BuiltinExtensions(pluginsFolder);
+                const builtinExtensions = new BuiltinExtensions(pluginsFolder, args.extensions);
                 await builtinExtensions.download();
             } catch (err) {
                 handleError(err);
