@@ -12,9 +12,6 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as tmp from 'tmp';
 import { BuiltinExtensions } from '../../src/builtin-extensions';
-import { Command } from '../../src/command';
-
-jest.mock('../../src/command');
 
 describe('Test Builtin Extensions', () => {
 
@@ -31,13 +28,13 @@ describe('Test Builtin Extensions', () => {
     });
 
     test('test download extensions', async () => {
-        (Command as any).__setExecCommandOutput(new RegExp('wget .*'), '...');
         const expected = fs.readFileSync('tests/builtin-extensions/builtin-extensions')
             .toString()
             .split('\n')
             .filter(value => !!value);
 
         const builtinExtensions = new BuiltinExtensions(pluginsFolderTmp);
+        builtinExtensions['downloadExtension'] = jest.fn();
         expect(await builtinExtensions.download()).toEqual(expected);
     });
 

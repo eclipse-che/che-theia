@@ -7,10 +7,10 @@
 *
 * SPDX-License-Identifier: EPL-2.0
 **********************************************************************/
+import * as axios from 'axios';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as yargs from 'yargs';
-import { Command } from './command';
 import { Logger } from './logger';
 
 /**
@@ -60,7 +60,10 @@ export class BuiltinExtensions {
         return downloaded;
     }
 
-    protected async downloadExtension(downloadUrl: string): Promise<void> {
-        await new Command(path.resolve(this.pluginsFolder)).exec(`wget -P ${this.pluginsFolder} ${downloadUrl}`);
+    protected async downloadExtension(extension: string): Promise<void> {
+        const response = await axios.default.get(extension);
+        const filename = extension.substring(extension.lastIndexOf('/') + 1);
+
+        fs.writeFileSync(path.resolve(this.pluginsFolder, filename), response.data);
     }
 }
