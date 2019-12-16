@@ -65,22 +65,15 @@ It specifies tag or branch for base Theia. Build script clones Theia sources, sw
 Parameter `${THEIA_BRANCH}` is optional. If it's not specified, the default value `'master'` will be used.
 
 
-CI generates several tags of [docker images](https://hub.docker.com/r/eclipse/che-theia/tags). Below is the list of images:
+CI generates several tags of [docker images](https://quay.io/repository/eclipse/che-theia?tab=tags). Below is the list of images:
 
 - `eclipse/che-theia:next`
   - theia branch: [master](https://github.com/theia-ide/theia/)
   - che-theia branch: [master](https://github.com/eclipse/che-theia)
-  - CI [build job](https://ci.codenvycorp.com/job/che-theia-next/)
+  - CI [build job](https://ci.centos.org/view/Devtools/job/devtools-che-theia-che-build-master/)
+  - CI [nightly build job](https://ci.centos.org/view/Devtools/job/devtools-che-theia-che-nightly/)
 
-- `eclipse/che-theia:7.0.0-next` Che-Theia 7.0.0 with the latest changes
-  - theia branch: [che-7.0.0](https://github.com/theia-ide/theia/tree/che-7.0.0)
-  - che-theia branch: [7.0.0](https://github.com/eclipse/che-theia/tree/7.0.0)
-  - CI [build job](https://ci.codenvycorp.com/job/che-theia-7.0.0-next/)
-
-- `eclipse/che:theia:latest` the latest stable Che-Theia 7.0.0 release
-  - theia branch: [che-7.0.0](https://github.com/theia-ide/theia/tree/che-7.0.0)
-  - che-theia tag: [v7.0.0-rc-4.0](https://github.com/eclipse/che-theia/tree/v7.0.0-rc-4.0)
-
+- `eclipse/che:theia:latest` the latest stable Che-Theia 7.x release, updates on each release by CI [release job](https://ci.centos.org/view/Devtools/job/devtools-che-theia-che-release/)
 
 ## Theia version
 
