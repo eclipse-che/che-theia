@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 import * as path from 'path';
-import * as http_proxy from 'http-proxy';
+// import * as http_proxy from 'http-proxy';
 import connect = require('connect');
 import serveStatic = require('serve-static');
 const vhost = require('vhost');
@@ -37,6 +37,7 @@ export class PluginApiContributionIntercepted extends PluginApiContribution {
     private cheApi: CheApiService;
 
     private waitWebviewEndpoint = new Deferred<void>();
+    private webviewApp: connect.Server = connect();
 
     configure(app: express.Application): void {
         app.get('/plugin/:path(*)', (req, res) => {
@@ -44,11 +45,13 @@ export class PluginApiContributionIntercepted extends PluginApiContribution {
             res.sendFile(pluginPath + filePath);
         });
 
-        http_proxy.createProxyServer({
-            target: 'http://localhost:3100'
-        }).listen(3101);
+        // const proxy = http_proxy.createProxyServer({
+        //     target: process.env.TARGET || 'http://localhost:3130'
+        // }).listen(3101);
+        // proxy.on("proxyReq", (proxyReq, req, res, options) => {
+        //     // chnage path from /webview to / in order to workaround https://github.com/eclipse/che/issues/15430
+        // });
 
-        const webviewApp = connect(); // Add 404 on / or redirect to /webview
         const pluginExtModulePath = path.dirname(require.resolve('@theia/plugin-ext/package.json'));
         const webviewStaticResources = path.join(pluginExtModulePath, 'src/main/browser/webview/pre');
 
@@ -57,11 +60,12 @@ export class PluginApiContributionIntercepted extends PluginApiContribution {
             if (server.url) {
                 domain = getUrlDomain(server.url);
             }
+
             const hostName = this.handleAliases(process.env[WebviewExternalEndpoint.pattern] || domain || WebviewExternalEndpoint.pattern);
-            webviewApp.use('/webview', serveStatic(webviewStaticResources));
+            this.webviewApp.use('/', serveStatic(webviewStaticResources));
 
             console.log(`Configuring to accept webviews on '${hostName}' hostname.`);
-            app.use(vhost(new RegExp(hostName, 'i'), webviewApp));
+            app.use(vhost(new RegExp(hostName, 'i'), this.webviewApp));
 
             this.waitWebviewEndpoint.resolve();
         };
@@ -76,6 +80,7 @@ export class PluginApiContributionIntercepted extends PluginApiContribution {
 
     async onStart(): Promise<void> {
         await this.waitWebviewEndpoint.promise;
+        this.webviewApp.listen(3101);
     }
 
     protected handleAliases(hostName: string): string {
