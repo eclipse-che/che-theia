@@ -1,0 +1,36 @@
+{
+  "name": "@eclipse-che/testing-service",
+  "version": "0.0.1",
+  "description": "Theia - Testing Service API",
+  "types": "./src/testing-service.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "EPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eclipse/che-theia.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eclipse/che/issues"
+  },
+  "homepage": "https://github.com/eclipse/che",
+  "files": [
+    "src",
+    "lib"
+  ],
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
+    "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
+    "compile": "tsc",
+    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "@theia/plugin": "next",
+    "@theia/plugin-ext": "next"
+  },
+  "devDependencies": {}
+}

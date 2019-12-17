@@ -1,0 +1,47 @@
+{
+  "name": "@eclipse-che/testing-service-ext",
+  "version": "0.0.1",
+  "description": "Theia - TestService Extension",
+  "dependencies": {
+    "@theia/plugin": "^0.15.0",
+    "@theia/plugin-ext": "^0.15.0",
+    "@eclipse-che/testing-service": "^0.0.1",
+    "glob": "^7.1.6",
+    "mocha": "^3.4.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "theiaExtensions": [
+    {
+      "backend": "lib/node/testservice-ext-backend-module",
+      "frontend": "lib/browser/testservice-ext-frontend-module"
+    }
+  ],
+  "keywords": [
+    "theia-extension"
+  ],
+  "license": "EPL-2.0",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "scripts": {
+    "prepare": "yarn clean && yarn build",
+    "clean": "rimraf lib",
+    "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
+    "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
+    "compile": "tsc",
+    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && yarn run compileWorker",
+    "compileWorker": "webpack-cli --config webpack.config.js",
+    "watch": "tsc -w"
+  },
+  "devDependencies": {
+    "clean-webpack-plugin": "^0.1.19",
+    "ts-loader": "^4.1.0",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.1",
+    "typescript-formatter": "7.2.2",
+    "@types/js-yaml": "3.11.2"
+  }
+}
