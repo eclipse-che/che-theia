@@ -5,17 +5,17 @@
     "che",
     "preferences"
   ],
-  "version": "0.0.1",
+  "version": "7.6.0",
   "license": "EPL-2.0",
   "files": [
     "lib",
     "src"
   ],
   "dependencies": {
-    "@theia/core": "next",
+    "@theia/core": "0.14.0-next.4c4a1f2e",
     "nsfw": "^1.2.2",
-    "@theia/preferences": "next",
-    "@eclipse-che/theia-plugin-ext": "^0.0.1"
+    "@theia/preferences": "0.14.0-next.4c4a1f2e",
+    "@eclipse-che/theia-plugin-ext": "7.6.0"
   },
   "devDependencies": {
     "rimraf": "latest"
