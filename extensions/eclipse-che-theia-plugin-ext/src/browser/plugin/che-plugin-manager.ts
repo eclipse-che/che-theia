@@ -518,10 +518,11 @@ export class ChePluginManager {
             const cheWorkspaceID = await this.envVariablesServer.getValue('CHE_WORKSPACE_ID');
             // get machine token
             const cheMachineToken = await this.envVariablesServer.getValue('CHE_MACHINE_TOKEN');
-            if (cheWorkspaceID && cheWorkspaceID.value && cheMachineToken && cheMachineToken.value) {
+            if (cheWorkspaceID && cheWorkspaceID.value) {
                 this.messageService.info('Workspace is restarting...');
-                // ask Dashboard to restart the workspace giving him workpace ID & machine token
-                window.parent.postMessage(`restart-workspace:${cheWorkspaceID.value}:${cheMachineToken.value}`, '*');
+                const cheMachineTokenValue = cheMachineToken && cheMachineToken.value ? cheMachineToken.value : '';
+                // ask Dashboard to restart the workspace giving him workspace ID & machine token
+                window.parent.postMessage(`restart-workspace:${cheWorkspaceID.value}:${cheMachineTokenValue}`, '*');
             }
         }
     }
