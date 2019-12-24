@@ -17,7 +17,7 @@
 import { injectable, inject } from 'inversify';
 import URI from '@theia/core/lib/common/uri';
 import { ActivityTrackerService } from '../common/activity-tracker-protocol';
-import { CheApiService, } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
+import { CheApiService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
 import * as http from 'http';
 
 /**
