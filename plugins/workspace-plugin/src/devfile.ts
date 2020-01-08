@@ -12,7 +12,7 @@ import * as theia from '@theia/plugin';
 import * as che from '@eclipse-che/plugin';
 
 const CREATE_WORKSPACE_COMMAND = {
-    id: 'factory-plugin.create-workspace',
+    id: 'workspace-plugin.create-workspace',
     label: 'Create Workspace',
     tooltip: 'Create workspace from this DevFile'
 };

@@ -28,10 +28,10 @@ describe('Test exec commands', () => {
 
 describe('Testing convertion of project paths to be stored in the workspace config', () => {
     test('Converting fs project path to che project path', async () => {
-        expect(convertToCheProjectPath('/projects/che-factory-extension/', '/projects')).toBe('che-factory-extension');
-        expect(convertToCheProjectPath('/projects/che-factory-extension', '/projects')).toBe('che-factory-extension');
-        expect(convertToCheProjectPath('/projects/che/che-factory-extension/', '/projects')).toBe('che/che-factory-extension');
+        expect(convertToCheProjectPath('/projects/che-workspace-extension/', '/projects')).toBe('che-workspace-extension');
+        expect(convertToCheProjectPath('/projects/che-workspace-extension', '/projects')).toBe('che-workspace-extension');
+        expect(convertToCheProjectPath('/projects/che/che-workspace-extension/', '/projects')).toBe('che/che-workspace-extension');
         expect(convertToCheProjectPath('/projects/theiadev_projects/blog.sunix.org/', '/projects/theiadev_projects')).toBe('blog.sunix.org');
-        expect(convertToCheProjectPath('/projects/che/che-factory-extension/', undefined)).toBe('che/che-factory-extension');
+        expect(convertToCheProjectPath('/projects/che/che-workspace-extension/', undefined)).toBe('che/che-workspace-extension');
     });
 });
