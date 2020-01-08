@@ -51,10 +51,10 @@
     axios "0.19.0"
     websocket "1.0.23"
 
-"@eclipse-che/workspace-telemetry-client@^0.0.1-1576775136":
-  version "0.0.1-1576778287"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-telemetry-client/-/workspace-telemetry-client-0.0.1-1576778287.tgz#5f3039ae46a7b7fc6430a2be19bd8a01a18c2e58"
-  integrity sha512-6aPtJIdhW+x0AhQF9QVO199RDgDw3UjiZBmVhQjbey809Yoj9BFmGJWc0SbRCL+IpRD8u41LxtefBMEvYouO2g==
+"@eclipse-che/workspace-telemetry-client@latest":
+  version "0.0.1-1578336565"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-telemetry-client/-/workspace-telemetry-client-0.0.1-1578336565.tgz#3513f7fce3104e82a9d2cd90a7c58d9a14f1d428"
+  integrity sha512-6efxV4yZqd4XjERFqn3PVc/Y0JBAqYw5vqR+4GZDdvR4UbJ7D2xGV02o/k0LclbKcVqZyowMWvY9nu9ti0tbLw==
   dependencies:
     "@eclipse-che/api" "^7.3.2"
     axios "0.18.0"
