@@ -89,35 +89,35 @@ commands:
                  echo -e "\e[32mDone.\e[0m build ... containers-plugin"
         workdir: /projects/che-theia/plugins/containers-plugin
 
-  - name: build ... factory-plugin
+  - name: build ... workspace-plugin
     actions:
       - type: exec
         component: che-dev
         command: >
                  killall node;
                  yarn &&
-                 echo -e "\e[32mDone.\e[0m build ... factory-plugin"
-        workdir: /projects/che-theia/plugins/factory-plugin
+                 echo -e "\e[32mDone.\e[0m build ... workspace-plugin"
+        workdir: /projects/che-theia/plugins/workspace-plugin
 
-  - name: test-watch ... factory-plugin
+  - name: test-watch ... workspace-plugin
     actions:
       - type: exec
         component: che-dev
         command: >
                  killall node;
                  yarn test-watch
-        workdir: /projects/che-theia/plugins/factory-plugin
+        workdir: /projects/che-theia/plugins/workspace-plugin
 
-  - name: run ... DEV che-theia + factory-plugin
+  - name: run ... DEV che-theia + workspace-plugin
     actions:
       - type: exec
         component: theia-editor
         command: >
                  kill `cat /tmp/node_theiadev.pid`;
-                 rm /default-theia-plugins/eclipse_che_theia_factory_plugin.theia;
+                 rm /default-theia-plugins/eclipse_che_workspace_plugin.theia;
                  mkdir -p /tmp/theiadev_projects &&
                  export CHE_PROJECTS_ROOT=/tmp/theiadev_projects &&
-                 export HOSTED_PLUGIN=/projects/che-theia/plugins/factory-plugin/ &&
+                 export HOSTED_PLUGIN=/projects/che-theia/plugins/workspace-plugin/ &&
                  node src-gen/backend/main.js /tmp/theiadev_projects --hostname=0.0.0.0 --port=3130 & echo $!> /tmp/node_theiadev.pid ; wait `cat /tmp/node_theiadev.pid`
         workdir: /projects/theia/production
 
@@ -134,16 +134,16 @@ commands:
                  node src-gen/backend/main.js /tmp/theiadev_projects --hostname=0.0.0.0 --port=3130 & echo $!> /tmp/node_theiadev.pid ; wait `cat /tmp/node_theiadev.pid`
         workdir: /projects/theia/production
 
-  - name: run ... HOSTED che-theia + factory-plugin
+  - name: run ... HOSTED che-theia + workspace-plugin
     actions:
       - type: exec
         component: theia-editor
         command: >
                  kill `cat /tmp/node_theiadev.pid`;
-                 rm /default-theia-plugins/eclipse_che_theia_factory_plugin.theia;
+                 rm /default-theia-plugins/eclipse_che_workspace_plugin.theia;
                  mkdir -p /tmp/theiadev_projects &&
                  export CHE_PROJECTS_ROOT=/tmp/theiadev_projects &&
-                 cp /projects/che-theia/plugins/factory-plugin/eclipse_che_theia_factory_plugin.theia /default-theia-plugins/ &&
+                 cp /projects/che-theia/plugins/workspace-plugin/eclipse_che_workspace_plugin.theia /default-theia-plugins/ &&
                  node src-gen/backend/main.js /tmp/theiadev_projects --hostname=0.0.0.0 --port=3130 & echo $!> /tmp/node_theiadev.pid ; wait `cat /tmp/node_theiadev.pid`
         workdir: /home/theia
 
@@ -160,7 +160,7 @@ commands:
                  node src-gen/backend/main.js /tmp/theiadev_projects --hostname=0.0.0.0 --port=3130 & echo $!> /tmp/node_theiadev.pid ; wait `cat /tmp/node_theiadev.pid`
         workdir: /home/theia
 
-  - name: run ... DEV yarn start ... che-theia + factory-plugin
+  - name: run ... DEV yarn start ... che-theia + workspace-plugin
     actions:
       - type: exec
         component: che-dev
@@ -168,7 +168,7 @@ commands:
                  killall node;
                  mkdir -p /tmp/theiadev_projects &&
                  export CHE_PROJECTS_ROOT=/tmp/theiadev_projects &&
-                 export HOSTED_PLUGIN=/projects/che-theia/plugins/factory-plugin/ &&
+                 export HOSTED_PLUGIN=/projects/che-theia/plugins/workspace-plugin/ &&
                  export GIT_EXEC_PATH=/usr/libexec/git-core && export USE_LOCAL_GIT=true && export LOCAL_GIT_DIRECTORY=/usr &&
                  yarn start /tmp/theiadev_projects --hostname=0.0.0.0 --port=3010
         workdir: /projects/theia/examples/assembly

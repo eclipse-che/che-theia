@@ -190,7 +190,7 @@ export class TheiaImportZipCommand implements TheiaImportCommand {
 
             this.locationURI = source!.location;
             this.projectDir = path.join(projectsRoot, project.name!);
-            this.tmpDir = fs.mkdtempSync(path.join(`${os.tmpdir()}${path.sep}`, 'factory-plugin-'));
+            this.tmpDir = fs.mkdtempSync(path.join(`${os.tmpdir()}${path.sep}`, 'workspace-plugin-'));
             this.zipfile = `${project.name}.zip`;
             this.zipfilePath = path.join(this.tmpDir, this.zipfile);
         } else {
