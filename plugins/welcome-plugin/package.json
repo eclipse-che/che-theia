@@ -42,7 +42,7 @@
     "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
     "lint:fix": "tslint -c ../../configs/tslint.json --fix --project .",
     "compile": "tsc",
-    "build": "yarn lint:fix && concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia:plugin pack",
+    "build": "yarn lint:fix && concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia-plugin pack",
     "watch": "tsc -w"
   },
   "engines": {
