@@ -1,0 +1,19 @@
+{
+   "folders": [
+      {
+         "path": "file:///projects"
+      }
+   ],
+   "settings": {
+    "git.scanRepositories": [
+        "theia/che-theia"
+    ],
+    "launch": {},
+    "workspace.supportMultiRootWorkspace": false,
+    "git.alwaysSignOff": true,
+    "git.ignoredRepositories": [
+      "/projects/theia"
+   ],
+   "java.configuration.updateBuildConfiguration": "automatic"
+   }
+}

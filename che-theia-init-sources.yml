@@ -14,9 +14,10 @@ sources:
     - extensions/eclipse-che-theia-git-provisioner
   plugins:
     - plugins/containers-plugin
-    - plugins/factory-plugin
+    - plugins/workspace-plugin
     - plugins/ports-plugin
     - plugins/task-plugin
     - plugins/welcome-plugin
     - plugins/ssh-plugin
+    - plugins/telemetry-plugin
   checkoutTo: master

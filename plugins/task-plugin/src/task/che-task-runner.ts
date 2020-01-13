@@ -102,6 +102,6 @@ export class CheTaskRunner {
                 // allow to get process id for other terminals
             }
         }
-        throw new Error(`Failed to terminate Che command: ${taskInfo.config.label}: the corresponging terminal is not found`);
+        throw new Error(`Failed to terminate Che command: ${taskInfo.config.label}: the corresponding terminal is not found`);
     }
 }

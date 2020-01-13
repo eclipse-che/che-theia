@@ -27,7 +27,7 @@ then
     # Delete previous archive if any
     rm -f $CHE_THEIA_GENERATOR_PACKAGE
     echo "Building Che Theia generator"
-    cd "${base_dir}"/../../generator/ && yarn prepare && yarn pack --filename $CHE_THEIA_GENERATOR_PACKAGE_NAME
+    cd "${base_dir}"/../../generator/ && yarn && yarn pack --filename $CHE_THEIA_GENERATOR_PACKAGE_NAME
 fi
 echo "Copying Che Theia generator"
 cp "${CHE_THEIA_GENERATOR_PACKAGE}" "${base_dir}/asset-${CHE_THEIA_GENERATOR_PACKAGE_NAME}"

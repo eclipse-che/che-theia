@@ -16,6 +16,7 @@ asset-*
 
 # MacOS
 .DS_Store
+.Dockerfile
 .theia
 .idea
 che-editor-plugin.tar.gz
