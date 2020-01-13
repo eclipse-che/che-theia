@@ -29,7 +29,7 @@
     "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
     "lint:fix": "tslint -c ../../configs/tslint.json --fix --project .",
     "compile": "tsc",
-    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia:plugin pack",
+    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia-plugin pack",
     "watch": "tsc -w",
     "test": "jest",
     "test-watch": "jest --watchAll"
