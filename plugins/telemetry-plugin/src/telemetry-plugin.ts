@@ -21,6 +21,51 @@ export function start(context: theia.PluginContext) {
                 ['programming language', e.document.languageId]
             ]);
     });
+
+    let gitLogHandlerInitialized: boolean;
+    /* Git log handler, listens to Git commands and pushes telemetry events. */
+    const onChange = () => {
+        // Get the vscode Git plugin if the plugin is started.
+        const gitExtension = theia.plugins.getPlugin('vscode.git');
+        if (!gitLogHandlerInitialized && gitExtension && gitExtension.exports) {
+            // Set the initialized flag to true state, to not to initialize the handler again on plugin change event.
+            gitLogHandlerInitialized = true;
+            // tslint:disable-next-line:no-any
+            const git: any = gitExtension.exports._model.git;
+            let command: string;
+            let url: string;
+            const listener = async (out: string) => {
+                // Parse Git log events.
+                const split = out.split(' ');
+                if (out.startsWith('> git commit') || out.startsWith('> git push')) {
+                    command = split[2];
+                    url = split[3];
+                    switch (command) {
+                        case 'commit': {
+                            che.telemetry.event('GIT_USED', context.extensionPath,
+                            [
+                                ['commit command', url]
+                            ]);
+                            console.log(`Sent telemetry event: git commit : project ${url}`);
+                            break;
+                        }
+                        case 'push': {
+                            che.telemetry.event('GIT_USED', context.extensionPath,
+                            [
+                                ['push command', url]
+                            ]);
+                            console.log(`Sent telemetry event: git push : project ${url}`);
+                            break;
+                        }
+                    }
+                }
+            };
+            // Set the git log listener.
+            git.onOutput.addListener('log', listener);
+        }
+    };
+
+    theia.plugins.onDidChange(onChange);
 }
 
 export function stop() {
