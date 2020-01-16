@@ -20,4 +20,4 @@ sources:
     - plugins/welcome-plugin
     - plugins/ssh-plugin
     - plugins/telemetry-plugin
-  checkoutTo: 7.7.0
+  checkoutTo: 7.7.1
