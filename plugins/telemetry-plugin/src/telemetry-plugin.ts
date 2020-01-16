@@ -42,19 +42,11 @@ export function start(context: theia.PluginContext) {
                     url = split[3];
                     switch (command) {
                         case 'commit': {
-                            che.telemetry.event('GIT_USED', context.extensionPath,
-                            [
-                                ['commit command', url]
-                            ]);
-                            console.log(`Sent telemetry event: git commit : project ${url}`);
+                            che.telemetry.event('COMMIT_LOCALLY', context.extensionPath, []);
                             break;
                         }
                         case 'push': {
-                            che.telemetry.event('GIT_USED', context.extensionPath,
-                            [
-                                ['push command', url]
-                            ]);
-                            console.log(`Sent telemetry event: git push : project ${url}`);
+                            che.telemetry.event('PUSH_TO_REMOTE', context.extensionPath, []);
                             break;
                         }
                     }
