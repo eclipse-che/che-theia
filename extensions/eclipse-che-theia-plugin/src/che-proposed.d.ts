@@ -45,6 +45,7 @@ declare module '@eclipse-che/plugin' {
 
     export namespace github {
         export function uploadPublicSshKey(publicKey: string): Promise<void>;
+        export function getToken(): Promise<string>;
     }
 
     export namespace ssh {
