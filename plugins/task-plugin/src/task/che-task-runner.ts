@@ -36,7 +36,7 @@ export class CheTaskRunner {
     @postConstruct()
     protected init() {
         const disposable = this.machineExecWatcher.onExit(event => {
-            che.task.fireTaskExited({ execId: event.id, code: event.code });
+            che.task.fireTaskExited({ execId: event.id, code: event.code, processId: event.id });
         });
         startPoint.getSubscriptions().push(disposable);
     }
