@@ -69,6 +69,7 @@
   },
   "devDependencies": {
     "@theia/cli": "^{{ version }}",
-    "html-webpack-plugin": "^3.2.0"
+    "html-webpack-plugin": "^3.2.0",
+    "async-limiter": "^2.0.0"
   }
 }

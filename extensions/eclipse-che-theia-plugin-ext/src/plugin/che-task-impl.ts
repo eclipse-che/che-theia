@@ -7,13 +7,27 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
-import { CheTask, CheTaskMain, PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
-import { TaskRunner, Disposable, TaskInfo, TaskExitedEvent, TaskConfiguration, TaskJSONSchema } from '@eclipse-che/plugin';
+import { Disposable, TaskConfiguration, TaskExitedEvent, TaskInfo, TaskJSONSchema, TaskRunner, TaskStatusOptions } from '@eclipse-che/plugin';
+import { Emitter } from '@theia/core/lib/common/event';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
+import { CheTask, CheTaskMain, PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
+
+export enum TaskStatus {
+    Success = 'SUCCESS',
+    Error = 'ERROR',
+    Unknown = 'UNKNOWN'
+}
 
 export class CheTaskImpl implements CheTask {
     private readonly cheTaskMain: CheTaskMain;
     private readonly runnerMap: Map<string, TaskRunner>;
+
+    private readonly onDidStartTaskEmitter = new Emitter<TaskInfo>();
+    readonly onDidStartTask = this.onDidStartTaskEmitter.event;
+
+    private readonly onDidEndTaskEmitter = new Emitter<TaskExitedEvent>();
+    readonly onDidEndTask = this.onDidEndTaskEmitter.event;
+
     constructor(rpc: RPCProtocol) {
         this.cheTaskMain = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_TASK_MAIN);
         this.runnerMap = new Map();
@@ -50,5 +64,17 @@ export class CheTaskImpl implements CheTask {
 
     async addTaskSubschema(schema: TaskJSONSchema): Promise<void> {
         return this.cheTaskMain.$addTaskSubschema(schema);
+    }
+
+    async setTaskStatus(options: TaskStatusOptions): Promise<void> {
+        return this.cheTaskMain.$setTaskStatus(options);
+    }
+
+    async $onDidStartTask(taskInfo: TaskInfo): Promise<void> {
+        this.onDidStartTaskEmitter.fire(taskInfo);
+    }
+
+    async $onDidEndTask(event: TaskExitedEvent): Promise<void> {
+        this.onDidEndTaskEmitter.fire(event);
     }
 }
