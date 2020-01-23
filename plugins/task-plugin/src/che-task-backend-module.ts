@@ -32,6 +32,7 @@ import { VsCodeLaunchConfigsExtractor } from './extract/vscode-launch-configs-ex
 import { VsCodeTaskConfigsExtractor } from './extract/vscode-task-configs-extractor';
 import { PreviewUrlVariableResolver } from './variable/preview-url-variable-resolver';
 import { BackwardCompatibilityResolver } from './task/backward-compatibility';
+import { TaskStatusHandler } from './task/task-status';
 
 const container = new Container();
 container.bind(CheTaskProvider).toSelf().inSingletonScope();
@@ -56,6 +57,7 @@ container.bind(ConfigFileLaunchConfigsExtractor).toSelf().inSingletonScope();
 container.bind(VsCodeLaunchConfigsExtractor).toSelf().inSingletonScope();
 container.bind(VsCodeTaskConfigsExtractor).toSelf().inSingletonScope();
 container.bind(BackwardCompatibilityResolver).toSelf().inSingletonScope();
+container.bind(TaskStatusHandler).toSelf().inSingletonScope();
 
 container.bind(PreviewUrlsWidget).toSelf().inTransientScope();
 container.bind(PreviewUrlsWidgetFactory).toDynamicValue(ctx => ({

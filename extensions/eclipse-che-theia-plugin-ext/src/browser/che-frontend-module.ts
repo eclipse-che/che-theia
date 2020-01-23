@@ -9,6 +9,7 @@
  **********************************************************************/
 
 import '../../src/browser/style/che-plugins.css';
+import '../../src/browser/style/tasks.css';
 
 import { ContainerModule } from 'inversify';
 import { MainPluginApiProvider } from '@theia/plugin-ext/lib/common/plugin-ext-api-contribution';
@@ -44,6 +45,7 @@ import { CheMiniBrowserOpenHandler } from './che-mini-browser-open-handler';
 import { MiniBrowserOpenHandler } from '@theia/mini-browser/lib/browser/mini-browser-open-handler';
 import { WebviewEnvironment } from '@theia/plugin-ext/lib/main/browser/webview/webview-environment';
 import { CheWebviewEnvironment } from './che-webview-environment';
+import { TaskStatusHandler } from './task-status-handler';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(CheApiProvider).toSelf().inSingletonScope();
@@ -100,4 +102,6 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
 
     bind(CheMiniBrowserOpenHandler).toSelf().inSingletonScope();
     rebind(MiniBrowserOpenHandler).to(CheMiniBrowserOpenHandler).inSingletonScope();
+
+    bind(TaskStatusHandler).toSelf().inSingletonScope();
 });
