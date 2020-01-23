@@ -16,9 +16,6 @@ import * as che from '@eclipse-che/plugin';
  */
 export class WelcomePage {
 
-    constructor(readonly pluginContext: theia.PluginContext) {
-    }
-
     /**
      * Returns the Logo URI for usinf as an image in webview frame.
      */
@@ -37,7 +34,7 @@ export class WelcomePage {
         return theia.Uri.file(logo).with({ scheme: 'theia-resource' });
     }
 
-    protected renderHeader(context: theia.PluginContext): string {
+    protected renderHeader(): string {
         const logoDark = typeof che.product.logo === 'object' ? this.getLogoUri(che.product.logo.dark) : this.getLogoUri(che.product.logo);
         const logoLight = typeof che.product.logo === 'object' ? this.getLogoUri(che.product.logo.light) : this.getLogoUri(che.product.logo);
 
@@ -173,9 +170,9 @@ export class WelcomePage {
         </div>`;
     }
 
-    public async render(context: theia.PluginContext) {
+    public async render() {
         return `<div class='che-welcome-container'>
-            ${this.renderHeader(context)}
+            ${this.renderHeader()}
             <div class='flex-grid'>
                 <div class='col'>
                     ${await this.renderStart()}
