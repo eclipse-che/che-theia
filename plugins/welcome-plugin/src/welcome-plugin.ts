@@ -18,6 +18,8 @@ export namespace Settings {
     export const SHOW_WELCOME_PAGE = 'welcome.enable';
 }
 
+export const welcomePageViewType = 'WelcomePage';
+
 async function getHtmlForWebview(context: theia.PluginContext): Promise<string> {
     // Local path to main script run in the webview
     const scriptPathOnDisk = theia.Uri.file(path.join(context.extensionPath, 'resources', 'welcome-page.js'));
@@ -29,8 +31,8 @@ async function getHtmlForWebview(context: theia.PluginContext): Promise<string> 
     // And the uri we use to load this script in the webview
     const cssUri = cssPathOnDisk.with({ scheme: 'theia-resource' });
 
-    const welcomePage = new WelcomePage(context);
-    const rendering = await welcomePage.render(context);
+    const welcomePage = new WelcomePage();
+    const rendering = await welcomePage.render();
     // tslint:disable: max-line-length
     return `<!DOCTYPE html>
             <html lang="en">
@@ -52,8 +54,8 @@ async function getHtmlForWebview(context: theia.PluginContext): Promise<string> 
 }
 
 // Open Readme file is there is one
-export async function handleReadmeFiles(context: theia.PluginContext): Promise<void> {
-    const roots: theia.WorkspaceFolder[] | undefined = await theia.workspace.workspaceFolders;
+export async function handleReadmeFiles(): Promise<void> {
+    const roots: theia.WorkspaceFolder[] | undefined = theia.workspace.workspaceFolders;
     // In case of only one workspace
     if (roots && roots.length === 1) {
         const children = await theia.workspace.findFiles('README.md', 'node_modules/**', 1);
@@ -76,7 +78,7 @@ export async function handleReadmeFiles(context: theia.PluginContext): Promise<v
 
 export async function addPanel(context: theia.PluginContext): Promise<void> {
     // Open Welcome tab
-    const currentPanel = theia.window.createWebviewPanel('WelcomePage', che.product.name, { viewColumn: theia.ViewColumn.One, preserveFocus: false }, {
+    const currentPanel = theia.window.createWebviewPanel(welcomePageViewType, che.product.name, { viewColumn: theia.ViewColumn.One, preserveFocus: false }, {
         // Enable javascript in the webview
         enableScripts: true,
 
@@ -112,18 +114,31 @@ export async function addPanel(context: theia.PluginContext): Promise<void> {
 export function start(context: theia.PluginContext): void {
     let showWelcomePage: boolean | undefined = true;
 
+    theia.window.registerWebviewPanelSerializer(welcomePageViewType, new WelcomePageSerializer(context));
+
     const configuration = theia.workspace.getConfiguration(Settings.CHE_CONFIGURATION);
     if (configuration) {
         showWelcomePage = configuration.get(Settings.SHOW_WELCOME_PAGE);
     }
 
-    if (showWelcomePage) {
+    if (showWelcomePage && theia.window.visibleTextEditors.length === 0) {
         setTimeout(async () => {
             addPanel(context);
-            handleReadmeFiles(context);
-        }, 1000);
+            handleReadmeFiles();
+        }, 100);
     }
 }
 
 export function stop() {
+}
+
+export class WelcomePageSerializer implements theia.WebviewPanelSerializer {
+
+    constructor(readonly context: theia.PluginContext) {
+    }
+
+    // tslint:disable-next-line: no-any
+    async deserializeWebviewPanel(webviewPanel: theia.WebviewPanel, state: any): Promise<void> {
+        webviewPanel.webview.html = await getHtmlForWebview(this.context);
+    }
 }
