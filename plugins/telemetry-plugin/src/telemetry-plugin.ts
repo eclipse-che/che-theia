@@ -22,6 +22,10 @@ export function start(context: theia.PluginContext) {
             ]);
     });
 
+    che.telemetry.onWillExecuteCommand(async event => {
+        console.log(' ===========================> ' + event.commandId);
+    });
+
     let gitLogHandlerInitialized: boolean;
     /* Git log handler, listens to Git commands and pushes telemetry events. */
     const onChange = () => {
@@ -33,13 +37,11 @@ export function start(context: theia.PluginContext) {
             // tslint:disable-next-line:no-any
             const git: any = gitExtension.exports._model.git;
             let command: string;
-            let url: string;
             const listener = async (out: string) => {
                 // Parse Git log events.
                 const split = out.split(' ');
                 if (out.startsWith('> git commit') || out.startsWith('> git push')) {
                     command = split[2];
-                    url = split[3];
                     switch (command) {
                         case 'commit': {
                             che.telemetry.event('COMMIT_LOCALLY', context.extensionPath, []);

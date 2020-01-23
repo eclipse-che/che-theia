@@ -102,7 +102,10 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
         const telemetry: typeof che.telemetry = {
             event(id: string, ownerId: string, properties: [string, string][]): Promise<void> {
                 return cheTelemetryImpl.event(id, ownerId, properties);
-            }
+            },
+            onWillExecuteCommand(listener: (event: che.CommandEvent) => void, disposables?: che.Disposable[]) {
+                return cheTelemetryImpl.onWillExecuteCommand(listener, undefined, disposables);
+            },
         };
 
         const variables: typeof che.variables = {
