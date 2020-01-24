@@ -5,7 +5,7 @@
       "keywords": [
         "theia-plugin"
       ],
-      "description": "Manage Eclipse Che Telemetry Plugin",
+      "description": "Authenticates the vscode Github pull-request plugin",
       "license": "EPL-2.0",
 
       "files": [
