@@ -18,9 +18,11 @@ import { Deferred } from '@theia/core/lib/common/promise-util';
 import { Disposable } from 'vscode-jsonrpc';
 import { TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal-widget';
 import { MessageService } from '@theia/core/lib/common';
+import { Message } from '@theia/core/lib/browser';
 import { OutputChannelManager, OutputChannel } from '@theia/output/lib/common/output-channel';
 import URI from '@theia/core/lib/common/uri';
 import ReconnectingWebSocket from 'reconnecting-websocket';
+import { PreferenceService } from '@theia/core/lib/browser/preferences';
 export const REMOTE_TERMINAL_TARGET_SCOPE = 'remote-terminal';
 export const REMOTE_TERMINAL_WIDGET_FACTORY_ID = 'remote-terminal';
 export const RemoteTerminalWidgetOptions = Symbol('RemoteTerminalWidgetOptions');
@@ -29,6 +31,7 @@ export interface RemoteTerminalWidgetOptions extends Partial<TerminalWidgetOptio
     workspaceId: string,
     closeWidgetOnExitOrError: boolean,
     endpoint: string
+    useServerTitle?: boolean;
 }
 
 export interface RemoteTerminalWidgetFactoryOptions extends Partial<TerminalWidgetOptions> {
@@ -59,6 +62,9 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
     @inject(OutputChannelManager)
     protected readonly outputChannelManager: OutputChannelManager;
+
+    @inject(PreferenceService)
+    private readonly preferenceService: PreferenceService;
 
     protected terminalId: number = -1;
     private isOpen: boolean = false;
@@ -163,6 +169,15 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         // Returning empty cwd will result in some features not working in some cases (for example opening files in editor by
         //  relative link from terminal with exec backend), however it will prevent some errors.
         return Promise.resolve(new URI());
+    }
+
+    protected onUpdateRequest(msg: Message): void {
+        super.onUpdateRequest(msg);
+        const overrideTitle: boolean | undefined = this.preferenceService.get('terminal.overrideTitle');
+        if (!overrideTitle && this.title.label !== this.options.title) {
+            this.title.label = this.options.title || 'Terminal';
+        }
+        this.options.useServerTitle = overrideTitle;
     }
 
     get processId(): Promise<number> {
