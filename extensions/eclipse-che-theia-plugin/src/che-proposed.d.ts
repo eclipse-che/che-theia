@@ -60,10 +60,14 @@ declare module '@eclipse-che/plugin' {
         export function deleteKey(service: string, name: string): Promise<void>;
     }
 
+    export interface TelemetryListenerParam {
+    }
+
+    export type TelemetryListener = (commandId: string, param?: TelemetryListenerParam) => void;
     export namespace telemetry {
         export function event(id: string, ownerId: string, properties: [string, string][]): Promise<void>;
         /** Fires when a task starts. */
-        export const onWillExecuteCommand: theia.Event<CommandEvent>;
+        export function addCommandListener(commandId: string, listener: TelemetryListener): Promise<void>;
     }
 
     /**
@@ -153,12 +157,6 @@ declare module '@eclipse-che/plugin' {
         run(taskConfig: TaskConfiguration, ctx?: string): Promise<TaskInfo>;
         /** Terminates a task based on the given info. */
         kill(taskInfo: TaskInfo): Promise<void>;
-    }
-
-    /** Runtime information about Task. */
-    export interface CommandEvent {
-        /** internal unique task id */
-        readonly commandId: string;
     }
 
     /** Runtime information about Task. */
