@@ -23,7 +23,6 @@ export class CheTelemetryMainImpl implements CheTelemetryMain {
         this.cheApiService = container.get(CheApiService);
         const commandRegistry = container.get(CommandRegistry);
         commandRegistry.onWillExecuteCommand(event => {
-            console.log('------------------------------- will execute ' + event.commandId);
             proxy.$onWillCommandExecute(event.commandId);
         });
     }

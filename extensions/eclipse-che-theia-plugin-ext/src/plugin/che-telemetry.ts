@@ -26,15 +26,12 @@ export class CheTelemetryImpl implements CheTelemetry {
     }
 
     async addCommandListener(commandId: string, listener: TelemetryListener): Promise<void> {
-        console.log('------------------------------- addCommandListener :: ' + commandId);
         this.listeners.set(commandId, listener);
     }
 
     async $onWillCommandExecute(commandId: string, params?: TelemetryListenerParam) {
         const listener = this.listeners.get(commandId);
-        console.log('-------------------------------getListener ' + listener);
         if (listener) {
-            console.log('------------------------------- found getListener ' + listener);
             listener(commandId);
         }
     }
