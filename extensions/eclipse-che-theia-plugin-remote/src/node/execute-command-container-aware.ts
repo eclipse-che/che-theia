@@ -8,18 +8,18 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 import { CommandRegistryImpl } from '@theia/plugin-ext/lib/plugin/command-registry';
-// import { overrideUri } from './che-content-aware-utils';
+import { overrideUri } from './che-content-aware-utils';
 
 export class ExecuteCommandContainerAware {
     static makeExecuteCommandContainerAware(commandRegistryExt: CommandRegistryImpl) {
-        // const executeCommandContainerAware = new ExecuteCommandContainerAware();
-        // executeCommandContainerAware.overrideExecuteCommand(commandRegistryExt);
+        const executeCommandContainerAware = new ExecuteCommandContainerAware();
+        executeCommandContainerAware.overrideExecuteCommand(commandRegistryExt);
     }
 
     overrideExecuteCommand(commandRegistryExt: CommandRegistryImpl) {
-        // const originalExecuteCommand = commandRegistryExt.executeCommand.bind(commandRegistryExt);
+        const originalExecuteCommand = commandRegistryExt.executeCommand.bind(commandRegistryExt);
         // tslint:disable-next-line:no-any
-        // const executeCommand = (id: string, ...args: any[]) => originalExecuteCommand(id, ...args.map(arg => arg.scheme ? overrideUri(arg) : arg));
-        // commandRegistryExt.executeCommand = executeCommand;
+        const executeCommand = (id: string, ...args: any[]) => originalExecuteCommand(id, ...args.map(arg => arg.scheme ? overrideUri(arg) : arg));
+        commandRegistryExt.executeCommand = executeCommand;
     }
 }

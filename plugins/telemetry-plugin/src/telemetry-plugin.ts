@@ -15,17 +15,11 @@ export function start(context: theia.PluginContext) {
     che.telemetry.event('WORKSPACE_OPENED', context.extensionPath, [
     ]);
 
-    che.telemetry.addCommandListener('core.about', () => {
-        console.log('==================================================== >>>>> ABOUT');
-    });
-
     che.telemetry.addCommandListener('git.commit', () => {
-        console.log('==================================================== >>>>> COMMIT');
         che.telemetry.event('COMMIT_LOCALLY', context.extensionPath, []);
     });
 
     che.telemetry.addCommandListener('git.push', () => {
-        console.log('==================================================== >>>>> PUSH');
         che.telemetry.event('PUSH_TO_REMOTE', context.extensionPath, []);
     });
 
