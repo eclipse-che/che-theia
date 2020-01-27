@@ -19,12 +19,6 @@ projects:
 
 components:
 
-  - alias: git
-    type: dockerimage
-    image: sunix/git-devtools
-    mountSources: true
-    memoryLimit: 256M
-
   - alias: che-dev
     type: dockerimage
     image: "quay.io/eclipse/che-theia-dev:next"
