@@ -15,6 +15,14 @@ export function start(context: theia.PluginContext) {
     che.telemetry.event('WORKSPACE_OPENED', context.extensionPath, [
     ]);
 
+    che.telemetry.addCommandListener('git.commit', () => {
+        che.telemetry.event('COMMIT_LOCALLY', context.extensionPath, []);
+    });
+
+    che.telemetry.addCommandListener('git.push', () => {
+        che.telemetry.event('PUSH_TO_REMOTE', context.extensionPath, []);
+    });
+
     theia.workspace.onDidChangeTextDocument((e: theia.TextDocumentChangeEvent) => {
         che.telemetry.event('EDITOR_USED', context.extensionPath,
             [

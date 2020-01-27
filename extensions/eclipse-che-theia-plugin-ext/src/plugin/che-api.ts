@@ -102,6 +102,9 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
         const telemetry: typeof che.telemetry = {
             event(id: string, ownerId: string, properties: [string, string][]): Promise<void> {
                 return cheTelemetryImpl.event(id, ownerId, properties);
+            },
+            addCommandListener(commandId: string, listener: che.TelemetryListener): Promise<void> {
+                return cheTelemetryImpl.addCommandListener(commandId, listener);
             }
         };
 

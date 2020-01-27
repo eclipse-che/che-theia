@@ -31,7 +31,7 @@ export class CheApiProvider implements MainPluginApiProvider {
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_WORKSPACE_MAIN, new CheWorkspaceMainImpl(container));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_FACTORY_MAIN, new CheFactoryMainImpl(container));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_DEVFILE_MAIN, new CheDevfileMainImpl(container));
-        rpc.set(PLUGIN_RPC_CONTEXT.CHE_TELEMETRY_MAIN, new CheTelemetryMainImpl(container));
+        rpc.set(PLUGIN_RPC_CONTEXT.CHE_TELEMETRY_MAIN, new CheTelemetryMainImpl(container, rpc));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_VARIABLES_MAIN, new CheVariablesMainImpl(container, rpc));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_TASK_MAIN, new CheTaskMainImpl(container, rpc));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_SSH_MAIN, new CheSshMainImpl(container));

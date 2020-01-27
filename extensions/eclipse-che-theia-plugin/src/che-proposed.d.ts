@@ -59,9 +59,20 @@ declare module '@eclipse-che/plugin' {
 
         export function deleteKey(service: string, name: string): Promise<void>;
     }
+    /**
+     * Optionla parameters for telemetry events
+     */
+    export interface TelemetryListenerParam {
+    }
 
+    /**
+     * Listener for global command invocation
+     */
+    export type TelemetryListener = (commandId: string, param?: TelemetryListenerParam) => void;
     export namespace telemetry {
         export function event(id: string, ownerId: string, properties: [string, string][]): Promise<void>;
+        /** Fires when a command will starts. */
+        export function addCommandListener(commandId: string, listener: TelemetryListener): Promise<void>;
     }
 
     /**
