@@ -8,10 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import { ProxyIdentifier, createProxyIdentifier } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { che as cheApi } from '@eclipse-che/api';
 import * as che from '@eclipse-che/plugin';
 import { Event, JsonRpcServer } from '@theia/core';
+import { createProxyIdentifier, ProxyIdentifier } from '@theia/plugin-ext/lib/common/rpc-protocol';
 
 /**
  * Workspace plugin API
@@ -99,6 +99,8 @@ export interface CheTask {
     fireTaskExited(event: che.TaskExitedEvent): Promise<void>;
     $runTask(config: che.TaskConfiguration, ctx?: string): Promise<che.TaskInfo>;
     $killTask(taskInfo: che.TaskInfo): Promise<void>;
+    $onDidStartTask(taskInfo: che.TaskInfo): Promise<void>;
+    $onDidEndTask(event: che.TaskExitedEvent): Promise<void>;
 }
 
 export const CheTaskMain = Symbol('CheTaskMain');
@@ -107,6 +109,7 @@ export interface CheTaskMain {
     $disposeTaskRunner(type: string): Promise<void>;
     $fireTaskExited(event: che.TaskExitedEvent): Promise<void>;
     $addTaskSubschema(schema: che.TaskJSONSchema): Promise<void>;
+    $setTaskStatus(options: che.TaskStatusOptions): Promise<void>;
 }
 
 export interface CheSideCarContentReader {
