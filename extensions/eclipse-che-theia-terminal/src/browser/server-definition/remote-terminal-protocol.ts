@@ -8,11 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import { inject, injectable } from 'inversify';
+import { injectable } from 'inversify';
 import { JsonRpcProxy } from '@theia/core';
 import { Emitter, Event } from '@theia/core/lib/common/event';
-import { PreferenceService } from '@theia/core/lib/browser/preferences';
-import { TerminalService } from '@theia/terminal/lib/browser/base/terminal-service';
 
 export const TERMINAL_SERVER_TYPE = 'terminal';
 export const CONNECT_TERMINAL_SEGMENT = 'connect';
@@ -73,15 +71,6 @@ export class RemoteTerminalWatcher {
 
     private onRemoteTerminalExitEmitter = new Emitter<ExecExitEvent>();
     private onRemoteTerminalErrorEmitter = new Emitter<ExecErrorEvent>();
-
-    constructor(@inject(PreferenceService) private readonly preferenceService: PreferenceService,
-                @inject(TerminalService) protected readonly terminalService: TerminalService) {
-        this.preferenceService.onPreferenceChanged(event => {
-            if (event.preferenceName === 'terminal.overrideTitle') {
-                this.terminalService.all.forEach(terminal => terminal.update());
-            }
-        });
-    }
 
     getTerminalExecClient(): TerminalExecClient {
 

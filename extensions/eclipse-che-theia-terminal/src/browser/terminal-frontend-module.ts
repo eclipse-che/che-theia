@@ -9,14 +9,7 @@
  **********************************************************************/
 
 import { ContainerModule, Container, interfaces } from 'inversify';
-import {
-    WidgetFactory,
-    WebSocketConnectionProvider,
-    KeybindingContext,
-    QuickOpenContribution,
-    PreferenceSchema,
-    PreferenceContribution, PreferenceService
-} from '@theia/core/lib/browser';
+import { WidgetFactory, WebSocketConnectionProvider, KeybindingContext, QuickOpenContribution } from '@theia/core/lib/browser';
 import { TerminalQuickOpenService } from './contribution/terminal-quick-open';
 import { RemoteTerminalWidgetOptions, REMOTE_TERMINAL_WIDGET_FACTORY_ID, REMOTE_TERMINAL_TARGET_SCOPE } from './terminal-widget/remote-terminal-widget';
 import { RemoteWebSocketConnectionProvider } from './server-definition/remote-connection';
@@ -37,17 +30,6 @@ import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { TerminalWidgetImpl } from '@theia/terminal/lib/browser/terminal-widget-impl';
 
 export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Unbind, isBound: interfaces.IsBound, rebind: interfaces.Rebind) => {
-    const TerminalConfigSchema: PreferenceSchema = {
-        'type': 'object',
-        'properties': {
-            'terminal.overrideTitle': {
-                type: 'boolean',
-                description: 'Allow container to change it\'s terminal title',
-                default: false
-            }
-        }
-    };
-    bind(PreferenceContribution).toConstantValue({ schema: TerminalConfigSchema });
     // bind this contstant to prevent circle dependency
     bind('terminal-in-specific-container-command-id').toConstantValue(NewTerminalInSpecificContainer.id);
 
@@ -74,15 +56,13 @@ export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Un
         id: REMOTE_TERMINAL_WIDGET_FACTORY_ID,
         createWidget: (options: RemoteTerminalWidgetOptions) => {
             const child = new Container({ defaultScope: 'Singleton' });
-            const preferenceService: PreferenceService = ctx.container.get(PreferenceService);
             child.parent = ctx.container;
             const counter = terminalNum++;
             const domId = options.id || 'terminal-' + counter;
 
-            const useServerTitle: boolean = preferenceService.get('terminal.overrideTitle', false);
             const widgetOptions: RemoteTerminalWidgetOptions = {
                 title: options.machineName + ' terminal ' + counter,
-                useServerTitle,
+                useServerTitle: true,
                 destroyTermOnClose: true,
                 ...options
             };
