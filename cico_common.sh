@@ -14,6 +14,7 @@
 function load_jenkins_vars() {
   if [ -e "jenkins-env.json" ]; then
     eval "$(./env-toolkit load -f jenkins-env.json \
+            AKAMAI_CHE_AUTH \
             CHE_BOT_GITHUB_TOKEN \
             QUAY_ECLIPSE_CHE_USERNAME \
             QUAY_ECLIPSE_CHE_PASSWORD \
