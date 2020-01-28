@@ -73,6 +73,7 @@ export interface CheGithubMain {
  * Telemetry plugin API
  */
 export interface CheTelemetry {
+    $onWillCommandExecute(commandId: string, listner?: che.TelemetryListenerParam): Promise<void>;
 }
 
 export interface CheTelemetryMain {

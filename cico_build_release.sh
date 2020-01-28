@@ -9,4 +9,7 @@
 #
 # See: https://sipb.mit.edu/doc/safe-shell/
 
+export CDN_PREFIX=https://static.developers.redhat.com/che/theia_artifacts/
+export MONACO_CDN_PREFIX=https://cdn.jsdelivr.net/npm/
+
 /bin/bash ./cico_build_master.sh
