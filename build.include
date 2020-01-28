@@ -66,8 +66,6 @@ buildImages() {
     GITHUB_TOKEN_ARG="GITHUB_TOKEN=${GITHUB_TOKEN:-}"
     echo "Building image in ${image_dir}"
      if [ "$image_dir" == "dockerfiles/theia" ]; then
-       export CDN_PREFIX=https://static.developers.redhat.com/che/theia_artifacts/
-       export MONACO_CDN_PREFIX=https://cdn.jsdelivr.net/npm/
        bash $(pwd)/$image_dir/build.sh --build-args:${GITHUB_TOKEN_ARG},THEIA_VERSION=${THEIA_VERSION} --tag:${IMAGE_TAG} --branch:${THEIA_BRANCH} --git-ref:${THEIA_GIT_REFS} ${FILTERED_ARGS}
        elif [ "$image_dir" == "dockerfiles/theia-dev" ]; then
        bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:${IMAGE_TAG} ${FILTERED_ARGS}
