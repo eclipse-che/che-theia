@@ -120,6 +120,9 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
         const github: typeof che.github = {
             uploadPublicSshKey(publicKey: string): Promise<void> {
                 return cheGithubImpl.uploadPublicSshKey(publicKey);
+            },
+            getToken(): Promise<string> {
+                return cheGithubImpl.getToken();
             }
         };
 

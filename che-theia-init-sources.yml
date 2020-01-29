@@ -20,4 +20,5 @@ sources:
     - plugins/welcome-plugin
     - plugins/ssh-plugin
     - plugins/telemetry-plugin
+    - plugins/github-auth-plugin
   checkoutTo: master
