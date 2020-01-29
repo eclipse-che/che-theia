@@ -32,6 +32,12 @@ export class CheApiServiceImpl implements CheApiService {
         return process.env.CHE_API_INTERNAL;
     }
 
+    async getUserId(): Promise<string> {
+        const cheApiClient = await this.getCheApiClient();
+        const user = await cheApiClient.getCurrentUser();
+        return user.id;
+    }
+
     async getUserPreferences(filter?: string): Promise<Preferences> {
         const cheApiClient = await this.getCheApiClient();
         return cheApiClient.getUserPreferences(filter);
@@ -279,6 +285,15 @@ export class CheApiServiceImpl implements CheApiService {
         } catch (e) {
             console.error(e);
             throw new Error(e);
+        }
+    }
+
+    async getOAuthToken(oAuthProvider: string): Promise<string | undefined> {
+        const cheApiClient = await this.getCheApiClient();
+        try {
+            return await cheApiClient.getOAuthToken(oAuthProvider);
+        } catch (e) {
+            return undefined;
         }
     }
 

@@ -22,4 +22,8 @@ export class CheGithubImpl implements CheGithub {
     uploadPublicSshKey(publicKey: string): Promise<void> {
         return this.githubMain.$uploadPublicSshKey(publicKey);
     }
+
+    getToken(): Promise<string> {
+        return this.githubMain.$getToken();
+    }
 }

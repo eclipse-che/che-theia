@@ -46,10 +46,6 @@ export interface CheFactoryMain {
 export interface CheDevfile {
 }
 
-export interface CheGithub {
-    uploadPublicSshKey(publicKey: string): Promise<void>;
-}
-
 export interface CheDevfileMain {
     $createWorkspace(devfilePath: string): Promise<void>;
 }
@@ -65,8 +61,14 @@ export interface CheSshMain {
     $deleteKey(service: string, name: string): Promise<void>;
 }
 
+export interface CheGithub {
+    uploadPublicSshKey(publicKey: string): Promise<void>;
+    getToken(): Promise<string>;
+}
+
 export interface CheGithubMain {
     $uploadPublicSshKey(publicKey: string): Promise<void>;
+    $getToken(): Promise<string>;
 }
 
 /**
@@ -433,6 +435,7 @@ export interface CheApiService {
 
     getFactoryById(factoryId: string): Promise<cheApi.factory.Factory>;
 
+    getUserId(): Promise<string>;
     getUserPreferences(): Promise<Preferences>;
     getUserPreferences(filter: string | undefined): Promise<Preferences>;
     updateUserPreferences(update: Preferences): Promise<Preferences>;
@@ -448,6 +451,7 @@ export interface CheApiService {
     getAllSshKey(service: string): Promise<cheApi.ssh.SshPair[]>;
     submitTelemetryEvent(id: string, ownerId: string, ip: string, agent: string, resolution: string, properties: [string, string][]): Promise<void>;
     submitTelemetryActivity(): Promise<void>;
+    getOAuthToken(oAuthProvider: string): Promise<string | undefined>;
 }
 
 export const CHE_TASK_SERVICE_PATH = '/che-task-service';
