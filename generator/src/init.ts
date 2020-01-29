@@ -41,12 +41,14 @@ export class Init {
         const srcDir = path.resolve(__dirname, '../src');
         const distDir = path.resolve(__dirname, '../dist');
         const templateDir = path.join(srcDir, 'templates');
+        const compileTsConfig = path.join(templateDir, 'assembly-compile.tsconfig.json');
         const packageJsonContent = await fs.readFile(path.join(templateDir, 'assembly-package.mst'));
 
         // generate assembly if does not exists
         const rendered = await this.generateAssemblyPackage(packageJsonContent.toString());
         await fs.ensureDir(this.examplesAssemblyFolder);
         await fs.writeFile(path.join(this.examplesAssemblyFolder, 'package.json'), rendered);
+        await fs.copy(compileTsConfig, path.join(this.examplesAssemblyFolder, 'compile.tsconfig.json'));
         await fs.copy(path.join(templateDir, 'cdn'), path.join(this.examplesAssemblyFolder, 'cdn'));
         Logger.info(distDir);
         await fs.copy(path.join(distDir, 'cdn'), path.join(this.examplesAssemblyFolder, 'cdn'));

@@ -83,6 +83,7 @@ export class InitSources {
         const extensionsYamlContent = await fs.readFile(extensionsPath);
         const extensionsYaml = jsYaml.load(extensionsYamlContent.toString());
         await this.initGlobalDependencies();
+
         await fs.ensureDir(this.cheTheiaFolder);
 
         await Promise.all(extensionsYaml.sources.map(async (extension: ISource) => {
@@ -91,6 +92,29 @@ export class InitSources {
             }
             await this.addExtension(extension);
         }));
+
+        await this.initRootCompilationUnits();
+
+    }
+
+    /**
+     * Update configs/root-compilation.tsconfig.json
+     */
+    async initRootCompilationUnits() {
+
+        const rootCompilationUnitPath = path.join(this.rootFolder, 'configs/root-compilation.tsconfig.json');
+        const rawData = await fs.readFile(rootCompilationUnitPath);
+        const parsed = JSON.parse(rawData.toString());
+
+        // add assembly unit
+        const item = {
+            'path': '../examples/assembly/compile.tsconfig.json'
+        };
+        parsed['references'].push(item);
+
+        // write it back
+        const json = JSON.stringify(parsed, undefined, 2);
+        await fs.writeFile(rootCompilationUnitPath, json);
 
     }
 
