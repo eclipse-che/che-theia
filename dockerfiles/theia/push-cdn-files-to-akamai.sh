@@ -17,7 +17,9 @@ fi
 echo "Pushing CDN files to the Akamai directory..."
 cd "${base_dir}"
 
-cat ${AKAMAI_CHE_AUTH} > akamai.conf
+cat > akamai.conf << EOF
+${AKAMAI_CHE_AUTH}
+EOF
 
 for file in $(find theia_artifacts -type f -print | grep -v 'cdn.json'); do
   echo "   Pushing $file" 
