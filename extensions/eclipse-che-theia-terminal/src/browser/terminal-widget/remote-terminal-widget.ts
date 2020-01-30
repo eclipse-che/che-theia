@@ -81,7 +81,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
         this.toDispose.push(this.term.onTitleChange((title: string) => {
             if (this.options.useServerTitle) {
-                this.title.label = this.options.title + ' ' + title;
+                this.title.label = this.options.machineName + ': ' + title;
             }
         }));
 
