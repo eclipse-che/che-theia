@@ -77,7 +77,7 @@ export class CheTaskServiceImpl implements CheTaskService {
             const runtimeInfo = task.getRuntimeInfo();
             if (runtimeInfo.execId === event.execId || runtimeInfo.taskId === event.taskId) {
 
-                task.fireTaskExited({ taskId: task.id, code: event.code, ctx: runtimeInfo.ctx });
+                task.fireTaskExited({ taskId: task.id, code: event.code, ctx: runtimeInfo.ctx, processId: event.processId });
 
                 const index = this.cheTasks.indexOf(task);
                 if (index > -1) {
@@ -116,7 +116,7 @@ class CheTask extends Task {
     }
 
     fireTaskExited(event: TaskExitedEvent): void {
-        super.fireTaskExited({ taskId: event.taskId!, code: event.code, ctx: event.ctx, config: this.options.config });
+        super.fireTaskExited({ taskId: event.taskId!, code: event.code, ctx: event.ctx, config: this.options.config, processId: event.processId });
     }
 
     private toTaskInfo(runtimeInfo: TaskInfo): TaskInfo {

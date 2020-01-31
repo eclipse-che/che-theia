@@ -8,21 +8,23 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import * as che from '@eclipse-che/plugin';
 import { che as cheApi } from '@eclipse-che/api';
-import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
+import * as che from '@eclipse-che/plugin';
+import { TaskStatusOptions } from '@eclipse-che/plugin';
 import { Plugin } from '@theia/plugin-ext/lib/common/plugin-api-rpc';
-import { CheWorkspaceImpl } from './che-workspace';
-import { CheVariablesImpl } from './che-variables';
+import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
-import { CheFactoryImpl } from './che-factory';
 import { CheDevfileImpl } from './che-devfile';
-import { CheTaskImpl } from './che-task-impl';
-import { CheSshImpl } from './che-ssh';
-import { CheUserImpl } from './che-user';
+import { CheFactoryImpl } from './che-factory';
+import { CheGithubImpl } from './che-github';
 import { CheProductImpl } from './che-product';
 import { CheSideCarContentReaderImpl } from './che-sidecar-content-reader';
-import { CheGithubImpl } from './che-github';
+import { CheSshImpl } from './che-ssh';
+import { CheTaskImpl, TaskStatus } from './che-task-impl';
+import { CheTelemetryImpl } from './che-telemetry';
+import { CheUserImpl } from './che-user';
+import { CheVariablesImpl } from './che-variables';
+import { CheWorkspaceImpl } from './che-workspace';
 
 export interface CheApiFactory {
     (plugin: Plugin): typeof che;
@@ -40,6 +42,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
     rpc.set(PLUGIN_RPC_CONTEXT.CHE_SIDERCAR_CONTENT_READER, new CheSideCarContentReaderImpl(rpc));
 
     const cheProductImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_PRODUCT, new CheProductImpl(rpc));
+    const cheTelemetryImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_TELEMETRY, new CheTelemetryImpl(rpc));
 
     return function (plugin: Plugin): typeof che {
         const workspace: typeof che.workspace = {
@@ -96,6 +99,15 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             }
         };
 
+        const telemetry: typeof che.telemetry = {
+            event(id: string, ownerId: string, properties: [string, string][]): Promise<void> {
+                return cheTelemetryImpl.event(id, ownerId, properties);
+            },
+            addCommandListener(commandId: string, listener: che.TelemetryListener): Promise<void> {
+                return cheTelemetryImpl.addCommandListener(commandId, listener);
+            }
+        };
+
         const variables: typeof che.variables = {
             registerVariable(variable: che.Variable): Promise<che.Disposable> {
                 return cheVariablesImpl.registerVariable(variable);
@@ -108,6 +120,9 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
         const github: typeof che.github = {
             uploadPublicSshKey(publicKey: string): Promise<void> {
                 return cheGithubImpl.uploadPublicSshKey(publicKey);
+            },
+            getToken(): Promise<string> {
+                return cheGithubImpl.getToken();
             }
         };
 
@@ -139,6 +154,15 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             },
             addTaskSubschema(schema: che.TaskJSONSchema): Promise<void> {
                 return cheTaskImpl.addTaskSubschema(schema);
+            },
+            setTaskStatus(options: TaskStatusOptions): Promise<void> {
+                return cheTaskImpl.setTaskStatus(options);
+            },
+            onDidStartTask(listener: (event: che.TaskInfo) => void, disposables?: che.Disposable[]) {
+                return cheTaskImpl.onDidStartTask(listener, undefined, disposables);
+            },
+            onDidEndTask(listener: (event: che.TaskExitedEvent) => void, disposables?: che.Disposable[]) {
+                return cheTaskImpl.onDidEndTask(listener, undefined, disposables);
             }
         };
 
@@ -184,7 +208,9 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             ssh,
             user,
             product,
-            github
+            github,
+            telemetry,
+            TaskStatus
         };
     };
 

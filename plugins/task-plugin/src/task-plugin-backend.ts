@@ -22,6 +22,7 @@ import { CheTaskEventsHandler } from './preview/task-events-handler';
 import { TasksPreviewManager } from './preview/tasks-preview-manager';
 import { ExportConfigurationsManager } from './export/export-configs-manager';
 import { PreviewUrlVariableResolver } from './variable/preview-url-variable-resolver';
+import { TaskStatusHandler } from './task/task-status';
 
 let pluginContext: theia.PluginContext;
 let outputChannel: theia.OutputChannel | undefined;
@@ -56,6 +57,9 @@ export async function start(context: theia.PluginContext) {
 
     const exportConfigurationsManager = container.get<ExportConfigurationsManager>(ExportConfigurationsManager);
     exportConfigurationsManager.export();
+
+    const taskStatusHandler = container.get<TaskStatusHandler>(TaskStatusHandler);
+    taskStatusHandler.init();
 }
 
 export function stop() { }

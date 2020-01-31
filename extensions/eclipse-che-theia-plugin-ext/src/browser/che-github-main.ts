@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import { CheGithubMain } from '../common/che-protocol';
+import { CheApiService, CheGithubMain } from '../common/che-protocol';
 import { interfaces } from 'inversify';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import axios, { AxiosInstance } from 'axios';
@@ -18,9 +18,11 @@ export class CheGithubMainImpl implements CheGithubMain {
     private axiosInstance: AxiosInstance = axios;
     private apiUrl: string;
     private token: string | undefined;
+    private readonly cheApiService: CheApiService;
 
     constructor(container: interfaces.Container) {
         this.envVariableServer = container.get(EnvVariablesServer);
+        this.cheApiService = container.get(CheApiService);
         this.envVariableServer.getValue('CHE_API').then(variable => {
             if (variable && variable.value) {
                 this.apiUrl = variable.value;
@@ -36,6 +38,15 @@ export class CheGithubMainImpl implements CheGithubMain {
         });
     }
 
+    async $getToken(): Promise<string> {
+        await this.fetchToken();
+        if (this.token) {
+            return this.token;
+        } else {
+            throw new Error('Failed to get GitHub authentication token');
+        }
+    }
+
     private async fetchToken(): Promise<void> {
         if (!this.token) {
             await this.updateToken();
@@ -49,17 +60,17 @@ export class CheGithubMainImpl implements CheGithubMain {
     }
 
     private async updateToken(): Promise<void> {
-        this.token = await this.getToken();
+        this.token = await this.cheApiService.getOAuthToken('github');
         if (!this.token) {
             await this.authenticate();
-            this.token = await this.getToken();
+            this.token = await this.cheApiService.getOAuthToken('github');
         }
     }
 
     private authenticate(): Promise<void> {
         return new Promise(async (resolve, reject) => {
             const redirectUrl = window.location.href;
-            const url = `${this.apiUrl}/oauth/authenticate?oauth_provider=github&userId=${await this.getUserId()}` +
+            const url = `${this.apiUrl}/oauth/authenticate?oauth_provider=github&userId=${await this.cheApiService.getUserId()}` +
                 `&scope=write:public_key&redirect_after_login=${redirectUrl}`;
             const popupWindow = window.open(url, 'popup');
             const popup_close_handler = async () => {
@@ -84,19 +95,5 @@ export class CheGithubMainImpl implements CheGithubMain {
 
             const popupCloseHandlerIntervalId = window.setInterval(popup_close_handler, 80);
         });
-    }
-
-    private async getToken(): Promise<string | undefined> {
-        try {
-            const result = await this.axiosInstance.get<{ token: string }>(`${this.apiUrl}/oauth/token?oauth_provider=github`);
-            return result.data.token;
-        } catch (e) {
-            return undefined;
-        }
-    }
-
-    private async getUserId(): Promise<string | undefined> {
-        const result = await this.axiosInstance.get<{ id: string }>(`${this.apiUrl}/user`);
-        return result.data.id;
     }
 }

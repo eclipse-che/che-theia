@@ -17,6 +17,9 @@
     "prepare": "lerna run prepare",
     "publish:next": "lerna run publish:next"
   },
+  "resolutions": {
+    "**/mkdirp": "^0.5.1"
+  },
   "workspaces": {
     "packages": [
       "extensions/*",
