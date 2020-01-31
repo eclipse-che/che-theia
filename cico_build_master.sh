@@ -31,3 +31,8 @@ load_jenkins_vars
 set -x
 buildImages
 publishImagesOnQuay
+
+set +x
+#Release npm packages
+printf "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}\n" >> ~/.npmrc
+yarn run publish:next
