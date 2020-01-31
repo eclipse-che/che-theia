@@ -20,6 +20,9 @@ const fs = require('fs-extra');
             if (cdnJson.theia || cdnJson.monaco) {
                 await fs.rename('lib/vs/loader.js', 'lib/vs/original-loader.js');
                 await fs.copyFile('cdn/vs-loader.js', 'lib/vs/loader.js');
+                if (await fs.pathExists('lib/vs/loader.js.gz')) {
+                    await fs.rename('lib/vs/loader.js.gz', 'lib/vs/original-loader.js.gz');
+                }                
             }
         }
     } catch (e) {
