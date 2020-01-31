@@ -56,9 +56,11 @@ if [[ -z "$DOCKER_BUILD_TARGET" ]]; then
   "${base_dir}"/extract-for-cdn.sh "$IMAGE_NAME" "${base_dir}/theia_artifacts"
   LABEL_CONTENT=$(cat "${base_dir}"/theia_artifacts/cdn.json || true 2>/dev/null)
   if [ -n "${LABEL_CONTENT}" ]; then
-    BUILD_ARGS+="--label che-plugin.cdn.artifacts=$(echo ${LABEL_CONTENT} | sed 's/ //g') "
-    echo "Rebuilding with CDN label..."
-    build
+    echo "Adding the CDN label..."
+    docker build --label che-plugin.cdn.artifacts="$(echo ${LABEL_CONTENT} | sed 's/ //g')" -t "${IMAGE_NAME}-with-label" -<<EOF
+FROM ${IMAGE_NAME}
+EOF
+    docker tag "${IMAGE_NAME}-with-label" "${IMAGE_NAME}"
     "${base_dir}"/push-cdn-files-to-akamai.sh
   fi
 fi
