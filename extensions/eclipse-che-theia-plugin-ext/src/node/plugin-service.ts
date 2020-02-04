@@ -25,6 +25,7 @@ import { PluginApiContribution } from '@theia/plugin-ext/lib/main/node/plugin-se
 import { CheApiService } from '../common/che-protocol';
 import { getUrlDomain, SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE } from '../common/che-server-common';
 import { Deferred } from '@theia/core/lib/common/promise-util';
+import { ILogger } from '@theia/core/lib/common/logger';
 
 const pluginPath = (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + './theia/plugins/';
 
@@ -33,6 +34,9 @@ export class PluginApiContributionIntercepted extends PluginApiContribution {
 
     @inject(CheApiService)
     private cheApi: CheApiService;
+
+    @inject(ILogger)
+    protected readonly logger: ILogger;
 
     private waitWebviewEndpoint = new Deferred<void>();
 
@@ -53,10 +57,10 @@ export class PluginApiContributionIntercepted extends PluginApiContribution {
                 }
                 const hostName = this.handleAliases(process.env[WebviewExternalEndpoint.pattern] || domain || WebviewExternalEndpoint.pattern);
                 webviewApp.use('/webview', serveStatic(webviewStaticResources));
-    
-                console.log(`Configuring to accept webviews on '${hostName}' hostname.`);
+
+                this.logger.info(`Configuring to accept webviews on '${hostName}' hostname.`);
                 app.use(vhost(new RegExp(hostName, 'i'), webviewApp));
-    
+
                 this.waitWebviewEndpoint.resolve();
             })
             .catch(err => {
