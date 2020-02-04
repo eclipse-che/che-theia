@@ -64,7 +64,7 @@ export class PluginApiContributionIntercepted extends PluginApiContribution {
                 this.waitWebviewEndpoint.resolve();
             })
             .catch(err => {
-                console.error('Security problem: Unable to configure separate webviews domain: ', err);
+                this.logger.error('Security problem: Unable to configure separate webviews domain: ', err);
                 this.waitWebviewEndpoint.resolve();
             });
     }
