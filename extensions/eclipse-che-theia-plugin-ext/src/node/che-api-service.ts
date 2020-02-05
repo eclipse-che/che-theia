@@ -266,9 +266,8 @@ export class CheApiServiceImpl implements CheApiService {
                     return eventProp;
                 })
             };
-            const client = this.getWorkspaceTelemetryClient();
-            if (client) {
-                await client.event(event);
+            if (this.telemetryClient) {
+                await this.telemetryClient.event(event);
             }
         } catch (e) {
             console.error(e);
@@ -278,9 +277,8 @@ export class CheApiServiceImpl implements CheApiService {
 
     async submitTelemetryActivity(): Promise<void> {
         try {
-            const client = this.getWorkspaceTelemetryClient();
-            if (client) {
-                await client.activity();
+            if (this.telemetryClient) {
+                await this.telemetryClient.activity();
             }
         } catch (e) {
             console.error(e);
