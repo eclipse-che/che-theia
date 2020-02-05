@@ -13,7 +13,7 @@ import { CheApiService } from '../common/che-protocol';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { WebviewEnvironment } from '@theia/plugin-ext/lib/main/browser/webview/webview-environment';
 import { WebviewExternalEndpoint } from '@theia/plugin-ext/lib/main/common/webview-protocol';
-import { getUrlDomain, SERVER_TYPE_ATTR, SERVER_IDE_ATTR_VALUE } from '../common/che-server-common';
+import { getUrlDomain, SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE } from '../common/che-server-common';
 
 @injectable()
 export class CheWebviewEnvironment extends WebviewEnvironment {
@@ -27,13 +27,13 @@ export class CheWebviewEnvironment extends WebviewEnvironment {
     @postConstruct()
     protected async init(): Promise<void> {
         try {
-            const variable = await this.environments.getValue(WebviewExternalEndpoint.pattern);
-            const ideServer = await this.cheApi.findUniqueServerByAttribute(SERVER_TYPE_ATTR, SERVER_IDE_ATTR_VALUE);
-            let domain;
-            if (ideServer && ideServer.url) {
-                domain = getUrlDomain(ideServer.url);
+            const webviewExternalEndpointPattern = await this.environments.getValue(WebviewExternalEndpoint.pattern);
+            const webviewServer = await this.cheApi.findUniqueServerByAttribute(SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE);
+            let webviewDomain: string | undefined;
+            if (webviewServer && webviewServer.url) {
+                webviewDomain = getUrlDomain(webviewServer.url);
             }
-            const hostName = variable && variable.value || domain || WebviewExternalEndpoint.pattern;
+            const hostName = webviewExternalEndpointPattern && webviewExternalEndpointPattern.value || webviewDomain || WebviewExternalEndpoint.pattern;
             this.externalEndpointHost.resolve(hostName.replace('{{hostname}}', window.location.host || 'localhost'));
         } catch (e) {
             this.externalEndpointHost.reject(e);
