@@ -72,4 +72,17 @@ export class Init {
         return mustache.render(template, tags).replace(/&#x2F;/g, '/');
     }
 
+    async updadeBuildConfiguration(): Promise<void> {
+        const theiaPackagePath = path.join(this.rootFolder, 'package.json');
+        const theiaPackage = await readPkg(theiaPackagePath);
+        const scriptsConfiguration = theiaPackage.scripts;
+
+        if (scriptsConfiguration && scriptsConfiguration['prepare:build']) {
+            scriptsConfiguration['prepare:build'] = 'yarn build && run lint && lerna run build';
+        }
+
+        const json = JSON.stringify(theiaPackage, undefined, 2);
+        await fs.writeFile(theiaPackagePath, json);
+    }
+
 }
