@@ -109,6 +109,17 @@ Add this parameter to the build command to have a quick build and to skip runnin
 
 By default tests are turned on. 
 
+## Build only for specific type of Docker images (Alpine, UBI8, etc.)
+
+**`--dockerfile`**
+
+Add this parameter to the build command to select the subset of images to build.
+- `--dockerfile:Dockerfile.alpine` to build only Alpine Images.
+- `--dockerfile:Dockerfile.ubi8` to build only UBI8 Images.
+
+
+By default it is both building Alpine and Ubi8 images
+
 ## CDN Support
 
 This image can be built with CDN support, which means that it can be configured in a way that the client-side resources required to start
