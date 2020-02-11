@@ -12,5 +12,6 @@ RUN apk add --update --no-cache \
     # bash shell
     bash \
     # some lib to compile 'native-keymap' npm mpdule
-    libx11-dev libxkbfile-dev
-    
+    libx11-dev libxkbfile-dev \
+    # synchronization tool
+    rsync
