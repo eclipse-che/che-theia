@@ -13,10 +13,12 @@ import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { CheTelemetryMain, PLUGIN_RPC_CONTEXT, CheTelemetry } from '../common/che-protocol';
 import { CheApiService } from '../common/che-protocol';
 import { CommandRegistry } from '@theia/core';
+import * as axios from 'axios';
 
 export class CheTelemetryMainImpl implements CheTelemetryMain {
 
     private readonly cheApiService: CheApiService;
+    private ip: string;
 
     constructor(container: interfaces.Container, rpc: RPCProtocol) {
         const proxy: CheTelemetry = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_TELEMETRY);
@@ -28,9 +30,10 @@ export class CheTelemetryMainImpl implements CheTelemetryMain {
     }
 
     async $event(id: string, ownerId: string, properties: [string, string][]): Promise<void> {
-        // TODO : get the infos from the browser
-        const ip = '';
-
+        if (!this.ip) {
+            const response = await axios.default.get('/che/client-ip');
+            this.ip = response.data;
+        }
         let agent = '';
         let resolution = '';
         const navigator = window.navigator;
@@ -46,6 +49,6 @@ export class CheTelemetryMainImpl implements CheTelemetryMain {
             }
         }
 
-        return this.cheApiService.submitTelemetryEvent(id, ownerId, ip, agent, resolution, properties);
+        return this.cheApiService.submitTelemetryEvent(id, ownerId, this.ip, agent, resolution, properties);
     }
 }

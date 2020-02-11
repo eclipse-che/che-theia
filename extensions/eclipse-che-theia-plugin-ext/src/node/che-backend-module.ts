@@ -34,13 +34,16 @@ import { ChePluginServiceImpl } from './che-plugin-service';
 import { CheProductServiceImpl } from './che-product-service';
 import { PluginApiContributionIntercepted } from './plugin-service';
 import { PluginApiContribution } from '@theia/plugin-ext/lib/main/node/plugin-service';
+import { CheClientIpServiceContribution } from './che-client-ip-service';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(ChePluginApiProvider).toSelf().inSingletonScope();
     bind(Symbol.for(ExtPluginApiProvider)).toService(ChePluginApiProvider);
 
     bind(ChePluginApiContribution).toSelf().inSingletonScope();
+    bind(CheClientIpServiceContribution).toSelf().inSingletonScope();
     bind(BackendApplicationContribution).toService(ChePluginApiContribution);
+    bind(BackendApplicationContribution).toService(CheClientIpServiceContribution);
 
     rebind(PluginApiContribution).to(PluginApiContributionIntercepted).inSingletonScope();
 
