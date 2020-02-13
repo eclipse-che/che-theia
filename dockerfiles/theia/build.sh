@@ -27,13 +27,6 @@ if [ ! -f "${THEIA_YEOMAN_PLUGIN}" ]; then
     curl -L -o ${THEIA_YEOMAN_PLUGIN} https://github.com/eclipse/theia-yeoman-plugin/releases/download/untagged-c11870b25a17d20bb7a7/theia_yeoman_plugin.theia
 fi
 
-# VS Code git plug-in
-VSCODE_GIT_PLUGIN="${DIR}/asset-vscode-git-1.3.0.1.vsix"
-if [ ! -f "${VSCODE_GIT_PLUGIN}" ]; then
-    curl -L -o ${VSCODE_GIT_PLUGIN} https://github.com/che-incubator/vscode-git/releases/download/1.30.1/vscode-git-1.3.0.1.vsix
-fi
-
-
 init --name:theia "$@"
 
 if [ "${CDN_PREFIX:-}" != "" ]; then

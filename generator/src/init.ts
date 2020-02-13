@@ -85,4 +85,22 @@ export class Init {
         await fs.writeFile(theiaPackagePath, json);
     }
 
+    async updatePluginsConfigurtion(): Promise<void> {
+        const theiaPackagePath = path.join(this.rootFolder, 'package.json');
+        const theiaPackage = await readPkg(theiaPackagePath);
+
+        theiaPackage['theiaPlugins'] = await this.getPluginsList();
+
+        const json = JSON.stringify(theiaPackage, undefined, 2);
+        await fs.writeFile(theiaPackagePath, json);
+    }
+
+    private async getPluginsList(): Promise<any> {
+        const srcDir = path.resolve(__dirname, '../src');
+        const templateDir = path.join(srcDir, 'templates');
+        const pluginsJsonContent = await fs.readFile(path.join(templateDir, 'theiaPlugins.json'));
+
+        return JSON.parse(pluginsJsonContent.toString());
+    }
+
 }
