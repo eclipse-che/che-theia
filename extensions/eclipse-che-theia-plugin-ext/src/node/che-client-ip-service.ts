@@ -21,7 +21,13 @@ export class CheClientIpServiceContribution implements BackendApplicationContrib
             if (!clientIp) {
                 clientIp = 'not defined';
             }
-            res.send(clientIp);
+            const ipFamily = req.connection.remoteFamily;
+            const port = req.connection.remotePort;
+            res.json({
+                ip: clientIp,
+                ipFamily: ipFamily,
+                port: port
+            });
         });
     }
 }

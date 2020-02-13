@@ -14,6 +14,7 @@ import { CheTelemetryMain, PLUGIN_RPC_CONTEXT, CheTelemetry } from '../common/ch
 import { CheApiService } from '../common/che-protocol';
 import { CommandRegistry } from '@theia/core';
 import * as axios from 'axios';
+import { ClientAddressInfo } from '@eclipse-che/plugin';
 
 export class CheTelemetryMainImpl implements CheTelemetryMain {
 
@@ -31,8 +32,7 @@ export class CheTelemetryMainImpl implements CheTelemetryMain {
 
     async $event(id: string, ownerId: string, properties: [string, string][]): Promise<void> {
         if (!this.ip) {
-            const response = await axios.default.get('/che/client-ip');
-            this.ip = response.data;
+            this.ip = (await this.getClientAddressInfo()).ip;
         }
         let agent = '';
         let resolution = '';
@@ -50,5 +50,17 @@ export class CheTelemetryMainImpl implements CheTelemetryMain {
         }
 
         return this.cheApiService.submitTelemetryEvent(id, ownerId, this.ip, agent, resolution, properties);
+    }
+
+    async $getClientAddressInfo(): Promise<ClientAddressInfo> {
+       return this.getClientAddressInfo();
+    }
+
+    async getClientAddressInfo(): Promise<ClientAddressInfo> {
+        const response = await axios.default.get('/che/client-ip');
+        if (response.status === 200) {
+            return response.data;
+        }
+        return {ip: 'not defined'};
     }
 }

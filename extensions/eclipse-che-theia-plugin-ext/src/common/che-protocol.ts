@@ -80,6 +80,7 @@ export interface CheTelemetry {
 
 export interface CheTelemetryMain {
     $event(id: string, ownerId: string, properties: [string, string][]): Promise<void>;
+    $getClientAddressInfo(): Promise<che.ClientAddressInfo>;
 }
 
 /**
