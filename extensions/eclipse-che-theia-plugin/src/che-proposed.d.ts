@@ -71,9 +71,9 @@ declare module '@eclipse-che/plugin' {
      */
     export type TelemetryListener = (commandId: string, param?: TelemetryListenerParam) => void;
     export interface ClientAddressInfo {
-        ip: string,
+        ip?: string,
         port?: string
-        ipFamily?: string
+        ipFamily?: number
     }
     export namespace telemetry {
         export function event(id: string, ownerId: string, properties: [string, string][]): Promise<void>;

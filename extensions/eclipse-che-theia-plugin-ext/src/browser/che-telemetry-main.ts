@@ -32,7 +32,8 @@ export class CheTelemetryMainImpl implements CheTelemetryMain {
 
     async $event(id: string, ownerId: string, properties: [string, string][]): Promise<void> {
         if (!this.ip) {
-            this.ip = (await this.getClientAddressInfo()).ip;
+            const client = await this.getClientAddressInfo();
+            this.ip = client.ip !== undefined ? client.ip : '';
         }
         let agent = '';
         let resolution = '';
@@ -53,7 +54,7 @@ export class CheTelemetryMainImpl implements CheTelemetryMain {
     }
 
     async $getClientAddressInfo(): Promise<ClientAddressInfo> {
-       return this.getClientAddressInfo();
+        return this.getClientAddressInfo();
     }
 
     async getClientAddressInfo(): Promise<ClientAddressInfo> {
@@ -61,6 +62,11 @@ export class CheTelemetryMainImpl implements CheTelemetryMain {
         if (response.status === 200) {
             return response.data;
         }
-        return {ip: 'not defined'};
+        console.log('Can`t obtain client adress information. Status: ' + response.status + 'Error message: ' + response.data);
+        return {
+            ip: undefined,
+            ipFamily: undefined,
+            port: undefined
+        };
     }
 }

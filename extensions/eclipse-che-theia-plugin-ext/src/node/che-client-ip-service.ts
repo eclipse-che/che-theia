@@ -17,16 +17,10 @@ export class CheClientIpServiceContribution implements BackendApplicationContrib
 
     configure(app: express.Application): void {
         app.get('/che/client-ip', (req, res) => {
-            let clientIp = req.connection.remoteAddress;
-            if (!clientIp) {
-                clientIp = 'not defined';
-            }
-            const ipFamily = req.connection.remoteFamily;
-            const port = req.connection.remotePort;
             res.json({
-                ip: clientIp,
-                ipFamily: ipFamily,
-                port: port
+                ip: req.connection.remoteAddress,
+                ipFamily: req.connection.remoteFamily,
+                port: req.connection.remotePort
             });
         });
     }
