@@ -9,32 +9,44 @@
 * SPDX-License-Identifier: EPL-2.0
 **********************************************************************/
 const fs = require('fs');
+const path = require('path');
 const spawnSync = require('child_process').spawnSync;
 
 const currentDir = __dirname;
 const targetDir = `${__dirname}/../production/plugins`
 
 mkdirSyncRecursive(targetDir);
-fs.readdirSync(currentDir).forEach((pluginFolderName) => {
-    console.log(pluginFolderName);
-    const pluginFolderPath = `${currentDir}/${pluginFolderName}`;
-    if (fs.existsSync(`${pluginFolderPath}/package.json`)) {
-        console.log(`\n✍️  Running \`yarn\` on ${pluginFolderPath}`);
+
+fs.readdirSync(currentDir).forEach((pluginEntryName) => {
+    console.log(`\n✍️  Process plugin ${pluginEntryName}`);
+    
+    const pluginEntryPath = `${currentDir}/${pluginEntryName}`;
+
+    if (fs.existsSync(`${pluginEntryPath}/package.json`)) {
+        console.log(`\n✍️  Running \`yarn\` on ${pluginEntryPath}`);
+
         const r = spawnSync('yarn', [], {
-            cwd: `${pluginFolderPath}`,
+            cwd: `${pluginEntryPath}`,
             detached: true,
             stdio: "inherit"
         });
+
         if (r.status === 1) {
             process.exit(1);
         }
-
-        fs.readdirSync(`${pluginFolderPath}`).forEach((fileName) => {
+        
+        fs.readdirSync(`${pluginEntryPath}`).forEach((fileName) => {
             if(fileName.endsWith('.theia')){
-                console.log(`\n✍️  Copying ${pluginFolderPath}/${fileName} theia package to ${targetDir}/${fileName}`);
-                fs.copyFileSync(`${pluginFolderPath}/${fileName}`, `${targetDir}/${fileName}`);
+                console.log(`\n✍️  Copying ${pluginEntryPath}/${fileName} theia package to ${targetDir}/${fileName}`);
+                fs.copyFileSync(`${pluginEntryPath}/${fileName}`, `${targetDir}/${fileName}`);
             }
         })
+    } else if (pluginEntryName.endsWith('.vsix') || pluginEntryName.endsWith('.tar.gz')) {
+        console.log(`\n✍️  Copying ${pluginEntryPath} VSCode built-in extension to ${targetDir}/${pluginEntryName}`);
+        fs.copyFileSync(`${pluginEntryPath}`, `${targetDir}/${pluginEntryName}`);
+    } else if (fs.existsSync(`${pluginEntryPath}/extension.vsixmanifest`)) {
+        console.log(`\n✍️  Copying ${pluginEntryPath} VSCode built-in unpacked extension to ${targetDir}/${pluginEntryName}`);
+        copyFolderSync(`${pluginEntryPath}`, `${targetDir}/${pluginEntryName}`);
     }
 });
 
@@ -45,3 +57,14 @@ function mkdirSyncRecursive(dir) {
         curPath.length > 0 && !fs.existsSync(curPath) ? fs.mkdirSync(curPath) : null;
     }
 };
+
+function copyFolderSync(from, to) {	
+    fs.mkdirSync(to);	
+    fs.readdirSync(from).forEach(element => {	
+        if (fs.lstatSync(path.join(from, element)).isFile()) {	
+            fs.copyFileSync(path.join(from, element), path.join(to, element));	
+        } else {	
+            copyFolderSync(path.join(from, element), path.join(to, element));	
+        }	
+    });	
+}
