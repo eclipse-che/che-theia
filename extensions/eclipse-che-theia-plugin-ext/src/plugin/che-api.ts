@@ -105,6 +105,9 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             },
             addCommandListener(commandId: string, listener: che.TelemetryListener): Promise<void> {
                 return cheTelemetryImpl.addCommandListener(commandId, listener);
+            },
+            getClienAddressInfo(): Promise<che.ClientAddressInfo> {
+                return cheTelemetryImpl.getClientAddressInfo();
             }
         };
 

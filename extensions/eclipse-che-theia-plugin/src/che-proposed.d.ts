@@ -70,10 +70,16 @@ declare module '@eclipse-che/plugin' {
      * Listener for global command invocation
      */
     export type TelemetryListener = (commandId: string, param?: TelemetryListenerParam) => void;
+    export interface ClientAddressInfo {
+        ip?: string,
+        port?: string
+        ipFamily?: number
+    }
     export namespace telemetry {
         export function event(id: string, ownerId: string, properties: [string, string][]): Promise<void>;
         /** Fires when a command will starts. */
         export function addCommandListener(commandId: string, listener: TelemetryListener): Promise<void>;
+        export function getClienAddressInfo(): Promise<ClientAddressInfo>;
     }
 
     /**
