@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
+import * as path from 'path';
 import * as theia from '@theia/plugin';
 import * as che from '@eclipse-che/plugin';
 
@@ -19,10 +20,10 @@ export class WelcomePage {
     /**
      * Returns the Logo URI for usinf as an image in webview frame.
      */
-    protected getLogoUri(logo: string): theia.Uri {
+    protected getLogoUri(logo: string): string {
         // Leave the Uri as it is in case HTTP resources
         if (logo.startsWith('http://') || logo.startsWith('https://')) {
-            return theia.Uri.parse(logo);
+            return logo;
         }
 
         // Remove 'file://' prefix from the start of image URI
@@ -30,8 +31,7 @@ export class WelcomePage {
             logo = logo.substring(7);
         }
 
-        // Return new Uri with 'theia-resource' scheme.
-        return theia.Uri.file(logo).with({ scheme: 'theia-resource' });
+        return path.join('mini-browser', logo);
     }
 
     protected renderHeader(): string {
