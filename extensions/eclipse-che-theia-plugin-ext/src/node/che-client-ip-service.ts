@@ -19,7 +19,7 @@ export class CheClientIpServiceContribution implements BackendApplicationContrib
         app.get('/che/client-ip', (req, res) => {
             res.json({
                 ip: req.get('x-forwarded-for') !== undefined ? req.get('x-forwarded-for') : req.connection.remoteAddress,
-                port: req.get('x-forwarded-port') !== undefined ? req.get('x-forwarded-port') : req.connection.remoteAddress,
+                port: req.get('x-forwarded-port') !== undefined ? req.get('x-forwarded-port') : req.connection.remotePort,
             });
         });
     }
