@@ -1,4 +1,4 @@
-<br/>
+1<br/>
 <div id="che-theia-logo" align="center" style="vertical-align: middle">
 
 <img src="https://raw.githubusercontent.com/eclipse/che-theia/master/extensions/eclipse-che-theia-about/src/browser/style/che-logo-light.svg?sanitize=true" alt="Che Logo" width="200" height="60" />
