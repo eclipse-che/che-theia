@@ -8,7 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import * as path from 'path';
 import { AboutDialog, AboutDialogProps, ABOUT_EXTENSIONS_CLASS, ABOUT_CONTENT_CLASS } from '@theia/core/lib/browser/about-dialog';
 import { injectable, inject, postConstruct } from 'inversify';
 import { CheProductService, Product } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
@@ -38,24 +37,6 @@ export class AboutCheTheiaDialog extends AboutDialog {
     }
 
     /**
-     * Returns suitable URI as a string for the logo image
-     */
-    protected getLogo(logo: string): string {
-        if (logo.startsWith('http://') || logo.startsWith('https://')) {
-            // HTTP resource
-            return logo;
-        }
-
-        if (logo.startsWith('file://')) {
-            // file resource
-            logo = logo.substring(7);
-        }
-
-        // Use relative endpoint path
-        return path.join('mini-browser', logo);
-    }
-
-    /**
      * Check if theme is dark or not
      */
     private isDark(theme: Theme): boolean {
@@ -77,22 +58,22 @@ export class AboutCheTheiaDialog extends AboutDialog {
         if (typeof product.logo === 'object') {
             const productLogo: Logo = product.logo as Logo;
             if (this.isDark(this.themeService.getCurrentTheme())) {
-                image.setAttribute('src', this.getLogo(productLogo.dark));
+                image.setAttribute('src', productLogo.dark);
             } else {
-                image.setAttribute('src', this.getLogo(productLogo.light));
+                image.setAttribute('src', productLogo.light);
             }
 
             // listen on events when the theme is changing to update the logo
             this.themeService.onThemeChange(e => {
                 if (this.isDark(e.newTheme)) {
-                    image.setAttribute('src', this.getLogo(productLogo.dark));
+                    image.setAttribute('src', productLogo.dark);
                 } else {
-                    image.setAttribute('src', this.getLogo(productLogo.light));
+                    image.setAttribute('src', productLogo.light);
                 }
             });
 
         } else {
-            image.setAttribute('src', this.getLogo(product.logo));
+            image.setAttribute('src', product.logo);
         }
 
         logo.appendChild(image);

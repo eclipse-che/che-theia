@@ -31,10 +31,10 @@ export class CheProductServiceImpl implements CheProductService {
                 const product: Product = await fs.readJson(jsonPath) as Product;
 
                 this.product = {
-                    icon: this.getResource(product.icon, jsonPath),
+                    icon: CheProductServiceImpl.toBase64(this.getResource(product.icon, jsonPath)),
                     logo: typeof product.logo === 'object' ? {
-                        dark: this.getResource(product.logo.dark, jsonPath),
-                        light: this.getResource(product.logo.light, jsonPath)
+                        dark: CheProductServiceImpl.toBase64(this.getResource(product.logo.dark, jsonPath)),
+                        light: CheProductServiceImpl.toBase64(this.getResource(product.logo.light, jsonPath))
                     } : this.getResource(product.logo, jsonPath),
                     name: product.name,
                     welcome: product.welcome,
@@ -51,10 +51,10 @@ export class CheProductServiceImpl implements CheProductService {
          * Return defaults
          */
         return {
-            icon: path.join(__dirname, '/../../src/resource/che-logo.svg'),
+            icon: CheProductServiceImpl.toBase64(path.join(__dirname, '/../../src/resource/che-logo.svg')),
             logo: {
-                dark: path.join(__dirname, '/../../src/resource/che-logo-dark.svg'),
-                light: path.join(__dirname, '/../../src/resource/che-logo-light.svg')
+                dark: CheProductServiceImpl.toBase64(path.join(__dirname, '/../../src/resource/che-logo-dark.svg')),
+                light: CheProductServiceImpl.toBase64(path.join(__dirname, '/../../src/resource/che-logo-light.svg'))
             },
             name: 'Eclipse Che',
             welcome: {
@@ -87,8 +87,14 @@ export class CheProductServiceImpl implements CheProductService {
         } else {
             // relative path
             const productJsonDir = path.dirname(productJsonPath);
-            return 'file://' + path.join(productJsonDir, resource);
+            return path.join(productJsonDir, resource);
         }
     }
 
+    protected static toBase64(file: string): string {
+        const content = fs.readFileSync(file);
+        const header = 'data:image/svg+xml;base64,';
+        const dataUrl = header + content.toString('base64');
+        return dataUrl;
+    }
 }
