@@ -2,7 +2,7 @@
 
 #### Make the release changes
 
-1. Create a branch for the release, e.g. `7.7.0`
+1. Create a branch for the release, e.g. `7.7.x`
 
 > **NOTE:** Che Theia release can depend on [Eclipse Theia](https://github.com/eclipse-theia/theia) tag or commit. Below is an example of **step 2** for preparing Che Theia release 7.7.0 which depends on upstream Theia tag 0.14.0. If you need to depend on Theia commit then **step 2** is a bit different. Follow [`The release changes to depend on Theia commit`](#the-release-changes-to-depend-on-theia-commit) section instead.
 
@@ -20,25 +20,25 @@ Do you want to update extension/plugin version with '7.7.0'? [Y/n] <Enter>
 ```
 
 3. Verify the build is passed successfully - `yarn`.
-4. Commit the changes to the branch, e.g. `7.7.0`. Push it to GitHub.
+4. Commit the changes to the branch, e.g. `7.7.x`. Push it to GitHub.
 
 #### Trigger the CI
 
 1. Delete the existing `release` branch on GitHub [manually](https://github.com/eclipse/che-theia/branches) if it exists.
-2. Create a branch `release` with the release changes, e.g. `7.7.0`
+2. Create a branch `release` with the release changes, e.g. for `7.7.x`
 ```
-git checkout 7.7.0
-git push origin 7.7.0:release
+git checkout 7.7.x
+git push origin 7.7.x:release
 ```
 4. Track the [CI Job](https://ci.centos.org/view/Devtools/job/devtools-che-theia-che-release)
 
 #### Create and publish a tag
 
-Once CI job is finished successfully, create a tag and push it to GitHub, e.g. for `7.7.0`:
+Once CI job is finished successfully, create a tag and push it to GitHub, e.g. for `7.7.x`:
 ```
-git checkout 7.7.0
-git tag v7.7.0
-git push origin v7.7.0
+git checkout 7.7.x
+git tag 7.7.0
+git push origin 7.7.0
 ```
 
 ---
