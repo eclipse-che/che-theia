@@ -29,7 +29,7 @@ export class CheStorageService implements StorageService {
 
     @postConstruct()
     protected init(): void {
-        this.initialized = this.workspaceService.roots.then(() => { });
+        this.initialized = this.workspaceService.roots.then(() => {});
     }
 
     async setData<T>(key: string, data?: T): Promise<void> {
