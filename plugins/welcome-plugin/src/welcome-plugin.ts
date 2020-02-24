@@ -108,7 +108,7 @@ export async function addPanel(context: theia.PluginContext): Promise<void> {
         context.subscriptions
     );
 
-    // currentPanel.iconPath = theia.Uri.parse(che.product.icon);
+    currentPanel.iconPath = theia.Uri.parse(che.product.icon);
 }
 
 export function start(context: theia.PluginContext): void {
