@@ -328,10 +328,12 @@ body[class="vscode-light"] .product-logo-dark {
 
 body[class="vscode-light"] .product-logo-light {
     display: block !important;
+    height: 80px;
 }
 
 body[class="vscode-dark"] .product-logo-dark {
     display: block !important;
+    height: 80px;
 }
 
 body[class="vscode-dark"] .product-logo-light {
