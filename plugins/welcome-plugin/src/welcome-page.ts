@@ -16,27 +16,9 @@ import * as che from '@eclipse-che/plugin';
  */
 export class WelcomePage {
 
-    /**
-     * Returns the Logo URI for usinf as an image in webview frame.
-     */
-    protected getLogoUri(logo: string): theia.Uri {
-        // Leave the Uri as it is in case HTTP resources
-        if (logo.startsWith('http://') || logo.startsWith('https://')) {
-            return theia.Uri.parse(logo);
-        }
-
-        // Remove 'file://' prefix from the start of image URI
-        if (logo.startsWith('file://')) {
-            logo = logo.substring(7);
-        }
-
-        // Return new Uri with 'theia-resource' scheme.
-        return theia.Uri.file(logo).with({ scheme: 'theia-resource' });
-    }
-
     protected renderHeader(): string {
-        const logoDark = typeof che.product.logo === 'object' ? this.getLogoUri(che.product.logo.dark) : this.getLogoUri(che.product.logo);
-        const logoLight = typeof che.product.logo === 'object' ? this.getLogoUri(che.product.logo.light) : this.getLogoUri(che.product.logo);
+        const logoDark = typeof che.product.logo === 'object' ? che.product.logo.dark : che.product.logo;
+        const logoLight = typeof che.product.logo === 'object' ? che.product.logo.light : che.product.logo;
 
         const welcome = (che.product.welcome && che.product.welcome.title) ?
             `<span class='che-welcome-header-subtitle'>${che.product.welcome.title}</span>` : '';

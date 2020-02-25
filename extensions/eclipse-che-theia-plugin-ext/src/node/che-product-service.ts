@@ -51,10 +51,10 @@ export class CheProductServiceImpl implements CheProductService {
          * Return defaults
          */
         return {
-            icon: path.join(__dirname, '/../../src/resource/che-logo.svg'),
+            icon: svgAsBase64(path.join(__dirname, '/../../src/resource/che-logo.svg')),
             logo: {
-                dark: path.join(__dirname, '/../../src/resource/che-logo-dark.svg'),
-                light: path.join(__dirname, '/../../src/resource/che-logo-light.svg')
+                dark: svgAsBase64(path.join(__dirname, '/../../src/resource/che-logo-dark.svg')),
+                light: svgAsBase64(path.join(__dirname, '/../../src/resource/che-logo-light.svg'))
             },
             name: 'Eclipse Che',
             welcome: {
@@ -81,14 +81,20 @@ export class CheProductServiceImpl implements CheProductService {
         if (resource.startsWith('http://') || resource.startsWith('https://')) {
             // HTTP resource
             return resource;
-        } else if (resource.startsWith('/')) {
-            // absolute path
-            return `file://${resource}`;
-        } else {
-            // relative path
-            const productJsonDir = path.dirname(productJsonPath);
-            return 'file://' + path.join(productJsonDir, resource);
         }
+        if (resource.startsWith('/')) {
+            // absolute path
+            return svgAsBase64(resource);
+        }
+        // relative path
+        const productJsonDir = path.dirname(productJsonPath);
+        return svgAsBase64(path.join(productJsonDir, resource));
     }
+}
 
+function svgAsBase64(filePath: string): string {
+    const content = fs.readFileSync(filePath);
+    const header = 'data:image/svg+xml;base64,';
+    const dataUrl = header + content.toString('base64');
+    return dataUrl;
 }
