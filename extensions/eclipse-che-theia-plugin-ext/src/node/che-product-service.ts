@@ -31,10 +31,10 @@ export class CheProductServiceImpl implements CheProductService {
                 const product: Product = await fs.readJson(jsonPath) as Product;
 
                 this.product = {
-                    icon: CheProductServiceImpl.toBase64(this.getResource(product.icon, jsonPath)),
+                    icon: this.getResource(product.icon, jsonPath),
                     logo: typeof product.logo === 'object' ? {
-                        dark: CheProductServiceImpl.toBase64(this.getResource(product.logo.dark, jsonPath)),
-                        light: CheProductServiceImpl.toBase64(this.getResource(product.logo.light, jsonPath))
+                        dark: this.getResource(product.logo.dark, jsonPath),
+                        light: this.getResource(product.logo.light, jsonPath)
                     } : this.getResource(product.logo, jsonPath),
                     name: product.name,
                     welcome: product.welcome,
@@ -51,10 +51,10 @@ export class CheProductServiceImpl implements CheProductService {
          * Return defaults
          */
         return {
-            icon: CheProductServiceImpl.toBase64(path.join(__dirname, '/../../src/resource/che-logo.svg')),
+            icon: svgAsBase64(path.join(__dirname, '/../../src/resource/che-logo.svg')),
             logo: {
-                dark: CheProductServiceImpl.toBase64(path.join(__dirname, '/../../src/resource/che-logo-dark.svg')),
-                light: CheProductServiceImpl.toBase64(path.join(__dirname, '/../../src/resource/che-logo-light.svg'))
+                dark: svgAsBase64(path.join(__dirname, '/../../src/resource/che-logo-dark.svg')),
+                light: svgAsBase64(path.join(__dirname, '/../../src/resource/che-logo-light.svg'))
             },
             name: 'Eclipse Che',
             welcome: {
@@ -81,20 +81,20 @@ export class CheProductServiceImpl implements CheProductService {
         if (resource.startsWith('http://') || resource.startsWith('https://')) {
             // HTTP resource
             return resource;
-        } else if (resource.startsWith('/')) {
-            // absolute path
-            return `file://${resource}`;
-        } else {
-            // relative path
-            const productJsonDir = path.dirname(productJsonPath);
-            return path.join(productJsonDir, resource);
         }
+        if (resource.startsWith('/')) {
+            // absolute path
+            return svgAsBase64(resource);
+        }
+        // relative path
+        const productJsonDir = path.dirname(productJsonPath);
+        return svgAsBase64(path.join(productJsonDir, resource));
     }
+}
 
-    protected static toBase64(file: string): string {
-        const content = fs.readFileSync(file);
-        const header = 'data:image/svg+xml;base64,';
-        const dataUrl = header + content.toString('base64');
-        return dataUrl;
-    }
+function svgAsBase64(filePath: string): string {
+    const content = fs.readFileSync(filePath);
+    const header = 'data:image/svg+xml;base64,';
+    const dataUrl = header + content.toString('base64');
+    return dataUrl;
 }
