@@ -12,7 +12,7 @@ import { injectable, inject } from 'inversify';
 import { CommandRegistry, MenuModelRegistry, Command } from '@theia/core/lib/common';
 import { ApplicationShell, KeybindingRegistry, Key, KeyCode, KeyModifier, QuickOpenContribution, QuickOpenHandlerRegistry } from '@theia/core/lib/browser';
 import { TerminalQuickOpenService } from './terminal-quick-open';
-import { TerminalFrontendContribution, TerminalMenus } from '@theia/terminal/lib/browser/terminal-frontend-contribution';
+import { TerminalFrontendContribution, TerminalMenus, TerminalCommands } from '@theia/terminal/lib/browser/terminal-frontend-contribution';
 import { TerminalApiEndPointProvider } from '../server-definition/terminal-proxy-creator';
 import { BrowserMainMenuFactory } from '@theia/core/lib/browser/menu/browser-menu-plugin';
 import { MenuBar as MenuBarWidget } from '@phosphor/widgets';
@@ -24,6 +24,7 @@ import { filterRecipeContainers } from './terminal-command-filter';
 import URI from '@theia/core/lib/common/uri';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { isOSX } from '@theia/core/lib/common/os';
+import { TerminalKeybindingContexts } from '@theia/terminal/lib/browser/terminal-keybinding-contexts';
 
 export const NewTerminalInSpecificContainer = {
     id: 'terminal-in-specific-container:new',
@@ -73,6 +74,34 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
                 }
             });
             await this.registerTerminalCommandPerContainer(registry);
+            registry.registerCommand(TerminalCommands.TERMINAL_FIND_TEXT);
+            registry.registerHandler(TerminalCommands.TERMINAL_FIND_TEXT.id, {
+                isEnabled: () => {
+                    if (this.shell.activeWidget instanceof TerminalWidget) {
+                        return !this.shell.activeWidget.getSearchBox().isVisible;
+                    }
+                    return false;
+                },
+                execute: () => {
+                    const termWidget = (this.shell.activeWidget as TerminalWidget);
+                    const terminalSearchBox = termWidget.getSearchBox();
+                    terminalSearchBox.show();
+                }
+            });
+            registry.registerCommand(TerminalCommands.TERMINAL_FIND_TEXT_CANCEL);
+            registry.registerHandler(TerminalCommands.TERMINAL_FIND_TEXT_CANCEL.id, {
+                isEnabled: () => {
+                    if (this.shell.activeWidget instanceof TerminalWidget) {
+                        return this.shell.activeWidget.getSearchBox().isVisible;
+                    }
+                    return false;
+                },
+                execute: () => {
+                    const termWidget = (this.shell.activeWidget as TerminalWidget);
+                    const terminalSearchBox = termWidget.getSearchBox();
+                    terminalSearchBox.hide();
+                }
+            });
         } else {
             super.registerCommands(registry);
         }
@@ -196,6 +225,18 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
             registry.registerKeybinding({
                 command: NewTerminalInSpecificContainer.id,
                 keybinding: isOSX ? 'ctrl+shift+`' : 'ctrl+`'
+            });
+
+            registry.registerKeybinding({
+                command: TerminalCommands.TERMINAL_FIND_TEXT.id,
+                keybinding: 'ctrlcmd+f',
+                context: TerminalKeybindingContexts.terminalActive
+            });
+
+            registry.registerKeybinding({
+                command: TerminalCommands.TERMINAL_FIND_TEXT_CANCEL.id,
+                keybinding: 'esc',
+                context: TerminalKeybindingContexts.terminalHideSearch
             });
             this.registerTerminalKeybindings(registry);
         } else {
