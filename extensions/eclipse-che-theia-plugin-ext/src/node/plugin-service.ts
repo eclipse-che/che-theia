@@ -51,18 +51,18 @@ export class PluginApiContributionIntercepted extends PluginApiContribution {
         const webviewStaticResources = path.join(pluginExtModulePath, 'src/main/browser/webview/pre');
 
         this.cheApi.findUniqueServerByAttribute(SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE).then(server => {
-                let domain;
-                if (server.url) {
-                    domain = getUrlDomain(server.url);
-                }
-                const hostName = this.handleAliases(process.env[WebviewExternalEndpoint.pattern] || domain || WebviewExternalEndpoint.pattern);
-                webviewApp.use('/webview', serveStatic(webviewStaticResources));
+            let domain;
+            if (server.url) {
+                domain = getUrlDomain(server.url);
+            }
+            const hostName = this.handleAliases(process.env[WebviewExternalEndpoint.pattern] || domain || WebviewExternalEndpoint.pattern);
+            webviewApp.use('/webview', serveStatic(webviewStaticResources));
 
-                this.logger.info(`Configuring to accept webviews on '${hostName}' hostname.`);
-                app.use(vhost(new RegExp(hostName, 'i'), webviewApp));
+            this.logger.info(`Configuring to accept webviews on '${hostName}' hostname.`);
+            app.use(vhost(new RegExp(hostName, 'i'), webviewApp));
 
-                this.waitWebviewEndpoint.resolve();
-            })
+            this.waitWebviewEndpoint.resolve();
+        })
             .catch(err => {
                 this.logger.error('Security problem: Unable to configure separate webviews domain: ', err);
                 this.waitWebviewEndpoint.resolve();
