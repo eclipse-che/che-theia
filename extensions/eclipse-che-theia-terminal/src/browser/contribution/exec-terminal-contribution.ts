@@ -73,7 +73,9 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
                     }
                 }
             });
+
             await this.registerTerminalCommandPerContainer(registry);
+
             registry.registerCommand(TerminalCommands.TERMINAL_FIND_TEXT);
             registry.registerHandler(TerminalCommands.TERMINAL_FIND_TEXT.id, {
                 isEnabled: () => {
@@ -88,6 +90,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
                     terminalSearchBox.show();
                 }
             });
+
             registry.registerCommand(TerminalCommands.TERMINAL_FIND_TEXT_CANCEL);
             registry.registerHandler(TerminalCommands.TERMINAL_FIND_TEXT_CANCEL.id, {
                 isEnabled: () => {
@@ -100,6 +103,46 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
                     const termWidget = (this.shell.activeWidget as TerminalWidget);
                     const terminalSearchBox = termWidget.getSearchBox();
                     terminalSearchBox.hide();
+                }
+            });
+
+            registry.registerCommand(TerminalCommands.SCROLL_LINE_UP, {
+                isEnabled: () => this.shell.activeWidget instanceof TerminalWidget,
+                isVisible: () => false,
+                execute: () => {
+                    (this.shell.activeWidget as TerminalWidget).scrollLineUp();
+                }
+            });
+
+            registry.registerCommand(TerminalCommands.SCROLL_LINE_DOWN, {
+                isEnabled: () => this.shell.activeWidget instanceof TerminalWidget,
+                isVisible: () => false,
+                execute: () => {
+                    (this.shell.activeWidget as TerminalWidget).scrollLineDown();
+                }
+            });
+
+            registry.registerCommand(TerminalCommands.SCROLL_TO_TOP, {
+                isEnabled: () => this.shell.activeWidget instanceof TerminalWidget,
+                isVisible: () => false,
+                execute: () => {
+                    (this.shell.activeWidget as TerminalWidget).scrollToTop();
+                }
+            });
+
+            registry.registerCommand(TerminalCommands.SCROLL_PAGE_UP, {
+                isEnabled: () => this.shell.activeWidget instanceof TerminalWidget,
+                isVisible: () => false,
+                execute: () => {
+                    (this.shell.activeWidget as TerminalWidget).scrollPageUp();
+                }
+            });
+
+            registry.registerCommand(TerminalCommands.SCROLL_PAGE_DOWN, {
+                isEnabled: () => this.shell.activeWidget instanceof TerminalWidget,
+                isVisible: () => false,
+                execute: () => {
+                    (this.shell.activeWidget as TerminalWidget).scrollPageDown();
                 }
             });
         } else {
@@ -238,6 +281,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
                 keybinding: 'esc',
                 context: TerminalKeybindingContexts.terminalHideSearch
             });
+            this.registerScrollKeyBindings(registry);
             this.registerTerminalKeybindings(registry);
         } else {
             super.registerKeybindings(registry);
@@ -279,6 +323,34 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
             command: KeybindingRegistry.PASSTHROUGH_PSEUDO_COMMAND,
             keybinding: keybinding,
             context: TerminalKeybindingContext.contextId
+        });
+    }
+
+    private registerScrollKeyBindings(registry: KeybindingRegistry) {
+        registry.registerKeybinding({
+            command: TerminalCommands.SCROLL_LINE_UP.id,
+            keybinding: 'ctrl+shift+up',
+            context: TerminalKeybindingContexts.terminalActive
+        });
+        registry.registerKeybinding({
+            command: TerminalCommands.SCROLL_LINE_DOWN.id,
+            keybinding: 'ctrl+shift+down',
+            context: TerminalKeybindingContexts.terminalActive
+        });
+        registry.registerKeybinding({
+            command: TerminalCommands.SCROLL_TO_TOP.id,
+            keybinding: 'home',
+            context: TerminalKeybindingContexts.terminalActive
+        });
+        registry.registerKeybinding({
+            command: TerminalCommands.SCROLL_PAGE_UP.id,
+            keybinding: 'pageUp',
+            context: TerminalKeybindingContexts.terminalActive
+        });
+        registry.registerKeybinding({
+            command: TerminalCommands.SCROLL_PAGE_DOWN.id,
+            keybinding: 'pageDown',
+            context: TerminalKeybindingContexts.terminalActive
         });
     }
 
