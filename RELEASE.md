@@ -10,7 +10,7 @@
 [2.](#step-2) Run `./set_theia_version.sh` script and provide the required data.
 ```
 Do you want to change branch in 'che-theia-init-sources.yml'? [Y/n] <Enter>
-Enter branch name: 7.7.0
+Enter branch name: 7.7.x
 Enter Theia version : 0.14.0 <-- latest released Theia version on https://www.npmjs.com/package/@theia/core
 Enter che-theia image tag [latest]: <Enter>
 Enter Theia branch name [v0.14.0]: <Enter>
@@ -54,7 +54,7 @@ Find a corresponding package on [NPM registry](https://www.npmjs.com/package/@th
 Run `./set_theia_version.sh` script and provide the required data.
 ```
 Do you want to change branch in 'che-theia-init-sources.yml'? [Y/n] <Enter>
-Enter branch name: 7.7.0
+Enter branch name: 7.7.x
 Enter Theia version : 0.15.0-next.15995cd0
 Enter che-theia image tag [latest]: <Enter>
 Enter Theia branch name [v0.15.0-next.15995cd0]: master
