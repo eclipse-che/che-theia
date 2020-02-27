@@ -26,6 +26,7 @@
     "vscode-builtin-lua": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/lua-1.39.1-prel.vsix",
     "vscode-builtin-make": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/make-1.39.1-prel.vsix",
     "vscode-builtin-markdown": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/markdown-1.39.1-prel.vsix",
+    "vscode-builtin-merge-conflicts": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/merge-conflict-1.39.1-prel.vsix",
     "vscode-builtin-npm": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/npm-1.39.1-prel.vsix",
     "vscode-builtin-objective-c": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/objective-c-1.39.1-prel.vsix",
     "vscode-builtin-perl": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/perl-1.39.1-prel.vsix",
@@ -45,5 +46,6 @@
     "vscode-builtin-vb": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/vb-1.39.1-prel.vsix",
     "vscode-builtin-xml": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/xml-1.39.1-prel.vsix",
     "vscode-builtin-yaml": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/yaml-1.39.1-prel.vsix",
+    "vscode-editorconfig": "https://github.com/theia-ide/editorconfig-vscode/releases/download/v0.14.4/EditorConfig-0.14.4.vsix",
     "vscode-git": "https://github.com/che-incubator/vscode-git/releases/download/vscode-git-1.30.1_0.0.1/vscode-git-1.30.1_0.0.1.vsix"
 }
