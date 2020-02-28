@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2018-2019 Red Hat, Inc.
+ * Copyright (c) 2018-2020 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -39,6 +39,8 @@ import { PluginManagerExtImpl } from '@theia/plugin-ext/lib/plugin/plugin-manage
 import { ExecuteCommandContainerAware } from './execute-command-container-aware';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { EnvVariablesServerImpl } from '@theia/core/lib/node/env-variables';
+import { PluginRemoteNodeImpl } from './plugin-remote-node-impl';
+import { MAIN_REMOTE_RPC_CONTEXT } from '../common/plugin-remote-rpc';
 
 interface CheckAliveWS extends ws {
     alive: boolean;
@@ -211,8 +213,16 @@ to pick-up automatically a free port`));
             }
         });
 
+        const pluginRemoteBrowser = webSocketClient.rpc.getProxy(MAIN_REMOTE_RPC_CONTEXT.PLUGIN_REMOTE_BROWSER);
+        const pluginRemoteNodeImplt = new PluginRemoteNodeImpl(pluginRemoteBrowser);
+        webSocketClient.rpc.set(MAIN_REMOTE_RPC_CONTEXT.PLUGIN_REMOTE_NODE, pluginRemoteNodeImplt);
+
         const pluginHostRPC = new PluginHostRPC(webSocketClient.rpc);
         pluginHostRPC.initialize();
+        // tslint:disable-next-line: no-any
+        const pluginManager = (pluginHostRPC as any).pluginManager;
+        pluginRemoteNodeImplt.setPluginManager(pluginManager);
+
         webSocketClient.pluginHostRPC = pluginHostRPC;
 
         // override window.createTerminal to be container aware
@@ -446,7 +456,9 @@ class PluginDeployerHandlerImpl implements PluginDeployerHandler {
             }
             const metadata = this.reader.readMetadata(manifest);
             const dependencies: PluginDependencies = { metadata };
-            dependencies.mapping = this.reader.readDependencies(manifest);
+            // dependencies.mapping = this.reader.readDependencies(manifest);
+            console.log('Ignoring deploy of plug-in dependencies for' + pluginToBeInstalled.id());
+
             return dependencies;
         } catch (e) {
             console.error(`Failed to load plugin dependencies from '${pluginPath}' path`, e);
