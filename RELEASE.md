@@ -92,7 +92,7 @@ RUN git clone -b 'master' --single-branch --depth 1 https://github.com/eclipse-t
 Replace with the following to checkout to the specified commit: 
 ```
 # Clone theia and keep source code in home
-RUN git clone --branch ${GIT_BRANCH_NAME} --single-branch --depth 40 https://github.com/${THEIA_GITHUB_REPO} ${HOME}/theia-source-code \
+RUN git clone --branch ${GIT_BRANCH_NAME} --single-branch https://github.com/${THEIA_GITHUB_REPO} ${HOME}/theia-source-code \
     && cd ${HOME}/theia-source-code && git checkout 15995cd0ed4713ad12c34e5b1a478ba1b2d95a6b
 ```
 
