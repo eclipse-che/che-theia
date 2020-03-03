@@ -9,4 +9,4 @@
 #
 # See: https://sipb.mit.edu/doc/safe-shell/
 
-/bin/bash ./cico_build_master.sh
+echo "Not building Eclipse Che-Theia on nightly as it may publish for now images not passing happy path tests"

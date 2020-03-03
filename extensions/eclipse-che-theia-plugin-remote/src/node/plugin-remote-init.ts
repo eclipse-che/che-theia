@@ -120,7 +120,12 @@ export class PluginRemoteInit {
         // in remote plugin image '/home/theia' doesn't exist
         const originalStart = PluginManagerExtImpl.prototype.$start;
         PluginManagerExtImpl.prototype.$start = async function (params: PluginManagerStartParams): Promise<void> {
-            params.configStorage = { hostLogPath: modifyPathToLocal(params.configStorage.hostLogPath), hostStoragePath: modifyPathToLocal(params.configStorage.hostLogPath) };
+            const { hostLogPath, hostStoragePath, hostGlobalStoragePath } = params.configStorage;
+            params.configStorage = {
+                hostLogPath: modifyPathToLocal(hostLogPath),
+                hostStoragePath: hostStoragePath ? modifyPathToLocal(hostStoragePath) : undefined,
+                hostGlobalStoragePath: modifyPathToLocal(hostGlobalStoragePath)
+            };
             // call original method
             return originalStart.call(this, params);
         };
