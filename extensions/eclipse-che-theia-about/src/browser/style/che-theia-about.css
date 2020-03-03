@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 .che-theia-about-product-header {
-    display: flex;
+    display: block;
     white-space: nowrap;
     margin-block-end: 15px;
     margin-block-start: 5px;
