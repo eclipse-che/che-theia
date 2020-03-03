@@ -144,7 +144,7 @@ export class AboutCheTheiaDialog extends AboutDialog {
     }
 
     // Disable rendering the dialog by React
-    // as we're doing the manipulations directly contentNode.
+    // as we're doing the manipulations directly in contentNode.
     protected render(): React.ReactNode {
         return <div></div>;
     }
