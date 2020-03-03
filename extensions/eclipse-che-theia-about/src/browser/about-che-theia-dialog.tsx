@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
+import * as React from 'react';
 import { AboutDialog, AboutDialogProps, ABOUT_EXTENSIONS_CLASS, ABOUT_CONTENT_CLASS } from '@theia/core/lib/browser/about-dialog';
 import { injectable, inject, postConstruct } from 'inversify';
 import { CheProductService, Product } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
@@ -140,7 +141,12 @@ export class AboutCheTheiaDialog extends AboutDialog {
         date.setAttribute('style', 'margin-block-start: 4px; text-align: right; font-weight: 200; font-size: 10px;');
         date.textContent = `Built ${jsonDetails.date}`;
         messageNode.appendChild(date);
-        this.appendAcceptButton('Ok');
+    }
+
+    // Disable rendering the dialog by React
+    // as we're doing the manipulations directly contentNode.
+    protected render(): React.ReactNode {
+        return <div></div>;
     }
 
 }
