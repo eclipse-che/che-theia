@@ -25,7 +25,7 @@ export class AboutCheTheiaDialog extends AboutDialog {
     protected productInfo: Product;
 
     @inject(CheProductService)
-    private productService: CheProductService;
+    protected productService: CheProductService;
 
     @inject(ThemeService)
     protected readonly themeService: ThemeService;
