@@ -21,6 +21,7 @@ import { MessageService } from '@theia/core/lib/common';
 import { OutputChannelManager, OutputChannel } from '@theia/output/lib/common/output-channel';
 import URI from '@theia/core/lib/common/uri';
 import ReconnectingWebSocket from 'reconnecting-websocket';
+import { IDisposable } from 'xterm';
 export const REMOTE_TERMINAL_TARGET_SCOPE = 'remote-terminal';
 export const REMOTE_TERMINAL_WIDGET_FACTORY_ID = 'remote-terminal';
 export const RemoteTerminalWidgetOptions = Symbol('RemoteTerminalWidgetOptions');
@@ -189,17 +190,18 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
         const sendListener = (data: string) => socket.send(data);
 
+        let onDataDisposeHandler: IDisposable;
         socket.onopen = () => {
             this.term.reset();
             if (this.waitForRemoteConnection) {
                 this.waitForRemoteConnection.resolve(socket);
             }
 
-            this.term.on('data', sendListener);
+            onDataDisposeHandler = this.term.onData(sendListener);
             socket.onmessage = ev => this.write(ev.data);
 
             this.toDispose.push(Disposable.create(() => {
-                this.term.off('data', sendListener);
+                onDataDisposeHandler.dispose();
                 socket.close();
             }));
 
@@ -208,12 +210,16 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         };
 
         socket.onerror = err => {
-            this.term.off('data', sendListener);
+            if (onDataDisposeHandler) {
+                onDataDisposeHandler.dispose();
+            }
             return Promise.resolve();
         };
 
         socket.onclose = code => {
-            this.term.off('data', sendListener);
+            if (onDataDisposeHandler) {
+                onDataDisposeHandler.dispose();
+            }
             return Promise.resolve();
         };
     }

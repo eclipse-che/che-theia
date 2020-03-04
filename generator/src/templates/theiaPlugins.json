@@ -32,6 +32,7 @@
     "vscode-builtin-perl": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/perl-1.39.1-prel.vsix",
     "vscode-builtin-powershell": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/powershell-1.39.1-prel.vsix",
     "vscode-builtin-pug": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/pug-1.39.1-prel.vsix",
+    "vscode-builtin-php": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/php-1.39.1-prel.vsix",
     "vscode-builtin-python": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/python-1.39.1-prel.vsix",
     "vscode-builtin-r": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/r-1.39.1-prel.vsix",
     "vscode-builtin-razor": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/razor-1.39.1-prel.vsix",
