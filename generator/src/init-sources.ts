@@ -110,7 +110,10 @@ export class InitSources {
         const item = {
             'path': '../examples/assembly/compile.tsconfig.json'
         };
-        parsed['references'].push(item);
+        const assemblyTsConfig = (parsed['references'] as Array<{ 'path': string }>).find(reference => { return reference['path'] === item['path']; });
+        if (!assemblyTsConfig) {
+            parsed['references'].push(item);
+        }
 
         // write it back
         const json = JSON.stringify(parsed, undefined, 2);
