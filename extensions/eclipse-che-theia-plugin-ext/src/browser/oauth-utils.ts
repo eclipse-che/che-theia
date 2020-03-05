@@ -33,13 +33,13 @@ export class OauthUtils {
     authenticate(oauthProvider: string, scope?: string[]): Promise<void> {
         return new Promise(async (resolve, reject) => {
             const redirectUrl = window.location.href;
-            let url = `${this.apiUrl}/oauth/authenticate?oauth_provider=${oauthProvider}&userId=${await this.cheApiService.getUserId()}` +
-                `&redirect_after_login=${redirectUrl}`;
+            let url = `${this.apiUrl}/oauth/authenticate?oauth_provider=${oauthProvider}&userId=${await this.cheApiService.getUserId()}`;
             if (scope) {
                 for (const s of scope) {
-                    url = url.concat(`&scope=${s}`);
+                    url += `&scope=${s}`;
                 }
             }
+            url += `&redirect_after_login=${redirectUrl}`;
             const popupWindow = window.open(url, 'popup');
             const popup_close_handler = async () => {
                 if (!popupWindow || popupWindow.closed) {

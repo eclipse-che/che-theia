@@ -55,7 +55,7 @@ export class CheGithubMainImpl implements CheGithubMain {
         const oAuthProvider = 'github';
         this.token = await this.oAuthUtils.getToken(oAuthProvider);
         if (!this.token) {
-            await this.oAuthUtils.authenticate(oAuthProvider);
+            await this.oAuthUtils.authenticate(oAuthProvider, ['write:public_key']);
             this.token = await this.oAuthUtils.getToken(oAuthProvider);
         }
     }
