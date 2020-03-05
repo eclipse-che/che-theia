@@ -49,6 +49,10 @@ declare module '@eclipse-che/plugin' {
         export function getToken(): Promise<string>;
     }
 
+    export namespace openshift {
+        export function getToken(): Promise<string>;
+    }
+
     export namespace ssh {
         export function generate(service: string, name: string): Promise<cheApi.ssh.SshPair>;
 
