@@ -88,7 +88,7 @@ class OpenFactoryLinkDialog extends AbstractDialog<string> {
 
         this.link = document.createElement('a');
         this.link.target = '_blank';
-        this.link.setAttribute('style', 'color: var(--theia-ui-dialog-font-color);');
+        this.link.setAttribute('style', 'color: var(--theia-editorWidget-foreground);');
         message.appendChild(this.link);
 
         this.appendCloseButton();

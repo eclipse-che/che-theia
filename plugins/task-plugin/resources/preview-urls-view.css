@@ -288,7 +288,7 @@
 
 html, body {
     font-family: var(--theia-ui-font-family);
-    background: var(--theia-layout-color0);
+    background: var(--theia-editor-background);
 }
 
 .previews-container {
@@ -300,7 +300,7 @@ html, body {
     left: 50%;
     position: absolute;
     transform: translate(-50%, -50%);
-    color: var(--theia-ui-font-color1);
+    color: var(--theia-descriptionForeground);
     font-size: var(--theia-ui-font-size1);
 }
 
@@ -325,8 +325,8 @@ html, body {
 }
 
 .button {
-    background-color: var(--theia-ui-button-color);
-    color: var(--theia-ui-button-font-color);
+    background-color: var(--theia-button-background);
+    color: var(--theia-button-foreground);
     border: none;
     border-radius: 0px;
     align-self: center;
@@ -342,17 +342,17 @@ html, body {
 .server-label {
     margin-left: 10px;
     margin-right: 10px;
-    color: var(--theia-ui-font-color1);
+    color: var(--theia-descriptionForeground);
     font-size: var(--theia-ui-font-size1);
 }
 
 .task-label {
     margin-left: 10px;
     margin-right: 10px;
-    color: var(--theia-ui-font-color2);
+    color: var(--theia-descriptionForeground);
     font-size: var(--theia-ui-font-size1);
 }
 
 .task-link {
-    color: var(--theia-accent-color1)
+    color: var(--theia-notificationLink-foreground)
 }
