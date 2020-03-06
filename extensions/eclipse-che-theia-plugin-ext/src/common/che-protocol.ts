@@ -61,6 +61,14 @@ export interface CheSshMain {
     $deleteKey(service: string, name: string): Promise<void>;
 }
 
+export interface CheOpenshift {
+    getToken(): Promise<string>;
+}
+
+export interface CheOpenshiftMain {
+    $getToken(): Promise<string>;
+}
+
 export interface CheGithub {
     uploadPublicSshKey(publicKey: string): Promise<void>;
     getToken(): Promise<string>;
@@ -405,6 +413,9 @@ export const PLUGIN_RPC_CONTEXT = {
 
     CHE_GITHUB: <ProxyIdentifier<CheGithub>>createProxyIdentifier<CheGithub>('CheGithub'),
     CHE_GITHUB_MAIN: <ProxyIdentifier<CheGithubMain>>createProxyIdentifier<CheGithubMain>('CheGithubMain'),
+
+    CHE_OPENSHIFT: <ProxyIdentifier<CheOpenshift>>createProxyIdentifier<CheOpenshift>('CheOpenshift'),
+    CHE_OPENSHIFT_MAIN: <ProxyIdentifier<CheOpenshiftMain>>createProxyIdentifier<CheOpenshiftMain>('CheOpenshiftMain'),
 
     CHE_USER: <ProxyIdentifier<CheUser>>createProxyIdentifier<CheUser>('CheUser'),
     CHE_USER_MAIN: <ProxyIdentifier<CheUserMain>>createProxyIdentifier<CheUserMain>('CheUserMain'),
