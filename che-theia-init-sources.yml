@@ -12,6 +12,7 @@ sources:
     - extensions/eclipse-che-theia-about
     - extensions/eclipse-che-theia-preferences-provider-extension
     - extensions/eclipse-che-theia-git-provisioner
+    - extensions/eclipse-che-theia-logging
   plugins:
     - plugins/containers-plugin
     - plugins/workspace-plugin
