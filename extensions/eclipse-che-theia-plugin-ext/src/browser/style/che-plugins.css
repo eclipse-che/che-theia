@@ -191,6 +191,7 @@
 }
 
 .che-plugin-list .che-plugin-version {
+    color: var(--theia-dropdown-listBackground);
     height: 20px;
     background-color: transparent;
     border-color: transparent;
@@ -210,7 +211,7 @@
     right: 4px;
     height: 26px;
     font-size: var(--theia-ui-font-size0);
-    color: var(--theia-descriptionForeground);
+    color: var(--theia-editor-foreground);
     display: block;
     overflow: hidden;
 }
@@ -250,7 +251,8 @@
     box-sizing: border-box;
     padding-top: 1px;
     padding-bottom: 1px;
-    opacity: var(--theia-mod-disabled-opacity);
+    color: var(--theia-editor-foreground);
+    background-color: var(--theia-secondaryButton-disabledBackground);
 }
 
 /*-----------------------------------------------------------------------------
