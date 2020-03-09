@@ -69,7 +69,7 @@ export class ChePluginViewToolbar extends React.Component<ToolbarProps, ToolbarS
             />;
         } else {
             return <input
-                className='search'
+                className='theia-input search'
                 type='text'
                 value={value}
                 onChange={this.onInputChanged}

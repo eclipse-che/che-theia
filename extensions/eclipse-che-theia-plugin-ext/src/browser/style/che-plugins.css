@@ -300,7 +300,8 @@
 }
 
 .che-plugin-list .che-plugin-action-remove:hover {
-    background-color: var(--theia-success-color1);
+    color: var(--theia-secondaryButton-foreground);
+    background-color: var(--theia-secondaryButton-hoverBackground);
 }
 
 .che-plugin-list .che-plugin-action-remove:active {
