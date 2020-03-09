@@ -14,7 +14,7 @@ import { ApplicationShell, KeybindingRegistry, Key, KeyCode, KeyModifier, QuickO
 import { TerminalQuickOpenService } from './terminal-quick-open';
 import { TerminalFrontendContribution, TerminalMenus, TerminalCommands } from '@theia/terminal/lib/browser/terminal-frontend-contribution';
 import { TerminalApiEndPointProvider } from '../server-definition/terminal-proxy-creator';
-import { BrowserMainMenuFactory } from '@theia/core/lib/browser/menu/browser-menu-plugin';
+import { BrowserMainMenuFactory } from '@theia/core/lib/browser/menu/browser-main-menu-factory';
 import { MenuBar as MenuBarWidget } from '@phosphor/widgets';
 import { TerminalKeybindingContext } from './keybinding-context';
 import { CHEWorkspaceService } from '../../common/workspace-service';
