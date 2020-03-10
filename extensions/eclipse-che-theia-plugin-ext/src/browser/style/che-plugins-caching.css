@@ -39,5 +39,5 @@
 }
 
 .che-plugins-caching-progress-status b {
-    color: var(--theia-success-color2);
+    color: var(--theia-badge-foreground);
 }

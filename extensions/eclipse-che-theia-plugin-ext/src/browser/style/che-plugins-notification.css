@@ -32,16 +32,16 @@
     margin-left: 1px;
     overflow: hidden;
     transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, opacity 500ms ease-in-out 0ms;
-    background-color: var(--theia-success-color0);
+    background-color: var(--theia-successBackground);
     color: #FFFFFF;
 }
 
 .che-plugins-notification .notification-button-panel:hover {
-    background-color: var(--theia-success-color1);
+    background-color: var(--theia-button-hover-background);
 }
 
 .che-plugins-notification .notification-button-panel:active {
-    box-shadow: 0px 0px 2px 0px var(--theia-success-color2);
+    box-shadow: 0px 0px 2px 0px var(--theia-button-background);
     outline: none;
 }
 
