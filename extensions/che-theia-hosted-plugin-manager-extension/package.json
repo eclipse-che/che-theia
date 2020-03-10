@@ -3,15 +3,15 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "0.0.1",
+  "version": "7.10.0",
   "files": [
     "lib",
     "node"
   ],
   "dependencies": {
-    "@theia/core": "next",
-    "@theia/plugin-dev": "next",
-    "@theia/plugin-ext": "next",
+    "@theia/core": "0.17.0-next.d0e00c5d",
+    "@theia/plugin-dev": "0.17.0-next.d0e00c5d",
+    "@theia/plugin-ext": "0.17.0-next.d0e00c5d",
     "@eclipse-che/workspace-client": "latest",
     "@eclipse-che/api": "latest"
   },
