@@ -10,7 +10,7 @@
         "src"
     ],
     "dependencies": {
-        "moment": "2.24.0",
+        "moment": "^2.21.0",
         "@theia/core": "next"
     },
     "license": "EPL-2.0",
@@ -29,3 +29,4 @@
         "watch": "tsc -w"
       }
 }
+
