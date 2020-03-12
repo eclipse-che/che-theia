@@ -1,0 +1,26 @@
+diff --git a/packages/plugin-ext/src/main/browser/webview/pre/main.js b/packages/plugin-ext/src/main/browser/webview/pre/main.js
+index 383d400a3..5096b6cf2 100644
+--- a/packages/plugin-ext/src/main/browser/webview/pre/main.js
++++ b/packages/plugin-ext/src/main/browser/webview/pre/main.js
+@@ -271,6 +271,21 @@
+ 		 * @param {KeyboardEvent} e
+ 		 */
+         const handleInnerKeydown = (e) => {
++            // F1
++            if (e.keyCode === 112) {
++                e.preventDefault();
++            }
++
++            // Prevent handling CtrlCmd+O,P,S
++            if (e.ctrlKey || e.metaKey) {
++                switch (e.keyCode) {
++                    case 79: // "O"
++                    case 80: // "P"
++                    case 83: // "S"
++                        e.preventDefault();
++                }
++            }
++
+             host.postMessage('did-keydown', {
+                 key: e.key,
+                 keyCode: e.keyCode,
