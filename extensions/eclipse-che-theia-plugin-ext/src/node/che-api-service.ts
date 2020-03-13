@@ -295,6 +295,15 @@ export class CheApiServiceImpl implements CheApiService {
         }
     }
 
+    async getOAuthProviders(): Promise<string[]> {
+        const cheApiClient = await this.getCheApiClient();
+        try {
+            return await cheApiClient.getOAuthProviders();
+        } catch (e) {
+            return [];
+        }
+    }
+
     private getWorkspaceTelemetryClient(): TelemetryClient | undefined {
 
         if (!this.telemetryClient) {

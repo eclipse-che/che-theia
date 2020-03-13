@@ -26,6 +26,7 @@ import { CheUserImpl } from './che-user';
 import { CheVariablesImpl } from './che-variables';
 import { CheWorkspaceImpl } from './che-workspace';
 import { CheOpenshiftImpl } from './che-openshift';
+import { CheOauthImpl } from './che-oauth';
 
 export interface CheApiFactory {
     (plugin: Plugin): typeof che;
@@ -40,6 +41,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
     const cheSshImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_SSH, new CheSshImpl(rpc));
     const cheGithubImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_GITHUB, new CheGithubImpl(rpc));
     const cheOpenshiftImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_OPENSHIFT, new CheOpenshiftImpl(rpc));
+    const cheOauthImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_OAUTH, new CheOauthImpl(rpc));
     const cheUserImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_USER, new CheUserImpl(rpc));
     rpc.set(PLUGIN_RPC_CONTEXT.CHE_SIDERCAR_CONTENT_READER, new CheSideCarContentReaderImpl(rpc));
 
@@ -137,6 +139,15 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             }
         };
 
+        const oAuth: typeof che.oAuth = {
+            getProviders(): Promise<string[]> {
+                return cheOauthImpl.getProviders();
+            },
+            isAuthenticated(provider: string): Promise<boolean> {
+                return cheOauthImpl.isAuthenticated(provider);
+            }
+        };
+
         const ssh: typeof che.ssh = {
             deleteKey(service: string, name: string): Promise<void> {
                 return cheSshImpl.delete(service, name);
@@ -221,6 +232,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             product,
             github,
             openshift,
+            oAuth,
             telemetry,
             TaskStatus
         };
