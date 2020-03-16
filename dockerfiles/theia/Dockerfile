@@ -95,7 +95,7 @@ RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
     cd plugins && ./foreach_yarn
 
 # Add yeoman generator & vscode git plug-ins
-COPY asset-untagged-c11870b25a17d20bb7a7-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/production/plugins/theia_yeoman_plugin.theia
+COPY asset-untagged-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/production/plugins/theia_yeoman_plugin.theia
 
 # change permissions
 RUN find production -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt
