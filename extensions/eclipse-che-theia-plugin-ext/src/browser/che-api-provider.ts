@@ -24,6 +24,7 @@ import { CheProductMainImpl } from './che-product-main';
 import { CheSideCarContentReaderMainImpl } from './che-sidecar-content-reader-main';
 import { CheGithubMainImpl } from './che-github-main';
 import { CheOpenshiftMainImpl } from './che-openshift-main';
+import { CheOauthMainImpl } from './che-oauth-main';
 
 @injectable()
 export class CheApiProvider implements MainPluginApiProvider {
@@ -38,6 +39,7 @@ export class CheApiProvider implements MainPluginApiProvider {
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_SSH_MAIN, new CheSshMainImpl(container));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_GITHUB_MAIN, new CheGithubMainImpl(container));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_OPENSHIFT_MAIN, new CheOpenshiftMainImpl(container));
+        rpc.set(PLUGIN_RPC_CONTEXT.CHE_OAUTH_MAIN, new CheOauthMainImpl(container));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_USER_MAIN, new CheUserMainImpl(container));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_PRODUCT_MAIN, new CheProductMainImpl(container, rpc));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_SIDERCAR_CONTENT_READER_MAIN, new CheSideCarContentReaderMainImpl(container, rpc));

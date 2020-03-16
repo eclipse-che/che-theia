@@ -79,6 +79,16 @@ export interface CheGithubMain {
     $getToken(): Promise<string>;
 }
 
+export interface CheOauth {
+    getProviders(): Promise<string[]>;
+    isAuthenticated(provider: string): Promise<boolean>;
+}
+
+export interface CheOauthMain {
+    $getProviders(): Promise<string[]>;
+    $isAuthenticated(provider: string): Promise<boolean>;
+}
+
 /**
  * Telemetry plugin API
  */
@@ -414,6 +424,9 @@ export const PLUGIN_RPC_CONTEXT = {
     CHE_GITHUB: <ProxyIdentifier<CheGithub>>createProxyIdentifier<CheGithub>('CheGithub'),
     CHE_GITHUB_MAIN: <ProxyIdentifier<CheGithubMain>>createProxyIdentifier<CheGithubMain>('CheGithubMain'),
 
+    CHE_OAUTH: <ProxyIdentifier<CheOauth>>createProxyIdentifier<CheOauth>('CheOauth'),
+    CHE_OAUTH_MAIN: <ProxyIdentifier<CheOauthMain>>createProxyIdentifier<CheOauthMain>('CheOauthMain'),
+
     CHE_OPENSHIFT: <ProxyIdentifier<CheOpenshift>>createProxyIdentifier<CheOpenshift>('CheOpenshift'),
     CHE_OPENSHIFT_MAIN: <ProxyIdentifier<CheOpenshiftMain>>createProxyIdentifier<CheOpenshiftMain>('CheOpenshiftMain'),
 
@@ -464,6 +477,7 @@ export interface CheApiService {
     submitTelemetryEvent(id: string, ownerId: string, ip: string, agent: string, resolution: string, properties: [string, string][]): Promise<void>;
     submitTelemetryActivity(): Promise<void>;
     getOAuthToken(oAuthProvider: string): Promise<string | undefined>;
+    getOAuthProviders(): Promise<string[]>;
 }
 
 export const CHE_TASK_SERVICE_PATH = '/che-task-service';

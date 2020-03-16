@@ -14,6 +14,7 @@ import { CheApiService } from '../common/che-protocol';
 export class OauthUtils {
     private readonly envVariableServer: EnvVariablesServer;
     private apiUrl: string;
+    private machineToken: string | undefined;
     private readonly cheApiService: CheApiService;
 
     constructor(container: interfaces.Container) {
@@ -24,10 +25,24 @@ export class OauthUtils {
                 this.apiUrl = variable.value;
             }
         });
+        this.envVariableServer.getValue('CHE_MACHINE_TOKEN').then(variable => {
+            if (variable && variable.value) {
+                this.machineToken = variable.value;
+            }
+        });
     }
 
     async getToken(oAuthProvider: string): Promise<string | undefined> {
         return await this.cheApiService.getOAuthToken(oAuthProvider);
+    }
+
+    async getProviders(): Promise<string[]> {
+        return await this.cheApiService.getOAuthProviders();
+    }
+
+    async isAuthenticated(provider: string): Promise<boolean> {
+        const token = await this.cheApiService.getOAuthToken(provider);
+        return token !== null;
     }
 
     authenticate(oauthProvider: string, scope?: string[]): Promise<void> {
@@ -39,6 +54,9 @@ export class OauthUtils {
                     url += `&scope=${s}`;
                 }
             }
+            if (this.machineToken) {
+                url += `&token=${this.machineToken}`;
+            }
             url += `&redirect_after_login=${redirectUrl}`;
             const popupWindow = window.open(url, 'popup');
             const popup_close_handler = async () => {
@@ -46,7 +64,7 @@ export class OauthUtils {
                     if (popupCloseHandlerIntervalId) {
                         window.clearInterval(popupCloseHandlerIntervalId);
                     }
-                    reject(new Error('Github authentication failed!'));
+                    reject(new Error('Authentication failed!'));
                 } else {
                     try {
                         if (redirectUrl === popupWindow.location.href) {
