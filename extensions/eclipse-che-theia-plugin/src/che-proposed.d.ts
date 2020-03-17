@@ -53,6 +53,11 @@ declare module '@eclipse-che/plugin' {
         export function getToken(): Promise<string>;
     }
 
+    export namespace oAuth {
+        export function getProviders(): Promise<string[]>;
+        export function isAuthenticated(provider: string): Promise<boolean>;
+    }
+
     export namespace ssh {
         export function generate(service: string, name: string): Promise<cheApi.ssh.SshPair>;
 

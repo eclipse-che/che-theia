@@ -91,7 +91,7 @@ export class AboutCheTheiaDialog extends AboutDialog {
             fontWeight: 400
         };
         const linkStyle: React.CSSProperties = {
-            color: 'var(--theia-ui-dialog-font-color)'
+            color: 'var(--theia-editorWidget-foreground)'
         };
         return <h4 style={style}>
             Che-Theia@

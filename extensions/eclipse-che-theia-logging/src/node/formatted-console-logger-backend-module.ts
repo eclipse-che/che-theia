@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (C) 2019 Red Hat, Inc. and others.
+ * Copyright (C) 2020 Red Hat, Inc. and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,20 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-.che-theia-about-product-header {
-    display: block;
-    white-space: nowrap;
-    margin-block-end: 15px;
-    margin-block-start: 5px;
-}
+import { ContainerModule } from 'inversify';
+import { ILoggerServer } from '@theia/core/lib/common/logger-protocol';
+import { FormattedConsoleLoggerServer } from './formatted-console-logger-server';
 
-.che-theia-about-product-logo {
-    display: flex;
-    white-space: nowrap;
-}
-
-.che-theia-about-product-logo > img {
-    max-height: 100px;
-    margin-right: 10px;
-    height: 80px;
-}
+export default new ContainerModule((bind, unbind, isBound, rebind) => {
+    rebind(ILoggerServer).to(FormattedConsoleLoggerServer).inSingletonScope();
+});
