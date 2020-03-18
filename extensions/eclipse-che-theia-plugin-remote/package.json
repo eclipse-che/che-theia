@@ -1,7 +1,7 @@
 {
   "name": "@eclipse-che/theia-remote",
   "author": "Florent Benoit",
-  "version": "7.9.1",
+  "version": "7.9.2",
   "license": "EPL-2.0",
   "files": [
     "lib",
