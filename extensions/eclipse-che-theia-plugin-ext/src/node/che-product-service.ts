@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
+import * as mime from 'mime';
 import { injectable } from 'inversify';
 import { CheProductService, Product } from '../common/che-protocol';
 import * as path from 'path';
@@ -51,10 +52,10 @@ export class CheProductServiceImpl implements CheProductService {
          * Return defaults
          */
         return {
-            icon: svgAsBase64(path.join(__dirname, '/../../src/resource/che-logo.svg')),
+            icon: asBase64(path.join(__dirname, '/../../src/resource/che-logo.svg')),
             logo: {
-                dark: svgAsBase64(path.join(__dirname, '/../../src/resource/che-logo-dark.svg')),
-                light: svgAsBase64(path.join(__dirname, '/../../src/resource/che-logo-light.svg'))
+                dark: asBase64(path.join(__dirname, '/../../src/resource/che-logo-dark.svg')),
+                light: asBase64(path.join(__dirname, '/../../src/resource/che-logo-light.svg'))
             },
             name: 'Eclipse Che',
             welcome: {
@@ -84,17 +85,18 @@ export class CheProductServiceImpl implements CheProductService {
         }
         if (resource.startsWith('/')) {
             // absolute path
-            return svgAsBase64(resource);
+            return asBase64(resource);
         }
         // relative path
         const productJsonDir = path.dirname(productJsonPath);
-        return svgAsBase64(path.join(productJsonDir, resource));
+        return asBase64(path.join(productJsonDir, resource));
     }
 }
 
-function svgAsBase64(filePath: string): string {
+function asBase64(filePath: string): string {
+    const mimeType = mime.getType(filePath) || '';
     const content = fs.readFileSync(filePath);
-    const header = 'data:image/svg+xml;base64,';
+    const header = `data:${mimeType};base64,`;
     const dataUrl = header + content.toString('base64');
     return dataUrl;
 }
