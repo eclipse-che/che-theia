@@ -17,6 +17,7 @@ import * as fileuri from './file-uri';
 import { execute } from './exec';
 import * as git from './git';
 
+const SS_CRT_PATH = '/tmp/che/secret/ca.crt';
 const CHE_TASK_TYPE = 'che';
 
 /**
@@ -203,8 +204,12 @@ export class TheiaImportZipCommand implements TheiaImportCommand {
         const importZip = async (progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken): Promise<void> => {
             try {
                 // download
-                const wgetArgs = [this.locationURI!, '-O', this.zipfilePath];
-                await execute('wget', wgetArgs);
+                const curlArgs = ['-sSL', '--output', this.zipfilePath];
+                if (fs.existsSync(SS_CRT_PATH)) {
+                    curlArgs.push('-k');
+                }
+                curlArgs.push(this.locationURI!);
+                await execute('curl', curlArgs);
 
                 // expand
                 fs.mkdirSync(this.projectDir);
