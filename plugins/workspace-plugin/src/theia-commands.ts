@@ -204,11 +204,12 @@ export class TheiaImportZipCommand implements TheiaImportCommand {
         const importZip = async (progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken): Promise<void> => {
             try {
                 // download
-                const wgetArgs = [this.locationURI!, '-O', this.zipfilePath];
+                const curlArgs = ['-L', '--output', this.zipfilePath];
                 if (fs.existsSync(SS_CRT_PATH)) {
-                    wgetArgs.push('--no-check-certificate');
+                    curlArgs.push('-k');
                 }
-                await execute('wget', wgetArgs);
+                curlArgs.push(this.locationURI!);
+                await execute('curl', curlArgs);
 
                 // expand
                 fs.mkdirSync(this.projectDir);
