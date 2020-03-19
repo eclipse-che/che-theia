@@ -12,7 +12,7 @@ import 'reflect-metadata';
 import * as http from 'http';
 import * as theia from '@theia/plugin';
 import * as ws from 'ws';
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as os from 'os';
 import { logger } from '@theia/core';
@@ -385,6 +385,8 @@ class PluginDeployerHandlerImpl implements PluginDeployerHandler {
     // announced ?
     private announced = false;
 
+    private readonly deployedLocations = new Map<string, Set<string>>();
+
     /**
      * Managed plugin metadata backend entries.
      */
@@ -460,18 +462,40 @@ class PluginDeployerHandlerImpl implements PluginDeployerHandler {
             }
 
             const metadata = this.reader.readMetadata(manifest);
+
+            const deployedLocations = this.deployedLocations.get(metadata.model.id) || new Set<string>();
+            deployedLocations.add(entry.rootPath);
+            this.deployedLocations.set(metadata.model.id, deployedLocations);
+
             if (this.deployedBackendPlugins.has(metadata.model.id)) {
                 return;
             }
 
-            const deployed: DeployedPlugin = { metadata };
+            const { type } = entry;
+            const deployed: DeployedPlugin = { metadata, type };
             deployed.contributes = this.reader.readContribution(manifest);
             this.deployedBackendPlugins.set(metadata.model.id, deployed);
-            currentBackendDeployedPlugins.push(deployed);
             this.logger.info(`Deploying ${entryPoint} plugin "${metadata.model.name}@${metadata.model.version}" from "${metadata.model.entryPoint[entryPoint] || pluginPath}"`);
         } catch (e) {
             console.error(`Failed to deploy ${entryPoint} plugin from '${pluginPath}' path`, e);
         }
+    }
+
+    async undeployPlugin(pluginId: string): Promise<boolean> {
+        this.deployedBackendPlugins.delete(pluginId);
+        const deployedLocations = this.deployedLocations.get(pluginId);
+        if (!deployedLocations) {
+            return false;
+        }
+        this.deployedLocations.delete(pluginId);
+        for (const location of deployedLocations) {
+            try {
+                await fs.remove(location);
+            } catch (e) {
+                console.error(`[${pluginId}]: failed to undeploy from "${location}", reason`, e);
+            }
+        }
+        return true;
     }
 
 }
