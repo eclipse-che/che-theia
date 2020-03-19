@@ -204,7 +204,7 @@ export class TheiaImportZipCommand implements TheiaImportCommand {
         const importZip = async (progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken): Promise<void> => {
             try {
                 // download
-                const curlArgs = ['-L', '--output', this.zipfilePath];
+                const curlArgs = ['-sSL', '--output', this.zipfilePath];
                 if (fs.existsSync(SS_CRT_PATH)) {
                     curlArgs.push('-k');
                 }
