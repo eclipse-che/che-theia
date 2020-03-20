@@ -157,12 +157,13 @@
   integrity sha512-4CgKEGCBOIOBGBNoH0dhN8TkP1Sj39fG4LGCXYw3JB7nQucVooJyq7AhIV+w7L4iZ+ln+y2KEfZugCmOIuzIeQ==
 
 "@eclipse-che/workspace-client@latest":
-  version "0.0.1-1579077578"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-client/-/workspace-client-0.0.1-1579077578.tgz#0fc322b536eb46bf271effc3f00a0435038b5966"
-  integrity sha512-j3hPUaMcld6cw0wuqQd/EjjUAkkq7J5iri8MCJYJf2eSylLnjYRabNfnfVS4REgj3b02VXLx3kuDGmNPLacSEw==
+  version "0.0.1-1584656304"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-client/-/workspace-client-0.0.1-1584656304.tgz#01c8668bed6d207bcadcef1464df13c51c83791e"
+  integrity sha512-QW/5UZukOY2yx5W5VKSxgHVE2+u901frZ5oGJkxiqoHUezsFauuc1lx+Dit5locJuCaV0Bnl1q1/99sq8luEfw==
   dependencies:
     "@eclipse-che/api" "^7.0.0-beta-4.0"
     axios "0.19.0"
+    tunnel "0.0.6"
     websocket "1.0.23"
 
 "@eclipse-che/workspace-telemetry-client@latest":
@@ -12003,6 +12004,11 @@ tunnel-agent@^0.6.0:
   integrity sha1-J6XeoGs2sEoKmWZ3SykIaPD8QP0=
   dependencies:
     safe-buffer "^5.0.1"
+
+tunnel@0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/tunnel/-/tunnel-0.0.6.tgz#72f1314b34a5b192db012324df2cc587ca47f92c"
+  integrity sha512-1h/Lnq9yajKY2PEbBadPXj3VxsDDu844OnaAo52UVmIzIvwwtBPIuNvkjuzBlTWpfJyUbG3ez0KSBibQkj4ojg==
 
 tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   version "0.14.5"
