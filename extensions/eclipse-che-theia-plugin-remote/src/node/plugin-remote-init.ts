@@ -37,6 +37,8 @@ import { DocumentContainerAware } from './document-container-aware';
 import { LanguagesContainerAware } from './languages-container-aware';
 import { PluginManagerExtImpl } from '@theia/plugin-ext/lib/plugin/plugin-manager';
 import { ExecuteCommandContainerAware } from './execute-command-container-aware';
+import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
+import { EnvVariablesServerImpl } from '@theia/core/lib/node/env-variables';
 
 interface CheckAliveWS extends ws {
     alive: boolean;
@@ -100,6 +102,8 @@ export class PluginRemoteInit {
 
         // Bind VsCode system
         inversifyContainer.load(pluginVscodeBackendModule);
+
+        inversifyContainer.bind(EnvVariablesServer).to(EnvVariablesServerImpl).inSingletonScope();
 
         // override handler to our own class
         inversifyContainer.bind(PluginDeployerHandlerImpl).toSelf().inSingletonScope();
@@ -475,6 +479,7 @@ class PluginDeployerHandlerImpl implements PluginDeployerHandler {
             const deployed: DeployedPlugin = { metadata, type };
             deployed.contributes = this.reader.readContribution(manifest);
             this.deployedBackendPlugins.set(metadata.model.id, deployed);
+            currentBackendDeployedPlugins.push(deployed);
             this.logger.info(`Deploying ${entryPoint} plugin "${metadata.model.name}@${metadata.model.version}" from "${metadata.model.entryPoint[entryPoint] || pluginPath}"`);
         } catch (e) {
             console.error(`Failed to deploy ${entryPoint} plugin from '${pluginPath}' path`, e);
