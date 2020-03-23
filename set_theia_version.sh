@@ -87,7 +87,7 @@ updateVersion() {
 
 # first is path to dir which contains 'package.json', second is che-Theia version
 updateChePluginDependencies() {
-    sed -i -r -e '/@eclipse-che\/api|@eclipse-che\/workspace-client/!s/("@eclipse-che\/..*": )(".*")/\1"'$2'"/' ./$1/package.json
+    sed -i -r -e '/@eclipse-che\/api|@eclipse-che\/workspace-client|@eclipse-che\/workspace-telemetry-client/!s/("@eclipse-che\/..*": )(".*")/\1"'$2'"/' ./$1/package.json
 }
 
 
