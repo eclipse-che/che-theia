@@ -72,9 +72,9 @@ The che-plugin of this editor is defined in the plugin registry https://github.c
 [dockerfiles/theia](./dockerfiles/theia) folder contains the container image sources of `eclipse/che-theia`:
 - Using a Docker multistage build and [dockerfiles/theia-dev](./dockerfiles/theia-dev) as builder.
 - Cloning [Theia](https://github.com/eclipse-theia/theia)
-- Using `che:theia init` command to decorate Theia with Che-theia plugins and extensions. All plugins and extensions are defined in [che-theia-init-sources.yml](./che-theia-init-sources.yml)
+- Using `che-theia init` command to decorate Theia with Che-theia plugins and extensions. All plugins and extensions are defined in [che-theia-init-sources.yml](./che-theia-init-sources.yml)
 - Using `yarn` to build theia + che-theia extensions + che-theia plugins
-- Assembling everything and using `che:theia production` to make the che-theia webapp.
+- Assembling everything and using `che-theia production` to make the che-theia webapp.
 - Copying the che-theia webapp into the runtime container and creating the Che-theia image.
 
 # Contributing

@@ -61,7 +61,7 @@ components:
         value: /tmp
 
 commands:
-  - name: '1. Init che:theia'
+  - name: '1. Init che-theia'
     actions:
       - workdir: /projects
         type: exec
@@ -72,7 +72,7 @@ commands:
             rsync -rtv /projects/theia/ $BUILD_PATH/theia/; \
             rsync -rtv /projects/che-theia/ $BUILD_PATH/theia/che/che-theia/; \
             cd $BUILD_PATH/theia; \
-            che:theia init --alias https://github.com/eclipse/che-theia=$BUILD_PATH/theia/che/che-theia; \
+            che-theia init --alias https://github.com/eclipse/che-theia=$BUILD_PATH/theia/che/che-theia; \
             echo -e '\e[32mDone\e[0m'; \
           else \
             echo 'Che-Theia is already initialized.'; \
@@ -91,11 +91,11 @@ commands:
             echo -e '\e[32mDone\e[0m'; \
           else \
             echo 'Che-Theia is not initialized.'; \
-            echo -e 'You need to run \e[32m1. Init che:theia\e[0m command the first.'; \
+            echo -e 'You need to run \e[32m1. Init che-theia\e[0m command the first.'; \
           fi
         component: che-dev
 
-  - name: '3. Build che:theia'
+  - name: '3. Build che-theia'
     actions:
       - workdir: /projects
         type: exec
@@ -107,7 +107,7 @@ commands:
             echo -e '\e[32mDone\e[0m'; \
           else \
             echo 'Che-Theia is not initialized.'; \
-            echo -e 'You need to run \e[32m1. Init che:theia\e[0m command the first.'; \
+            echo -e 'You need to run \e[32m1. Init che-theia\e[0m command the first.'; \
           fi
         component: che-dev
 
@@ -140,6 +140,6 @@ commands:
             echo -e '\e[32mDone\e[0m'; \
           else \
             echo 'Che-Theia is not build.'; \
-            echo -e 'You need to initialize Che-Theia by \e[32m1. Init che:theia\e[0m command and then build by \e[32m3. Build che:theia\e[0m.'; \
+            echo -e 'You need to initialize Che-Theia by \e[32m1. Init che-theia\e[0m command and then build by \e[32m3. Build che-theia\e[0m.'; \
           fi
         component: che-dev
