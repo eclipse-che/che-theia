@@ -98,7 +98,10 @@ RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
 COPY asset-untagged-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/production/plugins/theia_yeoman_plugin.theia
 
 # change permissions
-RUN find production -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt
+RUN find production -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt && \
+    # Add missing permissions on shell scripts of plug-ins
+    find /home/theia-dev/theia-source-code/production/plugins -name "*.sh" | xargs chmod +x
+
 
 
 ###
