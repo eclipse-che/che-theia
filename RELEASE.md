@@ -108,3 +108,4 @@ RUN git clone --branch ${GIT_BRANCH_NAME} --single-branch https://github.com/${T
     && cd ${HOME}/theia-source-code && git checkout 15995cd0ed4713ad12c34e5b1a478ba1b2d95a6b \
     && cd ${HOME} && tar zcf ${HOME}/theia-source-code.tgz theia-source-code
 ```
+
