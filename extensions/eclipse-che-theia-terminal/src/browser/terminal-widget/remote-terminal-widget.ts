@@ -61,7 +61,6 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     @inject(OutputChannelManager)
     protected readonly outputChannelManager: OutputChannelManager;
 
-    protected terminalId: number = -1;
     private isOpen: boolean = false;
     protected channel: OutputChannel;
 
@@ -131,10 +130,10 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         }
 
         try {
-            this.terminalId = typeof id !== 'number' ? await this.createTerminal() : await this.attachTerminal(id);
+            this._terminalId = typeof id !== 'number' ? await this.createTerminal() : await this.attachTerminal(id);
         } catch (error) {
             if (IBaseTerminalServer.validateId(id)) {
-                this.terminalId = id!;
+                this._terminalId = id!;
                 this.onDidOpenEmitter.fire(undefined);
                 return this.terminalId;
             }
