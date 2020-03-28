@@ -20,7 +20,7 @@ import { Logger } from './logger';
  */
 export class Init {
     public static readonly GET_PACKAGE_WITH_VERSION_CMD = 'yarn --json --non-interactive --no-progress list --pattern=';
-    public static readonly MONACO_CORE_PKG = '@typefox/monaco-editor-core';
+    public static readonly MONACO_CORE_PKG = '@theia/monaco-editor-core';
     public static readonly MONACO_HTML_CONTRIB_PKG = 'monaco-html';
     public static readonly MONACO_CSS_CONTRIB_PKG = 'monaco-css';
 
