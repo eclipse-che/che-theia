@@ -32,7 +32,7 @@ monaco-css
 react-dom
 font-awesome
 monaco-html
-@typefox/monaco-editor-core
+@theia/monaco-editor-core
 @theia/terminal/node_modules/xterm/dist/xterm.js
 
 # MD files

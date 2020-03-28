@@ -40,7 +40,7 @@ export class Production {
         'react-dom',
         'font-awesome',
         'monaco-html',
-        '@typefox/monaco-editor-core'];
+        '@theia/monaco-editor-core'];
 
     private dependencies: string[] = [];
     private toCopyFiles: string[] = [];
