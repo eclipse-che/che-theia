@@ -432,6 +432,7 @@ export interface CheApiService {
     findUniqueServerByAttribute(attributeName: string, attributeValue: string): Promise<cheApi.workspace.Server>;
 
     updateWorkspace(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<cheApi.workspace.Workspace>;
+    updateWorkspaceActivity(): Promise<void>;
     stop(): Promise<void>;
 
     getFactoryById(factoryId: string): Promise<cheApi.factory.Factory>;

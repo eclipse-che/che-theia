@@ -118,6 +118,16 @@ export class CheApiServiceImpl implements CheApiService {
         }
     }
 
+    async updateWorkspaceActivity(): Promise<void> {
+        try {
+            const cheApiClient = await this.getCheApiClient();
+            return cheApiClient.updateActivity(this.getWorkspaceIdFromEnv());
+        } catch (e) {
+            console.error(e);
+            throw new Error(e);
+        }
+    }
+
     async stop(): Promise<void> {
         const workspaceId = process.env.CHE_WORKSPACE_ID;
         if (!workspaceId) {
