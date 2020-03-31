@@ -87,8 +87,13 @@ export class CheCdnSupport {
                     result = withCDN;
                 }
             };
-            request.open('HEAD', withCDN, false);
-            request.send();
+            try {
+                request.open('HEAD', withCDN, false);
+                request.send();
+            } catch (err) {
+                console.log(`Error trying to access the CDN artifact '${withCDN}' : ${err}`);
+                this.noCDN = true;
+            }
         }
         return result;
     }
