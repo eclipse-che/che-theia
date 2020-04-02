@@ -16,7 +16,7 @@ export class CheOpenshiftMainImpl implements CheOpenshiftMain {
     private readonly oAuthUtils: OauthUtils;
 
     constructor(container: interfaces.Container) {
-        this.oAuthUtils = new OauthUtils(container);
+        this.oAuthUtils = container.get(OauthUtils);
     }
     async $getToken(): Promise<string> {
         const oAuthProvider = 'openshift';

@@ -46,6 +46,7 @@ import { MiniBrowserOpenHandler } from '@theia/mini-browser/lib/browser/mini-bro
 import { WebviewEnvironment } from '@theia/plugin-ext/lib/main/browser/webview/webview-environment';
 import { CheWebviewEnvironment } from './che-webview-environment';
 import { TaskStatusHandler } from './task-status-handler';
+import { OauthUtils } from './oauth-utils';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(CheApiProvider).toSelf().inSingletonScope();
@@ -104,4 +105,5 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
     rebind(MiniBrowserOpenHandler).to(CheMiniBrowserOpenHandler).inSingletonScope();
 
     bind(TaskStatusHandler).toSelf().inSingletonScope();
+    bind(OauthUtils).toSelf().inSingletonScope();
 });

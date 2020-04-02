@@ -16,7 +16,7 @@ export class CheOauthMainImpl implements CheOauthMain {
     private readonly oAuthUtils: OauthUtils;
 
     constructor(container: interfaces.Container) {
-        this.oAuthUtils = new OauthUtils(container);
+        this.oAuthUtils = container.get(OauthUtils);
     }
 
     $getProviders(): Promise<string[]> {

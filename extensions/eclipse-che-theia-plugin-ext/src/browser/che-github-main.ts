@@ -19,7 +19,7 @@ export class CheGithubMainImpl implements CheGithubMain {
     private readonly oAuthUtils: OauthUtils;
 
     constructor(container: interfaces.Container) {
-        this.oAuthUtils = new OauthUtils(container);
+        this.oAuthUtils = container.get(OauthUtils);
     }
 
     async $uploadPublicSshKey(publicKey: string): Promise<void> {
