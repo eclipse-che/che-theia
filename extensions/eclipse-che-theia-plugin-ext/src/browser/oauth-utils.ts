@@ -19,10 +19,9 @@ export class OauthUtils {
     private machineToken: string | undefined;
     private oAuthPopup: Window | undefined;
     private userToken: string | undefined;
-    private isMultiUser: boolean;
     private readonly event: Event<void>;
     constructor(@inject(EnvVariablesServer) private readonly envVariableServer: EnvVariablesServer,
-                @inject(CheApiService) private readonly cheApiService: CheApiService) {
+        @inject(CheApiService) private readonly cheApiService: CheApiService) {
         const eventEmitter = new Emitter<void>();
         this.event = eventEmitter.event;
         this.envVariableServer.getValue('CHE_API').then(variable => {
@@ -33,11 +32,6 @@ export class OauthUtils {
         this.envVariableServer.getValue('CHE_MACHINE_TOKEN').then(variable => {
             if (variable && variable.value) {
                 this.machineToken = variable.value;
-            }
-        });
-        this.envVariableServer.getValue('KEYCLOAK_SERVICE_HOST').then(variable => {
-            if (variable && variable.value && variable.value.length > 0) {
-                this.isMultiUser = true;
             }
         });
         window.addEventListener('message', data => {
@@ -54,7 +48,7 @@ export class OauthUtils {
     async getUserToken(): Promise<string | undefined> {
         if (this.userToken) {
             return new Promise(async resolve => resolve(this.userToken));
-        } else if (this.isMultiUser) {
+        } else if (this.machineToken && this.machineToken.length > 0) {
             const popup = window.open(`${this.apiUrl.substring(0, this.apiUrl.indexOf('/api'))}/_app/oauth.html`, 'popup');
             if (popup) {
                 this.oAuthPopup = popup;
