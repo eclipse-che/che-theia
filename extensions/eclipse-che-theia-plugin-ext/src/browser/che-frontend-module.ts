@@ -30,7 +30,7 @@ import {
     ChePluginServiceClient
 } from '../common/che-plugin-protocol';
 import { ChePluginServiceClientImpl } from './plugin/che-plugin-service-client';
-import { WebSocketConnectionProvider, bindViewContribution, WidgetFactory } from '@theia/core/lib/browser';
+import { WebSocketConnectionProvider, WidgetFactory } from '@theia/core/lib/browser';
 import { CommandContribution, ResourceResolver } from '@theia/core/lib/common';
 import { CheTaskClientImpl } from './che-task-client';
 import { ChePluginViewContribution } from './plugin/che-plugin-view-contribution';
@@ -46,6 +46,7 @@ import { MiniBrowserOpenHandler } from '@theia/mini-browser/lib/browser/mini-bro
 import { WebviewEnvironment } from '@theia/plugin-ext/lib/main/browser/webview/webview-environment';
 import { CheWebviewEnvironment } from './che-webview-environment';
 import { TaskStatusHandler } from './task-status-handler';
+import { PluginFrontendViewContribution } from '@theia/plugin-ext/lib/main/browser/plugin-frontend-view-contribution';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(CheApiProvider).toSelf().inSingletonScope();
@@ -78,7 +79,7 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(ChePluginFrontentService).toSelf().inSingletonScope();
     bind(ChePluginManager).toSelf().inSingletonScope();
 
-    bindViewContribution(bind, ChePluginViewContribution);
+    rebind(PluginFrontendViewContribution).to(ChePluginViewContribution);
 
     bind(ChePluginMenu).toSelf().inSingletonScope();
 
