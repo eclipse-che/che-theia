@@ -14,7 +14,7 @@ import { HostedPluginSupport } from '@theia/plugin-ext/lib/hosted/browser/hosted
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
 
-    bind(BrowserRemoteHostedPluginSupport).toSelf();
+    bind(BrowserRemoteHostedPluginSupport).toSelf().inSingletonScope();
     rebind(HostedPluginSupport).toService(BrowserRemoteHostedPluginSupport);
 
 });
