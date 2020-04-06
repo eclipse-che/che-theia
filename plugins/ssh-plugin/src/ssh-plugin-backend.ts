@@ -144,11 +144,6 @@ export async function start() {
     });
     theia.commands.registerCommand(VIEW, () => {
         viewPublicKey(sshKeyManager);
-        che.oAuth.getProviders().then(providers => {
-            providers.forEach(provider => {
-                console.log(provider);
-            });
-        });
     });
     theia.commands.registerCommand(UPLOAD, () => {
         uploadPrivateKey(sshKeyManager);

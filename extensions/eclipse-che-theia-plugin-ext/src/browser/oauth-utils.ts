@@ -19,11 +19,11 @@ export class OauthUtils {
     private machineToken: string | undefined;
     private oAuthPopup: Window | undefined;
     private userToken: string | undefined;
-    private readonly event: Event<void>;
+    private readonly onDidReceiveToken: Event<void>;
     constructor(@inject(EnvVariablesServer) private readonly envVariableServer: EnvVariablesServer,
         @inject(CheApiService) private readonly cheApiService: CheApiService) {
-        const eventEmitter = new Emitter<void>();
-        this.event = eventEmitter.event;
+        const onDidReceiveTokenEmitter = new Emitter<void>();
+        this.onDidReceiveToken = onDidReceiveTokenEmitter.event;
         this.envVariableServer.getValue('CHE_API').then(variable => {
             if (variable && variable.value) {
                 this.apiUrl = variable.value;
@@ -38,7 +38,7 @@ export class OauthUtils {
             if (data.data.startsWith('token:') && this.oAuthPopup) {
                 this.oAuthPopup.close();
                 this.userToken = data.data.substring(6, data.data.length);
-                eventEmitter.fire(undefined);
+                onDidReceiveTokenEmitter.fire(undefined);
             } else if (data.data.startsWith('status:') && this.oAuthPopup) {
                 this.oAuthPopup.postMessage('token:' + (this.machineToken ? this.machineToken : ''), '*');
             }
@@ -47,14 +47,14 @@ export class OauthUtils {
 
     async getUserToken(): Promise<string | undefined> {
         if (this.userToken) {
-            return new Promise(async resolve => resolve(this.userToken));
+            return this.userToken;
         } else if (this.machineToken && this.machineToken.length > 0) {
             const popup = window.open(`${this.apiUrl.substring(0, this.apiUrl.indexOf('/api'))}/_app/oauth.html`, 'popup');
             if (popup) {
                 this.oAuthPopup = popup;
             }
             return new Promise(async resolve => {
-                this.event(() => resolve(this.userToken));
+                this.onDidReceiveToken(() => resolve(this.userToken));
             });
         }
     }
@@ -86,7 +86,7 @@ export class OauthUtils {
             if (popup) {
                 this.oAuthPopup = popup;
             }
-            this.event(() => resolve(undefined));
+            this.onDidReceiveToken(() => resolve(undefined));
         });
     }
 }
