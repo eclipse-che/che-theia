@@ -32,7 +32,6 @@
     "@types/yargs": "12.0.1",
     "jest": "25.2.7",
     "json2yaml": "^1.1.0",
-    "nexe": "^2.0.0-rc.34",
     "rimraf": "2.6.2",
     "ts-jest": "25.3.1",
     "tslint": "5.11.0",
@@ -54,10 +53,6 @@
     "format-code": "tsfmt -r",
     "tslint-fix": "tslint --fix --project .",
     "tslint": "tslint --project .",
-    "exe": "yarn run exe:alpine && yarn run exe:mac && yarn run exe:linux",
-    "exe:alpine": "rimraf exe/alpine/ && mkdir -p exe/alpine && nexe dist/yargs.js -t alpine-x64-8.12.0 -o exe/alpine/che-theia",
-    "exe:mac": "rimraf exe/macOS/ && mkdir -p exe/macOS && nexe dist/yargs.js -t mac-x64-8.12.0 -o exe/macOS/che-theia",
-    "exe:linux": "rimraf exe/linux/ && mkdir -p exe/linux && nexe dist/yargs.js -t linux-x64-8.12.0 -o exe/linux/che-theia",
     "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
   },
   "jest": {
