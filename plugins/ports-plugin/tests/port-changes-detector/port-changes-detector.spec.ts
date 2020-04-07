@@ -8,8 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import * as fs from "fs";
-import { PortScanner, AbstractInternalScanner } from "../../src/port-scanner";
+import { AbstractInternalScanner } from "../../src/port-scanner";
 import { PortChangesDetector } from "../../src/port-changes-detector";
 import { Port } from "../../src/port";
 

@@ -24,14 +24,14 @@ describe('Test git commands', () => {
         const output = 'origin/master';
         const gitBranch: git.GitUpstreamBranch | undefined = git.parseGitUpstreamBranch(output);
         expect(gitBranch).toBeDefined();
-        expect(gitBranch.remote).toBe('origin');
-        expect(gitBranch.branch).toBe('master');
+        expect(gitBranch!.remote).toBe('origin');
+        expect(gitBranch!.branch).toBe('master');
     });
 
     test('get git current branch', async () => {
         const currentBranch = await git.getUpstreamBranch('/tmp/che-theia-samples');
-        expect(currentBranch.branch).toBe('master');
-        expect(currentBranch.remoteURL).toBe('https://github.com/eclipse/che-theia-samples');
+        expect(currentBranch!.branch).toBe('master');
+        expect(currentBranch!.remoteURL).toBe('https://github.com/eclipse/che-theia-samples');
     });
 
     test('get git current branch after checkout', async () => {
@@ -55,10 +55,10 @@ async function removeFolder(folderPath: string): Promise<undefined> {
     });
 }
 
-async function gitCheckout(projectPath: string, branch: string): Promise<string> {
+async function gitCheckout(projectPath: string, branch: string): Promise<string | undefined> {
     return git.execGit(projectPath, 'checkout', '-b', branch);
 }
 
-async function gitClone(targetFolderPath: string, gitRepo: string): Promise<string> {
+async function gitClone(targetFolderPath: string, gitRepo: string): Promise<string | undefined> {
     return git.execGit(targetFolderPath, 'clone', gitRepo);
 }
