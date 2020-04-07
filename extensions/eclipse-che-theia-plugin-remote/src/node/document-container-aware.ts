@@ -10,7 +10,7 @@
 
 import * as theia from '@theia/plugin';
 import { DocumentsExtImpl } from '@theia/plugin-ext/lib/plugin/documents';
-import URI from 'vscode-uri';
+import { URI } from 'vscode-uri';
 import { overrideUri } from './che-content-aware-utils';
 
 export class DocumentContainerAware {
