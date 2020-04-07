@@ -9,7 +9,7 @@
  **********************************************************************/
 
 import * as theia from '@theia/plugin';
-import URI from 'vscode-uri';
+import { URI } from 'vscode-uri';
 
 export function overrideUri(uri: { path: string, scheme: string, with: (change: { scheme?: string }) => URI | theia.Uri }) {
     const cheProjectsRoot = process.env.CHE_PROJECTS_ROOT;
