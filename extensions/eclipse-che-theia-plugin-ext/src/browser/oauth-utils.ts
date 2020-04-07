@@ -45,11 +45,12 @@ export class OauthUtils {
         });
     }
 
-    async getUserToken(): Promise<string | undefined> {
+    private async getUserToken(): Promise<string | undefined> {
         if (this.userToken) {
             return this.userToken;
         } else if (this.machineToken && this.machineToken.length > 0) {
-            const popup = window.open(`${this.apiUrl.substring(0, this.apiUrl.indexOf('/api'))}/_app/oauth.html`, 'popup');
+            const popup = window.open(`${this.apiUrl.substring(0, this.apiUrl.indexOf('/api'))}/_app/oauth.html`,
+                'popup', 'toolbar=no, status=no, menubar=no, scrollbars=no, width=10, height=10, visible=none');
             if (popup) {
                 this.oAuthPopup = popup;
             }

@@ -53,10 +53,13 @@ export class CheGithubMainImpl implements CheGithubMain {
 
     private async updateToken(): Promise<void> {
         const oAuthProvider = 'github';
-        this.token = await this.oAuthUtils.getToken(oAuthProvider);
-        if (!this.token) {
-            await this.oAuthUtils.authenticate(oAuthProvider, ['write:public_key']);
+        try {
             this.token = await this.oAuthUtils.getToken(oAuthProvider);
+        } catch (e) {
+            if (e.message.indexOf('Request failed with status code 401') > 0) {
+                await this.oAuthUtils.authenticate(oAuthProvider, ['write:public_key']);
+                this.token = await this.oAuthUtils.getToken(oAuthProvider);
+            }
         }
     }
 }

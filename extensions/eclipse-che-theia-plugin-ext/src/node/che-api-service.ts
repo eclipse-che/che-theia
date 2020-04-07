@@ -298,11 +298,7 @@ export class CheApiServiceImpl implements CheApiService {
 
     async getOAuthToken(oAuthProvider: string, token?: string): Promise<string | undefined> {
         const cheApiClient = await this.getCheApiClient();
-        try {
-            return await cheApiClient.getOAuthToken(oAuthProvider, token);
-        } catch (e) {
-            return undefined;
-        }
+        return cheApiClient.getOAuthToken(oAuthProvider, token);
     }
 
     async getOAuthProviders(token?: string): Promise<string[]> {
