@@ -19,7 +19,7 @@
     "@eclipse-che/plugin": "latest",
     "@theia/plugin": "next",
     "@theia/plugin-packager": "latest",
-    "@types/jest": "24.0.3",
+    "@types/jest": "25.2.1",
     "@types/node": "11.9.4"
   },
   "scripts": {
