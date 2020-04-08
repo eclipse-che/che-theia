@@ -69,8 +69,12 @@ export class OauthUtils {
     }
 
     async isAuthenticated(provider: string): Promise<boolean> {
-        const token = await this.cheApiService.getOAuthToken(provider, await this.getUserToken());
-        return token !== null;
+        try {
+            await this.cheApiService.getOAuthToken(provider, await this.getUserToken());
+            return true;
+        } catch (e) {
+            return false;
+        }
     }
 
     authenticate(oauthProvider: string, scope?: string[]): Promise<void> {
