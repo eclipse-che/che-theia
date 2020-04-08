@@ -9,6 +9,9 @@
         "lib",
         "src"
     ],
+    "devDependencies": {
+        "eslint-plugin-sonarjs": "0.5.0"
+    },
     "dependencies": {
         "moment": "^2.21.0",
         "@theia/core": "next"

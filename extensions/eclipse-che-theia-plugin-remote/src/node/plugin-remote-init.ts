@@ -258,14 +258,11 @@ to pick-up automatically a free port`));
         // create channel for discussing with this new client
         const channelId = this.sessionId++;
         const client = this.newClient(channelId, socket);
-        webSocketClients.set(channelId, client);
-
         socket.on('error', err => {
         });
 
         socket.on('close', (code, reason) => {
             this.remoteTraceLogger.removeCallback(channelId);
-            webSocketClients.delete(channelId);
         });
 
         socket.on('message', async (data: ws.Data) => {
@@ -381,9 +378,6 @@ export class WebSocketClient {
     }
 
 }
-
-// list of clients
-const webSocketClients = new Map<number, WebSocketClient>();
 
 const currentBackendDeployedPlugins: DeployedPlugin[] = [];
 
