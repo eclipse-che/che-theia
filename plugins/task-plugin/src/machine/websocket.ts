@@ -57,25 +57,18 @@ export class ReconnectingWebSocket {
         });
 
         this.ws.on('close', (code: number, reason: string) => {
-            switch (code) {
-                case 1000:
-                    break;
-                default:
-                    this.reconnect(reason);
-                    break;
+            if (code !== 1000) {
+                this.reconnect(reason);
             }
             this.onClose(code, reason);
         });
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.ws.on('error', (e: any) => {
-            switch (e.code) {
-                case 'ECONNREFUSED':
-                    this.reconnect(e);
-                    break;
-                default:
-                    this.onError(e);
-                    break;
+            if (e.code === 'ECONNREFUSED') {
+                this.reconnect(e);
+            } else {
+                this.onError(e);
             }
         });
     }

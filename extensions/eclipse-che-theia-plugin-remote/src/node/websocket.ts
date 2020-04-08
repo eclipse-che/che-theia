@@ -64,25 +64,18 @@ export class Websocket {
 
         // if closed, check error code
         this.instance.on('close', (code: number, reason: string) => {
-            switch (code) {
-                case 1000:
-                    break;
-                default:
-                    // reconnect if closed not normally
-                    this.reconnect(reason);
-                    break;
+            // reconnect if closed not normally
+            if (code !== 1000) {
+                this.reconnect(reason);
             }
             this.onClose(reason);
         });
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.instance.on('error', (e: any) => {
-            switch (e.code) {
-                case 'ECONNREFUSED':
-                    this.reconnect(e);
-                    break;
-                default:
-                    this.onError(e);
-                    break;
+            if ('ECONNREFUSED' === e.code) {
+                this.reconnect(e);
+            } else {
+                this.onError(e);
             }
         });
     }
