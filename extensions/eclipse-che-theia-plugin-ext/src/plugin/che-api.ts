@@ -147,7 +147,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
                 return cheOauthImpl.isAuthenticated(provider);
             },
             isRegistered(provider: string): Promise<boolean> {
-                return cheOauthImpl.isRegistered(provider));
+                return cheOauthImpl.isRegistered(provider);
             }
         };
 
