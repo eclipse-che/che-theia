@@ -26,4 +26,7 @@ export class CheOauthMainImpl implements CheOauthMain {
     $isAuthenticated(provider: string): Promise<boolean> {
         return this.oAuthUtils.isAuthenticated(provider);
     }
+    $isRegistered(provider: string): Promise<boolean> {
+        return this.oAuthUtils.isRegistered(provider);
+    }
 }

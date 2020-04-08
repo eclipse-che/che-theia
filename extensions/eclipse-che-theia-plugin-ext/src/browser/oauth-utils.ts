@@ -77,6 +77,16 @@ export class OauthUtils {
         }
     }
 
+    async isRegistered(provider: string): Promise<boolean> {
+        try {
+            await this.cheApiService.getOAuthToken(provider, await this.getUserToken());
+            return true;
+        } catch (e) {
+            return e.message.indexOf('Request failed with status code 401') > 0;
+
+        }
+    }
+
     authenticate(oauthProvider: string, scope?: string[]): Promise<void> {
         return new Promise(async (resolve, reject) => {
             const redirectUrl = window.location.href;
