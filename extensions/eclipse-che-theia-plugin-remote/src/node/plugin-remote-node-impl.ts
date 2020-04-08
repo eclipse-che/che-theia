@@ -13,7 +13,7 @@ import { PluginRemoteNode, PluginRemoteBrowser } from '../common/plugin-remote-r
 import { DeployedPlugin, Plugin, ConfigStorage, PluginPackage } from '@theia/plugin-ext/lib/common';
 import { PluginManagerExtImpl } from '@theia/plugin-ext/lib/plugin/plugin-manager';
 export class CallInfo {
-    // tslint:disable-next-line: no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public functions: Map<number, Function>;
 }
 
@@ -30,15 +30,15 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
         this.calls = new Map();
     }
 
-    setPluginManager(pluginManager: PluginManagerExtImpl) {
+    setPluginManager(pluginManager: PluginManagerExtImpl): void {
         this.pluginManager = pluginManager;
 
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const originalLoadPlugin = (pluginManager as any).loadPlugin;
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const originalActivatePlugin = (pluginManager as any).activatePlugin;
         const pluginRemoteBrowser = this.pluginRemoteBrowser;
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (pluginManager as any).loadPlugin = async (plugin: Plugin, configStorage: ConfigStorage, visited: any = new Set<string>()): Promise<boolean> => {
             // if plug-in is in another container, redirect the call to that container
             if (this.externalRegistry.has(plugin.model.id)) {
@@ -48,7 +48,7 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
             return originalLoadPlugin.call(pluginManager, plugin, configStorage, visited);
         };
 
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (pluginManager as any).activatePlugin = async (pluginId: string): Promise<void> => {
             if (this.externalRegistry.has(pluginId)) {
                 await pluginRemoteBrowser.$activatePlugin(pluginId);
@@ -59,7 +59,7 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
     }
 
     async $loadPlugin(pluginId: string, configStorage: ConfigStorage): Promise<void> {
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pluginManagerInternal = (this.pluginManager as any);
         let plugin = pluginManagerInternal.registry.get(pluginId);
         let waited: number = 0;
@@ -99,13 +99,13 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
     }
 
     async $activatePlugin(pluginId: string): Promise<void> {
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pluginManagerInternal = (this.pluginManager as any);
         await pluginManagerInternal.activatePlugin(pluginId);
     }
 
     async $definePluginPackage(pluginId: string, pluginPackage: PluginPackage): Promise<void> {
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const plugin = (this.pluginManager as any).registry.get(pluginId);
         if (plugin) {
             plugin.rawModel = pluginPackage;
@@ -113,11 +113,11 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
     }
 
     // Promise that will wait for the deasync result.
-    // tslint:disable-next-line: no-any
-    deasyncPromise(promise: Promise<any>) {
-        // tslint:disable-next-line: no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    deasyncPromise(promise: Promise<any>): any {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let result: any;
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let error: any;
         let done = false;
         promise.then(res => {
@@ -135,13 +135,13 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
     }
 
     async $definePluginExports(hostId: string, pluginId: string, proxyNames: string[]): Promise<void> {
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pluginManagerInternal = (this.pluginManager as any);
 
         // add into the activatedPlugins stuff
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const activatedPlugin: any = {};
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const proxyExports: any = {};
         activatedPlugin.exports = proxyExports;
         const remoteBrowser = this.pluginRemoteBrowser;
@@ -150,7 +150,7 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
         const callId = this.callId++;
         proxyNames.forEach(entryName => {
             console.log(`Proxyfing exports ${hostId} ${pluginId}/${entryName}`);
-            // tslint:disable-next-line: no-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             proxyExports[entryName] = (...args: any[]) => {
                 // need to keep arguments only if arguments have functions as functions can't be propagated remotely
                 const hasFunctions = args.some(arg => typeof arg === 'function');
@@ -174,7 +174,7 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
         await pluginManagerInternal.activatePlugin(pluginId);
     }
 
-    // tslint:disable-next-line: no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async $callLocalMethod(callId: number, index: number, ...args: any[]): Promise<any> {
         const callInfo = this.calls.get(callId);
         if (callInfo) {
@@ -188,26 +188,26 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
         console.error(`Ignoring call with callId ${callId}`);
     }
 
-    // tslint:disable-next-line: no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async $callMethod(fromHostId: string, pluginId: string, callId: number, entryName: string, ...args: any[]): Promise<any> {
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pluginManagerInternal = (this.pluginManager as any);
         const activatedPlugin = pluginManagerInternal.activatedPlugins.get(pluginId);
         const exports = activatedPlugin.exports;
         if (exports) {
-            // tslint:disable-next-line: no-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const updatedArgs: any[] = [];
             if (args) {
                 const remoteBrowser = this.pluginRemoteBrowser;
                 const deasyncPromise = this.deasyncPromise;
 
-                // tslint:disable-next-line: no-any
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 args.forEach((arg: any, index: number) => {
                     if (arg === undefined) {
                         // proxify
-                        // tslint:disable-next-line: no-any
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const handler: ProxyHandler<any> = {
-                            // tslint:disable-next-line: no-any
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             apply(target: any, thisArg: any, argArray?: any): any {
                                 return deasyncPromise(remoteBrowser.$callLocalMethod(fromHostId, callId, index, argArray));
                             }
@@ -229,7 +229,7 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
     }
 
     async $initExternalPlugins(externalPlugins: DeployedPlugin[]): Promise<void> {
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const registry: Map<string, Plugin> = (this.pluginManager as any).registry;
 
         externalPlugins.map(deployedPlugin => {

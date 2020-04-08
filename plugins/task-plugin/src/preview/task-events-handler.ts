@@ -31,7 +31,7 @@ export class CheTaskEventsHandler {
     @inject(TasksPreviewManager)
     protected readonly tasksPreviewManager!: TasksPreviewManager;
 
-    init() {
+    init(): void {
         theia.tasks.onDidStartTask(async event => {
             const task = event.execution.task;
             if (task.definition.type !== CHE_TASK_TYPE) {

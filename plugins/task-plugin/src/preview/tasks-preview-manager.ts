@@ -37,7 +37,7 @@ export class TasksPreviewManager {
     @inject(PreviewUrlOpenService)
     protected readonly previewUrlOpenService!: PreviewUrlOpenService;
 
-    init() {
+    init(): void {
         this.setStatusBarPreviewUrlItem();
     }
 
@@ -68,7 +68,7 @@ export class TasksPreviewManager {
         }
     }
 
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private async onMessageReceived(message: any): Promise<void> {
         if (message.command !== 'preview') {
             return;
@@ -107,7 +107,7 @@ export class TasksPreviewManager {
         return this.currentPanel;
     }
 
-    private async setStatusBarPreviewUrlItem() {
+    private async setStatusBarPreviewUrlItem(): Promise<void> {
         const previewCommandSubscription = theia.commands.registerCommand(STATUS_BAR_PREVIEW, async () => {
             if (this.currentPanel && this.currentPanel.visible) {
                 this.currentPanel.dispose();

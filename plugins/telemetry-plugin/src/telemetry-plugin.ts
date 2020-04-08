@@ -11,7 +11,7 @@
 import * as theia from '@theia/plugin';
 import * as che from '@eclipse-che/plugin';
 
-export function start(context: theia.PluginContext) {
+export function start(context: theia.PluginContext): void {
     che.telemetry.event('WORKSPACE_OPENED', context.extensionPath, [
     ]);
 
@@ -31,6 +31,6 @@ export function start(context: theia.PluginContext) {
     });
 }
 
-export function stop() {
+export function stop(): void {
 
 }

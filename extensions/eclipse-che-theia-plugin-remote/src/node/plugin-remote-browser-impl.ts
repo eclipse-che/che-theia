@@ -20,7 +20,7 @@ export class PluginRemoteBrowserImpl implements PluginRemoteBrowser {
         this.mappingPluginHost = new Map();
     }
 
-    public addMapping(pluginID: string, host: string) {
+    public addMapping(pluginID: string, host: string): void {
         this.mappingPluginHost.set(pluginID, host);
     }
 
@@ -44,7 +44,7 @@ export class PluginRemoteBrowserImpl implements PluginRemoteBrowser {
         }
     }
 
-    // tslint:disable-next-line: no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async $callMethod(fromHostId: string, pluginId: string, callId: number, entryName: string, ...args: any[]): Promise<any> {
 
         const matchingHost = this.mappingPluginHost.get(pluginId);
@@ -57,7 +57,7 @@ export class PluginRemoteBrowserImpl implements PluginRemoteBrowser {
         throw new Error(`No matching host for the plugin with id ${pluginId}`);
     }
 
-    // tslint:disable-next-line: no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async $callLocalMethod(hostId: string, callId: number, index: number, ...args: any[]): Promise<any> {
         const rpc = this.rpcs.get(hostId)!;
         const nodeRemote = rpc.getProxy(MAIN_REMOTE_RPC_CONTEXT.PLUGIN_REMOTE_NODE);

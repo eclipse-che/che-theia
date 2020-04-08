@@ -190,7 +190,7 @@ declare module '@eclipse-che/plugin' {
         readonly ctx?: string,
         /** task config used for launching a task */
         readonly config: TaskConfiguration
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         readonly [key: string]: any;
     }
 
@@ -206,7 +206,7 @@ declare module '@eclipse-che/plugin' {
         readonly terminalId?: number;
         readonly processId?: number;
 
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         readonly [key: string]: any;
     }
 

@@ -21,7 +21,7 @@ export class TerminalContainerAware {
     /**
      * Intercept the original method by adding the CHE_MACHINE_NAME as attribute (if exists)
      */
-    overrideTerminal(terminalServiceExt: TerminalServiceExtImpl) {
+    overrideTerminal(terminalServiceExt: TerminalServiceExtImpl): void {
         // bind createTerminal to the scope 'this' of the terminalServiceExt.
         const originalCreateTerminal = terminalServiceExt.createTerminal.bind(terminalServiceExt);
 
@@ -53,7 +53,7 @@ export class TerminalContainerAware {
         terminalServiceExt.createTerminal = createTerminal;
     }
 
-    overrideTerminalCreationOptionForDebug(debugExt: DebugExtImpl) {
+    overrideTerminalCreationOptionForDebug(debugExt: DebugExtImpl): void {
         debugExt.doGetTerminalCreationOptions = (debugType: string) => {
             const options: TerminalOptionsExt = {
                 attributes: {

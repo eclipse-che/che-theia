@@ -28,10 +28,10 @@ export class PortRedirectListener {
             const remotesocket = new net.Socket();
 
             remotesocket.connect(this.remotePort, this.remoteHost);
-            // tslint:disable-next-line:no-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             localsocket.on('connect', (data: any) => {
             });
-            // tslint:disable-next-line:no-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             localsocket.on('data', (data: any) => {
                 remotesocket.write(data);
             });

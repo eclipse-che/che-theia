@@ -48,7 +48,7 @@ export class CheTheiaStatusBarFrontendContribution implements FrontendApplicatio
         });
     }
 
-    checkGitCommiterSettings() {
+    checkGitCommiterSettings(): void {
         this.cheApiService.getUserPreferences('theia-user-preferences').then(async chePreferences => {
             const theiaPreferences = JSON.parse(chePreferences['theia-user-preferences'] ? chePreferences['theia-user-preferences'] : '{}');
             const email = theiaPreferences[GIT_USER_EMAIL];
@@ -68,7 +68,7 @@ export class CheTheiaStatusBarFrontendContribution implements FrontendApplicatio
         });
     }
 
-    public showWarn(gitWarning: string) {
+    public showWarn(gitWarning: string): void {
         if (gitWarning) {
             const entry = {
                 text: gitWarning,
@@ -80,7 +80,7 @@ export class CheTheiaStatusBarFrontendContribution implements FrontendApplicatio
         }
     }
 
-    public hideWarn() {
+    public hideWarn(): void {
         this.statusBar.removeElement(this.warnId);
     }
 }

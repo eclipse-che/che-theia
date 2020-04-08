@@ -39,7 +39,7 @@ export class TheiaDashboardClient implements FrontendApplicationContribution {
         // load this module at FrontendApplication startup
     }
 
-    async onReady() {
+    async onReady(): Promise<void> {
         const logoEl: HTMLElement | null = document.getElementById(THEIA_ICON_ID);
         if (!logoEl || !logoEl.parentElement) {
             return;

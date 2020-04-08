@@ -39,7 +39,7 @@ export class CheTaskClientImpl implements CheTaskClient {
         this.onKillEventEmitter.fire(taskInfo);
     }
 
-    addRunTaskHandler(handler: (config: TaskConfiguration, ctx?: string) => Promise<TaskInfo>) {
+    addRunTaskHandler(handler: (config: TaskConfiguration, ctx?: string) => Promise<TaskInfo>): void {
         this.runTaskHandlers.push(handler);
     }
 }

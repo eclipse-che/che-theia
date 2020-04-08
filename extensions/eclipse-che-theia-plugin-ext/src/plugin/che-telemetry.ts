@@ -29,7 +29,7 @@ export class CheTelemetryImpl implements CheTelemetry {
         this.listeners.set(commandId, listener);
     }
 
-    async $onWillCommandExecute(commandId: string, params?: TelemetryListenerParam) {
+    async $onWillCommandExecute(commandId: string, params?: TelemetryListenerParam): Promise<void> {
         const listener = this.listeners.get(commandId);
         if (listener) {
             listener(commandId);

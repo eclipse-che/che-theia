@@ -20,7 +20,7 @@ import * as moment from 'moment';
 
 export class FormattedConsoleLoggerServer extends ConsoleLoggerServer {
 
-    // tslint:disable:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async log(name: string, logLevel: number, message: string, params: any[]): Promise<void> {
         const configuredLogLevel = await this.getLogLevel(name);
         if (logLevel >= configuredLogLevel) {
@@ -37,7 +37,8 @@ export class FormattedConsoleLoggerServer extends ConsoleLoggerServer {
         return (LogLevel.strings.get(logLevel) || 'unknown').toUpperCase();
     }
 
-    private getParams(params: any[]) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private getParams(params: any[]): string {
         return params !== undefined && params.length > 0 ? `Params: ${params}` : '';
     }
 }

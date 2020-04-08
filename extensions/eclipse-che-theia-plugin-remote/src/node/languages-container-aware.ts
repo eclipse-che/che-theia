@@ -14,12 +14,12 @@ import { overrideUri } from './che-content-aware-utils';
 
 export class LanguagesContainerAware {
 
-    static makeLanguagesContainerAware(languagesExt: LanguagesExtImpl) {
+    static makeLanguagesContainerAware(languagesExt: LanguagesExtImpl): void {
         const languagesContainerAware = new LanguagesContainerAware();
         languagesContainerAware.overrideDefinitionProvider(languagesExt);
     }
 
-    overrideDefinitionProvider(languagesExt: LanguagesExtImpl) {
+    overrideDefinitionProvider(languagesExt: LanguagesExtImpl): void {
         const originalRegisterDefinitionProvider = languagesExt.registerDefinitionProvider.bind(languagesExt);
         const registerDefinitionProvider = (selector: theia.DocumentSelector, provider: theia.DefinitionProvider) =>
             originalRegisterDefinitionProvider(selector, {
@@ -35,7 +35,7 @@ export class LanguagesContainerAware {
                     }
 
                     if (Array.isArray(result)) {
-                        // tslint:disable-next-line: no-any
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         (result as any[]).forEach(value => this.overrideResult(value));
                     } else {
                         this.overrideResult(result);

@@ -140,7 +140,7 @@ export class PluginRemoteInit {
         console.log(`Theia Endpoint ${process.pid}/pid listening on port`, this.pluginPort);
     }
 
-    initWebsocketServer() {
+    initWebsocketServer(): void {
         this.webSocketServer.on('connection', (socket: CheckAliveWS, request: http.IncomingMessage) => {
             socket.alive = true;
             socket.on('pong', () => socket.alive = true);
@@ -176,15 +176,15 @@ export class PluginRemoteInit {
 
         return new Promise<ws.Server>((resolve, reject) => {
             // if port is already in use, try a new port of report the error
-            // tslint:disable-next-line:no-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             websocketServer.on('error', (error: any) => {
                 // if port is specified, respect it and does not try to find a new free port.
                 if (error.code === 'EADDRINUSE' && !process.env.THEIA_PLUGIN_ENDPOINT_PORT) {
                     try {
                         const portInUse = this.handlePortInUse();
                         resolve(portInUse);
-                    } catch (error) {
-                        reject(error);
+                    } catch (err) {
+                        reject(err);
                     }
                 } else {
                     reject(new Error(`The port ${this.pluginPort} is already in used. \
@@ -202,7 +202,7 @@ to pick-up automatically a free port`));
 
     // create a new client on top of socket
     newClient(id: number, socket: ws): WebSocketClient {
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const emitter = new Emitter<any>();
         const webSocketClient = new WebSocketClient(id, socket, emitter);
         webSocketClient.rpc = new RPCProtocolImpl({
@@ -219,22 +219,22 @@ to pick-up automatically a free port`));
 
         const pluginHostRPC = new PluginHostRPC(webSocketClient.rpc);
         pluginHostRPC.initialize();
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pluginManager = (pluginHostRPC as any).pluginManager;
         pluginRemoteNodeImplt.setPluginManager(pluginManager);
 
         webSocketClient.pluginHostRPC = pluginHostRPC;
 
         // override window.createTerminal to be container aware
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         new TerminalContainerAware().overrideTerminal((webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.TERMINAL_EXT.id));
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         new TerminalContainerAware().overrideTerminalCreationOptionForDebug((webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.DEBUG_EXT.id));
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         DocumentContainerAware.makeDocumentContainerAware((webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.DOCUMENTS_EXT.id));
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         LanguagesContainerAware.makeLanguagesContainerAware((webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.LANGUAGES_EXT.id));
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ExecuteCommandContainerAware.makeExecuteCommandContainerAware((webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.COMMAND_REGISTRY_EXT.id));
 
         let channelName = '';
@@ -244,7 +244,7 @@ to pick-up automatically a free port`));
             channelName = `Extension host (${this.pluginPort}) log`;
         }
         const pluginInfo: PluginInfo = { id: channelName, name: channelName };
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const outputChannelRegistryExt: OutputChannelRegistryExt = (webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.OUTPUT_CHANNEL_REGISTRY_EXT.id);
         const outputChannel = outputChannelRegistryExt.createOutputChannel(channelName, pluginInfo);
         const outputChannelLogCallback = new OutputChannelLogCallback(outputChannel);
@@ -279,7 +279,7 @@ to pick-up automatically a free port`));
                     try {
                         // wait to stop plug-ins
                         // FIXME: we need to fix this
-                        // tslint:disable-next-line: no-any
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         await (<any>client.pluginHostRPC).pluginManager.$stop();
 
                         // ok now we can dispose the emitter
@@ -349,7 +349,7 @@ export class WebSocketClient {
 
     public pluginHostRPC: PluginHostRPC;
 
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(private readonly id: number, private socket: ws, private readonly emitter: Emitter<any>) {
     }
 
@@ -358,8 +358,8 @@ export class WebSocketClient {
     }
 
     // message is a JSON entry
-    // tslint:disable-next-line:no-any
-    send(message: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    send(message: any): void {
         try {
             this.socket.send(JSON.stringify(message));
         } catch (error) {
@@ -371,8 +371,8 @@ export class WebSocketClient {
         this.emitter.dispose();
     }
 
-    // tslint:disable-next-line:no-any
-    fire(message: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    fire(message: any): void {
         try {
             this.emitter.fire(message);
         } catch (error) {
@@ -522,31 +522,31 @@ class OutputChannelLogCallback implements LogCallback {
     constructor(readonly outputChannel: theia.OutputChannel) {
 
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async log(message: any, ...params: any[]): Promise<void> {
         this.outputChannel.appendLine('LOG:' + message + params);
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async trace(message: any, ...params: any[]): Promise<void> {
         this.outputChannel.appendLine('TRACE:' + message + params);
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async debug(message: any, ...params: any[]): Promise<void> {
         this.outputChannel.appendLine('DEBUG:' + message + params);
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async info(message: any, ...params: any[]): Promise<void> {
         this.outputChannel.appendLine('INFO:' + message + params);
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async warn(message: any, ...params: any[]): Promise<void> {
         this.outputChannel.appendLine('WARN:' + message + params);
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async error(message: any, ...params: any[]): Promise<void> {
         this.outputChannel.appendLine('ERROR:' + message + params);
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async fatal(message: any, ...params: any[]): Promise<void> {
         this.outputChannel.appendLine('FATAL:' + message + params);
     }

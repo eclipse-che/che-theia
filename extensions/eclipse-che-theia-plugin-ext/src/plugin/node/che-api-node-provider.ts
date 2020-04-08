@@ -37,8 +37,8 @@ function overrideInternalLoad(): void {
     const internalLoad = module._load;
 
     // if we try to resolve che module, return the filename entry to use cache.
-    // tslint:disable-next-line:no-any
-    module._load = function (request: string, parent: any, isMain: {}) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    module._load = function (request: string, parent: any, isMain: {}): any {
         if (request !== '@eclipse-che/plugin') {
             return internalLoad.apply(this, arguments);
         }
