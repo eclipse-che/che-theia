@@ -55,7 +55,16 @@ declare module '@eclipse-che/plugin' {
 
     export namespace oAuth {
         export function getProviders(): Promise<string[]>;
+        /**
+         * Returns {@code true} if the current user is authenticated for given oAuth provider.
+         * @param provider oAuth provider to Check.
+         */
         export function isAuthenticated(provider: string): Promise<boolean>;
+        /**
+         * Returns {@code true} if the given oAuth provider is registered.
+         * Use {@link $getProviders} in single-user mode to find the provider in the list.
+         * @param provider oAuth provider to Check.
+         */
         export function isRegistered(provider: string): Promise<boolean>;
     }
 

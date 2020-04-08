@@ -87,12 +87,6 @@ export interface CheOauth {
 export interface CheOauthMain {
     $getProviders(): Promise<string[]>;
     $isAuthenticated(provider: string): Promise<boolean>;
-
-    /**
-     * Returns {@code true} if the given oAuth provider is registered.
-     * Use {@link $getProviders} in single-user mode to find the provider in the list.
-     * @param provider oAuth provider to Check
-     */
     $isRegistered(provider: string): Promise<boolean>;
 }
 
