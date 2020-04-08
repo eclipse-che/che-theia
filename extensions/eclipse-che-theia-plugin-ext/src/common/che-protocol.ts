@@ -82,6 +82,7 @@ export interface CheGithubMain {
 export interface CheOauth {
     getProviders(): Promise<string[]>;
     isAuthenticated(provider: string): Promise<boolean>;
+    isRegistered(provider: string): Promise<boolean>;
 }
 
 export interface CheOauthMain {
