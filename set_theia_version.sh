@@ -71,8 +71,6 @@ change_change_che_theia_init_baranch () {
         fi
     done < "che-theia-init-sources.yml";
     printf "%b\n" "$content" > "che-theia-init-sources.yml";
-
-    sed -i 's~@api.github.com/repos/eclipse/che-theia/git/${GIT_REF}~@api.github.com/repos/eclipse/che-theia/git/refs/heads/'${branchName}'~' ./dockerfiles/theia/Dockerfile 
 }
 
 # first is path to dir which contains 'package.json', second is Theia version
