@@ -344,7 +344,7 @@ export class CheApiServiceImpl implements CheApiService {
             }
             restAPIConfig.ssCrtPath = SS_CRT_PATH;
 
-            this.workspaceRestAPI = await WorkspaceClient.getRestApi(restAPIConfig);
+            this.workspaceRestAPI = WorkspaceClient.getRestApi(restAPIConfig);
         }
 
         return this.workspaceRestAPI;

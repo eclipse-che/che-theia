@@ -19,7 +19,7 @@ export function start(context: theia.PluginContext): void {
         };
         context.subscriptions.push(theia.commands.registerCommand(command, async () => {
             const token = await che.github.getToken();
-            const conf = await theia.workspace.getConfiguration();
+            const conf = theia.workspace.getConfiguration();
             await conf.update('githubPullRequests.hosts', [{
                 host: 'github.com',
                 token
