@@ -263,7 +263,7 @@ const uploadPrivateKey = async (sshkeyManager: SshKeyManager) => {
     try {
         await sshkeyManager.create({ name: hostName, service: 'vcs', privateKey: privateKeyContent });
         await updateConfig(hostName);
-        await writeKey(hostName, privateKeyContent!);
+        await writeKey(hostName, privateKeyContent);
         theia.window.showInformationMessage(`Key pair for ${hostName} successfully uploaded`);
         showWarning(RESTART_WARNING_MESSAGE);
     } catch (error) {

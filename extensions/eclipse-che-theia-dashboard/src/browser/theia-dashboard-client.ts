@@ -50,7 +50,7 @@ export class TheiaDashboardClient implements FrontendApplicationContribution {
         dashboardEl.className = 'che-dashboard';
         const arrowEl: HTMLElement = document.createElement(isInFrame ? 'i' : 'a');
         arrowEl.className = 'fa fa-chevron-left';
-        logoEl!.parentElement!.replaceChild(dashboardEl, logoEl!);
+        logoEl.parentElement.replaceChild(dashboardEl, logoEl);
 
         if (isInFrame) {
             arrowEl.setAttribute('title', 'Hide navigation bar');

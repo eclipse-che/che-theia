@@ -60,7 +60,7 @@ export class TaskStatusHandler {
                 continue;
             }
 
-            const processId = await (<TerminalWidget>widget).processId;
+            const processId = await widget.processId;
             if (id === processId) {
                 return widget;
             }

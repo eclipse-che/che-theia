@@ -11,7 +11,7 @@
 import { injectable, inject, postConstruct } from 'inversify';
 import { TerminalWidgetImpl } from '@theia/terminal/lib/browser/terminal-widget-impl';
 import { IBaseTerminalServer } from '@theia/terminal/lib/common/base-terminal-protocol';
-import { TerminalProxyCreator, TerminalProxyCreatorProvider } from '../server-definition/terminal-proxy-creator';
+import { TerminalProxyCreatorProvider } from '../server-definition/terminal-proxy-creator';
 import { ATTACH_TERMINAL_SEGMENT, RemoteTerminalServerProxy, RemoteTerminalWatcher } from '../server-definition/remote-terminal-protocol';
 import { RemoteWebSocketConnectionProvider } from '../server-definition/remote-connection';
 import { Deferred } from '@theia/core/lib/common/promise-util';
@@ -113,7 +113,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     async start(id?: number): Promise<number> {
         try {
             if (!this.termServer) {
-                const termProxyCreator = <TerminalProxyCreator>await this.termProxyCreatorProvider();
+                const termProxyCreator = await this.termProxyCreatorProvider();
                 this.termServer = termProxyCreator.create();
 
                 this.toDispose.push(this.termServer.onDidCloseConnection(() => {
