@@ -56,6 +56,7 @@ declare module '@eclipse-che/plugin' {
     export namespace oAuth {
         export function getProviders(): Promise<string[]>;
         export function isAuthenticated(provider: string): Promise<boolean>;
+        export function isRegistered(provider: string): Promise<boolean>;
     }
 
     export namespace ssh {
