@@ -19,16 +19,17 @@ export async function execute(commandLine: string, args?: string[], options?: Sp
         const command = spawn(commandLine, args, options);
         let result = '';
         let error = '';
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         command.stdout.on('data', (data: any) => {
             result += data.toString();
         });
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         command.stderr.on('data', (data: any) => {
             error += data.toString();
             console.error(`Child process ${commandLine} stderr: ${data}`);
         });
         command.on('close', (code: number | null) => {
+            // eslint-disable-next-line no-null/no-null
             code = code === null ? 0 : code;
             const message = `Child process "${commandLine}" exited with code ${code}`;
             if (code === 0) {

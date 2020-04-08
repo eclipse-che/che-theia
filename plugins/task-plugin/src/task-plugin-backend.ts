@@ -27,7 +27,7 @@ import { TaskStatusHandler } from './task/task-status';
 let pluginContext: theia.PluginContext;
 let outputChannel: theia.OutputChannel | undefined;
 
-export async function start(context: theia.PluginContext) {
+export async function start(context: theia.PluginContext): Promise<void> {
     pluginContext = context;
 
     const сheTaskEventsHandler = container.get<CheTaskEventsHandler>(CheTaskEventsHandler);
@@ -62,13 +62,13 @@ export async function start(context: theia.PluginContext) {
     taskStatusHandler.init();
 }
 
-export function stop() { }
+export function stop(): void { }
 
 export function getContext(): theia.PluginContext {
     return pluginContext;
 }
 
-// tslint:disable-next-line:no-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getSubscriptions(): { dispose(): any }[] {
     return pluginContext.subscriptions;
 }

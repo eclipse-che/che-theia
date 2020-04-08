@@ -14,7 +14,7 @@ import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { createAPIFactory } from '../che-api';
 import * as che from '@eclipse-che/plugin';
 
-// tslint:disable-next-line:no-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ctx = self as any;
 const pluginsApiImpl = new Map<string, typeof che>();
 let defaultApi: typeof che;
@@ -22,7 +22,7 @@ let defaultApi: typeof che;
 export const initializeApi: ExtPluginApiFrontendInitializationFn = (rpc: RPCProtocol, plugins: Map<string, Plugin>) => {
     const cheApiFactory = createAPIFactory(rpc);
     const handler = {
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         get: (target: any, name: string) => {
             const plugin = plugins.get(name);
             if (plugin) {
@@ -42,6 +42,6 @@ export const initializeApi: ExtPluginApiFrontendInitializationFn = (rpc: RPCProt
         }
     };
 
-    // tslint:disable-next-line:no-null-keyword
+    // eslint-disable-next-line no-null/no-null
     ctx['che'] = new Proxy(Object.create(null), handler);
 };

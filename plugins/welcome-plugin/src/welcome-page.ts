@@ -72,9 +72,9 @@ export class WelcomePage {
     }
 
     private async renderStart(): Promise<string> {
-        // tslint:disable-next-line: max-line-length
+        // eslint-disable-next-line max-len
         const newFile = `<div class="che-welcome-command-desc"><a href='#' onClick="executeCommand('file.newFile')">New File...</a>${await this.renderCommandKeyBinding('file.newFile')}</div>`;
-        // tslint:disable-next-line: max-line-length
+        // eslint-disable-next-line max-len
         const gitClone = `<div class="che-welcome-command-desc"><a href='#' onClick="executeCommand('git.clone')">Git Clone...</a>${await this.renderCommandKeyBinding('git.clone')}</div>`;
         return `<div class='che-welcome-section'>
             <h3 class='che-welcome-section-header'><i class='fa fa-file'></i>New</h3>
@@ -89,9 +89,9 @@ export class WelcomePage {
     }
 
     private async renderOpen(): Promise<string> {
-        // tslint:disable-next-line: max-line-length
+        // eslint-disable-next-line max-len
         const open = `<div class="che-welcome-command-desc"><a href='#' onClick="executeCommand('workspace:open')">Open Files...</a>${await this.renderCommandKeyBinding('workspace:open')}</div>`;
-        // tslint:disable-next-line: max-line-length
+        // eslint-disable-next-line max-len
         const openCommandPalette = `<div class="che-welcome-command-desc"><a href='#' onClick="executeCommand('workbench.action.showCommands')">Open Command Palette...</a>${await this.renderCommandKeyBinding('workbench.action.showCommands')}</div>`;
         return `<div class='che-welcome-section'>
             <h3 class='che-welcome-section-header'><i class='fa fa-folder-open'></i>Open</h3>
@@ -152,7 +152,7 @@ export class WelcomePage {
         </div>`;
     }
 
-    public async render() {
+    public async render(): Promise<string> {
         return `<div class='che-welcome-container'>
             ${this.renderHeader()}
             <div class='flex-grid'>

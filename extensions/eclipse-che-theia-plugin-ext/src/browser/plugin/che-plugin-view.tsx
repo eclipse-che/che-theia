@@ -82,7 +82,7 @@ export class ChePluginView extends PluginWidget {
         this.toDispose.push(this.chePluginServiceClient.onCachingComplete(() => this.onCachingComplete()));
     }
 
-    protected onAfterShow(msg: Message) {
+    protected onAfterShow(msg: Message): void {
         super.onAfterShow(msg);
 
         if (!this.initialized) {
@@ -150,7 +150,7 @@ export class ChePluginView extends PluginWidget {
     /**
      * User has changed Toolbar filter field
      */
-    protected onFilterChanged(filter: string) {
+    protected onFilterChanged(filter: string): void {
         this.filterString = filter;
 
         if (this.status === 'filtering') {
@@ -161,7 +161,7 @@ export class ChePluginView extends PluginWidget {
     /**
      * Request from Plugin view Menu to shange current filter
      */
-    protected onChangeFilter(filter: string) {
+    protected onChangeFilter(filter: string): void {
         if (this.status === 'filtering') {
             this.filterString = filter;
             this.filter();
@@ -212,7 +212,7 @@ export class ChePluginView extends PluginWidget {
         return installed;
     }
 
-    protected async onDrop(input: string) {
+    protected async onDrop(input: string): Promise<void> {
         const extension = this.chePluginManager.checkVsCodeExtension(input);
         if (extension) {
             const confirm = new ConfirmDialog({
@@ -346,7 +346,7 @@ export class ChePluginView extends PluginWidget {
 
     protected onRestartWorkspaceNotificationClicked = async () => {
         await this.chePluginManager.restartWorkspace();
-    }
+    };
 
     protected hideNotification = async () => {
         this.hidingRestartWorkspaceNotification = true;
@@ -357,6 +357,6 @@ export class ChePluginView extends PluginWidget {
             this.hidingRestartWorkspaceNotification = false;
             this.update();
         }, 500);
-    }
+    };
 
 }

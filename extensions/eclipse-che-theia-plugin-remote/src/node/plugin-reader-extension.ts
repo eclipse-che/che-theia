@@ -33,7 +33,7 @@ export class PluginReaderExtension {
     private pluginsStorage: Map<string, string>;
 
     constructor(@inject(HostedPluginReader) hostedPluginReader: HostedPluginReader) {
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const disclosedPluginReader = (hostedPluginReader as any);
         // Get link to plugins storages info
         this.pluginsStorage = disclosedPluginReader.pluginsIdsFiles;

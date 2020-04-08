@@ -36,12 +36,12 @@ export class ServerPluginProxyRunner implements ServerPluginRunner {
         this.hostedPluginRemote.clientClosed();
     }
 
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public acceptMessage(jsonMessage: any): boolean {
         return jsonMessage.pluginID !== undefined;
     }
 
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public onMessage(jsonMessage: any): void {
         // do routing on the message
         if (this.hostedPluginRemote.hasEndpoint(jsonMessage.pluginID)) {

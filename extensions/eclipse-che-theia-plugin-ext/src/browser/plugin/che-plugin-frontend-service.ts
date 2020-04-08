@@ -52,7 +52,7 @@ export class ChePluginFrontentService {
 
             // Temporary disabled.
             // We don't have an ability for now to display icons from the file system.
-            // tslint:disable-next-line:no-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             // const icon = (meta.source as any).icon;
 
             return {

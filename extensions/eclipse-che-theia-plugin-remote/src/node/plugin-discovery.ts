@@ -57,7 +57,7 @@ export class PluginDiscovery {
      *  - request others to announce themselves
      *  - announce himself if endpoint.
      */
-    discover() {
+    discover(): void {
 
         // if discovery is disabled, do not proceed with discover.
         const discoveryDisabled = process.env.THEIA_PLUGIN_DISCOVERY_DISABLE || 'false';
@@ -116,14 +116,14 @@ export class PluginDiscovery {
     /**
      * Sends the given message to the multicast discovery address.
      */
-    protected send(message: DiscoveryMessage) {
+    protected send(message: DiscoveryMessage): void {
         this.socket.send(JSON.stringify(message), this.discoveryPort, this.discoveryAddress);
     }
 
     /**
      * Greeting message announcing ourself to the others.
      */
-    protected announceMySelf() {
+    protected announceMySelf(): void {
 
         const announceRequest: DiscoveryAnnounceRequest = {
             websocketAddress: `ws://localhost:${this.endpointPort}`
@@ -140,7 +140,7 @@ export class PluginDiscovery {
     /**
      * Request message asking others to announce.
      */
-    protected requestEndpoints() {
+    protected requestEndpoints(): void {
 
         const announceMessage: DiscoveryMessage = {
             id: this.discoveryName,
@@ -152,7 +152,7 @@ export class PluginDiscovery {
     }
 
     // callback used when a new endpoint is registered
-    public onNewEndpoint(discoveryAnnounceRequest: DiscoveryAnnounceRequest) { }
+    public onNewEndpoint(discoveryAnnounceRequest: DiscoveryAnnounceRequest): void { }
 
 }
 

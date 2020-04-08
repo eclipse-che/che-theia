@@ -42,7 +42,7 @@ export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenMode
     @inject('terminal-in-specific-container-command-id')
     protected readonly terminalInSpecificContainerCommandId: string;
 
-    async displayListMachines(doOpen: OpenTerminalHandler) {
+    async displayListMachines(doOpen: OpenTerminalHandler): Promise<void> {
         this.items = [];
 
         const containers = await this.workspaceService.getContainerList();

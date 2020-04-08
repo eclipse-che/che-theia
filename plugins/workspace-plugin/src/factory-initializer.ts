@@ -29,7 +29,7 @@ export class FactoryInitializer {
     constructor(protected projectsRoot: string) {
     }
 
-    async run() {
+    async run(): Promise<void> {
         const factoryId = theia.env.getQueryParameter('factory-id');
 
         if (!factoryId || typeof factoryId !== 'string') {
@@ -77,7 +77,7 @@ export class FactoryInitializer {
     /**
      * Returns a list of commands to be executed after cloning the projects
      */
-    private getOnProjectsImportedCommands(factory: cheApi.factory.Factory) {
+    private getOnProjectsImportedCommands(factory: cheApi.factory.Factory): TheiaCommand[] {
         if (!factory.ide || !factory.ide.onProjectsLoaded || !factory.ide.onProjectsLoaded.actions) {
             return [];
         }
@@ -87,7 +87,7 @@ export class FactoryInitializer {
         );
     }
 
-    private async executeCloneCommands(cloneCommands: TheiaImportCommand[]) {
+    private async executeCloneCommands(cloneCommands: TheiaImportCommand[]): Promise<void> {
         if (cloneCommands.length === 0) {
             return;
         }
@@ -99,7 +99,7 @@ export class FactoryInitializer {
         theia.window.showInformationMessage('Che Factory: Finished cloning projects.');
     }
 
-    private async executeOnProjectsImportedCommands(onProjectsImportedCommands: TheiaCommand[]) {
+    private async executeOnProjectsImportedCommands(onProjectsImportedCommands: TheiaCommand[]): Promise<void> {
         if (onProjectsImportedCommands.length === 0) {
             return;
         }

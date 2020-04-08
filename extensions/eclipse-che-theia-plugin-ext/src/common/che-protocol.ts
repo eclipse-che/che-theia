@@ -281,7 +281,7 @@ export interface WorkspaceConfigDto {
     description?: string;
     defaultEnv: string;
     environments: {
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [environmentName: string]: any;
     };
     projects: ProjectConfigDto[];
@@ -373,7 +373,7 @@ export interface WorkspaceAttributesDto {
     updated?: number;
     stackId?: string;
     errorMessage?: string;
-    // tslint:disable-next-line: no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [propName: string]: string | number | any;
 }
 

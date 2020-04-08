@@ -50,11 +50,11 @@ export class CheTaskServiceImpl implements CheTaskService {
         };
     }
 
-    dispose() {
+    dispose(): void {
         // do nothing
     }
 
-    setClient(client: CheTaskClient) {
+    setClient(client: CheTaskClient): void {
         this.clients.push(client);
     }
 
@@ -65,7 +65,7 @@ export class CheTaskServiceImpl implements CheTaskService {
         }
     }
 
-    async disconnectClient(client: CheTaskClient) {
+    async disconnectClient(client: CheTaskClient): Promise<void> {
         const idx = this.clients.indexOf(client);
         if (idx > -1) {
             this.clients.splice(idx, 1);

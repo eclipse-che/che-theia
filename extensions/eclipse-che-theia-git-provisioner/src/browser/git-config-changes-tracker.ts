@@ -20,7 +20,7 @@ export class CheGitClientImpl implements CheGitClient {
     get changeEvent(): Event<GitConfigChanged> {
         return this.onChangedEmitter.event;
     }
-    firePreferencesChanged() {
+    firePreferencesChanged(): void {
         const event: GitConfigChanged = {};
         this.onChangedEmitter.fire(event);
     }

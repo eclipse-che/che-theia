@@ -45,7 +45,7 @@ export class ReconnectingWebSocket {
     }
 
     /** Open the websocket. If error, try to reconnect. */
-    open() {
+    open(): void {
         this.ws = new WS(this.url, this.getOptions());
 
         this.ws.on('open', () => {
@@ -67,7 +67,7 @@ export class ReconnectingWebSocket {
             this.onClose(code, reason);
         });
 
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.ws.on('error', (e: any) => {
             switch (e.code) {
                 case 'ECONNREFUSED':
@@ -80,8 +80,8 @@ export class ReconnectingWebSocket {
         });
     }
 
-    // tslint:disable-next-line:no-any
-    public send(data: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    public send(data: any): void {
         try {
             this.ws.send(data);
         } catch (error) {
@@ -89,12 +89,12 @@ export class ReconnectingWebSocket {
         }
     }
 
-    public close() {
+    public close(): void {
         this.ws.removeAllListeners();
         this.ws.close(1000);
     }
 
-    private reconnect(reason: string) {
+    private reconnect(reason: string): void {
         this.logger.warn(`Task plugin webSocket: Reconnecting in ${ReconnectingWebSocket.RECONNECTION_DELAY}ms due to ${reason}`);
         this.ws.removeAllListeners();
         setTimeout(() => {
@@ -103,10 +103,10 @@ export class ReconnectingWebSocket {
         }, ReconnectingWebSocket.RECONNECTION_DELAY);
     }
 
-    public onOpen(url: string) { }
-    public onClose(code: number, reason: string) { }
-    public onMessage(data: WS.Data) { }
-    public onError(reason: Error) { }
+    public onOpen(url: string): void { }
+    public onClose(code: number, reason: string): void { }
+    public onMessage(data: WS.Data): void { }
+    public onError(reason: Error): void { }
 }
 
 export function createConnection(url: string): Promise<MessageConnection> {
