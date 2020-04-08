@@ -83,7 +83,6 @@ export class OauthUtils {
             return true;
         } catch (e) {
             return e.message.indexOf('Request failed with status code 401') > 0;
-
         }
     }
 
