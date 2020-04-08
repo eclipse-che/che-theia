@@ -9,7 +9,7 @@
  **********************************************************************/
 
 import { injectable } from 'inversify';
-import Uri from 'vscode-uri';
+import { URI as Uri } from 'vscode-uri';
 import * as che from '@eclipse-che/plugin';
 import * as theia from '@theia/plugin';
 import * as startPoint from '../task-plugin-backend';
