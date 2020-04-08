@@ -280,7 +280,7 @@ export class ChePluginServiceImpl implements ChePluginService {
                     const pluginYamlURI = this.getPluginYampURI(registry, metadataInternal);
 
                     try {
-                        const pluginMetadata = await this.loadPluginMetadata(pluginYamlURI!, longKeyFormat);
+                        const pluginMetadata = await this.loadPluginMetadata(pluginYamlURI, longKeyFormat);
                         this.cachedPlugins.push(pluginMetadata);
                         await this.client.notifyPluginCached(this.cachedPlugins.length);
                     } catch (error) {
@@ -500,7 +500,7 @@ export class ChePluginServiceImpl implements ChePluginService {
 
         } else if (workspace.devfile) {
             const components: cheApi.workspace.devfile.Component[] = [];
-            workspace.devfile.components!.forEach((component: cheApi.workspace.devfile.Component) => {
+            workspace.devfile.components.forEach((component: cheApi.workspace.devfile.Component) => {
                 if (component.type === 'chePlugin') {
                     components.push(component);
                 }

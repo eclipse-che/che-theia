@@ -11,7 +11,7 @@
 import { che as cheApi } from '@eclipse-che/api';
 import * as che from '@eclipse-che/plugin';
 import { Event, JsonRpcServer } from '@theia/core';
-import { createProxyIdentifier, ProxyIdentifier } from '@theia/plugin-ext/lib/common/rpc-protocol';
+import { createProxyIdentifier } from '@theia/plugin-ext/lib/common/rpc-protocol';
 
 /**
  * Workspace plugin API
@@ -403,43 +403,43 @@ export interface WorkspaceSettings {
 }
 
 export const PLUGIN_RPC_CONTEXT = {
-    CHE_WORKSPACE: <ProxyIdentifier<CheWorkspace>>createProxyIdentifier<CheWorkspace>('CheWorkspace'),
-    CHE_WORKSPACE_MAIN: <ProxyIdentifier<CheWorkspaceMain>>createProxyIdentifier<CheWorkspaceMain>('CheWorkspaceMain'),
+    CHE_WORKSPACE: createProxyIdentifier<CheWorkspace>('CheWorkspace'),
+    CHE_WORKSPACE_MAIN: createProxyIdentifier<CheWorkspaceMain>('CheWorkspaceMain'),
 
-    CHE_FACTORY: <ProxyIdentifier<CheFactory>>createProxyIdentifier<CheFactory>('CheFactory'),
-    CHE_FACTORY_MAIN: <ProxyIdentifier<CheFactoryMain>>createProxyIdentifier<CheFactoryMain>('CheFactoryMain'),
+    CHE_FACTORY: createProxyIdentifier<CheFactory>('CheFactory'),
+    CHE_FACTORY_MAIN: createProxyIdentifier<CheFactoryMain>('CheFactoryMain'),
 
-    CHE_DEVFILE: <ProxyIdentifier<CheDevfile>>createProxyIdentifier<CheDevfile>('CheDevfile'),
-    CHE_DEVFILE_MAIN: <ProxyIdentifier<CheDevfileMain>>createProxyIdentifier<CheDevfileMain>('CheDevfileMain'),
+    CHE_DEVFILE: createProxyIdentifier<CheDevfile>('CheDevfile'),
+    CHE_DEVFILE_MAIN: createProxyIdentifier<CheDevfileMain>('CheDevfileMain'),
 
-    CHE_TELEMETRY: <ProxyIdentifier<CheTelemetry>>createProxyIdentifier<CheTelemetry>('CheTelemetry'),
-    CHE_TELEMETRY_MAIN: <ProxyIdentifier<CheTelemetryMain>>createProxyIdentifier<CheTelemetryMain>('CheTelemetryMain'),
+    CHE_TELEMETRY: createProxyIdentifier<CheTelemetry>('CheTelemetry'),
+    CHE_TELEMETRY_MAIN: createProxyIdentifier<CheTelemetryMain>('CheTelemetryMain'),
 
-    CHE_VARIABLES: <ProxyIdentifier<CheVariables>>createProxyIdentifier<CheVariables>('CheVariables'),
-    CHE_VARIABLES_MAIN: <ProxyIdentifier<CheVariablesMain>>createProxyIdentifier<CheVariablesMain>('CheVariablesMain'),
-    CHE_TASK: <ProxyIdentifier<CheTask>>createProxyIdentifier<CheTask>('CheTask'),
-    CHE_TASK_MAIN: <ProxyIdentifier<CheTaskMain>>createProxyIdentifier<CheTaskMain>('CheTaskMain'),
+    CHE_VARIABLES: createProxyIdentifier<CheVariables>('CheVariables'),
+    CHE_VARIABLES_MAIN: createProxyIdentifier<CheVariablesMain>('CheVariablesMain'),
+    CHE_TASK: createProxyIdentifier<CheTask>('CheTask'),
+    CHE_TASK_MAIN: createProxyIdentifier<CheTaskMain>('CheTaskMain'),
 
-    CHE_SSH: <ProxyIdentifier<CheSsh>>createProxyIdentifier<CheSsh>('CheSsh'),
-    CHE_SSH_MAIN: <ProxyIdentifier<CheSshMain>>createProxyIdentifier<CheSshMain>('CheSshMain'),
+    CHE_SSH: createProxyIdentifier<CheSsh>('CheSsh'),
+    CHE_SSH_MAIN: createProxyIdentifier<CheSshMain>('CheSshMain'),
 
-    CHE_GITHUB: <ProxyIdentifier<CheGithub>>createProxyIdentifier<CheGithub>('CheGithub'),
-    CHE_GITHUB_MAIN: <ProxyIdentifier<CheGithubMain>>createProxyIdentifier<CheGithubMain>('CheGithubMain'),
+    CHE_GITHUB: createProxyIdentifier<CheGithub>('CheGithub'),
+    CHE_GITHUB_MAIN: createProxyIdentifier<CheGithubMain>('CheGithubMain'),
 
-    CHE_OAUTH: <ProxyIdentifier<CheOauth>>createProxyIdentifier<CheOauth>('CheOauth'),
-    CHE_OAUTH_MAIN: <ProxyIdentifier<CheOauthMain>>createProxyIdentifier<CheOauthMain>('CheOauthMain'),
+    CHE_OAUTH: createProxyIdentifier<CheOauth>('CheOauth'),
+    CHE_OAUTH_MAIN: createProxyIdentifier<CheOauthMain>('CheOauthMain'),
 
-    CHE_OPENSHIFT: <ProxyIdentifier<CheOpenshift>>createProxyIdentifier<CheOpenshift>('CheOpenshift'),
-    CHE_OPENSHIFT_MAIN: <ProxyIdentifier<CheOpenshiftMain>>createProxyIdentifier<CheOpenshiftMain>('CheOpenshiftMain'),
+    CHE_OPENSHIFT: createProxyIdentifier<CheOpenshift>('CheOpenshift'),
+    CHE_OPENSHIFT_MAIN: createProxyIdentifier<CheOpenshiftMain>('CheOpenshiftMain'),
 
-    CHE_USER: <ProxyIdentifier<CheUser>>createProxyIdentifier<CheUser>('CheUser'),
-    CHE_USER_MAIN: <ProxyIdentifier<CheUserMain>>createProxyIdentifier<CheUserMain>('CheUserMain'),
+    CHE_USER: createProxyIdentifier<CheUser>('CheUser'),
+    CHE_USER_MAIN: createProxyIdentifier<CheUserMain>('CheUserMain'),
 
-    CHE_PRODUCT: <ProxyIdentifier<CheProduct>>createProxyIdentifier<CheProduct>('CheProduct'),
-    CHE_PRODUCT_MAIN: <ProxyIdentifier<CheProductMain>>createProxyIdentifier<CheProductMain>('CheProductMain'),
+    CHE_PRODUCT: createProxyIdentifier<CheProduct>('CheProduct'),
+    CHE_PRODUCT_MAIN: createProxyIdentifier<CheProductMain>('CheProductMain'),
 
-    CHE_SIDERCAR_CONTENT_READER: <ProxyIdentifier<CheSideCarContentReader>>createProxyIdentifier<CheSideCarContentReader>('CheSideCarContentReader'),
-    CHE_SIDERCAR_CONTENT_READER_MAIN: <ProxyIdentifier<CheSideCarContentReaderMain>>createProxyIdentifier<CheSideCarContentReaderMain>('CheSideCarContentReaderMain'),
+    CHE_SIDERCAR_CONTENT_READER: createProxyIdentifier<CheSideCarContentReader>('CheSideCarContentReader'),
+    CHE_SIDERCAR_CONTENT_READER_MAIN: createProxyIdentifier<CheSideCarContentReaderMain>('CheSideCarContentReaderMain'),
 };
 
 // Theia RPC protocol

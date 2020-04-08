@@ -64,7 +64,7 @@ export class AboutCheTheiaDialog extends AboutDialog {
         let src = '';
 
         if (typeof productInfo.logo === 'object') {
-            const productLogo: Logo = productInfo.logo as Logo;
+            const productLogo: Logo = productInfo.logo;
             src = this.isDark(this.themeService.getCurrentTheme()) ? productLogo.dark : productLogo.light;
 
             this.themeService.onThemeChange(e => {

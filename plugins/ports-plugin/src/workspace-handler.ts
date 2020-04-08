@@ -34,7 +34,7 @@ export class WorkspaceHandler {
             }
         }
 
-        const runtimeMachines = workspace!.runtime!.machines || {};
+        const runtimeMachines = workspace.runtime!.machines || {};
         Object.keys(runtimeMachines).forEach((machineName: string) => {
             const machineServers = runtimeMachines[machineName].servers || {};
             Object.keys(machineServers).forEach((serverName: string) => {
