@@ -30,8 +30,8 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
     public async getContainerList(): Promise<WorkspaceContainer[]> {
         const containers: WorkspaceContainer[] = [];
         try {
-            const workspaceId = await this.getWorkspaceId();
-            const restClient = await this.getRemoteApi();
+            const workspaceId = this.getWorkspaceId();
+            const restClient = this.getRemoteApi();
             if (!workspaceId || !restClient) {
                 throw new Error('Unable to use workspace client.');
             }

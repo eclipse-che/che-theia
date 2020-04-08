@@ -142,10 +142,10 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
         this.connectTerminalProcess();
 
-        await this.waitForRemoteConnection;
+        await this.waitForRemoteConnection!.promise;
         // Some delay need to attach exec. If we send resize earlier this size will be skipped.
         setTimeout(async () => {
-            await this.resizeTerminalProcess();
+            this.resizeTerminalProcess();
         }, 100);
 
         if (IBaseTerminalServer.validateId(this.terminalId)) {

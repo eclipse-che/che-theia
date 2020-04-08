@@ -117,7 +117,7 @@ export class TasksPreviewManager {
         });
         startPoint.getSubscriptions().push(previewCommandSubscription);
 
-        const item = await theia.window.createStatusBarItem(theia.StatusBarAlignment.Left);
+        const item = theia.window.createStatusBarItem(theia.StatusBarAlignment.Left);
 
         item.text = `$(link) ${STATUS_BAR_PREVIEW.title}`;
         item.tooltip = STATUS_BAR_PREVIEW.label;
