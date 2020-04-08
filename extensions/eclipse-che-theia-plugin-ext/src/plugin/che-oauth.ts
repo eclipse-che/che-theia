@@ -28,6 +28,6 @@ export class CheOauthImpl implements CheOauth {
     }
 
     isRegistered(provider: string): Promise<boolean> {
-        return this.oAuthMain.$isAuthenticated(provider);
+        return this.oAuthMain.$isRegistered(provider);
     }
 }
