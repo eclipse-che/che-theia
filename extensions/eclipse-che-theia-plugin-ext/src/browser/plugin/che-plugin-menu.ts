@@ -117,18 +117,18 @@ export class ChePluginMenu {
         return this.changeFilterEvent.event;
     }
 
-    async showAvailablePlugins() {
+    async showAvailablePlugins(): Promise<void> {
         this.changeFilterEvent.fire('');
     }
 
     // @installed
-    async showInstalledPlugins() {
+    async showInstalledPlugins(): Promise<void> {
         this.changeFilterEvent.fire('@installed');
     }
 
     // @builtin
     // Displays a list of built in plugins provided inside Theia editor container.
-    async showBuiltInPlugins() {
+    async showBuiltInPlugins(): Promise<void> {
         this.changeFilterEvent.fire('@builtin');
     }
 
@@ -142,7 +142,7 @@ export class ChePluginMenu {
         return this.refreshPluginListEvent.event;
     }
 
-    async refreshPluginList() {
+    async refreshPluginList(): Promise<void> {
         this.refreshPluginListEvent.fire();
     }
 

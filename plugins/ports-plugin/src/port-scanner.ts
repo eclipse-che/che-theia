@@ -43,7 +43,7 @@ class DefaultInternalScanner extends AbstractInternalScanner {
     private fetchIPV4 = true;
     private fetchIPV6 = true;
 
-    async getListeningPortV4() {
+    async getListeningPortV4(): Promise<string> {
         return this.fetchIPV4 ? this.readFilePromise(DefaultInternalScanner.PORTS_IPV4)
             .catch(e => {
                 console.error(e);
@@ -52,7 +52,7 @@ class DefaultInternalScanner extends AbstractInternalScanner {
             }) : '';
     }
 
-    async getListeningPortV6() {
+    async getListeningPortV6(): Promise<string> {
         return this.fetchIPV6 ? this.readFilePromise(DefaultInternalScanner.PORTS_IPV6)
             .catch(e => {
                 console.error(e);
@@ -88,6 +88,7 @@ export class PortScanner {
         const regex = /:\s(.*):(.*)\s[0-9].*\s0A\s/gm;
         const ports = [];
         let matcher;
+        // eslint-disable-next-line no-null/no-null
         while ((matcher = regex.exec(output)) !== null) {
             const ipRaw = matcher[1];
             const portRaw = matcher[2];

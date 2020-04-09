@@ -16,7 +16,7 @@ import {
     containersTreeTaskLauncherCommandHandler
 } from './containers-tree-data-provider';
 
-export function start(context: theia.PluginContext) {
+export function start(context: theia.PluginContext): void {
     const treeDataProvider = new ContainersTreeDataProvider();
     const treeDataDisposableFn = theia.Disposable.create(() => {
         treeDataProvider.dispose();
@@ -39,5 +39,5 @@ export function start(context: theia.PluginContext) {
     );
 }
 
-export function stop() {
+export function stop(): void {
 }

@@ -53,7 +53,7 @@ export interface MessageItem {
  * @param redirectMessage the message if there are 'free ports' in workspace
  * @param errorMessage  if no free port are available
  */
-async function askRedirect(port: Port, redirectMessage: string, errorMessage: string) {
+async function askRedirect(port: Port, redirectMessage: string, errorMessage: string): Promise<void> {
 
     // grab a free redirect
     if (redirectPorts.length === 0) {
@@ -86,7 +86,7 @@ async function askRedirect(port: Port, redirectMessage: string, errorMessage: st
 }
 
 // Callback when a new port is being opened in workspace
-async function onOpenPort(port: Port) {
+async function onOpenPort(port: Port): Promise<void> {
 
     // skip excluded
     if (excludedPorts.includes(port.portNumber)) {
@@ -144,7 +144,7 @@ async function onOpenPort(port: Port) {
     console.info(`The port ${port.portNumber} is now listening on interface ${port.interfaceListen}`);
 }
 
-function onClosedPort(port: Port) {
+function onClosedPort(port: Port): void {
 
     // free redirect listener if there is one
     const portNumber = port.portNumber;
@@ -195,6 +195,6 @@ export async function start(context: theia.PluginContext): Promise<void> {
 
 }
 
-export function stop() {
+export function stop(): void {
 
 }

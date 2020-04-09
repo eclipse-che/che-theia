@@ -18,7 +18,7 @@ import * as os from 'os';
 import { accessSync, mkdtempSync, readFileSync, rmdirSync, unlinkSync } from 'fs';
 import { R_OK } from 'constants';
 
-export async function start() {
+export async function start(): Promise<void> {
 
     let gitLogHandlerInitialized: boolean;
     /* Git log handler, listens to Git events, catches the clone and push events.
@@ -30,7 +30,7 @@ export async function start() {
         if (!gitLogHandlerInitialized && gitExtension && gitExtension.exports) {
             // Set the initialized flag to true state, to not to initialize the handler again on plugin change event.
             gitLogHandlerInitialized = true;
-            // tslint:disable-next-line:no-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const git: any = gitExtension.exports._model.git;
             let command: string;
             let url: string;
@@ -327,6 +327,6 @@ const viewPublicKey = async (sshkeyManager: SshKeyManager) => {
     }
 };
 
-export function stop() {
+export function stop(): void {
 
 }

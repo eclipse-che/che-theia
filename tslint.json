@@ -1,8 +1,0 @@
-{
-    "//": [
-        "Lint rules expected to be used in interactive editors."
-    ],
-    "extends": [
-        "./configs/tslint.json"
-    ]
-}

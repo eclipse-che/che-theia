@@ -61,15 +61,15 @@ export class ChePluginServiceImpl implements ChePluginService {
         this.cheApiService = container.get(CheApiService);
     }
 
-    setClient(client: ChePluginServiceClient) {
+    setClient(client: ChePluginServiceClient): void {
         this.client = client;
     }
 
-    disconnectClient(client: ChePluginServiceClient) {
+    disconnectClient(client: ChePluginServiceClient): void {
         this.client = undefined;
     }
 
-    dispose() {
+    dispose(): void {
     }
 
     async getDefaultRegistry(): Promise<ChePluginRegistry> {
@@ -196,11 +196,11 @@ export class ChePluginServiceImpl implements ChePluginService {
         });
     }
 
-    private isItNode() {
+    private isItNode(): boolean {
         return (typeof process !== 'undefined') && (typeof process.versions.node !== 'undefined');
     }
 
-    private addLogInterceptorsIfEnabled(axiosInstance: AxiosInstance) {
+    private addLogInterceptorsIfEnabled(axiosInstance: AxiosInstance): void {
         axiosInstance.interceptors.request.use(request => {
             console.log('Starting Request', request);
             return request;

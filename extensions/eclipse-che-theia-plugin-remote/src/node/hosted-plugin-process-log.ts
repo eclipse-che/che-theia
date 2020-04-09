@@ -22,13 +22,13 @@ export class LogHostedPluginProcess extends HostedPluginProcess {
         super();
     }
 
-    public runPluginServer() {
+    public runPluginServer(): void {
         super.runPluginServer();
 
         // grab childProcess and client
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const childProcess: cp.ChildProcess = (this as any).childProcess;
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const client: HostedPluginClient = (this as any).client;
 
         if (childProcess) {

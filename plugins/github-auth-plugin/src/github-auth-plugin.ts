@@ -11,7 +11,7 @@
 import * as theia from '@theia/plugin';
 import * as che from '@eclipse-che/plugin';
 
-export function start(context: theia.PluginContext) {
+export function start(context: theia.PluginContext): void {
     if (theia.plugins.getPlugin('github.vscode-pull-request-github')) {
         const command = {
             id: 'github-plugin-authenticate',
@@ -30,6 +30,6 @@ export function start(context: theia.PluginContext) {
     }
 }
 
-export function stop() {
+export function stop(): void {
 
 }

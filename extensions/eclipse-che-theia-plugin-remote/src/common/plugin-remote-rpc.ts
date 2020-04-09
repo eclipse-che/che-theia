@@ -15,9 +15,9 @@ export interface PluginRemoteNode {
     $initExternalPlugins(externalPlugins: DeployedPlugin[]): Promise<void>;
     $loadPlugin(pluginId: string, configStorage: ConfigStorage): Promise<void>;
     $activatePlugin(pluginId: string): Promise<void>;
-    // tslint:disable-next-line: no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     $callLocalMethod(callId: number, index: number, ...args: any[]): Promise<any>;
-    // tslint:disable-next-line: no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     $callMethod(fromHostId: string, pluginId: string, callId: number, entryName: string, ...args: any[]): Promise<any>;
     $definePluginExports(hostId: string, pluginId: string, proxyNames: string[]): Promise<void>;
     $definePluginPackage(pluginId: string, rawModel: PluginPackage): Promise<void>;
@@ -26,9 +26,9 @@ export interface PluginRemoteNode {
 export interface PluginRemoteBrowser {
     $loadPlugin(pluginID: string, configStorage: ConfigStorage): Promise<void>;
     $activatePlugin(pluginId: string): Promise<void>;
-    // tslint:disable-next-line: no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     $callMethod(fromHostId: string, pluginId: string, callId: number, entryName: string, ...args: any[]): Promise<any>;
-    // tslint:disable-next-line: no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     $callLocalMethod(hostId: string, callId: number, index: number, ...args: any[]): Promise<any>;
     $definePluginExports(pluginId: string, proxyNames: string[]): Promise<void>;
     $definePluginPackage(pluginId: string, rawModel: PluginPackage): Promise<void>;
