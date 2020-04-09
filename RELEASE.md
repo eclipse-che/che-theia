@@ -72,21 +72,6 @@ Set `master` to the following rows:
 THEIA_VERSION="master"
 ```
 
-- `dockerfiles/theia/Dockerfile`
-
-Set `THEIA_VERSION` to `master`:
-
-```
-ARG THEIA_VERSION=master
-```
-
-- `dockerfiles/theia-dev/e2e/Dockerfile`
-
-Set the branch to `master`, in cloning command:
-```
-RUN git clone -b 'master' --single-branch --depth 1 https://github.com/eclipse-theia/theia theia
-```
-
 - `dockerfiles/theia/docker/alpine/builder-clone-theia.dockerfile`
 
 Replace with the following to checkout to the specified commit: 

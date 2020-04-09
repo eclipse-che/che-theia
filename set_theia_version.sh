@@ -93,9 +93,6 @@ ask_for_change_che_theia_init_baranch
 
 read -p "Enter Theia version : "  theiaVersion
 
-sed -i -e "s/RUN git clone -b 'master'/RUN git clone -b 'v${theiaVersion}'/" ./dockerfiles/theia-dev/e2e/Dockerfile
-sed -i -e "s/ARG THEIA_VERSION=..*/ARG THEIA_VERSION=${theiaVersion}/" ./dockerfiles/theia/Dockerfile
-
 for dir in extensions/*
 do
     echo ${dir}
