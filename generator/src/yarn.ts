@@ -83,7 +83,7 @@ export class Yarn {
             throw new CliError(`The initial module ${rootModule} was not found in dependencies`);
         }
 
-        this.findDependencies(initNode!, nodeTreeDependencies, subsetDependencies);
+        this.findDependencies(initNode, nodeTreeDependencies, subsetDependencies);
 
         // OK, now grab folders for each of these dependencies
         const nodePackages: INodePackage[] = [];
