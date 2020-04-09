@@ -82,11 +82,13 @@ export interface CheGithubMain {
 export interface CheOauth {
     getProviders(): Promise<string[]>;
     isAuthenticated(provider: string): Promise<boolean>;
+    isRegistered(provider: string): Promise<boolean>;
 }
 
 export interface CheOauthMain {
     $getProviders(): Promise<string[]>;
     $isAuthenticated(provider: string): Promise<boolean>;
+    $isRegistered(provider: string): Promise<boolean>;
 }
 
 /**
@@ -461,7 +463,7 @@ export interface CheApiService {
 
     getFactoryById(factoryId: string): Promise<cheApi.factory.Factory>;
 
-    getUserId(): Promise<string>;
+    getUserId(token?: string): Promise<string>;
     getUserPreferences(): Promise<Preferences>;
     getUserPreferences(filter: string | undefined): Promise<Preferences>;
     updateUserPreferences(update: Preferences): Promise<Preferences>;
@@ -477,8 +479,8 @@ export interface CheApiService {
     getAllSshKey(service: string): Promise<cheApi.ssh.SshPair[]>;
     submitTelemetryEvent(id: string, ownerId: string, ip: string, agent: string, resolution: string, properties: [string, string][]): Promise<void>;
     submitTelemetryActivity(): Promise<void>;
-    getOAuthToken(oAuthProvider: string): Promise<string | undefined>;
-    getOAuthProviders(): Promise<string[]>;
+    getOAuthToken(oAuthProvider: string, token?: string): Promise<string | undefined>;
+    getOAuthProviders(token?: string): Promise<string[]>;
 }
 
 export const CHE_TASK_SERVICE_PATH = '/che-task-service';

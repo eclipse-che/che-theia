@@ -52,11 +52,6 @@ export async function start(): Promise<void> {
                     }
                     // If the remote repository is a GitHub repository, ask to upload a public SSH key.
                     if (out.indexOf('git@github.com') > -1) {
-                        // Currently multi-user che-theia doesn't support GiHub oAuth.
-                        if (isMultiUser()) {
-                            showWarningMessage(keys.length === 0, 'GitHub');
-                            return;
-                        }
                         switch (command) {
                             case 'clone': {
                                 if (await askToGenerateIfEmptyAndUploadKeyToGithub(keys, true)) {
@@ -82,8 +77,6 @@ export async function start(): Promise<void> {
             git.onOutput.addListener('log', listener);
         }
     };
-
-    const isMultiUser = (): boolean => !!process.env['KEYCLOAK_SERVICE_HOST'];
 
     const showWarningMessage = (showGenerate: boolean, gitProviderName?: string) =>
         theia.window.showWarningMessage(`Permission denied, please ${showGenerate ? 'generate (F1 => ' + GENERATE.label + ') and ' : ''}
