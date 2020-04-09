@@ -59,7 +59,7 @@ RUN rm -rf ${HOME}/theia-source-code/examples/browser && \
     rm -rf ${HOME}/theia-source-code/packages/java-debug && \
     rm -rf ${HOME}/theia-source-code/packages/python && \
     rm -rf ${HOME}/theia-source-code/packages/typescript && \
-    # Remove linter/formatters
+    # Remove linter/formatters of theia
     sed -i 's|concurrently -n compile,lint -c blue,green \\"theiaext compile\\" \\"theiaext lint\\"|concurrently -n compile -c blue \\"theiaext compile\\"|' ${HOME}/theia-source-code/dev-packages/ext-scripts/package.json && \
     # Remove external configs removed
     sed -i -n '/.*packages\/cpp/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
@@ -71,9 +71,12 @@ RUN rm -rf ${HOME}/theia-source-code/examples/browser && \
     sed -i -n '/.*examples\/api-samples/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
     sed -i -n '/.*examples\/electron/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
     # change update goal to be the eclipse che assembly
-    sed -i 's|.*"prepare:build".*|    \"prepare:build\"\: \"yarn build \&\& run lint \&\& lerna run build\", |' ${HOME}/theia-source-code/package.json && \
+    sed -i 's|.*"prepare:build".*|    \"prepare:build\"\: \"yarn build \&\& lerna run build\", |' ${HOME}/theia-source-code/package.json && \
     cat ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    find ${HOME}/theia-source-code/che-theia -name "package.json" | xargs sed -i 's|concurrently -n \\"format,lint,compile\\" -c \\"red,green,blue\\" \\"yarn format\\" \\"yarn lint\\" \\"yarn compile\\"|concurrently -n \\"compile\\" -c \\"blue\\" \\"yarn compile\\"|'
+    find ${HOME}/theia-source-code/che-theia -name "package.json" | xargs sed -i 's|concurrently -n \\"format,lint,compile\\" -c \\"red,green,blue\\" \\"yarn format\\" \\"yarn lint\\" \\"yarn compile\\"|concurrently -n \\"compile\\" -c \\"blue\\" \\"yarn compile\\"|' && \
+    # disable linters of che-theia as it's already done before
+    find ${HOME}/theia-source-code/che-theia -name "package.json" | xargs sed -i 's|.*"lint:fix".*|    \"lint:fix\"\: \"echo skip linter\", |' && \
+    find ${HOME}/theia-source-code/che-theia -name "package.json" | xargs sed -i 's|.*"lint".*|    \"lint\"\: \"echo skip linter\", |'
 
 RUN che-theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 
