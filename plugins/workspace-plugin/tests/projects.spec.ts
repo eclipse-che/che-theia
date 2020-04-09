@@ -27,8 +27,8 @@ describe('Devfile: Projects:', () => {
             expect(projects.length).toBe(1);
             expect(projects[0].name).toBe('che');
             expect(projects[0].clonePath).toBe(undefined);
-            expect(projects[0].source.location).toBe('https://github.com/eclipse/che.git');
-            expect(projects[0].source.branch).toBe('che-13112');
+            expect(projects[0].source!.location).toBe('https://github.com/eclipse/che.git');
+            expect(projects[0].source!.branch).toBe('che-13112');
         });
 
         test('Should be able to add project into existing projects list', () => {
@@ -53,12 +53,12 @@ describe('Devfile: Projects:', () => {
             expect(projects.length).toBe(2);
             expect(projects[0].name).toBe('che');
             expect(projects[0].clonePath).toBe(undefined);
-            expect(projects[0].source.location).toBe('https://github.com/eclipse/che.git');
-            expect(projects[0].source.branch).toBe('che-13112');
+            expect(projects[0].source!.location).toBe('https://github.com/eclipse/che.git');
+            expect(projects[0].source!.branch).toBe('che-13112');
             expect(projects[1].name).toBe('che-theia');
             expect(projects[1].clonePath).toBe(undefined);
-            expect(projects[1].source.location).toBe('https://github.com/eclipse/che-theia.git');
-            expect(projects[1].source.branch).toBe('issue-12321');
+            expect(projects[1].source!.location).toBe('https://github.com/eclipse/che-theia.git');
+            expect(projects[1].source!.branch).toBe('issue-12321');
         });
 
         test('Should be able to delete existing project', () => {
@@ -88,8 +88,8 @@ describe('Devfile: Projects:', () => {
 
             expect(projects.length).toBe(1);
             expect(projects[0].name).toBe('che');
-            expect(projects[0].source.location).toBe('https://github.com/eclipse/che.git');
-            expect(projects[0].source.branch).toBe('che-13112');
+            expect(projects[0].source!.location).toBe('https://github.com/eclipse/che.git');
+            expect(projects[0].source!.branch).toBe('che-13112');
         });
 
         test('Should be able to add project with custom location', () => {
@@ -114,12 +114,12 @@ describe('Devfile: Projects:', () => {
             expect(projects.length).toBe(2);
             expect(projects[0].name).toBe('che');
             expect(projects[0].clonePath).toBe(undefined);
-            expect(projects[0].source.location).toBe('https://github.com/eclipse/che.git');
-            expect(projects[0].source.branch).toBe('che-13112');
+            expect(projects[0].source!.location).toBe('https://github.com/eclipse/che.git');
+            expect(projects[0].source!.branch).toBe('che-13112');
             expect(projects[1].name).toBe('che-theia');
             expect(projects[1].clonePath).toBe('theia/packages/che-theia');
-            expect(projects[1].source.location).toBe('https://github.com/eclipse/che-theia.git');
-            expect(projects[1].source.branch).toBe('issue-12321');
+            expect(projects[1].source!.location).toBe('https://github.com/eclipse/che-theia.git');
+            expect(projects[1].source!.branch).toBe('issue-12321');
         });
 
         test('Should be able to delete project with custom location', () => {
@@ -150,8 +150,8 @@ describe('Devfile: Projects:', () => {
 
             expect(projects.length).toBe(1);
             expect(projects[0].name).toBe('che');
-            expect(projects[0].source.location).toBe('https://github.com/eclipse/che.git');
-            expect(projects[0].source.branch).toBe('che-13112');
+            expect(projects[0].source!.location).toBe('https://github.com/eclipse/che.git');
+            expect(projects[0].source!.branch).toBe('che-13112');
         });
     });
 
@@ -175,23 +175,23 @@ describe('Devfile: Projects:', () => {
                     }
                 }
             ];
-            expect(projects[0].source.location).toBe('https://github.com/eclipse-theia/theia.git');
-            expect(projects[1].source.location).toBe('https://github.com/eclipse/che-theia-factory-extension.git');
+            expect(projects[0].source!.location).toBe('https://github.com/eclipse-theia/theia.git');
+            expect(projects[1].source!.location).toBe('https://github.com/eclipse/che-theia-factory-extension.git');
 
             projecthelper.updateOrCreateGitProjectInDevfile(projects,
                                                    'che-theia-factory-extension',
                                                    'https://github.com/sunix/che-theia-factory-extension.git',
                                                    'wip-sunix');
-            expect(projects[1].source.location).toBe('https://github.com/sunix/che-theia-factory-extension.git');
-            expect(projects[1].source['branch']).toBe('wip-sunix');
-            expect(projects[1].source['tag']).toBe(undefined);
+            expect(projects[1].source!.location).toBe('https://github.com/sunix/che-theia-factory-extension.git');
+            expect(projects[1].source!['branch']).toBe('wip-sunix');
+            expect(projects[1].source!['tag']).toBe(undefined);
 
             projecthelper.updateOrCreateGitProjectInDevfile(projects,
                                                    '/che/che-theia-factory-extension',
                                                    'https://github.com/sunix/che-theia-factory-extension.git',
                                                    'wip-theia');
-            expect(projects[2].source.location).toBe('https://github.com/sunix/che-theia-factory-extension.git');
-            expect(projects[2].source['branch']).toBe('wip-theia');
+            expect(projects[2].source!.location).toBe('https://github.com/sunix/che-theia-factory-extension.git');
+            expect(projects[2].source!['branch']).toBe('wip-theia');
             expect(projects[2].name).toBe('che-theia-factory-extension');
         });
 
@@ -214,12 +214,12 @@ describe('Devfile: Projects:', () => {
                     }
                 }
             ];
-            expect(projects[0].source.location).toBe('https://github.com/eclipse-theia/theia.git');
-            expect(projects[1].source.location).toBe('https://github.com/eclipse/che-theia-factory-extension.git');
+            expect(projects[0].source!.location).toBe('https://github.com/eclipse-theia/theia.git');
+            expect(projects[1].source!.location).toBe('https://github.com/eclipse/che-theia-factory-extension.git');
 
             projecthelper.deleteProjectFromDevfile(projects, 'che-theia-factory-extension');
             expect(projects.length).toBe(1);
-            expect(projects[0].source.location).toBe('https://github.com/eclipse-theia/theia.git');
+            expect(projects[0].source!.location).toBe('https://github.com/eclipse-theia/theia.git');
 
             projecthelper.deleteProjectFromDevfile(projects, 'theia');
             expect(projects.length).toBe(0);
@@ -229,8 +229,8 @@ describe('Devfile: Projects:', () => {
                                                    'https://github.com/sunix/che-theia-factory-extension.git',
                                                    'wip-theia');
             expect(projects.length).toBe(1);
-            expect(projects[0].source.location).toBe('https://github.com/sunix/che-theia-factory-extension.git');
-            expect(projects[0].source.branch).toBe('wip-theia');
+            expect(projects[0].source!.location).toBe('https://github.com/sunix/che-theia-factory-extension.git');
+            expect(projects[0].source!.branch).toBe('wip-theia');
             expect(projects[0].name).toBe('che-theia-factory-extension');
 
             projecthelper.deleteProjectFromDevfile(projects, 'che/che-theia-factory-extension');

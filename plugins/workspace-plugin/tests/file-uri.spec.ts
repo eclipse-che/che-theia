@@ -7,7 +7,6 @@
  * Contributors:
  *   Red Hat, Inc. - initial API and implementation
  */
-import { TheiaCommand } from '../src/theia-commands';
 import { convertToFileURI, convertToCheProjectPath } from '../src/file-uri'
 
 describe('Test exec commands', () => {
@@ -32,6 +31,6 @@ describe('Testing convertion of project paths to be stored in the workspace conf
         expect(convertToCheProjectPath('/projects/che-workspace-extension', '/projects')).toBe('che-workspace-extension');
         expect(convertToCheProjectPath('/projects/che/che-workspace-extension/', '/projects')).toBe('che/che-workspace-extension');
         expect(convertToCheProjectPath('/projects/theiadev_projects/blog.sunix.org/', '/projects/theiadev_projects')).toBe('blog.sunix.org');
-        expect(convertToCheProjectPath('/projects/che/che-workspace-extension/', undefined)).toBe('che/che-workspace-extension');
+        expect(convertToCheProjectPath('/projects/che/che-workspace-extension/', '')).toBe('che/che-workspace-extension');
     });
 });
