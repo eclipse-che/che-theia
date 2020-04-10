@@ -34,8 +34,3 @@ cp "${CHE_THEIA_GENERATOR_PACKAGE}" "${base_dir}/asset-${CHE_THEIA_GENERATOR_PAC
 
 init --name:theia-dev "$@"
 build
-if ! dry_run; then
-  if ! skip_tests; then
-    bash "${base_dir}"/e2e/build.sh "$@"
-  fi
-fi  
