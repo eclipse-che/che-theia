@@ -31,7 +31,7 @@ export class CheVariablesMainImpl implements CheVariablesMain {
     async $registerVariable(variable: Variable): Promise<void> {
         const handle = (id: number) =>
             this.proxy.$resolveVariable(id);
-        const disposable = await this.variableRegistry.registerVariable({
+        const disposable = this.variableRegistry.registerVariable({
             name: variable.name,
             description: variable.description,
             resolve(): MaybePromise<string | undefined> {

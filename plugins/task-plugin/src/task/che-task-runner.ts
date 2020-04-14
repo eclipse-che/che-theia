@@ -34,7 +34,7 @@ export class CheTaskRunner {
     protected readonly machineExecWatcher: MachineExecWatcher;
 
     @postConstruct()
-    protected init() {
+    protected init(): void {
         const disposable = this.machineExecWatcher.onExit(event => {
             che.task.fireTaskExited({ execId: event.id, code: event.code, processId: event.id });
         });

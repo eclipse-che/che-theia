@@ -21,7 +21,6 @@ import { CHEWorkspaceService } from '../../common/workspace-service';
 import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal-widget';
 import { REMOTE_TERMINAL_WIDGET_FACTORY_ID, RemoteTerminalWidgetFactoryOptions } from '../terminal-widget/remote-terminal-widget';
 import { filterRecipeContainers } from './terminal-command-filter';
-import URI from '@theia/core/lib/common/uri';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { isOSX } from '@theia/core/lib/common/os';
 import { TerminalKeybindingContexts } from '@theia/terminal/lib/browser/terminal-keybinding-contexts';
@@ -59,8 +58,8 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     private readonly mainMenuId = 'theia:menubar';
     private editorContainerName: string | undefined;
 
-    async registerCommands(registry: CommandRegistry) {
-        const serverUrl = <URI | undefined>await this.termApiEndPointProvider();
+    async registerCommands(registry: CommandRegistry): Promise<void> {
+        const serverUrl = await this.termApiEndPointProvider();
         if (serverUrl) {
             registry.registerCommand(NewTerminalInSpecificContainer, {
                 execute: (containerNameToExecute: string) => {
@@ -150,7 +149,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         }
     }
 
-    private async registerTerminalCommandPerContainer(registry: CommandRegistry) {
+    private async registerTerminalCommandPerContainer(registry: CommandRegistry): Promise<void> {
         const containers = await this.cheWorkspaceService.getContainerList();
 
         for (const container of filterRecipeContainers(containers)) {
@@ -167,9 +166,9 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     public async newTerminalPerContainer(containerName: string, options: TerminalWidgetOptions, closeWidgetOnExitOrError: boolean = true): Promise<TerminalWidget> {
         try {
             const workspaceId = <string>await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
-            const termApiEndPoint = <URI | undefined>await this.termApiEndPointProvider();
+            const termApiEndPoint = await this.termApiEndPointProvider();
 
-            const widget = <TerminalWidget>await this.widgetManager.getOrCreateWidget(REMOTE_TERMINAL_WIDGET_FACTORY_ID, <RemoteTerminalWidgetFactoryOptions>{
+            const widget = await this.widgetManager.getOrCreateWidget(REMOTE_TERMINAL_WIDGET_FACTORY_ID, <RemoteTerminalWidgetFactoryOptions>{
                 created: new Date().toString(),
                 machineName: containerName,
                 workspaceId,
@@ -177,7 +176,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
                 closeWidgetOnExitOrError,
                 ...options
             });
-            return widget;
+            return widget as TerminalWidget;
         } catch (err) {
             console.error('Failed to create terminal widget. Cause: ', err);
         }
@@ -197,7 +196,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         termWidget.start();
     }
 
-    async getEditorContainerName() {
+    async getEditorContainerName(): Promise<string | undefined> {
         if (!this.editorContainerName) {
             this.editorContainerName = await this.cheWorkspaceService.findEditorMachineName();
         }
@@ -233,8 +232,8 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         return this.widgetManager.getWidgets(REMOTE_TERMINAL_WIDGET_FACTORY_ID) as TerminalWidget[];
     }
 
-    async registerMenus(menus: MenuModelRegistry) {
-        const serverUrl = <URI | undefined>await this.termApiEndPointProvider();
+    async registerMenus(menus: MenuModelRegistry): Promise<void> {
+        const serverUrl = await this.termApiEndPointProvider();
         if (serverUrl) {
             menus.registerSubmenu(TerminalMenus.TERMINAL, 'Terminal');
             menus.registerMenuAction(TerminalMenus.TERMINAL_NEW, {
@@ -262,8 +261,8 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         });
     }
 
-    async registerKeybindings(registry: KeybindingRegistry) {
-        const serverUrl = <URI | undefined>await this.termApiEndPointProvider();
+    async registerKeybindings(registry: KeybindingRegistry): Promise<void> {
+        const serverUrl = await this.termApiEndPointProvider();
         if (serverUrl) {
             registry.registerKeybinding({
                 command: NewTerminalInSpecificContainer.id,
@@ -288,7 +287,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         }
     }
 
-    private registerTerminalKeybindings(registry: KeybindingRegistry) {
+    private registerTerminalKeybindings(registry: KeybindingRegistry): void {
         // Ctrl + a-z
         this.registerRangeKeyBindings(registry, [KeyModifier.CTRL], Key.KEY_A, 25, 'Key');
         // Alt + a-z
@@ -305,7 +304,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         this.registerKeyBinding(registry, [KeyModifier.Alt], Key.BACKQUOTE);
     }
 
-    private registerRangeKeyBindings(registry: KeybindingRegistry, keyModifiers: KeyModifier[], startKey: Key, offSet: number, codePrefix: string) {
+    private registerRangeKeyBindings(registry: KeybindingRegistry, keyModifiers: KeyModifier[], startKey: Key, offSet: number, codePrefix: string): void {
         for (let i = 0; i < offSet + 1; i++) {
             const keyCode = startKey.keyCode + i;
             const key: Key = {
@@ -317,7 +316,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         }
     }
 
-    private registerKeyBinding(registry: KeybindingRegistry, keyModifiers: KeyModifier[], key: Key) {
+    private registerKeyBinding(registry: KeybindingRegistry, keyModifiers: KeyModifier[], key: Key): void {
         const keybinding = KeyCode.createKeyCode({ first: key, modifiers: keyModifiers }).toString();
         registry.registerKeybinding({
             command: KeybindingRegistry.PASSTHROUGH_PSEUDO_COMMAND,
@@ -326,7 +325,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         });
     }
 
-    private registerScrollKeyBindings(registry: KeybindingRegistry) {
+    private registerScrollKeyBindings(registry: KeybindingRegistry): void {
         registry.registerKeybinding({
             command: TerminalCommands.SCROLL_LINE_UP.id,
             keybinding: 'ctrl+shift+up',

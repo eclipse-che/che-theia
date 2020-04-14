@@ -1,0 +1,31 @@
+#
+# Copyright (c) 2020 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+# Che-Theia workflow
+# matrix jobs with alpine and ubi8
+name: CI
+
+# Trigger the workflow on push or pull request
+on: [push, pull_request]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        dist: [ 'alpine', 'ubi8' ]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout che-theia source code
+    - uses: actions/setup-node@v1
+      name: Configuring nodejs 10.x version
+      with:
+        node-version: '10.x'
+    - name: build
+      run: ./build.sh --build-args:THEIA_VERSION=master --tag:next --branch:master --git-ref:refs\\/heads\\/master --dockerfile:Dockerfile.${{matrix.dist}}

@@ -37,7 +37,7 @@ export class MachineExecWatcher {
         this.exitEmitter = new theia.EventEmitter<ExecExitEvent>();
     }
 
-    init(connection: rpc.MessageConnection) {
+    init(connection: rpc.MessageConnection): void {
 
         const exitNotification = new rpc.NotificationType<ExecExitEvent, void>(EXIT_METHOD_NAME);
         connection.onNotification(exitNotification, (event: ExecExitEvent) => {

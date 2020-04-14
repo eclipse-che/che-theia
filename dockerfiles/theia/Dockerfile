@@ -47,8 +47,8 @@ WORKDIR ${HOME}/theia-source-code
 COPY asset-che-theia.tar.gz /tmp/asset-che-theia.tar.gz
 RUN mkdir -p ${HOME}/theia-source-code/che-theia/ && tar xzf /tmp/asset-che-theia.tar.gz -C ${HOME}/theia-source-code/che-theia/ && rm /tmp/asset-che-theia.tar.gz
 
-# run che:theia init command and alias che-theia repository to use local sources insted of cloning
-RUN che:theia init -c ${HOME}/theia-source-code/che-theia/che-theia-init-sources.yml --alias https://github.com/eclipse/che-theia=${HOME}/theia-source-code/che-theia
+# run che-theia init command and alias che-theia repository to use local sources insted of cloning
+RUN che-theia init -c ${HOME}/theia-source-code/che-theia/che-theia-init-sources.yml --alias https://github.com/eclipse/che-theia=${HOME}/theia-source-code/che-theia
 
 # cleanup theia folders that we don't need to compile
 RUN rm -rf ${HOME}/theia-source-code/examples/browser && \
@@ -59,7 +59,7 @@ RUN rm -rf ${HOME}/theia-source-code/examples/browser && \
     rm -rf ${HOME}/theia-source-code/packages/java-debug && \
     rm -rf ${HOME}/theia-source-code/packages/python && \
     rm -rf ${HOME}/theia-source-code/packages/typescript && \
-    # Remove linter/formatters
+    # Remove linter/formatters of theia
     sed -i 's|concurrently -n compile,lint -c blue,green \\"theiaext compile\\" \\"theiaext lint\\"|concurrently -n compile -c blue \\"theiaext compile\\"|' ${HOME}/theia-source-code/dev-packages/ext-scripts/package.json && \
     # Remove external configs removed
     sed -i -n '/.*packages\/cpp/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
@@ -71,11 +71,14 @@ RUN rm -rf ${HOME}/theia-source-code/examples/browser && \
     sed -i -n '/.*examples\/api-samples/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
     sed -i -n '/.*examples\/electron/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
     # change update goal to be the eclipse che assembly
-    sed -i 's|.*"prepare:build".*|    \"prepare:build\"\: \"yarn build \&\& run lint \&\& lerna run build\", |' ${HOME}/theia-source-code/package.json && \
+    sed -i 's|.*"prepare:build".*|    \"prepare:build\"\: \"yarn build \&\& lerna run build\", |' ${HOME}/theia-source-code/package.json && \
     cat ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    find ${HOME}/theia-source-code/che-theia -name "package.json" | xargs sed -i 's|concurrently -n \\"format,lint,compile\\" -c \\"red,green,blue\\" \\"yarn format\\" \\"yarn lint\\" \\"yarn compile\\"|concurrently -n \\"compile\\" -c \\"blue\\" \\"yarn compile\\"|'
+    find ${HOME}/theia-source-code/che-theia -name "package.json" | xargs sed -i 's|concurrently -n \\"format,lint,compile\\" -c \\"red,green,blue\\" \\"yarn format\\" \\"yarn lint\\" \\"yarn compile\\"|concurrently -n \\"compile\\" -c \\"blue\\" \\"yarn compile\\"|' && \
+    # disable linters of che-theia as it's already done before
+    find ${HOME}/theia-source-code/che-theia -name "package.json" | xargs sed -i 's|.*"lint:fix".*|    \"lint:fix\"\: \"echo skip linter\", |' && \
+    find ${HOME}/theia-source-code/che-theia -name "package.json" | xargs sed -i 's|.*"lint".*|    \"lint\"\: \"echo skip linter\", |'
 
-RUN che:theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
+RUN che-theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 
 # Compile Theia
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-before-compile.dockerfile}
@@ -88,7 +91,7 @@ RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
 
 # Run into production mode
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-before-production.dockerfile}
-RUN che:theia production
+RUN che-theia production
 
 # Compile plugins
 RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
@@ -98,7 +101,10 @@ RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
 COPY asset-untagged-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/production/plugins/theia_yeoman_plugin.theia
 
 # change permissions
-RUN find production -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt
+RUN find production -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt && \
+    # Add missing permissions on shell scripts of plug-ins
+    find /home/theia-dev/theia-source-code/production/plugins -name "*.sh" | xargs chmod +x
+
 
 
 ###

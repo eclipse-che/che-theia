@@ -18,7 +18,7 @@ import * as os from 'os';
 import { accessSync, mkdtempSync, readFileSync, rmdirSync, unlinkSync } from 'fs';
 import { R_OK } from 'constants';
 
-export async function start() {
+export async function start(): Promise<void> {
 
     let gitLogHandlerInitialized: boolean;
     /* Git log handler, listens to Git events, catches the clone and push events.
@@ -30,7 +30,7 @@ export async function start() {
         if (!gitLogHandlerInitialized && gitExtension && gitExtension.exports) {
             // Set the initialized flag to true state, to not to initialize the handler again on plugin change event.
             gitLogHandlerInitialized = true;
-            // tslint:disable-next-line:no-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const git: any = gitExtension.exports._model.git;
             let command: string;
             let url: string;
@@ -52,11 +52,6 @@ export async function start() {
                     }
                     // If the remote repository is a GitHub repository, ask to upload a public SSH key.
                     if (out.indexOf('git@github.com') > -1) {
-                        // Currently multi-user che-theia doesn't support GiHub oAuth.
-                        if (isMultiUser()) {
-                            showWarningMessage(keys.length === 0, 'GitHub');
-                            return;
-                        }
                         switch (command) {
                             case 'clone': {
                                 if (await askToGenerateIfEmptyAndUploadKeyToGithub(keys, true)) {
@@ -82,8 +77,6 @@ export async function start() {
             git.onOutput.addListener('log', listener);
         }
     };
-
-    const isMultiUser = (): boolean => !!process.env['KEYCLOAK_SERVICE_HOST'];
 
     const showWarningMessage = (showGenerate: boolean, gitProviderName?: string) =>
         theia.window.showWarningMessage(`Permission denied, please ${showGenerate ? 'generate (F1 => ' + GENERATE.label + ') and ' : ''}
@@ -270,7 +263,7 @@ const uploadPrivateKey = async (sshkeyManager: SshKeyManager) => {
     try {
         await sshkeyManager.create({ name: hostName, service: 'vcs', privateKey: privateKeyContent });
         await updateConfig(hostName);
-        await writeKey(hostName, privateKeyContent!);
+        await writeKey(hostName, privateKeyContent);
         theia.window.showInformationMessage(`Key pair for ${hostName} successfully uploaded`);
         showWarning(RESTART_WARNING_MESSAGE);
     } catch (error) {
@@ -334,6 +327,6 @@ const viewPublicKey = async (sshkeyManager: SshKeyManager) => {
     }
 };
 
-export function stop() {
+export function stop(): void {
 
 }

@@ -24,10 +24,10 @@ process.on('uncaughtException', (err: Error) => {
     console.error('Remote plugin node: got an uncaught exception', err);
 });
 
-// tslint:disable-next-line: no-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const unhandledPromises: Promise<any>[] = [];
 
-// tslint:disable-next-line: no-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
     unhandledPromises.push(promise);
     setTimeout(() => {
@@ -45,7 +45,7 @@ process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
     }, 2000);
 });
 
-// tslint:disable-next-line: no-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 process.on('rejectionHandled', (promise: Promise<any>) => {
     const index = unhandledPromises.indexOf(promise);
     if (index >= 0) {

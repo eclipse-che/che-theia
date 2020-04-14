@@ -48,7 +48,7 @@ export class MachineExecClient {
     protected readonly machineExecWatcher!: MachineExecWatcher;
 
     @postConstruct()
-    protected init() {
+    protected init(): void {
         this.getConnection();
     }
 

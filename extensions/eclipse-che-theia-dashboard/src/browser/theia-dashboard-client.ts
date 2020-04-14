@@ -39,7 +39,7 @@ export class TheiaDashboardClient implements FrontendApplicationContribution {
         // load this module at FrontendApplication startup
     }
 
-    async onReady() {
+    async onReady(): Promise<void> {
         const logoEl: HTMLElement | null = document.getElementById(THEIA_ICON_ID);
         if (!logoEl || !logoEl.parentElement) {
             return;
@@ -50,7 +50,7 @@ export class TheiaDashboardClient implements FrontendApplicationContribution {
         dashboardEl.className = 'che-dashboard';
         const arrowEl: HTMLElement = document.createElement(isInFrame ? 'i' : 'a');
         arrowEl.className = 'fa fa-chevron-left';
-        logoEl!.parentElement!.replaceChild(dashboardEl, logoEl!);
+        logoEl.parentElement.replaceChild(dashboardEl, logoEl);
 
         if (isInFrame) {
             arrowEl.setAttribute('title', 'Hide navigation bar');

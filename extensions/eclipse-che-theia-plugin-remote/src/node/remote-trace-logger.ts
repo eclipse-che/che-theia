@@ -20,17 +20,17 @@ import { WebSocketClient } from './plugin-remote-init';
 @injectable()
 export class RemoteHostTraceLogger implements ILogger {
 
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private originalConsoleLog: any;
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private originalConsoleWarn: any;
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private originalConsoleError: any;
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private originalConsoleInfo: any;
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private originalConsoleTrace: any;
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private originalConsoleDebug: any;
 
     constructor() {
@@ -42,28 +42,28 @@ export class RemoteHostTraceLogger implements ILogger {
         this.originalConsoleDebug = console.debug;
     }
 
-    init() {
-        // tslint:disable-next-line:no-any
+    init(): void {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         console.log = (message: any, ...args: any[]) => {
             this.doLog(message, ...args);
         };
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         console.warn = (message: any, ...args: any[]) => {
             this.warn(message, ...args);
         };
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         console.error = (message: any, ...args: any[]) => {
             this.error(message, ...args);
         };
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         console.info = (message: any, ...args: any[]) => {
             this.info(message, ...args);
         };
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         console.trace = (message: any, ...args: any[]) => {
             this.trace(message, ...args);
         };
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         console.debug = (message: any, ...args: any[]) => {
             this.debug(message, ...args);
         };
@@ -120,47 +120,47 @@ export class RemoteHostTraceLogger implements ILogger {
 
     private callbacks: Map<number, LogCallback> = new Map();
 
-    public addCallback(webSocketClient: WebSocketClient, callback: LogCallback) {
+    public addCallback(webSocketClient: WebSocketClient, callback: LogCallback): void {
         this.callbacks.set(webSocketClient.getIdentifier(), callback);
     }
 
-    public removeCallback(identifier: number) {
+    public removeCallback(identifier: number): void {
         this.callbacks.delete(identifier);
     }
 
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async trace(message: any, ...params: any[]): Promise<void> {
         this.callbacks.forEach(callback => callback.trace(message, ...params));
         this.originalConsoleTrace.trace(message, ...params);
     }
 
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async debug(message: any, ...params: any[]): Promise<void> {
         this.callbacks.forEach(callback => callback.debug(message, ...params));
         this.originalConsoleDebug(message, ...params);
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async doLog(message: any, ...params: any[]): Promise<void> {
         this.callbacks.forEach(callback => callback.log(message, ...params));
         this.originalConsoleLog(message, ...params);
     }
 
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async info(message: any, ...params: any[]): Promise<void> {
         this.callbacks.forEach(callback => callback.info(message, ...params));
         this.originalConsoleInfo(message, ...params);
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async warn(message: any, ...params: any[]): Promise<void> {
         this.callbacks.forEach(callback => callback.warn(message, ...params));
         this.originalConsoleWarn(message, ...params);
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async error(message: any, ...params: any[]): Promise<void> {
         this.callbacks.forEach(callback => callback.error(message, ...params));
         this.originalConsoleError(message, ...params);
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async fatal(message: any, ...params: any[]): Promise<void> {
         this.callbacks.forEach(callback => callback.fatal(message, ...params));
         this.originalConsoleError(message, ...params);
@@ -169,24 +169,24 @@ export class RemoteHostTraceLogger implements ILogger {
 }
 
 export interface LogCallback {
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     log(message: any, ...params: any[]): Promise<void>;
 
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     trace(message: any, ...params: any[]): Promise<void>;
 
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     debug(message: any, ...params: any[]): Promise<void>;
 
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     info(message: any, ...params: any[]): Promise<void>;
 
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     warn(message: any, ...params: any[]): Promise<void>;
 
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     error(message: any, ...params: any[]): Promise<void>;
 
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     fatal(message: any, ...params: any[]): Promise<void>;
 }

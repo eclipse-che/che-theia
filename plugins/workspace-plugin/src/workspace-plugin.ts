@@ -14,7 +14,7 @@ import { handleWorkspaceProjects } from './workspace-projects-manager';
 import { EphemeralWorkspaceChecker } from './ephemeral-workspace-checker';
 import { Devfile } from './devfile';
 
-export async function start(context: theia.PluginContext) {
+export async function start(context: theia.PluginContext): Promise<void> {
     let projectsRoot = '/projects';
     const projectsRootEnvVar = await theia.env.getEnvVariable('CHE_PROJECTS_ROOT');
     if (projectsRootEnvVar) {
@@ -27,5 +27,5 @@ export async function start(context: theia.PluginContext) {
     handleWorkspaceProjects(context, projectsRoot);
 }
 
-export function stop() {
+export function stop(): void {
 }

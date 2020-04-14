@@ -78,10 +78,10 @@ export class RemoteTerminalWatcher {
         const errorEmitter = this.onRemoteTerminalErrorEmitter;
 
         return {
-            onExecExit(event: ExecExitEvent) {
+            onExecExit(event: ExecExitEvent): void {
                 exitEmitter.fire(event);
             },
-            onExecError(event: ExecErrorEvent) {
+            onExecError(event: ExecErrorEvent): void {
                 errorEmitter.fire(event);
             }
         };

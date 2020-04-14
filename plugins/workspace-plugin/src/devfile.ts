@@ -22,13 +22,13 @@ export class Devfile {
     constructor(private context: theia.PluginContext) {
     }
 
-    init() {
+    init(): void {
         this.context.subscriptions.push(theia.commands.registerCommand(
             CREATE_WORKSPACE_COMMAND, uri => this.createWorkspace(uri))
         );
     }
 
-    async createWorkspace(uri: theia.Uri) {
+    async createWorkspace(uri: theia.Uri): Promise<void> {
         if ('file' !== uri.scheme) {
             return;
         }

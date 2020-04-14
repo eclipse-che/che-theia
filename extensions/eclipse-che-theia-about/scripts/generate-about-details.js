@@ -27,10 +27,10 @@ async function getTheiaGitSha1() {
     }
 
     // returns short (first 7 symbols) version of HEAD commit hash
-    async function getLastCommitHash(theiaDir) {
+    async function getLastCommitHash(theiaDirParam) {
         // run git command in theia directory
         const { stdout, stderr } = await exec('git rev-parse --short HEAD', {
-            cwd: theiaDir
+            cwd: theiaDirParam
         });
         if (stderr) {
             throw new Error(`Unable to get current SHA-1: ${stderr}`);
@@ -65,7 +65,7 @@ async function getCheTheiaGitSha1() {
     }
 
     // try to look at ~/theia-source-code/che-theia/.git-che-theia-sha1 if docker build
-    sha1InsideCheTheia = path.resolve(os.homedir(), 'theia-source-code', 'che-theia', '.git-che-theia-sha1');
+    const sha1InsideCheTheia = path.resolve(os.homedir(), 'theia-source-code', 'che-theia', '.git-che-theia-sha1');
     if (await fs.pathExists(sha1InsideCheTheia)) {
         return (await fs.readFile(sha1InsideCheTheia, 'utf8')).trim();
     }

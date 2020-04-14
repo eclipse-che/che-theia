@@ -19,15 +19,15 @@
     "@eclipse-che/plugin": "latest",
     "@theia/plugin": "next",
     "@theia/plugin-packager": "latest",
-    "@types/jest": "24.0.3",
+    "@types/jest": "25.2.1",
     "@types/node": "11.9.4"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build && yarn lint:fix && yarn test",
     "clean": "rimraf lib",
     "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
-    "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
-    "lint:fix": "tslint -c ../../configs/tslint.json --fix --project .",
+    "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
     "compile": "tsc",
     "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia-plugin pack",
     "watch": "tsc -w",

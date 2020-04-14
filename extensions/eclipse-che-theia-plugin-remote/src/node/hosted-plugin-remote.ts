@@ -96,7 +96,7 @@ export class HostedPluginRemote {
         this.hostedPluginMapping.getEndPoints().forEach(endpointAdress => this.connect(endpointAdress));
     }
 
-    connect(endpointAdress: string) {
+    connect(endpointAdress: string): void {
         this.logger.debug(`Establish websocket connection to ${endpointAdress}`);
         const websocket = new Websocket(this.logger, endpointAdress);
         this.endpointsSockets.set(endpointAdress, websocket);
@@ -131,7 +131,7 @@ export class HostedPluginRemote {
      * Handle the mesage to remotely send to a ws endpoint
      * @param jsonMessage the given message
      */
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onMessage(jsonMessage: any): void {
         // do the routing depending on the plugin's endpoint
         const pluginId = jsonMessage.pluginID;
@@ -150,7 +150,7 @@ export class HostedPluginRemote {
      * Handle a local message
      * @param message the message to analyze locally and not sending back to client
      */
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     handleLocalMessage(jsonMessage: any): void {
         if (jsonMessage.metadata && jsonMessage.metadata.result) {
             const deployedPlugins: DeployedPlugin[] = jsonMessage.metadata.result;
@@ -180,8 +180,8 @@ export class HostedPluginRemote {
      * Send the given message back to the client
      * @param message the message to send
      */
-    // tslint:disable-next-line:no-any
-    sendToClient(message: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    sendToClient(message: any): void {
         if (this.client) {
             this.client.postMessage(message);
         }

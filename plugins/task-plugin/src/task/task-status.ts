@@ -19,7 +19,7 @@ const REMOTE_TERMINAL_WIDGET_FACTORY_ID = 'remote-terminal';
 @injectable()
 export class TaskStatusHandler {
 
-    init() {
+    init(): void {
         che.task.onDidEndTask(async (event: che.TaskExitedEvent) => {
             const status = this.getTaskStatus(event);
             const terminalIdentifier = this.getTerminalIdentifier(event);

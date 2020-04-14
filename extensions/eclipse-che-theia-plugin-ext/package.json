@@ -20,10 +20,14 @@
     "@theia/mini-browser": "next",
     "@theia/plugin-ext": "next",
     "axios": "0.19.0",
+    "tunnel": "0.0.6",
+    "vscode-uri": "2.1.1",
     "js-yaml": "3.13.1",
     "@eclipse-che/workspace-telemetry-client": "latest"
   },
   "devDependencies": {
+    "@types/tunnel": "0.0.1",
+    "eslint-plugin-sonarjs": "0.5.0",
     "clean-webpack-plugin": "^0.1.19",
     "ts-loader": "^4.1.0",
     "webpack": "^4.20.2",
@@ -35,7 +39,7 @@
     "prepare": "yarn clean && yarn build",
     "clean": "rimraf lib",
     "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
-    "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
+    "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
     "compile": "tsc",
     "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && yarn run compileWorker",
     "compileWorker": "webpack-cli --config webpack.config.js",

@@ -11,7 +11,7 @@
 import * as theia from '@theia/plugin';
 import * as che from '@eclipse-che/plugin';
 
-export function start(context: theia.PluginContext) {
+export function start(context: theia.PluginContext): void {
     if (theia.plugins.getPlugin('github.vscode-pull-request-github')) {
         const command = {
             id: 'github-plugin-authenticate',
@@ -19,7 +19,7 @@ export function start(context: theia.PluginContext) {
         };
         context.subscriptions.push(theia.commands.registerCommand(command, async () => {
             const token = await che.github.getToken();
-            const conf = await theia.workspace.getConfiguration();
+            const conf = theia.workspace.getConfiguration();
             await conf.update('githubPullRequests.hosts', [{
                 host: 'github.com',
                 token
@@ -30,6 +30,6 @@ export function start(context: theia.PluginContext) {
     }
 }
 
-export function stop() {
+export function stop(): void {
 
 }

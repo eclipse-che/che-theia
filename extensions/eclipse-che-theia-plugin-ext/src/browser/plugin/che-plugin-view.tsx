@@ -14,9 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { injectable, inject } from 'inversify';
+import { injectable, inject, postConstruct } from 'inversify';
 import { Message } from '@phosphor/messaging';
-import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import { AlertMessage } from '@theia/core/lib/browser/widgets/alert-message';
 import * as React from 'react';
 import { ChePlugin } from '../../common/che-plugin-protocol';
@@ -26,6 +25,7 @@ import { ChePluginMenu } from './che-plugin-menu';
 import { ConfirmDialog } from '@theia/core/lib/browser';
 import { ChePluginViewToolbar } from './che-plugin-view-toolbar';
 import { ChePluginViewList } from './che-plugin-view-list';
+import { PluginWidget } from '@theia/plugin-ext/lib/main/browser/plugin-ext-widget';
 
 export type PluginViewState =
     'updating_cache' |
@@ -34,7 +34,7 @@ export type PluginViewState =
     'failed';
 
 @injectable()
-export class ChePluginView extends ReactWidget {
+export class ChePluginView extends PluginWidget {
 
     protected initialized = false;
 
@@ -58,34 +58,7 @@ export class ChePluginView extends ReactWidget {
     ) {
         super();
         this.id = 'che-plugins';
-        this.title.label = 'Plugins';
-        this.title.caption = 'Plugins';
         this.title.iconClass = 'fa che-plugins-tab-icon';
-        this.title.closable = true;
-        this.addClass('theia-plugins');
-
-        this.node.tabIndex = 0;
-
-        chePluginManager.onWorkspaceConfigurationChanged(
-            needToRestart => this.onWorkspaceConfigurationChanged());
-
-        chePluginManager.onPluginRegistryListChanged(
-            () => this.updateCache());
-
-        chePluginMenu.onChangeFilter(
-            filter => this.onChangeFilter(filter));
-
-        chePluginMenu.onRefreshPluginList(
-            () => this.updateCache());
-
-        chePluginServiceClient.onPluginCacheSizeChanged(
-            plugins => this.onPluginCacheSizeChanged(plugins));
-
-        chePluginServiceClient.onPluginCached(
-            plugins => this.onPluginCached(plugins));
-
-        chePluginServiceClient.onCachingComplete(
-            () => this.onCachingComplete());
 
         this.node.ondrop = event => {
             event.preventDefault();
@@ -98,12 +71,18 @@ export class ChePluginView extends ReactWidget {
         };
     }
 
-    protected onActivateRequest(msg: Message) {
-        super.onActivateRequest(msg);
-        this.node.focus();
+    @postConstruct()
+    protected init(): void {
+        this.toDispose.push(this.chePluginManager.onWorkspaceConfigurationChanged(needToRestart => this.onWorkspaceConfigurationChanged()));
+        this.toDispose.push(this.chePluginManager.onPluginRegistryListChanged(() => this.updateCache()));
+        this.toDispose.push(this.chePluginMenu.onChangeFilter(filter => this.onChangeFilter(filter)));
+        this.toDispose.push(this.chePluginMenu.onRefreshPluginList(() => this.updateCache()));
+        this.toDispose.push(this.chePluginServiceClient.onPluginCacheSizeChanged(plugins => this.onPluginCacheSizeChanged(plugins)));
+        this.toDispose.push(this.chePluginServiceClient.onPluginCached(plugins => this.onPluginCached(plugins)));
+        this.toDispose.push(this.chePluginServiceClient.onCachingComplete(() => this.onCachingComplete()));
     }
 
-    protected onAfterShow(msg: Message) {
+    protected onAfterShow(msg: Message): void {
         super.onAfterShow(msg);
 
         if (!this.initialized) {
@@ -171,7 +150,7 @@ export class ChePluginView extends ReactWidget {
     /**
      * User has changed Toolbar filter field
      */
-    protected onFilterChanged(filter: string) {
+    protected onFilterChanged(filter: string): void {
         this.filterString = filter;
 
         if (this.status === 'filtering') {
@@ -182,7 +161,7 @@ export class ChePluginView extends ReactWidget {
     /**
      * Request from Plugin view Menu to shange current filter
      */
-    protected onChangeFilter(filter: string) {
+    protected onChangeFilter(filter: string): void {
         if (this.status === 'filtering') {
             this.filterString = filter;
             this.filter();
@@ -233,7 +212,7 @@ export class ChePluginView extends ReactWidget {
         return installed;
     }
 
-    protected async onDrop(input: string) {
+    protected async onDrop(input: string): Promise<void> {
         const extension = this.chePluginManager.checkVsCodeExtension(input);
         if (extension) {
             const confirm = new ConfirmDialog({
@@ -367,7 +346,7 @@ export class ChePluginView extends ReactWidget {
 
     protected onRestartWorkspaceNotificationClicked = async () => {
         await this.chePluginManager.restartWorkspace();
-    }
+    };
 
     protected hideNotification = async () => {
         this.hidingRestartWorkspaceNotification = true;
@@ -378,6 +357,6 @@ export class ChePluginView extends ReactWidget {
             this.hidingRestartWorkspaceNotification = false;
             this.update();
         }, 500);
-    }
+    };
 
 }

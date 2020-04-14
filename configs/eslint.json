@@ -1,0 +1,8 @@
+{
+    "extends": [
+        "./eslint.base.json",
+        "./eslint.theia.errors.json",
+        "./eslint.theia.warnings.json",
+        "./eslint.che-theia.json"
+    ]
+}

@@ -54,7 +54,7 @@ export function applySegmentsToUri(endPointUrl: string, ...pathSegements: string
 }
 
 /** Parses the given content and returns the object the JSON content represents. */
-// tslint:disable-next-line:no-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function parse(content: string): any {
     const strippedContent = jsoncparser.stripComments(content);
     const errors: ParseError[] = [];
@@ -84,7 +84,7 @@ export function format(content: string, options: FormattingOptions): string {
  * @param value new value for the specified property or item.
  * @param options options to apply formatting
  */
-// tslint:disable-next-line:no-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function modify(content: string, jsonPath: JSONPath, value: any, options: FormattingOptions): string {
     const edits = jsoncparser.modify(content, jsonPath, value, { formattingOptions: options });
     return jsoncparser.applyEdits(content, edits);
@@ -107,7 +107,7 @@ export function writeFileSync(filePath: string, content: string): void {
 }
 
 /** Synchronously creates a directory to the file if they don't exist */
-export function ensureDirExistence(filePath: string) {
+export function ensureDirExistence(filePath: string): void {
     const dirName = path.dirname(filePath);
     if (fs.existsSync(dirName)) {
         return;

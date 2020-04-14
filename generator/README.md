@@ -18,24 +18,24 @@ using npm:
 $ npm install -g @eclipse-che/theia-generator
 ```
 
-Then, a new command line tool is available : `che:theia`
+Then, a new command line tool is available : `che-theia`
 
 # Using the tool
 
 Once the tool is installed, the following commands are available:
-- `che:theia init`
-- `che:theia production`
+- `che-theia init`
+- `che-theia production`
 
-(help is also available with command `che:theia --help`)
+(help is also available with command `che-theia --help`)
 
-## che:theia init
+## che-theia init
 
 This command needs to be launched inside a cloned directory of Eclipse Theia cloned directory
 
 ```
 $ git clone https://github.com/eclipse-theia/theia
 $ cd theia
-$ che:theia init
+$ che-theia init
 ```
 
 once the init command has been launched:
@@ -49,9 +49,9 @@ In order to build the product, just run `yarn` at the root folder (where theia h
 
 ### Custom extension and plugin set
 
-Also you can provide custom `yaml` with your extension set, by using `-c` or `--config` parameter of `che:theia init` :
+Also you can provide custom `yaml` with your extension set, by using `-c` or `--config` parameter of `che-theia init` :
 
-`che:theia init -c ./path/to/custom/che-theia-init-sources.yaml`
+`che-heia init -c ./path/to/custom/che-theia-init-sources.yaml`
 
 The sample of `che-theia-init-sources.yaml` can be found [there](https://github.com/eclipse/che-theia/blob/master/che-theia-init-sources.yml)
 
@@ -59,12 +59,12 @@ The sample of `che-theia-init-sources.yaml` can be found [there](https://github.
 
 Dev mode is the way to use all new extensions from `master` branch:
 
-`che:theia init -d`
+`che-theia init -d`
 
-And `che:theia` will use `master` branch for all extensions and plugins, regardless of provided configuration
+And `che-theia` will use `master` branch for all extensions and plugins, regardless of provided configuration
 
 ### Development life-cycle
-Che Theia should be built from root directory only (Root directory of Che Theia is the directory into which Theia was clonned and `che:theia init` was executed there). In case of building from subdirectories it will mess up dependencies, don't do it.
+Che Theia should be built from root directory only (Root directory of Che Theia is the directory into which Theia was clonned and `che-theia init` was executed there). In case of building from subdirectories it will mess up dependencies, don't do it.
 
 To build whole Che Theia just execute `yarn` command in the root directory.
 If only one module should be built, use `npx run build <module-name>`. For example `npx run build @theia/plugin-ext`.
@@ -77,17 +77,17 @@ To develop them one should place copy of their sources somewhere else (outside o
 ### Compiling the plugins
 Plugins have to be compiled separately with the script `plugins/foreach_yarn`. This script simply run the `yarn` command on each subfolders of `plugins` and copy the `.theia` package in `production/plugins` folder to be reused by the che-theia product.
 
-## che:theia production
-A production's ready assembly of che-theia can be obtained by running from the root folder of theia: `che:theia production`
+## che-theia production
+A production's ready assembly of che-theia can be obtained by running from the root folder of theia: `che-theia production`
 
 It will generate in `${where theia has been cloned}/production` folder a ready-to-use assembly of theia, without lot of files (like source maps, source code, etc)
 
 It can be started with the command `node ${where theia has been cloned}/production/src-gen/backend/main.js`
 
-## che:theia clean
+## che-theia clean
 
 If you want to clean up your Theia repository use
-`che:theia clean` command, and it will undo all modification on your repository
+`che-theia clean` command, and it will undo all modification on your repository
 
 # Developer's guide
 [See Contributing](CONTRIBUTING.md)

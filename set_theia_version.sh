@@ -71,8 +71,6 @@ change_change_che_theia_init_baranch () {
         fi
     done < "che-theia-init-sources.yml";
     printf "%b\n" "$content" > "che-theia-init-sources.yml";
-
-    sed -i 's~@api.github.com/repos/eclipse/che-theia/git/${GIT_REF}~@api.github.com/repos/eclipse/che-theia/git/refs/heads/'${branchName}'~' ./dockerfiles/theia/Dockerfile 
 }
 
 # first is path to dir which contains 'package.json', second is Theia version
@@ -87,7 +85,7 @@ updateVersion() {
 
 # first is path to dir which contains 'package.json', second is che-Theia version
 updateChePluginDependencies() {
-    sed -i -r -e '/@eclipse-che\/api|@eclipse-che\/workspace-client/!s/("@eclipse-che\/..*": )(".*")/\1"'$2'"/' ./$1/package.json
+    sed -i -r -e '/@eclipse-che\/api|@eclipse-che\/workspace-client|@eclipse-che\/workspace-telemetry-client/!s/("@eclipse-che\/..*": )(".*")/\1"'$2'"/' ./$1/package.json
 }
 
 

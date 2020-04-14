@@ -11,7 +11,7 @@
 import { injectable, inject, postConstruct } from 'inversify';
 import { TerminalWidgetImpl } from '@theia/terminal/lib/browser/terminal-widget-impl';
 import { IBaseTerminalServer } from '@theia/terminal/lib/common/base-terminal-protocol';
-import { TerminalProxyCreator, TerminalProxyCreatorProvider } from '../server-definition/terminal-proxy-creator';
+import { TerminalProxyCreatorProvider } from '../server-definition/terminal-proxy-creator';
 import { ATTACH_TERMINAL_SEGMENT, RemoteTerminalServerProxy, RemoteTerminalWatcher } from '../server-definition/remote-terminal-protocol';
 import { RemoteWebSocketConnectionProvider } from '../server-definition/remote-connection';
 import { Deferred } from '@theia/core/lib/common/promise-util';
@@ -61,7 +61,6 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     @inject(OutputChannelManager)
     protected readonly outputChannelManager: OutputChannelManager;
 
-    protected terminalId: number = -1;
     private isOpen: boolean = false;
     protected channel: OutputChannel;
 
@@ -114,7 +113,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     async start(id?: number): Promise<number> {
         try {
             if (!this.termServer) {
-                const termProxyCreator = <TerminalProxyCreator>await this.termProxyCreatorProvider();
+                const termProxyCreator = await this.termProxyCreatorProvider();
                 this.termServer = termProxyCreator.create();
 
                 this.toDispose.push(this.termServer.onDidCloseConnection(() => {
@@ -131,10 +130,10 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         }
 
         try {
-            this.terminalId = typeof id !== 'number' ? await this.createTerminal() : await this.attachTerminal(id);
+            this._terminalId = typeof id !== 'number' ? await this.createTerminal() : await this.attachTerminal(id);
         } catch (error) {
             if (IBaseTerminalServer.validateId(id)) {
-                this.terminalId = id!;
+                this._terminalId = id!;
                 this.onDidOpenEmitter.fire(undefined);
                 return this.terminalId;
             }
@@ -143,10 +142,10 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
         this.connectTerminalProcess();
 
-        await this.waitForRemoteConnection;
+        await this.waitForRemoteConnection!.promise;
         // Some delay need to attach exec. If we send resize earlier this size will be skipped.
         setTimeout(async () => {
-            await this.resizeTerminalProcess();
+            this.resizeTerminalProcess();
         }, 100);
 
         if (IBaseTerminalServer.validateId(this.terminalId)) {

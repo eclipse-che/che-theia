@@ -55,7 +55,17 @@ declare module '@eclipse-che/plugin' {
 
     export namespace oAuth {
         export function getProviders(): Promise<string[]>;
+        /**
+         * Returns {@code true} if the current user is authenticated for given oAuth provider.
+         * @param provider oAuth provider to Check.
+         */
         export function isAuthenticated(provider: string): Promise<boolean>;
+        /**
+         * Returns {@code true} if the given oAuth provider is registered.
+         * Use {@link $getProviders} in single-user mode to find the provider in the list.
+         * @param provider oAuth provider to Check.
+         */
+        export function isRegistered(provider: string): Promise<boolean>;
     }
 
     export namespace ssh {
@@ -190,7 +200,7 @@ declare module '@eclipse-che/plugin' {
         readonly ctx?: string,
         /** task config used for launching a task */
         readonly config: TaskConfiguration
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         readonly [key: string]: any;
     }
 
@@ -206,7 +216,7 @@ declare module '@eclipse-che/plugin' {
         readonly terminalId?: number;
         readonly processId?: number;
 
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         readonly [key: string]: any;
     }
 

@@ -32,9 +32,9 @@ export class CheApiServiceImpl implements CheApiService {
         return process.env.CHE_API_INTERNAL;
     }
 
-    async getUserId(): Promise<string> {
+    async getUserId(token?: string): Promise<string> {
         const cheApiClient = await this.getCheApiClient();
-        const user = await cheApiClient.getCurrentUser();
+        const user = await cheApiClient.getCurrentUser(token);
         return user.id;
     }
 
@@ -115,6 +115,16 @@ export class CheApiServiceImpl implements CheApiService {
         } catch (e) {
             console.log(e);
             return Promise.reject('Cannot create Che API REST Client');
+        }
+    }
+
+    async updateWorkspaceActivity(): Promise<void> {
+        try {
+            const cheApiClient = await this.getCheApiClient();
+            return cheApiClient.updateActivity(this.getWorkspaceIdFromEnv());
+        } catch (e) {
+            console.error(e);
+            throw new Error(e);
         }
     }
 
@@ -286,19 +296,15 @@ export class CheApiServiceImpl implements CheApiService {
         }
     }
 
-    async getOAuthToken(oAuthProvider: string): Promise<string | undefined> {
+    async getOAuthToken(oAuthProvider: string, token?: string): Promise<string | undefined> {
         const cheApiClient = await this.getCheApiClient();
-        try {
-            return await cheApiClient.getOAuthToken(oAuthProvider);
-        } catch (e) {
-            return undefined;
-        }
+        return cheApiClient.getOAuthToken(oAuthProvider, token);
     }
 
-    async getOAuthProviders(): Promise<string[]> {
+    async getOAuthProviders(token?: string): Promise<string[]> {
         const cheApiClient = await this.getCheApiClient();
         try {
-            return await cheApiClient.getOAuthProviders();
+            return await cheApiClient.getOAuthProviders(token);
         } catch (e) {
             return [];
         }
@@ -338,7 +344,7 @@ export class CheApiServiceImpl implements CheApiService {
             }
             restAPIConfig.ssCrtPath = SS_CRT_PATH;
 
-            this.workspaceRestAPI = await WorkspaceClient.getRestApi(restAPIConfig);
+            this.workspaceRestAPI = WorkspaceClient.getRestApi(restAPIConfig);
         }
 
         return this.workspaceRestAPI;

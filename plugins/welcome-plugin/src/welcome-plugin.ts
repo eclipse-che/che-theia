@@ -33,7 +33,6 @@ async function getHtmlForWebview(context: theia.PluginContext): Promise<string> 
 
     const welcomePage = new WelcomePage();
     const rendering = await welcomePage.render();
-    // tslint:disable: max-line-length
     return `<!DOCTYPE html>
             <html lang="en">
             <head>
@@ -93,7 +92,7 @@ export async function addPanel(context: theia.PluginContext): Promise<void> {
 
     // Handle messages from the webview
     currentPanel.webview.onDidReceiveMessage(
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (message: any) => {
             switch (message.command) {
                 case 'alert':
@@ -129,7 +128,7 @@ export function start(context: theia.PluginContext): void {
     }
 }
 
-export function stop() {
+export function stop(): void {
 }
 
 export class WelcomePageSerializer implements theia.WebviewPanelSerializer {
@@ -137,7 +136,7 @@ export class WelcomePageSerializer implements theia.WebviewPanelSerializer {
     constructor(readonly context: theia.PluginContext) {
     }
 
-    // tslint:disable-next-line: no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async deserializeWebviewPanel(webviewPanel: theia.WebviewPanel, state: any): Promise<void> {
         webviewPanel.webview.html = await getHtmlForWebview(this.context);
     }

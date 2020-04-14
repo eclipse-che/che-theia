@@ -1,0 +1,145 @@
+# Copyright (c) 2020 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# See: https://sipb.mit.edu/doc/safe-shell/
+#
+#
+# A devfile to develpop che-theia projects on https://che.openshift.io.
+# For developers who work on Theia or Che-Theia extensions and plugins.
+
+apiVersion: 1.0.0
+
+metadata:
+  name: theia-dogfooding
+  
+projects:
+  - name: theia
+    source:
+      location: 'https://github.com/eclipse-theia/theia.git'
+      type: git
+      branch: master
+
+  - name: che-theia
+    source:
+      location: 'https://github.com/eclipse/che-theia.git'
+      type: git
+      branch: master
+
+components:
+  - id: eclipse/che-theia/latest
+    memoryLimit: 1500M
+    type: cheEditor
+    alias: theia-editor
+
+  - type: chePlugin
+    id: che-incubator/typescript/latest
+    memoryLimit: 2048M
+
+  - type: chePlugin
+    id: redhat/vscode-yaml/latest
+
+  - type: chePlugin
+    id: eclipse/che-machine-exec-plugin/latest
+
+  - type: dockerimage
+    image: 'quay.io/eclipse/che-theia-dev:next'
+    alias: che-dev
+    mountSources: true
+    endpoints:
+      - name: theia-dev-flow
+        port: 3010
+        attributes:
+          protocol: http
+          public: 'true'
+    memoryLimit: 3Gi
+    env:
+      - name: BUILD_PATH
+        value: /tmp
+
+commands:
+  - name: '1. Init che-theia'
+    actions:
+      - workdir: /projects
+        type: exec
+        command: |
+          if [ ! -d "$BUILD_PATH/theia/che/che-theia" ]; then \
+            echo -e '\e[32mInitializing Che-Theia...\e[0m'; \
+            mkdir -p $BUILD_PATH/theia/che/che-theia; \
+            rsync -rtv /projects/theia/ $BUILD_PATH/theia/; \
+            rsync -rtv /projects/che-theia/ $BUILD_PATH/theia/che/che-theia/; \
+            cd $BUILD_PATH/theia; \
+            che-theia init --alias https://github.com/eclipse/che-theia=$BUILD_PATH/theia/che/che-theia; \
+            echo -e '\e[32mDone\e[0m'; \
+          else \
+            echo 'Che-Theia is already initialized.'; \
+          fi
+        component: che-dev
+
+  - name: '2. Rsync sources'
+    actions:
+      - workdir: /projects
+        type: exec
+        command: |
+          if [ -d "$BUILD_PATH/theia/che/che-theia" ]; then \
+            echo -e '\e[32mRsyncing sources...\e[0m'; \
+            rsync -rtv --exclude='node_mobules' --exclude='package.json' --exclude='root-compilation.tsconfig.json' /projects/theia/ $BUILD_PATH/theia/; \
+            rsync -rtv --exclude='node_mobules' --exclude='package.json' /projects/che-theia/ $BUILD_PATH/theia/che/che-theia/; \
+            echo -e '\e[32mDone\e[0m'; \
+          else \
+            echo 'Che-Theia is not initialized.'; \
+            echo -e 'You need to run \e[32m1. Init che-theia\e[0m command the first.'; \
+          fi
+        component: che-dev
+
+  - name: '3. Build che-theia'
+    actions:
+      - workdir: /projects
+        type: exec
+        command: |
+          if [ -d "$BUILD_PATH/theia/examples/assembly" ]; then \
+            echo -e '\e[32mBuilding che-theia...\e[0m'; \
+            cd $BUILD_PATH/theia; \
+            yarn; \
+            echo -e '\e[32mDone\e[0m'; \
+          else \
+            echo 'Che-Theia is not initialized.'; \
+            echo -e 'You need to run \e[32m1. Init che-theia\e[0m command the first.'; \
+          fi
+        component: che-dev
+
+  - name: '4.1. Prepare theia-* dirs'
+    actions:
+      - workdir: /projects
+        type: exec
+        command: |
+          echo -e '\e[32mPreparing theia-* dirs...\e[0m'; \
+          mkdir -p /projects/theia-default-plugins; \
+          mkdir -p /projects/theia-plugins; \
+          mkdir -p /projects/theia-projects-dir; \
+          cp -u /default-theia-plugins/* /projects/theia-default-plugins/; \
+          echo -e '\e[32mDone\e[0m'
+        component: theia-editor
+
+  - name: '4.2. Launch'
+    actions:
+      - workdir: /projects
+        type: exec
+        command: |
+          if [ -d "$BUILD_PATH/theia/examples/assembly" ]; then \
+            cd $BUILD_PATH/theia/examples/assembly; \
+            echo -e '\e[32mLaunching che-theia...\e[0m'; \
+            export CHE_PROJECTS_ROOT="/projects/theia-projects-dir"; \
+            export THEIA_DEFAULT_PLUGINS="local-dir:///projects/theia-default-plugins"; \
+            export THEIA_PLUGINS="local-dir:///projects/theia-plugins"; \
+            export THEIA_PLUGIN_ENDPOINT_DISCOVERY_PORT="2506"; \
+            yarn theia start /projects/theia-projects-dir --hostname=0.0.0.0 --port=3010; \
+            echo -e '\e[32mDone\e[0m'; \
+          else \
+            echo 'Che-Theia is not build.'; \
+            echo -e 'You need to initialize Che-Theia by \e[32m1. Init che-theia\e[0m command and then build by \e[32m3. Build che-theia\e[0m.'; \
+          fi
+        component: che-dev

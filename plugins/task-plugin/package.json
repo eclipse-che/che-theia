@@ -52,8 +52,8 @@
     "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
     "watch": "tsc -watch",
     "compile": "tsc",
-    "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
-    "lint:fix": "tslint -c ../../configs/tslint.json --fix --project .",
+    "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
     "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia-plugin pack"
   },
   "engines": {
@@ -65,8 +65,8 @@
   "dependencies": {
     "inversify": "4.14.0",
     "reflect-metadata": "0.1.8",
-    "vscode-uri": "1.0.5",
-    "vscode-ws-jsonrpc": "^0.1.1",
+    "vscode-uri": "2.1.1",
+    "vscode-ws-jsonrpc": "0.2.0",
     "ws": "^5.2.2",
     "jsonc-parser": "^2.0.2"
   }

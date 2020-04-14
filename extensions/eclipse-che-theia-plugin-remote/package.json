@@ -8,11 +8,14 @@
     "src"
   ],
   "dependencies": {
+    "@theia/core": "next",
     "@theia/plugin-ext": "next",
     "@theia/plugin-ext-vscode": "next",
-    "@theia/core": "next"
+    "deasync": "^0.1.19",
+    "vscode-uri": "2.1.1"
   },
   "devDependencies": {
+    "@types/deasync": "^0.1.0",
     "@types/escape-html": "0.0.20",
     "concurrently": "^3.5.0",
     "typescript-formatter": "7.2.2"
@@ -21,14 +24,14 @@
     "prepare": "yarn clean && yarn build",
     "clean": "rimraf lib",
     "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
-    "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
-    "lint:fix": "tslint -c ../../configs/tslint.json --fix --project .",
+    "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
     "compile": "tsc",
-    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint:fix\" \"yarn compile\"",
+    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
     "watch": "tsc -w"
   },
   "theiaExtensions": [
     {
+      "frontend": "lib/browser/plugin-remote-frontend-module",
       "backend": "lib/node/plugin-remote-backend-module"
     }
   ]

@@ -63,9 +63,9 @@ export class PreferencesProvider implements FrontendApplicationContribution {
         }
 
         return components
-            // tslint:disable-next-line:no-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .filter((component: che.workspace.devfile.Component) => (<any>component).preferences)
-            // tslint:disable-next-line:no-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .map((component: che.workspace.devfile.Component) => (<any>component).preferences)
             .reduce((result: [string, string][], preferences: { [key: string]: string }) => {
                 Object.keys(preferences).forEach(key => {
