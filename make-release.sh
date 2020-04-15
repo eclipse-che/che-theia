@@ -23,33 +23,19 @@ while [[ "$#" -gt 0 ]]; do
     '-v'|'--version') VERSION="$2"; shift 1;;
     '-n'|'--no-commit') NOCOMMIT=1; TRIGGER_RELEASE=0; shift 0;;
     '--theia-version') THEIA_VERSION="$2"; shift 1;;
-    '--theia-commit-sha') THEIA_COMMIT_SHA="$2"; shift 1;;
   esac
   shift 1
 done
 
 usage ()
 {
-  echo "Usage: $0 --repo <GIT REPO TO EDIT> --version <VERSION_TO_RELEASE> --theia-version <THEIA_VERSION> --theia-commit-sha <THEIA_COMMIT_SHA> --trigger-release"
-  echo "Example: $0 --repo git@github.com:eclipse/che-theia --version 7.7.0 --theia-version 0.15.0-next.15995cd0 --theia-commit-sha 15995cd0ed4713ad12c34e5b1a478ba1b2d95a6b --trigger-release"; echo
+  echo "Usage: $0 --repo <GIT REPO TO EDIT> --version <VERSION_TO_RELEASE> --theia-version <THEIA_VERSION> --trigger-release"
+  echo "Example: $0 --repo git@github.com:eclipse/che-theia --version 7.7.0 --theia-version 0.15.0-next.15995cd0 --trigger-release"; echo
 }
 
 if [[ ! ${VERSION} ]] || [[ ! ${REPO} ]] || [[ ! ${THEIA_VERSION} ]]; then
   usage
   exit 1
-fi
-
-if [[ ${THEIA_VERSION} == *"-next."* ]]; then
-  if [[ ! ${THEIA_COMMIT_SHA} ]]; then
-    echo "Please, provide --theia-commit-sha parameter that corresponds to the Theia version ${THEIA_VERSION}"; echo
-    exit 1
-  fi
-
-  NPM_SHORT_SHA=${THEIA_VERSION##*.}
-  if [[ ${NPM_SHORT_SHA} != ${THEIA_COMMIT_SHA:0:8} ]]; then
-    echo "Please, check --theia-version and --theia-commit-sha parameters. Provided commit SHA doesn't correspond to the Theia version ${THEIA_VERSION}"; echo
-    exit 1
-  fi
 fi
 
 # derive branch from version
@@ -115,6 +101,8 @@ apply_files_edits () {
   done
 
   if [[ ${THEIA_BRANCH} == master ]]; then
+    THEIA_COMMIT_SHA=${THEIA_VERSION##*.}
+
     if [[ ${VERSION} == *".0" ]]; then
       # if depending on Theia next (from master), need to checkout to the corresponding commit
       for m in "dockerfiles/theia/docker/alpine/builder-clone-theia.dockerfile" "dockerfiles/theia/docker/ubi8/builder-clone-theia.dockerfile"; do
