@@ -22,18 +22,17 @@ while [[ "$#" -gt 0 ]]; do
     '-r'|'--repo') REPO="$2"; shift 1;;
     '-v'|'--version') VERSION="$2"; shift 1;;
     '-n'|'--no-commit') NOCOMMIT=1; TRIGGER_RELEASE=0; shift 0;;
-    '--theia-version') THEIA_VERSION="$2"; shift 1;;
   esac
   shift 1
 done
 
 usage ()
 {
-  echo "Usage: $0 --repo <GIT REPO TO EDIT> --version <VERSION_TO_RELEASE> --theia-version <THEIA_VERSION> --trigger-release"
-  echo "Example: $0 --repo git@github.com:eclipse/che-theia --version 7.7.0 --theia-version 0.15.0-next.15995cd0 --trigger-release"; echo
+  echo "Usage: $0 --repo <GIT REPO TO EDIT> --version <VERSION_TO_RELEASE> --trigger-release"
+  echo "Example: $0 --repo git@github.com:eclipse/che-theia --version 7.7.0 --trigger-release"; echo
 }
 
-if [[ ! ${VERSION} ]] || [[ ! ${REPO} ]] || [[ ! ${THEIA_VERSION} ]]; then
+if [[ ! ${VERSION} ]] || [[ ! ${REPO} ]]; then
   usage
   exit 1
 fi
@@ -67,6 +66,12 @@ if [[ "${BASEBRANCH}" != "${BRANCH}" ]]; then
 fi
 
 apply_files_edits () {
+  read THEIA_VERSION < THEIA_VERSION
+  if [[ ! ${THEIA_VERSION} ]]; then
+    echo "THEIA_VERSION file is not found"; echo
+    exit 1
+  fi
+
   # Che Theia release may depend on Theia next or latest
   if [[ ${THEIA_VERSION} == *"-next."* ]]; then
     THEIA_PATCHES_DIR=master
