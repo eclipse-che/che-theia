@@ -469,15 +469,17 @@ export class ChePluginServiceImpl implements ChePluginService {
         } else if (workspace.devfile) {
             const plugins: string[] = [];
 
-            workspace.devfile.components!.forEach(component => {
-                if (component.type === 'chePlugin') {
-                    if (component.reference) {
-                        plugins.push(this.normalizeId(component.reference));
-                    } else if (component.id) {
-                        plugins.push(component.id);
+            if (workspace.devfile.components) {
+                workspace.devfile.components.forEach(component => {
+                    if (component.type === 'chePlugin') {
+                        if (component.reference) {
+                            plugins.push(this.normalizeId(component.reference));
+                        } else if (component.id) {
+                            plugins.push(component.id);
+                        }
                     }
-                }
-            });
+                });
+            }
 
             return plugins;
         }
