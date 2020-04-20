@@ -168,6 +168,7 @@ declare module '@eclipse-che/plugin' {
     export interface TerminalWidgetIdentifier {
         factoryId: string;
         widgetId?: string;
+        terminalId?: number;
         processId?: number;
     }
 

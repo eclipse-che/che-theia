@@ -33,8 +33,7 @@ export class TaskStatusHandler {
         if (taskConfig && taskConfig.type === CHE_TASK_TYPE) {
             return { factoryId: REMOTE_TERMINAL_WIDGET_FACTORY_ID, processId: event.processId };
         } else {
-            const terminalWidgetId = `${TERMINAL_WIDGET_FACTORY_ID}-${event.terminalId}`;
-            return { factoryId: TERMINAL_WIDGET_FACTORY_ID, widgetId: terminalWidgetId };
+            return { factoryId: TERMINAL_WIDGET_FACTORY_ID, terminalId: event.terminalId };
         }
     }
 
