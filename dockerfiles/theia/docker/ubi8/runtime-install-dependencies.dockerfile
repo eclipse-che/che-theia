@@ -8,5 +8,6 @@ USER root
 # Install curl and bash
 # Install ssh for cloning ssh-repositories
 # Install less for handling git diff properly
-RUN yum install -y sudo git bzip2 which bash curl openssh less && \
+# Install sshpass for handling passwordds for SSH keys
+RUN yum install -y sudo git bzip2 which bash curl openssh less sshpass && \
     yum -y clean all && rm -rf /var/cache/yum
