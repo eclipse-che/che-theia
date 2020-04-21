@@ -28,4 +28,6 @@ jobs:
       with:
         node-version: '10.x'
     - name: build
-      run: ./build.sh --build-args:THEIA_VERSION=master --tag:next --branch:master --git-ref:refs\\/heads\\/master --dockerfile:Dockerfile.${{matrix.dist}}
+      run: |
+        docker image prune -a -f
+        ./build.sh --build-args:THEIA_VERSION=master --tag:next --branch:master --git-ref:refs\\/heads\\/master --dockerfile:Dockerfile.${{matrix.dist}}

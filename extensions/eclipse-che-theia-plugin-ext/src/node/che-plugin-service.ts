@@ -108,7 +108,6 @@ export class ChePluginServiceImpl implements ChePluginService {
 
     private getAxiosInstance(): AxiosInstance {
         if (!this.isItNode()) {
-            this.addLogInterceptorsIfEnabled(axios);
             return axios;
         }
 
@@ -141,21 +140,18 @@ export class ChePluginServiceImpl implements ChePluginService {
                 } else {
                     axiosRequestConfig.httpAgent = proxyIsHttps ? httpOverHttpsAgent : httpOverHttpAgent;
                 }
-                const axiosInstance = axios.create(axiosRequestConfig);
-                this.addLogInterceptorsIfEnabled(axiosInstance);
-                return axiosInstance;
+                return axios.create(axiosRequestConfig);
             }
         }
+
         if (certificateAuthority) {
-            const axiosInstance = axios.create({
+            return axios.create({
                 httpsAgent: new https.Agent({
                     ca: certificateAuthority
                 })
             });
-            this.addLogInterceptorsIfEnabled(axiosInstance);
-            return axiosInstance;
         }
-        this.addLogInterceptorsIfEnabled(axios);
+
         return axios;
     }
 
@@ -198,18 +194,6 @@ export class ChePluginServiceImpl implements ChePluginService {
 
     private isItNode(): boolean {
         return (typeof process !== 'undefined') && (typeof process.versions.node !== 'undefined');
-    }
-
-    private addLogInterceptorsIfEnabled(axiosInstance: AxiosInstance): void {
-        axiosInstance.interceptors.request.use(request => {
-            console.log('Starting Request', request);
-            return request;
-        });
-
-        axiosInstance.interceptors.response.use(response => {
-            console.log('Response:', response);
-            return response;
-        });
     }
 
     private getCertificateAuthority(): Buffer | undefined {
@@ -469,15 +453,17 @@ export class ChePluginServiceImpl implements ChePluginService {
         } else if (workspace.devfile) {
             const plugins: string[] = [];
 
-            workspace.devfile.components!.forEach(component => {
-                if (component.type === 'chePlugin') {
-                    if (component.reference) {
-                        plugins.push(this.normalizeId(component.reference));
-                    } else if (component.id) {
-                        plugins.push(component.id);
+            if (workspace.devfile.components) {
+                workspace.devfile.components.forEach(component => {
+                    if (component.type === 'chePlugin') {
+                        if (component.reference) {
+                            plugins.push(this.normalizeId(component.reference));
+                        } else if (component.id) {
+                            plugins.push(component.id);
+                        }
                     }
-                }
-            });
+                });
+            }
 
             return plugins;
         }

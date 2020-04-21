@@ -7,13 +7,12 @@
 
 # Use upstream image
 FROM ${BUILD_ORGANIZATION}/${BUILD_PARENT_IMAGE}:${BUILD_TAG} as theia
-FROM cypress/browsers:chrome67
+FROM cypress/browsers:node10.16.3-chrome80-ff73
 
 USER root
 ENV HOME=/root
 ENV NOCDN=true
 
-RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb-src http://archive.debian.org/debian/ jessie main\ndeb http://security.debian.org jessie/updates main\ndeb-src http://security.debian.org jessie/updates main" > /etc/apt/sources.list
 RUN apt-get update && \
     apt-get install -y libx11-dev libxkbfile-dev sudo iproute2
 CMD /root/docker-run.sh
