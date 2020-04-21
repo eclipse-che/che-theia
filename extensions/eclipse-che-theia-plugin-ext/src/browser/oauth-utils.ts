@@ -35,7 +35,7 @@ export class OauthUtils {
             }
         });
         window.addEventListener('message', data => {
-            if (data.data.startsWith('token:') && this.oAuthPopup) {
+            if (this.oAuthPopup && data.data && (typeof data.data === 'string') && data.data.startsWith('token:')) {
                 this.oAuthPopup.close();
                 this.userToken = data.data.substring(6, data.data.length);
                 onDidReceiveTokenEmitter.fire(undefined);
