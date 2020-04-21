@@ -26,7 +26,9 @@ export async function start(): Promise<void> {
     try {
         keys = await getKeys(sshKeyManager);
     } catch (e) {
-        // No SSH key pair has been defined, do nothing.
+        if (e.message !== 'No SSH key pair has been defined.') {
+            console.error(e.message);
+        }
     }
     const keyPath = (keyName: string | undefined) => keyName ? '/etc/ssh/private/' + keyName : '';
     const passphrase = (privateKey: string | undefined) => privateKey ? privateKey.substring(privateKey.indexOf('\npassphrase: ') + 13, privateKey.length - 1) : '';
@@ -155,7 +157,7 @@ export async function start(): Promise<void> {
     });
 }
 
-const RESTART_WARNING_MESSAGE = 'Che Git plugin can leverage the generated keys now. To make them available in every workspace containers please restart your workspace.';
+const RESTART_WARNING_MESSAGE = 'Che Git plugin can leverage the generated keys now. To make them available in all workspace containers please restart your workspace.';
 const ENTER_KEY_NAME_OR_LEAVE_EMPTY_MESSAGE = 'Please provide a hostname (e.g. github.com) or leave empty to setup default name';
 
 const hostNamePattern = new RegExp('[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*');
