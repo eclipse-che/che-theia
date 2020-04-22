@@ -5,6 +5,7 @@
   "theia": {
     "frontend": {
       "config": {
+        "applicationName": "Eclipse Che",
         "preferences": {
           "editor.autoSave": "on",
           "git.defaultCloneDirectory": "/projects",
