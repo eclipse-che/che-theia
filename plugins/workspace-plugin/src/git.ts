@@ -8,9 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
+import * as theia from '@theia/plugin';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import { execute } from './exec';
+import { getEditorContainerName } from './utils';
 
 export interface GitUpstreamBranch {
     remote: string;
@@ -96,4 +98,29 @@ export function getGitRootFolder(uri: string): string {
 
 export async function execGit(directory: string, ...args: string[]): Promise<string | undefined> {
     return execute('git', args, { cwd: directory });
+}
+
+export async function execGitInTerminal(directory: string, locationURI: string, ...args: string[]): Promise<void> {
+    const editorContainerName = await getEditorContainerName() as string;
+    try {
+        const shellArgs: string[] = ['-c', 'git'];
+        shellArgs.concat(args);
+        const terminalOptions: theia.TerminalOptions = {
+            cwd: directory,
+            shellPath: 'sh',
+            shellArgs: shellArgs,
+            name: `${args[0]} ${locationURI}`,
+            attributes: {
+                CHE_MACHINE_NAME: editorContainerName,
+                closeWidgetExitOrError: 'false',
+                interruptProcessOnClose: 'true'
+            }
+        };
+        const terminal = theia.window.createTerminal(terminalOptions);
+        terminal.show();
+        await terminal.processId;
+    } catch (error) {
+        console.error(`Couldn't clone ${locationURI}: ${error.message}`);
+        throw new Error(`Couldn't clone ${locationURI}: ${error.message}`);
+    }
 }

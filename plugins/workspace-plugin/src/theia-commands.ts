@@ -69,6 +69,7 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
     private checkoutCommitId?: string | undefined;
     private sparseCheckoutDir: string | undefined;
     private projectsRoot: string;
+    private isPrivate: boolean;
 
     constructor(project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project, projectsRoot: string) {
         if (isDevfileProjectConfig(project)) {
@@ -106,6 +107,7 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
     }
 
     execute(): PromiseLike<void> {
+        this.checkRepoAccess();
         let cloneFunc: (progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken) => Promise<void>;
         if (this.sparseCheckoutDir) {
             // Sparse checkout
@@ -130,7 +132,12 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
         }
 
         try {
-            await git.execGit(this.projectsRoot, ...args);
+            await this.checkRepoAccess();
+            if (this.isPrivate) {
+                await git.execGitInTerminal(this.projectsRoot, this.locationURI, ...args);
+            } else {
+                await git.execGit(this.projectsRoot, ...args);
+            }
             // Figure out what to reset to.
             // The priority order is startPoint > tag > commitId
 
@@ -175,6 +182,16 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
         theia.window.showInformationMessage(`Sources by template ${this.sparseCheckoutDir} of ${this.locationURI} was cloned to ${this.projectPath}.`);
     }
 
+    private async checkRepoAccess(): Promise<void> {
+        this.isPrivate = false;
+        try {
+            await execute('wget', ['--spider', this.locationURI]);
+        } catch (error) {
+            if (error.message.endsWith('401 Unauthorized\n')) {
+                this.isPrivate = true;
+            }
+        }
+    }
 }
 
 export class TheiaImportZipCommand implements TheiaImportCommand {
