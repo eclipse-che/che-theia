@@ -16,8 +16,16 @@ THEIA_BRANCH="master"
 THEIA_GIT_REFS="refs\\/heads\\/master"
 THEIA_DOCKER_IMAGE_VERSION=
 
+prepare_yarn_root_args() {
+    IFS=',' read -r -a YARN_ARGS_ARRAY <<< "$@"
+    for i in ${YARN_ARGS_ARRAY[@]+"${YARN_ARGS_ARRAY[@]}"}; do
+    YARN_OPTS+="$i "
+    done
+}
+
 parse() {
   PUBLISH_IMAGES=false
+  YARN_OPTS=""
   FILTERED_ARGS=""
   while [ $# -gt 0 ]; do
     case $1 in
@@ -27,6 +35,10 @@ parse() {
       --push)
         PUBLISH_IMAGES=true
       shift ;;
+      --root-yarn-opts*:*)
+        ROOT_YARN_CSV="${1#*:}"
+        prepare_yarn_root_args $ROOT_YARN_CSV
+        shift ;;
       *)
         FILTERED_ARGS="${FILTERED_ARGS} $1"
       shift;;
