@@ -30,4 +30,4 @@ jobs:
     - name: build
       run: |
         docker image prune -a -f
-        ./build.sh --build-args:THEIA_VERSION=master --tag:next --branch:master --git-ref:refs\\/heads\\/master --dockerfile:Dockerfile.${{matrix.dist}}
+        ./build.sh --root-yarn-opts:--ignore-scripts --build-args:THEIA_VERSION=master --tag:next --branch:master --git-ref:refs\\/heads\\/master --dockerfile:Dockerfile.${{matrix.dist}}
