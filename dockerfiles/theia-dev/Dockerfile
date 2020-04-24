@@ -27,6 +27,7 @@ ENV HOME=/home/theia-dev \
     LOCAL_GIT_DIRECTORY=/usr \
     GIT_EXEC_PATH=/usr/libexec/git-core \
     THEIA_ELECTRON_SKIP_REPLACE_FFMPEG=true \
+    ELECTRON_SKIP_BINARY_DOWNLOAD=1 \
     YARN_FLAGS=""
 
 # setup extra stuff
