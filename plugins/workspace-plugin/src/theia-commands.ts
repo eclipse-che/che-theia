@@ -16,6 +16,7 @@ import { che as cheApi } from '@eclipse-che/api';
 import * as fileuri from './file-uri';
 import { execute } from './exec';
 import * as git from './git';
+import { execInTerminal, checkRepoAccess } from './utils';
 
 const SS_CRT_PATH = '/tmp/che/secret/ca.crt';
 const CHE_TASK_TYPE = 'che';
@@ -69,7 +70,6 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
     private checkoutCommitId?: string | undefined;
     private sparseCheckoutDir: string | undefined;
     private projectsRoot: string;
-    private isPrivate: boolean;
 
     constructor(project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project, projectsRoot: string) {
         if (isDevfileProjectConfig(project)) {
@@ -107,7 +107,6 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
     }
 
     execute(): PromiseLike<void> {
-        this.checkRepoAccess();
         let cloneFunc: (progress: theia.Progress<{ message?: string; increment?: number }>, token: theia.CancellationToken) => Promise<void>;
         if (this.sparseCheckoutDir) {
             // Sparse checkout
@@ -132,32 +131,32 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
         }
 
         try {
-            await this.checkRepoAccess();
-            if (this.isPrivate) {
-                await git.execGitInTerminal(this.projectsRoot, this.locationURI, ...args);
+            const isPrivate = await checkRepoAccess(this.locationURI);
+            if (isPrivate) {
+                await execInTerminal(this.projectsRoot, this.locationURI, ...args);
             } else {
                 await git.execGit(this.projectsRoot, ...args);
-            }
-            // Figure out what to reset to.
-            // The priority order is startPoint > tag > commitId
 
-            const treeish = this.checkoutStartPoint
-                ? this.checkoutStartPoint
-                : (this.checkoutTag ? this.checkoutTag : this.checkoutCommitId);
+                const branch = this.checkoutBranch ? this.checkoutBranch : 'default branch';
+                const messageStart = `Project ${this.locationURI} cloned to ${this.projectPath} and checked out ${branch}`;
 
-            const branch = this.checkoutBranch ? this.checkoutBranch : 'default branch';
-            const messageStart = `Project ${this.locationURI} cloned to ${this.projectPath} and checked out ${branch}`;
+                // Figure out what to reset to.
+                // The priority order is startPoint > tag > commitId
 
-            if (treeish) {
-                git.execGit(this.projectPath, 'reset', '--hard', treeish)
-                    .then(_ => {
-                        theia.window.showInformationMessage(`${messageStart} which has been reset to ${treeish}.`);
-                    }, e => {
-                        theia.window.showErrorMessage(`${messageStart} but resetting to ${treeish} failed with ${e.message}.`);
-                        console.log(`Couldn't reset to ${treeish} of ${this.projectPath} cloned from ${this.locationURI} and checked out to ${branch}.`, e);
-                    });
-            } else {
-                theia.window.showInformationMessage(`${messageStart}.`);
+                const treeish = this.checkoutStartPoint
+                    ? this.checkoutStartPoint
+                    : (this.checkoutTag ? this.checkoutTag : this.checkoutCommitId);
+                if (treeish) {
+                    git.execGit(this.projectPath, 'reset', '--hard', treeish)
+                        .then(_ => {
+                            theia.window.showInformationMessage(`${messageStart} which has been reset to ${treeish}.`);
+                        }, e => {
+                            theia.window.showErrorMessage(`${messageStart} but resetting to ${treeish} failed with ${e.message}.`);
+                            console.log(`Couldn't reset to ${treeish} of ${this.projectPath} cloned from ${this.locationURI} and checked out to ${branch}.`, e);
+                        });
+                } else {
+                    theia.window.showInformationMessage(`${messageStart}.`);
+                }
             }
         } catch (e) {
             theia.window.showErrorMessage(`Couldn't clone ${this.locationURI}: ${e.message}`);
@@ -175,21 +174,19 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
             this.checkoutTag ? this.checkoutTag :
                 this.checkoutCommitId ? this.checkoutCommitId :
                     this.checkoutBranch ? this.checkoutBranch : 'master';
-        await fs.ensureDir(this.projectPath);
 
-        await git.sparseCheckout(this.projectPath, this.locationURI, this.sparseCheckoutDir, commitReference);
-
-        theia.window.showInformationMessage(`Sources by template ${this.sparseCheckoutDir} of ${this.locationURI} was cloned to ${this.projectPath}.`);
-    }
-
-    private async checkRepoAccess(): Promise<void> {
-        this.isPrivate = false;
-        try {
-            await execute('wget', ['--spider', this.locationURI]);
-        } catch (error) {
-            if (error.message.endsWith('401 Unauthorized\n')) {
-                this.isPrivate = true;
-            }
+        // Add remote, pull changes and create the selected directory content
+        await git.sparseCheckout(this.projectPath, this.sparseCheckoutDir);
+        const addRemoteArgs: string[] = ['remote', 'add', '-f', 'origin', this.locationURI];
+        const pullArgs: string[] = ['pull', 'origin', commitReference];
+        const isPrivate = await checkRepoAccess(this.locationURI);
+        if (isPrivate) {
+            await execInTerminal(this.projectPath, this.locationURI, ...addRemoteArgs);
+            await execInTerminal(this.projectPath, commitReference, ...pullArgs);
+        } else {
+            await git.execGit(this.projectPath, ...addRemoteArgs);
+            await git.execGit(this.projectPath, ...pullArgs);
+            theia.window.showInformationMessage(`Sources by template ${this.sparseCheckoutDir} of ${this.locationURI} was cloned to ${this.projectPath}.`);
         }
     }
 }

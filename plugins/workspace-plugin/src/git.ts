@@ -8,11 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import * as theia from '@theia/plugin';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import { execute } from './exec';
-import { getEditorContainerName } from './utils';
 
 export interface GitUpstreamBranch {
     remote: string;
@@ -43,7 +41,8 @@ export async function getRemoteURL(remote: string, projectPath: string): Promise
  * @param sparseCheckoutDirectory directory which should be clonned, e.g. `core/che-core-api-model`
  * @param commitReference branch or tag or commit id of the remote repository to checkout from
  */
-export async function sparseCheckout(projectPath: string, repositoryUri: string, sparseCheckoutDirectory: string, commitReference: string): Promise<void> {
+export async function sparseCheckout(projectPath: string, sparseCheckoutDirectory: string): Promise<void> {
+    await fs.ensureDir(projectPath);
     await initRepository(projectPath);
     // Enable sparse checkout feature
     await setConfig(projectPath, 'core.sparsecheckout', 'true');
@@ -51,9 +50,6 @@ export async function sparseCheckout(projectPath: string, repositoryUri: string,
     const gitInfoFolderPath = path.join(projectPath, '.git/info/');
     fs.ensureDirSync(gitInfoFolderPath);
     fs.writeFileSync(path.join(gitInfoFolderPath, 'sparse-checkout'), sparseCheckoutDirectory);
-    // Add remote, pull changes and create the selected directory content
-    await execGit(projectPath, 'remote', 'add', '-f', 'origin', repositoryUri);
-    await execGit(projectPath, 'pull', 'origin', commitReference);
 }
 
 export async function getUpstreamBranch(projectPath: string): Promise<GitUpstreamBranch | undefined> {
@@ -98,29 +94,4 @@ export function getGitRootFolder(uri: string): string {
 
 export async function execGit(directory: string, ...args: string[]): Promise<string | undefined> {
     return execute('git', args, { cwd: directory });
-}
-
-export async function execGitInTerminal(directory: string, locationURI: string, ...args: string[]): Promise<void> {
-    const editorContainerName = await getEditorContainerName() as string;
-    try {
-        const shellArgs: string[] = ['-c', 'git'];
-        shellArgs.concat(args);
-        const terminalOptions: theia.TerminalOptions = {
-            cwd: directory,
-            shellPath: 'sh',
-            shellArgs: shellArgs,
-            name: `${args[0]} ${locationURI}`,
-            attributes: {
-                CHE_MACHINE_NAME: editorContainerName,
-                closeWidgetExitOrError: 'false',
-                interruptProcessOnClose: 'true'
-            }
-        };
-        const terminal = theia.window.createTerminal(terminalOptions);
-        terminal.show();
-        await terminal.processId;
-    } catch (error) {
-        console.error(`Couldn't clone ${locationURI}: ${error.message}`);
-        throw new Error(`Couldn't clone ${locationURI}: ${error.message}`);
-    }
 }

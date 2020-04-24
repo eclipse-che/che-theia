@@ -10,6 +10,8 @@
 
 import { che as cheApi } from '@eclipse-che/api';
 import * as che from '@eclipse-che/plugin';
+import * as theia from '@theia/plugin';
+import { execute } from './exec';
 
 export async function getEditorContainerName(): Promise<string | undefined> {
     const TYPE: string = 'type';
@@ -50,6 +52,41 @@ export async function getContainerList(): Promise<WorkspaceContainer[]> {
         throw new Error('Unable to get list workspace containers. Cause: ' + e);
     }
     return containers;
+}
+
+export async function execInTerminal(directory: string, locationURI: string, ...args: string[]): Promise<void> {
+    const editorContainerName = await getEditorContainerName() as string;
+    try {
+        const shellArgs: string[] = ['-c', 'git'].concat(args);
+        const terminalOptions: theia.TerminalOptions = {
+            cwd: directory,
+            shellPath: 'sh',
+            shellArgs: shellArgs,
+            name: `${args[0]} ${locationURI}`,
+            attributes: {
+                CHE_MACHINE_NAME: editorContainerName,
+                closeWidgetExitOrError: 'false',
+                interruptProcessOnClose: 'true'
+            }
+        };
+        const terminal = theia.window.createTerminal(terminalOptions);
+        terminal.show();
+        await terminal.processId;
+    } catch (error) {
+        console.error(`Couldn't clone ${locationURI}: ${error.message}`);
+        throw new Error(`Couldn't clone ${locationURI}: ${error.message}`);
+    }
+}
+
+export async function checkRepoAccess(locationURI: string): Promise<boolean> {
+    try {
+        await execute('wget', ['--spider', locationURI]);
+    } catch (error) {
+        if (error.message.endsWith('401 Unauthorized\n')) {
+            return Promise.resolve(true);
+        }
+    }
+    return Promise.resolve(false);
 }
 
 export interface WorkspaceContainer extends cheApi.workspace.Machine {
