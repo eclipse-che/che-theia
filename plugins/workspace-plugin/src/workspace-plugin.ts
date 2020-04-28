@@ -13,6 +13,7 @@ import { FactoryInitializer } from './factory-initializer';
 import { handleWorkspaceProjects } from './workspace-projects-manager';
 import { EphemeralWorkspaceChecker } from './ephemeral-workspace-checker';
 import { Devfile } from './devfile';
+import { initAskpassEnv } from './askpass';
 
 export async function start(context: theia.PluginContext): Promise<void> {
     let projectsRoot = '/projects';
@@ -23,6 +24,7 @@ export async function start(context: theia.PluginContext): Promise<void> {
 
     new Devfile(context).init();
     new EphemeralWorkspaceChecker().check();
+    await initAskpassEnv();
     await new FactoryInitializer(projectsRoot).run();
     handleWorkspaceProjects(context, projectsRoot);
 }
