@@ -1,5 +1,5 @@
 #!/bin/sh
-# Based on: https://github.com/che-incubator/vscode-git/blob/master/src/askpass.sh
+# Based on: https://github.com/Microsoft/vscode/blob/77f0e95307675c3936c05d641f72b8b32dc8e274/extensions/git/src/askpass.sh
 CHE_THEIA_GIT_ASKPASS_PIPE=`mktemp`
 CHE_THEIA_GIT_ASKPASS_PIPE="$CHE_THEIA_GIT_ASKPASS_PIPE" "$CHE_THEIA_GIT_ASKPASS_NODE" "$CHE_THEIA_GIT_ASKPASS_MAIN" $*
 cat $CHE_THEIA_GIT_ASKPASS_PIPE
