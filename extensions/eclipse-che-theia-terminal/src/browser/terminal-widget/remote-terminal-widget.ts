@@ -63,6 +63,8 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
     private isOpen: boolean = false;
     protected channel: OutputChannel;
+    protected closeOutputConnectionDisposable: Disposable;
+    protected processGone: boolean;
 
     @postConstruct()
     protected init(): void {
@@ -71,8 +73,11 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
         this.toDispose.push(this.remoteTerminalWatcher.onTerminalExecExit(exitEvent => {
             if (this.terminalId === exitEvent.id) {
+                this.processGone = true;
                 if (this.options.closeWidgetOnExitOrError) {
                     this.dispose();
+                } else {
+                    this.closeOutputConnectionDisposable.dispose();
                 }
                 this.onTermDidClose.fire(this);
                 this.onTermDidClose.dispose();
@@ -89,8 +94,11 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         const missedPrivilegesErr = 'cannot create resource "pods/exec"';
         this.toDispose.push(this.remoteTerminalWatcher.onTerminalExecError(errEvent => {
             if (this.terminalId === errEvent.id) {
+                this.processGone = true;
                 if (this.options.closeWidgetOnExitOrError) {
                     this.dispose();
+                } else {
+                    this.closeOutputConnectionDisposable.dispose();
                 }
                 this.onTermDidClose.fire(this);
                 this.onTermDidClose.dispose();
@@ -155,6 +163,16 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         throw new Error('Failed to start terminal' + (id ? ` for id: ${id}.` : '.'));
     }
 
+    protected async reconnectTerminalProcess(): Promise<void> {
+        if (typeof this.terminalId === 'number') {
+            const termId = await this.termServer!.check({ id: this.terminalId });
+            if (!IBaseTerminalServer.validateId(termId)) {
+                return;
+            }
+            await this.start(this.terminalId);
+        }
+    }
+
     protected async connectTerminalProcess(): Promise<void> {
         if (typeof this.terminalId !== 'number') {
             return;
@@ -199,10 +217,11 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
             onDataDisposeHandler = this.term.onData(sendListener);
             socket.onmessage = ev => this.write(ev.data);
 
-            this.toDispose.push(Disposable.create(() => {
+            this.closeOutputConnectionDisposable = Disposable.create(() => {
                 onDataDisposeHandler.dispose();
                 socket.close();
-            }));
+            });
+            this.toDispose.push(this.closeOutputConnectionDisposable);
 
             this.isOpen = true;
             return Promise.resolve();
@@ -272,7 +291,11 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     }
 
     protected resizeTerminalProcess(): void {
-        if (typeof this.terminalId !== 'number') {
+        if (typeof this.terminalId !== 'number' || this.processGone) {
+            return;
+        }
+
+        if (!IBaseTerminalServer.validateId(this.terminalId) && !this.terminalService.getById(this.id)) {
             return;
         }
 
