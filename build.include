@@ -14,7 +14,7 @@ IMAGE_TAG="latest"
 THEIA_VERSION="master"
 THEIA_BRANCH="master"
 THEIA_GIT_REFS="refs\\/heads\\/master"
-THEIA_DOCKER_IMAGE_VERSION="7.12.0"
+THEIA_DOCKER_IMAGE_VERSION="7.12.1"
 
 parse() {
   PUBLISH_IMAGES=false
