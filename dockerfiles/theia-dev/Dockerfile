@@ -44,6 +44,7 @@ EXPOSE 3000 3030
 # Configure npm and yarn to use home folder for global dependencies
 RUN npm config set prefix "${HOME}/.npm-global" && \
     echo "--global-folder \"${HOME}/.yarn-global\"" > ${HOME}/.yarnrc && \
+    yarn config set network-timeout 600000 -g && \
     # add eclipse che theia generator
     yarn ${YARN_FLAGS} global add yo generator-code vsce @theia/generator-plugin@0.0.1-1562578105 file:${HOME}/eclipse-che-theia-generator && \
     rm -rf ${HOME}/eclipse-che-theia-generator && \
