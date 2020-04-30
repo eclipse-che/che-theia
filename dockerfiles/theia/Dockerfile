@@ -63,6 +63,8 @@ RUN rm -rf ${HOME}/theia-source-code/examples/browser && \
     sed -i 's|  "resolutions": {|  "resolutions": {\n    "**/electron": "7.0.0",|' ${HOME}/theia-source-code/package.json && \
     # remove all electron-browser module to not compile them
     find . -name "electron-browser"  | xargs rm -rf {} && \
+    rm -rf ${HOME}/theia-source-code/dev-packages/electron/native && \
+    echo "" > ${HOME}/theia-source-code/dev-packages/electron/scripts/post-install.js && \
     # Remove linter/formatters of theia
     sed -i 's|concurrently -n compile,lint -c blue,green \\"theiaext compile\\" \\"theiaext lint\\"|concurrently -n compile -c blue \\"theiaext compile\\"|' ${HOME}/theia-source-code/dev-packages/ext-scripts/package.json && \
     # Remove external configs removed
