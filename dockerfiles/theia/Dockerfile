@@ -106,12 +106,16 @@ RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
 # Add yeoman generator & vscode git plug-ins
 COPY asset-untagged-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/production/plugins/theia_yeoman_plugin.theia
 
+
+# Use node image
+#{INCLUDE:docker/${BUILD_IMAGE_TARGET}/build-result-from.dockerfile}
+
+COPY --from=builder /home/theia-dev/theia-source-code/production /che-theia-build
+
 # change permissions
-RUN find production -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt && \
+RUN find /che-theia-build -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt && \
     # Add missing permissions on shell scripts of plug-ins
-    find /home/theia-dev/theia-source-code/production/plugins -name "*.sh" | xargs chmod +x
-
-
+    find /che-theia-build/plugins -name "*.sh" | xargs chmod +x
 
 ###
 # Runtime Image
@@ -136,7 +140,7 @@ ENV USE_LOCAL_GIT=true \
 
 EXPOSE 3100 3130
 
-COPY --from=builder /home/theia-dev/theia-source-code/production/plugins /default-theia-plugins
+COPY --from=build-result /che-theia-build/plugins /default-theia-plugins
 
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/runtime-install-dependencies.dockerfile}
 
@@ -174,7 +178,7 @@ COPY --from=builder /home/theia-dev/theia-source-code/production/plugins /defaul
     # Change permissions to allow editing of files for openshift user
     && find ${HOME} -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \;
 
-COPY --chown=theia:root --from=builder /home/theia-dev/theia-source-code/production /home/theia
+COPY --chown=theia:root --from=build-result /che-theia-build /home/theia
 USER theia
 WORKDIR /projects
 COPY src/entrypoint.sh /entrypoint.sh
