@@ -66,38 +66,24 @@ if [[ "${BASEBRANCH}" != "${BRANCH}" ]]; then
 fi
 
 apply_files_edits () {
-  read THEIA_VERSION < THEIA_VERSION
+  THEIA_VERSION=$(curl --silent http://registry.npmjs.org/-/package/@theia/core/dist-tags | sed 's/.*"next":"\(.*\)".*/\1/')
   if [[ ! ${THEIA_VERSION} ]]; then
-    echo "THEIA_VERSION file is not found"; echo
+    echo "Failed to get Theia next version from npmjs.org"; echo
     exit 1
-  fi
-
-  # Che Theia release may depend on Theia next or latest
-  if [[ ${THEIA_VERSION} == *"-next."* ]]; then
-    THEIA_PATCHES_DIR=master
-    THEIA_BRANCH=master
-    THEIA_GIT_REFS=refs\\\\\\\\/heads\\\\\\\\/master
-  else 
-    THEIA_PATCHES_DIR=${THEIA_VERSION}
-    THEIA_BRANCH=v${THEIA_VERSION}
-    THEIA_GIT_REFS=refs\\\\\\\\/tags\\\\\\\\/v${THEIA_VERSION}
   fi
 
   # update config for Che Theia generator
   sed -i che-theia-init-sources.yml -e "/checkoutTo:/s/master/${BRANCH}/"
 
-  # set the variables for an image build
+  # set the variables for building the images
   sed -i build.include \
       -e 's/IMAGE_TAG="..*"/IMAGE_TAG="latest"/' \
-      -e 's/THEIA_VERSION="..*"/THEIA_VERSION="'${THEIA_PATCHES_DIR}'"/' \
-      -e 's/THEIA_BRANCH="..*"/THEIA_BRANCH="'${THEIA_BRANCH}'"/' \
-      -e 's#THEIA_GIT_REFS="..*"#THEIA_GIT_REFS="'${THEIA_GIT_REFS}'"#' \
+      -e 's/^THEIA_COMMIT_SHA=$/THEIA_COMMIT_SHA="'${THEIA_VERSION##*.}'"/' \
       -e 's/THEIA_DOCKER_IMAGE_VERSION=.*/THEIA_DOCKER_IMAGE_VERSION="'${VERSION}'"/'
 
   # Update extensions/plugins package.json files:
   # - set packages' version
-  # - update versions of Theia dependencies
-  # - update versions of Che dependencies
+  # - update versions of Theia and Che dependencies
   for m in "extensions/*" "plugins/*"; do
     sed -i ./${m}/package.json \
         -r -e 's/("version": )(".*")/\1"'$VERSION'"/' \
@@ -105,28 +91,9 @@ apply_files_edits () {
         -r -e '/@eclipse-che\/api|@eclipse-che\/workspace-client|@eclipse-che\/workspace-telemetry-client/!s/("@eclipse-che\/..*": )(".*")/\1"'$VERSION'"/'
   done
 
-  if [[ ${THEIA_BRANCH} == master ]]; then
-    THEIA_COMMIT_SHA=${THEIA_VERSION##*.}
-
-    if [[ ${VERSION} == *".0" ]]; then
-      # if depending on Theia next (from master), need to checkout to the corresponding commit
-      for m in "dockerfiles/theia/docker/alpine/builder-clone-theia.dockerfile" "dockerfiles/theia/docker/ubi8/builder-clone-theia.dockerfile"; do
-        sed -i ./${m} \
-            -e 's/ --depth 1//' \
-            -e '/RUN git clone/s#$# \&\& cd ${HOME}/theia-source-code \&\& git checkout '${THEIA_COMMIT_SHA}'#'
-      done
-
-      sed -i dockerfiles/theia/docker/ubi8/builder-clone-theia.dockerfile \
-          -e '/RUN git clone/s#$# \&\& cd ${HOME} \&\& tar zcf ${HOME}/theia-source-code.tgz theia-source-code#'
-    else
-      # Doing a .z release. So, both (alpine/ubi8) builder-clone-theia.dockerfile are already patched.
-      # Just need to ensure that using a correct $THEIA_COMMIT_SHA
-      # as .z release may be based on a different Theia version comparing to a .0 release.
-      sed -i dockerfiles/theia/docker/alpine/builder-clone-theia.dockerfile \
-          -r -e 's/( git checkout )(.*)/\1'${THEIA_COMMIT_SHA}'/'
-      sed -i dockerfiles/theia/docker/ubi8/builder-clone-theia.dockerfile \
-          -r -e 's/( git checkout )(.*)( \&\& cd )/\1'${THEIA_COMMIT_SHA}'\3/'
-    fi
+  if [[ ${VERSION} == *".0" ]]; then
+    sed -i dockerfiles/theia/docker/ubi8/builder-clone-theia.dockerfile \
+        -e '$ a RUN cd ${HOME} \&\& tar zcf ${HOME}/theia-source-code.tgz theia-source-code'
   fi
 }
 
