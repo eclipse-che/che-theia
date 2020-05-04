@@ -42,6 +42,9 @@ components:
     alias: theia-editor
     id: eclipse/che-theia/next
     memoryLimit: "1Gi"
+    env:
+      - name: NODE_TLS_REJECT_UNAUTHORIZED
+        value: "0"
 commands:
 
   - name: init ... DEV che-theia

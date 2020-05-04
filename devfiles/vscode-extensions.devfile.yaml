@@ -17,6 +17,9 @@ components:
   - id: eclipse/che-theia/next
     type: cheEditor
     alias: che-theia
+    env:
+      - name: NODE_TLS_REJECT_UNAUTHORIZED
+        value: "0"
 
   - alias: che-dev
     type: dockerimage
