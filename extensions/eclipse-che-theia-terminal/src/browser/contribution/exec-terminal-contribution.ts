@@ -348,17 +348,17 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         });
         registry.registerKeybinding({
             command: TerminalCommands.SCROLL_TO_TOP.id,
-            keybinding: 'home',
+            keybinding: 'shift+home',
             context: TerminalKeybindingContexts.terminalActive
         });
         registry.registerKeybinding({
             command: TerminalCommands.SCROLL_PAGE_UP.id,
-            keybinding: 'pageUp',
+            keybinding: 'shift+pageUp',
             context: TerminalKeybindingContexts.terminalActive
         });
         registry.registerKeybinding({
             command: TerminalCommands.SCROLL_PAGE_DOWN.id,
-            keybinding: 'pageDown',
+            keybinding: 'shift+pageDown',
             context: TerminalKeybindingContexts.terminalActive
         });
     }
