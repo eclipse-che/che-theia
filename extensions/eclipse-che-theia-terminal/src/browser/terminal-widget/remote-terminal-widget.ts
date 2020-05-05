@@ -61,7 +61,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     @inject(OutputChannelManager)
     protected readonly outputChannelManager: OutputChannelManager;
 
-    private isOpen: boolean = false;
+    private socket: ReconnectingWebSocket;
     protected channel: OutputChannel;
     protected closeOutputConnectionDisposable: Disposable;
     protected processGone: boolean;
@@ -200,41 +200,40 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     }
 
     protected async connectSocket(id: number): Promise<void> {
-        if (this.isOpen) {
+        if (this.socket) {
             return Promise.resolve();
         }
-        const socket = this.createWebSocket(id.toString());
+        this.socket = this.createWebSocket(id.toString());
 
-        const sendListener = (data: string) => socket.send(data);
+        const sendListener = (data: string) => this.socket.send(data);
 
         let onDataDisposeHandler: IDisposable;
-        socket.onopen = () => {
+        this.socket.onopen = () => {
             this.term.reset();
             if (this.waitForRemoteConnection) {
-                this.waitForRemoteConnection.resolve(socket);
+                this.waitForRemoteConnection.resolve(this.socket);
             }
 
             onDataDisposeHandler = this.term.onData(sendListener);
-            socket.onmessage = ev => this.write(ev.data);
+            this.socket.onmessage = ev => this.write(ev.data);
 
             this.closeOutputConnectionDisposable = Disposable.create(() => {
                 onDataDisposeHandler.dispose();
-                socket.close();
+                this.socket.close();
             });
             this.toDispose.push(this.closeOutputConnectionDisposable);
 
-            this.isOpen = true;
             return Promise.resolve();
         };
 
-        socket.onerror = err => {
+        this.socket.onerror = err => {
             if (onDataDisposeHandler) {
                 onDataDisposeHandler.dispose();
             }
             return Promise.resolve();
         };
 
-        socket.onclose = code => {
+        this.socket.onclose = code => {
             if (onDataDisposeHandler) {
                 onDataDisposeHandler.dispose();
             }
@@ -291,7 +290,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     }
 
     protected resizeTerminalProcess(): void {
-        if (typeof this.terminalId !== 'number' || this.processGone) {
+        if (this.processGone) {
             return;
         }
 
