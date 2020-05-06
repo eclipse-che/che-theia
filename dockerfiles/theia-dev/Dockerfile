@@ -33,9 +33,6 @@ ENV HOME=/home/theia-dev \
 # setup extra stuff
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/post-env.dockerfile}
 
-# Define package of the theia generator to use
-COPY asset-unpacked-generator ${HOME}/eclipse-che-theia-generator
-
 WORKDIR ${HOME}
 
 # Exposing Theia ports
@@ -43,12 +40,12 @@ EXPOSE 3000 3030
 
 # Configure npm and yarn to use home folder for global dependencies
 RUN npm config set prefix "${HOME}/.npm-global" && \
-    echo "--global-folder \"${HOME}/.yarn-global\"" > ${HOME}/.yarnrc && \
-    # add eclipse che theia generator
-    ls -la ${HOME}/eclipse-che-theia-generator/* && \
-    yarn ${YARN_FLAGS} global add yo generator-code vsce @theia/generator-plugin@0.0.1-1562578105 \
-    file:${HOME}/eclipse-che-theia-generator/ && \
-    rm -rf ${HOME}/eclipse-che-theia-generator && \
+    echo "--global-folder \"${HOME}/.yarn-global\"" > ${HOME}/.yarnrc
+
+# add eclipse che theia generator
+#{INCLUDE:docker/${BUILD_IMAGE_TARGET}/add-che-theia-generator.dockerfile}
+
+RUN \
     # Generate .passwd.template \
     cat /etc/passwd | \
     sed s#root:x.*#theia-dev:x:\${USER_ID}:\${GROUP_ID}::${HOME}:/bin/bash#g \
