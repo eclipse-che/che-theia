@@ -23,6 +23,8 @@ ARG THEIA_GITHUB_REPO=eclipse-theia/theia
 # Define upstream version of theia to use
 ARG THEIA_VERSION=master
 
+ARG THEIA_COMMIT_SHA=''
+
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 #{IF:DO_REMOTE_CHECK}
