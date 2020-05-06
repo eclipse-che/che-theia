@@ -45,8 +45,9 @@ EXPOSE 3000 3030
 RUN npm config set prefix "${HOME}/.npm-global" && \
     echo "--global-folder \"${HOME}/.yarn-global\"" > ${HOME}/.yarnrc && \
     # add eclipse che theia generator
-    ls -la ${HOME}/eclipse-che-theia-generator && file ${HOME}/eclipse-che-theia-generator && \
-    yarn ${YARN_FLAGS} global add yo generator-code vsce @theia/generator-plugin@0.0.1-1562578105 file:${HOME}/eclipse-che-theia-generator && \
+    ls -la ${HOME}/eclipse-che-theia-generator/* && \
+    yarn ${YARN_FLAGS} global add yo generator-code vsce @theia/generator-plugin@0.0.1-1562578105 \
+    file:${HOME}/eclipse-che-theia-generator/ && \
     rm -rf ${HOME}/eclipse-che-theia-generator && \
     # Generate .passwd.template \
     cat /etc/passwd | \
