@@ -10,7 +10,6 @@
 base_dir=$(cd "$(dirname "$0")"; pwd)
 . "${base_dir}"/../build.include
 
-
 DIR=$(cd "$(dirname "$0")"; pwd)
 
 CHE_THEIA_GENERATOR_PACKAGE_NAME=eclipse-che-theia-generator.tgz
@@ -32,6 +31,7 @@ fi
 echo "Copying Che Theia generator"
 cp "${CHE_THEIA_GENERATOR_PACKAGE}" "${base_dir}/asset-${CHE_THEIA_GENERATOR_PACKAGE_NAME}"
 
+# this step only for upstream; downstream use tarball instead of unpacked folder
 rm -rf ${base_dir}/asset-unpacked-generator && mkdir ${base_dir}/asset-unpacked-generator
 tar zxf "${base_dir}/asset-${CHE_THEIA_GENERATOR_PACKAGE_NAME}" --strip-components=1 -C ${base_dir}/asset-unpacked-generator
 
