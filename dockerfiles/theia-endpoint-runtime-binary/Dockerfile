@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM quay.io/eclipse/che-custom-nodejs-deasync:10.19.0-latest as custom-nodejs
+FROM quay.io/eclipse/che-custom-nodejs-deasync:10.20.1 as custom-nodejs
 
 FROM #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-from.dockerfile}
 
