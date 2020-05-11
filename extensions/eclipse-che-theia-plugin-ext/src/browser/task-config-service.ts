@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
+import { Emitter, Event } from '@theia/core';
 import { WidgetOpenMode } from '@theia/core/lib/browser';
 import { TaskService } from '@theia/task/lib/browser';
 import { TaskTerminalWidgetOpenerOptions } from '@theia/task/lib/browser/task-terminal-widget-manager';
@@ -19,6 +20,9 @@ import { CHE_TASK_TYPE, REMOTE_TASK_KIND, TASK_KIND } from './che-task-terminal-
 
 @injectable()
 export class TaskConfigurationsService extends TaskService {
+
+    protected readonly onDidStartTaskFailureEmitter = new Emitter<TaskInfo>();
+    readonly onDidStartTaskFailure: Event<TaskInfo> = this.onDidStartTaskFailureEmitter.event;
 
     @inject(CheTaskResolver)
     protected readonly cheTaskResolver: CheTaskResolver;
@@ -39,6 +43,8 @@ export class TaskConfigurationsService extends TaskService {
 
             return taskInfo;
         } catch (error) {
+            this.onDidStartTaskFailureEmitter.fire({ config: resolvedTask, kind: terminal.kind, terminalId: terminal.terminalId, taskId: -1, });
+
             const errorMessage = `Error launching task '${taskLabel}': ${error.message}`;
             terminal.writeLine(`\x1b[31m ${errorMessage} \x1b[0m\n`);
 
