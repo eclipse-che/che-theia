@@ -11,8 +11,9 @@ import { CheTaskClient, CheTaskService } from '../common/che-protocol';
 import { injectable, interfaces } from 'inversify';
 import { Task, TaskManager, TaskOptions, TaskRunnerRegistry } from '@theia/task/lib/node';
 import { Disposable, ILogger } from '@theia/core';
-import { TaskConfiguration, TaskInfo } from '@theia/task/lib/common/task-protocol';
-import { TaskExitedEvent } from '@eclipse-che/plugin';
+import { TaskConfiguration, TaskInfo, TaskExitedEvent } from '@theia/task/lib/common/task-protocol';
+import * as che from '@eclipse-che/plugin';
+import { toTaskConfig, toTaskInfo, fromTaskInfo } from '../common/converter';
 
 @injectable()
 export class CheTaskServiceImpl implements CheTaskService {
@@ -39,8 +40,8 @@ export class CheTaskServiceImpl implements CheTaskService {
         this.disposableMap.set(type, this.runnerRegistry.registerRunner(type, runner));
         const runTask = async (config: TaskConfiguration, ctx?: string): Promise<Task> => {
             for (const client of this.clients) {
-                const taskInfo = await client.runTask(config, ctx);
-                const options: CheTaskOptions = { label: config.label, config, context: ctx, runtimeInfo: taskInfo };
+                const taskInfo: che.TaskInfo = await client.runTask(toTaskConfig(config), ctx);
+                const options: CheTaskOptions = { label: config.label, config, context: ctx, runtimeInfo: fromTaskInfo(taskInfo) };
 
                 const cheTask = new CheTask(this.taskManager, this.logger, this.clients, options);
                 this.cheTasks.push(cheTask);
@@ -72,7 +73,7 @@ export class CheTaskServiceImpl implements CheTaskService {
         }
     }
 
-    async fireTaskExited(event: TaskExitedEvent): Promise<void> {
+    async fireTaskExited(event: che.TaskExitedEvent): Promise<void> {
         for (const task of this.cheTasks) {
             const runtimeInfo = task.getRuntimeInfo();
             if (runtimeInfo.execId === event.execId || runtimeInfo.taskId === event.taskId) {
@@ -112,11 +113,11 @@ class CheTask extends Task {
     }
 
     async kill(): Promise<void> {
-        this.clients.forEach(client => client.killTask(this.taskInfo));
+        this.clients.forEach(client => client.killTask(toTaskInfo(this.taskInfo)));
     }
 
     fireTaskExited(event: TaskExitedEvent): void {
-        super.fireTaskExited({ taskId: event.taskId!, code: event.code, ctx: event.ctx, config: this.options.config, processId: event.processId });
+        super.fireTaskExited({ taskId: event.taskId, code: event.code, ctx: event.ctx, config: this.options.config, processId: event.processId });
     }
 
     private toTaskInfo(runtimeInfo: TaskInfo): TaskInfo {

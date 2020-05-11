@@ -7,14 +7,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
-import { TaskExitedEvent, TaskInfo, TaskJSONSchema, TaskStatusOptions } from '@eclipse-che/plugin';
+import * as che from '@eclipse-che/plugin';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { TaskSchemaUpdater } from '@theia/task/lib/browser';
-import { TaskWatcher } from '@theia/task/lib/common';
+import * as theia from '@theia/task/lib/common';
 import { injectable, interfaces } from 'inversify';
 import { CheTask, CheTaskClient, CheTaskMain, CheTaskService, PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
 import { TaskStatusHandler } from './task-status-handler';
 import { DisposableCollection, Disposable } from '@theia/core/lib/common/disposable';
+import { toTaskInfo, toTaskExitedEvent } from '../common/converter';
 
 @injectable()
 export class CheTaskMainImpl implements CheTaskMain, Disposable {
@@ -29,13 +30,13 @@ export class CheTaskMainImpl implements CheTaskMain, Disposable {
         this.delegate = container.get(CheTaskService);
         this.taskSchemaUpdater = container.get(TaskSchemaUpdater);
         this.cheTaskClient = container.get(CheTaskClient);
-        this.cheTaskClient.onKillEvent(taskInfo => proxy.$killTask(taskInfo));
+        this.cheTaskClient.onKillEvent((taskInfo: che.TaskInfo) => proxy.$killTask(taskInfo));
         this.cheTaskClient.addRunTaskHandler((config, ctx) => proxy.$runTask(config, ctx));
         this.taskStatusHandler = container.get(TaskStatusHandler);
 
-        const taskWatcher = container.get(TaskWatcher);
-        this.toDispose.push(taskWatcher.onTaskCreated((event: TaskInfo) => proxy.$onDidStartTask(event)));
-        this.toDispose.push(taskWatcher.onTaskExit((event: TaskExitedEvent) => proxy.$onDidEndTask(event)));
+        const taskWatcher = container.get(theia.TaskWatcher);
+        this.toDispose.push(taskWatcher.onTaskCreated((event: theia.TaskInfo) => proxy.$onDidStartTask(toTaskInfo(event))));
+        this.toDispose.push(taskWatcher.onTaskExit((event: theia.TaskExitedEvent) => proxy.$onDidEndTask(toTaskExitedEvent(event))));
     }
 
     $registerTaskRunner(type: string): Promise<void> {
@@ -46,19 +47,20 @@ export class CheTaskMainImpl implements CheTaskMain, Disposable {
         return this.delegate.disposeTaskRunner(type);
     }
 
-    $fireTaskExited(event: TaskExitedEvent): Promise<void> {
+    $fireTaskExited(event: che.TaskExitedEvent): Promise<void> {
         return this.delegate.fireTaskExited(event);
     }
 
-    async $addTaskSubschema(schema: TaskJSONSchema): Promise<void> {
+    async $addTaskSubschema(schema: che.TaskJSONSchema): Promise<void> {
         return this.taskSchemaUpdater.addSubschema(schema);
     }
 
-    async $setTaskStatus(options: TaskStatusOptions): Promise<void> {
+    async $setTaskStatus(options: che.TaskStatusOptions): Promise<void> {
         return this.taskStatusHandler.setTaskStatus(options);
     }
 
     dispose(): void {
         this.toDispose.dispose();
     }
+
 }

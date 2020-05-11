@@ -47,9 +47,9 @@ export class MachinesPicker {
             window.showQuickPick(items, {
                 placeHolder: CONTAINERS_PLACE_HOLDER,
                 ignoreFocusOut: false,
-                onDidSelectItem: (item => {
-                    resolve((<QuickPickItem>item).label);
-                })
+                onDidSelectItem: (item: QuickPickItem) => {
+                    resolve(item.label);
+                }
             });
         });
     }
