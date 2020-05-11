@@ -13,11 +13,15 @@ import { TaskService } from '@theia/task/lib/browser';
 import { TaskTerminalWidgetOpenerOptions } from '@theia/task/lib/browser/task-terminal-widget-manager';
 import { RunTaskOption, TaskConfiguration, TaskInfo, TaskOutputPresentation } from '@theia/task/lib/common';
 import { TerminalWidgetFactoryOptions } from '@theia/terminal/lib/browser/terminal-widget-impl';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
+import { CheTaskResolver } from './che-task-resolver';
 import { CHE_TASK_TYPE, REMOTE_TASK_KIND, TASK_KIND } from './che-task-terminal-widget-manager';
 
 @injectable()
 export class TaskConfigurationsService extends TaskService {
+
+    @inject(CheTaskResolver)
+    protected readonly cheTaskResolver: CheTaskResolver;
 
     protected async runResolvedTask(resolvedTask: TaskConfiguration, option?: RunTaskOption): Promise<TaskInfo | undefined> {
         const source = resolvedTask._source;

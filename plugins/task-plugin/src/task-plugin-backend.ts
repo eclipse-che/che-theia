@@ -14,7 +14,6 @@ import * as theia from '@theia/plugin';
 import * as che from '@eclipse-che/plugin';
 import { CHE_TASK_TYPE } from './task/task-protocol';
 import { CHE_TASK_SCHEMA } from './schema/che-task-schema';
-import { CheTaskProvider } from './task/che-task-provider';
 import { CheTaskRunner } from './task/che-task-runner';
 import { ServerVariableResolver } from './variable/server-variable-resolver';
 import { ProjectPathVariableResolver } from './variable/project-path-variable-resolver';
@@ -44,10 +43,6 @@ export async function start(context: theia.PluginContext): Promise<void> {
 
     const projectPathVariableResolver = container.get<ProjectPathVariableResolver>(ProjectPathVariableResolver);
     projectPathVariableResolver.registerVariables();
-
-    const cheTaskProvider = container.get<CheTaskProvider>(CheTaskProvider);
-    const taskProviderSubscription = theia.tasks.registerTaskProvider(CHE_TASK_TYPE, cheTaskProvider);
-    getSubscriptions().push(taskProviderSubscription);
 
     const cheTaskRunner = container.get<CheTaskRunner>(CheTaskRunner);
     const taskRunnerSubscription = await che.task.registerTaskRunner(CHE_TASK_TYPE, cheTaskRunner);
