@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import { TaskTerminalWidgetManager, TaskTerminalWidgetOpenerOptions } from '@theia/task/lib/browser/task-terminal-widget-manager';
+import { TaskTerminalWidgetManager, TaskTerminalWidgetOpenerOptions, TaskTerminalWidget } from '@theia/task/lib/browser/task-terminal-widget-manager';
 import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal-widget';
 import { TerminalWidgetFactoryOptions } from '@theia/terminal/lib/browser/terminal-widget-impl';
 import { injectable } from 'inversify';
@@ -66,5 +66,13 @@ export class CheTaskTerminalWidgetManager extends TaskTerminalWidgetManager {
         }
 
         return super.open(factoryOptions, openerOptions);
+    }
+
+    getTaskTerminals(): TerminalWidget[] {
+        return this.terminalService.all.filter(terminal => this.isTaskTerminal(terminal));
+    }
+
+    isTaskTerminal(terminal: TerminalWidget): boolean {
+        return TaskTerminalWidget.is(terminal) || RemoteTaskTerminalWidget.is(terminal);
     }
 }

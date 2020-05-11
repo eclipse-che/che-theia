@@ -14,10 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
- .task-status-success:before {
-    color: #89d185;
-}
-
-.task-status-error:before {
-    color: var(--theia-notificationsErrorIcon-foreground);
-}
+.p-TabBar.theia-app-centers .p-TabBar-tabIcon.task-status-in-progress {
+    background-size: 12px;
+    background-image: var(--theia-preloader);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+  }
