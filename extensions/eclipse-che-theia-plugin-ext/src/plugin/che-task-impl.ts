@@ -18,6 +18,11 @@ export enum TaskStatus {
     Unknown = 'UNKNOWN'
 }
 
+export enum TaskTerminallKind {
+    Task = 'task',
+    RemoteTask = 'remote-task'
+}
+
 export class CheTaskImpl implements CheTask {
     private readonly cheTaskMain: CheTaskMain;
     private readonly runnerMap: Map<string, TaskRunner>;
