@@ -9,12 +9,9 @@
  **********************************************************************/
 
 import * as che from '@eclipse-che/plugin';
+import { injectable } from 'inversify';
 import * as startPoint from '../task-plugin-backend';
 import { CHE_TASK_TYPE } from './task-protocol';
-import { injectable } from 'inversify';
-
-const TERMINAL_WIDGET_FACTORY_ID = 'terminal';
-const REMOTE_TERMINAL_WIDGET_FACTORY_ID = 'remote-terminal';
 
 @injectable()
 export class TaskStatusHandler {
@@ -31,10 +28,9 @@ export class TaskStatusHandler {
     private getTerminalIdentifier(event: che.TaskInfo | che.TaskExitedEvent): che.TerminalWidgetIdentifier {
         const taskConfig = event.config;
         if (taskConfig && taskConfig.type === CHE_TASK_TYPE) {
-            return { factoryId: REMOTE_TERMINAL_WIDGET_FACTORY_ID, processId: event.processId };
+            return { kind: che.TaskTerminallKind.RemoteTask, terminalId: event.processId };
         } else {
-            const terminalWidgetId = `${TERMINAL_WIDGET_FACTORY_ID}-${event.terminalId}`;
-            return { factoryId: TERMINAL_WIDGET_FACTORY_ID, widgetId: terminalWidgetId };
+            return { kind: che.TaskTerminallKind.Task, terminalId: event.terminalId || -1 };
         }
     }
 
