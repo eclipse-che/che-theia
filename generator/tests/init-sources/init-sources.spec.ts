@@ -19,6 +19,8 @@ import { CliError } from "../../src/cli-error";
 import * as yargs from 'yargs';
 import { YargsMockup } from "../cdn.spec";
 
+jest.setTimeout(10000);
+
 describe("Test Extensions", () => {
 
     // Increase timeout to 30 seconds
@@ -328,7 +330,7 @@ describe("Test Extensions", () => {
             (<any>InitSources)['DEFAULT_EXTENSIONS_URI'] = 'https://foobarfoo.com/foo/bar';
             await initSources.readConfigurationAndGenerate(undefined, false);
         } catch (e) {
-            expect(e.toString()).toMatch('Error: getaddrinfo ENOTFOUND foobarfoo.com foobarfoo.com:443');
+            expect(e.toString()).toMatch('Error: getaddrinfo ENOTFOUND foobarfoo.com');
         } finally {
             (<any>InitSources)['DEFAULT_EXTENSIONS_URI'] = uri;
         }

@@ -35,11 +35,15 @@ export class OauthUtils {
             }
         });
         window.addEventListener('message', data => {
-            if (data.data.startsWith('token:') && this.oAuthPopup) {
+            const message = data.data;
+            if (!this.oAuthPopup || typeof message !== 'string') {
+                return;
+            }
+            if (message.startsWith('token:')) {
                 this.oAuthPopup.close();
                 this.userToken = data.data.substring(6, data.data.length);
                 onDidReceiveTokenEmitter.fire(undefined);
-            } else if (data.data.startsWith('status:') && this.oAuthPopup) {
+            } else if (message.startsWith('status:') && this.oAuthPopup) {
                 this.oAuthPopup.postMessage('token:' + (this.machineToken ? this.machineToken : ''), '*');
             }
         });

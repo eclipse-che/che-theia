@@ -34,6 +34,9 @@ components:
     memoryLimit: 1500M
     type: cheEditor
     alias: theia-editor
+    env:
+      - name: NODE_TLS_REJECT_UNAUTHORIZED
+        value: "0"
 
   - type: chePlugin
     id: che-incubator/typescript/latest

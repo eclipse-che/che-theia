@@ -48,6 +48,8 @@ import { CheWebviewEnvironment } from './che-webview-environment';
 import { TaskStatusHandler } from './task-status-handler';
 import { PluginFrontendViewContribution } from '@theia/plugin-ext/lib/main/browser/plugin-frontend-view-contribution';
 import { OauthUtils } from './oauth-utils';
+import { TaskService } from '@theia/task/lib/browser';
+import { TaskConfigurationsService } from './task-config-service';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(CheApiProvider).toSelf().inSingletonScope();
@@ -107,4 +109,7 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
 
     bind(TaskStatusHandler).toSelf().inSingletonScope();
     bind(OauthUtils).toSelf().inSingletonScope();
+
+    bind(TaskConfigurationsService).toSelf().inSingletonScope();
+    rebind(TaskService).to(TaskConfigurationsService).inSingletonScope();
 });

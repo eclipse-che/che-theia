@@ -14,6 +14,7 @@ import * as fs from 'fs-extra';
 import { Init } from "../../src/init";
 import { Command } from "../../src/command";
 
+jest.setTimeout(10000);
 jest.mock("../../src/command");
 
 describe("Test Init", () => {

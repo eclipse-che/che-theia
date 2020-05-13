@@ -23,6 +23,8 @@ ARG THEIA_GITHUB_REPO=eclipse-theia/theia
 # Define upstream version of theia to use
 ARG THEIA_VERSION=master
 
+ARG THEIA_COMMIT_SHA=''
+
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 #{IF:DO_REMOTE_CHECK}
@@ -59,6 +61,12 @@ RUN rm -rf ${HOME}/theia-source-code/examples/browser && \
     rm -rf ${HOME}/theia-source-code/packages/java-debug && \
     rm -rf ${HOME}/theia-source-code/packages/python && \
     rm -rf ${HOME}/theia-source-code/packages/typescript && \
+    # Allow the usage of ELECTRON_SKIP_BINARY_DOWNLOAD=1 by using a more recent version of electron \
+    sed -i 's|  "resolutions": {|  "resolutions": {\n    "**/electron": "7.0.0",|' ${HOME}/theia-source-code/package.json && \
+    # remove all electron-browser module to not compile them
+    find . -name "electron-browser"  | xargs rm -rf {} && \
+    rm -rf ${HOME}/theia-source-code/dev-packages/electron/native && \
+    echo "" > ${HOME}/theia-source-code/dev-packages/electron/scripts/post-install.js && \
     # Remove linter/formatters of theia
     sed -i 's|concurrently -n compile,lint -c blue,green \\"theiaext compile\\" \\"theiaext lint\\"|concurrently -n compile -c blue \\"theiaext compile\\"|' ${HOME}/theia-source-code/dev-packages/ext-scripts/package.json && \
     # Remove external configs removed
@@ -100,12 +108,16 @@ RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
 # Add yeoman generator & vscode git plug-ins
 COPY asset-untagged-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/production/plugins/theia_yeoman_plugin.theia
 
+
+# Use node image
+#{INCLUDE:docker/${BUILD_IMAGE_TARGET}/build-result-from.dockerfile}
+
+COPY --from=builder /home/theia-dev/theia-source-code/production /che-theia-build
+
 # change permissions
-RUN find production -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt && \
+RUN find /che-theia-build -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt && \
     # Add missing permissions on shell scripts of plug-ins
-    find /home/theia-dev/theia-source-code/production/plugins -name "*.sh" | xargs chmod +x
-
-
+    find /che-theia-build/plugins -name "*.sh" | xargs chmod +x
 
 ###
 # Runtime Image
@@ -130,7 +142,7 @@ ENV USE_LOCAL_GIT=true \
 
 EXPOSE 3100 3130
 
-COPY --from=builder /home/theia-dev/theia-source-code/production/plugins /default-theia-plugins
+COPY --from=build-result /che-theia-build/plugins /default-theia-plugins
 
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/runtime-install-dependencies.dockerfile}
 
@@ -168,7 +180,7 @@ COPY --from=builder /home/theia-dev/theia-source-code/production/plugins /defaul
     # Change permissions to allow editing of files for openshift user
     && find ${HOME} -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \;
 
-COPY --chown=theia:root --from=builder /home/theia-dev/theia-source-code/production /home/theia
+COPY --chown=theia:root --from=build-result /che-theia-build /home/theia
 USER theia
 WORKDIR /projects
 COPY src/entrypoint.sh /entrypoint.sh

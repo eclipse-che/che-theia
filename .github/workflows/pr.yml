@@ -15,7 +15,18 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  build:
+  node-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout che-theia source code
+    - uses: actions/setup-node@v1
+      name: Configuring nodejs 10.x version
+      with:
+        node-version: '10.x'
+    - name: build
+      run: yarn
+  docker-build:
     strategy:
       matrix:
         dist: [ 'alpine', 'ubi8' ]
@@ -30,4 +41,6 @@ jobs:
     - name: build
       run: |
         docker image prune -a -f
-        ./build.sh --build-args:THEIA_VERSION=master --tag:next --branch:master --git-ref:refs\\/heads\\/master --dockerfile:Dockerfile.${{matrix.dist}}
+        docker pull quay.io/eclipse/che-theia-dev:next
+        docker tag quay.io/eclipse/che-theia-dev:next eclipse/che-theia-dev:next
+        ./build.sh --root-yarn-opts:--ignore-scripts --build-args:THEIA_VERSION=master --tag:next --branch:master --git-ref:refs\\/heads\\/master --dockerfile:Dockerfile.${{matrix.dist}}
