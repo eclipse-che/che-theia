@@ -10,7 +10,7 @@
 ###
 # Builder Image
 #
-FROM #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-from.dockerfile}
+FROM quay.io/eclipse/che-theia-dev:next as builder
 
 WORKDIR ${HOME}
 
