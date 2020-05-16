@@ -8,7 +8,7 @@ USER root
 # Install curl and bash
 # Install ssh for cloning ssh-repositories
 # Install less for handling git diff properly
-# Install sshpass for handling passwordds for SSH keys
+# Install sshpass for handling passwords for SSH keys
 RUN yum install -y sudo git bzip2 which bash curl openssh less \
     https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm && \
     yum --enablerepo="epel" install -y sshpass && yum -y clean all && rm -rf /var/cache/yum
