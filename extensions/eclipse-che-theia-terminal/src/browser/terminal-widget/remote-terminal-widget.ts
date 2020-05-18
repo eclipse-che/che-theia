@@ -37,6 +37,11 @@ export interface RemoteTerminalWidgetFactoryOptions extends Partial<TerminalWidg
     created: string
 }
 
+export interface TerminalProcessInfo {
+    executable: string
+    arguments: string[]
+}
+
 @injectable()
 export class RemoteTerminalWidget extends TerminalWidgetImpl {
     public static OUTPUT_CHANNEL_NAME = 'remote-terminal';
@@ -196,6 +201,15 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
             }
             // Exec server side unable to return real process pid. This information is encapsulated.
             return this.terminalId;
+        })();
+    }
+
+    get processInfo(): Promise<TerminalProcessInfo> {
+        return (async () => {
+            if (!IBaseTerminalServer.validateId(this.terminalId)) {
+                throw new Error('terminal is not started');
+            }
+            return { executable: '/bin/bash', arguments: [] };
         })();
     }
 
