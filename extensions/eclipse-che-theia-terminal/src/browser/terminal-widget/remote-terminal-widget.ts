@@ -10,7 +10,7 @@
 
 import { injectable, inject, postConstruct } from 'inversify';
 import { TerminalWidgetImpl } from '@theia/terminal/lib/browser/terminal-widget-impl';
-import { IBaseTerminalServer } from '@theia/terminal/lib/common/base-terminal-protocol';
+import { IBaseTerminalServer, TerminalProcessInfo } from '@theia/terminal/lib/common/base-terminal-protocol';
 import { TerminalProxyCreatorProvider } from '../server-definition/terminal-proxy-creator';
 import { ATTACH_TERMINAL_SEGMENT, RemoteTerminalServerProxy, RemoteTerminalWatcher } from '../server-definition/remote-terminal-protocol';
 import { RemoteWebSocketConnectionProvider } from '../server-definition/remote-connection';
@@ -35,11 +35,6 @@ export interface RemoteTerminalWidgetOptions extends Partial<TerminalWidgetOptio
 export interface RemoteTerminalWidgetFactoryOptions extends Partial<TerminalWidgetOptions> {
     /* a unique string per terminal */
     created: string
-}
-
-export interface TerminalProcessInfo {
-    executable: string
-    arguments: string[]
 }
 
 @injectable()
