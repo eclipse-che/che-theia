@@ -225,6 +225,13 @@ declare module '@eclipse-che/plugin' {
         readonly [key: string]: any;
     }
 
+    export enum TaskScope {
+        Global = 0,
+        Workspace = 1
+    }
+
+    export type TaskConfigurationScope = string | TaskScope.Workspace | TaskScope.Global;
+
     export interface TaskConfiguration {
         /** A label that uniquely identifies a task configuration per source */
         readonly type: string;
@@ -235,7 +242,7 @@ declare module '@eclipse-che/plugin' {
          * For a configured task, it is workspace URI that task belongs to.
          * This field is not supposed to be used in `tasks.json`
          */
-        readonly _scope: string | undefined;
+        readonly _scope: TaskConfigurationScope;
         /** Additional task type specific properties. */
         readonly [key: string]: any;
     }

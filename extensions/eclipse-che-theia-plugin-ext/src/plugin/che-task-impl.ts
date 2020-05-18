@@ -59,7 +59,7 @@ export class CheTaskImpl implements CheTask {
     async $killTask(taskInfo: TaskInfo): Promise<void> {
         const runner = this.runnerMap.get(taskInfo.config.type);
         if (runner) {
-            return await runner.kill(taskInfo);
+            return runner.kill(taskInfo);
         }
         throw new Error(`Failed to terminate Che command: ${taskInfo.config.label}: the corresponging executor is not found`);
     }

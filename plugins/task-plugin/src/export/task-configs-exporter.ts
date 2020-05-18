@@ -108,7 +108,7 @@ export class TaskConfigurationsExporter implements ConfigurationsExporter {
     }
 
     private saveConfigs(tasksConfigFileUri: string, content: string, configurations: TaskConfiguration[]): void {
-        const result = modify(content, ['tasks'], configurations, formattingOptions);
+        const result = modify(content, ['tasks'], configurations.map(config => Object.assign(config, { _scope: undefined })), formattingOptions);
         writeFileSync(tasksConfigFileUri, result);
     }
 
