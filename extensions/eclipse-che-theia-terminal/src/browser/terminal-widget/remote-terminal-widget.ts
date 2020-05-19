@@ -10,7 +10,7 @@
 
 import { injectable, inject, postConstruct } from 'inversify';
 import { TerminalWidgetImpl } from '@theia/terminal/lib/browser/terminal-widget-impl';
-import { IBaseTerminalServer } from '@theia/terminal/lib/common/base-terminal-protocol';
+import { IBaseTerminalServer, TerminalProcessInfo } from '@theia/terminal/lib/common/base-terminal-protocol';
 import { TerminalProxyCreatorProvider } from '../server-definition/terminal-proxy-creator';
 import { ATTACH_TERMINAL_SEGMENT, RemoteTerminalServerProxy, RemoteTerminalWatcher } from '../server-definition/remote-terminal-protocol';
 import { RemoteWebSocketConnectionProvider } from '../server-definition/remote-connection';
@@ -196,6 +196,15 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
             }
             // Exec server side unable to return real process pid. This information is encapsulated.
             return this.terminalId;
+        })();
+    }
+
+    get processInfo(): Promise<TerminalProcessInfo> {
+        return (async () => {
+            if (!IBaseTerminalServer.validateId(this.terminalId)) {
+                throw new Error('terminal is not started');
+            }
+            return { executable: '/bin/bash', arguments: [] };
         })();
     }
 
