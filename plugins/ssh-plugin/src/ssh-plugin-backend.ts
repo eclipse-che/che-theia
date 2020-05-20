@@ -13,9 +13,8 @@ import * as che from '@eclipse-che/plugin';
 import { RemoteSshKeyManager, SshKeyManager } from './node/ssh-key-manager';
 import { che as cheApi } from '@eclipse-che/api';
 import { resolve, join } from 'path';
-import { pathExists, unlink, ensureFile, chmod, readFile, writeFile, appendFile } from 'fs-extra';
+import { pathExists, unlink, ensureFile, chmod, readFile, writeFile, appendFile, access, remove, mkdtemp } from 'fs-extra';
 import * as os from 'os';
-import { accessSync, mkdtempSync, readFileSync, rmdirSync, unlinkSync } from 'fs';
 import { R_OK } from 'constants';
 import { spawn } from 'child_process';
 
@@ -253,7 +252,7 @@ const uploadPrivateKey = async (sshkeyManager: SshKeyManager) => {
         hostName = `default-${Date.now()}`;
     }
 
-    const tempDir = mkdtempSync(join(os.tmpdir(), 'private-key-'));
+    const tempDir = await mkdtemp(join(os.tmpdir(), 'private-key-'));
     const uploadedFilePaths = await theia.window.showUploadDialog({ defaultUri: theia.Uri.file(tempDir) });
 
     if (!uploadedFilePaths || uploadPrivateKey.length === 0) {
@@ -263,9 +262,9 @@ const uploadPrivateKey = async (sshkeyManager: SshKeyManager) => {
 
     const privateKeyPath = uploadedFilePaths[0];
 
-    accessSync(privateKeyPath.path, R_OK);
+    await access(privateKeyPath.path, R_OK);
 
-    const privateKeyContent = readFileSync(privateKeyPath.path).toString();
+    const privateKeyContent = (await readFile(privateKeyPath.path)).toString();
 
     try {
         await sshkeyManager.create({ name: hostName, service: 'vcs', privateKey: privateKeyContent });
@@ -286,8 +285,9 @@ const uploadPrivateKey = async (sshkeyManager: SshKeyManager) => {
     } catch (error) {
         theia.window.showErrorMessage(error);
     }
-    unlinkSync(privateKeyPath.path);
-    rmdirSync(tempDir, { recursive: true });
+
+    await unlink(privateKeyPath.path);
+    await remove(tempDir);
 };
 
 const getKeys = async (sshKeyManager: SshKeyManager): Promise<cheApi.ssh.SshPair[]> => {

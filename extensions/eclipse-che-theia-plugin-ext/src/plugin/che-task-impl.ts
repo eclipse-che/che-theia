@@ -14,8 +14,14 @@ import { CheTask, CheTaskMain, PLUGIN_RPC_CONTEXT } from '../common/che-protocol
 
 export enum TaskStatus {
     Success = 'SUCCESS',
+    InProgress = 'IN_PROGRESS',
     Error = 'ERROR',
     Unknown = 'UNKNOWN'
+}
+
+export enum TaskTerminallKind {
+    Task = 'task',
+    RemoteTask = 'remote-task'
 }
 
 export class CheTaskImpl implements CheTask {
@@ -53,7 +59,7 @@ export class CheTaskImpl implements CheTask {
     async $killTask(taskInfo: TaskInfo): Promise<void> {
         const runner = this.runnerMap.get(taskInfo.config.type);
         if (runner) {
-            return await runner.kill(taskInfo);
+            return runner.kill(taskInfo);
         }
         throw new Error(`Failed to terminate Che command: ${taskInfo.config.label}: the corresponging executor is not found`);
     }

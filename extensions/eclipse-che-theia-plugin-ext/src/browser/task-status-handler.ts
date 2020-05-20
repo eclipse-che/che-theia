@@ -7,63 +7,112 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
-import { TaskStatusOptions, TerminalWidgetIdentifier } from '@eclipse-che/plugin';
-import { Widget, WidgetManager } from '@theia/core/lib/browser';
+import { TaskStatusOptions } from '@eclipse-che/plugin';
+import { TerminalService } from '@theia/terminal/lib/browser/base/terminal-service';
 import { TerminalWidget } from '@theia/terminal/lib/browser/base/terminal-widget';
-import { inject, injectable } from 'inversify';
+import { inject, injectable, postConstruct } from 'inversify';
+import { CheTaskTerminalWidgetManager } from './che-task-terminal-widget-manager';
+import { TaskConfigurationsService } from './task-config-service';
 
 const StatusIcon = {
-    SUCCESS: 'fa fa-check task-status-success',
-    ERROR: 'fa fa-times-circle task-status-error',
+    SUCCESS: 'fa fa-check',
+    ERROR: 'fa fa-times-circle',
+    IN_PROGRESS: 'task-status-in-progress',
     UNKNOWN: 'fa-question'
 };
+
+enum TaskStatus {
+    Success = 'SUCCESS',
+    Error = 'ERROR',
+    InProgress = 'IN_PROGRESS',
+    Unknown = 'UNKNOWN'
+}
 
 @injectable()
 export class TaskStatusHandler {
 
-    @inject(WidgetManager)
-    private readonly widgetManager: WidgetManager;
+    @inject(TerminalService)
+    protected readonly terminalService: TerminalService;
+
+    @inject(TaskConfigurationsService)
+    protected readonly taskService: TaskConfigurationsService;
+
+    @inject(CheTaskTerminalWidgetManager)
+    protected readonly cheTaskTerminalWidgetManager: CheTaskTerminalWidgetManager;
+
+    @postConstruct()
+    protected init(): void {
+        this.terminalService.onDidCreateTerminal(async (terminal: TerminalWidget) => {
+            if (this.cheTaskTerminalWidgetManager.isTaskTerminal(terminal)) {
+                this.setStatus(TaskStatus.InProgress, terminal);
+
+                this.subscribeOnTaskTerminalEvents(terminal);
+            }
+        });
+
+        this.taskService.onDidStartTaskFailure(taskInfo => {
+            const kind = taskInfo.kind;
+            const terminalId = taskInfo.terminalId;
+
+            if (kind && terminalId) {
+                const status = TaskStatus.Error;
+                const terminalIdentifier = { kind, terminalId };
+
+                this.setTaskStatus({ status, terminalIdentifier });
+            }
+        });
+
+        this.handleOpenTerminals();
+    }
 
     async setTaskStatus(options: TaskStatusOptions): Promise<void> {
-        const terminal = await this.getTerminalWidget(options.terminalIdentifier);
-        if (terminal) {
-            terminal.title.iconClass = StatusIcon[options.status];
-        } else {
+        const terminalIdentifier = options.terminalIdentifier;
+        const kind = terminalIdentifier.kind;
+        const terminalId = terminalIdentifier.terminalId;
+
+        const terminalWidget = this.terminalService.all.find(terminal => kind === terminal.kind && terminalId === terminal.terminalId);
+        this.setStatus(options.status, terminalWidget);
+    }
+
+    setStatus(status: TaskStatus, terminal?: TerminalWidget): void {
+        if (!terminal) {
             console.log('Failed to set task status: the corresponding terminal is not found');
+            return;
+        }
+
+        const currentIcon = terminal.title.iconClass;
+        const newStatusIcon = StatusIcon[status];
+        if (currentIcon !== newStatusIcon) {
+            terminal.title.iconClass = newStatusIcon;
         }
     }
 
-    protected async getTerminalWidget(terminalIdentifier: TerminalWidgetIdentifier): Promise<TerminalWidget | undefined> {
-        const widgets = this.widgetManager.getWidgets(terminalIdentifier.factoryId);
-
-        const widgetId = terminalIdentifier.widgetId;
-        if (widgetId !== undefined) {
-            return this.getTerminalByWidgetId(widgetId, widgets);
-        }
-
-        const processId = terminalIdentifier.processId;
-        if (typeof processId === 'number') {
-            return this.getTerminalByProcessId(processId, widgets);
-        }
-    }
-
-    private async getTerminalByWidgetId(id: string, widgets: Widget[]): Promise<TerminalWidget | undefined> {
-        const terminalWidget = widgets.find(widget => id === widget.id);
-        if (terminalWidget instanceof TerminalWidget) {
-            return terminalWidget;
-        }
-    }
-
-    private async getTerminalByProcessId(id: number, widgets: Widget[]): Promise<TerminalWidget | undefined> {
-        for (const widget of widgets) {
-            if (!(widget instanceof TerminalWidget)) {
-                continue;
-            }
-
-            const processId = await widget.processId;
-            if (id === processId) {
-                return widget;
+    private async handleOpenTerminals(): Promise<void> {
+        const taskTerminals = this.cheTaskTerminalWidgetManager.getTaskTerminals();
+        for (const terminal of taskTerminals) {
+            try {
+                const processId = await terminal.processId;
+                if (processId) {
+                    this.setStatus(TaskStatus.InProgress, terminal);
+                }
+            } catch (error) {
+                // an error is thrown if a terminal is not started, we are trying to get a process ID for started terminals
             }
         }
+    }
+
+    private subscribeOnTaskTerminalEvents(terminal: TerminalWidget): void {
+        const didOpenListener = terminal.onDidOpen(async () => {
+            this.setStatus(TaskStatus.InProgress, terminal);
+        });
+
+        const didOpenFailureListener = terminal.onDidOpenFailure(async () => {
+            this.setStatus(TaskStatus.Error, terminal);
+        });
+
+        terminal.onDidDispose(() => {
+            didOpenListener.dispose();
+            didOpenFailureListener.dispose();
+        });
     }
 }

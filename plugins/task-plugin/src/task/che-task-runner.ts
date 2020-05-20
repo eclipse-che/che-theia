@@ -11,7 +11,7 @@
 import { injectable, inject, postConstruct } from 'inversify';
 import * as che from '@eclipse-che/plugin';
 import { CHE_TASK_TYPE, Target } from './task-protocol';
-import { MachineExecClient } from '../machine/machine-exec-client';
+import { MachineExecClient, MachineExec } from '../machine/machine-exec-client';
 import { ProjectPathVariableResolver } from '../variable/project-path-variable-resolver';
 import { MachineExecWatcher } from '../machine/machine-exec-watcher';
 import * as startPoint from '../task-plugin-backend';
@@ -61,27 +61,24 @@ export class CheTaskRunner {
         }
 
         try {
-            const terminalOptions: theia.TerminalOptions = {
-                cwd: target.workingDir,
-                name: taskConfig.label,
-                shellPath: 'sh',
-                shellArgs: ['-c', `${taskConfig.command}`],
-
-                attributes: {
-                    CHE_MACHINE_NAME: containerName,
-                    closeWidgetExitOrError: 'false',
-                    interruptProcessOnClose: 'true'
-                }
+            const machineExec: MachineExec = {
+                identifier: {
+                    machineName: containerName,
+                    workspaceId: target.workspaceId || ''
+                },
+                cmd: ['sh', '-c', taskConfig.command],
+                tty: true,
+                cwd: target.workingDir
             };
-            const terminal = theia.window.createTerminal(terminalOptions);
-            terminal.show();
-            const execId = await terminal.processId;
+
+            const execId = await this.machineExecClient.getExecId(machineExec);
 
             return {
                 taskId: STUB_TASK_ID,
                 ctx: ctx,
                 config: taskConfig,
-                execId: execId
+                execId: execId,
+                terminalId: execId
             };
         } catch (error) {
             console.error('Failed to execute Che command:', error);

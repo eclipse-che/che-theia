@@ -58,6 +58,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
 
     private readonly mainMenuId = 'theia:menubar';
     private editorContainerName: string | undefined;
+    private workspaceId: string | undefined;
 
     async registerCommands(registry: CommandRegistry): Promise<void> {
         const serverUrl = await this.termApiEndPointProvider();
@@ -166,7 +167,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
 
     public async newTerminalPerContainer(containerName: string, options: TerminalWidgetOptions, closeWidgetOnExitOrError: boolean = true): Promise<TerminalWidget> {
         try {
-            const workspaceId = <string>await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
+            const workspaceId = await this.getWorkspaceId();
             const termApiEndPoint = await this.termApiEndPointProvider();
 
             const widget = await this.widgetManager.getOrCreateWidget(REMOTE_TERMINAL_WIDGET_FACTORY_ID, <RemoteTerminalWidgetFactoryOptions>{
@@ -195,6 +196,16 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         const termWidget = await this.newTerminalPerContainer(containerName, { cwd });
         this.open(termWidget);
         termWidget.start();
+    }
+
+    protected async getWorkspaceId(): Promise<string | undefined> {
+        if (this.workspaceId) {
+            return this.workspaceId;
+        }
+
+        this.workspaceId = await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
+
+        return this.workspaceId;
     }
 
     async getEditorContainerName(): Promise<string | undefined> {
