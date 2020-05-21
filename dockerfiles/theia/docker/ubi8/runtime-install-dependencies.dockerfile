@@ -10,6 +10,6 @@ USER root
 # Install less for handling git diff properly
 # Install sshpass for handling passwords for SSH keys
 RUN yum install -y sudo git bzip2 which bash curl openssh less && \
-    wget http://sourceforge.net/projects/sshpass/files/latest/download -O sshpass.tar.gz && tar -xvf sshpass.tar.gz && \
-    cd sshpass*/ && ./configure && make install && cd .. && rm -rf sshpass*/ && \
+    wget https://netcologne.dl.sourceforge.net/project/sshpass/sshpass/1.06/sshpass-1.06.tar.gz -O sshpass.tar.gz && \
+    tar -xvf sshpass.tar.gz && cd sshpass-1.06 && ./configure && make install && cd .. && rm -rf sshpass-1.06 && \
     yum -y clean all && rm -rf /var/cache/yum
