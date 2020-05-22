@@ -17,8 +17,22 @@ import { pathExists, unlink, ensureFile, chmod, readFile, writeFile, appendFile 
 import * as os from 'os';
 import { accessSync, mkdtempSync, readFileSync, rmdirSync, unlinkSync } from 'fs';
 import { R_OK } from 'constants';
+import { spawn } from 'child_process';
 
 export async function start(): Promise<void> {
+
+    const sshKeyManager = new RemoteSshKeyManager();
+    let keys: cheApi.ssh.SshPair[] = [];
+    try {
+        keys = await getKeys(sshKeyManager);
+    } catch (e) {
+        if (e.message !== 'No SSH key pair has been defined.') {
+            console.error(e.message);
+        }
+    }
+    const keyPath = (keyName: string | undefined) => keyName ? '/etc/ssh/private/' + keyName : '';
+    const passphrase = (privateKey: string | undefined) => privateKey ? privateKey.substring(privateKey.indexOf('\npassphrase: ') + 13, privateKey.length - 1) : '';
+    keys.filter(key => isEncrypted(keyPath(key.name))).forEach(key => registerKey(keyPath(key.name), passphrase(key.privateKey)));
 
     let gitLogHandlerInitialized: boolean;
     /* Git log handler, listens to Git events, catches the clone and push events.
@@ -44,14 +58,8 @@ export async function start(): Promise<void> {
                     path = split[4];
                     // Catch the remote access error.
                 } else if (out.indexOf('Permission denied (publickey).') > -1) {
-                    let keys: cheApi.ssh.SshPair[] = [];
-                    try {
-                        keys = await getKeys(sshKeyManager);
-                    } catch (e) {
-                        // No SSH key pair has been defined, do nothing.
-                    }
                     // If the remote repository is a GitHub repository, ask to upload a public SSH key.
-                    if (out.indexOf('git@github.com') > -1) {
+                    if (await che.oAuth.isRegistered('github') && out.indexOf('git@github.com') > -1) {
                         switch (command) {
                             case 'clone': {
                                 if (await askToGenerateIfEmptyAndUploadKeyToGithub(keys, true)) {
@@ -84,8 +92,8 @@ export async function start(): Promise<void> {
 
     theia.plugins.onDidChange(onChange);
 
-    const askToGenerateIfEmptyAndUploadKeyToGithub = async (keys: cheApi.ssh.SshPair[], tryAgain: boolean): Promise<boolean> => {
-        let key = keys.find(k => !!k.publicKey && !!k.name && (k.name.startsWith('github.com') || k.name.startsWith('default-')));
+    const askToGenerateIfEmptyAndUploadKeyToGithub = async (keysParam: cheApi.ssh.SshPair[], tryAgain: boolean): Promise<boolean> => {
+        let key = keysParam.find(k => !!k.publicKey && !!k.name && (k.name.startsWith('github.com') || k.name.startsWith('default-')));
         const message = `Permission denied, would you like to ${!key ? 'generate and ' : ''}upload the public SSH key to GitHub${tryAgain ? ' and try again' : ''}?`;
         const action = await theia.window.showWarningMessage(message, key ? 'Upload' : 'Generate and upload');
         if (action) {
@@ -104,7 +112,6 @@ export async function start(): Promise<void> {
         }
     };
 
-    const sshKeyManager = new RemoteSshKeyManager();
     const GENERATE_FOR_HOST: theia.CommandDescription = {
         id: 'ssh:generate_for_host',
         label: 'SSH: generate key pair for particular host...'
@@ -150,7 +157,7 @@ export async function start(): Promise<void> {
     });
 }
 
-const RESTART_WARNING_MESSAGE = 'Che Git plugin can leverage the generated keys now. To make them available in every workspace containers please restart your workspace.';
+const RESTART_WARNING_MESSAGE = 'Che Git plugin can leverage the generated keys now. To make them available in all workspace containers please restart your workspace.';
 const ENTER_KEY_NAME_OR_LEAVE_EMPTY_MESSAGE = 'Please provide a hostname (e.g. github.com) or leave empty to setup default name';
 
 const hostNamePattern = new RegExp('[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*');
@@ -264,6 +271,16 @@ const uploadPrivateKey = async (sshkeyManager: SshKeyManager) => {
         await sshkeyManager.create({ name: hostName, service: 'vcs', privateKey: privateKeyContent });
         await updateConfig(hostName);
         await writeKey(hostName, privateKeyContent);
+        const keyPath = getKeyFilePath(hostName);
+        let passphrase;
+        if (await isEncrypted(keyPath)) {
+            passphrase = await theia.window.showInputBox({ placeHolder: 'Enter passphrase for key', password: true });
+            if (passphrase) {
+                await registerKey(keyPath, passphrase);
+            } else {
+                theia.window.showErrorMessage('Passphrase for key was not entered');
+            }
+        }
         theia.window.showInformationMessage(`Key pair for ${hostName} successfully uploaded`);
         showWarning(RESTART_WARNING_MESSAGE);
     } catch (error) {
@@ -306,6 +323,61 @@ const deleteKeyPair = async (sshkeyManager: SshKeyManager) => {
         theia.window.showErrorMessage(error);
     }
 };
+
+async function registerKey(keyPath: string, passphrase: string): Promise<void> {
+    try {
+        await sshAdd(keyPath, passphrase);
+    } catch (e) {
+        if (e.includes('Could not open a connection to your authentication agent')) {
+            await startSshAgent();
+            await sshAdd(keyPath, passphrase);
+        }
+    }
+}
+
+async function isEncrypted(keyPath: string): Promise<boolean> {
+    return new Promise<boolean>(resolvePromise => {
+        const command = spawn('sshpass', ['-p', '', '-P', 'assphrase', 'ssh-keygen', '-y', '-f', keyPath]);
+        command.stdout.on('data', data => {
+            resolvePromise(false);
+        });
+        command.stderr.on('data', data => {
+            if (data.includes('incorrect passphrase supplied to decrypt private key')) {
+                resolvePromise(true);
+            }
+        });
+    });
+}
+
+function sshAdd(keyPath: string, passphrase: string): Promise<void> {
+    return new Promise<void>((resolvePromise, reject) => {
+        const command = spawn('sshpass', ['-p', passphrase, '-P', 'assphrase', 'ssh-add', keyPath]);
+        command.stderr.on('data', async (data: string) => {
+            reject(data);
+        });
+        command.on('close', () => {
+            resolvePromise();
+        });
+    });
+}
+
+function startSshAgent(): Promise<void> {
+    return new Promise<void>((resolvePromise, reject) => {
+        const command = spawn('ssh-agent', ['-s']);
+        command.stderr.on('data', async (data: string) => {
+            reject(data);
+        });
+        command.stdout.on('data', async data => {
+            const dataString = data.toString();
+            const env = dataString.substring(0, dataString.indexOf('='));
+            const value = dataString.substring(dataString.indexOf('=') + 1, dataString.indexOf(';'));
+            process.env[env] = value;
+        });
+        command.on('close', () => {
+            resolvePromise();
+        });
+    });
+}
 
 const viewPublicKey = async (sshkeyManager: SshKeyManager) => {
     let keys: cheApi.ssh.SshPair[];
