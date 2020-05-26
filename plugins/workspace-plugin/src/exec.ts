@@ -9,12 +9,11 @@
  **********************************************************************/
 
 import { spawn, SpawnOptions } from 'child_process';
-import { askpassEnv } from './askpass';
 
 export async function execute(commandLine: string, args?: string[], options?: SpawnOptions): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         if (options) {
-            options.env = askpassEnv;
+            options.env = process.env;
         }
         const command = spawn(commandLine, args, options);
         let result = '';
