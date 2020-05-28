@@ -13,6 +13,7 @@ sources:
     - extensions/eclipse-che-theia-preferences-provider-extension
     - extensions/eclipse-che-theia-git-provisioner
     - extensions/eclipse-che-theia-logging
+    - extensions/eclipse-che-theia-messaging
   plugins:
     - plugins/containers-plugin
     - plugins/workspace-plugin
