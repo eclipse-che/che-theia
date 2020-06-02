@@ -14,7 +14,6 @@ import { inject, injectable } from 'inversify';
 import URI from '@theia/core/lib/common/uri';
 import { MessagingContribution } from '@theia/core/lib/node/messaging/messaging-contribution';
 import { CheApiService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
-import { SERVER_TYPE_ATTR, SERVER_IDE_ATTR_VALUE } from '@eclipse-che/theia-plugin-ext/lib/common/che-server-common';
 
 @injectable()
 export class CheMessagingContribution extends MessagingContribution {
@@ -32,9 +31,20 @@ export class CheMessagingContribution extends MessagingContribution {
     }
 
     async isRequestAllowed(request: http.IncomingMessage): Promise<boolean> {
-        let theiaServer;
+        const theiaEndpoints = [];
         try {
-            theiaServer = await this.cheApiService.findUniqueServerByAttribute(SERVER_TYPE_ATTR, SERVER_IDE_ATTR_VALUE);
+            const containers = await this.cheApiService.getCurrentWorkspacesContainers();
+            for (const containerName of Object.keys(containers)) {
+                const servers = containers[containerName].servers;
+                if (servers) {
+                    for (const serverName of Object.keys(servers)) {
+                        const server = servers[serverName];
+                        if (serverName === 'theia' || serverName === 'theia-dev' || serverName === 'theia-dev-flow') {
+                            theiaEndpoints.push(new URI(server.url));
+                        }
+                    }
+                }
+            }
         } catch (e) {
             console.error(e);
             return true; // we're outside of Che Workspace, so allow a request
@@ -44,10 +54,8 @@ export class CheMessagingContribution extends MessagingContribution {
         if (typeof requestOrigin !== 'string') {
             return false;
         }
+        const requestOriginURI = new URI(requestOrigin);
 
-        const requestOriginURI = new URI(requestOrigin).toString();
-        const theiaServerURI = new URI(theiaServer.url).toString();
-
-        return requestOriginURI === theiaServerURI;
+        return theiaEndpoints.some(uri => uri.isEqualOrParent(requestOriginURI));
     }
 }
