@@ -23,4 +23,4 @@ sources:
     - plugins/ssh-plugin
     - plugins/telemetry-plugin
     - plugins/github-auth-plugin
-  checkoutTo: master
+  checkoutTo: 7.14.x
