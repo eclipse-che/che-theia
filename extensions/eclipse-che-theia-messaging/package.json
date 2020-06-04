@@ -6,7 +6,7 @@
   "version": "7.14.1",
   "description": "Eclipse Che - Theia Messaging",
   "dependencies": {
-    "@theia/core": "1.3.0-next.c80f3fec",
+    "@theia/core": "1.3.0-next.fdd7c41a",
     "@eclipse-che/theia-plugin-ext": "7.14.1"
   },
   "publishConfig": {
