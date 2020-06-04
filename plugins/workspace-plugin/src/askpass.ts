@@ -28,7 +28,7 @@ function getIPCHandlePath(nonce: string): string {
     }
 
     if (process.env['XDG_RUNTIME_DIR']) {
-        return path.join(process.env['XDG_RUNTIME_DIR'] as string, `che-theia-git-askpass-${nonce}.sock`);
+        return path.join(process.env['XDG_RUNTIME_DIR'], `che-theia-git-askpass-${nonce}.sock`);
     }
 
     return path.join(os.tmpdir(), `che-theia-git-askpass-${nonce}.sock`);
