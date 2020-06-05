@@ -19,8 +19,8 @@
     "src"
   ],
   "dependencies": {
-    "@theia/core": "1.3.0-next.c80f3fec",
-    "@theia/terminal": "1.3.0-next.c80f3fec",
+    "@theia/core": "1.3.0-next.fdd7c41a",
+    "@theia/terminal": "1.3.0-next.fdd7c41a",
     "reconnecting-websocket": "^4.2.0",
     "@eclipse-che/workspace-client": "latest",
     "@eclipse-che/api": "latest",
