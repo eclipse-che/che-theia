@@ -12928,10 +12928,10 @@ vscode-languageserver-types@3.15.1, vscode-languageserver-types@^3.15.0-next:
   resolved "https://registry.yarnpkg.com/vscode-languageserver-types/-/vscode-languageserver-types-3.15.1.tgz#17be71d78d2f6236d414f0001ce1ef4d23e6b6de"
   integrity sha512-+a9MPUQrNGRrGU630OGbYVQ+11iOIovjCkqxajPa9w57Sd5ruK8WQNsslzpa0x/QJqC8kRc2DUxWjIFwoNm4ZQ==
 
-vscode-ripgrep@^1.2.4:
-  version "1.5.8"
-  resolved "https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.5.8.tgz#32cb33da6d1a9ca8f5de8c2813ed5114fd55fc11"
-  integrity sha512-l6Pv/t1Jk63RU+kEkMO04XxnNRYdyzuesizj9AzFpcfrUxxpAjEJBK1qO9Mov30UUGZl7uDUBn+uCv9koaHPPA==
+vscode-ripgrep@^1.6.1:
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.6.1.tgz#09519917f1211d9c905af1788383f9bc5f52ede9"
+  integrity sha512-ad9kgxyFWmjPGRiQTAtQ2/4qW4d7aCYAKeieafFxLPCOxEXE9dBT4pGHZassldvXQYBWZXO57NiwiRWFhIY8Ew==
 
 vscode-textmate@^4.0.1:
   version "4.4.0"
