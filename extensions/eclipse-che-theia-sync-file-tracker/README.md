@@ -4,7 +4,7 @@ This extension tracks events of file synchronization progress during workspace s
 
 ### How does the extension work?
 
-If workspace configured to use asynchronus storage extension will open websocket connection to special servcie started via plugin and show progress in status bar. In case some error, error messgae will shown in status bar after cliking will apare popup with error dtails. Aftre sucefuly file synchronizition stus bar alos will updste with  corresponding message, in this case message will disapere in 5 seconds.
+If workspace configured to use asynchronous storage extension will open websocket connection to special service and show progress in status bar. In case some error, error message will show in status bar after clicking will appear popup with error details. After successfully file synchronization status bar also will update with corresponding message, in this case message will disappear in 5 seconds.
 
 ## Technical info
 
