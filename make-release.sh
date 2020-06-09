@@ -37,6 +37,15 @@ if [[ ! ${VERSION} ]] || [[ ! ${REPO} ]]; then
   exit 1
 fi
 
+sed_in_place() {
+    SHORT_UNAME=$(uname -s)
+  if [ "$(uname)" == "Darwin" ]; then
+    sed -i '' "$@"
+  elif [ "${SHORT_UNAME:0:5}" == "Linux" ]; then
+    sed -i "$@"
+  fi
+}
+
 # derive branch from version
 BRANCH=${VERSION%.*}.x
 
@@ -73,27 +82,29 @@ apply_files_edits () {
   fi
 
   # update config for Che Theia generator
-  sed -i che-theia-init-sources.yml -e "/checkoutTo:/s/master/${BRANCH}/"
+  sed_in_place -e "/checkoutTo:/s/master/${BRANCH}/" che-theia-init-sources.yml
+  sed_in_place -e "/checkoutTo:/s/master/${BRANCH}/" che-theia-init-sources.yml
 
   # set the variables for building the images
-  sed -i build.include \
-      -e 's/IMAGE_TAG="..*"/IMAGE_TAG="latest"/' \
-      -e 's/^THEIA_COMMIT_SHA=$/THEIA_COMMIT_SHA="'${THEIA_VERSION##*.}'"/' \
-      -e 's/THEIA_DOCKER_IMAGE_VERSION=.*/THEIA_DOCKER_IMAGE_VERSION="'${VERSION}'"/'
+  sed_in_place -e "s/IMAGE_TAG=\"..*\"/IMAGE_TAG=\"latest\"/" build.include
+  sed_in_place -e "s/^THEIA_COMMIT_SHA=$/THEIA_COMMIT_SHA=\"${THEIA_VERSION##*.}\"/" build.include
+  sed_in_place -e "s/THEIA_DOCKER_IMAGE_VERSION=.*/THEIA_DOCKER_IMAGE_VERSION=\"${VERSION}\"/" build.include
 
   # Update extensions/plugins package.json files:
   # - set packages' version
   # - update versions of Theia and Che dependencies
   for m in "extensions/*" "plugins/*"; do
-    sed -i ./${m}/package.json \
-        -r -e 's/("version": )(".*")/\1"'$VERSION'"/' \
-        -r -e '/plugin-packager/!s/("@theia\/..*": )(".*")/\1"'${THEIA_VERSION}'"/' \
-        -r -e '/@eclipse-che\/api|@eclipse-che\/workspace-client|@eclipse-che\/workspace-telemetry-client/!s/("@eclipse-che\/..*": )(".*")/\1"'$VERSION'"/'
+    PACKAGE_JSON="${m}"/package.json
+    # shellcheck disable=SC2086
+    sed_in_place -r -e "s/(\"version\": )(\".*\")/\1\"$VERSION\"/" ${PACKAGE_JSON}
+    # shellcheck disable=SC2086
+    sed_in_place -r -e "/plugin-packager/!s/(\"@theia\/..*\": )(\".*\")/\1\"${THEIA_VERSION}\"/" ${PACKAGE_JSON}
+    # shellcheck disable=SC2086
+    sed_in_place -r -e "/@eclipse-che\/api|@eclipse-che\/workspace-client|@eclipse-che\/workspace-telemetry-client/!s/(\"@eclipse-che\/..*\": )(\".*\")/\1\"$VERSION\"/" ${PACKAGE_JSON}
   done
 
   if [[ ${VERSION} == *".0" ]]; then
-    sed -i dockerfiles/theia/docker/ubi8/builder-clone-theia.dockerfile \
-        -e '$ a RUN cd ${HOME} \&\& tar zcf ${HOME}/theia-source-code.tgz theia-source-code'
+    sed_in_place -e "$ a RUN cd ${HOME} \&\& tar zcf ${HOME}/theia-source-code.tgz theia-source-code" dockerfiles/theia/docker/ubi8/builder-clone-theia.dockerfile
   fi
 }
 

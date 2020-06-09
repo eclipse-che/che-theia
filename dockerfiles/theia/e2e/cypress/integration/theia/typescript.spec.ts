@@ -21,7 +21,7 @@ context('TypeScript', () => {
     });
 
     // Create a typescript file and check we can use the editor
-    it('Check Invalid Syntax', () => {
+    it.skip('Check Invalid Syntax', () => {
 
         const FOLDER_NAME = 'typescripttest' + makeid();
         const FILENAME = 'HelloWorld.ts';
