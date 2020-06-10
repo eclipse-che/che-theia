@@ -47,7 +47,7 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
             const serverURI = new URI(server.url+'/track').toString();
             return serverURI;
         } else {
-            return Promise.reject('Server rsync not found')
+            return Promise.reject('Server rsync not found');
         }
     }
 
@@ -57,7 +57,7 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
         });
         websocket.onerror = err => {
             console.log(err);
-        }
+        };
         websocket.onmessage = ev => {
             this.updateStatusBar(ev.data, websocket);
         };
@@ -81,7 +81,7 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
                 priority: 150
             });
             (async () => { 
-                await this.delay(5000);//hide message in 5 sec
+                await this.delay(5000);// hide message in 5 sec
                 this.statusBarDisposable.dispose();
             })();
         } else if (obj.state === 'ERROR'){
@@ -110,7 +110,7 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
         this.statusBarDisposable.push(Disposable.create(() => this.statusBar.removeElement(id)));
     }
 
-    delay(ms: number) {
+    delay(ms: number): Promise<void> {
         return new Promise( resolve => setTimeout(resolve, ms) );
     }
 }
