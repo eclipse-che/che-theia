@@ -32,7 +32,7 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
     protected readonly messageService: MessageService;
     @inject(CheApiService)
     protected cheApiService: CheApiService;
-    private readonly ID = "file-synchronization-indicator-id";
+    private readonly ID = 'file-synchronization-indicator-id';
     protected readonly statusBarDisposable = new DisposableCollection();
 
     @postConstruct()
@@ -42,9 +42,13 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
     }
 
     async getWorkspaceService(): Promise<string> {
-        let server = await this.cheApiService.findUniqueServerByAttribute("type", "rsync");
-        const serverURI = new URI(server.url+"/track").toString();
-        return serverURI;
+        const server = await this.cheApiService.findUniqueServerByAttribute('type', 'rsync');
+        if (server) {
+            const serverURI = new URI(server.url+'/track').toString();
+            return serverURI;
+        } else {
+            return Promise.reject('Server rsync not found')
+        }
     }
 
     connect(endpointAdress: string): void {
@@ -57,17 +61,17 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
         websocket.onmessage = ev => {
             this.updateStatusBar(ev.data, websocket);
         };
-        websocket.onclose = () => console.log("File synchronization tracking connection closed");
-        websocket.onopen = () => console.log("File synchronization tracking connection opened"); 
+        websocket.onclose = () => console.log('File synchronization tracking connection closed');
+        websocket.onopen = () => console.log('File synchronization tracking connection opened'); 
         };
 
     protected updateStatusBar(data: string, websocket: ReconnectingWebSocket ): void {
-        const tooltip = "File synchronization progress";
-        const fail = "File synchronization fail";
-        const done = "File synchronization done";
+        const tooltip = 'File synchronization progress';
+        const fail = 'File synchronization fail';
+        const done = 'File synchronization done';
         this.statusBarDisposable.dispose();
-        let obj = JSON.parse(data);
-        if (obj.state === "DONE") {
+        const obj = JSON.parse(data);
+        if (obj.state === 'DONE') {
             websocket.close();
             this.setStatusBarEntry(this.ID, {
                 text: done,
@@ -80,7 +84,7 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
                 await this.delay(5000);//hide message in 5 sec
                 this.statusBarDisposable.dispose();
             })();
-        } else if (obj.state === "ERROR"){
+        } else if (obj.state === 'ERROR'){
             websocket.close();
             this.setStatusBarEntry(this.ID, {
                 text: fail,
