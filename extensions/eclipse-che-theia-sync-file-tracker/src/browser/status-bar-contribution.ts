@@ -81,7 +81,7 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
                 priority: 150
             });
             (async () => { 
-                await this.delay(5000);// hide message in 5 sec
+                await this.delay(5000); // hide message in 5 sec
                 this.statusBarDisposable.dispose();
             })();
         } else if (obj.state === 'ERROR'){
