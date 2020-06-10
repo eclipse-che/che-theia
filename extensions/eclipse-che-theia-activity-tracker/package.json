@@ -3,14 +3,14 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "7.14.1",
+  "version": "7.14.2",
   "files": [
     "lib",
     "src"
   ],
   "dependencies": {
-    "@theia/core": "1.3.0-next.fdd7c41a",
-    "@eclipse-che/theia-plugin-ext": "7.14.1"
+    "@theia/core": "1.3.0-next.309b2189",
+    "@eclipse-che/theia-plugin-ext": "7.14.2"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",

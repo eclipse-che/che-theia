@@ -1,6 +1,6 @@
 {
       "name": "@eclipse-che/telemetry-plugin",
-      "version": "7.14.1",
+      "version": "7.14.2",
       "publisher": "Eclipse Che",
       "keywords": [
         "theia-plugin"
@@ -15,9 +15,9 @@
         "*"
       ],
       "devDependencies": {
-        "@theia/plugin": "1.3.0-next.fdd7c41a",
+        "@theia/plugin": "1.3.0-next.309b2189",
         "@theia/plugin-packager": "latest",
-        "@eclipse-che/plugin": "7.14.1",
+        "@eclipse-che/plugin": "7.14.2",
         "rimraf": "2.6.2",
         "typescript-formatter": "7.2.2",
         "ts-loader": "^4.1.0"
