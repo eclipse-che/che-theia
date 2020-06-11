@@ -5,3 +5,4 @@ Launch the [release script](make-release.sh) and wait until [CI Job](https://ci.
 ```
 ./make-release.sh --repo git@github.com:eclipse/che-theia --version <VERSION_TO_RELEASE> --trigger-release
 ```
+
