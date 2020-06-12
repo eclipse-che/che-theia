@@ -58,6 +58,7 @@ init() {
   OPTIONS=""
   DOCKERFILE=""
   BUILD_ARGS=""
+  PLATFORM="linux/amd64"
 
   PARENT_IMAGE=""
   BRANCH=""
@@ -108,6 +109,9 @@ init() {
         shift ;;
       --git-ref:*)
         GIT_REF="${1#*:}"
+        shift ;;
+      --platform:*)
+        PLATFORM="${1#*:}"
         shift ;;
       --*)
         printf "${RED}Unknown parameter: $1${NC}\n"; exit 2 ;;
@@ -218,7 +222,8 @@ build_image() {
   done
 
   if ! dry_run; then
-    cd "${DIR}" && docker build --cache-from ${IMAGE_NAME} -f ${DIR}/.Dockerfile -t ${IMAGE_NAME} ${BUILD_ARGS} ${DOCKER_BUILD_TARGET} .
+      #Build the images locally for any architecture using docker buildx
+    cd "${DIR}" && docker buildx build --cache-from ${IMAGE_NAME} --platform ${PLATFORM} -f ${DIR}/.Dockerfile -t ${IMAGE_NAME} ${BUILD_ARGS} ${DOCKER_BUILD_TARGET} --progress plain --load .
     rm ${DIR}/.Dockerfile
   fi
   

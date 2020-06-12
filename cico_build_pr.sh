@@ -19,6 +19,7 @@ set -e
 . ./cico_common.sh
 
 install_deps
+buildx_support
 load_jenkins_vars
 
 #Set images tag to current commit id. 
