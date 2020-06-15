@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (C) 2019 Red Hat, Inc. and others.
+ * Copyright (C) 2020 Red Hat, Inc. and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -35,6 +35,10 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
     private readonly ID = 'file-synchronization-indicator-id';
     protected readonly statusBarDisposable = new DisposableCollection();
 
+    private readonly tooltip = 'File synchronization progress';
+    private readonly fail = 'File synchronization fail';
+    private readonly done = 'File synchronization done';
+
     @postConstruct()
     async initialize(): Promise<void> {
         const url = await this.getWorkspaceService();
@@ -44,8 +48,7 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
     async getWorkspaceService(): Promise<string> {
         const server = await this.cheApiService.findUniqueServerByAttribute('type', 'rsync');
         if (server) {
-            const serverURI = new URI(server.url+'/track').toString();
-            return serverURI;
+            return new URI(server.url+'/track').toString();
         } else {
             return Promise.reject('Server rsync not found');
         }
@@ -65,19 +68,17 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
         websocket.onopen = () => console.log('File synchronization tracking connection opened'); 
         };
 
+        
     protected updateStatusBar(data: string, websocket: ReconnectingWebSocket ): void {
-        const tooltip = 'File synchronization progress';
-        const fail = 'File synchronization fail';
-        const done = 'File synchronization done';
         this.statusBarDisposable.dispose();
         const obj = JSON.parse(data);
         if (obj.state === 'DONE') {
             websocket.close();
             this.setStatusBarEntry(this.ID, {
-                text: done,
-                tooltip: tooltip,
+                text: this.done,
+                tooltip: this.tooltip,
                 alignment: StatusBarAlignment.LEFT,
-                onclick:  (e: MouseEvent) =>  this.messageService.info(done),
+                onclick:  (e: MouseEvent) =>  this.messageService.info(this.done),
                 priority: 150
             });
             (async () => { 
@@ -87,8 +88,8 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
         } else if (obj.state === 'ERROR'){
             websocket.close();
             this.setStatusBarEntry(this.ID, {
-                text: fail,
-                tooltip: tooltip,
+                text: this.fail,
+                tooltip: this.tooltip,
                 alignment: StatusBarAlignment.LEFT,
                 onclick:  (e: MouseEvent) =>  this.messageService.error(obj.info),
                 priority: 150
@@ -97,7 +98,7 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
             const msg = `File synchronization progress: ${obj.info}`;
             this.setStatusBarEntry(this.ID, {
                 text: msg,
-                tooltip: tooltip,
+                tooltip: this.tooltip,
                 alignment: StatusBarAlignment.LEFT,
                 onclick:  (e: MouseEvent) =>  this.messageService.info(msg),
                 priority: 150
