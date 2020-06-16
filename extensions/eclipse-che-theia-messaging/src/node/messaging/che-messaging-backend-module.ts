@@ -14,5 +14,6 @@ import { MessagingContribution } from '@theia/core/lib/node/messaging/messaging-
 import { CheMessagingContribution } from './che-messaging-contribution';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
-    rebind<MessagingContribution>(MessagingService.Identifier).to(CheMessagingContribution).inSingletonScope();
+    bind(CheMessagingContribution).toSelf().inSingletonScope();
+    rebind<MessagingContribution>(MessagingService.Identifier).toService(CheMessagingContribution);
 });
