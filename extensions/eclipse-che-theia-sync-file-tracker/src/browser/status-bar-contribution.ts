@@ -48,14 +48,14 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
     async getWorkspaceService(): Promise<string> {
         const server = await this.cheApiService.findUniqueServerByAttribute('type', 'rsync');
         if (server) {
-            return new URI(server.url+'/track').toString();
+            return new URI(server.url + '/track').toString();
         } else {
             return Promise.reject('Server rsync not found');
         }
     }
 
-    connect(endpointAdress: string): void {
-        const websocket =  new ReconnectingWebSocket(endpointAdress, undefined, { 
+    private connect(endpointAdress: string): void {
+        const websocket = new ReconnectingWebSocket(endpointAdress, undefined, {
             maxRetries: Infinity,
         });
         websocket.onerror = err => {
@@ -65,11 +65,10 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
             this.updateStatusBar(ev.data, websocket);
         };
         websocket.onclose = () => console.log('File synchronization tracking connection closed');
-        websocket.onopen = () => console.log('File synchronization tracking connection opened'); 
-        };
+        websocket.onopen = () => console.log('File synchronization tracking connection opened');
+    };
 
-        
-    protected updateStatusBar(data: string, websocket: ReconnectingWebSocket ): void {
+    private updateStatusBar(data: string, websocket: ReconnectingWebSocket): void {
         this.statusBarDisposable.dispose();
         const obj = JSON.parse(data);
         if (obj.state === 'DONE') {
@@ -78,20 +77,20 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
                 text: this.done,
                 tooltip: this.tooltip,
                 alignment: StatusBarAlignment.LEFT,
-                onclick:  (e: MouseEvent) =>  this.messageService.info(this.done),
+                onclick: (e: MouseEvent) => this.messageService.info(this.done),
                 priority: 150
             });
-            (async () => { 
+            (async () => {
                 await this.delay(5000); // hide message in 5 sec
                 this.statusBarDisposable.dispose();
             })();
-        } else if (obj.state === 'ERROR'){
+        } else if (obj.state === 'ERROR') {
             websocket.close();
             this.setStatusBarEntry(this.ID, {
                 text: this.fail,
                 tooltip: this.tooltip,
                 alignment: StatusBarAlignment.LEFT,
-                onclick:  (e: MouseEvent) =>  this.messageService.error(obj.info),
+                onclick: (e: MouseEvent) => this.messageService.error(obj.info),
                 priority: 150
             });
         } else {
@@ -100,18 +99,18 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
                 text: msg,
                 tooltip: this.tooltip,
                 alignment: StatusBarAlignment.LEFT,
-                onclick:  (e: MouseEvent) =>  this.messageService.info(msg),
+                onclick: (e: MouseEvent) => this.messageService.info(msg),
                 priority: 150
             });
         }
     }
 
-    protected setStatusBarEntry(id: string, entry: StatusBarEntry): void {
+    private setStatusBarEntry(id: string, entry: StatusBarEntry): void {
         this.statusBar.setElement(id, entry);
         this.statusBarDisposable.push(Disposable.create(() => this.statusBar.removeElement(id)));
     }
 
-    delay(ms: number): Promise<void> {
-        return new Promise( resolve => setTimeout(resolve, ms) );
+    private delay(ms: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 }
