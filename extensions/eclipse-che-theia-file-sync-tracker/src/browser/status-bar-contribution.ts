@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { injectable, inject, postConstruct } from 'inversify';
+import { injectable, inject } from 'inversify';
 import { FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { MessageService } from '@theia/core/lib/common';
 import { StatusBar, StatusBarAlignment, StatusBarEntry } from '@theia/core/lib/browser/status-bar/status-bar';
@@ -36,30 +36,29 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
     protected readonly statusBarDisposable = new DisposableCollection();
 
     private readonly tooltip = 'File synchronization progress';
-    private readonly fail = 'File synchronization fail';
-    private readonly done = 'File synchronization done';
+    private readonly fail = 'File Sync: Failed';
+    private readonly done = 'File Sync: Done';
 
-    @postConstruct()
     async initialize(): Promise<void> {
-        const url = await this.getWorkspaceService();
-        this.connect(url);
+        this.connect(await this.getSyncServiceURL());
     }
 
-    async getWorkspaceService(): Promise<string> {
+    async getSyncServiceURL(): Promise<string> {
         const server = await this.cheApiService.findUniqueServerByAttribute('type', 'rsync');
         if (server) {
-            return new URI(server.url + '/track').toString();
+            return new URI(server.url).resolve('track').toString();
         } else {
             return Promise.reject('Server rsync not found');
         }
     }
 
-    private connect(endpointAdress: string): void {
-        const websocket = new ReconnectingWebSocket(endpointAdress, undefined, {
+    private connect(endpointAddress: string): void {
+        const websocket = new ReconnectingWebSocket(endpointAddress, undefined, {
             maxRetries: Infinity,
         });
         websocket.onerror = err => {
             console.log(err);
+            this.messageService.info('Can\'t establish connetion to rsync server. Cause:' + err);
         };
         websocket.onmessage = ev => {
             this.updateStatusBar(ev.data, websocket);
@@ -73,7 +72,7 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
         const obj = JSON.parse(data);
         if (obj.state === 'DONE') {
             websocket.close();
-            this.setStatusBarEntry(this.ID, {
+            this.setStatusBarEntry({
                 text: this.done,
                 tooltip: this.tooltip,
                 alignment: StatusBarAlignment.LEFT,
@@ -86,7 +85,7 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
             })();
         } else if (obj.state === 'ERROR') {
             websocket.close();
-            this.setStatusBarEntry(this.ID, {
+            this.setStatusBarEntry({
                 text: this.fail,
                 tooltip: this.tooltip,
                 alignment: StatusBarAlignment.LEFT,
@@ -94,8 +93,8 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
                 priority: 150
             });
         } else {
-            const msg = `File synchronization progress: ${obj.info}`;
-            this.setStatusBarEntry(this.ID, {
+            const msg = `File Sync: ${obj.info}`;
+            this.setStatusBarEntry({
                 text: msg,
                 tooltip: this.tooltip,
                 alignment: StatusBarAlignment.LEFT,
@@ -105,9 +104,9 @@ export class StatusBarFrontendContribution implements FrontendApplicationContrib
         }
     }
 
-    private setStatusBarEntry(id: string, entry: StatusBarEntry): void {
-        this.statusBar.setElement(id, entry);
-        this.statusBarDisposable.push(Disposable.create(() => this.statusBar.removeElement(id)));
+    private setStatusBarEntry(entry: StatusBarEntry): void {
+        this.statusBar.setElement(this.ID, entry);
+        this.statusBarDisposable.push(Disposable.create(() => this.statusBar.removeElement(this.ID)));
     }
 
     private delay(ms: number): Promise<void> {
