@@ -14,7 +14,7 @@ sources:
     - extensions/eclipse-che-theia-git-provisioner
     - extensions/eclipse-che-theia-logging
     - extensions/eclipse-che-theia-messaging
-    - extensions/eclipse-che-theia-sync-file-tracker
+    - extensions/eclipse-che-theia-file-sync-tracker
   plugins:
     - plugins/containers-plugin
     - plugins/workspace-plugin
