@@ -24,7 +24,7 @@
   "license": "EPL-2.0",
   "theiaExtensions": [
     {
-      "frontend": "lib/browser/che-theia-sync-file-frontend-module"
+      "frontend": "lib/browser/che-theia-file-sync-frontend-module"
     }
   ]
 }
