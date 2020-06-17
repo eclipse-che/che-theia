@@ -4,7 +4,7 @@
     "theia-extension",
     "terminal"
   ],
-  "version": "7.14.2",
+  "version": "7.14.3",
   "publishConfig": {
     "access": "public"
   },
@@ -19,8 +19,8 @@
     "src"
   ],
   "dependencies": {
-    "@theia/core": "1.3.0-next.309b2189",
-    "@theia/terminal": "1.3.0-next.309b2189",
+    "@theia/core": ""Unauthorized"",
+    "@theia/terminal": ""Unauthorized"",
     "reconnecting-websocket": "^4.2.0",
     "@eclipse-che/workspace-client": "latest",
     "@eclipse-che/api": "latest",
