@@ -12,10 +12,10 @@
     "src"
   ],
   "dependencies": {
-    "@theia/core": ""Unauthorized"",
-    "@theia/workspace": ""Unauthorized"",
+    "@theia/core": "1.3.0-next.dc5b9e1c",
+    "@theia/workspace": "1.3.0-next.dc5b9e1c",
     "nsfw": "^1.2.2",
-    "@theia/preferences": ""Unauthorized"",
+    "@theia/preferences": "1.3.0-next.dc5b9e1c",
     "@eclipse-che/theia-plugin-ext": "7.14.3"
   },
   "devDependencies": {

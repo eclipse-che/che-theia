@@ -9,9 +9,9 @@
     "node"
   ],
   "dependencies": {
-    "@theia/core": ""Unauthorized"",
-    "@theia/plugin-dev": ""Unauthorized"",
-    "@theia/plugin-ext": ""Unauthorized"",
+    "@theia/core": "1.3.0-next.dc5b9e1c",
+    "@theia/plugin-dev": "1.3.0-next.dc5b9e1c",
+    "@theia/plugin-ext": "1.3.0-next.dc5b9e1c",
     "@eclipse-che/workspace-client": "latest",
     "@eclipse-che/api": "latest"
   },
