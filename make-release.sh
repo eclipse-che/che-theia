@@ -76,8 +76,8 @@ fi
 
 apply_files_edits () {
   THEIA_VERSION=$(curl --silent http://registry.npmjs.org/-/package/@theia/core/dist-tags | sed 's/.*"next":"\(.*\)".*/\1/')
-  if [[ ! ${THEIA_VERSION} ]]; then
-    echo "Failed to get Theia next version from npmjs.org"; echo
+  if [[ ! ${THEIA_VERSION} ]] || [[ ${THEIA_VERSION} == \"Unauthorized\" ]]; then
+    echo "Failed to get Theia next version from npmjs.org. Try again."; echo
     exit 1
   fi
 
