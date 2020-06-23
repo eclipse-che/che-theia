@@ -9,6 +9,7 @@
     "src"
   ],
   "dependencies": {
+    "@theia/core": "next",
     "@eclipse-che/api": "latest",
     "@theia/workspace": "next",
     "@eclipse-che/theia-remote-api": "^0.0.1",
@@ -31,7 +32,8 @@
   "license": "EPL-2.0",
   "theiaExtensions": [
     {
-      "frontend": "lib/browser/che-workspace-module"
+      "frontend": "lib/browser/che-workspace-module",
+      "backend": "lib/node/workspace-backend-module"
     }
   ]
 }
