@@ -110,7 +110,7 @@ apply_files_edits () {
       sed_in_place -r -e "/plugin-packager/!s/(\"@theia\/..*\": )(\".*\")/\1\"${THEIA_VERSION}\"/" ${PACKAGE_JSON}
     done
 
-    sed_in_place -e "$ a RUN cd ${HOME} \&\& tar zcf ${HOME}/theia-source-code.tgz theia-source-code" dockerfiles/theia/docker/ubi8/builder-clone-theia.dockerfile
+    sed_in_place -e '$ a RUN cd ${HOME} \&\& tar zcf ${HOME}/theia-source-code.tgz theia-source-code' dockerfiles/theia/docker/ubi8/builder-clone-theia.dockerfile
   fi
 }
 
