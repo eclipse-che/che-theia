@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/theia-plugin-ext",
-  "version": "0.0.1",
+  "version": "7.15.0",
   "description": "Theia extension",
   "author": "Yevhen Vydolob",
   "license": "EPL-2.0",
@@ -13,12 +13,12 @@
     "src"
   ],
   "dependencies": {
-    "@eclipse-che/plugin": "0.0.1",
+    "@eclipse-che/plugin": "7.15.0",
     "@eclipse-che/workspace-client": "latest",
-    "@theia/core": "next",
-    "@theia/task": "next",
-    "@theia/mini-browser": "next",
-    "@theia/plugin-ext": "next",
+    "@theia/core": "1.3.0-next.c837b6cb",
+    "@theia/task": "1.3.0-next.c837b6cb",
+    "@theia/mini-browser": "1.3.0-next.c837b6cb",
+    "@theia/plugin-ext": "1.3.0-next.c837b6cb",
     "axios": "0.19.0",
     "tunnel": "0.0.6",
     "vscode-uri": "2.1.1",
