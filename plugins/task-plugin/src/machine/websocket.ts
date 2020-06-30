@@ -10,6 +10,9 @@
 
 import * as WS from 'ws';
 import * as fs from 'fs';
+import * as tunnel from 'tunnel';
+import * as url from 'url';
+import * as https from 'https';
 import { IWebSocket, ConsoleLogger, createWebSocketConnection, Logger, MessageConnection } from 'vscode-ws-jsonrpc';
 
 const SS_CRT_PATH = '/tmp/che/secret/ca.crt';
@@ -28,20 +31,100 @@ export class ReconnectingWebSocket {
 
     private readonly logger: Logger;
 
-    constructor(url: string) {
-        this.url = url;
+    constructor(targetUrl: string) {
+        this.url = targetUrl;
         this.logger = new ConsoleLogger();
         this.open();
     }
 
     private getOptions(): WS.ClientOptions {
         let options: WS.ClientOptions = {};
-        if (fs.existsSync(SS_CRT_PATH)) {
-            const SS_SRT = fs.readFileSync(SS_CRT_PATH).toString();
-            options = { ca: SS_SRT };
+
+        const certificateAuthority = this.getCertificateAuthority();
+
+        const proxyUrl = process.env.http_proxy;
+        const baseUrl = process.env.CHE_API;
+        if (proxyUrl && proxyUrl !== '' && baseUrl) {
+            const parsedBaseUrl = url.parse(baseUrl);
+            if (parsedBaseUrl.hostname && this.shouldProxy(parsedBaseUrl.hostname)) {
+                const parsedProxyUrl = url.parse(proxyUrl);
+                const mainProxyOptions = this.getMainProxyOptions(parsedProxyUrl);
+                const httpsProxyOptions = this.getHttpsProxyOptions(mainProxyOptions, parsedBaseUrl.hostname, certificateAuthority);
+                const httpOverHttpAgent = tunnel.httpOverHttp({ proxy: mainProxyOptions });
+                const httpOverHttpsAgent = tunnel.httpOverHttps({ proxy: httpsProxyOptions });
+                const httpsOverHttpAgent = tunnel.httpsOverHttp({
+                    proxy: mainProxyOptions,
+                    ca: certificateAuthority ? [certificateAuthority] : undefined
+                });
+                const httpsOverHttpsAgent = tunnel.httpsOverHttps({
+                    proxy: httpsProxyOptions,
+                    ca: certificateAuthority ? [certificateAuthority] : undefined
+                });
+                const urlIsHttps = (parsedBaseUrl.protocol || 'http:').startsWith('https:');
+                const proxyIsHttps = (parsedProxyUrl.protocol || 'http:').startsWith('https:');
+                if (urlIsHttps) {
+                    options.agent = proxyIsHttps ? httpsOverHttpsAgent : httpsOverHttpAgent;
+                } else {
+                    options.agent = proxyIsHttps ? httpOverHttpsAgent : httpOverHttpAgent;
+                }
+                return options;
+            }
+        }
+
+        if (certificateAuthority) {
+            options = {
+                agent: new https.Agent({
+                    ca: certificateAuthority
+                })
+            };
         }
 
         return options;
+    }
+
+    private getCertificateAuthority(): Buffer | undefined {
+        let certificateAuthority: Buffer | undefined;
+        if (fs.existsSync(SS_CRT_PATH)) {
+            certificateAuthority = fs.readFileSync(SS_CRT_PATH);
+        }
+        return certificateAuthority;
+    }
+
+    private shouldProxy(hostname: string): boolean {
+        const noProxyEnv = process.env.no_proxy || process.env.NO_PROXY;
+        const noProxy: string[] = noProxyEnv ? noProxyEnv.split(',').map(s => s.trim()) : [];
+        return !noProxy.some(rule => {
+            if (!rule) {
+                return false;
+            }
+            if (rule === '*') {
+                return true;
+            }
+            if (rule[0] === '.' &&
+                hostname.substr(hostname.length - rule.length) === rule) {
+                return true;
+            }
+            return hostname === rule;
+        });
+    }
+
+    private getMainProxyOptions(parsedProxyUrl: url.UrlWithStringQuery): tunnel.ProxyOptions {
+        const port = Number(parsedProxyUrl.port);
+        return {
+            host: parsedProxyUrl.hostname!,
+            port: (parsedProxyUrl.port !== '' && !isNaN(port)) ? port : 3128,
+            proxyAuth: (parsedProxyUrl.auth && parsedProxyUrl.auth !== '') ? parsedProxyUrl.auth : undefined
+        };
+    }
+
+    private getHttpsProxyOptions(mainProxyOptions: tunnel.ProxyOptions, servername: string | undefined, certificateAuthority: Buffer | undefined): tunnel.HttpsProxyOptions {
+        return {
+            host: mainProxyOptions.host,
+            port: mainProxyOptions.port,
+            proxyAuth: mainProxyOptions.proxyAuth,
+            servername,
+            ca: certificateAuthority ? [certificateAuthority] : undefined
+        };
     }
 
     /** Open the websocket. If error, try to reconnect. */
@@ -96,14 +179,14 @@ export class ReconnectingWebSocket {
         }, ReconnectingWebSocket.RECONNECTION_DELAY);
     }
 
-    public onOpen(url: string): void { }
+    public onOpen(targetUrl: string): void { }
     public onClose(code: number, reason: string): void { }
     public onMessage(data: WS.Data): void { }
     public onError(reason: Error): void { }
 }
 
-export function createConnection(url: string): Promise<MessageConnection> {
-    const webSocket = new ReconnectingWebSocket(url);
+export function createConnection(targetUrl: string): Promise<MessageConnection> {
+    const webSocket = new ReconnectingWebSocket(targetUrl);
     const logger = new ConsoleLogger();
 
     return new Promise<MessageConnection>((resolve, reject) => {
