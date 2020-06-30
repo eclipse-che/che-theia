@@ -76,8 +76,8 @@ fi
 
 apply_files_edits () {
   THEIA_VERSION=$(curl --silent http://registry.npmjs.org/-/package/@theia/core/dist-tags | sed 's/.*"next":"\(.*\)".*/\1/')
-  if [[ ! ${THEIA_VERSION} ]]; then
-    echo "Failed to get Theia next version from npmjs.org"; echo
+  if [[ ! ${THEIA_VERSION} ]] || [[ ${THEIA_VERSION} == \"Unauthorized\" ]]; then
+    echo "Failed to get Theia next version from npmjs.org. Try again."; echo
     exit 1
   fi
 
@@ -92,19 +92,25 @@ apply_files_edits () {
 
   # Update extensions/plugins package.json files:
   # - set packages' version
-  # - update versions of Theia and Che dependencies
+  # - update versions of Che dependencies
   for m in "extensions/*" "plugins/*"; do
     PACKAGE_JSON="${m}"/package.json
     # shellcheck disable=SC2086
     sed_in_place -r -e "s/(\"version\": )(\".*\")/\1\"$VERSION\"/" ${PACKAGE_JSON}
     # shellcheck disable=SC2086
-    sed_in_place -r -e "/plugin-packager/!s/(\"@theia\/..*\": )(\".*\")/\1\"${THEIA_VERSION}\"/" ${PACKAGE_JSON}
-    # shellcheck disable=SC2086
     sed_in_place -r -e "/@eclipse-che\/api|@eclipse-che\/workspace-client|@eclipse-che\/workspace-telemetry-client/!s/(\"@eclipse-che\/..*\": )(\".*\")/\1\"$VERSION\"/" ${PACKAGE_JSON}
   done
 
   if [[ ${VERSION} == *".0" ]]; then
-    sed_in_place -e "$ a RUN cd ${HOME} \&\& tar zcf ${HOME}/theia-source-code.tgz theia-source-code" dockerfiles/theia/docker/ubi8/builder-clone-theia.dockerfile
+    # Update extensions/plugins package.json files:
+    # - update versions of Theia dependencies
+    for m in "extensions/*" "plugins/*"; do
+      PACKAGE_JSON="${m}"/package.json
+      # shellcheck disable=SC2086
+      sed_in_place -r -e "/plugin-packager/!s/(\"@theia\/..*\": )(\".*\")/\1\"${THEIA_VERSION}\"/" ${PACKAGE_JSON}
+    done
+
+    sed_in_place -e '$ a RUN cd ${HOME} \&\& tar zcf ${HOME}/theia-source-code.tgz theia-source-code' dockerfiles/theia/docker/ubi8/builder-clone-theia.dockerfile
   fi
 }
 
