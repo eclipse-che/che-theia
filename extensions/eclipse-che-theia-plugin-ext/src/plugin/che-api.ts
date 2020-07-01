@@ -193,6 +193,9 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
         };
 
         const user: typeof che.user = {
+            getCurrentUser(): Promise<che.User> {
+                return cheUserImpl.getCurrentUser();
+            },
             getUserPreferences(filter?: string): Promise<che.Preferences> {
                 return cheUserImpl.getUserPreferences(filter);
             },
