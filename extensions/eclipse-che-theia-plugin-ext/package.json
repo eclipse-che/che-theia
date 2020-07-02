@@ -14,7 +14,7 @@
   ],
   "dependencies": {
     "@eclipse-che/plugin": "0.0.1",
-    "@eclipse-che/workspace-client": "latest",
+    "@eclipse-che/workspace-client": "0.0.1-1585913592",
     "@theia/core": "next",
     "@theia/task": "next",
     "@theia/mini-browser": "next",

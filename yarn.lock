@@ -289,7 +289,7 @@
   dependencies:
     "@eclipse-che/api" latest
 
-"@eclipse-che/workspace-client@latest":
+"@eclipse-che/workspace-client@0.0.1-1585913592":
   version "0.0.1-1585913592"
   resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-client/-/workspace-client-0.0.1-1585913592.tgz#509c0a12e96adfec3a8c619124c396ecdb755806"
   integrity sha512-BxR1pydD3Qn6uS5Yp3TCWDEvgAmwWo254XC6KVJxdeofDeMNRpSx3KWuSrPWdC4jd5+urGKk/nG7vZyCST+85A==
