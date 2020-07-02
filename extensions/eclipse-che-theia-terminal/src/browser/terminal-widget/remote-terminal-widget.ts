@@ -158,7 +158,13 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
     protected async reconnectTerminalProcess(): Promise<void> {
         if (typeof this.terminalId === 'number') {
-            const termId = await this.termServer!.check({ id: this.terminalId });
+            let termId;
+            try {
+                termId = await this.termServer!.check({ id: this.terminalId });
+            } catch (error) {
+                termId = -1;
+            }
+
             if (!IBaseTerminalServer.validateId(termId)) {
                 return;
             }
