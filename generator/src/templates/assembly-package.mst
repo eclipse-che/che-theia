@@ -22,7 +22,6 @@
     "@theia/editor": "^{{ version }}",
     "@theia/file-search": "^{{ version }}",
     "@theia/filesystem": "^{{ version }}",
-    "@theia/json": "^{{ version }}",
     "@theia/keymaps": "^{{ version }}",
     "@theia/languages": "^{{ version }}",
     "@theia/markers": "^{{ version }}",
