@@ -49,7 +49,7 @@ export class OauthUtils {
         });
     }
 
-    private async getUserToken(): Promise<string | undefined> {
+    async getUserToken(): Promise<string | undefined> {
         if (this.userToken) {
             return this.userToken;
         } else if (this.machineToken && this.machineToken.length > 0) {

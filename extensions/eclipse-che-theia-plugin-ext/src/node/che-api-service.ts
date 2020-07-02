@@ -7,7 +7,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
-import { CheApiService, Preferences, WorkspaceSettings } from '../common/che-protocol';
+import { CheApiService, Preferences, User, WorkspaceSettings } from '../common/che-protocol';
 import { che as cheApi } from '@eclipse-che/api';
 import WorkspaceClient, { IRestAPIConfig, IRemoteAPI } from '@eclipse-che/workspace-client';
 import { injectable } from 'inversify';
@@ -36,6 +36,11 @@ export class CheApiServiceImpl implements CheApiService {
         const cheApiClient = await this.getCheApiClient();
         const user = await cheApiClient.getCurrentUser(token);
         return user.id;
+    }
+
+    async getCurrentUser(token?: string): Promise<User> {
+        const cheApiClient = await this.getCheApiClient();
+        return cheApiClient.getCurrentUser(token);
     }
 
     async getUserPreferences(filter?: string): Promise<Preferences> {

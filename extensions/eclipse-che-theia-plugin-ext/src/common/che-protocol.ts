@@ -398,6 +398,11 @@ export interface Preferences {
     [key: string]: string;
 }
 
+export interface User {
+    id: string;
+    name: string;
+}
+
 export interface WorkspaceSettings {
     [key: string]: string;
 }
@@ -463,7 +468,9 @@ export interface CheApiService {
 
     getFactoryById(factoryId: string): Promise<cheApi.factory.Factory>;
 
+    /** @deprecated use {@link getCurrentUser} instead. */
     getUserId(token?: string): Promise<string>;
+    getCurrentUser(token?: string): Promise<User>;
     getUserPreferences(): Promise<Preferences>;
     getUserPreferences(filter: string | undefined): Promise<Preferences>;
     updateUserPreferences(update: Preferences): Promise<Preferences>;
@@ -504,6 +511,7 @@ export interface CheTaskClient {
 export interface CheUser { }
 
 export interface CheUserMain {
+    $getCurrentUser(): Promise<User>;
     $getUserPreferences(filter?: string): Promise<Preferences>;
     $updateUserPreferences(preferences: Preferences): Promise<Preferences>;
     $replaceUserPreferences(preferences: Preferences): Promise<Preferences>;

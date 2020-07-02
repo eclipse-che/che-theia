@@ -52,8 +52,7 @@ commands:
       - type: exec
         component: che-dev
         command: >
-                 che-theia init --alias
-                 https://github.com/eclipse/che-theia=/projects/che-theia && echo -e
+                 che-theia init && echo -e
                  "\e[32mDone.\e[0m che-theia init"
         workdir: /projects/theia
 
