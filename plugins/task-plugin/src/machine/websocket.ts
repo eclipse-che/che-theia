@@ -19,6 +19,10 @@ export class ReconnectingWebSocket {
 
     /** Delay before trying to reconnect */
     private static RECONNECTION_DELAY: number = 1000;
+    private static PING_INTERVAL: number = 30000;
+
+    private reconnectionTimeout: NodeJS.Timeout | undefined;
+    private pingIntervalID: NodeJS.Timeout | undefined;
 
     /** Instance of the websocket library. */
     private ws: WS;
@@ -50,6 +54,7 @@ export class ReconnectingWebSocket {
 
         this.ws.on('open', () => {
             this.onOpen(this.url);
+            this.schedulePing();
         });
 
         this.ws.on('message', (data: WS.Data) => {
@@ -57,6 +62,8 @@ export class ReconnectingWebSocket {
         });
 
         this.ws.on('close', (code: number, reason: string) => {
+            this.onDidConnectionLose();
+
             if (code !== 1000) {
                 this.reconnect(reason);
             }
@@ -65,6 +72,8 @@ export class ReconnectingWebSocket {
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.ws.on('error', (e: any) => {
+            this.onDidConnectionLose();
+
             if (e.code === 'ECONNREFUSED') {
                 this.reconnect(e);
             } else {
@@ -84,16 +93,36 @@ export class ReconnectingWebSocket {
 
     public close(): void {
         this.ws.removeAllListeners();
+        this.onDidConnectionLose();
+
         this.ws.close(1000);
     }
 
+    private schedulePing(): void {
+        this.pingIntervalID = setInterval(() => {
+            this.ws.ping();
+        }, ReconnectingWebSocket.PING_INTERVAL);
+    }
+
     private reconnect(reason: string): void {
-        this.logger.warn(`Task plugin webSocket: Reconnecting in ${ReconnectingWebSocket.RECONNECTION_DELAY}ms due to ${reason}`);
         this.ws.removeAllListeners();
-        setTimeout(() => {
+
+        this.logger.warn(`Task plugin webSocket: Reconnecting in ${ReconnectingWebSocket.RECONNECTION_DELAY}ms due to ${reason}`);
+
+        this.reconnectionTimeout = setTimeout(() => {
             this.logger.warn('Task plugin webSocket: Reconnecting...');
             this.open();
         }, ReconnectingWebSocket.RECONNECTION_DELAY);
+    }
+
+    private onDidConnectionLose(): void {
+        if (this.reconnectionTimeout) {
+            clearTimeout(this.reconnectionTimeout);
+        }
+
+        if (this.pingIntervalID) {
+            clearInterval(this.pingIntervalID);
+        }
     }
 
     public onOpen(url: string): void { }
@@ -102,7 +131,7 @@ export class ReconnectingWebSocket {
     public onError(reason: Error): void { }
 }
 
-export function createConnection(url: string): Promise<MessageConnection> {
+export function createConnection(url: string, openConnectionHandler?: (connection: MessageConnection) => void): Promise<MessageConnection> {
     const webSocket = new ReconnectingWebSocket(url);
     const logger = new ConsoleLogger();
 
@@ -111,6 +140,10 @@ export function createConnection(url: string): Promise<MessageConnection> {
             const messageConnection = createWebSocketConnection(toSocket(webSocket), logger);
 
             messageConnection.listen();
+
+            if (openConnectionHandler) {
+                openConnectionHandler(messageConnection);
+            }
             resolve(messageConnection);
         };
 

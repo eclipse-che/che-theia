@@ -75,11 +75,27 @@ export class MachineExecClient {
             execServerUrl = `${execServerUrl}?token=${machineToken}`;
         }
 
-        this.connection = await createConnection(execServerUrl);
+        this.connection = await createConnection(execServerUrl, connection => {
+            // reconnection usecase
+            this.connection = connection;
+            this.addConnectionHandlers();
 
-        this.machineExecWatcher.init(this.connection);
+            this.machineExecWatcher.init(this.connection);
+        });
 
         return this.connection;
+    }
+
+    private addConnectionHandlers(): void {
+        const onDidConnectionLose = () => {
+            this.connection = undefined;
+        };
+
+        if (this.connection) {
+            this.connection.onDispose(onDidConnectionLose);
+            this.connection.onError(onDidConnectionLose);
+            this.connection.onClose(onDidConnectionLose);
+        }
     }
 
     private async fetchMachineExecServerURL(): Promise<string> {
