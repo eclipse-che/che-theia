@@ -12,7 +12,7 @@ set -u
 
 IMAGE_TAG="next"
 THEIA_VERSION="master"
-THEIA_BRANCH="ak\\/json_vscode"
+THEIA_BRANCH="master"
 THEIA_COMMIT_SHA=
 THEIA_GIT_REFS="refs\\/heads\\/master"
 THEIA_DOCKER_IMAGE_VERSION=
