@@ -22,7 +22,7 @@
     "@theia/core": "1.3.0-next.c837b6cb",
     "@theia/terminal": "1.3.0-next.c837b6cb",
     "reconnecting-websocket": "^4.2.0",
-    "@eclipse-che/workspace-client": "latest",
+    "@eclipse-che/workspace-client": "0.0.1-1585913592",
     "@eclipse-che/api": "latest",
     "vscode-ws-jsonrpc": "0.2.0"
   },
