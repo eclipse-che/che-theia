@@ -10,6 +10,10 @@
 
 import * as WS from 'ws';
 import * as fs from 'fs';
+import * as tunnel from 'tunnel';
+import * as url from 'url';
+import * as http from 'http';
+import * as https from 'https';
 import { IWebSocket, ConsoleLogger, createWebSocketConnection, Logger, MessageConnection } from 'vscode-ws-jsonrpc';
 
 const SS_CRT_PATH = '/tmp/che/secret/ca.crt';
@@ -32,20 +36,10 @@ export class ReconnectingWebSocket {
 
     private readonly logger: Logger;
 
-    constructor(url: string) {
-        this.url = url;
+    constructor(targetUrl: string) {
+        this.url = targetUrl;
         this.logger = new ConsoleLogger();
         this.open();
-    }
-
-    private getOptions(): WS.ClientOptions {
-        let options: WS.ClientOptions = {};
-        if (fs.existsSync(SS_CRT_PATH)) {
-            const SS_SRT = fs.readFileSync(SS_CRT_PATH).toString();
-            options = { ca: SS_SRT };
-        }
-
-        return options;
     }
 
     /** Open the websocket. If error, try to reconnect. */
@@ -98,6 +92,46 @@ export class ReconnectingWebSocket {
         this.ws.close(1000);
     }
 
+    private getOptions(): WS.ClientOptions {
+        let options: WS.ClientOptions = {};
+
+        const certificateAuthority = this.getCertificateAuthority();
+        const baseUrl = process.env.CHE_API;
+        const proxyUrl = process.env.http_proxy;
+
+        if (proxyUrl && proxyUrl !== '' && baseUrl) {
+            const parsedBaseUrl = url.parse(baseUrl);
+            if (parsedBaseUrl.hostname && this.shouldProxy(parsedBaseUrl.hostname)) {
+                const parsedProxyUrl = url.parse(proxyUrl);
+                const mainProxyOptions = this.getMainProxyOptions(parsedProxyUrl);
+
+                const isHttpsProxy = parsedProxyUrl.protocol && parsedProxyUrl.protocol.startsWith('https:');
+                const isHttpsUrl = parsedBaseUrl.protocol && parsedBaseUrl.protocol.startsWith('https:');
+
+                if (isHttpsUrl) {
+                    options.agent = isHttpsProxy ?
+                        this.createHttpsOverHttpsAgent(mainProxyOptions, parsedBaseUrl.hostname, certificateAuthority) :
+                        this.createHttpsOverHttpAgent(mainProxyOptions, certificateAuthority);
+                } else {
+                    options.agent = isHttpsProxy ?
+                        this.createHttpOverHttpsAgent(mainProxyOptions, parsedBaseUrl.hostname, certificateAuthority) :
+                        tunnel.httpOverHttp({ proxy: mainProxyOptions });
+                }
+                return options;
+            }
+        }
+
+        if (certificateAuthority) {
+            options = {
+                agent: new https.Agent({
+                    ca: certificateAuthority
+                })
+            };
+        }
+
+        return options;
+    }
+
     private schedulePing(): void {
         this.pingIntervalID = setInterval(() => {
             this.ws.ping();
@@ -125,14 +159,78 @@ export class ReconnectingWebSocket {
         }
     }
 
-    public onOpen(url: string): void { }
+    private createHttpsOverHttpsAgent(mainProxyOptions: tunnel.ProxyOptions, servername: string | undefined, certificateAuthority: Buffer[] | undefined): http.Agent {
+        const httpsProxyOptions = this.getHttpsProxyOptions(mainProxyOptions, servername, certificateAuthority);
+        return tunnel.httpsOverHttps({
+            proxy: httpsProxyOptions,
+            ca: certificateAuthority
+        });
+    }
+
+    private createHttpsOverHttpAgent(mainProxyOptions: tunnel.ProxyOptions, certificateAuthority: Buffer[] | undefined): http.Agent {
+        return tunnel.httpsOverHttp({
+            proxy: mainProxyOptions,
+            ca: certificateAuthority
+        });
+    }
+
+    private createHttpOverHttpsAgent(mainProxyOptions: tunnel.ProxyOptions, servername: string | undefined, certificateAuthority: Buffer[] | undefined): http.Agent {
+        const httpsProxyOptions = this.getHttpsProxyOptions(mainProxyOptions, servername, certificateAuthority);
+        return tunnel.httpOverHttps({ proxy: httpsProxyOptions });
+    }
+
+    private getCertificateAuthority(): Buffer[] | undefined {
+        if (fs.existsSync(SS_CRT_PATH)) {
+            return [fs.readFileSync(SS_CRT_PATH)];
+        }
+        return undefined;
+    }
+
+    private shouldProxy(hostname: string): boolean {
+        const noProxyEnv = process.env.no_proxy || process.env.NO_PROXY;
+        const noProxy: string[] = noProxyEnv ? noProxyEnv.split(',').map(s => s.trim()) : [];
+        return !noProxy.some(rule => {
+            if (!rule) {
+                return false;
+            }
+            if (rule === '*') {
+                return true;
+            }
+            if (rule[0] === '.' &&
+                hostname.substr(hostname.length - rule.length) === rule) {
+                return true;
+            }
+            return hostname === rule;
+        });
+    }
+
+    private getMainProxyOptions(parsedProxyUrl: url.UrlWithStringQuery): tunnel.ProxyOptions {
+        const port = Number(parsedProxyUrl.port);
+        return {
+            host: parsedProxyUrl.hostname!,
+            port: (parsedProxyUrl.port !== '' && !isNaN(port)) ? port : 3128,
+            proxyAuth: (parsedProxyUrl.auth && parsedProxyUrl.auth !== '') ? parsedProxyUrl.auth : undefined
+        };
+    }
+
+    private getHttpsProxyOptions(mainProxyOptions: tunnel.ProxyOptions, servername: string | undefined, certificateAuthority: Buffer[] | undefined): tunnel.HttpsProxyOptions {
+        return {
+            host: mainProxyOptions.host,
+            port: mainProxyOptions.port,
+            proxyAuth: mainProxyOptions.proxyAuth,
+            servername,
+            ca: certificateAuthority
+        };
+    }
+
+    public onOpen(targetUrl: string): void { }
     public onClose(code: number, reason: string): void { }
     public onMessage(data: WS.Data): void { }
     public onError(reason: Error): void { }
 }
 
-export function createConnection(url: string, openConnectionHandler?: (connection: MessageConnection) => void): Promise<MessageConnection> {
-    const webSocket = new ReconnectingWebSocket(url);
+export function createConnection(targetUrl: string, openConnectionHandler?: (connection: MessageConnection) => void): Promise<MessageConnection> {
+    const webSocket = new ReconnectingWebSocket(targetUrl);
     const logger = new ConsoleLogger();
 
     return new Promise<MessageConnection>((resolve, reject) => {
