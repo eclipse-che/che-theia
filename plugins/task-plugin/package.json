@@ -63,6 +63,7 @@
     "backend": "lib/task-plugin-backend.js"
   },
   "dependencies": {
+    "tunnel": "0.0.6",
     "inversify": "4.14.0",
     "reflect-metadata": "0.1.8",
     "vscode-uri": "2.1.1",
