@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import { PluginRemoteBrowser, MAIN_REMOTE_RPC_CONTEXT } from '../common/plugin-remote-rpc';
+import { PluginRemoteBrowser, MAIN_REMOTE_RPC_CONTEXT, ProxyNameDefinition } from '../common/plugin-remote-rpc';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { ConfigStorage, PluginPackage } from '@theia/plugin-ext/lib/common';
 
@@ -65,12 +65,12 @@ export class PluginRemoteBrowserImpl implements PluginRemoteBrowser {
         return localCallResult;
     }
 
-    async $definePluginExports(pluginId: string, proxyNames: string[]): Promise<void> {
+    async $definePluginExports(pluginId: string, proxyDefinitions: ProxyNameDefinition[]): Promise<void> {
 
         this.getOtherHosts(pluginId).map(async host => {
             const rpc = this.rpcs.get(host)!;
             const nodeRemote = rpc.getProxy(MAIN_REMOTE_RPC_CONTEXT.PLUGIN_REMOTE_NODE);
-            await nodeRemote.$definePluginExports(host, pluginId, proxyNames);
+            await nodeRemote.$definePluginExports(host, pluginId, proxyDefinitions);
         });
     }
 
