@@ -69,6 +69,8 @@ context('TypeScript', () => {
             // enable the explorer view
             cy.get('body').type('{ctrl}{cmd}{shift}e')
         }).then(() => {
+            // wait for explorer to be opened
+            cy.wait(2000);
             // select new folder
             cy.get('.p-TabBar-content > #shell-tab-explorer-view-container > div.theia-tab-icon-label > div.p-TabBar-tabIcon.navigator-tab-icon').click({ force: true }).then(() => {
                 cy.get('#files').contains(FOLDER_NAME).click({ force: true });
