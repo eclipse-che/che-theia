@@ -46,20 +46,20 @@ describe("Test webpack customizer", () => {
 
     test("test with no CDN file", async () => {
         const initialBaseConfig: string = baseConfig.toString();
-        customizeWebpackConfig('', '', '', '', baseConfig);
+        customizeWebpackConfig('', '', baseConfig);
         expect(baseConfig.toString()).toBe(initialBaseConfig);
     });
     
     test("test with non-existing CDN file", async () => {
         const initialBaseConfig: string = baseConfig.toString();
-        customizeWebpackConfig('cdn.json', '', '', '', baseConfig);
+        customizeWebpackConfig('cdn.json', '', baseConfig);
         expect(baseConfig.toString()).toBe(initialBaseConfig);
     });
     
     test("test with empty Json object in CDN file", async () => {
         await fs.writeFile('cdn.json', '{}');
         const initialBaseConfig: string = baseConfig.toString();
-        customizeWebpackConfig('cdn.json', '', '', '', baseConfig);
+        customizeWebpackConfig('cdn.json', '', baseConfig);
         expect(baseConfig.toString()).toBe(initialBaseConfig);
     });
     
@@ -67,12 +67,12 @@ describe("Test webpack customizer", () => {
         await fs.writeFile('cdn.json', '{ "theia": "http://theiaCDN/", "monaco": "http://monacoCDN/" }');
         let error: Error | null = null;
         try {
-            customizeWebpackConfig('cdn.json', '', '', '', baseConfig);
+            customizeWebpackConfig('cdn.json', '', baseConfig);
         } catch(err) {
             error = err;
         }
         expect(error).toEqual(new Error(
-        "Please check that you specified the three parameters: '--env.monacopkg'"));
+        "Please check that you specified the parameter '--env.monacopkg'"));
     });
     
     test("test basic changes", async () => {
