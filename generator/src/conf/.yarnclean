@@ -28,10 +28,8 @@ dugite/git/*
 onigasm
 oniguruma
 @theia/monaco
-monaco-css
 react-dom
 font-awesome
-monaco-html
 @theia/monaco-editor-core
 @theia/terminal/node_modules/xterm/dist/xterm.js
 

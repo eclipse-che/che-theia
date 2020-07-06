@@ -57,14 +57,12 @@ describe("Test Init", () => {
 
     test("test generate", async () => {
         const coreVersion = 'coreVersion';
-        const htmlContribVersion = 'htmlContribVersion';
-        const cssContribVersion = 'cssContribVersion';
-        [[Init.MONACO_CORE_PKG, coreVersion], [Init.MONACO_HTML_CONTRIB_PKG, htmlContribVersion], [Init.MONACO_CSS_CONTRIB_PKG, cssContribVersion]]
+        [[Init.MONACO_CORE_PKG, coreVersion]]
         .forEach(([pkg, version]) => {
             (Command as any).__setExecCommandOutput(
                 Init.GET_PACKAGE_WITH_VERSION_CMD + pkg,
                 '{"type":"tree","data":{"type":"list","trees":[{"name": "' + pkg + '@' + version + '"}]}}');
-        })
+        });
 
         const init = new Init(rootFolderTheia, examplesAssemblyFolderTmp, checkoutFolderTmp, pluginsFolderTmp);
         await init.generate();
@@ -75,13 +73,11 @@ describe("Test Init", () => {
         expect(packageJson['dependencies']['@theia/core']).toBe('^' + await init.getCurrentVersion());
         expect(packageJson['scripts']['build']).toBe('theia build --mode production --config cdn/webpack.config.js --env.cdn=./cdn.json'
             + ' --env.monacopkg=' + Init.MONACO_CORE_PKG + '@' + coreVersion
-            + ' --env.monacohtmlcontribpkg=' + Init.MONACO_HTML_CONTRIB_PKG + '@' + htmlContribVersion
-            + ' --env.monacocsscontribpkg=' + Init.MONACO_CSS_CONTRIB_PKG + '@' + cssContribVersion
             + ' && yarn run override-vs-loader');
         // check folders have been created
         expect(fs.existsSync(examplesAssemblyFolderTmp)).toBeTruthy();
         expect(fs.existsSync(checkoutFolderTmp)).toBeTruthy();
-        
+
         // check folders have been created
         expect(fs.existsSync(cdnFolderTmp)).toBeTruthy();
         expect(fs.existsSync(path.resolve(cdnFolderTmp, 'custom-html.html'))).toBeTruthy();

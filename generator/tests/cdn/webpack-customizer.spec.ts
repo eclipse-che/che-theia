@@ -72,12 +72,12 @@ describe("Test webpack customizer", () => {
             error = err;
         }
         expect(error).toEqual(new Error(
-        "Please check that you specified the three parameters: '--env.monacopkg', '--env.monacohtmlcontribpkg', '--env.monacocsscontribpkg'"));
+        "Please check that you specified the three parameters: '--env.monacopkg'"));
     });
     
     test("test basic changes", async () => {
         await fs.writeFile('cdn.json', '{ "theia": "http://theiaCDN/", "monaco": "http://monacoCDN/" }');
-        customizeWebpackConfig('cdn.json', 'monacopkg', 'monacohtmlcontribpkg', 'monacocsscontribpkg', baseConfig);
+        customizeWebpackConfig('cdn.json', 'monacopkg', baseConfig);
         expect(baseConfig.entry['theia']).toEqual("originalEntry");
         expect(baseConfig.entry['cdn-support']).toEqual(path.resolve(__dirname, '../../src/cdn/bootstrap.js'));
         expect(baseConfig.output.filename).toBe('[name].[chunkhash].js');
@@ -135,7 +135,7 @@ describe("Test webpack customizer", () => {
     
     test("test extensions", async () => {
         await fs.writeFile('cdn.json', '{ "theia": "http://theiaCDN/", "monaco": "http://monacoCDN/" }');
-        customizeWebpackConfig('cdn.json', 'monacopkg', 'monacohtmlcontribpkg', 'monacocsscontribpkg', baseConfig);
+        customizeWebpackConfig('cdn.json', 'monacopkg', baseConfig);
         expect(baseConfig.optimization.splitChunks.cacheGroups.che.test({
             userRequest: path.resolve(__dirname, '../../../che/che-theia-remote-extension/something.js')
         }, undefined)).toBe(true);
