@@ -16,8 +16,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 export function customizeWebpackConfig(
     cdn: string,
     monacopkg: string,
-    monacohtmlcontribpkg: string,
-    monacocsscontribpkg: string,
     baseConfig: any): any {
 
     let theiaCDN = '';
@@ -31,9 +29,8 @@ export function customizeWebpackConfig(
         }
     }
 
-    if (monacoCDN &&
-        !(monacopkg && monacohtmlcontribpkg && monacocsscontribpkg)) {
-        throw new Error("Please check that you specified the three parameters: '--env.monacopkg', '--env.monacohtmlcontribpkg', '--env.monacocsscontribpkg'");
+    if (monacoCDN && !monacopkg) {
+        throw new Error("Please check that you specified the parameter '--env.monacopkg'");
     }
 
     if (theiaCDN || monacoCDN) {
@@ -97,9 +94,7 @@ export function customizeWebpackConfig(
                 monacoCdnPrefix: monacoCDN,
                 cachedChunkRegexp: '^(theia|che|vendors)\.[^.]+\.js$',
                 cachedResourceRegexp: '^.*\.(wasm|woff2|gif)$',
-                monacoEditorCorePackage: monacopkg,
-                monacoHtmlContribPackage: monacohtmlcontribpkg,
-                monacoCssContribPackage: monacocsscontribpkg
+                monacoEditorCorePackage: monacopkg
             }
         }));
 
