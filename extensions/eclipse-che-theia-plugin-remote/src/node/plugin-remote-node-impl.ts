@@ -9,7 +9,7 @@
  **********************************************************************/
 
 import * as deasync from 'deasync';
-import { PluginRemoteNode, PluginRemoteBrowser } from '../common/plugin-remote-rpc';
+import { PluginRemoteNode, PluginRemoteBrowser, ProxyNameDefinition } from '../common/plugin-remote-rpc';
 import { DeployedPlugin, Plugin, ConfigStorage, PluginPackage } from '@theia/plugin-ext/lib/common';
 import { PluginManagerExtImpl } from '@theia/plugin-ext/lib/plugin/plugin-manager';
 export class CallInfo {
@@ -86,14 +86,35 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
             const exported = activatedPlugin.exports;
 
             const prototype = Object.getPrototypeOf(exported);
-            let proxyNames: Array<string> = [];
+            let proxyDefinitions: Array<ProxyNameDefinition> = [];
             if (prototype) {
-                proxyNames = proxyNames.concat(Object.getOwnPropertyNames(prototype));
+                Object.getOwnPropertyNames(prototype).forEach(name => {
+                    proxyDefinitions.push({ name, type: 'func' });
+                });
             }
 
+            const directProperties = Object.getOwnPropertyNames(exported);
+            if (directProperties) {
+                directProperties.forEach(name => {
+                    const obj = exported[name];
+                    let value;
+                    let type;
+                    if (typeof obj === 'string') {
+                        type = 'string';
+                        value = obj;
+                    } else {
+                        type = 'func';
+                    }
+                    proxyDefinitions.push({ name, value, type });
+                });
+            }
+
+            // remove any duplicates
+            proxyDefinitions = [...new Set(proxyDefinitions)];
+
             // ok now need to send that back only if there are some exports
-            if (proxyNames.length > 0) {
-                await this.pluginRemoteBrowser.$definePluginExports(pluginId, proxyNames);
+            if (proxyDefinitions.length > 0) {
+                await this.pluginRemoteBrowser.$definePluginExports(pluginId, proxyDefinitions);
             }
         }
     }
@@ -134,7 +155,7 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
         return result;
     }
 
-    async $definePluginExports(hostId: string, pluginId: string, proxyNames: string[]): Promise<void> {
+    async $definePluginExports(hostId: string, pluginId: string, proxyDefinitions: ProxyNameDefinition[]): Promise<void> {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pluginManagerInternal = (this.pluginManager as any);
 
@@ -148,27 +169,32 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
         const deasyncPromise = this.deasyncPromise;
         // add proxy
         const callId = this.callId++;
-        proxyNames.forEach(entryName => {
-            console.log(`Proxyfing exports ${hostId} ${pluginId}/${entryName}`);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            proxyExports[entryName] = (...args: any[]) => {
-                // need to keep arguments only if arguments have functions as functions can't be propagated remotely
-                const hasFunctions = args.some(arg => typeof arg === 'function');
-                if (hasFunctions) {
-                    const functions = new Map<number, Function>();
-                    args.forEach((arg, index) => {
-                        const type = typeof arg;
-                        if (type === 'function') {
-                            functions.set(index, arg);
-                        }
-                    });
-                    // keep function arguments
-                    this.calls.set(callId, { functions });
-                }
+        proxyDefinitions.forEach(proxyDefinition => {
+            if (proxyDefinition.type === 'func') {
+                console.log(`Proxyfing exports ${hostId} ${pluginId}/${proxyDefinition.name}`);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                proxyExports[proxyDefinition.name] = (...args: any[]) => {
+                    // need to keep arguments only if arguments have functions as functions can't be propagated remotely
+                    const hasFunctions = args.some(arg => typeof arg === 'function');
+                    if (hasFunctions) {
+                        const functions = new Map<number, Function>();
+                        args.forEach((arg, index) => {
+                            const type = typeof arg;
+                            if (type === 'function') {
+                                functions.set(index, arg);
+                            }
+                        });
+                        // keep function arguments
+                        this.calls.set(callId, { functions });
+                    }
 
-                // remote call for this method
-                return deasyncPromise(remoteBrowser.$callMethod(hostId, pluginId, callId, entryName, ...args));
-            };
+                    // remote call for this method
+                    return deasyncPromise(remoteBrowser.$callMethod(hostId, pluginId, callId, proxyDefinition.name, ...args));
+                };
+            } else if (proxyDefinition.type === 'string') {
+                console.log(`Proxyfing exports ${hostId} ${pluginId}/${proxyDefinition.name} to ${proxyDefinition.value}`);
+                proxyExports[proxyDefinition.name] = proxyDefinition.value;
+            }
         });
         pluginManagerInternal.activatedPlugins.set(pluginId, activatedPlugin);
         await pluginManagerInternal.activatePlugin(pluginId);
