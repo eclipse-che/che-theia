@@ -81,7 +81,8 @@ fi
 shopt -u nocasematch
 
 # run Che Theia
-node src-gen/backend/main.js /projects --hostname=${THEIA_HOST} --port=${THEIA_PORT} &
+PROJ_ROOT=${CHE_PROJECTS_ROOT:-/projects}
+node src-gen/backend/main.js ${PROJ_ROOT} --hostname=${THEIA_HOST} --port=${THEIA_PORT} &
 
 PID=$!
 
