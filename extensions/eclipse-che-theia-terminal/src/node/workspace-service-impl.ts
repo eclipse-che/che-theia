@@ -9,7 +9,7 @@
  **********************************************************************/
 
 import { injectable, inject } from 'inversify';
-import WorkspaceClient, { IRemoteAPI, IRestAPIConfig } from '@eclipse-che/workspace-client';
+import WorkspaceClient, { IRemoteAPI } from '@eclipse-che/workspace-client';
 import { che } from '@eclipse-che/api';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { CHEWorkspaceService, WorkspaceContainer } from '../common/workspace-service';
@@ -113,16 +113,11 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
 
     private getRemoteApi(): IRemoteAPI {
         if (!this.api) {
-            const machineToken = this.getMachineToken();
-            const baseUrl = this.getWsMasterApiEndPoint();
-            const restConfig: IRestAPIConfig = { baseUrl: baseUrl, headers: {} };
-
-            if (machineToken) {
-                restConfig.headers['Authorization'] = 'Bearer ' + machineToken;
-            }
-            restConfig.ssCrtPath = SS_CRT_PATH;
-
-            this.api = WorkspaceClient.getRestApi(restConfig);
+            this.api = WorkspaceClient.getRestApi({
+                baseUrl: this.getWsMasterApiEndPoint(),
+                machineToken: this.getMachineToken(),
+                ssCrtPath: SS_CRT_PATH
+            });
         }
         return this.api;
     }

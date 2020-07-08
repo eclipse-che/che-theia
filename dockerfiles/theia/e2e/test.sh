@@ -23,6 +23,10 @@ run_test_in_docker_container() {
        -v "${base_dir}/videos":/root/cypress/videos \
        -v "${base_dir}/logs":/root/logs \
        -v /var/run/docker.sock:/var/run/docker.sock \
+       -e CHE_API_INTERNAL=http://127.0.0.1/api \
+       -e CHE_MACHINE_TOKEN=foobar \
+       -e CHE_WORKSPACE_ID=workspaceId \
+       -e CHE_WORKSPACE_TELEMETRY_BACKEND_PORT=4167 \
            $IMAGE_NAME
 }
 
