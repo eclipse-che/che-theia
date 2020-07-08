@@ -44,3 +44,5 @@ jobs:
         docker pull quay.io/eclipse/che-theia-dev:next
         docker tag quay.io/eclipse/che-theia-dev:next eclipse/che-theia-dev:next
         ./build.sh --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.${{matrix.dist}}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
