@@ -10,7 +10,6 @@
 
 import { injectable, inject, multiInject } from 'inversify';
 import { CheWorkspaceClient } from '../che-workspace-client';
-import * as theia from '@theia/plugin';
 import { che as cheApi } from '@eclipse-che/api';
 
 export const ConfigurationsExporter = Symbol('ConfigurationsExporter');
@@ -23,7 +22,7 @@ export interface ConfigurationsExporter {
      * @param workspaceFolder workspace folder for exporting configs in the config file
      * @param commands commands with configurations for export
      */
-    export(workspaceFolder: theia.WorkspaceFolder, commands: cheApi.workspace.Command[]): Promise<void>;
+    export(commands: cheApi.workspace.Command[]): Promise<void>;
 }
 /** Contains configurations as array of object and as raw content and is used at getting configurations from config file for example */
 export interface Configurations<T> {
@@ -46,25 +45,16 @@ export class ExportConfigurationsManager {
     protected readonly exporters: ConfigurationsExporter[];
 
     async export(): Promise<void> {
-        const workspaceFolders = theia.workspace.workspaceFolders;
-        if (!workspaceFolders || workspaceFolders.length < 1) {
-            return;
-        }
-
         const exportPromises = [];
         const cheCommands = await this.cheWorkspaceClient.getCommands();
         for (const exporter of this.exporters) {
-            exportPromises.push(this.doExport(workspaceFolders, cheCommands, exporter));
+            exportPromises.push(this.doExport(cheCommands, exporter));
         }
 
         await Promise.all(exportPromises);
     }
 
-    private async doExport(workspaceFolders: theia.WorkspaceFolder[], cheCommands: cheApi.workspace.Command[], exporter: ConfigurationsExporter): Promise<void> {
-        const exportConfigsPromises = [];
-        for (const workspaceFolder of workspaceFolders) {
-            exportConfigsPromises.push(exporter.export(workspaceFolder, cheCommands));
-        }
-        await Promise.all(exportConfigsPromises);
+    private async doExport(cheCommands: cheApi.workspace.Command[], exporter: ConfigurationsExporter): Promise<void> {
+        return exporter.export(cheCommands);
     }
 }

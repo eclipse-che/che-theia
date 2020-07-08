@@ -7,135 +7,118 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
-import { CheApiService, Preferences, WorkspaceSettings } from '../common/che-protocol';
+import { CheApiService, Preferences, User, WorkspaceSettings } from '../common/che-protocol';
 import { che as cheApi } from '@eclipse-che/api';
-import WorkspaceClient, { IRestAPIConfig, IRemoteAPI } from '@eclipse-che/workspace-client';
+import WorkspaceClient, { IRemoteAPI } from '@eclipse-che/workspace-client';
 import { injectable } from 'inversify';
-
 import { SS_CRT_PATH } from './che-https';
-
-import { TelemetryClient, Event, EventProperty } from '@eclipse-che/workspace-telemetry-client';
-
-const ENV_WORKSPACE_ID_IS_NOT_SET = 'Environment variable CHE_WORKSPACE_ID is not set';
+import { TelemetryClient, EventProperty } from '@eclipse-che/workspace-telemetry-client';
 
 @injectable()
 export class CheApiServiceImpl implements CheApiService {
 
-    private workspaceRestAPI: IRemoteAPI | undefined;
-    private telemetryClient: TelemetryClient | undefined = this.getWorkspaceTelemetryClient();
+    private readonly telemetryClient: TelemetryClient | undefined;
 
-    async getCurrentWorkspaceId(): Promise<string> {
-        return this.getWorkspaceIdFromEnv();
+    /**
+     * Workspace client based variables.
+     *
+     * baseAPIUrl - responsible for storing base url to API service, taken from environment variable
+     * machineToken - machine token taken from environment variable, always the same at workspace lifecycle
+     * workspaceId - workspace ID taken from environment variable, always the same at workspace lifecycle
+     */
+    private readonly baseAPIUrl: string;
+    private readonly machineToken: string;
+    private readonly workspaceId: string;
+
+    constructor() {
+        if (process.env.CHE_API_INTERNAL === undefined) {
+            throw new Error('Unable to create Che API REST Client: "CHE_API_INTERNAL" is not set.');
+        } else {
+            this.baseAPIUrl = process.env.CHE_API_INTERNAL;
+        }
+
+        if (process.env.CHE_MACHINE_TOKEN === undefined) {
+            throw new Error('Machine token is not set.');
+        } else {
+            this.machineToken = process.env.CHE_MACHINE_TOKEN;
+        }
+
+        if (process.env.CHE_WORKSPACE_ID === undefined) {
+            throw new Error('Environment variable CHE_WORKSPACE_ID is not set');
+        } else {
+            this.workspaceId = process.env.CHE_WORKSPACE_ID;
+        }
+
+        if (process.env.CHE_WORKSPACE_TELEMETRY_BACKEND_PORT === undefined) {
+            console.error('Unable to create Che API REST Client: "CHE_WORKSPACE_TELEMETRY_BACKEND_PORT" is not set.');
+        } else {
+            this.telemetryClient = new TelemetryClient(undefined, 'http://localhost:' + process.env.CHE_WORKSPACE_TELEMETRY_BACKEND_PORT);
+        }
     }
 
-    async getCheApiURI(): Promise<string | undefined> {
-        return process.env.CHE_API_INTERNAL;
+    getCurrentWorkspaceId(): string {
+        return this.workspaceId;
     }
 
-    async getUserId(token?: string): Promise<string> {
-        const cheApiClient = await this.getCheApiClient();
-        const user = await cheApiClient.getCurrentUser(token);
+    getCheApiURI(): string {
+        return this.baseAPIUrl;
+    }
+
+    async getUserId(userToken?: string): Promise<string> {
+        const user = await this.updateAndGetRemoteAPI(userToken).getCurrentUser();
         return user.id;
     }
 
-    async getUserPreferences(filter?: string): Promise<Preferences> {
-        const cheApiClient = await this.getCheApiClient();
-        return cheApiClient.getUserPreferences(filter);
+    getCurrentUser(userToken?: string): Promise<User> {
+        return this.updateAndGetRemoteAPI(userToken).getCurrentUser();
     }
 
-    async updateUserPreferences(update: Preferences): Promise<Preferences> {
-        const cheApiClient = await this.getCheApiClient();
-        return cheApiClient.updateUserPreferences(update);
+    getUserPreferences(filter?: string): Promise<Preferences> {
+        return this.updateAndGetRemoteAPI().getUserPreferences(filter);
     }
 
-    async replaceUserPreferences(preferences: Preferences): Promise<Preferences> {
-        const cheApiClient = await this.getCheApiClient();
-        return cheApiClient.replaceUserPreferences(preferences);
+    updateUserPreferences(update: Preferences): Promise<Preferences> {
+        return this.updateAndGetRemoteAPI().updateUserPreferences(update);
     }
 
-    async deleteUserPreferences(list?: string[]): Promise<void> {
-        const cheApiClient = await this.getCheApiClient();
-        return cheApiClient.deleteUserPreferences(list);
+    replaceUserPreferences(preferences: Preferences): Promise<Preferences> {
+        return this.updateAndGetRemoteAPI().replaceUserPreferences(preferences);
     }
 
-    async getWorkspaceSettings(): Promise<WorkspaceSettings> {
-        const cheApiClient = await this.getCheApiClient();
-        return cheApiClient.getSettings();
+    deleteUserPreferences(list?: string[]): Promise<void> {
+        return this.updateAndGetRemoteAPI().deleteUserPreferences(list);
     }
 
-    async currentWorkspace(): Promise<cheApi.workspace.Workspace> {
-        try {
-            const workspaceId = process.env.CHE_WORKSPACE_ID;
-            if (!workspaceId) {
-                return Promise.reject(ENV_WORKSPACE_ID_IS_NOT_SET);
-            }
-
-            const cheApiClient = await this.getCheApiClient();
-            if (cheApiClient) {
-                return await cheApiClient.getById<cheApi.workspace.Workspace>(workspaceId);
-            }
-
-            return Promise.reject('Cannot create Che API REST Client');
-        } catch (e) {
-            console.log(e);
-            return Promise.reject('Cannot create Che API REST Client');
-        }
+    getWorkspaceSettings(): Promise<WorkspaceSettings> {
+        return this.updateAndGetRemoteAPI().getSettings();
     }
 
-    async getWorkspaceById(workspaceId: string): Promise<cheApi.workspace.Workspace> {
-        try {
-            if (!workspaceId) {
-                return Promise.reject('Che Workspace id is not set');
-            }
-
-            const cheApiClient = await this.getCheApiClient();
-            if (cheApiClient) {
-                return await cheApiClient.getById<cheApi.workspace.Workspace>(workspaceId);
-            }
-
-            return Promise.reject('Cannot create Che API REST Client');
-        } catch (e) {
-            console.log(e);
-            return Promise.reject('Cannot create Che API REST Client');
-        }
+    currentWorkspace(): Promise<cheApi.workspace.Workspace> {
+        return this.updateAndGetRemoteAPI().getById<cheApi.workspace.Workspace>(this.workspaceId);
     }
 
-    async updateWorkspace(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<cheApi.workspace.Workspace> {
-        try {
-            if (!workspaceId) {
-                return Promise.reject('Che Workspace id is not set');
-            }
-
-            const cheApiClient = await this.getCheApiClient();
-            if (cheApiClient) {
-                return await cheApiClient.update(workspaceId, workspace);
-            }
-
-            return Promise.reject('Cannot create Che API REST Client');
-        } catch (e) {
-            console.log(e);
-            return Promise.reject('Cannot create Che API REST Client');
-        }
+    getWorkspaceById(workspaceId: string): Promise<cheApi.workspace.Workspace> {
+        return this.updateAndGetRemoteAPI().getById(this.workspaceId);
     }
 
-    async updateWorkspaceActivity(): Promise<void> {
-        try {
-            const cheApiClient = await this.getCheApiClient();
-            return cheApiClient.updateActivity(this.getWorkspaceIdFromEnv());
-        } catch (e) {
-            console.error(e);
-            throw new Error(e);
-        }
+    getAll(userToken?: string): Promise<cheApi.workspace.Workspace[]> {
+        return this.updateAndGetRemoteAPI(userToken).getAll();
     }
 
-    async stop(): Promise<void> {
-        const workspaceId = process.env.CHE_WORKSPACE_ID;
-        if (!workspaceId) {
-            return Promise.reject(ENV_WORKSPACE_ID_IS_NOT_SET);
-        }
+    getAllByNamespace(namespace: string, userToken?: string): Promise<cheApi.workspace.Workspace[]> {
+        return this.updateAndGetRemoteAPI(userToken).getAllByNamespace(namespace);
+    }
 
-        const cheApiClient = await this.getCheApiClient();
-        return await cheApiClient.stop(workspaceId);
+    updateWorkspace(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<cheApi.workspace.Workspace> {
+        return this.updateAndGetRemoteAPI().update(workspaceId, workspace);
+    }
+
+    updateWorkspaceActivity(): Promise<void> {
+        return this.updateAndGetRemoteAPI().updateActivity(this.workspaceId);
+    }
+
+    stop(): Promise<void> {
+        return this.updateAndGetRemoteAPI().stop(this.workspaceId);
     }
 
     async getCurrentWorkspacesContainers(): Promise<{ [key: string]: cheApi.workspace.Machine }> {
@@ -179,184 +162,72 @@ export class CheApiServiceImpl implements CheApiService {
         }
     }
 
-    async getFactoryById(factoryId: string): Promise<cheApi.factory.Factory> {
-        try {
-            const client = await this.getCheApiClient();
-            if (client) {
-                return await client.getFactory<cheApi.factory.Factory>(factoryId);
-            }
-
-            return Promise.reject(`Unable to get factory with ID ${factoryId}`);
-        } catch (e) {
-            return Promise.reject('Unable to create Che API REST Client');
-        }
+    getFactoryById(factoryId: string): Promise<cheApi.factory.Factory> {
+        return this.updateAndGetRemoteAPI().getFactory(factoryId);
     }
 
-    async generateSshKey(service: string, name: string): Promise<cheApi.ssh.SshPair> {
-        try {
-            const client = await this.getCheApiClient();
-            if (client) {
-                return client.generateSshKey(service, name);
-            }
-
-            throw new Error(`Unable to generate SSH Key for ${service}:${name}`);
-        } catch (e) {
-            console.error(e);
-            throw new Error(e);
-        }
+    generateSshKey(service: string, name: string): Promise<cheApi.ssh.SshPair> {
+        return this.updateAndGetRemoteAPI().generateSshKey(service, name);
     }
 
-    async createSshKey(sshKeyPair: cheApi.ssh.SshPair): Promise<void> {
-        try {
-            const client = await this.getCheApiClient();
-            if (client) {
-                return client.createSshKey(sshKeyPair);
-            }
-
-            throw new Error('Unable to create SSH Key');
-        } catch (e) {
-            console.error(e);
-            throw new Error(e);
-        }
+    createSshKey(sshKeyPair: cheApi.ssh.SshPair): Promise<void> {
+        return this.updateAndGetRemoteAPI().createSshKey(sshKeyPair);
     }
 
-    async getSshKey(service: string, name: string): Promise<cheApi.ssh.SshPair> {
-        try {
-            const client = await this.getCheApiClient();
-            if (client) {
-                return await client.getSshKey(service, name);
-            }
-
-            throw new Error(`Unable to get SSH Key for ${service}:${name}`);
-        } catch (e) {
-            console.error(e);
-            throw new Error(e);
-        }
+    getSshKey(service: string, name: string): Promise<cheApi.ssh.SshPair> {
+        return this.updateAndGetRemoteAPI().getSshKey(service, name);
     }
 
-    async getAllSshKey(service: string): Promise<cheApi.ssh.SshPair[]> {
-        try {
-            const client = await this.getCheApiClient();
-            if (client) {
-                return client.getAllSshKey(service);
-            }
-            throw new Error(`Unable to get SSH Keys for ${service}`);
-        } catch (e) {
-            console.error(e);
-            throw new Error(e);
-        }
+    getAllSshKey(service: string): Promise<cheApi.ssh.SshPair[]> {
+        return this.updateAndGetRemoteAPI().getAllSshKey(service);
     }
 
-    async deleteSshKey(service: string, name: string): Promise<void> {
-        try {
-            const client = await this.getCheApiClient();
-            if (client) {
-                return client.deleteSshKey(service, name);
-            }
-            throw new Error(`Unable to delete SSH Key for ${service}:${name}`);
-        } catch (e) {
-            console.error(e);
-            throw new Error(e);
-        }
+    deleteSshKey(service: string, name: string): Promise<void> {
+        return this.updateAndGetRemoteAPI().deleteSshKey(service, name);
     }
 
     async submitTelemetryEvent(id: string, ownerId: string, ip: string, agent: string, resolution: string, properties: [string, string][]): Promise<void> {
-        try {
-            const event: Event = {
-                id: id,
-                ip: ip,
-                ownerId: ownerId,
-                agent: agent,
-                resolution: resolution,
-                properties: properties.map((prop: [string, string]) => {
-                    const eventProp: EventProperty = {
-                        id: prop[0],
-                        value: prop[1]
-                    };
-                    return eventProp;
-                })
-            };
-            if (this.telemetryClient) {
-                await this.telemetryClient.event(event);
-            }
-        } catch (e) {
-            console.error(e);
-            throw new Error(e);
+        if (this.telemetryClient === undefined) {
+            return;
         }
+
+        await this.telemetryClient.event({
+            id: id,
+            ip: ip,
+            ownerId: ownerId,
+            agent: agent,
+            resolution: resolution,
+            properties: properties.map((prop: [string, string]) => {
+                const eventProp: EventProperty = {
+                    id: prop[0],
+                    value: prop[1]
+                };
+                return eventProp;
+            })
+        });
     }
 
     async submitTelemetryActivity(): Promise<void> {
-        try {
-            if (this.telemetryClient) {
-                await this.telemetryClient.activity();
-            }
-        } catch (e) {
-            console.error(e);
-            throw new Error(e);
+        if (this.telemetryClient === undefined) {
+            return;
         }
+        await this.telemetryClient.activity();
     }
 
-    async getOAuthToken(oAuthProvider: string, token?: string): Promise<string | undefined> {
-        const cheApiClient = await this.getCheApiClient();
-        return cheApiClient.getOAuthToken(oAuthProvider, token);
+    getOAuthToken(oAuthProvider: string, userToken?: string): Promise<string | undefined> {
+        return this.updateAndGetRemoteAPI(userToken).getOAuthToken(oAuthProvider);
     }
 
-    async getOAuthProviders(token?: string): Promise<string[]> {
-        const cheApiClient = await this.getCheApiClient();
-        try {
-            return await cheApiClient.getOAuthProviders(token);
-        } catch (e) {
-            return [];
-        }
+    getOAuthProviders(userToken?: string): Promise<string[]> {
+        return this.updateAndGetRemoteAPI(userToken).getOAuthProviders();
     }
 
-    private getWorkspaceTelemetryClient(): TelemetryClient | undefined {
-
-        if (!this.telemetryClient) {
-            const cheWorkspaceTelemetryBackendPortVar = process.env.CHE_WORKSPACE_TELEMETRY_BACKEND_PORT;
-
-            if (!cheWorkspaceTelemetryBackendPortVar) {
-                console.error('Unable to create Che API REST Client: "CHE_WORKSPACE_TELEMETRY_BACKEND_PORT" is not set.');
-                return undefined;
-            }
-
-            this.telemetryClient = new TelemetryClient(undefined, 'http://localhost:' + cheWorkspaceTelemetryBackendPortVar);
-        }
-
-        return this.telemetryClient;
+    private updateAndGetRemoteAPI(userToken?: string): IRemoteAPI {
+        return WorkspaceClient.getRestApi({
+            baseUrl: this.baseAPIUrl,
+            ssCrtPath: SS_CRT_PATH,
+            machineToken: userToken && userToken.length > 0 ? undefined : this.machineToken,
+            userToken: userToken && userToken.length > 0 ? userToken : undefined
+        });
     }
-
-    private async getCheApiClient(): Promise<IRemoteAPI> {
-        const cheApiInternalVar = process.env.CHE_API_INTERNAL;
-        const cheMachineToken = process.env.CHE_MACHINE_TOKEN;
-
-        if (!cheApiInternalVar) {
-            return Promise.reject('Unable to create Che API REST Client: "CHE_API_INTERNAL" is not set.');
-        }
-
-        if (!this.workspaceRestAPI) {
-            const restAPIConfig: IRestAPIConfig = {
-                baseUrl: cheApiInternalVar,
-                headers: {}
-            };
-            if (cheMachineToken) {
-                restAPIConfig.headers['Authorization'] = 'Bearer ' + cheMachineToken;
-            }
-            restAPIConfig.ssCrtPath = SS_CRT_PATH;
-
-            this.workspaceRestAPI = WorkspaceClient.getRestApi(restAPIConfig);
-        }
-
-        return this.workspaceRestAPI;
-    }
-
-    private getWorkspaceIdFromEnv(): string {
-        const workspaceId = process.env.CHE_WORKSPACE_ID;
-        if (!workspaceId) {
-            throw new Error(ENV_WORKSPACE_ID_IS_NOT_SET);
-        }
-
-        return workspaceId;
-    }
-
 }

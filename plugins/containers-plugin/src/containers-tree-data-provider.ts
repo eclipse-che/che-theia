@@ -10,6 +10,7 @@
 
 import * as theia from '@theia/plugin';
 import { IContainer } from './containers-service';
+import { TaskScope } from '@eclipse-che/plugin';
 
 interface ITreeNodeItem {
     id: string;
@@ -120,7 +121,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
                         iconPath: 'fa-cogs medium-yellow',
                         command: {
                             id: CONTAINERS_PLUGIN_RUN_TASK_COMMAND_ID,
-                            arguments: [this.getRootUri().toString(), command.commandName, container.name]
+                            arguments: [command.commandName, container.name]
                         }
                     });
                 });
@@ -235,14 +236,6 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
         this.onDidChangeTreeDataEmitter.fire();
     }
 
-    private getRootUri(): theia.Uri {
-        const workspaceFolders = theia.workspace.workspaceFolders;
-        if (!workspaceFolders || workspaceFolders.length < 1) {
-            return theia.Uri.file('/projects');
-        }
-        return workspaceFolders[0].uri;
-    }
-
     private getRandId(): string {
         let uniqueId = '';
         for (let counter = 0; counter < 1000; counter++) {
@@ -295,10 +288,10 @@ export const CONTAINERS_PLUGIN_RUN_TASK_COMMAND_ID = 'containers-plugin-run-task
  * This is needed if a command doesn't have container to be run in specified.
  * In such case we run the command in the container under which this command was clicked.
  */
-export async function containersTreeTaskLauncherCommandHandler(source: string, label: string, containerName: string): Promise<void> {
+export async function containersTreeTaskLauncherCommandHandler(label: string, containerName: string): Promise<void> {
     const tasks: theia.Task[] = await theia.tasks.fetchTasks({ type: 'che' });
     for (const task of tasks) {
-        if (task.name === label && task.source === source) {
+        if (task.name === label) { // task labels are unique in the workspace
             if (!task.definition.target) {
                 task.definition.target = {};
             }
@@ -310,5 +303,5 @@ export async function containersTreeTaskLauncherCommandHandler(source: string, l
     }
 
     // Shouldn't happen. Fallback to default behaviour.
-    theia.commands.executeCommand('task:run', source, label);
+    theia.commands.executeCommand('task:run', 'che', label, TaskScope.Global);
 }

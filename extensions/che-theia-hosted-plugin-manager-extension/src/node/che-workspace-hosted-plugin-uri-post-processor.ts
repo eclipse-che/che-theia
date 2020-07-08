@@ -11,7 +11,7 @@
 import { injectable } from 'inversify';
 import URI from '@theia/core/lib/common/uri';
 import { HostedPluginUriPostProcessor } from '@theia/plugin-dev';
-import WorkspaceClient, { IRemoteAPI, IRestAPIConfig } from '@eclipse-che/workspace-client';
+import WorkspaceClient, { IRemoteAPI } from '@eclipse-che/workspace-client';
 import { che } from '@eclipse-che/api';
 
 @injectable()
@@ -20,14 +20,10 @@ export class CheWorkspaceHostedPluginUriPostProcessor implements HostedPluginUri
     protected restApiClient: IRemoteAPI;
 
     constructor() {
-        const restAPIConfig: IRestAPIConfig = {};
-        restAPIConfig.baseUrl = process.env.CHE_API;
-        const token = process.env.CHE_MACHINE_TOKEN;
-        if (token) {
-            restAPIConfig.headers = {};
-            restAPIConfig.headers['Authorization'] = 'Bearer ' + token;
-        }
-        this.restApiClient = WorkspaceClient.getRestApi(restAPIConfig);
+        this.restApiClient = WorkspaceClient.getRestApi({
+            baseUrl: process.env.CHE_API,
+            machineToken: process.env.CHE_MACHINE_TOKEN
+        });
     }
 
     async processUri(uri: URI): Promise<URI> {
@@ -36,8 +32,7 @@ export class CheWorkspaceHostedPluginUriPostProcessor implements HostedPluginUri
             throw new Error('No server with type "ide-dev" found.');
         }
 
-        const externalUri = new URI(hostedPluginTheiaInstanceServer.url);
-        return externalUri;
+        return new URI(hostedPluginTheiaInstanceServer.url);
     }
 
     /**
@@ -69,12 +64,12 @@ export class CheWorkspaceHostedPluginUriPostProcessor implements HostedPluginUri
         return undefined;
     }
 
-    protected async getCurrentWorkspace(): Promise<che.workspace.Workspace> {
+    protected getCurrentWorkspace(): Promise<che.workspace.Workspace> {
         const workspaceId = process.env.CHE_WORKSPACE_ID;
         if (!workspaceId) {
             throw new Error('Environment variable CHE_WORKSPACE_ID is not set.');
         }
-        return await this.restApiClient.getById<che.workspace.Workspace>(workspaceId);
+        return this.restApiClient.getById<che.workspace.Workspace>(workspaceId);
     }
 
     async processOptions(options: object): Promise<object> {

@@ -34,7 +34,7 @@ export class CheDevfileMainImpl implements CheDevfileMain {
 
     async $createWorkspace(devfilePath: string): Promise<void> {
         return new Promise<void>(async (resolve, reject) => {
-            let baseURI = await this.cheApiService.getCheApiURI();
+            let baseURI = this.cheApiService.getCheApiURI();
 
             if (!baseURI) {
                 const error = 'Che API URI is not set!';

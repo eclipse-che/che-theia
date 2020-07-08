@@ -31,7 +31,20 @@ export class LaunchConfigurationsExporter implements ConfigurationsExporter {
     @inject(VsCodeLaunchConfigsExtractor)
     protected readonly vsCodeLaunchConfigsExtractor: VsCodeLaunchConfigsExtractor;
 
-    async export(workspaceFolder: theia.WorkspaceFolder, commands: cheApi.workspace.Command[]): Promise<void> {
+    async export(commands: cheApi.workspace.Command[]): Promise<void> {
+        if (!theia.workspace.workspaceFolders) {
+            return;
+        }
+
+        const exportConfigsPromises: Promise<void>[] = [];
+
+        for (const workspaceFolder of theia.workspace.workspaceFolders) {
+            exportConfigsPromises.push(this.doExport(workspaceFolder, commands));
+        }
+        await Promise.all(exportConfigsPromises);
+    }
+
+    async doExport(workspaceFolder: theia.WorkspaceFolder, commands: cheApi.workspace.Command[]): Promise<void> {
         const launchConfigFileUri = this.getConfigFileUri(workspaceFolder.uri.path);
         const configFileConfigs = this.configFileLaunchConfigsExtractor.extract(launchConfigFileUri);
         const vsCodeConfigs = this.vsCodeLaunchConfigsExtractor.extract(commands);
@@ -67,7 +80,6 @@ export class LaunchConfigurationsExporter implements ConfigurationsExporter {
 
             conflictHandler(conflict, config2);
         }
-
         return result;
     }
 

@@ -398,6 +398,11 @@ export interface Preferences {
     [key: string]: string;
 }
 
+export interface User {
+    id: string;
+    name: string;
+}
+
 export interface WorkspaceSettings {
     [key: string]: string;
 }
@@ -449,11 +454,13 @@ export const CHE_API_SERVICE_PATH = '/che-api-service';
 export const CheApiService = Symbol('CheApiService');
 
 export interface CheApiService {
-    getCurrentWorkspaceId(): Promise<string>;
-    getCheApiURI(): Promise<string | undefined>;
+    getCurrentWorkspaceId(): string;
+    getCheApiURI(): string;
 
     currentWorkspace(): Promise<cheApi.workspace.Workspace>;
     getWorkspaceById(workspaceId: string): Promise<cheApi.workspace.Workspace>;
+    getAll(userToken?: string): Promise<cheApi.workspace.Workspace[]>;
+    getAllByNamespace(namespace: string, userToken?: string): Promise<cheApi.workspace.Workspace[]>;
     getCurrentWorkspacesContainers(): Promise<{ [key: string]: cheApi.workspace.Machine }>;
     findUniqueServerByAttribute(attributeName: string, attributeValue: string): Promise<cheApi.workspace.Server>;
 
@@ -463,7 +470,9 @@ export interface CheApiService {
 
     getFactoryById(factoryId: string): Promise<cheApi.factory.Factory>;
 
-    getUserId(token?: string): Promise<string>;
+    /** @deprecated use {@link getCurrentUser} instead. */
+    getUserId(userToken?: string): Promise<string>;
+    getCurrentUser(userToken?: string): Promise<User>;
     getUserPreferences(): Promise<Preferences>;
     getUserPreferences(filter: string | undefined): Promise<Preferences>;
     updateUserPreferences(update: Preferences): Promise<Preferences>;
@@ -479,8 +488,8 @@ export interface CheApiService {
     getAllSshKey(service: string): Promise<cheApi.ssh.SshPair[]>;
     submitTelemetryEvent(id: string, ownerId: string, ip: string, agent: string, resolution: string, properties: [string, string][]): Promise<void>;
     submitTelemetryActivity(): Promise<void>;
-    getOAuthToken(oAuthProvider: string, token?: string): Promise<string | undefined>;
-    getOAuthProviders(token?: string): Promise<string[]>;
+    getOAuthToken(oAuthProvider: string, userToken?: string): Promise<string | undefined>;
+    getOAuthProviders(userToken?: string): Promise<string[]>;
 }
 
 export const CHE_TASK_SERVICE_PATH = '/che-task-service';
@@ -504,6 +513,7 @@ export interface CheTaskClient {
 export interface CheUser { }
 
 export interface CheUserMain {
+    $getCurrentUser(): Promise<User>;
     $getUserPreferences(filter?: string): Promise<Preferences>;
     $updateUserPreferences(preferences: Preferences): Promise<Preferences>;
     $replaceUserPreferences(preferences: Preferences): Promise<Preferences>;

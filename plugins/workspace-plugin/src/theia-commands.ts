@@ -16,6 +16,7 @@ import { che as cheApi } from '@eclipse-che/api';
 import * as fileuri from './file-uri';
 import { execute } from './exec';
 import * as git from './git';
+import { TaskScope } from '@eclipse-che/plugin';
 
 const SS_CRT_PATH = '/tmp/che/secret/ca.crt';
 const CHE_TASK_TYPE = 'che';
@@ -265,7 +266,7 @@ export class TheiaCommand {
 
         if (this.id === ActionId.RUN_COMMAND) {
             if (this.properties) {
-                return theia.commands.executeCommand('task:run', CHE_TASK_TYPE, this.properties.name)
+                return theia.commands.executeCommand('task:run', CHE_TASK_TYPE, this.properties.name, TaskScope.Global)
                     .then(() => {
                         theia.window.showInformationMessage('Executed che command succesfully');
                     }, e => {

@@ -10,7 +10,9 @@
 
 import * as net from 'net';
 import * as http from 'http';
-import { inject, injectable } from 'inversify';
+import * as ws from 'ws';
+
+import { inject, injectable, Container } from 'inversify';
 import URI from '@theia/core/lib/common/uri';
 import { MessagingContribution } from '@theia/core/lib/node/messaging/messaging-contribution';
 import { CheApiService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
@@ -18,8 +20,28 @@ import { CheApiService } from '@eclipse-che/theia-plugin-ext/lib/common/che-prot
 @injectable()
 export class CheMessagingContribution extends MessagingContribution {
 
+    private connectionContainers: Set<Container> = new Set();
+    private connectionContainersMap: Map<ws, Container> = new Map();
+
     @inject(CheApiService)
     protected cheApiService: CheApiService;
+
+    /**
+     * Keep reference to containers used by connections
+     */
+    protected createSocketContainer(socket: ws): Container {
+        const connectionContainer: Container = super.createSocketContainer(socket);
+        this.connectionContainers.add(connectionContainer);
+        this.connectionContainersMap.set(socket, connectionContainer);
+        socket.on('close', () => {
+            const toDeleteContainer = this.connectionContainersMap.get(socket);
+            this.connectionContainersMap.delete(socket);
+            if (toDeleteContainer) {
+                this.connectionContainers.delete(toDeleteContainer);
+            }
+        });
+        return connectionContainer;
+    }
 
     protected async handleHttpUpgrade(request: http.IncomingMessage, socket: net.Socket, head: Buffer): Promise<void> {
         if (await this.isRequestAllowed(request)) {
@@ -57,5 +79,9 @@ export class CheMessagingContribution extends MessagingContribution {
         const requestOriginURI = new URI(requestOrigin);
 
         return theiaEndpoints.some(uri => uri.isEqualOrParent(requestOriginURI));
+    }
+
+    public getConnectionContainers(): Container[] {
+        return Array.from(this.connectionContainers);
     }
 }

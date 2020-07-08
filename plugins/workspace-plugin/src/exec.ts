@@ -13,8 +13,8 @@ import { askpassEnv } from './askpass';
 
 export async function execute(commandLine: string, args?: string[], options?: SpawnOptions): Promise<string> {
     return new Promise<string>((resolve, reject) => {
-        if (options) {
-            options.env = askpassEnv;
+        if (options && askpassEnv) {
+            options.env = mergeProcessEnv(options.env);
         }
         const command = spawn(commandLine, args, options);
         let result = '';
@@ -41,4 +41,21 @@ export async function execute(commandLine: string, args?: string[], options?: Sp
             }
         });
     });
+}
+
+function mergeProcessEnv(env: NodeJS.ProcessEnv | undefined): NodeJS.ProcessEnv | undefined {
+    if (!env) {
+        env = {};
+    }
+    env.GIT_ASKPASS = askpassEnv.GIT_ASKPASS;
+    if (askpassEnv.CHE_THEIA_GIT_ASKPASS_NODE) {
+        env.CHE_THEIA_GIT_ASKPASS_NODE = askpassEnv.CHE_THEIA_GIT_ASKPASS_NODE;
+    }
+    if (askpassEnv.CHE_THEIA_GIT_ASKPASS_MAIN) {
+        env.CHE_THEIA_GIT_ASKPASS_MAIN = askpassEnv.CHE_THEIA_GIT_ASKPASS_MAIN;
+    }
+    if (askpassEnv.CHE_THEIA_GIT_ASKPASS_HANDLE) {
+        env.CHE_THEIA_GIT_ASKPASS_HANDLE = askpassEnv.CHE_THEIA_GIT_ASKPASS_HANDLE;
+    }
+    return env;
 }

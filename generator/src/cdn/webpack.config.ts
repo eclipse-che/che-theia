@@ -11,7 +11,7 @@
 import { customizeWebpackConfig } from './webpack-customizer';
 
 const yargs = require('yargs');
-const { env: { cdn, monacopkg, monacohtmlcontribpkg, monacocsscontribpkg } } = yargs.option('env.cdn', {
+const { env: { cdn, monacopkg, } } = yargs.option('env.cdn', {
     description: `The path of a JSON file that contains CDN settings.
     The file syntax is the following:
     {
@@ -24,20 +24,12 @@ const { env: { cdn, monacopkg, monacohtmlcontribpkg, monacocsscontribpkg } } = y
     description: 'The NPM identifier (with version) of Monaco editor core package',
     type: 'string',
     default: ''
-}).option('env.monacohtmlcontribpkg', {
-    description: 'The NPM identifier (with version) of Monaco editor Html contribution package',
-    type: 'string',
-    default: ''
-}).option('env.monacocsscontribpkg', {
-    description: 'The NPM identifier (with version) of Monaco editor Css contribution package',
-    type: 'string',
-    default: ''
 }).argv;
 
 // Retrieve the default, generated, Theia Webpack configuration
 const baseConfig = require('../webpack.config');
 
-customizeWebpackConfig(cdn, monacopkg, monacohtmlcontribpkg, monacocsscontribpkg, baseConfig);
+customizeWebpackConfig(cdn, monacopkg, baseConfig);
 
 // Export the customized webpack configuration object
 module.exports = baseConfig;

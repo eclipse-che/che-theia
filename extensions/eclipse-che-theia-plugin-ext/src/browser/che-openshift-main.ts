@@ -12,16 +12,25 @@ import { CheOpenshiftMain } from '../common/che-protocol';
 import { interfaces } from 'inversify';
 import { OauthUtils } from './oauth-utils';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
+import axios, { AxiosInstance } from 'axios';
 
 export class CheOpenshiftMainImpl implements CheOpenshiftMain {
     private readonly oAuthUtils: OauthUtils;
     private isMultiUser: boolean;
+    private isHostedChe: boolean;
+    private axiosInstance: AxiosInstance = axios;
 
     constructor(container: interfaces.Container) {
         this.oAuthUtils = container.get(OauthUtils);
-        container.get<EnvVariablesServer>(EnvVariablesServer).getValue('CHE_MACHINE_TOKEN').then(variable => {
+        const envVariablesServer = container.get<EnvVariablesServer>(EnvVariablesServer);
+        envVariablesServer.getValue('CHE_MACHINE_TOKEN').then(variable => {
             if (variable && variable.value && variable.value.length > 0) {
                 this.isMultiUser = true;
+            }
+        });
+        envVariablesServer.getValue('CHE_API').then(variable => {
+            if (variable && variable.value && variable.value.indexOf('https://che.openshift.io/api') !== -1) {
+                this.isHostedChe = true;
             }
         });
     }
@@ -31,6 +40,13 @@ export class CheOpenshiftMainImpl implements CheOpenshiftMain {
         // Multi-user mode doesn't support list of registered provers request,
         // so we need to check which version of openshift is registered.
         if (this.isMultiUser) {
+            if (this.isHostedChe) {
+                const result = await this.axiosInstance.get<{ access_token: string }>(
+                    'https://auth.openshift.io/api/token?for=openshift',
+                    { headers: { Authorization: ' Bearer ' + await this.oAuthUtils.getUserToken() } }
+                );
+                return result.data.access_token;
+            }
             try {
                 const openShift3token = await this.oAuthUtils.getToken('openshift-v3');
                 if (openShift3token) {

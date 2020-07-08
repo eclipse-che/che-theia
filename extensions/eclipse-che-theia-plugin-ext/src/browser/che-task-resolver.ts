@@ -113,7 +113,7 @@ export class CheTaskResolver implements TaskResolver {
             return this.workspaceId;
         }
 
-        this.workspaceId = await this.cheApi.getCurrentWorkspaceId();
+        this.workspaceId = this.cheApi.getCurrentWorkspaceId();
         return this.workspaceId;
     }
 
