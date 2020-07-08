@@ -45,7 +45,9 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
                 await pluginRemoteBrowser.$loadPlugin(plugin.model.id, configStorage);
                 return true;
             }
-            return originalLoadPlugin.call(pluginManager, plugin, configStorage, visited);
+            const load = await originalLoadPlugin.call(pluginManager, plugin, configStorage, visited);
+            await this.exportPluginDefinition(pluginManager, plugin.model.id, plugin);
+            return load;
         };
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -74,6 +76,11 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
             throw new Error(`Unable to load the plug-in ${pluginId}. Wait for being ready but was never loaded.`);
         }
         await pluginManagerInternal.loadPlugin(plugin, configStorage);
+        this.exportPluginDefinition(pluginManagerInternal, pluginId, plugin);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async exportPluginDefinition(pluginManagerInternal: any, pluginId: string, plugin: any): Promise<void> {
         const activatedPlugin = pluginManagerInternal.activatedPlugins.get(pluginId);
 
         // share the JSON with others
