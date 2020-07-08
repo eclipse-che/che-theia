@@ -34,8 +34,7 @@ function getIPCHandlePath(nonce: string): string {
     return path.join(os.tmpdir(), `che-theia-git-askpass-${nonce}.sock`);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export let askpassEnv: any;
+export let askpassEnv: AskpassEnvironment;
 
 export async function initAskpassEnv(): Promise<void> {
     askpassEnv = await new Askpass().getEnv();
@@ -101,8 +100,7 @@ export class Askpass implements theia.Disposable {
         return await theia.window.showInputBox(options) || '';
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async getEnv(): Promise<any> {
+    async getEnv(): Promise<AskpassEnvironment> {
         if (!this.enabled) {
             return {
                 GIT_ASKPASS: path.join(__dirname, 'askpass-empty.sh')
