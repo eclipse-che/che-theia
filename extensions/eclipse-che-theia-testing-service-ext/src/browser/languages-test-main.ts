@@ -40,6 +40,7 @@ export type LanguageServerActions =
     'symbols' |
     'documentColors' |
     'foldingRange' |
+    'selectionRange' |
     'renameEdits';
 
 @injectable()
