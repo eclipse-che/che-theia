@@ -16,9 +16,9 @@
 
 import { ContainerModule } from 'inversify';
 import { FrontendApplicationContribution } from '@theia/core/lib/browser';
-import { StatusBarFrontendContribution } from './status-bar-contribution';
+import { SyncProcessTracker } from './sync-process-tracker';
 
 export default new ContainerModule(bind => {
 
-    bind(FrontendApplicationContribution).to(StatusBarFrontendContribution).inSingletonScope();
+    bind(FrontendApplicationContribution).to(SyncProcessTracker).inSingletonScope();
 });
