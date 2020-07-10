@@ -34,7 +34,7 @@ export class CheDevfileMainImpl implements CheDevfileMain {
 
     async $createWorkspace(devfilePath: string): Promise<void> {
         return new Promise<void>(async (resolve, reject) => {
-            let baseURI = await this.cheApiService.getCheApiURI();
+            let baseURI = this.cheApiService.getCheApiURI();
 
             if (!baseURI) {
                 const error = 'Che API URI is not set!';
@@ -88,7 +88,7 @@ class OpenFactoryLinkDialog extends AbstractDialog<string> {
 
         this.link = document.createElement('a');
         this.link.target = '_blank';
-        this.link.setAttribute('style', 'color: var(--theia-ui-dialog-font-color);');
+        this.link.setAttribute('style', 'color: var(--theia-editorWidget-foreground);');
         message.appendChild(this.link);
 
         this.appendCloseButton();

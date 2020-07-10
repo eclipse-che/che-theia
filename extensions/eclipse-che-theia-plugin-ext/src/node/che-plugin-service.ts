@@ -16,7 +16,9 @@ import {
     ChePluginMetadata
 } from '../common/che-plugin-protocol';
 import { injectable, interfaces } from 'inversify';
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import * as url from 'url';
+import * as tunnel from 'tunnel';
 import { che as cheApi } from '@eclipse-che/api';
 import URI from '@theia/core/lib/common/uri';
 import { PluginFilter } from '../common/plugin/plugin-filter';
@@ -47,8 +49,6 @@ export interface ChePluginMetadataInternal {
 @injectable()
 export class ChePluginServiceImpl implements ChePluginService {
 
-    private axiosInstance: AxiosInstance;
-
     private cheApiService: CheApiService;
 
     private defaultRegistry: ChePluginRegistry;
@@ -61,15 +61,15 @@ export class ChePluginServiceImpl implements ChePluginService {
         this.cheApiService = container.get(CheApiService);
     }
 
-    setClient(client: ChePluginServiceClient) {
+    setClient(client: ChePluginServiceClient): void {
         this.client = client;
     }
 
-    disconnectClient(client: ChePluginServiceClient) {
+    disconnectClient(client: ChePluginServiceClient): void {
         this.client = undefined;
     }
 
-    dispose() {
+    dispose(): void {
     }
 
     async getDefaultRegistry(): Promise<ChePluginRegistry> {
@@ -107,19 +107,101 @@ export class ChePluginServiceImpl implements ChePluginService {
     }
 
     private getAxiosInstance(): AxiosInstance {
-        if (!this.axiosInstance) {
-            if (fs.pathExistsSync(SS_CRT_PATH)) {
-                const agent = new https.Agent({
-                    ca: fs.readFileSync(SS_CRT_PATH)
-                });
-                this.axiosInstance = axios.create({ httpsAgent: agent });
-            } else {
-                this.axiosInstance = axios;
-            }
-            this.axiosInstance.defaults.headers.common['Cache-Control'] = 'no-cache';
+        if (!this.isItNode()) {
+            return axios;
         }
 
-        return this.axiosInstance;
+        const certificateAuthority = this.getCertificateAuthority();
+        const proxyUrl = process.env.http_proxy;
+        const baseUrl = process.env.CHE_API;
+        if (proxyUrl && proxyUrl !== '' && baseUrl) {
+            const parsedBaseUrl = url.parse(baseUrl);
+            if (parsedBaseUrl.hostname && this.shouldProxy(parsedBaseUrl.hostname)) {
+                const axiosRequestConfig: AxiosRequestConfig | undefined = {
+                    proxy: false,
+                };
+                const parsedProxyUrl = url.parse(proxyUrl);
+                const mainProxyOptions = this.getMainProxyOptions(parsedProxyUrl);
+                const httpsProxyOptions = this.getHttpsProxyOptions(mainProxyOptions, parsedBaseUrl.hostname, certificateAuthority);
+                const httpOverHttpAgent = tunnel.httpOverHttp({ proxy: mainProxyOptions });
+                const httpOverHttpsAgent = tunnel.httpOverHttps({ proxy: httpsProxyOptions });
+                const httpsOverHttpAgent = tunnel.httpsOverHttp({
+                    proxy: mainProxyOptions,
+                    ca: certificateAuthority ? [certificateAuthority] : undefined
+                });
+                const httpsOverHttpsAgent = tunnel.httpsOverHttps({
+                    proxy: httpsProxyOptions,
+                    ca: certificateAuthority ? [certificateAuthority] : undefined
+                });
+                const urlIsHttps = (parsedBaseUrl.protocol || 'http:').startsWith('https:');
+                const proxyIsHttps = (parsedProxyUrl.protocol || 'http:').startsWith('https:');
+                if (urlIsHttps) {
+                    axiosRequestConfig.httpsAgent = proxyIsHttps ? httpsOverHttpsAgent : httpsOverHttpAgent;
+                } else {
+                    axiosRequestConfig.httpAgent = proxyIsHttps ? httpOverHttpsAgent : httpOverHttpAgent;
+                }
+                return axios.create(axiosRequestConfig);
+            }
+        }
+
+        if (certificateAuthority) {
+            return axios.create({
+                httpsAgent: new https.Agent({
+                    ca: certificateAuthority
+                })
+            });
+        }
+
+        return axios;
+    }
+
+    private getHttpsProxyOptions(mainProxyOptions: tunnel.ProxyOptions, servername: string | undefined, certificateAuthority: Buffer | undefined): tunnel.HttpsProxyOptions {
+        return {
+            host: mainProxyOptions.host,
+            port: mainProxyOptions.port,
+            proxyAuth: mainProxyOptions.proxyAuth,
+            servername,
+            ca: certificateAuthority ? [certificateAuthority] : undefined
+        };
+    }
+
+    private getMainProxyOptions(parsedProxyUrl: url.UrlWithStringQuery): tunnel.ProxyOptions {
+        const port = Number(parsedProxyUrl.port);
+        return {
+            host: parsedProxyUrl.hostname!,
+            port: (parsedProxyUrl.port !== '' && !isNaN(port)) ? port : 3128,
+            proxyAuth: (parsedProxyUrl.auth && parsedProxyUrl.auth !== '') ? parsedProxyUrl.auth : undefined
+        };
+    }
+
+    private shouldProxy(hostname: string): boolean {
+        const noProxyEnv = process.env.no_proxy || process.env.NO_PROXY;
+        const noProxy: string[] = noProxyEnv ? noProxyEnv.split(',').map(s => s.trim()) : [];
+        return !noProxy.some(rule => {
+            if (!rule) {
+                return false;
+            }
+            if (rule === '*') {
+                return true;
+            }
+            if (rule[0] === '.' &&
+                hostname.substr(hostname.length - rule.length) === rule) {
+                return true;
+            }
+            return hostname === rule;
+        });
+    }
+
+    private isItNode(): boolean {
+        return (typeof process !== 'undefined') && (typeof process.versions.node !== 'undefined');
+    }
+
+    private getCertificateAuthority(): Buffer | undefined {
+        let certificateAuthority: Buffer | undefined;
+        if (fs.existsSync(SS_CRT_PATH)) {
+            certificateAuthority = fs.readFileSync(SS_CRT_PATH);
+        }
+        return certificateAuthority;
     }
 
     /**
@@ -182,7 +264,7 @@ export class ChePluginServiceImpl implements ChePluginService {
                     const pluginYamlURI = this.getPluginYampURI(registry, metadataInternal);
 
                     try {
-                        const pluginMetadata = await this.loadPluginMetadata(pluginYamlURI!, longKeyFormat);
+                        const pluginMetadata = await this.loadPluginMetadata(pluginYamlURI, longKeyFormat);
                         this.cachedPlugins.push(pluginMetadata);
                         await this.client.notifyPluginCached(this.cachedPlugins.length);
                     } catch (error) {
@@ -371,15 +453,17 @@ export class ChePluginServiceImpl implements ChePluginService {
         } else if (workspace.devfile) {
             const plugins: string[] = [];
 
-            workspace.devfile.components!.forEach(component => {
-                if (component.type === 'chePlugin') {
-                    if (component.reference) {
-                        plugins.push(this.normalizeId(component.reference));
-                    } else if (component.id) {
-                        plugins.push(component.id);
+            if (workspace.devfile.components) {
+                workspace.devfile.components.forEach(component => {
+                    if (component.type === 'chePlugin') {
+                        if (component.reference) {
+                            plugins.push(this.normalizeId(component.reference));
+                        } else if (component.id) {
+                            plugins.push(component.id);
+                        }
                     }
-                }
-            });
+                });
+            }
 
             return plugins;
         }
@@ -402,7 +486,7 @@ export class ChePluginServiceImpl implements ChePluginService {
 
         } else if (workspace.devfile) {
             const components: cheApi.workspace.devfile.Component[] = [];
-            workspace.devfile.components!.forEach((component: cheApi.workspace.devfile.Component) => {
+            workspace.devfile.components.forEach((component: cheApi.workspace.devfile.Component) => {
                 if (component.type === 'chePlugin') {
                     components.push(component);
                 }

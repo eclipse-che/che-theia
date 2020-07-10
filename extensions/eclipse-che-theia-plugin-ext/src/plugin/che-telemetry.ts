@@ -9,7 +9,7 @@
  **********************************************************************/
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { PLUGIN_RPC_CONTEXT, CheTelemetry, CheTelemetryMain } from '../common/che-protocol';
-import { TelemetryListener, TelemetryListenerParam } from '@eclipse-che/plugin';
+import { TelemetryListener, TelemetryListenerParam, ClientAddressInfo } from '@eclipse-che/plugin';
 export class CheTelemetryImpl implements CheTelemetry {
     private readonly telemetryMain: CheTelemetryMain;
     private listeners: Map<string, TelemetryListener> = new Map();
@@ -29,10 +29,14 @@ export class CheTelemetryImpl implements CheTelemetry {
         this.listeners.set(commandId, listener);
     }
 
-    async $onWillCommandExecute(commandId: string, params?: TelemetryListenerParam) {
+    async $onWillCommandExecute(commandId: string, params?: TelemetryListenerParam): Promise<void> {
         const listener = this.listeners.get(commandId);
         if (listener) {
             listener(commandId);
         }
+    }
+
+    async getClientAddressInfo(): Promise<ClientAddressInfo> {
+        return this.telemetryMain.$getClientAddressInfo();
     }
 }

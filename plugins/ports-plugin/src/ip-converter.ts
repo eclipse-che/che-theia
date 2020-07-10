@@ -33,7 +33,7 @@ export class IpConverter {
 
     convert(entry: string): string {
         const networkInterfaceRegexpV4 = /([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])/gm;
-        // tslint:disable-next-line:max-line-length
+        // eslint-disable-next-line max-len
         const networkInterfaceRegexpV6 = /([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])([0-9a-fA-F][0-9a-fA-F])/gm;
         let interfaceListen;
         if (entry.length === 8) {
@@ -41,9 +41,8 @@ export class IpConverter {
             interfaceListen = `${parseInt(netMatcher![4], 16)}.${parseInt(netMatcher![3], 16)}.${parseInt(netMatcher![2], 16)}.${parseInt(netMatcher![1], 16)}`;
         } else {
             const netMatcher = networkInterfaceRegexpV6.exec(entry);
-            // tslint:disable-next-line:max-line-length
+            // eslint-disable-next-line max-len
             interfaceListen = this.removeExtraColon(`${this.clean(netMatcher![4] + netMatcher![3])}:${this.clean(netMatcher![2] + netMatcher![1])}:${this.clean(netMatcher![8] + netMatcher![7])}:${this.clean(netMatcher![6] + netMatcher![5])}:${this.clean(netMatcher![12] + netMatcher![11])}:${this.clean(netMatcher![10] + netMatcher![9])}:${this.clean(netMatcher![16] + netMatcher![15])}:${this.clean(netMatcher![14] + netMatcher![13])}`);
-
         }
 
         return interfaceListen;

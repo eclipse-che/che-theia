@@ -36,11 +36,9 @@ export class Production {
         'onigasm',
         'oniguruma',
         '@theia/monaco',
-        'monaco-css',
         'react-dom',
         'font-awesome',
-        'monaco-html',
-        '@typefox/monaco-editor-core'];
+        '@theia/monaco-editor-core'];
 
     private dependencies: string[] = [];
     private toCopyFiles: string[] = [];

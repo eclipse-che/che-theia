@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2018-2019 Red Hat, Inc.
+ * Copyright (c) 2018-2020 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -12,7 +12,7 @@ import 'reflect-metadata';
 import * as http from 'http';
 import * as theia from '@theia/plugin';
 import * as ws from 'ws';
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as os from 'os';
 import { logger } from '@theia/core';
@@ -37,6 +37,10 @@ import { DocumentContainerAware } from './document-container-aware';
 import { LanguagesContainerAware } from './languages-container-aware';
 import { PluginManagerExtImpl } from '@theia/plugin-ext/lib/plugin/plugin-manager';
 import { ExecuteCommandContainerAware } from './execute-command-container-aware';
+import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
+import { EnvVariablesServerImpl } from '@theia/core/lib/node/env-variables';
+import { PluginRemoteNodeImpl } from './plugin-remote-node-impl';
+import { MAIN_REMOTE_RPC_CONTEXT } from '../common/plugin-remote-rpc';
 
 interface CheckAliveWS extends ws {
     alive: boolean;
@@ -101,6 +105,8 @@ export class PluginRemoteInit {
         // Bind VsCode system
         inversifyContainer.load(pluginVscodeBackendModule);
 
+        inversifyContainer.bind(EnvVariablesServer).to(EnvVariablesServerImpl).inSingletonScope();
+
         // override handler to our own class
         inversifyContainer.bind(PluginDeployerHandlerImpl).toSelf().inSingletonScope();
         inversifyContainer.rebind(PluginDeployerHandler).toService(PluginDeployerHandlerImpl);
@@ -120,7 +126,12 @@ export class PluginRemoteInit {
         // in remote plugin image '/home/theia' doesn't exist
         const originalStart = PluginManagerExtImpl.prototype.$start;
         PluginManagerExtImpl.prototype.$start = async function (params: PluginManagerStartParams): Promise<void> {
-            params.configStorage = { hostLogPath: modifyPathToLocal(params.configStorage.hostLogPath), hostStoragePath: modifyPathToLocal(params.configStorage.hostLogPath) };
+            const { hostLogPath, hostStoragePath, hostGlobalStoragePath } = params.configStorage;
+            params.configStorage = {
+                hostLogPath: modifyPathToLocal(hostLogPath),
+                hostStoragePath: hostStoragePath ? modifyPathToLocal(hostStoragePath) : undefined,
+                hostGlobalStoragePath: modifyPathToLocal(hostGlobalStoragePath)
+            };
             // call original method
             return originalStart.call(this, params);
         };
@@ -129,7 +140,7 @@ export class PluginRemoteInit {
         console.log(`Theia Endpoint ${process.pid}/pid listening on port`, this.pluginPort);
     }
 
-    initWebsocketServer() {
+    initWebsocketServer(): void {
         this.webSocketServer.on('connection', (socket: CheckAliveWS, request: http.IncomingMessage) => {
             socket.alive = true;
             socket.on('pong', () => socket.alive = true);
@@ -165,15 +176,15 @@ export class PluginRemoteInit {
 
         return new Promise<ws.Server>((resolve, reject) => {
             // if port is already in use, try a new port of report the error
-            // tslint:disable-next-line:no-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             websocketServer.on('error', (error: any) => {
                 // if port is specified, respect it and does not try to find a new free port.
                 if (error.code === 'EADDRINUSE' && !process.env.THEIA_PLUGIN_ENDPOINT_PORT) {
                     try {
                         const portInUse = this.handlePortInUse();
                         resolve(portInUse);
-                    } catch (error) {
-                        reject(error);
+                    } catch (err) {
+                        reject(err);
                     }
                 } else {
                     reject(new Error(`The port ${this.pluginPort} is already in used. \
@@ -191,7 +202,7 @@ to pick-up automatically a free port`));
 
     // create a new client on top of socket
     newClient(id: number, socket: ws): WebSocketClient {
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const emitter = new Emitter<any>();
         const webSocketClient = new WebSocketClient(id, socket, emitter);
         webSocketClient.rpc = new RPCProtocolImpl({
@@ -202,20 +213,28 @@ to pick-up automatically a free port`));
             }
         });
 
+        const pluginRemoteBrowser = webSocketClient.rpc.getProxy(MAIN_REMOTE_RPC_CONTEXT.PLUGIN_REMOTE_BROWSER);
+        const pluginRemoteNodeImplt = new PluginRemoteNodeImpl(pluginRemoteBrowser);
+        webSocketClient.rpc.set(MAIN_REMOTE_RPC_CONTEXT.PLUGIN_REMOTE_NODE, pluginRemoteNodeImplt);
+
         const pluginHostRPC = new PluginHostRPC(webSocketClient.rpc);
         pluginHostRPC.initialize();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const pluginManager = (pluginHostRPC as any).pluginManager;
+        pluginRemoteNodeImplt.setPluginManager(pluginManager);
+
         webSocketClient.pluginHostRPC = pluginHostRPC;
 
         // override window.createTerminal to be container aware
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         new TerminalContainerAware().overrideTerminal((webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.TERMINAL_EXT.id));
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         new TerminalContainerAware().overrideTerminalCreationOptionForDebug((webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.DEBUG_EXT.id));
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         DocumentContainerAware.makeDocumentContainerAware((webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.DOCUMENTS_EXT.id));
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         LanguagesContainerAware.makeLanguagesContainerAware((webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.LANGUAGES_EXT.id));
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ExecuteCommandContainerAware.makeExecuteCommandContainerAware((webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.COMMAND_REGISTRY_EXT.id));
 
         let channelName = '';
@@ -225,7 +244,7 @@ to pick-up automatically a free port`));
             channelName = `Extension host (${this.pluginPort}) log`;
         }
         const pluginInfo: PluginInfo = { id: channelName, name: channelName };
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const outputChannelRegistryExt: OutputChannelRegistryExt = (webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.OUTPUT_CHANNEL_REGISTRY_EXT.id);
         const outputChannel = outputChannelRegistryExt.createOutputChannel(channelName, pluginInfo);
         const outputChannelLogCallback = new OutputChannelLogCallback(outputChannel);
@@ -239,14 +258,11 @@ to pick-up automatically a free port`));
         // create channel for discussing with this new client
         const channelId = this.sessionId++;
         const client = this.newClient(channelId, socket);
-        webSocketClients.set(channelId, client);
-
         socket.on('error', err => {
         });
 
         socket.on('close', (code, reason) => {
             this.remoteTraceLogger.removeCallback(channelId);
-            webSocketClients.delete(channelId);
         });
 
         socket.on('message', async (data: ws.Data) => {
@@ -260,7 +276,7 @@ to pick-up automatically a free port`));
                     try {
                         // wait to stop plug-ins
                         // FIXME: we need to fix this
-                        // tslint:disable-next-line: no-any
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         await (<any>client.pluginHostRPC).pluginManager.$stop();
 
                         // ok now we can dispose the emitter
@@ -330,7 +346,7 @@ export class WebSocketClient {
 
     public pluginHostRPC: PluginHostRPC;
 
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(private readonly id: number, private socket: ws, private readonly emitter: Emitter<any>) {
     }
 
@@ -339,8 +355,8 @@ export class WebSocketClient {
     }
 
     // message is a JSON entry
-    // tslint:disable-next-line:no-any
-    send(message: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    send(message: any): void {
         try {
             this.socket.send(JSON.stringify(message));
         } catch (error) {
@@ -352,8 +368,8 @@ export class WebSocketClient {
         this.emitter.dispose();
     }
 
-    // tslint:disable-next-line:no-any
-    fire(message: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    fire(message: any): void {
         try {
             this.emitter.fire(message);
         } catch (error) {
@@ -362,9 +378,6 @@ export class WebSocketClient {
     }
 
 }
-
-// list of clients
-const webSocketClients = new Map<number, WebSocketClient>();
 
 const currentBackendDeployedPlugins: DeployedPlugin[] = [];
 
@@ -379,6 +392,8 @@ class PluginDeployerHandlerImpl implements PluginDeployerHandler {
 
     // announced ?
     private announced = false;
+
+    private readonly deployedLocations = new Map<string, Set<string>>();
 
     /**
      * Managed plugin metadata backend entries.
@@ -435,7 +450,9 @@ class PluginDeployerHandlerImpl implements PluginDeployerHandler {
             }
             const metadata = this.reader.readMetadata(manifest);
             const dependencies: PluginDependencies = { metadata };
-            dependencies.mapping = this.reader.readDependencies(manifest);
+            // dependencies.mapping = this.reader.readDependencies(manifest);
+            console.log('Ignoring deploy of plug-in dependencies for' + pluginToBeInstalled.id());
+
             return dependencies;
         } catch (e) {
             console.error(`Failed to load plugin dependencies from '${pluginPath}' path`, e);
@@ -455,11 +472,17 @@ class PluginDeployerHandlerImpl implements PluginDeployerHandler {
             }
 
             const metadata = this.reader.readMetadata(manifest);
+
+            const deployedLocations = this.deployedLocations.get(metadata.model.id) || new Set<string>();
+            deployedLocations.add(entry.rootPath);
+            this.deployedLocations.set(metadata.model.id, deployedLocations);
+
             if (this.deployedBackendPlugins.has(metadata.model.id)) {
                 return;
             }
 
-            const deployed: DeployedPlugin = { metadata };
+            const { type } = entry;
+            const deployed: DeployedPlugin = { metadata, type };
             deployed.contributes = this.reader.readContribution(manifest);
             this.deployedBackendPlugins.set(metadata.model.id, deployed);
             currentBackendDeployedPlugins.push(deployed);
@@ -469,6 +492,23 @@ class PluginDeployerHandlerImpl implements PluginDeployerHandler {
         }
     }
 
+    async undeployPlugin(pluginId: string): Promise<boolean> {
+        this.deployedBackendPlugins.delete(pluginId);
+        const deployedLocations = this.deployedLocations.get(pluginId);
+        if (!deployedLocations) {
+            return false;
+        }
+        this.deployedLocations.delete(pluginId);
+        for (const location of deployedLocations) {
+            try {
+                await fs.remove(location);
+            } catch (e) {
+                console.error(`[${pluginId}]: failed to undeploy from "${location}", reason`, e);
+            }
+        }
+        return true;
+    }
+
 }
 
 class OutputChannelLogCallback implements LogCallback {
@@ -476,31 +516,31 @@ class OutputChannelLogCallback implements LogCallback {
     constructor(readonly outputChannel: theia.OutputChannel) {
 
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async log(message: any, ...params: any[]): Promise<void> {
         this.outputChannel.appendLine('LOG:' + message + params);
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async trace(message: any, ...params: any[]): Promise<void> {
         this.outputChannel.appendLine('TRACE:' + message + params);
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async debug(message: any, ...params: any[]): Promise<void> {
         this.outputChannel.appendLine('DEBUG:' + message + params);
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async info(message: any, ...params: any[]): Promise<void> {
         this.outputChannel.appendLine('INFO:' + message + params);
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async warn(message: any, ...params: any[]): Promise<void> {
         this.outputChannel.appendLine('WARN:' + message + params);
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async error(message: any, ...params: any[]): Promise<void> {
         this.outputChannel.appendLine('ERROR:' + message + params);
     }
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async fatal(message: any, ...params: any[]): Promise<void> {
         this.outputChannel.appendLine('FATAL:' + message + params);
     }

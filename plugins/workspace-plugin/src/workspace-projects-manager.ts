@@ -40,7 +40,7 @@ abstract class WorkspaceProjectsManager {
     abstract async updateOrCreateProject(workspace: cheApi.workspace.Workspace, projectFolderURI: string): Promise<void>;
     abstract deleteProject(workspace: cheApi.workspace.Workspace, projectFolderURI: string): void;
 
-    async run(workspace?: cheApi.workspace.Workspace) {
+    async run(workspace?: cheApi.workspace.Workspace): Promise<void> {
         if (!theia.workspace.name) {
             // no workspace opened, so nothing to clone / watch
             return;
@@ -55,7 +55,7 @@ abstract class WorkspaceProjectsManager {
         await this.startSyncWorkspaceProjects();
     }
 
-    private async executeCloneCommands(cloneCommandList: TheiaImportCommand[]) {
+    private async executeCloneCommands(cloneCommandList: TheiaImportCommand[]): Promise<void> {
         if (cloneCommandList.length === 0) {
             return;
         }
@@ -67,7 +67,7 @@ abstract class WorkspaceProjectsManager {
         theia.window.showInformationMessage('Che Workspace: Finished importing projects.');
     }
 
-    async startSyncWorkspaceProjects() {
+    async startSyncWorkspaceProjects(): Promise<void> {
         const gitConfigPattern = '**/.git/{HEAD,config}';
         const gitConfigWatcher = theia.workspace.createFileSystemWatcher(gitConfigPattern);
         gitConfigWatcher.onDidCreate(uri => this.updateOrCreateProjectInWorkspace(git.getGitRootFolder(uri.path)));
@@ -80,7 +80,7 @@ abstract class WorkspaceProjectsManager {
         }));
     }
 
-    async updateOrCreateProjectInWorkspace(projectFolderURI: string | undefined) {
+    async updateOrCreateProjectInWorkspace(projectFolderURI: string | undefined): Promise<void> {
         if (!projectFolderURI) {
             return;
         }
@@ -96,7 +96,7 @@ abstract class WorkspaceProjectsManager {
         await che.workspace.update(currentWorkspace.id, currentWorkspace);
     }
 
-    async deleteProjectInWorkspace(projectFolderURI: string | undefined) {
+    async deleteProjectInWorkspace(projectFolderURI: string | undefined): Promise<void> {
         if (!projectFolderURI) {
             return;
         }

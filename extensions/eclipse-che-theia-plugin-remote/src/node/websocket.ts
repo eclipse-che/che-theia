@@ -49,7 +49,7 @@ export class Websocket {
      * Open the websocket. If error, try to reconnect
      * If success, register the callbacks.
      */
-    open() {
+    open(): void {
         this.instance = new WS(this.url);
 
         // When open, add our callback
@@ -64,36 +64,29 @@ export class Websocket {
 
         // if closed, check error code
         this.instance.on('close', (code: number, reason: string) => {
-            switch (code) {
-                case 1000:
-                    break;
-                default:
-                    // reconnect if closed not normally
-                    this.reconnect(reason);
-                    break;
+            // reconnect if closed not normally
+            if (code !== 1000) {
+                this.reconnect(reason);
             }
             this.onClose(reason);
         });
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.instance.on('error', (e: any) => {
-            switch (e.code) {
-                case 'ECONNREFUSED':
-                    this.reconnect(e);
-                    break;
-                default:
-                    this.onError(e);
-                    break;
+            if ('ECONNREFUSED' === e.code) {
+                this.reconnect(e);
+            } else {
+                this.onError(e);
             }
         });
     }
-    public send(data: WS.Data) {
+    public send(data: WS.Data): void {
         try {
             this.instance.send(data);
         } catch (e) {
             this.instance.emit('error', e);
         }
     }
-    private reconnect(reason: string) {
+    private reconnect(reason: string): void {
         this.logger.debug(`WebSocket: Reconnecting in ${Websocket.RECONNECT_INTERVAL}ms due to ${reason}`);
         this.instance.removeAllListeners();
         setTimeout(() => {
@@ -103,10 +96,10 @@ export class Websocket {
     }
 
     // Empty callbacks that can be overrided by clients
-    public onOpen(url: string) { }
-    public onMessage(data: WS.Data) { }
-    private onError(e: Error) { }
-    private onClose(reason: string) { }
+    public onOpen(url: string): void { }
+    public onMessage(data: WS.Data): void { }
+    private onError(e: Error): void { }
+    private onClose(reason: string): void { }
 
     /***
      * Closing websocket with proper error code.

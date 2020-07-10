@@ -16,27 +16,9 @@ import * as che from '@eclipse-che/plugin';
  */
 export class WelcomePage {
 
-    /**
-     * Returns the Logo URI for usinf as an image in webview frame.
-     */
-    protected getLogoUri(logo: string): theia.Uri {
-        // Leave the Uri as it is in case HTTP resources
-        if (logo.startsWith('http://') || logo.startsWith('https://')) {
-            return theia.Uri.parse(logo);
-        }
-
-        // Remove 'file://' prefix from the start of image URI
-        if (logo.startsWith('file://')) {
-            logo = logo.substring(7);
-        }
-
-        // Return new Uri with 'theia-resource' scheme.
-        return theia.Uri.file(logo).with({ scheme: 'theia-resource' });
-    }
-
     protected renderHeader(): string {
-        const logoDark = typeof che.product.logo === 'object' ? this.getLogoUri(che.product.logo.dark) : this.getLogoUri(che.product.logo);
-        const logoLight = typeof che.product.logo === 'object' ? this.getLogoUri(che.product.logo.light) : this.getLogoUri(che.product.logo);
+        const logoDark = typeof che.product.logo === 'object' ? che.product.logo.dark : che.product.logo;
+        const logoLight = typeof che.product.logo === 'object' ? che.product.logo.light : che.product.logo;
 
         const welcome = (che.product.welcome && che.product.welcome.title) ?
             `<span class='che-welcome-header-subtitle'>${che.product.welcome.title}</span>` : '';
@@ -90,9 +72,9 @@ export class WelcomePage {
     }
 
     private async renderStart(): Promise<string> {
-        // tslint:disable-next-line: max-line-length
+        // eslint-disable-next-line max-len
         const newFile = `<div class="che-welcome-command-desc"><a href='#' onClick="executeCommand('file.newFile')">New File...</a>${await this.renderCommandKeyBinding('file.newFile')}</div>`;
-        // tslint:disable-next-line: max-line-length
+        // eslint-disable-next-line max-len
         const gitClone = `<div class="che-welcome-command-desc"><a href='#' onClick="executeCommand('git.clone')">Git Clone...</a>${await this.renderCommandKeyBinding('git.clone')}</div>`;
         return `<div class='che-welcome-section'>
             <h3 class='che-welcome-section-header'><i class='fa fa-file'></i>New</h3>
@@ -107,9 +89,9 @@ export class WelcomePage {
     }
 
     private async renderOpen(): Promise<string> {
-        // tslint:disable-next-line: max-line-length
+        // eslint-disable-next-line max-len
         const open = `<div class="che-welcome-command-desc"><a href='#' onClick="executeCommand('workspace:open')">Open Files...</a>${await this.renderCommandKeyBinding('workspace:open')}</div>`;
-        // tslint:disable-next-line: max-line-length
+        // eslint-disable-next-line max-len
         const openCommandPalette = `<div class="che-welcome-command-desc"><a href='#' onClick="executeCommand('workbench.action.showCommands')">Open Command Palette...</a>${await this.renderCommandKeyBinding('workbench.action.showCommands')}</div>`;
         return `<div class='che-welcome-section'>
             <h3 class='che-welcome-section-header'><i class='fa fa-folder-open'></i>Open</h3>
@@ -170,7 +152,7 @@ export class WelcomePage {
         </div>`;
     }
 
-    public async render() {
+    public async render(): Promise<string> {
         return `<div class='che-welcome-container'>
             ${this.renderHeader()}
             <div class='flex-grid'>

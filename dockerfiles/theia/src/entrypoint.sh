@@ -51,6 +51,10 @@ else
     fi
 fi
 
+if [ -z "$THEIA_HOST" ]; then
+  THEIA_HOST="0.0.0.0"
+fi
+
 # SITTERM / SIGINT
 responsible_shutdown() {
   echo ""
@@ -77,7 +81,8 @@ fi
 shopt -u nocasematch
 
 # run Che Theia
-node src-gen/backend/main.js /projects --hostname=0.0.0.0 --port=${THEIA_PORT} &
+PROJ_ROOT=${CHE_PROJECTS_ROOT:-/projects}
+node src-gen/backend/main.js ${PROJ_ROOT} --hostname=${THEIA_HOST} --port=${THEIA_PORT} &
 
 PID=$!
 

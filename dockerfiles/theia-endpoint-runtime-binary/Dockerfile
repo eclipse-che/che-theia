@@ -8,14 +8,12 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-from.dockerfile}
+#{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-from.dockerfile}
 
 WORKDIR /home/theia
 
 # Apply node libs installed globally to the PATH
 ENV PATH=${HOME}/.yarn/bin:${PATH}
-ENV NEXE_FLAGS="-t alpine-x64-10.16.0"
-
 
 # setup extra stuff
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-setup.dockerfile}

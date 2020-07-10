@@ -1,0 +1,35 @@
+{
+    "name": "@eclipse-che/theia-logging",
+    "description": "Theia extension which allow include timestamp in console logs",
+    "keywords": [
+        "theia-extension"
+    ],
+    "version": "1.0.0",
+    "files": [
+        "lib",
+        "src"
+    ],
+    "devDependencies": {
+        "eslint-plugin-sonarjs": "0.5.0"
+    },
+    "dependencies": {
+        "moment": "^2.21.0",
+        "@theia/core": "next"
+    },
+    "license": "EPL-2.0",
+    "theiaExtensions": [
+        {
+            "backend": "lib/node/formatted-console-logger-backend-module"
+        }
+    ],
+    "scripts": {
+        "prepare": "yarn clean && yarn build",
+        "clean": "rimraf lib",
+        "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
+        "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
+        "compile": "tsc",
+        "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
+        "watch": "tsc -w"
+      }
+}
+

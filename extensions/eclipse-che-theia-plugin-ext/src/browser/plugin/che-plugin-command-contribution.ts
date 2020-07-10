@@ -15,12 +15,11 @@
  ********************************************************************************/
 
 import { injectable, inject } from 'inversify';
-import { MenuModelRegistry, CommandRegistry, CommandContribution } from '@theia/core/lib/common';
+import { CommandRegistry, CommandContribution } from '@theia/core/lib/common';
 import { MessageService, Command } from '@theia/core/lib/common';
 import { ChePluginManager } from './che-plugin-manager';
-import { CommonMenus, QuickInputService } from '@theia/core/lib/browser';
+import { QuickInputService } from '@theia/core/lib/browser';
 import { MonacoQuickOpenService } from '@theia/monaco/lib/browser/monaco-quick-open-service';
-import { FrontendApplicationStateService } from '@theia/core/lib/browser/frontend-application-state';
 
 function cmd(id: string, label: string): Command {
     return {
@@ -58,23 +57,6 @@ export class ChePluginCommandContribution implements CommandContribution {
     @inject(ChePluginManager)
     protected readonly chePluginManager: ChePluginManager;
 
-    /**
-     * TEMPORARY SOLUTION
-     *
-     * Following code removes 'View/Plugins' menu item and the command that displays/hides Plugins view.
-     * In the future we will try to refactor Che Plugins view and move it to the 'plugin-ext'.
-     */
-    constructor(
-        @inject(MenuModelRegistry) menuModelRegistry: MenuModelRegistry,
-        @inject(CommandRegistry) commandRegistry: CommandRegistry,
-        @inject(FrontendApplicationStateService) stateService: FrontendApplicationStateService
-    ) {
-        stateService.reachedState('initialized_layout').then(() => {
-            menuModelRegistry.unregisterMenuAction('pluginsView:toggle', CommonMenus.VIEW_VIEWS);
-            commandRegistry.unregisterCommand('pluginsView:toggle');
-        });
-    }
-
     registerCommands(commands: CommandRegistry): void {
         commands.registerCommand(ChePluginManagerCommands.ADD_REGISTRY, {
             execute: () => this.addPluginRegistry()
@@ -109,5 +91,4 @@ export class ChePluginCommandContribution implements CommandContribution {
 
         this.chePluginManager.addRegistry(registry);
     }
-
 }

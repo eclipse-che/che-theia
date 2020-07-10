@@ -10,8 +10,8 @@
 
 import { injectable, inject, postConstruct } from 'inversify';
 import { TerminalWidgetImpl } from '@theia/terminal/lib/browser/terminal-widget-impl';
-import { IBaseTerminalServer } from '@theia/terminal/lib/common/base-terminal-protocol';
-import { TerminalProxyCreator, TerminalProxyCreatorProvider } from '../server-definition/terminal-proxy-creator';
+import { IBaseTerminalServer, TerminalProcessInfo } from '@theia/terminal/lib/common/base-terminal-protocol';
+import { TerminalProxyCreatorProvider } from '../server-definition/terminal-proxy-creator';
 import { ATTACH_TERMINAL_SEGMENT, RemoteTerminalServerProxy, RemoteTerminalWatcher } from '../server-definition/remote-terminal-protocol';
 import { RemoteWebSocketConnectionProvider } from '../server-definition/remote-connection';
 import { Deferred } from '@theia/core/lib/common/promise-util';
@@ -21,6 +21,8 @@ import { MessageService } from '@theia/core/lib/common';
 import { OutputChannelManager, OutputChannel } from '@theia/output/lib/common/output-channel';
 import URI from '@theia/core/lib/common/uri';
 import ReconnectingWebSocket from 'reconnecting-websocket';
+import { IDisposable } from 'xterm';
+import { Message } from '@theia/core/lib/browser';
 export const REMOTE_TERMINAL_TARGET_SCOPE = 'remote-terminal';
 export const REMOTE_TERMINAL_WIDGET_FACTORY_ID = 'remote-terminal';
 export const RemoteTerminalWidgetOptions = Symbol('RemoteTerminalWidgetOptions');
@@ -45,6 +47,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
     @inject('TerminalProxyCreatorProvider')
     protected readonly termProxyCreatorProvider: TerminalProxyCreatorProvider;
+
     @inject(RemoteWebSocketConnectionProvider)
     protected readonly remoteWebSocketConnectionProvider: RemoteWebSocketConnectionProvider;
 
@@ -60,9 +63,10 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     @inject(OutputChannelManager)
     protected readonly outputChannelManager: OutputChannelManager;
 
-    protected terminalId: number = -1;
-    private isOpen: boolean = false;
+    private socket: ReconnectingWebSocket;
     protected channel: OutputChannel;
+    protected closeOutputConnectionDisposable: Disposable;
+    protected processGone: boolean;
 
     @postConstruct()
     protected init(): void {
@@ -71,8 +75,11 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
         this.toDispose.push(this.remoteTerminalWatcher.onTerminalExecExit(exitEvent => {
             if (this.terminalId === exitEvent.id) {
+                this.processGone = true;
                 if (this.options.closeWidgetOnExitOrError) {
                     this.dispose();
+                } else {
+                    this.closeOutputConnectionDisposable.dispose();
                 }
                 this.onTermDidClose.fire(this);
                 this.onTermDidClose.dispose();
@@ -89,8 +96,11 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         const missedPrivilegesErr = 'cannot create resource "pods/exec"';
         this.toDispose.push(this.remoteTerminalWatcher.onTerminalExecError(errEvent => {
             if (this.terminalId === errEvent.id) {
+                this.processGone = true;
                 if (this.options.closeWidgetOnExitOrError) {
                     this.dispose();
+                } else {
+                    this.closeOutputConnectionDisposable.dispose();
                 }
                 this.onTermDidClose.fire(this);
                 this.onTermDidClose.dispose();
@@ -113,7 +123,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     async start(id?: number): Promise<number> {
         try {
             if (!this.termServer) {
-                const termProxyCreator = <TerminalProxyCreator>await this.termProxyCreatorProvider();
+                const termProxyCreator = await this.termProxyCreatorProvider();
                 this.termServer = termProxyCreator.create();
 
                 this.toDispose.push(this.termServer.onDidCloseConnection(() => {
@@ -129,23 +139,14 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
             throw new Error('Failed to create terminal server proxy. Cause: ' + err);
         }
 
-        try {
-            this.terminalId = typeof id !== 'number' ? await this.createTerminal() : await this.attachTerminal(id);
-        } catch (error) {
-            if (IBaseTerminalServer.validateId(id)) {
-                this.terminalId = id!;
-                this.onDidOpenEmitter.fire(undefined);
-                return this.terminalId;
-            }
-            throw new Error('Failed to start terminal. Cause: ' + error);
-        }
+        this._terminalId = typeof id !== 'number' ? await this.createTerminal() : await this.attachTerminal(id);
 
         this.connectTerminalProcess();
 
-        await this.waitForRemoteConnection;
+        await this.waitForRemoteConnection!.promise;
         // Some delay need to attach exec. If we send resize earlier this size will be skipped.
         setTimeout(async () => {
-            await this.resizeTerminalProcess();
+            this.resizeTerminalProcess();
         }, 100);
 
         if (IBaseTerminalServer.validateId(this.terminalId)) {
@@ -153,6 +154,22 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
             return this.terminalId;
         }
         throw new Error('Failed to start terminal' + (id ? ` for id: ${id}.` : '.'));
+    }
+
+    protected async reconnectTerminalProcess(): Promise<void> {
+        if (typeof this.terminalId === 'number') {
+            let termId;
+            try {
+                termId = await this.termServer!.check({ id: this.terminalId });
+            } catch (error) {
+                termId = -1;
+            }
+
+            if (!IBaseTerminalServer.validateId(termId)) {
+                return;
+            }
+            await this.start(this.terminalId);
+        }
     }
 
     protected async connectTerminalProcess(): Promise<void> {
@@ -181,39 +198,53 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         })();
     }
 
+    get processInfo(): Promise<TerminalProcessInfo> {
+        return (async () => {
+            if (!IBaseTerminalServer.validateId(this.terminalId)) {
+                throw new Error('terminal is not started');
+            }
+            return { executable: '/bin/bash', arguments: [] };
+        })();
+    }
+
     protected async connectSocket(id: number): Promise<void> {
-        if (this.isOpen) {
+        if (this.socket) {
             return Promise.resolve();
         }
-        const socket = this.createWebSocket(id.toString());
+        this.socket = this.createWebSocket(id.toString());
 
-        const sendListener = (data: string) => socket.send(data);
+        const sendListener = (data: string) => this.socket.send(data);
 
-        socket.onopen = () => {
+        let onDataDisposeHandler: IDisposable;
+        this.socket.onopen = () => {
             this.term.reset();
             if (this.waitForRemoteConnection) {
-                this.waitForRemoteConnection.resolve(socket);
+                this.waitForRemoteConnection.resolve(this.socket);
             }
 
-            this.term.on('data', sendListener);
-            socket.onmessage = ev => this.write(ev.data);
+            onDataDisposeHandler = this.term.onData(sendListener);
+            this.socket.onmessage = ev => this.write(ev.data);
 
-            this.toDispose.push(Disposable.create(() => {
-                this.term.off('data', sendListener);
-                socket.close();
-            }));
+            this.closeOutputConnectionDisposable = Disposable.create(() => {
+                onDataDisposeHandler.dispose();
+                this.socket.close();
+            });
+            this.toDispose.push(this.closeOutputConnectionDisposable);
 
-            this.isOpen = true;
             return Promise.resolve();
         };
 
-        socket.onerror = err => {
-            this.term.off('data', sendListener);
+        this.socket.onerror = err => {
+            if (onDataDisposeHandler) {
+                onDataDisposeHandler.dispose();
+            }
             return Promise.resolve();
         };
 
-        socket.onclose = code => {
-            this.term.off('data', sendListener);
+        this.socket.onclose = code => {
+            if (onDataDisposeHandler) {
+                onDataDisposeHandler.dispose();
+            }
             return Promise.resolve();
         };
     }
@@ -231,8 +262,14 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     }
 
     protected async attachTerminal(id: number): Promise<number> {
-        const termId = await this.termServer!.check({ id: id });
-        if (IBaseTerminalServer.validateId(termId)) {
+        let termId;
+        try {
+            termId = await this.termServer!.check({ id: id });
+        } catch (error) {
+            termId = -1;
+        }
+
+        if (IBaseTerminalServer.validateId(termId) || this.kind !== 'user') {
             return termId;
         }
         this.logger.error(`Error attaching to terminal id ${id}, the terminal is most likely gone. Starting up a new terminal instead.`);
@@ -267,7 +304,11 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     }
 
     protected resizeTerminalProcess(): void {
-        if (typeof this.terminalId !== 'number') {
+        if (this.processGone) {
+            return;
+        }
+
+        if (!IBaseTerminalServer.validateId(this.terminalId) && !this.terminalService.getById(this.id)) {
             return;
         }
 
@@ -283,6 +324,11 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         if (this.waitForRemoteConnection) {
             this.waitForRemoteConnection.promise.then(socket => socket.send(text));
         }
+    }
+
+    protected onCloseRequest(msg: Message): void {
+        this.closeOnDispose = true;
+        super.onCloseRequest(msg);
     }
 
     dispose(): void {

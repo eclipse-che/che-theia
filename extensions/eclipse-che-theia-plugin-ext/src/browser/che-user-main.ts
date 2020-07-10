@@ -9,15 +9,22 @@
  **********************************************************************/
 
 import { interfaces } from 'inversify';
-import { CheApiService, CheUserMain } from '../common/che-protocol';
+import { CheApiService, CheUserMain, User } from '../common/che-protocol';
 import { Preferences } from '@eclipse-che/plugin';
+import { OauthUtils } from './oauth-utils';
 
 export class CheUserMainImpl implements CheUserMain {
 
     private readonly cheApiService: CheApiService;
+    private readonly oAuthUtils: OauthUtils;
 
     constructor(container: interfaces.Container) {
         this.cheApiService = container.get(CheApiService);
+        this.oAuthUtils = container.get(OauthUtils);
+    }
+
+    async $getCurrentUser(): Promise<User> {
+        return this.cheApiService.getCurrentUser(await this.oAuthUtils.getUserToken());
     }
 
     $getUserPreferences(filter?: string): Promise<Preferences> {

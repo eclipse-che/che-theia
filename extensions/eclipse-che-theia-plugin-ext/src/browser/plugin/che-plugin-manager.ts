@@ -492,7 +492,7 @@ export class ChePluginManager {
         return undefined;
     }
 
-    private notifyWorkspaceConfigurationChanged() {
+    private notifyWorkspaceConfigurationChanged(): void {
         setTimeout(() => {
             this.workspaceConfigurationChangedEvent.fire();
         }, 500);

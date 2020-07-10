@@ -32,10 +32,8 @@ fi
 echo "Copying Che Theia generator"
 cp "${CHE_THEIA_GENERATOR_PACKAGE}" "${base_dir}/asset-${CHE_THEIA_GENERATOR_PACKAGE_NAME}"
 
+rm -rf ${base_dir}/asset-unpacked-generator && mkdir ${base_dir}/asset-unpacked-generator
+tar zxf "${base_dir}/asset-${CHE_THEIA_GENERATOR_PACKAGE_NAME}" --strip-components=1 -C ${base_dir}/asset-unpacked-generator
+
 init --name:theia-dev "$@"
 build
-if ! dry_run; then
-  if ! skip_tests; then
-    bash "${base_dir}"/e2e/build.sh "$@"
-  fi
-fi  

@@ -9,7 +9,6 @@
  **********************************************************************/
 
 import { injectable, inject } from 'inversify';
-import * as theia from '@theia/plugin';
 import * as startPoint from '../task-plugin-backend';
 import { che as cheApi } from '@eclipse-che/api';
 import { TaskConfiguration } from '@eclipse-che/plugin';
@@ -20,12 +19,17 @@ import { VsCodeTaskConfigsExtractor } from '../extract/vscode-task-configs-extra
 import { ConfigurationsExporter } from './export-configs-manager';
 import { ConfigFileTasksExtractor } from '../extract/config-file-task-configs-extractor';
 import { BackwardCompatibilityResolver } from '../task/backward-compatibility';
+import { homedir } from 'os';
 
 const CONFIG_DIR = '.theia';
 const TASK_CONFIG_FILE = 'tasks.json';
 const formattingOptions = { tabSize: 4, insertSpaces: true, eol: '' };
 
 export const VSCODE_TASK_TYPE = 'vscode-task';
+
+// this really should be handled through some theia API, but there is none available in plugins
+// it only works on linux and only if this plugin runs in the theia container
+export const THEIA_USER_TASKS_PATH = resolve(homedir(), CONFIG_DIR, TASK_CONFIG_FILE);
 
 /** Exports configurations of tasks in the config file. */
 @injectable()
@@ -43,9 +47,8 @@ export class TaskConfigurationsExporter implements ConfigurationsExporter {
     @inject(BackwardCompatibilityResolver)
     protected readonly backwardCompatibilityResolver: BackwardCompatibilityResolver;
 
-    async export(workspaceFolder: theia.WorkspaceFolder, commands: cheApi.workspace.Command[]): Promise<void> {
-        const tasksConfigFileUri = this.getConfigFileUri(workspaceFolder.uri.path);
-        const configFileTasks = this.configFileTasksExtractor.extract(tasksConfigFileUri);
+    async export(commands: cheApi.workspace.Command[]): Promise<void> {
+        const configFileTasks = this.configFileTasksExtractor.extract(THEIA_USER_TASKS_PATH);
 
         const cheTasks = this.cheTaskConfigsExtractor.extract(commands);
         const vsCodeTasks = this.vsCodeTaskConfigsExtractor.extract(commands);
@@ -54,18 +57,18 @@ export class TaskConfigurationsExporter implements ConfigurationsExporter {
 
         const configFileContent = configFileTasks.content;
         if (configFileContent) {
-            this.saveConfigs(tasksConfigFileUri, configFileContent, this.merge(configFileConfigs, devfileConfigs, this.getConsoleConflictLogger()));
+            this.saveConfigs(THEIA_USER_TASKS_PATH, configFileContent, this.merge(configFileConfigs, devfileConfigs, this.getConsoleConflictLogger()));
             return;
         }
 
         const vsCodeTasksContent = vsCodeTasks.content;
         if (vsCodeTasksContent) {
-            this.saveConfigs(tasksConfigFileUri, vsCodeTasksContent, devfileConfigs);
+            this.saveConfigs(THEIA_USER_TASKS_PATH, vsCodeTasksContent, devfileConfigs);
             return;
         }
 
         if (cheTasks) {
-            this.saveConfigs(tasksConfigFileUri, '', cheTasks);
+            this.saveConfigs(THEIA_USER_TASKS_PATH, '', cheTasks);
         }
     }
 
@@ -103,12 +106,8 @@ export class TaskConfigurationsExporter implements ConfigurationsExporter {
         return JSON.stringify(properties1) === JSON.stringify(properties2);
     }
 
-    private getConfigFileUri(rootDir: string): string {
-        return resolve(rootDir.toString(), CONFIG_DIR, TASK_CONFIG_FILE);
-    }
-
     private saveConfigs(tasksConfigFileUri: string, content: string, configurations: TaskConfiguration[]): void {
-        const result = modify(content, ['tasks'], configurations, formattingOptions);
+        const result = modify(content, ['tasks'], configurations.map(config => Object.assign(config, { _scope: undefined })), formattingOptions);
         writeFileSync(tasksConfigFileUri, result);
     }
 

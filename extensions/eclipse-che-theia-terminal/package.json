@@ -21,10 +21,10 @@
   "dependencies": {
     "@theia/core": "next",
     "@theia/terminal": "next",
-    "xterm": "3.9.2",
     "reconnecting-websocket": "^4.2.0",
     "@eclipse-che/workspace-client": "latest",
-    "@eclipse-che/api": "latest"
+    "@eclipse-che/api": "latest",
+    "vscode-ws-jsonrpc": "0.2.0"
   },
   "license": "EPL-2.0",
   "devDependencies": {
@@ -34,7 +34,7 @@
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",
     "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
-    "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
+    "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
     "compile": "tsc",
     "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
     "watch": "tsc -w",

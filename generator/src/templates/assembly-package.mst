@@ -5,9 +5,11 @@
   "theia": {
     "frontend": {
       "config": {
+        "applicationName": "Eclipse Che",
         "preferences": {
           "editor.autoSave": "on",
-          "git.defaultCloneDirectory": "/projects"
+          "git.defaultCloneDirectory": "/projects",
+          "application.confirmExit": "always"
         }
       }
     }
@@ -17,16 +19,12 @@
     "@theia/console": "^{{ version }}",
     "@theia/core": "^{{ version }}",
     "@theia/debug": "^{{ version }}",
-    "@theia/debug-nodejs": "^{{ version }}",
     "@theia/editor": "^{{ version }}",
-    "@theia/editorconfig": "^{{ version }}",
     "@theia/file-search": "^{{ version }}",
     "@theia/filesystem": "^{{ version }}",
-    "@theia/json": "^{{ version }}",
     "@theia/keymaps": "^{{ version }}",
     "@theia/languages": "^{{ version }}",
     "@theia/markers": "^{{ version }}",
-    "@theia/merge-conflicts": "^{{ version }}",
     "@theia/messages": "^{{ version }}",
     "@theia/metrics": "^{{ version }}",
     "@theia/mini-browser": "^{{ version }}",
@@ -42,8 +40,6 @@
     "@theia/process": "^{{ version }}",
     "@theia/search-in-workspace": "^{{ version }}",
     "@theia/task": "^{{ version }}",
-    "@theia/textmate-grammars": "^{{ version }}",
-    "@theia/tslint": "^{{ version }}",
     "@theia/userstorage": "^{{ version }}",
     "@theia/variable-resolver": "^{{ version }}",
     "@theia/workspace": "^{{ version }}"
@@ -54,7 +50,7 @@
   "scripts": {
     "prepare": "yarn run clean && yarn build",
     "clean": "theia clean && rimraf errorShots",
-    "build": "theia build --mode production --config cdn/webpack.config.js --env.cdn=./cdn.json --env.monacopkg={{ monacopkg }} --env.monacohtmlcontribpkg={{ monacohtmlcontribpkg }} --env.monacocsscontribpkg={{ monacocsscontribpkg }} && yarn run override-vs-loader",
+    "build": "theia build --mode production --config cdn/webpack.config.js --env.cdn=./cdn.json --env.monacopkg={{ monacopkg }} && yarn run override-vs-loader",
     "override-vs-loader": "override-vs-loader",
     "watch": "concurrently -n compile,bundle \"theiaext watch --preserveWatchOutput\" \"theia build --watch --mode development\"",
     "start": "theia start",

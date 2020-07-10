@@ -13,6 +13,7 @@ import { Preferences } from '@eclipse-che/plugin';
 import {
     CheUser,
     CheUserMain,
+    User,
     PLUGIN_RPC_CONTEXT,
 } from '../common/che-protocol';
 
@@ -22,6 +23,10 @@ export class CheUserImpl implements CheUser {
 
     constructor(rpc: RPCProtocol) {
         this.userMain = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_USER_MAIN);
+    }
+
+    getCurrentUser(): Promise<User> {
+        return this.userMain.$getCurrentUser();
     }
 
     getUserPreferences(filter?: string): Promise<Preferences> {

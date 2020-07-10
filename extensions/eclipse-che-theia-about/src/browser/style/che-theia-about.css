@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 .che-theia-about-product-header {
-    display: flex;
+    display: block;
     white-space: nowrap;
     margin-block-end: 15px;
     margin-block-start: 5px;
@@ -29,12 +29,5 @@
 .che-theia-about-product-logo > img {
     max-height: 100px;
     margin-right: 10px;
-}
-
-.che-theia-about-product-name {
-    display: flex;
-    align-items: center;
-    font-weight: 400;
-    color: var(--theia-ui-font-color0);
-    font-size: 45px;
+    height: 80px;
 }

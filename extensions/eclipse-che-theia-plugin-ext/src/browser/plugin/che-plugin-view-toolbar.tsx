@@ -50,7 +50,7 @@ export class ChePluginViewToolbar extends React.Component<ToolbarProps, ToolbarS
     protected readonly onInputChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
         const filterString = event.target.value;
         this.props.onFilterChanged(filterString);
-    }
+    };
 
     protected isDisabled(): boolean {
         return this.props.status === 'loading' || this.props.status === 'update_cache';
@@ -61,7 +61,7 @@ export class ChePluginViewToolbar extends React.Component<ToolbarProps, ToolbarS
 
         if (this.isDisabled()) {
             return <input
-                className='search'
+                className='theia-input search'
                 type='text'
                 value={value}
                 onChange={this.onInputChanged}
@@ -69,7 +69,7 @@ export class ChePluginViewToolbar extends React.Component<ToolbarProps, ToolbarS
             />;
         } else {
             return <input
-                className='search'
+                className='theia-input search'
                 type='text'
                 value={value}
                 onChange={this.onInputChanged}
@@ -120,6 +120,6 @@ export class ChePluginViewToolbar extends React.Component<ToolbarProps, ToolbarS
         });
 
         this.props.chePluginMenu.show(left, top);
-    }
+    };
 
 }

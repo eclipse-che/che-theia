@@ -250,7 +250,7 @@ export class ChePluginListItem extends React.Component<ListItemProps, ListItemSt
                 iconFailed: true
             });
         }
-    }
+    };
 
     protected renderIcon(metadata: ChePluginMetadata): React.ReactNode {
         if (!this.state.iconFailed && metadata.icon) {
@@ -305,7 +305,7 @@ export class ChePluginListItem extends React.Component<ListItemProps, ListItemSt
         } else {
             this.setStatus(previousStatus);
         }
-    }
+    };
 
     protected removePlugin = async () => {
         const previousStatus = this.state.pluginStatus;
@@ -317,7 +317,7 @@ export class ChePluginListItem extends React.Component<ListItemProps, ListItemSt
         } else {
             this.setStatus(previousStatus);
         }
-    }
+    };
 
     protected versionChanged = async (event: React.ChangeEvent<HTMLSelectElement>) => {
         const select: HTMLSelectElement = (window.event as Event).target as HTMLSelectElement;
@@ -334,6 +334,6 @@ export class ChePluginListItem extends React.Component<ListItemProps, ListItemSt
         if (plugin.installed) {
             await this.props.pluginManager.changeVersion(this.props.pluginItem, versionBefore);
         }
-    }
+    };
 
 }

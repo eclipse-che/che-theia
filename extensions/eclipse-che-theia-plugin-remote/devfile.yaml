@@ -36,13 +36,13 @@ commands:
     actions:
       - type: exec
         component: theia-dev
-        command: 'che:theia init'
+        command: 'che-theia init'
         workdir: /projects/theia
   - name: Clean Che Theia
     actions:
       - type: exec
         component: theia-dev
-        command: 'che:theia clean'
+        command: 'che-theia clean'
         workdir: /projects/theia
   - name: Generate Hello World plugin package
     actions:

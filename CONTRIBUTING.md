@@ -7,6 +7,7 @@ Table of contents
  - [Devfiles](#devfiles)
  - [Contribute to Theia or Che-Theia extensions or built-in Che-Theia plugins](#contribute-to-theia-or-che-theia-extensions-or-built-in-che-theia-plugins)
    - [Just want to build the plugin and run with the existing Theia image](#just-want-to-build-the-plugin-and-run-with-the-existing-theia-image)
+ - [Che-Theia development on che.openshift.io](#che-theia-development-on-cheopenshiftio)
  - [How to develop Che Theia remote plugin mechanism](#how-to-develop-che-theia-remote-plugin-mechanism)
 
 ## Introduction
@@ -42,11 +43,10 @@ For the whole workflows, we will need a workspace with such containers:
 
 All containers have `/projects` folder mounted, which is shared among them.
 
-
 Developer workflow:
 
 1. Start the workspace with the devfile, it is cloning Theia and the che-theia plugins.
-2. Setup Theia sources to include Che-theia extension thanks to `che:theia init` command (Che-theia dev container)
+2. Setup Theia sources to include Che-theia extension thanks to `che-theia init` command (Che-theia dev container)
 3. ….. [ Code on theia or che-theia extension ]
 4. Build che-theia (theia + che-theia extensions) (Che-theia dev container)
 5. …...[ Code on the a plugin project ]
@@ -54,7 +54,6 @@ Developer workflow:
 7. Run che-theia and will be configured to include the plugin. (Che-theia dev container or theia-ide container)
 
 The following devfile provides examples of commands to build and run che-theia with factory and containers plugins.
-
 
 ### Step 1: Start the workspace
 In this section we are going to start a new workspace to work on che-theia. The new workspace will have few projects cloned: `theia` and `che-theia`. It will also setup the containers and commands in the `My workspace` view. We will use these commands in the next steps.
@@ -66,8 +65,6 @@ chectl workspace:start -f https://raw.githubusercontent.com/eclipse/che-theia/ma
 ```
 At workspace start, Che will clone Theia and Che-theia.
 
-
-
 ### Step 2: Decorate Theia with Che-theia extensions: che-theia init
 
 In this section we are going to adapt Theia build so it creates an assembly with che-theia specific extensions.
@@ -76,7 +73,7 @@ You can use the che command `init ... DEV che-theia` (command pallette > Run tas
 Basically, this command will perform:
 ```
 [che-dev]
-$ che:theia init --dev
+$ che-theia init --dev
 ```
 
 This command will checkout all extensions in `/projects/theia/che` folder and create symbolic link into `/projects/theia/packages` folder.
@@ -92,11 +89,11 @@ Basically, this command will perform:
 ```
 [che-dev]
 $ yarn
-$ che:theia production
+$ che-theia production
 ```
 
-- `yarn` will compile theia + additional Che-theia extensions that have been setted up by `che:theia init`
-- `che:theia production` will generate a production like package.
+- `yarn` will compile theia + additional Che-theia extensions that have been setted up by `che-theia init`
+- `che-theia production` will generate a production like package.
 
 ### Step 5: Code che-theia plugins
 At this stage, you can code on Che-theia plugins. In this devfile, containers and factory plugin are covered.
@@ -144,6 +141,81 @@ If you do not have any changes on Theia or Che-theia extension, you could just b
 and run these plugins with the existing che-theia app:
 `run ... HOSTED che-theia + container-plugin` or `run ... HOSTED che-theia + workspace-plugin`
 
+## Che-Theia development on che.openshift.io
+
+There is a [devfile](https://github.com/eclipse/che-theia/blob/master/devfiles/hosted-che-dogfooding.devfile.yaml) to develop Che-Theia on [che.openshift.io](https://che.openshift.io)
+
+Projects directory which is a Persistent Volume on [che.openshift.io](https://che.openshift.io) is limited to 1 gigabyte. It's not enough to build Che-Theia.
+The main idea is to use `/tmp/theia` directotry. Amount for this directory is limited to 3 gigabytes, which is enough to build Che-Theia and run.
+In comparing with `/projects`, temporary directory is not persisted and is cleared on workspace stop.
+
+### Create workspace
+
+Use the badge to create a workspace using factory
+
+[![Try it on che.openshift.io](https://img.shields.io/static/v1?label=che&message=openshift.io&color=orange)](https://che.openshift.io/f?url=https://raw.githubusercontent.com/eclipse/che-theia/master/devfiles/hosted-che-dogfooding.devfile.yaml)
+
+### Step 1: Initialize Che-Theia in `/tmp/theia` directory
+
+To initialize Che-Theia in `/tmp/theia` directory use `'1. Init che-theia'` command. With rsync it's become possible to edit sources in `/projects` with the following synchronizing with `/tmp/theia`.
+
+```
+[che-dev]
+$ mkdir -p /tmp/theia/che/che-theia
+$ rsync -rtv /projects/theia/ /tmp/theia/
+$ rsync -rtv /projects/che-theia/ /tmp/theia/che/che-theia/
+$ cd /tmp/theia
+$ che-theia init --alias https://github.com/eclipse/che-theia=/tmp/theia/che/che-theia
+
+```
+
+### Step 2: Do changes and synchronize
+
+After changing sources of Theia or Che-Theia use `'2. Rsync sources'` to synchronize the sources with a mirror in `/tmp/theia`.
+
+```
+[che-dev]
+$ rsync -rtv --exclude='node_mobules' --exclude='package.json' --exclude='root-compilation.tsconfig.json' /projects/theia/ /tmp/theia/; \
+$ rsync -rtv --exclude='node_mobules' --exclude='package.json' /projects/che-theia/ /tmp/theia/che/che-theia/; \
+
+```
+
+### Step 3: Build
+
+The `'3. Build che-theia'` command builds Che-Theia. It runs `yarn` in `/tmp/theia` directory.
+
+```
+[che-dev]
+$ cd /tmp/theia
+$ yarn
+```
+
+### Step 4: Launch
+
+Before launching Che-Theia we have to prepare dedicated directories for plugins, default plugins and for projects, which is used as workspace directory.
+
+Use `'4.1. Prepare theia-* dirs'` command to prepare all the directories in one click. The command will run the following in theia-editor container.
+
+```
+[theia-ide]
+$ mkdir /projects/theia-default-plugins
+$ mkdir /projects/theia-plugins
+$ mkdir /projects/theia-projects-dir
+$ cd /default-theia-plugins
+$ cp * /projects/theia-default-plugins/
+```
+
+To launch Che-Theia run `'4.2. Launch'` command. It will set necessary variables and start Che-Theia in `che-dev` container.
+
+```
+[che-dev]
+$ cd /tmp/theia/examples/assembly
+$ export CHE_PROJECTS_ROOT="/projects/theia-projects-dir"
+$ export THEIA_DEFAULT_PLUGINS="local-dir:///projects/theia-default-plugins"
+$ export THEIA_PLUGINS="local-dir:///projects/theia-plugins"
+$ export THEIA_PLUGIN_ENDPOINT_DISCOVERY_PORT="2506"
+$ yarn theia start /projects/theia-projects-dir --hostname=0.0.0.0 --port=3010
+```
 
 ## How to develop Che Theia remote plugin mechanism
 
@@ -151,7 +223,7 @@ _Please note, this section provides a flow how to develop remote plugin mechanis
 
 First, create a workspace from prepared [devfile](https://github.com/eclipse/che-theia/blob/master/extensions/eclipse-che-theia-plugin-remote/devfile.yaml), which could be found in the `eclipse-che-theia-plugin-remote` extension folder.
 When workspace is ready:
- - Init Che Theia. This could be done with `che:theia init` command in `/projects/theia` folder or run the init command.
+ - Init Che Theia. This could be done with `che-theia init` command in `/projects/theia` folder or run the init command.
    Che Theia sources will be awailable at `/projects/theia/che/che-theia`.
  - Now one may make changes in Che Theia remote plugin mechanism in both (Che Theia and Remote plugin) sides.
  - Build Che Theia from `theia-dev` container by executing `yarn` in `/projects/theia` folder or by running corresponding command.

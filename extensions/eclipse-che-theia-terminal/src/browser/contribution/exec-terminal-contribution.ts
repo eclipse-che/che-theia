@@ -12,7 +12,7 @@ import { injectable, inject } from 'inversify';
 import { CommandRegistry, MenuModelRegistry, Command } from '@theia/core/lib/common';
 import { ApplicationShell, KeybindingRegistry, Key, KeyCode, KeyModifier, QuickOpenContribution, QuickOpenHandlerRegistry } from '@theia/core/lib/browser';
 import { TerminalQuickOpenService } from './terminal-quick-open';
-import { TerminalFrontendContribution, TerminalMenus } from '@theia/terminal/lib/browser/terminal-frontend-contribution';
+import { TerminalFrontendContribution, TerminalMenus, TerminalCommands } from '@theia/terminal/lib/browser/terminal-frontend-contribution';
 import { TerminalApiEndPointProvider } from '../server-definition/terminal-proxy-creator';
 import { BrowserMainMenuFactory } from '@theia/core/lib/browser/menu/browser-menu-plugin';
 import { MenuBar as MenuBarWidget } from '@phosphor/widgets';
@@ -21,9 +21,10 @@ import { CHEWorkspaceService } from '../../common/workspace-service';
 import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal-widget';
 import { REMOTE_TERMINAL_WIDGET_FACTORY_ID, RemoteTerminalWidgetFactoryOptions } from '../terminal-widget/remote-terminal-widget';
 import { filterRecipeContainers } from './terminal-command-filter';
-import URI from '@theia/core/lib/common/uri';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { isOSX } from '@theia/core/lib/common/os';
+import { TerminalKeybindingContexts } from '@theia/terminal/lib/browser/terminal-keybinding-contexts';
+import { TERMINAL_WIDGET_FACTORY_ID } from '@theia/terminal/lib/browser/terminal-widget-impl';
 
 export const NewTerminalInSpecificContainer = {
     id: 'terminal-in-specific-container:new',
@@ -57,9 +58,10 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
 
     private readonly mainMenuId = 'theia:menubar';
     private editorContainerName: string | undefined;
+    private workspaceId: string | undefined;
 
-    async registerCommands(registry: CommandRegistry) {
-        const serverUrl = <URI | undefined>await this.termApiEndPointProvider();
+    async registerCommands(registry: CommandRegistry): Promise<void> {
+        const serverUrl = await this.termApiEndPointProvider();
         if (serverUrl) {
             registry.registerCommand(NewTerminalInSpecificContainer, {
                 execute: (containerNameToExecute: string) => {
@@ -72,13 +74,84 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
                     }
                 }
             });
+
             await this.registerTerminalCommandPerContainer(registry);
+
+            registry.registerCommand(TerminalCommands.TERMINAL_FIND_TEXT);
+            registry.registerHandler(TerminalCommands.TERMINAL_FIND_TEXT.id, {
+                isEnabled: () => {
+                    if (this.shell.activeWidget instanceof TerminalWidget) {
+                        return !this.shell.activeWidget.getSearchBox().isVisible;
+                    }
+                    return false;
+                },
+                execute: () => {
+                    const termWidget = (this.shell.activeWidget as TerminalWidget);
+                    const terminalSearchBox = termWidget.getSearchBox();
+                    terminalSearchBox.show();
+                }
+            });
+
+            registry.registerCommand(TerminalCommands.TERMINAL_FIND_TEXT_CANCEL);
+            registry.registerHandler(TerminalCommands.TERMINAL_FIND_TEXT_CANCEL.id, {
+                isEnabled: () => {
+                    if (this.shell.activeWidget instanceof TerminalWidget) {
+                        return this.shell.activeWidget.getSearchBox().isVisible;
+                    }
+                    return false;
+                },
+                execute: () => {
+                    const termWidget = (this.shell.activeWidget as TerminalWidget);
+                    const terminalSearchBox = termWidget.getSearchBox();
+                    terminalSearchBox.hide();
+                }
+            });
+
+            registry.registerCommand(TerminalCommands.SCROLL_LINE_UP, {
+                isEnabled: () => this.shell.activeWidget instanceof TerminalWidget,
+                isVisible: () => false,
+                execute: () => {
+                    (this.shell.activeWidget as TerminalWidget).scrollLineUp();
+                }
+            });
+
+            registry.registerCommand(TerminalCommands.SCROLL_LINE_DOWN, {
+                isEnabled: () => this.shell.activeWidget instanceof TerminalWidget,
+                isVisible: () => false,
+                execute: () => {
+                    (this.shell.activeWidget as TerminalWidget).scrollLineDown();
+                }
+            });
+
+            registry.registerCommand(TerminalCommands.SCROLL_TO_TOP, {
+                isEnabled: () => this.shell.activeWidget instanceof TerminalWidget,
+                isVisible: () => false,
+                execute: () => {
+                    (this.shell.activeWidget as TerminalWidget).scrollToTop();
+                }
+            });
+
+            registry.registerCommand(TerminalCommands.SCROLL_PAGE_UP, {
+                isEnabled: () => this.shell.activeWidget instanceof TerminalWidget,
+                isVisible: () => false,
+                execute: () => {
+                    (this.shell.activeWidget as TerminalWidget).scrollPageUp();
+                }
+            });
+
+            registry.registerCommand(TerminalCommands.SCROLL_PAGE_DOWN, {
+                isEnabled: () => this.shell.activeWidget instanceof TerminalWidget,
+                isVisible: () => false,
+                execute: () => {
+                    (this.shell.activeWidget as TerminalWidget).scrollPageDown();
+                }
+            });
         } else {
             super.registerCommands(registry);
         }
     }
 
-    private async registerTerminalCommandPerContainer(registry: CommandRegistry) {
+    private async registerTerminalCommandPerContainer(registry: CommandRegistry): Promise<void> {
         const containers = await this.cheWorkspaceService.getContainerList();
 
         for (const container of filterRecipeContainers(containers)) {
@@ -94,10 +167,10 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
 
     public async newTerminalPerContainer(containerName: string, options: TerminalWidgetOptions, closeWidgetOnExitOrError: boolean = true): Promise<TerminalWidget> {
         try {
-            const workspaceId = <string>await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
-            const termApiEndPoint = <URI | undefined>await this.termApiEndPointProvider();
+            const workspaceId = await this.getWorkspaceId();
+            const termApiEndPoint = await this.termApiEndPointProvider();
 
-            const widget = <TerminalWidget>await this.widgetManager.getOrCreateWidget(REMOTE_TERMINAL_WIDGET_FACTORY_ID, <RemoteTerminalWidgetFactoryOptions>{
+            const widget = await this.widgetManager.getOrCreateWidget(REMOTE_TERMINAL_WIDGET_FACTORY_ID, <RemoteTerminalWidgetFactoryOptions>{
                 created: new Date().toString(),
                 machineName: containerName,
                 workspaceId,
@@ -105,7 +178,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
                 closeWidgetOnExitOrError,
                 ...options
             });
-            return widget;
+            return widget as TerminalWidget;
         } catch (err) {
             console.error('Failed to create terminal widget. Cause: ', err);
         }
@@ -125,7 +198,17 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         termWidget.start();
     }
 
-    async getEditorContainerName() {
+    protected async getWorkspaceId(): Promise<string | undefined> {
+        if (this.workspaceId) {
+            return this.workspaceId;
+        }
+
+        this.workspaceId = await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
+
+        return this.workspaceId;
+    }
+
+    async getEditorContainerName(): Promise<string | undefined> {
         if (!this.editorContainerName) {
             this.editorContainerName = await this.cheWorkspaceService.findEditorMachineName();
         }
@@ -136,10 +219,16 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         let containerName;
         let closeWidgetExitOrError: boolean = true;
 
-        if (options.attributes) {
-            containerName = options.attributes['CHE_MACHINE_NAME'];
+        const attributes = options.attributes;
+        if (attributes) {
+            const isRemoteValue = attributes['remote'];
+            if (isRemoteValue && isRemoteValue.toLowerCase() === 'false') {
+                return super.newTerminal(options);
+            }
 
-            const closeWidgetOnExitOrErrorValue = options.attributes['closeWidgetExitOrError'];
+            containerName = attributes['CHE_MACHINE_NAME'];
+
+            const closeWidgetOnExitOrErrorValue = attributes['closeWidgetExitOrError'];
             if (closeWidgetOnExitOrErrorValue) {
                 closeWidgetExitOrError = closeWidgetOnExitOrErrorValue.toLowerCase() === 'false' ? false : true;
             }
@@ -158,11 +247,14 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     }
 
     get all(): TerminalWidget[] {
-        return this.widgetManager.getWidgets(REMOTE_TERMINAL_WIDGET_FACTORY_ID) as TerminalWidget[];
+        const terminalWidgets = this.widgetManager.getWidgets(TERMINAL_WIDGET_FACTORY_ID) as TerminalWidget[];
+        const remoteTerminalWidgets = this.widgetManager.getWidgets(REMOTE_TERMINAL_WIDGET_FACTORY_ID) as TerminalWidget[];
+
+        return [...terminalWidgets, ...remoteTerminalWidgets];
     }
 
-    async registerMenus(menus: MenuModelRegistry) {
-        const serverUrl = <URI | undefined>await this.termApiEndPointProvider();
+    async registerMenus(menus: MenuModelRegistry): Promise<void> {
+        const serverUrl = await this.termApiEndPointProvider();
         if (serverUrl) {
             menus.registerSubmenu(TerminalMenus.TERMINAL, 'Terminal');
             menus.registerMenuAction(TerminalMenus.TERMINAL_NEW, {
@@ -190,20 +282,33 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         });
     }
 
-    async registerKeybindings(registry: KeybindingRegistry) {
-        const serverUrl = <URI | undefined>await this.termApiEndPointProvider();
+    async registerKeybindings(registry: KeybindingRegistry): Promise<void> {
+        const serverUrl = await this.termApiEndPointProvider();
         if (serverUrl) {
             registry.registerKeybinding({
                 command: NewTerminalInSpecificContainer.id,
                 keybinding: isOSX ? 'ctrl+shift+`' : 'ctrl+`'
             });
+
+            registry.registerKeybinding({
+                command: TerminalCommands.TERMINAL_FIND_TEXT.id,
+                keybinding: 'ctrlcmd+f',
+                context: TerminalKeybindingContexts.terminalActive
+            });
+
+            registry.registerKeybinding({
+                command: TerminalCommands.TERMINAL_FIND_TEXT_CANCEL.id,
+                keybinding: 'esc',
+                context: TerminalKeybindingContexts.terminalHideSearch
+            });
+            this.registerScrollKeyBindings(registry);
             this.registerTerminalKeybindings(registry);
         } else {
             super.registerKeybindings(registry);
         }
     }
 
-    private registerTerminalKeybindings(registry: KeybindingRegistry) {
+    private registerTerminalKeybindings(registry: KeybindingRegistry): void {
         // Ctrl + a-z
         this.registerRangeKeyBindings(registry, [KeyModifier.CTRL], Key.KEY_A, 25, 'Key');
         // Alt + a-z
@@ -220,7 +325,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         this.registerKeyBinding(registry, [KeyModifier.Alt], Key.BACKQUOTE);
     }
 
-    private registerRangeKeyBindings(registry: KeybindingRegistry, keyModifiers: KeyModifier[], startKey: Key, offSet: number, codePrefix: string) {
+    private registerRangeKeyBindings(registry: KeybindingRegistry, keyModifiers: KeyModifier[], startKey: Key, offSet: number, codePrefix: string): void {
         for (let i = 0; i < offSet + 1; i++) {
             const keyCode = startKey.keyCode + i;
             const key: Key = {
@@ -232,12 +337,40 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         }
     }
 
-    private registerKeyBinding(registry: KeybindingRegistry, keyModifiers: KeyModifier[], key: Key) {
+    private registerKeyBinding(registry: KeybindingRegistry, keyModifiers: KeyModifier[], key: Key): void {
         const keybinding = KeyCode.createKeyCode({ first: key, modifiers: keyModifiers }).toString();
         registry.registerKeybinding({
             command: KeybindingRegistry.PASSTHROUGH_PSEUDO_COMMAND,
             keybinding: keybinding,
             context: TerminalKeybindingContext.contextId
+        });
+    }
+
+    private registerScrollKeyBindings(registry: KeybindingRegistry): void {
+        registry.registerKeybinding({
+            command: TerminalCommands.SCROLL_LINE_UP.id,
+            keybinding: 'ctrl+shift+up',
+            context: TerminalKeybindingContexts.terminalActive
+        });
+        registry.registerKeybinding({
+            command: TerminalCommands.SCROLL_LINE_DOWN.id,
+            keybinding: 'ctrl+shift+down',
+            context: TerminalKeybindingContexts.terminalActive
+        });
+        registry.registerKeybinding({
+            command: TerminalCommands.SCROLL_TO_TOP.id,
+            keybinding: 'shift+home',
+            context: TerminalKeybindingContexts.terminalActive
+        });
+        registry.registerKeybinding({
+            command: TerminalCommands.SCROLL_PAGE_UP.id,
+            keybinding: 'shift+pageUp',
+            context: TerminalKeybindingContexts.terminalActive
+        });
+        registry.registerKeybinding({
+            command: TerminalCommands.SCROLL_PAGE_DOWN.id,
+            keybinding: 'shift+pageDown',
+            context: TerminalKeybindingContexts.terminalActive
         });
     }
 

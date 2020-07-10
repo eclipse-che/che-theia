@@ -91,7 +91,7 @@ export class PreviewUrlsWidget {
         return previews;
     }
 
-    private renderTemplate(server: string, taskLabel: string, previewButton: string, goToButton: string) {
+    private renderTemplate(server: string, taskLabel: string, previewButton: string, goToButton: string): string {
         return `<div class='preview'>
                     <div class='previews-labels-part'>
                             <div class='server-label'>

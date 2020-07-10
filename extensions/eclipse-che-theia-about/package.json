@@ -8,7 +8,7 @@
   "dependencies": {
     "@theia/core": "next",
     "@theia/mini-browser": "next",
-    "@eclipse-che/theia-plugin-ext": "0.0.1"
+    "@eclipse-che/theia-plugin-ext": "^0.0.1"
   },
   "publishConfig": {
     "access": "public"
@@ -30,10 +30,9 @@
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",
     "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
-    "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
+    "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
     "compile": "yarn run setup-build-details && tsc",
     "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
-    "watch": "tsc -w",
-    "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
+    "watch": "tsc -w"
   }
 }

@@ -53,11 +53,11 @@
 }
 
 .che-plugin-control-panel .search:focus {
-    border-color: var(--theia-accent-color3);
+    border-color: var(--theia-focusBorder);
 }
 
 .che-plugin-control-panel .search[disabled] {
-    color: var(--theia-ui-font-color2);
+    color: var(--theia-descriptionForeground);
 }
 
 /*-----------------------------------------------------------------------------
@@ -80,23 +80,23 @@
 
 .che-plugin-control-panel .menu-button {
     cursor: pointer;
-    color: var(--theia-ui-font-color2);
+    color: var(--theia-descriptionForeground);
 }
 
 .che-plugin-control-panel .menu-button:hover {
-    color: var(--theia-ui-font-color1);
+    color: var(--theia-button-foreground);
 }
 
 .che-plugin-control-panel .menu-button-active {
-    color: var(--theia-ui-font-color1);
+    color: var(--theia-button-foreground);
     border: none;
-    background: var(--theia-menu-color1);
+    background: var(--theia-menubar-selectionBackground);
     box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
 }
 
 .che-plugin-control-panel .menu-button-disabled {
     outline: none;
-    color: var(--theia-ui-font-color3);
+    color: var(--theia-badge-background);
 }
 
 /*-----------------------------------------------------------------------------
@@ -124,7 +124,7 @@
     top: 0px;
     height: 100%;
     right: 4px;
-    border-bottom: 1px solid var(--theia-layout-color4);
+    border-bottom: 1px solid var(--theia-editorHoverWidget-border);
     box-sizing: border-box;
 }
 
@@ -163,7 +163,7 @@
 }
 
 .che-plugin-list .highlighted {
-    background: var(--theia-word-highlight-match-color1);
+    background: var(--theia-editor-findMatchHighlightBackground);
 }
 
 .che-plugin-list .che-plugin-title {
@@ -184,13 +184,14 @@
 .che-plugin-list .che-plugin-name {
     font-size: var(--theia-ui-font-size0);
     font-weight: bold;
-    color: var(--theia-ui-font-color2);
+    color: var(--theia-descriptionForeground);
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
 .che-plugin-list .che-plugin-version {
+    color: var(--theia-dropdown-listBackground);
     height: 20px;
     background-color: transparent;
     border-color: transparent;
@@ -199,7 +200,7 @@
 }
 
 .che-plugin-list .che-plugin-version option {
-    background-color: var(--theia-layout-color2);
+    background-color: var(--theia-dropdown-background);
     border-color: transparent;
 }
 
@@ -210,7 +211,7 @@
     right: 4px;
     height: 26px;
     font-size: var(--theia-ui-font-size0);
-    color: var(--theia-ui-font-color1);
+    color: var(--theia-editor-foreground);
     display: block;
     overflow: hidden;
 }
@@ -228,7 +229,7 @@
 
 .che-plugin-list .che-plugin-publisher {
     position: absolute;
-    color: var(--theia-ui-font-color2);
+    color: var(--theia-descriptionForeground);
     font-size: var(--theia-ui-font-size0);
     font-weight: bold;
     left: 0px;
@@ -250,8 +251,8 @@
     box-sizing: border-box;
     padding-top: 1px;
     padding-bottom: 1px;
-    background-color: var(--theia-disabled-color0);
-    color: var(--theia-disabled-color3);
+    color: var(--theia-editor-foreground);
+    background-color: var(--theia-secondaryButton-disabledBackground);
 }
 
 /*-----------------------------------------------------------------------------
@@ -279,40 +280,41 @@
 
 .che-plugin-list .che-plugin-action-add {
     cursor: pointer;
-    color: var(--theia-ui-button-font-color);
-    background-color: var(--theia-ui-button-color);
+    color: var(--theia-button-foreground);
+    background-color: var(--theia-button-background);
 }
 
 .che-plugin-list .che-plugin-action-add:hover {
-    background-color: var(--theia-ui-button-color-hover);
+    background-color: var(--theia-button-hoverBackground);
 }
 
 .che-plugin-list .che-plugin-action-add:active {
-    box-shadow: 0px 0px 1px 1px var(--theia-ui-button-color-hover);
+    box-shadow: 0px 0px 1px 1px var(--theia-button-hoverBackground);
     outline: none;
 }
 
 .che-plugin-list .che-plugin-action-remove {
     cursor: pointer;
-    color: var(--theia-success-font-color0);
-    background-color: var(--theia-success-color0);
+    color: var(--theia-inputValidation-warningBackground);
+    background-color: var(--theia-successBackground);
 }
 
 .che-plugin-list .che-plugin-action-remove:hover {
-    background-color: var(--theia-success-color1);
+    color: var(--theia-secondaryButton-foreground);
+    background-color: var(--theia-secondaryButton-hoverBackground);
 }
 
 .che-plugin-list .che-plugin-action-remove:active {
-    box-shadow: 0px 0px 1px 1px var(--theia-success-color0);
+    box-shadow: 0px 0px 1px 1px var(--theia-successBackground);
     outline: none;
 }
 
 .che-plugin-list .che-plugin-action-installing {
-    color: var(--theia-ui-button-font-color-secondary-disabled);
-    background-color: var(--theia-ui-button-color-secondary-disabled);
+    color: var(--theia-secondaryButton-disabledForeground);
+    background-color: var(--theia-secondaryButton-disabledBackground);
 }
 
 .che-plugin-list .che-plugin-action-removing {
-    color: var(--theia-ui-button-font-color-secondary-disabled);
-    background-color: var(--theia-ui-button-color-secondary-disabled);
+    color: var(--theia-secondaryButton-disabledForeground);
+    background-color: var(--theia-secondaryButton-disabledBackground);
 }

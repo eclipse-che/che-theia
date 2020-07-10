@@ -20,7 +20,7 @@ export class EphemeralWorkspaceChecker {
     constructor() {
     }
 
-    public check() {
+    public check(): void {
         che.workspace.getCurrentWorkspace().then((workspace: cheApi.workspace.Workspace) => {
             const isEphemeralWorkspace = this.isEphemeralWorkspace(workspace);
             if (isEphemeralWorkspace) {
@@ -32,7 +32,7 @@ export class EphemeralWorkspaceChecker {
     /**
      * Displays warning in status bar, that workspace is ephemeral.
      */
-    private displayEphemeralWarning() {
+    private displayEphemeralWarning(): void {
         const item = theia.window.createStatusBarItem(theia.StatusBarAlignment.Left);
         item.text = '$(exclamation-triangle) Ephemeral Mode';
         item.tooltip = 'All changes to the source code will be lost when the workspace is stopped unless they are pushed to a source code repository.';

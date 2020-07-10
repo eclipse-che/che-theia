@@ -18,9 +18,6 @@
 | Caching the plugins
 |----------------------------------------------------------------------------*/
 
-.che-plugins-caching {
-}
-
 .che-plugins-caching-spinner {
     margin-top: 40%;
 }
@@ -34,10 +31,6 @@
     line-height: 25px;
 }
 
-.che-plugins-caching-progress-status {
-
-}
-
 .che-plugins-caching-progress-status b {
-    color: var(--theia-success-color2);
+    color: var(--theia-badge-foreground);
 }

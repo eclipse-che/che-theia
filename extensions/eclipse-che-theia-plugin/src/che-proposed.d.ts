@@ -49,6 +49,25 @@ declare module '@eclipse-che/plugin' {
         export function getToken(): Promise<string>;
     }
 
+    export namespace openshift {
+        export function getToken(): Promise<string>;
+    }
+
+    export namespace oAuth {
+        export function getProviders(): Promise<string[]>;
+        /**
+         * Returns {@code true} if the current user is authenticated for given oAuth provider.
+         * @param provider oAuth provider to Check.
+         */
+        export function isAuthenticated(provider: string): Promise<boolean>;
+        /**
+         * Returns {@code true} if the given oAuth provider is registered.
+         * Use {@link $getProviders} in single-user mode to find the provider in the list.
+         * @param provider oAuth provider to Check.
+         */
+        export function isRegistered(provider: string): Promise<boolean>;
+    }
+
     export namespace ssh {
         export function generate(service: string, name: string): Promise<cheApi.ssh.SshPair>;
 
@@ -70,10 +89,16 @@ declare module '@eclipse-che/plugin' {
      * Listener for global command invocation
      */
     export type TelemetryListener = (commandId: string, param?: TelemetryListenerParam) => void;
+    export interface ClientAddressInfo {
+        ip?: string,
+        port?: string
+        ipFamily?: number
+    }
     export namespace telemetry {
         export function event(id: string, ownerId: string, properties: [string, string][]): Promise<void>;
         /** Fires when a command will starts. */
         export function addCommandListener(commandId: string, listener: TelemetryListener): Promise<void>;
+        export function getClienAddressInfo(): Promise<ClientAddressInfo>;
     }
 
     /**
@@ -141,14 +166,19 @@ declare module '@eclipse-che/plugin' {
     }
 
     export interface TerminalWidgetIdentifier {
-        factoryId: string;
-        widgetId?: string;
-        processId?: number;
+        kind: TaskTerminallKind;
+        terminalId: number;
+    }
+
+    export enum TaskTerminallKind {
+        Task = 'task',
+        RemoteTask = 'remote-task'
     }
 
     export enum TaskStatus {
         Success = 'SUCCESS',
         Error = 'ERROR',
+        InProgress = 'IN_PROGRESS',
         Unknown = 'UNKNOWN'
     }
 
@@ -175,7 +205,7 @@ declare module '@eclipse-che/plugin' {
         readonly ctx?: string,
         /** task config used for launching a task */
         readonly config: TaskConfiguration
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         readonly [key: string]: any;
     }
 
@@ -191,9 +221,16 @@ declare module '@eclipse-che/plugin' {
         readonly terminalId?: number;
         readonly processId?: number;
 
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         readonly [key: string]: any;
     }
+
+    export enum TaskScope {
+        Global = 0,
+        Workspace = 1
+    }
+
+    export type TaskConfigurationScope = string | TaskScope.Workspace | TaskScope.Global;
 
     export interface TaskConfiguration {
         /** A label that uniquely identifies a task configuration per source */
@@ -205,7 +242,7 @@ declare module '@eclipse-che/plugin' {
          * For a configured task, it is workspace URI that task belongs to.
          * This field is not supposed to be used in `tasks.json`
          */
-        readonly _scope: string | undefined;
+        readonly _scope: TaskConfigurationScope;
         /** Additional task type specific properties. */
         readonly [key: string]: any;
     }
@@ -219,12 +256,18 @@ declare module '@eclipse-che/plugin' {
     }
 
     export namespace user {
+        export function getCurrentUser(): Promise<User>;
         export function getUserPreferences(): Promise<Preferences>;
         export function getUserPreferences(filter: string | undefined): Promise<Preferences>;
         export function updateUserPreferences(update: Preferences): Promise<Preferences>;
         export function replaceUserPreferences(preferences: Preferences): Promise<Preferences>;
         export function deleteUserPreferences(): Promise<void>;
         export function deleteUserPreferences(list: string[] | undefined): Promise<void>;
+    }
+
+    export interface User {
+        id: string;
+        name: string
     }
 
     export interface Preferences {

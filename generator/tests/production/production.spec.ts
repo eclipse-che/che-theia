@@ -14,8 +14,8 @@ import * as path from 'path';
 import { Production } from "../../src/production";
 import { Yarn } from "../../src/yarn";
 
+jest.setTimeout(10000);
 jest.mock("../../src/yarn");
-
 
 describe("Test production", () => {
 

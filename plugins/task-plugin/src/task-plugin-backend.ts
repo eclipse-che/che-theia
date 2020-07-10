@@ -14,7 +14,6 @@ import * as theia from '@theia/plugin';
 import * as che from '@eclipse-che/plugin';
 import { CHE_TASK_TYPE } from './task/task-protocol';
 import { CHE_TASK_SCHEMA } from './schema/che-task-schema';
-import { CheTaskProvider } from './task/che-task-provider';
 import { CheTaskRunner } from './task/che-task-runner';
 import { ServerVariableResolver } from './variable/server-variable-resolver';
 import { ProjectPathVariableResolver } from './variable/project-path-variable-resolver';
@@ -27,7 +26,7 @@ import { TaskStatusHandler } from './task/task-status';
 let pluginContext: theia.PluginContext;
 let outputChannel: theia.OutputChannel | undefined;
 
-export async function start(context: theia.PluginContext) {
+export async function start(context: theia.PluginContext): Promise<void> {
     pluginContext = context;
 
     const сheTaskEventsHandler = container.get<CheTaskEventsHandler>(CheTaskEventsHandler);
@@ -45,10 +44,6 @@ export async function start(context: theia.PluginContext) {
     const projectPathVariableResolver = container.get<ProjectPathVariableResolver>(ProjectPathVariableResolver);
     projectPathVariableResolver.registerVariables();
 
-    const cheTaskProvider = container.get<CheTaskProvider>(CheTaskProvider);
-    const taskProviderSubscription = theia.tasks.registerTaskProvider(CHE_TASK_TYPE, cheTaskProvider);
-    getSubscriptions().push(taskProviderSubscription);
-
     const cheTaskRunner = container.get<CheTaskRunner>(CheTaskRunner);
     const taskRunnerSubscription = await che.task.registerTaskRunner(CHE_TASK_TYPE, cheTaskRunner);
     getSubscriptions().push(taskRunnerSubscription);
@@ -62,13 +57,13 @@ export async function start(context: theia.PluginContext) {
     taskStatusHandler.init();
 }
 
-export function stop() { }
+export function stop(): void { }
 
 export function getContext(): theia.PluginContext {
     return pluginContext;
 }
 
-// tslint:disable-next-line:no-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getSubscriptions(): { dispose(): any }[] {
     return pluginContext.subscriptions;
 }

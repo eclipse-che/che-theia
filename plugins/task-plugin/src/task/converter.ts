@@ -20,7 +20,7 @@ export function toTaskConfiguration(command: cheApi.workspace.Command): TaskConf
         type: CHE_TASK_TYPE,
         label: command.name!,
         command: command.commandLine,
-        _scope: undefined, // not to put into tasks.json
+        _scope: '', // not to put into tasks.json
         target: {
             workingDir: getAttribute(WORKING_DIR_ATTRIBUTE, command.attributes),
             component: getAttribute(COMPONENT_ALIAS_ATTRIBUTE, command.attributes)

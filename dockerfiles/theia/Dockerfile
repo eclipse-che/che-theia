@@ -23,6 +23,8 @@ ARG THEIA_GITHUB_REPO=eclipse-theia/theia
 # Define upstream version of theia to use
 ARG THEIA_VERSION=master
 
+ARG THEIA_COMMIT_SHA=''
+
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 #{IF:DO_REMOTE_CHECK}
@@ -47,8 +49,8 @@ WORKDIR ${HOME}/theia-source-code
 COPY asset-che-theia.tar.gz /tmp/asset-che-theia.tar.gz
 RUN mkdir -p ${HOME}/theia-source-code/che-theia/ && tar xzf /tmp/asset-che-theia.tar.gz -C ${HOME}/theia-source-code/che-theia/ && rm /tmp/asset-che-theia.tar.gz
 
-# run che:theia init command and alias che-theia repository to use local sources insted of cloning
-RUN che:theia init -c ${HOME}/theia-source-code/che-theia/che-theia-init-sources.yml --alias https://github.com/eclipse/che-theia=${HOME}/theia-source-code/che-theia
+# run che-theia init command and alias che-theia repository to use local sources insted of cloning
+RUN che-theia init -c ${HOME}/theia-source-code/che-theia/che-theia-init-sources.yml --alias https://github.com/eclipse/che-theia=${HOME}/theia-source-code/che-theia
 
 # cleanup theia folders that we don't need to compile
 RUN rm -rf ${HOME}/theia-source-code/examples/browser && \
@@ -59,7 +61,14 @@ RUN rm -rf ${HOME}/theia-source-code/examples/browser && \
     rm -rf ${HOME}/theia-source-code/packages/java-debug && \
     rm -rf ${HOME}/theia-source-code/packages/python && \
     rm -rf ${HOME}/theia-source-code/packages/typescript && \
-    # Remove linter/formatters
+    # Allow the usage of ELECTRON_SKIP_BINARY_DOWNLOAD=1 by using a more recent version of electron \
+    sed -i 's|  "resolutions": {|  "resolutions": {\n    "**/electron": "7.0.0",|' ${HOME}/theia-source-code/package.json && \
+    # remove all electron-browser module to not compile them
+    find . -name "electron-browser"  | xargs rm -rf {} && \
+    find . -name "*-electron-module.ts"  | xargs rm -rf {} && \
+    rm -rf ${HOME}/theia-source-code/dev-packages/electron/native && \
+    echo "" > ${HOME}/theia-source-code/dev-packages/electron/scripts/post-install.js && \
+    # Remove linter/formatters of theia
     sed -i 's|concurrently -n compile,lint -c blue,green \\"theiaext compile\\" \\"theiaext lint\\"|concurrently -n compile -c blue \\"theiaext compile\\"|' ${HOME}/theia-source-code/dev-packages/ext-scripts/package.json && \
     # Remove external configs removed
     sed -i -n '/.*packages\/cpp/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
@@ -71,11 +80,14 @@ RUN rm -rf ${HOME}/theia-source-code/examples/browser && \
     sed -i -n '/.*examples\/api-samples/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
     sed -i -n '/.*examples\/electron/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
     # change update goal to be the eclipse che assembly
-    sed -i 's|.*"prepare:build".*|    \"prepare:build\"\: \"yarn build \&\& run lint \&\& lerna run build\", |' ${HOME}/theia-source-code/package.json && \
+    sed -i 's|.*"prepare:build".*|    \"prepare:build\"\: \"yarn build \&\& lerna run build\", |' ${HOME}/theia-source-code/package.json && \
     cat ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    find ${HOME}/theia-source-code/che-theia -name "package.json" | xargs sed -i 's|concurrently -n \\"format,lint,compile\\" -c \\"red,green,blue\\" \\"yarn format\\" \\"yarn lint\\" \\"yarn compile\\"|concurrently -n \\"compile\\" -c \\"blue\\" \\"yarn compile\\"|'
+    find ${HOME}/theia-source-code/che-theia -name "package.json" | xargs sed -i 's|concurrently -n \\"format,lint,compile\\" -c \\"red,green,blue\\" \\"yarn format\\" \\"yarn lint\\" \\"yarn compile\\"|concurrently -n \\"compile\\" -c \\"blue\\" \\"yarn compile\\"|' && \
+    # disable linters of che-theia as it's already done before
+    find ${HOME}/theia-source-code/che-theia -name "package.json" | xargs sed -i 's|.*"lint:fix".*|    \"lint:fix\"\: \"echo skip linter\", |' && \
+    find ${HOME}/theia-source-code/che-theia -name "package.json" | xargs sed -i 's|.*"lint".*|    \"lint\"\: \"echo skip linter\", |'
 
-RUN che:theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
+RUN che-theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 
 # Compile Theia
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-before-compile.dockerfile}
@@ -88,19 +100,25 @@ RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
 
 # Run into production mode
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-before-production.dockerfile}
-RUN che:theia production
+RUN che-theia production
 
 # Compile plugins
 RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
     cd plugins && ./foreach_yarn
 
 # Add yeoman generator & vscode git plug-ins
-COPY asset-untagged-c11870b25a17d20bb7a7-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/production/plugins/theia_yeoman_plugin.theia
-COPY asset-vscode-git-1.3.0.1.vsix /home/theia-dev/theia-source-code/production/plugins/vscode-git-1.3.0.1.vsix
+COPY asset-untagged-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/production/plugins/theia_yeoman_plugin.theia
+
+
+# Use node image
+#{INCLUDE:docker/${BUILD_IMAGE_TARGET}/build-result-from.dockerfile}
+
+COPY --from=builder /home/theia-dev/theia-source-code/production /che-theia-build
 
 # change permissions
-RUN find production -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt
-
+RUN find /che-theia-build -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt && \
+    # Add missing permissions on shell scripts of plug-ins
+    find /che-theia-build/plugins -name "*.sh" | xargs chmod +x
 
 ###
 # Runtime Image
@@ -125,7 +143,7 @@ ENV USE_LOCAL_GIT=true \
 
 EXPOSE 3100 3130
 
-COPY --from=builder /home/theia-dev/theia-source-code/production/plugins /default-theia-plugins
+COPY --from=build-result /che-theia-build/plugins /default-theia-plugins
 
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/runtime-install-dependencies.dockerfile}
 
@@ -163,7 +181,7 @@ COPY --from=builder /home/theia-dev/theia-source-code/production/plugins /defaul
     # Change permissions to allow editing of files for openshift user
     && find ${HOME} -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \;
 
-COPY --chown=theia:root --from=builder /home/theia-dev/theia-source-code/production /home/theia
+COPY --chown=theia:root --from=build-result /che-theia-build /home/theia
 USER theia
 WORKDIR /projects
 COPY src/entrypoint.sh /entrypoint.sh

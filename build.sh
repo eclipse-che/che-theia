@@ -13,7 +13,7 @@ set -e
 set -o pipefail
 
 parse "$@"
-yarn
+yarn ${YARN_OPTS}
 
 buildImages
 

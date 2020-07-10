@@ -10,7 +10,7 @@
 
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import * as fs from 'fs-extra';
-import URI from 'vscode-uri';
+import { URI } from 'vscode-uri';
 import { CheSideCarContentReader, PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
 
 export class CheSideCarContentReaderImpl implements CheSideCarContentReader {
