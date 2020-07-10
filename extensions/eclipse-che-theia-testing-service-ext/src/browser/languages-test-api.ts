@@ -21,7 +21,6 @@ import {
     TextEdit,
     FormattingOptions,
     Definition,
-    DefinitionLink,
     DocumentLink,
     CodeLensSymbol,
     DocumentSymbol,
@@ -59,12 +58,12 @@ export class TestAPIImpl implements TestAPI {
         return languagesExt.$provideCompletionItems(handle, resource, position, context, token);
     }
 
-    async $provideDefinition(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | DefinitionLink[] | undefined> {
+    async $provideDefinition(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | undefined> {
         const { languagesExt, handle } = await this.pluginHandleRegistry.lookupLanguagesExtForPluginAndAction(pluginID, 'definition');
         return languagesExt.$provideDefinition(handle, resource, position, token);
     }
 
-    async $provideDeclaration(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | DefinitionLink[] | undefined> {
+    async $provideDeclaration(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | undefined> {
         const { languagesExt, handle } = await this.pluginHandleRegistry.lookupLanguagesExtForPluginAndAction(pluginID, 'declaration');
         return languagesExt.$provideDeclaration(handle, resource, position, token);
     }
@@ -75,12 +74,12 @@ export class TestAPIImpl implements TestAPI {
         return languagesExt.$provideSignatureHelp(handle, resource, position, context, token);
     }
 
-    async $provideImplementation(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | DefinitionLink[] | undefined> {
+    async $provideImplementation(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | undefined> {
         const { languagesExt, handle } = await this.pluginHandleRegistry.lookupLanguagesExtForPluginAndAction(pluginID, 'implementation');
         return languagesExt.$provideImplementation(handle, resource, position, token);
     }
 
-    async $provideTypeDefinition(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | DefinitionLink[] | undefined> {
+    async $provideTypeDefinition(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | undefined> {
         const { languagesExt, handle } = await this.pluginHandleRegistry.lookupLanguagesExtForPluginAndAction(pluginID, 'typeDefinition');
         return languagesExt.$provideTypeDefinition(handle, resource, position, token);
     }

@@ -11,7 +11,7 @@
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { Plugin } from '@theia/plugin-ext/lib/common/plugin-api-rpc';
 import * as testservice from '@eclipse-che/testing-service';
-import { PLUGIN_RPC_CONTEXT, TestAPI } from '../common/test-protocol';
+import { PLUGIN_RPC_CONTEXT } from '../common/test-protocol';
 import {
     CompletionContext,
     CompletionResultDto,
@@ -22,7 +22,6 @@ import {
     TextEdit,
     FormattingOptions,
     Definition,
-    DefinitionLink,
     DocumentLink,
     CodeLensSymbol,
     DocumentSymbol,
@@ -51,7 +50,7 @@ export function createAPIFactory(rpc: RPCProtocol): TestApiFactory {
 
     return function (plugin: Plugin): typeof testservice {
 
-        const testAPI = rpc.getProxy(PLUGIN_RPC_CONTEXT.TEST_API_MAIN) as TestAPI;
+        const testAPI = rpc.getProxy(PLUGIN_RPC_CONTEXT.TEST_API_MAIN);
 
         const languageserver: typeof testservice.languageserver = {
 
@@ -59,16 +58,16 @@ export function createAPIFactory(rpc: RPCProtocol): TestApiFactory {
                 context: CompletionContext, token: CancellationToken): Promise<CompletionResultDto | undefined> {
                 return testAPI.$provideCompletionItems(pluginID, resource, position, context, token);
             },
-            implementation(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | DefinitionLink[] | undefined> {
+            implementation(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | undefined> {
                 return testAPI.$provideImplementation(pluginID, resource, position, token);
             },
-            typeDefinition(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | DefinitionLink[] | undefined> {
+            typeDefinition(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | undefined> {
                 return testAPI.$provideTypeDefinition(pluginID, resource, position, token);
             },
-            definition(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | DefinitionLink[] | undefined> {
+            definition(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | undefined> {
                 return testAPI.$provideDefinition(pluginID, resource, position, token);
             },
-            declaration(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | DefinitionLink[] | undefined> {
+            declaration(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | undefined> {
                 return testAPI.$provideDeclaration(pluginID, resource, position, token);
             },
             references(pluginID: string, resource: UriComponents, position: Position, context: ReferenceContext, token: CancellationToken): Promise<Location[] | undefined> {

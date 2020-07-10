@@ -18,7 +18,6 @@ import {
     TextEdit,
     FormattingOptions,
     Definition,
-    DefinitionLink,
     DocumentLink,
     CodeLensSymbol,
     DocumentSymbol,
@@ -38,16 +37,16 @@ import {
     RawColorInfo,
     WorkspaceEditDto
 } from '@theia/plugin-ext/lib/common/plugin-api-rpc';
-import { ProxyIdentifier, createProxyIdentifier } from '@theia/plugin-ext/lib/common/rpc-protocol';
+import { createProxyIdentifier } from '@theia/plugin-ext/lib/common/rpc-protocol';
 
 // Expose additional API that allows you to know if a language server is connected and build a map of the language servers
 export interface TestAPI {
     $provideCompletionItems(pluginID: string, resource: UriComponents, position: Position,
         context: CompletionContext, token: CancellationToken): Promise<CompletionResultDto | undefined>;
-    $provideImplementation(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | DefinitionLink[] | undefined>;
-    $provideTypeDefinition(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | DefinitionLink[] | undefined>;
-    $provideDefinition(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | DefinitionLink[] | undefined>;
-    $provideDeclaration(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | DefinitionLink[] | undefined>;
+    $provideImplementation(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | undefined>;
+    $provideTypeDefinition(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | undefined>;
+    $provideDefinition(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | undefined>;
+    $provideDeclaration(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | undefined>;
     $provideReferences(pluginID: string, resource: UriComponents, position: Position, context: ReferenceContext, token: CancellationToken): Promise<Location[] | undefined>;
     $provideSignatureHelp(
         pluginID: string, resource: UriComponents, position: Position, context: SignatureHelpContext, token: CancellationToken
@@ -88,5 +87,5 @@ export interface TestAPI {
 }
 
 export const PLUGIN_RPC_CONTEXT = {
-    TEST_API_MAIN: <ProxyIdentifier<TestAPI>>createProxyIdentifier<TestAPI>('TestAPI'),
+    TEST_API_MAIN: createProxyIdentifier<TestAPI>('TestAPI'),
 };

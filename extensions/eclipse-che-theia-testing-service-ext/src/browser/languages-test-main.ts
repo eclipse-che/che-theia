@@ -81,7 +81,7 @@ export class LanguagesMainTestImpl implements LanguagesMain {
         this.languagesMainImpl.$changeDiagnostics(id, delta);
     }
 
-    // tslint:disable-next-line: no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     $emitCodeLensEvent(eventHandle: number, event?: any): void {
         this.languagesMainImpl.$emitCodeLensEvent(eventHandle, event);
     }
@@ -90,6 +90,11 @@ export class LanguagesMainTestImpl implements LanguagesMain {
         selector: SerializedDocumentFilter[], triggerCharacters: string[], supportsResolveDetails: boolean): void {
         this.pluginHandleRegistry.registerPluginWithFeatureHandle(handle, pluginInfo.id, 'completion', this.languagesExtProxy);
         this.languagesMainImpl.$registerCompletionSupport(handle, pluginInfo, selector, triggerCharacters, supportsResolveDetails);
+    }
+
+    $registerSelectionRangeProvider(handle: number, pluginInfo: PluginInfo, selector: SerializedDocumentFilter[]): void {
+        this.pluginHandleRegistry.registerPluginWithFeatureHandle(handle, pluginInfo.id, 'selectionRange', this.languagesExtProxy);
+        this.languagesMainImpl.$registerSelectionRangeProvider(handle, pluginInfo, selector);
     }
 
     $registerDefinitionProvider(handle: number, pluginInfo: PluginInfo, selector: SerializedDocumentFilter[]): void {
