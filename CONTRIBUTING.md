@@ -217,27 +217,120 @@ $ export THEIA_PLUGIN_ENDPOINT_DISCOVERY_PORT="2506"
 $ yarn theia start /projects/theia-projects-dir --hostname=0.0.0.0 --port=3010
 ```
 
-## How to develop Che Theia remote plugin mechanism
+# Working with Plugins in Sidecars
 
-_Please note, this section provides a flow how to develop remote plugin mechanism in Che Theia, but not a remote plugin._
+In a real Che workspace, many plugins are run in their own "sidecar" container. The idea is that the container furnishes any "native" dependencies the plugin needs. For example the container that runs the theia IDE back end does not contain a Java SDK, so in order to run a plugin that needs a Java installation, we'll run the plugin inside a container that has Java installed.
 
-First, create a workspace from prepared [devfile](https://github.com/eclipse/che-theia/blob/master/extensions/eclipse-che-theia-plugin-remote/devfile.yaml), which could be found in the `eclipse-che-theia-plugin-remote` extension folder.
-When workspace is ready:
- - Init Che Theia. This could be done with `che-theia init` command in `/projects/theia` folder or run the init command.
-   Che Theia sources will be awailable at `/projects/theia/che/che-theia`.
- - Now one may make changes in Che Theia remote plugin mechanism in both (Che Theia and Remote plugin) sides.
- - Build Che Theia from `theia-dev` container by executing `yarn` in `/projects/theia` folder or by running corresponding command.
- - Put binaries (*.theia or *.vsix) of your remote plugin(s) into `/projects/remote-plugins/` directory.
-   Note that the plugin(s) shouldn't have any external dependencies.
-   For example, [this sample plugin](https://github.com/eclipse/che-theia-samples/tree/master/samples/hello-world-backend-plugin) might be used.
-   Or a user may generate one using `Generate Hello World plugin package` command.
- - Run dev Che Theia and Remote plugins endpoint in `theia-dev` and `theia-remote-runtime-dev` containers correspondingly.
-   One may use predefined commands to start them.
- - Open `theia-dev` route from `My Workspace` panel and test chenges.
+As when working on developing Che-Theia itself, the approach is to run a copy of the Theia back end on a different port than that we use for the self hosting workspace. 
 
-Also it is possible to run watchers for remote plugin mechanism.
-In `theia-dev` container run `npx run watch @eclipse-che/theia-remote` from `/projects/theia` folder to recompile the extension on changes made.
-Also run `yarn watch` in `/projects/theia/examples/assembly` to bring the changes to Che Theia binaries.
-If needed one may start watchers in plugin API extension: `npx run watch @theia/plugin-ext` from `/projects/theia` directory.
-The commands for these actions are also available.
-But please note, you have to restart server to which changes is made.
+## Setting up the devfile
+
+So, starting with a workspace to develop che-theia, we'll have to add a container that will serve as the sidecar running our plugin.
+
+```yaml
+  - mountSources: true
+    memoryLimit: 2Gi
+    type: dockerimage
+    image: 'quay.io/eclipse/che-theia-dev:next'
+    alias: remote-1
+    env:
+      - value: '2504'
+        name: THEIA_PLUGIN_ENDPOINT_DISCOVERY_PORT
+      - value: 'local-dir:///projects/plugins-1/'
+        name: THEIA_PLUGINS
+      - value: /projects/java-11-openjdk
+        name: JAVA_HOME
+```
+
+  Notice the two environment variables we added: `THEIA_PLUGIN_ENDPOINT_DISCOVERY_PORT` and `THEIA_PLUGINS`. They will be used to tell the plugin host process we will run in the container where to announce it's presence and where to pick up the plugins it should run. Note that if you want to make the development process more realistic, you can point the THEIA_PLUGINS variable to some non-shared location, as would be the case in a real Che workspace. Anything in `/tmp` would serve.
+
+We'll also have to add the discovery endpoint setting to the container running the theia backend:
+
+```yaml
+ - mountSources: true
+    endpoints:
+      - name: theia-dev-flow
+        port: 3010
+        attributes:
+          protocol: http
+          public: 'true'
+    memoryLimit: 2Gi
+    type: dockerimage
+    image: 'quay.io/eclipse/che-theia-dev:next'
+    alias: theia-dev
+    env:
+      - value: '2504'
+        name: THEIA_PLUGIN_ENDPOINT_DISCOVERY_PORT
+```
+
+This way, the IDE and the remote plugin host process can find each other.
+
+The container in question must be able to work as a plugin sidecar for any plugin you want to run in it. If you are trying to debug a plugin that already has a sidecar container, it would make sense to base `remote-1` container on the sidecar that runs the original plugin. In that case, you would have to add a copy of node to sidecar container, since they generally don't contain one and we need to run the runtime host process, which is a node application. In this case, however, I've started with a `theia-dev` image and just point it to a JDK I've copied to `/projects/java-11-openjdk` by setting `JAVA_HOME`.
+
+If we want to debug later on, we'll have to add the `node-debug2` Che plugin to our workspace: 
+
+```yaml
+  - type: chePlugin
+    reference: >-
+      https://raw.githubusercontent.com/eclipse/che-plugin-registry/master/v3/plugins/ms-vscode/node-debug2/1.42.3/meta.yaml
+    alias: node-debug
+```
+
+Note that some earlier versions of the plugin did not work in a self-hosting setup, so make sure you are using a recent one. 
+
+## Setting up plugins to run
+
+We can now add plugins to run in the sidecar container by adding them to the folder `/projects/plugins-1` (or whaterver we define as `THEIA_PLUGINS` env variable). If we're just interested in debugging the theia plugins host process, we can download a *.vsix file to the folder: it will be unpacked to a subfolder of `/tmp`. If we need to debug the plugin, we can checkout the source code and build it according the the instructions for the plugin:
+
+```bash
+$ cd /projects/plugins-1/
+$ git clone https://github.com/redhat-developer/vscode-java
+$ cd vscode-java
+$ npm run compile
+```
+
+## Running the IDE
+
+Now we can run the IDE: 
+
+1. Open a terminal for the `remote-1`container. 
+
+2. In that container, type
+   `cd /projects/theia/che/che-theia/extensions/eclipse-che-theia-plugin-remote/lib/node`
+
+3. And then run the remote backend like so:
+   `node plugin-remote.js`
+   The terminal should spew out some text saying it's found the plugin we're trying to run 
+
+4. Open a terminal for the `theia-dev`container
+
+5. `cd /projects/theia/examples/assembly`
+
+6. `yarn run start --hostname=0.0.0.0 --port=3010 --plugins=local-dir:/projects/theia/plugins`
+   The theia back end should start up as normal
+
+7. Now click on `theia-dev-flow`in the "My Workspace" sidebar panel
+
+## Debugging
+
+In order to debug the remote plugin host proces, we can just add a parameter to step 2 above: `node --inspect-brk=8888 plugin-remote.js`
+The node process will wait upon startup until we connect the debugger using an `attach` debug configuration like this one:
+
+```json
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  "version": "0.2.0",
+  "configurations": [
+    {
+        "type": "node",
+        "request": "attach",
+        "name": "VSCode Java Extension",
+        "port": 8888,
+        "sourceMaps": true
+    }
+  ]
+}
+```
+
+Once the debugger has attached, the process will be suspended and you'll have to `continue` in order to complete the startup. You should now be able to put breakpoints in any source in the plugin host or target plugin source. 
