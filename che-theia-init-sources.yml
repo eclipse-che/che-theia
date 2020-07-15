@@ -16,6 +16,7 @@ sources:
     - extensions/eclipse-che-theia-messaging
     - extensions/eclipse-che-theia-file-sync-tracker
     - extensions/eclipse-che-theia-cli-endpoint
+    - extensions/eclipse-che-theia-workspace
   plugins:
     - plugins/containers-plugin
     - plugins/workspace-plugin
