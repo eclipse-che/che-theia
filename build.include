@@ -12,7 +12,7 @@ set -u
 
 IMAGE_TAG="next"
 THEIA_VERSION="master"
-THEIA_BRANCH="master"
+THEIA_BRANCH="ak\\/drop_monaco_language_client"
 THEIA_COMMIT_SHA=
 THEIA_GIT_REFS="refs\\/heads\\/master"
 THEIA_DOCKER_IMAGE_VERSION=
