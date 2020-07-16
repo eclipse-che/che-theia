@@ -23,3 +23,6 @@ asset-*
 che-editor-plugin.tar.gz
 inner-theia
 .git-che-theia-sha1
+
+# Reports
+index.md

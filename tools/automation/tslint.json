@@ -1,0 +1,18 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:recommended"
+  ],
+  "jsRules": {},
+  "rules": {
+    "radix": false,
+    "no-namespace": [true, "allow-declarations"],
+    "max-line-length": [true, 120],
+    "typedef": [
+      true,
+      "call-signature",
+      "property-declaration"
+    ]
+  },
+  "rulesDirectory": []
+}
