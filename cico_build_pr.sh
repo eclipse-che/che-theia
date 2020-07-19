@@ -29,4 +29,5 @@ sed -i -e 's/IMAGE_TAG="..*"/IMAGE_TAG="'${GIT_COMMIT}'"/' build.include
 
 parse "$@"
 
+export BUILDX=0
 buildImages

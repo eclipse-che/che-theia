@@ -117,6 +117,7 @@ init() {
   done
 
   IMAGE_NAME="$ORGANIZATION/$PREFIX-$NAME:$TAG"
+  IMAGE_NAME_NOTAG="$ORGANIZATION/$PREFIX-$NAME"
 }
 
 build() {
@@ -174,6 +175,13 @@ build_image() {
   content_docker=$(cat ${DIR}/${DOCKERFILE})
   update_macros "${content_docker}" > ${DIR}/.Dockerfile
 
+  if [ "${BUILDX}" == "1" ]; then
+    filename_to_check="${DIR}/docker/alpine/builder-from.dockerfile-multiarch"
+    if [ -f "${filename_to_check}" ]; then
+       sed -i 's|builder-from.dockerfile|builder-from.dockerfile-multiarch|g' ${DIR}/.Dockerfile
+    fi
+  fi
+
   # apply IF
   if_patterns=$(sed -n 's/.*\#{IF:\(.*\)\}/\1/p' ${DIR}/.Dockerfile)
    echo "$if_patterns" | while IFS= read -r conditional_arg ; do
@@ -217,25 +225,47 @@ build_image() {
     fi
   done
 
+  if [ "${BUILDX}" == "1" ]; then
+    REGISTRY="quay.io"
+    QUAY_USERNAME=${QUAY_ECLIPSE_CHE_USERNAME}
+    QUAY_PASSWORD=${QUAY_ECLIPSE_CHE_PASSWORD}
+    if [ -n "${QUAY_USERNAME}" ] && [ -n "${QUAY_PASSWORD}" ]; then
+      docker login -u "${QUAY_USERNAME}" -p "${QUAY_PASSWORD}" "${REGISTRY}"
+    else
+      echo "Could not login, missing credentials for pushing to the '${ORGANIZATION}' organization"
+      return
+    fi
+  fi
+
   if ! dry_run; then
-    cd "${DIR}" && docker build --cache-from ${IMAGE_NAME} -f ${DIR}/.Dockerfile -t ${IMAGE_NAME} ${BUILD_ARGS} ${DOCKER_BUILD_TARGET} .
+    if [ "${BUILDX}" == "1" ]; then
+        if [[ -n "${THEIA_DOCKER_IMAGE_VERSION}" ]]; then
+          cd "${DIR}" && docker buildx build --cache-from ${IMAGE_NAME} --platform linux/amd64,linux/s390x --file ${DIR}/.Dockerfile --output "type=image,push=true" --tag quay.io/${IMAGE_NAME_NOTAG}:${THEIA_DOCKER_IMAGE_VERSION} --tag quay.io/${IMAGE_NAME} --progress=plain .
+        else
+          cd "${DIR}" && docker buildx build --cache-from ${IMAGE_NAME} --platform linux/amd64,linux/s390x --file ${DIR}/.Dockerfile --output "type=image,push=true" --tag quay.io/${IMAGE_NAME} --progress=plain .
+        fi
+    else
+        cd "${DIR}" && docker build --cache-from ${IMAGE_NAME} -f ${DIR}/.Dockerfile -t ${IMAGE_NAME} ${BUILD_ARGS} ${DOCKER_BUILD_TARGET} .
+    fi
     rm ${DIR}/.Dockerfile
   fi
   
   if [ $? -eq 0 ]; then
     printf "Build of ${BLUE}${IMAGE_NAME} ${GREEN}[OK]${NC}\n"
-    if [ ! -z "${IMAGE_ALIASES}" ]; then
-      for TMP_IMAGE_NAME in ${IMAGE_ALIASES}
-      do
-        docker tag ${IMAGE_NAME} ${TMP_IMAGE_NAME}:${TAG}
-        if [ $? -eq 0 ]; then
-          printf "  /alias ${BLUE}${TMP_IMAGE_NAME}:${TAG}${NC} ${GREEN}[OK]${NC}\n"
-        else
-          printf "${RED}Failure when building docker image ${IMAGE_NAME}${NC}\n"
-          exit 1
-        fi
+    if [ "${BUILDX}" != "1" ]; then
+      if [ ! -z "${IMAGE_ALIASES}" ]; then
+        for TMP_IMAGE_NAME in ${IMAGE_ALIASES}
+        do
+          docker tag ${IMAGE_NAME} ${TMP_IMAGE_NAME}:${TAG}
+          if [ $? -eq 0 ]; then
+            printf "  /alias ${BLUE}${TMP_IMAGE_NAME}:${TAG}${NC} ${GREEN}[OK]${NC}\n"
+          else
+            printf "${RED}Failure when building docker image ${IMAGE_NAME}${NC}\n"
+            exit 1
+          fi
 
-      done
+        done
+      fi
     fi
     printf "${GREEN}Script run successfully: ${BLUE}${IMAGE_NAME}${NC}\n"
   else

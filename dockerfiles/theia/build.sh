@@ -39,8 +39,12 @@ fi
 
 build
 
-if ! skip_tests; then
-  bash "${base_dir}"/e2e/build.sh "$PREFIX-$NAME" "$@"
+if [ "${BUILDX}" != "1" ]; then
+  if ! skip_tests; then
+    bash "${base_dir}"/e2e/build.sh "$PREFIX-$NAME" "$@"
+  fi
+else
+  IMAGE_NAME="quay.io/${IMAGE_NAME}"
 fi
 
 if [[ -z "$DOCKER_BUILD_TARGET" ]]; then

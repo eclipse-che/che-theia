@@ -29,8 +29,14 @@ install_deps
 set +x
 load_jenkins_vars
 set -x
-buildImages
-publishImagesOnQuay
+export BUILDX=0
+if [[ $(check_buildx_support; echo $?) -eq 0 ]]; then
+  export BUILDX=1
+  buildImages
+else
+  buildImages
+  publishImagesOnQuay
+fi
 
 set +x
 # Release npm packages

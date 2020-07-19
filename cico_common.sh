@@ -47,6 +47,13 @@ function install_deps() {
   yum install -y docker-ce git nodejs yarn gcc-c++ make jq
 
   service docker start
+  #Set buildx environment variables
+  export DOCKER_BUILD_KIT=1
+  export DOCKER_CLI_EXPERIMENTAL=enabled
+  #Enable qemu and binfmt support
+  docker run --rm --privileged docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64
+  docker run --rm --privileged multiarch/qemu-user-static:4.2.0-7 --reset -p yes
+
   echo 'CICO: Dependencies installed'
 }
 

@@ -47,6 +47,31 @@ parse() {
   done
 }
 
+# Sorts two versions and returns the lower version to check if its supported for using docker buildx.
+check_supported_version() {
+  local query=$1
+  local target=$2
+  echo "$target" "$query" | tr ' ' '\n' | sort -V | head -n1 2> /dev/null
+}
+
+# Checks whether docker and kernel versions are greater than or equal to the specified version, such that docker buildx requirements are met.
+# Returns 0 when buildx support is available, returns 1 if its not available.
+check_buildx_support() {
+  docker_version="$(docker --version | cut -d' ' -f3 | tr -cd '0-9.')"
+  if [[ $(check_supported_version "$docker_version" "19.03") != 19.03 ]]; then
+    echo "CICO: Docker $docker_version greater than or equal to 19.03 is required."
+    return 1
+  else
+    # Kernel
+    kernel_version="$(uname -r)"
+    if [[ $(check_supported_version "$kernel_version" "4.8") != "4.8" ]]; then
+      return 1
+    else
+      return 0
+    fi
+  fi
+}
+
 is_publish_images() {
   if [[ "${PUBLISH_IMAGES}" == "true" ]]; then
     return 0
@@ -73,6 +98,12 @@ getImages() {
 }
 
 buildImages() {
+  if [[ -n "${THEIA_DOCKER_IMAGE_VERSION}" ]]; then
+    export THEIA_DOCKER_IMAGE_VERSION=""
+  else
+    export THEIA_DOCKER_IMAGE_VERSION=${THEIA_DOCKER_IMAGE_VERSION}
+  fi
+
   IFS=" " read -r -a IMG_LIST <<< "$(getImages)"
   for image_dir in "${IMG_LIST[@]}"
   do
