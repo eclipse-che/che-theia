@@ -4,17 +4,17 @@
   "version": "0.0.0",
   "engines": {
     "yarn": "1.0.x || >=1.2.1",
-    "node": ">=7.9.0"
+    "node": ">=12"
   },
   "resolution": {
-    "**/@types/node": "8.10.20"
+    "**/@types/node": "12.8.2"
   },
   "devDependencies": {
     "@types/chai": "^4.0.1",
     "@types/chai-string": "^1.4.0",
     "@types/jsdom": "^11.0.4",
     "@types/mocha": "^2.2.41",
-    "@types/node": "8.10.20",
+    "@types/node": "^12.0.0",
     "@types/sinon": "^2.3.5",
     "@types/temp": "^0.8.29",
     "@types/webdriverio": "^4.7.0",

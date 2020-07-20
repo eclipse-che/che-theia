@@ -1,1 +1,1 @@
-FROM node:10.20.1-alpine3.11 as build-result
+FROM node:12.18.2-alpine3.12 as build-result
