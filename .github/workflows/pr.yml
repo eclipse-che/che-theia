@@ -23,7 +23,7 @@ jobs:
     - uses: actions/setup-node@v1
       name: Configuring nodejs 10.x version
       with:
-        node-version: '10.x'
+        node-version: '12.x'
     - name: build
       run: yarn
   docker-build:
@@ -37,7 +37,7 @@ jobs:
     - uses: actions/setup-node@v1
       name: Configuring nodejs 10.x version
       with:
-        node-version: '10.x'
+        node-version: '12.x'
     - name: build
       run: |
         docker image prune -a -f

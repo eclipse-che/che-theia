@@ -1,1 +1,1 @@
-FROM alpine:3.11.5 as runtime
+FROM alpine:3.12.0 as runtime
