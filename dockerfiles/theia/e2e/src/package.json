@@ -43,7 +43,7 @@
         "http-server": "0.12.3",
         "jquery": "3.5.0",
         "json-server": "0.16.1",
-        "lodash": "4.17.15",
+        "lodash": "4.17.19",
         "minimist": "1.2.5",
         "morgan": "1.10.0",
         "react": "16.13.1",
