@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/welcome-plugin",
-  "version": "7.16.0",
+  "version": "7.16.1",
   "publisher": "Eclipse Che",
   "keywords": [
     "theia-plugin"
@@ -33,7 +33,7 @@
   "devDependencies": {
     "@theia/plugin": "1.4.0-next.a0e635ae",
     "@theia/plugin-packager": "latest",
-    "@eclipse-che/plugin": "7.16.0"
+    "@eclipse-che/plugin": "7.16.1"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
