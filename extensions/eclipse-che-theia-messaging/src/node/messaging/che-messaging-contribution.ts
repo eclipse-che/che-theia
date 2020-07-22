@@ -72,7 +72,6 @@ export class CheMessagingContribution extends MessagingContribution {
             return true; // we're outside of Che Workspace, so allow a request
         }
 
-
         const requestOrigin = request.headers.origin;
         if (typeof requestOrigin !== 'string') {
             return false;
