@@ -28,7 +28,7 @@ context('TypeScript', () => {
 
 
         // close any workspace
-        cy.theiaCommandPaletteClick('Close Workspace').then(() => {
+        cy.theiaCommandPaletteClick('Close Workspace', '{downarrow}').then(() => {
             const $el = Cypress.$('button.theia-button.main');
             if ($el.length) {
                 cy.get('button.theia-button.main').should('exist').then(() => {
