@@ -19,6 +19,11 @@ export namespace CheWorkspaceCommands {
     const WORKSPACE_CATEGORY = 'Workspace';
     const FILE_CATEGORY = 'File';
 
+    export const OPEN_WORKSPACE: Command = {
+        id: 'che.openWorkspace',
+        category: FILE_CATEGORY,
+        label: 'Open Workspace...'
+    };
     export const OPEN_RECENT_WORKSPACE: Command = {
         id: 'che.openRecentWorkspace',
         category: FILE_CATEGORY,
@@ -37,6 +42,9 @@ export class CheWorkspaceContribution implements CommandContribution, MenuContri
     @inject(CheWorkspaceController) protected readonly workspaceController: CheWorkspaceController;
 
     registerCommands(commands: CommandRegistry): void {
+        commands.registerCommand(CheWorkspaceCommands.OPEN_WORKSPACE, {
+            execute: () => this.workspaceController.openWorkspace()
+        });
         commands.registerCommand(CheWorkspaceCommands.OPEN_RECENT_WORKSPACE, {
             execute: () => this.workspaceController.openRecentWorkspace()
         });
@@ -47,12 +55,20 @@ export class CheWorkspaceContribution implements CommandContribution, MenuContri
 
     registerMenus(menus: MenuModelRegistry): void {
         menus.unregisterMenuAction({
+            commandId: WorkspaceCommands.OPEN_WORKSPACE.id
+        }, CommonMenus.FILE_OPEN);
+        menus.unregisterMenuAction({
             commandId: WorkspaceCommands.OPEN_RECENT_WORKSPACE.id
         }, CommonMenus.FILE_OPEN);
         menus.unregisterMenuAction({
             commandId: WorkspaceCommands.CLOSE.id
         }, CommonMenus.FILE_CLOSE);
 
+        menus.registerMenuAction(CommonMenus.FILE_OPEN, {
+            commandId: CheWorkspaceCommands.OPEN_WORKSPACE.id,
+            label: CheWorkspaceCommands.OPEN_WORKSPACE.label,
+            order: 'a10'
+        });
         menus.registerMenuAction(CommonMenus.FILE_OPEN, {
             commandId: CheWorkspaceCommands.OPEN_RECENT_WORKSPACE.id,
             label: CheWorkspaceCommands.OPEN_RECENT_WORKSPACE.label,

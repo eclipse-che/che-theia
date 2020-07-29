@@ -72,8 +72,16 @@ export class CheWorkspaceController {
     @inject(CheApiService) protected readonly cheApi: CheApiService;
     @inject(QuickOpenCheWorkspace) protected readonly quickOpenWorkspace: QuickOpenCheWorkspace;
 
+    async openWorkspace(): Promise<void> {
+        await this.doOpenWorkspace(false);
+    }
+
     async openRecentWorkspace(): Promise<void> {
-        await this.quickOpenWorkspace.select(async (workspace: che.workspace.Workspace) => {
+        await this.doOpenWorkspace(true);
+    }
+
+    private doOpenWorkspace(recent: boolean): Promise<void> {
+        return  this.quickOpenWorkspace.select(recent, async (workspace: che.workspace.Workspace) => {
             const dialog = new StopWorkspaceDialog();
             const result = await dialog.open();
             if (typeof result === 'boolean') {

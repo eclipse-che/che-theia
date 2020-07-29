@@ -79,7 +79,7 @@ export class QuickOpenCheWorkspace implements QuickOpenModel {
         acceptor(this.items);
     }
 
-    async select(acceptor: (workspace: che.workspace.Workspace) => void): Promise<void> {
+    async select(recent: boolean, acceptor: (workspace: che.workspace.Workspace) => void): Promise<void> {
         this.items = [];
 
         const token = await this.oAuthUtils.getUserToken();
@@ -92,9 +92,15 @@ export class QuickOpenCheWorkspace implements QuickOpenModel {
             return;
         }
 
-        const workspaces = await this.cheApi.getAllByNamespace(this.currentWorkspace.namespace, token);
+        let workspaces = await this.cheApi.getAllByNamespace(this.currentWorkspace.namespace, token);
 
-        workspaces.sort(CheWorkspaceUtils.modificationTimeComparator);
+        if (recent) {
+            workspaces.sort(CheWorkspaceUtils.modificationTimeComparator);
+
+            if (workspaces.length > 5) {
+                workspaces = workspaces.slice(0, 5);
+            }
+        }
 
         await this.open(workspaces, acceptor);
     }
