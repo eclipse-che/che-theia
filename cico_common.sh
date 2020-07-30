@@ -40,7 +40,7 @@ function install_deps() {
   # Get all the deps in
   yum install -y yum-utils device-mapper-persistent-data lvm2
   yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-  curl -sL https://rpm.nodesource.com/setup_10.x | bash -
+  curl -sL https://rpm.nodesource.com/setup_12.x | bash -
   yum-config-manager --add-repo https://dl.yarnpkg.com/rpm/yarn.repo
 
   yum install -y epel-release

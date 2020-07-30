@@ -1,0 +1,31 @@
+{
+  "name": "@eclipse-che/theia-workspace-extension",
+  "keywords": [
+    "theia-extension"
+  ],
+  "version": "0.0.1",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "@eclipse-che/api": "latest",
+    "@theia/workspace": "next",
+    "@eclipse-che/theia-plugin-ext": "^0.0.1"
+  },
+  "scripts": {
+    "prepare": "yarn clean && yarn build",
+    "clean": "rimraf lib",
+    "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
+    "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
+    "compile": "tsc",
+    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
+    "watch": "tsc -w"
+  },
+  "license": "EPL-2.0",
+  "theiaExtensions": [
+    {
+      "frontend": "lib/browser/che-workspace-module"
+    }
+  ]
+}

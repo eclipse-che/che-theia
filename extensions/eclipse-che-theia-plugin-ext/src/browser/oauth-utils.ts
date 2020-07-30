@@ -10,7 +10,7 @@
 import { inject, injectable } from 'inversify';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { CheApiService } from '../common/che-protocol';
-import { Emitter, Event } from '@theia/core/lib/common';
+import { Emitter, Event, MessageService } from '@theia/core/lib/common';
 
 @injectable()
 export class OauthUtils {
@@ -20,6 +20,7 @@ export class OauthUtils {
     private oAuthPopup: Window | undefined;
     private userToken: string | undefined;
     private readonly onDidReceiveToken: Event<void>;
+    @inject(MessageService) private readonly messageService: MessageService;
     constructor(@inject(EnvVariablesServer) private readonly envVariableServer: EnvVariablesServer,
         @inject(CheApiService) private readonly cheApiService: CheApiService) {
         const onDidReceiveTokenEmitter = new Emitter<void>();
@@ -53,13 +54,20 @@ export class OauthUtils {
         if (this.userToken) {
             return this.userToken;
         } else if (this.machineToken && this.machineToken.length > 0) {
+            const timer = setTimeout(() => {
+                this.messageService.warn('Authentication is taking too long, the oauth pop-up may be blocked by your browser, ' +
+                    'if so, allow popup windows for the current url and restart the workspace');
+            }, 10000);
             const popup = window.open(`${this.apiUrl.substring(0, this.apiUrl.indexOf('/api'))}/_app/oauth.html`,
                 'popup', 'toolbar=no, status=no, menubar=no, scrollbars=no, width=10, height=10, visible=none');
             if (popup) {
                 this.oAuthPopup = popup;
             }
             return new Promise(async resolve => {
-                this.onDidReceiveToken(() => resolve(this.userToken));
+                this.onDidReceiveToken(() => {
+                    clearTimeout(timer);
+                    resolve(this.userToken);
+                });
             });
         }
     }

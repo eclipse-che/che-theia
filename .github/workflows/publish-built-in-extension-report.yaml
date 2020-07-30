@@ -1,0 +1,38 @@
+# Copyright (c) 2020 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+
+# Publish automated plugin report to GH pages
+name: publish
+
+on:
+  push:
+    branches: [ master ]
+  schedule:
+    - cron:  '0 1 * * *'
+jobs:
+  publish:
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12'
+    - name: Get current time
+      uses: 1466587594/get-current-time@v1
+      id: current-date-time
+      with:
+        format: YYYY-MM-DD
+    - name: publish
+      env:
+        DATE_TIME: "${{ steps.current-date-time.outputs.formattedTime }}" 
+      run: |
+        ./.ci/publish-report.sh

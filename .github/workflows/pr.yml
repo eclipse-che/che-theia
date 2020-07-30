@@ -15,6 +15,16 @@ name: CI
 on: [push, pull_request]
 
 jobs:
+  # check EOF newline
+  linelint:
+    runs-on: ubuntu-latest
+    name: eof-newline
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Linelint
+        uses: fernandrone/linelint@0.0.5
+        id: linelint
   node-build:
     runs-on: ubuntu-latest
     steps:
@@ -23,7 +33,7 @@ jobs:
     - uses: actions/setup-node@v1
       name: Configuring nodejs 10.x version
       with:
-        node-version: '10.x'
+        node-version: '12.x'
     - name: build
       run: yarn
   docker-build:
@@ -37,7 +47,7 @@ jobs:
     - uses: actions/setup-node@v1
       name: Configuring nodejs 10.x version
       with:
-        node-version: '10.x'
+        node-version: '12.x'
     - name: build
       run: |
         docker image prune -a -f

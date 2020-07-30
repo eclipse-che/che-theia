@@ -78,7 +78,7 @@ export class CheMessagingContribution extends MessagingContribution {
         }
         const requestOriginURI = new URI(requestOrigin);
 
-        return theiaEndpoints.some(uri => uri.isEqualOrParent(requestOriginURI));
+        return theiaEndpoints.some(uri => requestOriginURI.isEqualOrParent(uri));
     }
 
     public getConnectionContainers(): Container[] {
