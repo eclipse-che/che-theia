@@ -4,9 +4,9 @@ RUN apk add --update --no-cache \
     # To play with json in shell
     jq \
     # compile some javascript native stuff (node-gyp)
-    make gcc g++ python \
+    make gcc g++ python2 \
     # clone repositories (and also using ssh repositories)
-    git openssh openssh-keygen man git-doc \
+    git openssh openssh-keygen mandoc git-doc \
     # Handle git diff properly
     less \
     # bash shell

@@ -209,6 +209,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
     protected async connectSocket(id: number): Promise<void> {
         if (this.socket) {
+            this.resolveRemoteConnection();
             return Promise.resolve();
         }
         this.socket = this.createWebSocket(id.toString());
@@ -218,9 +219,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         let onDataDisposeHandler: IDisposable;
         this.socket.onopen = () => {
             this.term.reset();
-            if (this.waitForRemoteConnection) {
-                this.waitForRemoteConnection.resolve(this.socket);
-            }
+            this.resolveRemoteConnection();
 
             onDataDisposeHandler = this.term.onData(sendListener);
             this.socket.onmessage = ev => this.write(ev.data);
@@ -340,6 +339,12 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
         this.interruptProcess().then(() => {
             super.dispose();
         });
+    }
+
+    private resolveRemoteConnection(): void {
+        if (this.waitForRemoteConnection) {
+            this.waitForRemoteConnection.resolve(this.socket);
+        }
     }
 
     private async interruptProcess(): Promise<void> {

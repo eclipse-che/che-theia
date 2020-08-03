@@ -25,4 +25,3 @@ module.exports = (on) => {
   }
   on('file:preprocessor', wp(options))
 }
-

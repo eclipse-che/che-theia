@@ -255,4 +255,3 @@ describe("Test CdnHtmlTemplate", () => {
         );
     });
 });
-
