@@ -106,4 +106,3 @@ declare namespace Cypress {
     theiaCleanup : () => void
   }
 }
-

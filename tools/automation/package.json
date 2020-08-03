@@ -1,0 +1,79 @@
+{
+  "name": "@eclipse-che/theia-built-in-extensions-update-automation",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Scripts for updating, adding, removing, and building extensions in che-theia",
+  "main": "check-extension-updates.js",
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "build": "yarn run format && yarn run compile && yarn run lint",
+    "compile": "tsc --project .",
+    "format": "prettier --write **/*.ts **/**/*.ts package.json",
+    "format-check": "prettier --check **/*.ts **/**/*.ts package.json",
+    "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eclipse/che-theia.git"
+  },
+  "author": "",
+  "license": "EPL-2.0",
+  "bugs": {
+    "url": "https://github.com/eclipse/che/issues"
+  },
+  "homepage": "https://github.com/eclipse/che-theia/blob/master/tools/automation/README.md",
+  "dependencies": {
+    "download": "^8.0.0",
+    "fs-extra": "^9.0.1",
+    "handlebars": "^4.7.6",
+    "moment": "^2.27.0",
+    "semver": "^7.3.2",
+    "simple-git": "^2.12.0",
+    "vsix-info": "^0.0.3"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.1",
+    "@types/semver": "^7.3.1",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-jest": "^23.11.0",
+    "import-sort-style-eslint": "^6.0.0",
+    "prettier": "^2.0.5",
+    "prettier-plugin-import-sort": "^0.0.4",
+    "ts-mockito": "^2.5.0",
+    "ts-node": "^8.10.1",
+    "vuepress": "^1.5.2"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.ts"
+    ],
+    "coverageDirectory": "./coverage",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "modulePathIgnorePatterns": [
+      "<rootDir>/dist"
+    ],
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json"
+    ]
+  },
+  "prettier": {
+    "printWidth": 120,
+    "singleQuote": true
+  },
+  "importSort": {
+    ".ts": {
+      "style": "eslint",
+      "parser": "typescript"
+    }
+  }
+}
