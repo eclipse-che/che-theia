@@ -5,18 +5,18 @@
     "che",
     "preferences"
   ],
-  "version": "0.0.1",
+  "version": "7.17.0",
   "license": "EPL-2.0",
   "files": [
     "lib",
     "src"
   ],
   "dependencies": {
-    "@theia/core": "next",
-    "@theia/workspace": "next",
+    "@theia/core": "1.5.0-next.6086b289",
+    "@theia/workspace": "1.5.0-next.6086b289",
     "nsfw": "^1.2.2",
-    "@theia/preferences": "next",
-    "@eclipse-che/theia-plugin-ext": "^0.0.1"
+    "@theia/preferences": "1.5.0-next.6086b289",
+    "@eclipse-che/theia-plugin-ext": "7.17.0"
   },
   "devDependencies": {
     "rimraf": "latest"
