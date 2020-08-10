@@ -23,7 +23,7 @@ COMMITTERS: please include labels on each PR. Labels are listed here: https://gi
 <!-- Please add a matching PR to [the docs repo](https://github.com/eclipse/che-docs) and link that PR to this issue.
 Both will be merged at the same time. -->
 
-### Hapy Path Channel
+### Happy Path Channel
 <!-- Select the Happy Path Channel used for tests.
   `stable` will use the latest che version to run Che-Theia editor.
   `next`   will use the current development che version. May be unstable.
