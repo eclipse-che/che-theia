@@ -16,7 +16,7 @@
     "@theia/core": "next",
     "@theia/preferences": "next",
     "ini": "^1.3.5",
-    "nsfw": "^1.2.2",
+    "nsfw": "^1.2.9",
     "@eclipse-che/theia-user-preferences-synchronizer": "0.0.1"
   },
   "devDependencies": {
