@@ -28,9 +28,10 @@
     "publish:next": "lerna run publish:next"
   },
   "resolutions": {
+   "dot-prop": "^5.2.0",
+   "elliptic": "^6.5.3",
     "**/**/@types/node": "^12.0.0",
     "**/**/minimist": "^1.2.0",
-    "**/**/nsfw": "1.2.7",
     "**/mkdirp": "^0.5.1"
   },
   "workspaces": {
