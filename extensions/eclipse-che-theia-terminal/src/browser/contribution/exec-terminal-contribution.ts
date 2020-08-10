@@ -186,13 +186,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     }
 
     async openTerminalByContainerName(containerName: string): Promise<void> {
-        const editorContainer = await this.getEditorContainerName();
-        let cwd: string | undefined;
-        // use information about volumes to cover cwd for development containers too. Depends on https://github.com/eclipse/che/issues/13290
-        if (containerName === editorContainer) {
-            cwd = await this.selectTerminalCwd();
-        }
-
+        const cwd = await this.selectTerminalCwd();
         const termWidget = await this.newTerminalPerContainer(containerName, { cwd });
         this.open(termWidget);
         termWidget.start();

@@ -58,7 +58,7 @@ export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenMode
                         if (mode !== QuickOpenMode.OPEN) {
                             return false;
                         }
-                        doOpen(container.name);
+                        setTimeout(() => doOpen(container.name), 0);
 
                         return true;
                     }
@@ -78,7 +78,7 @@ export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenMode
                         if (mode !== QuickOpenMode.OPEN) {
                             return false;
                         }
-                        doOpen(container.name);
+                        setTimeout(() => doOpen(container.name), 0);
 
                         return true;
                     }
