@@ -9,7 +9,7 @@
  **********************************************************************/
 import { CheApiService, Preferences, User, WorkspaceSettings } from '../common/che-protocol';
 import { che as cheApi } from '@eclipse-che/api';
-import WorkspaceClient, { IRemoteAPI } from '@eclipse-che/workspace-client';
+import WorkspaceClient, { IRemoteAPI } from '@vzhukovs/workspace-client';
 import { injectable } from 'inversify';
 import { SS_CRT_PATH } from './che-https';
 import { TelemetryClient, EventProperty } from '@eclipse-che/workspace-telemetry-client';

@@ -871,16 +871,6 @@
   dependencies:
     "@eclipse-che/api" latest
 
-"@eclipse-che/workspace-client@latest":
-  version "0.0.1-1593692693"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-client/-/workspace-client-0.0.1-1593692693.tgz#0606ef98a84b7e7c8a5305f31cf07696c1e29bed"
-  integrity sha512-DCD/oL3Hs0EKzypyn05c5cMiVOHrYds8cQ102Sti2/W70KTyTtQJNVUsuew1qnUHUlb/VCLdkwq2ck/DV6TqgQ==
-  dependencies:
-    "@eclipse-che/api" "^7.0.0-beta-4.0"
-    axios "0.19.0"
-    tunnel "0.0.6"
-    websocket "1.0.23"
-
 "@eclipse-che/workspace-telemetry-client@latest":
   version "0.0.1-1593194676"
   resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-telemetry-client/-/workspace-telemetry-client-0.0.1-1593194676.tgz#3d57dff1724c5eec6370dd97de6b71a4b45a97ab"
@@ -3363,6 +3353,16 @@
     stylus-loader "^3.0.2"
     vuepress-plugin-container "^2.0.2"
     vuepress-plugin-smooth-scroll "^0.0.3"
+
+"@vzhukovs/workspace-client@0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@vzhukovs/workspace-client/-/workspace-client-0.0.8.tgz#f4ad6e890024ac81bd30a7fe3544087e207ffe46"
+  integrity sha512-L6yutWq79682fOD3xyOR1QiK9h69XhBbj+uVDMDXvclaAoexGsnrIgukev+d8IXOwrhUdBFwGn1KZ/U5O08AVg==
+  dependencies:
+    "@eclipse-che/api" "^7.0.0-beta-4.0"
+    axios "0.19.0"
+    tunnel "0.0.6"
+    websocket "1.0.23"
 
 "@webassemblyjs/ast@1.9.0":
   version "1.9.0"

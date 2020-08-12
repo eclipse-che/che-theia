@@ -9,7 +9,7 @@
  **********************************************************************/
 
 import { injectable, inject } from 'inversify';
-import WorkspaceClient, { IRemoteAPI } from '@eclipse-che/workspace-client';
+import WorkspaceClient, { IRemoteAPI } from '@vzhukovs/workspace-client';
 import { che } from '@eclipse-che/api';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { CHEWorkspaceService, WorkspaceContainer } from '../common/workspace-service';
