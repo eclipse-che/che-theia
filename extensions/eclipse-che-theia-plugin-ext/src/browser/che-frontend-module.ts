@@ -54,6 +54,11 @@ import { CheTaskResolver } from './che-task-resolver';
 import { CheTaskTerminalWidgetManager } from './che-task-terminal-widget-manager';
 import { TaskTerminalWidgetManager } from '@theia/task/lib/browser/task-terminal-widget-manager';
 import { ContainerPicker } from './container-picker';
+import { ChePluginHandleRegistry } from './che-plugin-handle-registry';
+import { CheLanguagesMainTestImpl } from './che-languages-test-main';
+import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
+import { interfaces } from 'inversify';
+import { LanguagesMainFactory } from '@theia/plugin-ext';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(CheApiProvider).toSelf().inSingletonScope();
@@ -122,4 +127,12 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
 
     bind(CheTaskTerminalWidgetManager).toSelf().inSingletonScope();
     rebind(TaskTerminalWidgetManager).toService(CheTaskTerminalWidgetManager);
+
+    bind(ChePluginHandleRegistry).toSelf().inSingletonScope();
+    bind(CheLanguagesMainTestImpl).toSelf().inTransientScope();
+    rebind(LanguagesMainFactory).toFactory((context: interfaces.Context) => (rpc: RPCProtocol) => {
+        const child = context.container.createChild();
+        child.bind(RPCProtocol).toConstantValue(rpc);
+        return child.get(CheLanguagesMainTestImpl);
+    });
 });

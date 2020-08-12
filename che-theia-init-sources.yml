@@ -12,8 +12,6 @@ sources:
     - extensions/eclipse-che-theia-about
     - extensions/eclipse-che-theia-preferences-provider-extension
     - extensions/eclipse-che-theia-git-provisioner
-    - extensions/eclipse-che-theia-testing-service-ext
-    - extensions/eclipse-che-theia-testing-service
     - extensions/eclipse-che-theia-logging
     - extensions/eclipse-che-theia-messaging
     - extensions/eclipse-che-theia-file-sync-tracker

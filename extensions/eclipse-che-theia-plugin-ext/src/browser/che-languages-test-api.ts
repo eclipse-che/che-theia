@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import { PluginHandleRegistry } from './plugin-handle-registry';
+import { ChePluginHandleRegistry } from './che-plugin-handle-registry';
 import { interfaces } from 'inversify';
-import { TestAPI } from '../common/test-protocol';
+import { CheLanguagesTestAPI } from '../common/che-languages-test-protocol';
 import {
     CompletionContext,
     CompletionResultDto,
@@ -44,12 +44,12 @@ import {
 /**
  * This class redirects language api requests to the correct sidecars and returns the results
  */
-export class TestAPIImpl implements TestAPI {
+export class CheLanguagesTestAPIImpl implements CheLanguagesTestAPI {
 
-    private readonly pluginHandleRegistry: PluginHandleRegistry;
+    private readonly pluginHandleRegistry: ChePluginHandleRegistry;
 
     constructor(container: interfaces.Container) {
-        this.pluginHandleRegistry = container.get(PluginHandleRegistry);
+        this.pluginHandleRegistry = container.get(ChePluginHandleRegistry);
     }
 
     async $provideCompletionItems(pluginID: string, resource: UriComponents, position: Position,
@@ -106,7 +106,6 @@ export class TestAPIImpl implements TestAPI {
         return languagesExt.$provideDocumentFormattingEdits(handle, resource, options, token);
     }
 
-    // tslint:disable-next-line:no-any
     async $provideDocumentRangeFormattingEdits(pluginID: string, resource: UriComponents, range: Range,
         options: FormattingOptions, token: CancellationToken): Promise<TextEdit[] | undefined> {
         const { languagesExt, handle } = await this.pluginHandleRegistry.lookupLanguagesExtForPluginAndAction(pluginID, 'documentRangeFormattingEdits');
@@ -129,7 +128,6 @@ export class TestAPIImpl implements TestAPI {
         return languagesExt.$provideDocumentLinks(handle, resource, token);
     }
 
-    // tslint:disable-next-line:no-any
     async $provideCodeActions(pluginID: string,
         resource: UriComponents,
         rangeOrSelection: Range | Selection,

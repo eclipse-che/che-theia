@@ -37,10 +37,9 @@ import {
     RawColorInfo,
     WorkspaceEditDto
 } from '@theia/plugin-ext/lib/common/plugin-api-rpc';
-import { createProxyIdentifier } from '@theia/plugin-ext/lib/common/rpc-protocol';
 
 // Expose additional API that allows you to know if a language server is connected and build a map of the language servers
-export interface TestAPI {
+export interface CheLanguagesTestAPI {
     $provideCompletionItems(pluginID: string, resource: UriComponents, position: Position,
         context: CompletionContext, token: CancellationToken): Promise<CompletionResultDto | undefined>;
     $provideImplementation(pluginID: string, resource: UriComponents, position: Position, token: CancellationToken): Promise<Definition | undefined>;
@@ -85,7 +84,3 @@ export interface TestAPI {
     $provideDocumentColors(pluginID: string, resource: UriComponents, token: CancellationToken): PromiseLike<RawColorInfo[]>;
     $provideRenameEdits(pluginID: string, resource: UriComponents, position: Position, newName: string, token: CancellationToken): PromiseLike<WorkspaceEditDto | undefined>;
 }
-
-export const PLUGIN_RPC_CONTEXT = {
-    TEST_API_MAIN: createProxyIdentifier<TestAPI>('TestAPI'),
-};

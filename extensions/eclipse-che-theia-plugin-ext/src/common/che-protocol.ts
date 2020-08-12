@@ -12,6 +12,7 @@ import { che as cheApi } from '@eclipse-che/api';
 import * as che from '@eclipse-che/plugin';
 import { Event, JsonRpcServer } from '@theia/core';
 import { createProxyIdentifier } from '@theia/plugin-ext/lib/common/rpc-protocol';
+import { CheLanguagesTestAPI } from './che-languages-test-protocol';
 
 /**
  * Workspace plugin API
@@ -445,6 +446,8 @@ export const PLUGIN_RPC_CONTEXT = {
 
     CHE_SIDERCAR_CONTENT_READER: createProxyIdentifier<CheSideCarContentReader>('CheSideCarContentReader'),
     CHE_SIDERCAR_CONTENT_READER_MAIN: createProxyIdentifier<CheSideCarContentReaderMain>('CheSideCarContentReaderMain'),
+
+    CHE_LANGUAGES_TEST_API_MAIN: createProxyIdentifier<CheLanguagesTestAPI>('CheLanguagesTestAPI')
 };
 
 // Theia RPC protocol

@@ -13,7 +13,7 @@ import { PluginInfo, LanguagesExt, MAIN_RPC_CONTEXT } from '@theia/plugin-ext/li
 import { SerializedDocumentFilter, MarkerData } from '@theia/plugin-ext/lib/common/plugin-api-rpc-model';
 import { LanguagesMainImpl } from '@theia/plugin-ext/lib/main/browser/languages-main';
 import * as theia from '@theia/plugin';
-import { PluginHandleRegistry } from './plugin-handle-registry';
+import { ChePluginHandleRegistry } from './che-plugin-handle-registry';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { LanguagesMain, SerializedLanguageConfiguration } from '@theia/plugin-ext/lib/common/plugin-api-rpc';
 import { UriComponents } from '@theia/plugin-ext/lib/common/uri-components';
@@ -44,13 +44,13 @@ export type LanguageServerActions =
     'renameEdits';
 
 @injectable()
-export class LanguagesMainTestImpl implements LanguagesMain {
+export class CheLanguagesMainTestImpl implements LanguagesMain {
 
     @inject(LanguagesMainImpl)
     private readonly languagesMainImpl: LanguagesMainImpl;
 
-    @inject(PluginHandleRegistry)
-    private readonly pluginHandleRegistry: PluginHandleRegistry;
+    @inject(ChePluginHandleRegistry)
+    private readonly pluginHandleRegistry: ChePluginHandleRegistry;
 
     private readonly languagesExtProxy: LanguagesExt;
 

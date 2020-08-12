@@ -9,7 +9,7 @@
  **********************************************************************/
 
 import { injectable } from 'inversify';
-import { LanguageServerAction } from './languages-test-main';
+import { LanguageServerAction } from './che-languages-test-main';
 import { LanguagesExt } from '@theia/plugin-ext';
 import { Emitter } from '@theia/core/lib/common/event';
 
@@ -32,7 +32,7 @@ export interface LanguageRegistrationEvent extends LanguagesExtHandle {
  * This class keeps a registry of which plugins map to which handle
  */
 @injectable()
-export class PluginHandleRegistry {
+export class ChePluginHandleRegistry {
     pluginRegistrationMap: Map<string, LanguageFeatureRegistration> = new Map();
 
     private onRegisteredLanguageFeatureEmitter = new Emitter<LanguageRegistrationEvent>();
@@ -57,7 +57,7 @@ export class PluginHandleRegistry {
         const registeredLanguagesExt = this.findRegisteredLanguagesExt(pluginID, languageServerAction);
         if (!registeredLanguagesExt) {
             return new Promise(resolve => {
-                this.onRegisteredLanguageFeature(newRegistration => {
+                this.onRegisteredLanguageFeature((newRegistration: LanguageRegistrationEvent) => {
                     if (newRegistration.pluginID === pluginID && newRegistration.action === languageServerAction) {
                         return resolve(newRegistration);
                     }

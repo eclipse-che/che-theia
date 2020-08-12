@@ -81,7 +81,7 @@ export class CheWorkspaceController {
     }
 
     private doOpenWorkspace(recent: boolean): Promise<void> {
-        return  this.quickOpenWorkspace.select(recent, async (workspace: che.workspace.Workspace) => {
+        return this.quickOpenWorkspace.select(recent, async (workspace: che.workspace.Workspace) => {
             const dialog = new StopWorkspaceDialog();
             const result = await dialog.open();
             if (typeof result === 'boolean') {
