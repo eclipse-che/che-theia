@@ -3,7 +3,7 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "7.17.0",
+  "version": "7.17.1",
   "files": [
     "lib",
     "node"
@@ -12,8 +12,8 @@
     "@theia/core": "1.5.0-next.6086b289",
     "@theia/plugin-dev": "1.5.0-next.6086b289",
     "@theia/plugin-ext": "1.5.0-next.6086b289",
-    "@eclipse-che/workspace-client": "latest",
-    "@eclipse-che/api": "latest"
+    "@eclipse-che/workspace-client": "0.0.1-1597050739",
+    "@eclipse-che/api": "7.5.0-SNAPSHOT"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",
