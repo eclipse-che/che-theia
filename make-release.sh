@@ -108,30 +108,25 @@ apply_files_edits () {
   sed_in_place -e "s/^THEIA_COMMIT_SHA=$/THEIA_COMMIT_SHA=\"${THEIA_VERSION##*.}\"/" build.include
   sed_in_place -e "s/THEIA_DOCKER_IMAGE_VERSION=.*/THEIA_DOCKER_IMAGE_VERSION=\"${VERSION}\"/" build.include
 
-  # Update extensions/plugins package.json files:
-  # - set packages' version
-  # - update versions of Che dependencies
   for m in "extensions/*" "plugins/*"; do
     PACKAGE_JSON="${m}"/package.json
     # shellcheck disable=SC2086
     sed_in_place -r -e "s/(\"version\": )(\".*\")/\1\"$VERSION\"/" ${PACKAGE_JSON}
     # shellcheck disable=SC2086
     sed_in_place -r -e "/@eclipse-che\/api|@eclipse-che\/workspace-client|@eclipse-che\/workspace-telemetry-client/!s/(\"@eclipse-che\/..*\": )(\".*\")/\1\"$VERSION\"/" ${PACKAGE_JSON}
-    # shellcheck disable=SC2086
-    sed_in_place -r -e "s/(\"@eclipse-che\/workspace-client\": )(\".*\")/\1\"$WS_CLIENT_VERSION\"/" ${PACKAGE_JSON}
-    # shellcheck disable=SC2086
-    sed_in_place -r -e "s/(\"@eclipse-che\/workspace-telemetry-client\": )(\".*\")/\1\"$WS_TELEMETRY_CLIENT_VERSION\"/" ${PACKAGE_JSON}
-    # shellcheck disable=SC2086
-    sed_in_place -r -e "s/(\"@eclipse-che\/api\": )(\".*\")/\1\"$API_DTO_VERSION\"/" ${PACKAGE_JSON}
   done
 
   if [[ ${VERSION} == *".0" ]]; then
-    # Update extensions/plugins package.json files:
-    # - update versions of Theia dependencies
     for m in "extensions/*" "plugins/*"; do
       PACKAGE_JSON="${m}"/package.json
       # shellcheck disable=SC2086
-      sed_in_place -r -e "/plugin-packager/!s/(\"@theia\/..*\": )(\".*\")/\1\"${THEIA_VERSION}\"/" ${PACKAGE_JSON}
+      sed_in_place -r -e "/plugin-packager/!s/(\"@theia\/..*\": )(\"next\")/\1\"${THEIA_VERSION}\"/" ${PACKAGE_JSON}
+      # shellcheck disable=SC2086
+      sed_in_place -r -e "s/(\"@eclipse-che\/workspace-client\": )(\"latest\")/\1\"$WS_CLIENT_VERSION\"/" ${PACKAGE_JSON}
+      # shellcheck disable=SC2086
+      sed_in_place -r -e "s/(\"@eclipse-che\/workspace-telemetry-client\": )(\"latest\")/\1\"$WS_TELEMETRY_CLIENT_VERSION\"/" ${PACKAGE_JSON}
+      # shellcheck disable=SC2086
+      sed_in_place -r -e "s/(\"@eclipse-che\/api\": )(\"latest\")/\1\"$API_DTO_VERSION\"/" ${PACKAGE_JSON}
     done
 
     sed_in_place -e '$ a RUN cd ${HOME} \&\& tar zcf ${HOME}/theia-source-code.tgz theia-source-code' dockerfiles/theia/docker/ubi8/builder-clone-theia.dockerfile
