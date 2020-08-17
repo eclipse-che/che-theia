@@ -17,8 +17,6 @@ describe("Test CdnHtmlTemplate", () => {
     let cdnPrefix: string | undefined;
     let monacoCdnPrefix: string | undefined;
     let monacoEditorCorePackage: string | undefined;
-    let monacoHtmlContribPackage: string | undefined;
-    let monacoCssContribPackage: string | undefined;
     let chunks: any;
     let assets: any;
 
@@ -28,8 +26,6 @@ describe("Test CdnHtmlTemplate", () => {
         cdnPrefix = undefined;
         monacoCdnPrefix = undefined;
         monacoEditorCorePackage = undefined;
-        monacoHtmlContribPackage = undefined;
-        monacoCssContribPackage = undefined;
         chunks = {};
         assets = {};
     });
@@ -43,8 +39,6 @@ describe("Test CdnHtmlTemplate", () => {
                     cdnPrefix: cdnPrefix,
                     monacoCdnPrefix: monacoCdnPrefix,
                     monacoEditorCorePackage: monacoEditorCorePackage,
-                    monacoHtmlContribPackage: monacoHtmlContribPackage,
-                    monacoCssContribPackage: monacoCssContribPackage
                 }
             },
             files: {
@@ -148,15 +142,12 @@ describe("Test CdnHtmlTemplate", () => {
             cdn: undefined
         });
         expect(htmlTemplate.cdnInfo.monaco.requirePaths).toEqual([
-            {"cdn": undefined, "external": "vs/editor/editor.main"},
-            {"cdn": undefined, "external": "vs/language/html/monaco.contribution"},
-            {"cdn": undefined, "external": "vs/language/css/monaco.contribution"}]);
+            {"cdn": undefined, "external": "vs/editor/editor.main"}
+        ])
     });
 
     test("test monaco with CDN prefix", async () => {
         monacoEditorCorePackage = "monacoEditorCorePackage";
-        monacoHtmlContribPackage = "monacoHtmlContribPackage";
-        monacoCssContribPackage = "monacoCssContribPackage";
         monacoCdnPrefix = 'http://cdnPrefix/';
         
         const htmlTemplate = buildTemplate();
@@ -166,9 +157,8 @@ describe("Test CdnHtmlTemplate", () => {
             cdn: `http://cdnPrefix/${monacoEditorCorePackage}/min/vs/loader.js`
         });
         expect(htmlTemplate.cdnInfo.monaco.requirePaths).toEqual([
-            {"cdn": `http://cdnPrefix/${monacoEditorCorePackage}/min/vs/editor/editor.main`, "external": "vs/editor/editor.main"},
-            {"cdn": `http://cdnPrefix/${monacoHtmlContribPackage}/release/min/monaco.contribution`, "external": "vs/language/html/monaco.contribution"},
-            {"cdn": `http://cdnPrefix/${monacoCssContribPackage}/release/min/monaco.contribution`, "external": "vs/language/css/monaco.contribution"}]);
+            {"cdn": `http://cdnPrefix/${monacoEditorCorePackage}/min/vs/editor/editor.main`, "external": "vs/editor/editor.main"}
+        ]);
     });
 
     test("test cdn.json file", async () => {
@@ -191,13 +181,9 @@ describe("Test CdnHtmlTemplate", () => {
             "vs/editor/editor.main.js": {},
             "vs/editor/editor.main.nls.js": {},
             "vs/editor/editor.main.css": {},
-            "vs/language/html/monaco.contribution.js": {},
-            "vs/language/css/monaco.contribution.js": {}
         };
         
         monacoEditorCorePackage = "monacoEditorCorePackage";
-        monacoHtmlContribPackage = "monacoHtmlContribPackage";
-        monacoCssContribPackage = "monacoCssContribPackage";
         monacoCdnPrefix = 'http://cdnPrefix/';
         
         buildTemplate();
@@ -212,8 +198,6 @@ describe("Test CdnHtmlTemplate", () => {
             {"external": "vs/editor/editor.main.js", "cdn": "http://cdnPrefix/monacoEditorCorePackage/min/vs/editor/editor.main.js"},
             {"external": "vs/editor/editor.main.css","cdn": "http://cdnPrefix/monacoEditorCorePackage/min/vs/editor/editor.main.css"},
             {"external": "vs/editor/editor.main.nls.js", "cdn": "http://cdnPrefix/monacoEditorCorePackage/min/vs/editor/editor.main.nls.js"},
-            {"external": "vs/language/html/monaco.contribution.js", "cdn": "http://cdnPrefix/monacoHtmlContribPackage/release/min/monaco.contribution.js"},
-            {"external": "vs/language/css/monaco.contribution.js", "cdn": "http://cdnPrefix/monacoCssContribPackage/release/min/monaco.contribution.js"},
             {"external": "./vs/original-loader.js", "cdn": "http://cdnPrefix/monacoEditorCorePackage/min/vs/loader.js"},
             {"resource": "cachedResource1", "cdn": "http://cdnPrefix/cachedResource1"}
         ]);
@@ -239,19 +223,15 @@ describe("Test CdnHtmlTemplate", () => {
             "vs/editor/editor.main.js": {},
             "vs/editor/editor.main.nls.js": {},
             "vs/editor/editor.main.css": {},
-            "vs/language/html/monaco.contribution.js": {},
-            "vs/language/css/monaco.contribution.js": {}
         };
         
         monacoEditorCorePackage = "monacoEditorCorePackage";
-        monacoHtmlContribPackage = "monacoHtmlContribPackage";
-        monacoCssContribPackage = "monacoCssContribPackage";
         monacoCdnPrefix = 'http://cdnPrefix/';
         
         const htmlTemplate = buildTemplate();
         
         expect(htmlTemplate.generateCdnScript()).toBe(
-"new CheCdnSupport({\"chunks\":[{\"chunk\":\"cachedChunk1\",\"cdn\":\"http://cdnPrefix/cachedChunk1\"}],\"resources\":[{\"resource\":\"cachedResource1\",\"cdn\":\"http://cdnPrefix/cachedResource1\"}],\"monaco\":{\"vsLoader\":{\"external\":\"./vs/original-loader.js\",\"cdn\":\"http://cdnPrefix/monacoEditorCorePackage/min/vs/loader.js\"},\"requirePaths\":[{\"external\":\"vs/editor/editor.main\",\"cdn\":\"http://cdnPrefix/monacoEditorCorePackage/min/vs/editor/editor.main\"},{\"external\":\"vs/language/html/monaco.contribution\",\"cdn\":\"http://cdnPrefix/monacoHtmlContribPackage/release/min/monaco.contribution\"},{\"external\":\"vs/language/css/monaco.contribution\",\"cdn\":\"http://cdnPrefix/monacoCssContribPackage/release/min/monaco.contribution\"}]}}).buildScripts();"
+"new CheCdnSupport({\"chunks\":[{\"chunk\":\"cachedChunk1\",\"cdn\":\"http://cdnPrefix/cachedChunk1\"}],\"resources\":[{\"resource\":\"cachedResource1\",\"cdn\":\"http://cdnPrefix/cachedResource1\"}],\"monaco\":{\"vsLoader\":{\"external\":\"./vs/original-loader.js\",\"cdn\":\"http://cdnPrefix/monacoEditorCorePackage/min/vs/loader.js\"},\"requirePaths\":[{\"external\":\"vs/editor/editor.main\",\"cdn\":\"http://cdnPrefix/monacoEditorCorePackage/min/vs/editor/editor.main\"}]}}).buildScripts();"
         );
     });
 });

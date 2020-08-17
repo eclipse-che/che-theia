@@ -22,8 +22,6 @@ export class CdnHtmlTemplate {
         const cdnPrefix = htmlWebpackPlugin.options.customparams.cdnPrefix ? htmlWebpackPlugin.options.customparams.cdnPrefix : '';
         const monacoCdnPrefix = htmlWebpackPlugin.options.customparams.monacoCdnPrefix ? htmlWebpackPlugin.options.customparams.monacoCdnPrefix : '';
         const monacoEditorCorePackage = htmlWebpackPlugin.options.customparams.monacoEditorCorePackage ? htmlWebpackPlugin.options.customparams.monacoEditorCorePackage : '';
-        const monacoHtmlContribPackage = htmlWebpackPlugin.options.customparams.monacoHtmlContribPackage ? htmlWebpackPlugin.options.customparams.monacoHtmlContribPackage : '';
-        const monacoCssContribPackage = htmlWebpackPlugin.options.customparams.monacoCssContribPackage ? htmlWebpackPlugin.options.customparams.monacoCssContribPackage : '';
 
         /* tslint:disable:forin */
         for (const key in htmlWebpackPlugin.files.chunks) {
@@ -63,26 +61,14 @@ export class CdnHtmlTemplate {
             external: 'vs/editor/editor.main',
             cdn: undefined
         };
-        const monacoHtmlContribPath: decls.CdnExternal = {
-            external: 'vs/language/html/monaco.contribution',
-            cdn: undefined
-        };
-        const monacoCssContribPath: decls.CdnExternal = {
-            external: 'vs/language/css/monaco.contribution',
-            cdn: undefined
-        };
 
         if (monacoCdnPrefix) {
             vsLoader.cdn = monacoCdnPrefix + monacoEditorCorePackage + '/min/vs/loader.js';
             monacoEditorCorePath.cdn = monacoCdnPrefix + monacoEditorCorePackage + '/min/' + monacoEditorCorePath.external;
-            monacoHtmlContribPath.cdn = monacoCdnPrefix + monacoHtmlContribPackage + '/release/min/monaco.contribution';
-            monacoCssContribPath.cdn = monacoCdnPrefix + monacoCssContribPackage + '/release/min/monaco.contribution';
         }
 
         const monacoRequirePaths = [
             monacoEditorCorePath,
-            monacoHtmlContribPath,
-            monacoCssContribPath
         ];
 
         if (cdnPrefix || monacoCdnPrefix) {
