@@ -4,7 +4,7 @@
     "theia-extension",
     "terminal"
   ],
-  "version": "7.17.1",
+  "version": "7.17.2",
   "publishConfig": {
     "access": "public"
   },
