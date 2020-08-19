@@ -13,6 +13,7 @@ import { CommonMenus } from '@theia/core/lib/browser';
 import { WorkspaceCommands } from '@theia/workspace/lib/browser/workspace-commands';
 import { Command } from '@theia/core/lib/common/command';
 import { CheWorkspaceController } from './che-workspace-controller';
+import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
 
 export namespace CheWorkspaceCommands {
 
@@ -34,12 +35,29 @@ export namespace CheWorkspaceCommands {
         category: WORKSPACE_CATEGORY,
         label: 'Close Workspace'
     };
+    export const OPEN_WORKSPACE_ROOTS: Command & { dialogLabel: string } = {
+        id: 'workspace:openWorkspace',
+        category: FILE_CATEGORY,
+        label: 'Open Workspace Roots...',
+        dialogLabel: 'Open Workspace Roots'
+    };
+    export const OPEN_RECENT_WORKSPACE_ROOTS: Command = {
+        id: 'workspace:openRecent',
+        category: FILE_CATEGORY,
+        label: 'Open Recent Workspace Roots...'
+    };
+    export const CLOSE_WORKSPACE_ROOTS: Command = {
+        id: 'workspace:close',
+        category: WORKSPACE_CATEGORY,
+        label: 'Close Workspace Roots'
+    };
 }
 
 @injectable()
 export class CheWorkspaceContribution implements CommandContribution, MenuContribution {
 
     @inject(CheWorkspaceController) protected readonly workspaceController: CheWorkspaceController;
+    @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService;
 
     registerCommands(commands: CommandRegistry): void {
         commands.registerCommand(CheWorkspaceCommands.OPEN_WORKSPACE, {
@@ -50,6 +68,20 @@ export class CheWorkspaceContribution implements CommandContribution, MenuContri
         });
         commands.registerCommand(CheWorkspaceCommands.CLOSE_CURRENT_WORKSPACE, {
             execute: () => this.workspaceController.closeCurrentWorkspace()
+        });
+
+        commands.unregisterCommand(WorkspaceCommands.OPEN_WORKSPACE);
+        commands.registerCommand(CheWorkspaceCommands.OPEN_WORKSPACE_ROOTS, {
+            execute: () => this.workspaceController.openWorkspaceRoots()
+        });
+        commands.unregisterCommand(WorkspaceCommands.OPEN_RECENT_WORKSPACE);
+        commands.registerCommand(CheWorkspaceCommands.OPEN_RECENT_WORKSPACE_ROOTS, {
+            execute: () => this.workspaceController.openRecentWorkspaceRoots()
+        });
+        commands.unregisterCommand(WorkspaceCommands.CLOSE);
+        commands.registerCommand(CheWorkspaceCommands.CLOSE_WORKSPACE_ROOTS, {
+            isEnabled: () => this.workspaceService.opened,
+            execute: () => this.workspaceController.closeWorkspaceRoots()
         });
     }
 
@@ -70,13 +102,27 @@ export class CheWorkspaceContribution implements CommandContribution, MenuContri
             order: 'a10'
         });
         menus.registerMenuAction(CommonMenus.FILE_OPEN, {
+            commandId: CheWorkspaceCommands.OPEN_WORKSPACE_ROOTS.id,
+            label: CheWorkspaceCommands.OPEN_WORKSPACE_ROOTS.label,
+            order: 'a11'
+        });
+        menus.registerMenuAction(CommonMenus.FILE_OPEN, {
             commandId: CheWorkspaceCommands.OPEN_RECENT_WORKSPACE.id,
             label: CheWorkspaceCommands.OPEN_RECENT_WORKSPACE.label,
             order: 'a20'
         });
+        menus.registerMenuAction(CommonMenus.FILE_OPEN, {
+            commandId: CheWorkspaceCommands.OPEN_RECENT_WORKSPACE_ROOTS.id,
+            label: CheWorkspaceCommands.OPEN_RECENT_WORKSPACE_ROOTS.label,
+            order: 'a21'
+        });
         menus.registerMenuAction(CommonMenus.FILE_CLOSE, {
             commandId: CheWorkspaceCommands.CLOSE_CURRENT_WORKSPACE.id,
             label: CheWorkspaceCommands.CLOSE_CURRENT_WORKSPACE.label
+        });
+        menus.registerMenuAction(CommonMenus.FILE_CLOSE, {
+            commandId: CheWorkspaceCommands.CLOSE_WORKSPACE_ROOTS.id,
+            label: CheWorkspaceCommands.CLOSE_WORKSPACE_ROOTS.label
         });
     }
 }

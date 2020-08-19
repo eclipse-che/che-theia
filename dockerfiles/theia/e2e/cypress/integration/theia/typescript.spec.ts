@@ -28,7 +28,7 @@ context('TypeScript', () => {
 
 
         // close any workspace
-        cy.theiaCommandPaletteClick('Close Workspace', '{downarrow}').then(() => {
+        cy.theiaCommandPaletteClick('Close Workspace Roots').then(() => {
             const $el = Cypress.$('button.theia-button.main');
             if ($el.length) {
                 cy.get('button.theia-button.main').should('exist').then(() => {
@@ -43,7 +43,7 @@ context('TypeScript', () => {
             // open /tmp
             cy.get('#theia-top-panel').should('exist').then(() => {
 
-                cy.theiaCommandPaletteClick('Open Workspace...', '{downarrow}{downarrow}').then(() => {
+                cy.theiaCommandPaletteClick('Open Workspace Roots...', '{downarrow}').then(() => {
                     cy.get('.theia-LocationList').should('exist');
                     cy.get('.theia-LocationList').select('file:///');
                     cy.wait(2000);
