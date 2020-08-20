@@ -29,33 +29,6 @@ import { CheWorkspaceImpl } from './che-workspace';
 import { CheOpenshiftImpl } from './che-openshift';
 import { CheOauthImpl } from './che-oauth';
 import { Disposable } from '@theia/core';
-import {
-    CompletionContext,
-    CompletionResultDto,
-    SignatureHelp,
-    Hover,
-    DocumentHighlight,
-    Range,
-    TextEdit,
-    FormattingOptions,
-    Definition,
-    DocumentLink,
-    CodeLensSymbol,
-    DocumentSymbol,
-    ReferenceContext,
-    Location,
-    SignatureHelpContext,
-    CodeActionContext,
-    CodeAction,
-    FoldingRange,
-} from '@theia/plugin-ext/lib/common/plugin-api-rpc-model';
-import { SymbolInformation } from 'vscode-languageserver-types';
-import {
-    Position,
-    Selection,
-    RawColorInfo,
-    WorkspaceEditDto
-} from '@theia/plugin-ext/lib/common/plugin-api-rpc';
 
 export interface CheApiFactory {
     (plugin: Plugin): typeof che;
@@ -260,73 +233,142 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
 
         const languagesTest: typeof che.languages.test = {
 
-            completion(pluginID: string, resource: theia.Uri, position: Position,
-                context: CompletionContext, token: theia.CancellationToken): Promise<CompletionResultDto | undefined> {
+            completion(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                context: theia.CompletionContext,
+                token: theia.CancellationToken
+            ): Promise<theia.CompletionList | undefined> {
                 return languageTestAPI.$provideCompletionItems(pluginID, resource, position, context, token);
             },
-            implementation(pluginID: string, resource: theia.Uri, position: Position, token: theia.CancellationToken): Promise<Definition | undefined> {
+            implementation(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.Definition | theia.DefinitionLink[] | undefined> {
                 return languageTestAPI.$provideImplementation(pluginID, resource, position, token);
             },
-            typeDefinition(pluginID: string, resource: theia.Uri, position: Position, token: theia.CancellationToken): Promise<Definition | undefined> {
+            typeDefinition(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.Definition | theia.DefinitionLink[] | undefined> {
                 return languageTestAPI.$provideTypeDefinition(pluginID, resource, position, token);
             },
-            definition(pluginID: string, resource: theia.Uri, position: Position, token: theia.CancellationToken): Promise<Definition | undefined> {
+            definition(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.Definition | theia.DefinitionLink[] | undefined> {
                 return languageTestAPI.$provideDefinition(pluginID, resource, position, token);
             },
-            declaration(pluginID: string, resource: theia.Uri, position: Position, token: theia.CancellationToken): Promise<Definition | undefined> {
+            declaration(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.Definition | theia.DefinitionLink[] | undefined> {
                 return languageTestAPI.$provideDeclaration(pluginID, resource, position, token);
             },
-            references(pluginID: string, resource: theia.Uri, position: Position, context: ReferenceContext, token: theia.CancellationToken): Promise<Location[] | undefined> {
+            references(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                context: theia.ReferenceContext,
+                token: theia.CancellationToken
+            ): Promise<theia.Location[] | undefined> {
                 return languageTestAPI.$provideReferences(pluginID, resource, position, context, token);
             },
             signatureHelp(
-                pluginID: string, resource: theia.Uri, position: Position, context: SignatureHelpContext, token: theia.CancellationToken
-            ): Promise<SignatureHelp | undefined> {
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                context: theia.SignatureHelpContext,
+                token: theia.CancellationToken
+            ): Promise<theia.SignatureHelp | undefined> {
                 return languageTestAPI.$provideSignatureHelp(pluginID, resource, position, context, token);
             },
-            hover(pluginID: string, resource: theia.Uri, position: Position, token: theia.CancellationToken): Promise<Hover | undefined> {
+            hover(pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.Hover | undefined> {
                 return languageTestAPI.$provideHover(pluginID, resource, position, token);
             },
-            documentHighlights(pluginID: string, resource: theia.Uri, position: Position, token: theia.CancellationToken): Promise<DocumentHighlight[] | undefined> {
+            documentHighlights(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.DocumentHighlight[] | undefined> {
                 return languageTestAPI.$provideDocumentHighlights(pluginID, resource, position, token);
             },
-            documentFormattingEdits(pluginID: string, resource: theia.Uri,
-                options: FormattingOptions, token: theia.CancellationToken): Promise<TextEdit[] | undefined> {
+            documentFormattingEdits(
+                pluginID: string,
+                resource: theia.Uri,
+                options: theia.FormattingOptions,
+                token: theia.CancellationToken
+            ): Promise<theia.TextEdit[] | undefined> {
                 return languageTestAPI.$provideDocumentFormattingEdits(pluginID, resource, options, token);
             },
-            documentRangeFormattingEdits(pluginID: string, resource: theia.Uri, range: Range,
-                options: FormattingOptions, token: theia.CancellationToken): Promise<TextEdit[] | undefined> {
+            documentRangeFormattingEdits(
+                pluginID: string,
+                resource: theia.Uri,
+                range: theia.Range,
+                options: theia.FormattingOptions,
+                token: theia.CancellationToken
+            ): Promise<theia.TextEdit[] | undefined> {
                 return languageTestAPI.$provideDocumentRangeFormattingEdits(pluginID, resource, range, options, token);
             },
             onTypeFormattingEdits(
                 pluginID: string,
                 resource: theia.Uri,
-                position: Position,
+                position: theia.Position,
                 ch: string,
-                options: FormattingOptions,
+                options: theia.FormattingOptions,
                 token: theia.CancellationToken
-            ): Promise<TextEdit[] | undefined> {
+            ): Promise<theia.TextEdit[] | undefined> {
                 return languageTestAPI.$provideOnTypeFormattingEdits(pluginID, resource, position, ch, options, token);
             },
-            documentLinks(pluginID: string, resource: theia.Uri, token: theia.CancellationToken): Promise<DocumentLink[] | undefined> {
+            documentLinks(
+                pluginID: string,
+                resource: theia.Uri,
+                token: theia.CancellationToken
+            ): Promise<theia.DocumentLink[] | undefined> {
                 return languageTestAPI.$provideDocumentLinks(pluginID, resource, token);
             },
-            codeLenses(pluginID: string, resource: theia.Uri, token: theia.CancellationToken): Promise<CodeLensSymbol[] | undefined> {
+            codeLenses(
+                pluginID: string,
+                resource: theia.Uri,
+                token: theia.CancellationToken
+            ): Promise<theia.CodeLens[] | undefined> {
                 return languageTestAPI.$provideCodeLenses(pluginID, resource, token);
             },
             codeActions(
                 pluginID: string,
                 resource: theia.Uri,
-                rangeOrSelection: Range | Selection,
-                context: CodeActionContext,
+                rangeOrSelection: theia.Range | theia.Selection,
+                context: theia.CodeActionContext,
                 token: theia.CancellationToken
-            ): Promise<CodeAction[] | undefined> {
+            ): Promise<theia.CodeAction[] | undefined> {
                 return languageTestAPI.$provideCodeActions(pluginID, resource, rangeOrSelection, context, token);
             },
-            documentSymbols(pluginID: string, resource: theia.Uri, token: theia.CancellationToken): Promise<DocumentSymbol[] | undefined> {
+            documentSymbols(
+                pluginID: string,
+                resource: theia.Uri,
+                token: theia.CancellationToken
+            ): Promise<theia.DocumentSymbol[] | undefined> {
                 return languageTestAPI.$provideDocumentSymbols(pluginID, resource, token);
             },
-            workspaceSymbols(pluginID: string, query: string, token: theia.CancellationToken): PromiseLike<SymbolInformation[]> {
+            workspaceSymbols(
+                pluginID: string,
+                query: string,
+                token: theia.CancellationToken
+            ): Promise<theia.SymbolInformation[]> {
                 return languageTestAPI.$provideWorkspaceSymbols(pluginID, query, token);
             },
             foldingRange(
@@ -334,13 +376,23 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
                 resource: theia.Uri,
                 context: theia.FoldingContext,
                 token: theia.CancellationToken
-            ): PromiseLike<FoldingRange[] | undefined> {
+            ): Promise<theia.FoldingRange[] | undefined> {
                 return languageTestAPI.$provideFoldingRange(pluginID, resource, context, token);
             },
-            documentColors(pluginID: string, resource: theia.Uri, token: theia.CancellationToken): PromiseLike<RawColorInfo[]> {
+            documentColors(
+                pluginID: string,
+                resource: theia.Uri,
+                token: theia.CancellationToken
+            ): Promise<theia.ColorInformation[]> {
                 return languageTestAPI.$provideDocumentColors(pluginID, resource, token);
             },
-            renameEdits(pluginID: string, resource: theia.Uri, position: Position, newName: string, token: theia.CancellationToken): PromiseLike<WorkspaceEditDto | undefined> {
+            renameEdits(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                newName: string,
+                token: theia.CancellationToken
+            ): Promise<theia.WorkspaceEdit | undefined> {
                 return languageTestAPI.$provideRenameEdits(pluginID, resource, position, newName, token);
             }
         };
