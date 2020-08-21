@@ -100,13 +100,13 @@ export class CheLanguagesTestAPIImpl implements CheLanguagesTestAPI {
         position: Position,
         token: CancellationToken
     ): Promise<Definition | DefinitionLink[] | undefined> {
-        const { languagesExt, handle } = await this.pluginHandleRegistry.lookupLanguagesExtForPluginAndAction(pluginID, 'definition');
+        const { languagesExt, handle } = await this.pluginHandleRegistry.lookupLanguagesExtForPluginAndAction(pluginID, 'declaration');
         const convertedPosition = Converter.fromPosition(Converter.revivePosition(position));
-        return Promise.resolve(languagesExt.$provideDefinition(handle, resource, convertedPosition, token)).then(definition => {
-            if (!definition) {
+        return Promise.resolve(languagesExt.$provideDeclaration(handle, resource, convertedPosition, token)).then(declaration => {
+            if (!declaration) {
                 return undefined;
             } else {
-                return Converter.toDefinition(definition);
+                return Converter.toDefinition(declaration);
             }
         });
     }
