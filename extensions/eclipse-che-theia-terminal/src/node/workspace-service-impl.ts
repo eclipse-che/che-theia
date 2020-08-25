@@ -104,7 +104,7 @@ export class CHEWorkspaceServiceImpl implements CHEWorkspaceService {
     }
 
     private getWsMasterApiEndPoint(): string | undefined {
-        return process.env['CHE_API_EXTERNAL'];
+        return process.env['CHE_API_INTERNAL'];
     }
 
     private getMachineToken(): string | undefined {
