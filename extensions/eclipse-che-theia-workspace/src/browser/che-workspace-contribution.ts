@@ -35,6 +35,11 @@ export namespace CheWorkspaceCommands {
         category: WORKSPACE_CATEGORY,
         label: 'Close Workspace'
     };
+    export const SAVE_WORKSPACE_AS: Command = {
+        id: 'che.saveWorkspaceAs',
+        category: WORKSPACE_CATEGORY,
+        label: 'Save Workspace As...'
+    };
     export const OPEN_WORKSPACE_ROOTS: Command & { dialogLabel: string } = {
         id: 'workspace:openWorkspace',
         category: FILE_CATEGORY,
@@ -50,6 +55,11 @@ export namespace CheWorkspaceCommands {
         id: 'workspace:close',
         category: WORKSPACE_CATEGORY,
         label: 'Close Workspace Roots'
+    };
+    export const SAVE_WORKSPACE_ROOTS_AS: Command = {
+        id: 'workspace:saveAs',
+        category: WORKSPACE_CATEGORY,
+        label: 'Save Workspace Roots As...'
     };
 }
 
@@ -69,6 +79,9 @@ export class CheWorkspaceContribution implements CommandContribution, MenuContri
         commands.registerCommand(CheWorkspaceCommands.CLOSE_CURRENT_WORKSPACE, {
             execute: () => this.workspaceController.closeCurrentWorkspace()
         });
+        commands.registerCommand(CheWorkspaceCommands.SAVE_WORKSPACE_AS, {
+            execute: () => this.workspaceController.saveWorkspaceAs()
+        });
 
         commands.unregisterCommand(WorkspaceCommands.OPEN_WORKSPACE);
         commands.registerCommand(CheWorkspaceCommands.OPEN_WORKSPACE_ROOTS, {
@@ -83,6 +96,11 @@ export class CheWorkspaceContribution implements CommandContribution, MenuContri
             isEnabled: () => this.workspaceService.opened,
             execute: () => this.workspaceController.closeWorkspaceRoots()
         });
+        commands.unregisterCommand(WorkspaceCommands.SAVE_WORKSPACE_AS);
+        commands.registerCommand(CheWorkspaceCommands.SAVE_WORKSPACE_ROOTS_AS, {
+            isEnabled: () => this.workspaceService.isMultiRootWorkspaceEnabled,
+            execute: () => this.workspaceController.saveWorkspaceRootsAs()
+        });
     }
 
     registerMenus(menus: MenuModelRegistry): void {
@@ -95,6 +113,9 @@ export class CheWorkspaceContribution implements CommandContribution, MenuContri
         menus.unregisterMenuAction({
             commandId: WorkspaceCommands.CLOSE.id
         }, CommonMenus.FILE_CLOSE);
+        menus.unregisterMenuAction({
+            commandId: WorkspaceCommands.SAVE_WORKSPACE_AS.id
+        }, CommonMenus.FILE_OPEN);
 
         menus.registerMenuAction(CommonMenus.FILE_OPEN, {
             commandId: CheWorkspaceCommands.OPEN_WORKSPACE.id,
@@ -123,6 +144,16 @@ export class CheWorkspaceContribution implements CommandContribution, MenuContri
         menus.registerMenuAction(CommonMenus.FILE_CLOSE, {
             commandId: CheWorkspaceCommands.CLOSE_WORKSPACE_ROOTS.id,
             label: CheWorkspaceCommands.CLOSE_WORKSPACE_ROOTS.label
+        });
+        menus.registerMenuAction(CommonMenus.FILE_OPEN, {
+            commandId: CheWorkspaceCommands.SAVE_WORKSPACE_AS.id,
+            label: CheWorkspaceCommands.SAVE_WORKSPACE_AS.label,
+            order: 'a30'
+        });
+        menus.registerMenuAction(CommonMenus.FILE_OPEN, {
+            commandId: CheWorkspaceCommands.SAVE_WORKSPACE_ROOTS_AS.id,
+            label: CheWorkspaceCommands.SAVE_WORKSPACE_ROOTS_AS.label,
+            order: 'a31'
         });
     }
 }
