@@ -11,7 +11,11 @@
   "dependencies": {
     "@eclipse-che/api": "latest",
     "@theia/workspace": "next",
-    "@eclipse-che/theia-plugin-ext": "^0.0.1"
+    "@eclipse-che/theia-plugin-ext": "^0.0.1",
+    "js-yaml": "3.13.1"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "3.11.2"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",
