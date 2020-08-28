@@ -1,3 +1,4 @@
+
 <br/>
 <div id="che-theia-logo" align="center" style="vertical-align: middle">
 
