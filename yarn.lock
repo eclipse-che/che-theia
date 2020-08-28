@@ -3354,10 +3354,10 @@
     vuepress-plugin-container "^2.0.2"
     vuepress-plugin-smooth-scroll "^0.0.3"
 
-"@vzhukovs/workspace-client@0.0.8":
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/@vzhukovs/workspace-client/-/workspace-client-0.0.8.tgz#f4ad6e890024ac81bd30a7fe3544087e207ffe46"
-  integrity sha512-L6yutWq79682fOD3xyOR1QiK9h69XhBbj+uVDMDXvclaAoexGsnrIgukev+d8IXOwrhUdBFwGn1KZ/U5O08AVg==
+"@vzhukovs/workspace-client@0.0.9":
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/@vzhukovs/workspace-client/-/workspace-client-0.0.9.tgz#32852c8b235ab1ce3cc91ede485de8822643751a"
+  integrity sha512-KFsPcnLc1K0HqPQM4xAKin0FGDhJtg6HsnOT04CmP0soihzPjAHsozFZEikUd4bRuizzZDhOuWIHbafQH+EcyA==
   dependencies:
     "@eclipse-che/api" "^7.0.0-beta-4.0"
     axios "0.19.0"
