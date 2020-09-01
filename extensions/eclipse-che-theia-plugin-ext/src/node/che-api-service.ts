@@ -11,7 +11,7 @@ import { CheApiService, Preferences, User, WorkspaceSettings } from '../common/c
 import { che as cheApi } from '@eclipse-che/api';
 import WorkspaceClient, { IRemoteAPI } from '@eclipse-che/workspace-client';
 import { injectable } from 'inversify';
-import { SS_CRT_PATH } from './che-https';
+import { PUBLIC_CRT_PATH, SS_CRT_PATH } from './che-https';
 import { TelemetryClient, EventProperty } from '@eclipse-che/workspace-telemetry-client';
 
 @injectable()
@@ -226,6 +226,7 @@ export class CheApiServiceImpl implements CheApiService {
         return WorkspaceClient.getRestApi({
             baseUrl: this.baseAPIUrl,
             ssCrtPath: SS_CRT_PATH,
+            publicCrtPath: PUBLIC_CRT_PATH,
             machineToken: userToken && userToken.length > 0 ? undefined : this.machineToken,
             userToken: userToken && userToken.length > 0 ? userToken : undefined
         });
