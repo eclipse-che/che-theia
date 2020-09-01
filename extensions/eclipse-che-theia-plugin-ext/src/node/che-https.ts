@@ -9,3 +9,4 @@
  **********************************************************************/
 
 export const SS_CRT_PATH = '/tmp/che/secret/ca.crt';
+export const PUBLIC_CRT_PATH = '/public-certs';
