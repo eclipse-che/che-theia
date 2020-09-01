@@ -169,7 +169,7 @@ export class CheWorkspaceController {
     }
 
     private getCurrentWorkspaceUri(): URI {
-        return new URI(this.workspaceService.workspace && this.workspaceService.workspace.uri);
+        return new URI(this.workspaceService.workspace && this.workspaceService.workspace.resource.toString());
     }
 
     private createOpenWorkspaceOpenFileDialogProps(options: Readonly<{ supportMultiRootWorkspace: boolean }>): OpenFileDialogProps {
