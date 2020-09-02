@@ -10,7 +10,7 @@
           "editor.autoSave": "on",
           "git.defaultCloneDirectory": "/projects",
           "application.confirmExit": "always",
-          "files.enableTrash", false
+          "files.enableTrash": false
         }
       }
     }
