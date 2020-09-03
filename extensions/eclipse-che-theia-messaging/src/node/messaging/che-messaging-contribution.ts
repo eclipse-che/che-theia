@@ -53,7 +53,7 @@ export class CheMessagingContribution extends MessagingContribution {
     }
 
     async isRequestAllowed(request: http.IncomingMessage): Promise<boolean> {
-        const allowedOrigins = [new URI('http://0.0.0.0:3000')];
+        const allowedOrigins = [new URI('http://localhost:3100'), new URI('http://0.0.0.0:3100')];
         try {
             const containers = await this.cheApiService.getCurrentWorkspacesContainers();
             for (const containerName of Object.keys(containers)) {
