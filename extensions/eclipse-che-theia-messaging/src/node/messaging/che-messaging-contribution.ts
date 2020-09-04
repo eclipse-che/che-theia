@@ -53,7 +53,7 @@ export class CheMessagingContribution extends MessagingContribution {
     }
 
     async isRequestAllowed(request: http.IncomingMessage): Promise<boolean> {
-        const theiaEndpoints = [];
+        const allowedOrigins = [new URI('http://localhost:3100'), new URI('http://0.0.0.0:3100')];
         try {
             const containers = await this.cheApiService.getCurrentWorkspacesContainers();
             for (const containerName of Object.keys(containers)) {
@@ -62,7 +62,7 @@ export class CheMessagingContribution extends MessagingContribution {
                     for (const serverName of Object.keys(servers)) {
                         const server = servers[serverName];
                         if (serverName === 'theia' || serverName === 'theia-dev' || serverName === 'theia-dev-flow') {
-                            theiaEndpoints.push(new URI(server.url));
+                            allowedOrigins.push(new URI(server.url));
                         }
                     }
                 }
@@ -76,9 +76,10 @@ export class CheMessagingContribution extends MessagingContribution {
         if (typeof requestOrigin !== 'string') {
             return false;
         }
+        console.log('WS requestOrigin:', requestOrigin);
         const requestOriginURI = new URI(requestOrigin);
 
-        return theiaEndpoints.some(uri => requestOriginURI.isEqualOrParent(uri));
+        return allowedOrigins.some(uri => requestOriginURI.isEqualOrParent(uri));
     }
 
     public getConnectionContainers(): Container[] {
