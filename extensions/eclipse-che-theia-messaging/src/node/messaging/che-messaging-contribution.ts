@@ -76,6 +76,7 @@ export class CheMessagingContribution extends MessagingContribution {
         if (typeof requestOrigin !== 'string') {
             return false;
         }
+        console.log('WS requestOrigin:', requestOrigin);
         const requestOriginURI = new URI(requestOrigin);
 
         return allowedOrigins.some(uri => requestOriginURI.isEqualOrParent(uri));
