@@ -21,9 +21,11 @@ import {
     WorkspacePreferences
 } from '@theia/workspace/lib/browser';
 import URI from '@theia/core/lib/common/uri';
-import { FileSystem, FileStat } from '@theia/filesystem/lib/common';
+import { FileSystem } from '@theia/filesystem/lib/common';
 import { THEIA_EXT, VSCODE_EXT } from '@theia/workspace/lib/common';
 import { QuickOpenWorkspace } from '@theia/workspace/lib/browser/quick-open-workspace';
+import { FileService } from '@theia/filesystem/lib/browser/file-service';
+import { FileStat } from '@theia/filesystem/lib/common/files';
 
 const YAML = require('js-yaml');
 
@@ -86,6 +88,7 @@ export class CheWorkspaceController {
     @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService;
     @inject(FileDialogService) protected readonly fileDialogService: FileDialogService;
     @inject(FileSystem) protected readonly fileSystem: FileSystem;
+    @inject(FileService) protected readonly fileService: FileService;
     @inject(WorkspacePreferences) protected preferences: WorkspacePreferences;
     @inject(DefaultUriLabelProviderContribution) protected uriLabelProvider: DefaultUriLabelProviderContribution;
 
@@ -151,7 +154,7 @@ export class CheWorkspaceController {
         const workspaceFolderOrWorkspaceFileUri = await this.fileDialogService.showOpenDialog(props, rootStat);
         if (workspaceFolderOrWorkspaceFileUri &&
             this.getCurrentWorkspaceUri().toString() !== workspaceFolderOrWorkspaceFileUri.toString()) {
-            const destinationFolder = await this.fileSystem.getFileStat(workspaceFolderOrWorkspaceFileUri.toString());
+            const destinationFolder = await this.fileService.resolve(workspaceFolderOrWorkspaceFileUri);
             if (destinationFolder) {
                 this.workspaceService.open(workspaceFolderOrWorkspaceFileUri);
                 return workspaceFolderOrWorkspaceFileUri;
@@ -265,7 +268,7 @@ export class CheWorkspaceController {
 
         const devfileStat = await this.toFileStat(uriStr);
         if (devfileStat) {
-            await this.fileSystem.setContent(devfileStat, devfile);
+            await this.fileService.write(devfileStat.resource, devfile);
         }
     }
 
@@ -278,8 +281,8 @@ export class CheWorkspaceController {
             if (uriStr.endsWith('/')) {
                 uriStr = uriStr.slice(0, -1);
             }
-            const normalizedUriStr = new URI(uriStr).normalizePath().toString();
-            const fileStat = await this.fileSystem.getFileStat(normalizedUriStr);
+            const normalizedUri = new URI(uriStr).normalizePath();
+            const fileStat = await this.fileService.resolve(normalizedUri);
             if (!fileStat) {
                 return undefined;
             }
