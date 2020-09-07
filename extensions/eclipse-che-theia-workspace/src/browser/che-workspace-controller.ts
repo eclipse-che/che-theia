@@ -21,7 +21,6 @@ import {
     WorkspacePreferences
 } from '@theia/workspace/lib/browser';
 import URI from '@theia/core/lib/common/uri';
-import { FileSystem } from '@theia/filesystem/lib/common';
 import { THEIA_EXT, VSCODE_EXT } from '@theia/workspace/lib/common';
 import { QuickOpenWorkspace } from '@theia/workspace/lib/browser/quick-open-workspace';
 import { FileService } from '@theia/filesystem/lib/browser/file-service';
@@ -87,7 +86,6 @@ export class CheWorkspaceController {
     @inject(QuickOpenWorkspace) protected readonly quickOpenRecentWorkspaceRoots: QuickOpenWorkspace;
     @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService;
     @inject(FileDialogService) protected readonly fileDialogService: FileDialogService;
-    @inject(FileSystem) protected readonly fileSystem: FileSystem;
     @inject(FileService) protected readonly fileService: FileService;
     @inject(WorkspacePreferences) protected preferences: WorkspacePreferences;
     @inject(DefaultUriLabelProviderContribution) protected uriLabelProvider: DefaultUriLabelProviderContribution;
@@ -211,7 +209,7 @@ export class CheWorkspaceController {
                 if (displayName && !displayName.endsWith(`.${THEIA_EXT}`) && !displayName.endsWith(`.${VSCODE_EXT}`)) {
                     selected = selected.parent.resolve(`${displayName}.${THEIA_EXT}`);
                 }
-                exist = await this.fileSystem.exists(selected.toString());
+                exist = await this.fileService.exists(selected);
                 if (exist) {
                     overwrite = await this.confirmOverwrite(selected);
                 }
@@ -242,7 +240,7 @@ export class CheWorkspaceController {
                 inputValue: 'devfile.yaml'
             });
             if (selected) {
-                exist = await this.fileSystem.exists(selected.toString());
+                exist = await this.fileService.exists(selected);
                 if (exist) {
                     overwrite = await this.confirmOverwrite(selected);
                 }
@@ -261,12 +259,11 @@ export class CheWorkspaceController {
     }
 
     private async writeDevfileFile(uri: URI, devfile: string): Promise<void> {
-        const uriStr = uri.toString();
-        if (!await this.fileSystem.exists(uriStr)) {
-            await this.fileSystem.createFile(uriStr);
+        if (!await this.fileService.exists(uri)) {
+            await this.fileService.createFile(uri);
         }
 
-        const devfileStat = await this.toFileStat(uriStr);
+        const devfileStat = await this.toFileStat(uri.toString());
         if (devfileStat) {
             await this.fileService.write(devfileStat.resource, devfile);
         }
