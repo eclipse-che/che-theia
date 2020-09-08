@@ -7,7 +7,7 @@
     "node": ">=12"
   },
   "resolution": {
-    "**/@types/node": "12.8.2"
+    "**/@types/node": "12.8.3"
   },
   "devDependencies": {
     "@types/chai": "^4.0.1",
