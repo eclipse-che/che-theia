@@ -21,9 +21,8 @@ import {
 
 export function toWorkspaceEdit(workspaceEdit: model.WorkspaceEdit): theia.WorkspaceEdit {
     const result: theia.WorkspaceEdit = new types.WorkspaceEdit();
-    console.log(result);
-
     const edits = workspaceEdit.edits;
+
     for (const entry of edits) {
         if (entry.hasOwnProperty('oldUri')) {
             const fileEdit = entry as ResourceFileEditDto;
@@ -115,7 +114,7 @@ export function toDocumentLink(link: model.DocumentLink): theia.DocumentLink {
         try {
             target = typeof link.url === 'string' ? URI.parse(link.url, true) : URI.revive(link.url);
         } catch (err) {
-            // ignore
+            console.error(err);
         }
     }
     return {
