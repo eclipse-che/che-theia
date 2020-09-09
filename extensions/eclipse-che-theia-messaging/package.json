@@ -3,13 +3,13 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "7.18.1",
+  "version": "7.18.2",
   "description": "Eclipse Che - Theia Messaging",
   "dependencies": {
     "inversify": "^5.0.1",
     "ws": "^7.1.2",
     "@theia/core": "1.5.0-next.4390a7d6",
-    "@eclipse-che/theia-plugin-ext": "7.18.1"
+    "@eclipse-che/theia-plugin-ext": "7.18.2"
   },
   "publishConfig": {
     "access": "public"
