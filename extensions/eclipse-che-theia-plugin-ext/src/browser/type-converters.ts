@@ -14,10 +14,7 @@ import * as theia from '@theia/plugin';
 import * as types from '@theia/plugin-ext/lib/plugin/types-impl';
 import * as Converter from '@theia/plugin-ext/lib/plugin/type-converters';
 import { URI } from 'vscode-uri';
-import {
-    Selection, Position, RawColorInfo, ResourceFileEditDto,
-    ResourceTextEditDto
-} from '@theia/plugin-ext/lib/common/plugin-api-rpc';
+import { Selection, Position, RawColorInfo, WorkspaceFileEditDto, WorkspaceTextEditDto } from '@theia/plugin-ext/lib/common/plugin-api-rpc';
 
 export function toWorkspaceEdit(workspaceEdit: model.WorkspaceEdit): theia.WorkspaceEdit {
     const result: theia.WorkspaceEdit = new types.WorkspaceEdit();
@@ -25,12 +22,15 @@ export function toWorkspaceEdit(workspaceEdit: model.WorkspaceEdit): theia.Works
 
     for (const entry of edits) {
         if (entry.hasOwnProperty('oldUri')) {
-            const fileEdit = entry as ResourceFileEditDto;
-
-            result.renameFile(URI.revive(fileEdit.oldUri), URI.revive(fileEdit.newUri), fileEdit.options);
+            const fileEdit = entry as WorkspaceFileEditDto;
+            const oldUri = URI.revive(fileEdit.oldUri);
+            const newUri = URI.revive(fileEdit.newUri);
+            if (oldUri && newUri) {
+                result.renameFile(oldUri, newUri, fileEdit.options);
+            }
         } else {
-            const textEdit = entry as ResourceTextEditDto;
-            result.set(URI.revive(textEdit.resource), textEdit.edits.map(toTextEdit));
+            const textEdit = entry as WorkspaceTextEditDto;
+            result.set(URI.revive(textEdit.resource), [toTextEdit(textEdit.edit)]);
         }
     }
     return result;
