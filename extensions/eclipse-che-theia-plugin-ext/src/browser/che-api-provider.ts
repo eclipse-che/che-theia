@@ -25,6 +25,7 @@ import { CheSideCarContentReaderMainImpl } from './che-sidecar-content-reader-ma
 import { CheGithubMainImpl } from './che-github-main';
 import { CheOpenshiftMainImpl } from './che-openshift-main';
 import { CheOauthMainImpl } from './che-oauth-main';
+import { CheLanguagesTestAPIImpl } from './che-languages-test-api';
 
 @injectable()
 export class CheApiProvider implements MainPluginApiProvider {
@@ -43,6 +44,7 @@ export class CheApiProvider implements MainPluginApiProvider {
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_USER_MAIN, new CheUserMainImpl(container));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_PRODUCT_MAIN, new CheProductMainImpl(container, rpc));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_SIDERCAR_CONTENT_READER_MAIN, new CheSideCarContentReaderMainImpl(container, rpc));
+        rpc.set(PLUGIN_RPC_CONTEXT.CHE_LANGUAGES_TEST_API_MAIN, new CheLanguagesTestAPIImpl(container));
     }
 
 }

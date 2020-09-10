@@ -10,6 +10,7 @@
 
 import { che as cheApi } from '@eclipse-che/api';
 import * as che from '@eclipse-che/plugin';
+import * as theia from '@theia/plugin';
 import { TaskStatusOptions } from '@eclipse-che/plugin';
 import { Plugin } from '@theia/plugin-ext/lib/common/plugin-api-rpc';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
@@ -48,6 +49,8 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
 
     const cheProductImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_PRODUCT, new CheProductImpl(rpc));
     const cheTelemetryImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_TELEMETRY, new CheTelemetryImpl(rpc));
+
+    const languageTestAPI = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_LANGUAGES_TEST_API_MAIN);
 
     return function (plugin: Plugin): typeof che {
         const workspace: typeof che.workspace = {
@@ -228,6 +231,176 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             }
         };
 
+        const languagesTest: typeof che.languages.test = {
+
+            completion(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                context: theia.CompletionContext,
+                token: theia.CancellationToken
+            ): Promise<theia.CompletionList | undefined> {
+                return languageTestAPI.$provideCompletionItems(pluginID, resource, position, context, token);
+            },
+            implementation(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.Definition | theia.DefinitionLink[] | undefined> {
+                return languageTestAPI.$provideImplementation(pluginID, resource, position, token);
+            },
+            typeDefinition(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.Definition | theia.DefinitionLink[] | undefined> {
+                return languageTestAPI.$provideTypeDefinition(pluginID, resource, position, token);
+            },
+            definition(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.Definition | theia.DefinitionLink[] | undefined> {
+                return languageTestAPI.$provideDefinition(pluginID, resource, position, token);
+            },
+            declaration(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.Definition | theia.DefinitionLink[] | undefined> {
+                return languageTestAPI.$provideDeclaration(pluginID, resource, position, token);
+            },
+            references(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                context: theia.ReferenceContext,
+                token: theia.CancellationToken
+            ): Promise<theia.Location[] | undefined> {
+                return languageTestAPI.$provideReferences(pluginID, resource, position, context, token);
+            },
+            signatureHelp(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                context: theia.SignatureHelpContext,
+                token: theia.CancellationToken
+            ): Promise<theia.SignatureHelp | undefined> {
+                return languageTestAPI.$provideSignatureHelp(pluginID, resource, position, context, token);
+            },
+            hover(pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.Hover | undefined> {
+                return languageTestAPI.$provideHover(pluginID, resource, position, token);
+            },
+            documentHighlights(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.DocumentHighlight[] | undefined> {
+                return languageTestAPI.$provideDocumentHighlights(pluginID, resource, position, token);
+            },
+            documentFormattingEdits(
+                pluginID: string,
+                resource: theia.Uri,
+                options: theia.FormattingOptions,
+                token: theia.CancellationToken
+            ): Promise<theia.TextEdit[] | undefined> {
+                return languageTestAPI.$provideDocumentFormattingEdits(pluginID, resource, options, token);
+            },
+            documentRangeFormattingEdits(
+                pluginID: string,
+                resource: theia.Uri,
+                range: theia.Range,
+                options: theia.FormattingOptions,
+                token: theia.CancellationToken
+            ): Promise<theia.TextEdit[] | undefined> {
+                return languageTestAPI.$provideDocumentRangeFormattingEdits(pluginID, resource, range, options, token);
+            },
+            onTypeFormattingEdits(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                ch: string,
+                options: theia.FormattingOptions,
+                token: theia.CancellationToken
+            ): Promise<theia.TextEdit[] | undefined> {
+                return languageTestAPI.$provideOnTypeFormattingEdits(pluginID, resource, position, ch, options, token);
+            },
+            documentLinks(
+                pluginID: string,
+                resource: theia.Uri,
+                token: theia.CancellationToken
+            ): Promise<theia.DocumentLink[] | undefined> {
+                return languageTestAPI.$provideDocumentLinks(pluginID, resource, token);
+            },
+            codeLenses(
+                pluginID: string,
+                resource: theia.Uri,
+                token: theia.CancellationToken
+            ): Promise<theia.CodeLens[] | undefined> {
+                return languageTestAPI.$provideCodeLenses(pluginID, resource, token);
+            },
+            codeActions(
+                pluginID: string,
+                resource: theia.Uri,
+                rangeOrSelection: theia.Range | theia.Selection,
+                context: theia.CodeActionContext,
+                token: theia.CancellationToken
+            ): Promise<theia.CodeAction[] | undefined> {
+                return languageTestAPI.$provideCodeActions(pluginID, resource, rangeOrSelection, context, token);
+            },
+            documentSymbols(
+                pluginID: string,
+                resource: theia.Uri,
+                token: theia.CancellationToken
+            ): Promise<theia.DocumentSymbol[] | undefined> {
+                return languageTestAPI.$provideDocumentSymbols(pluginID, resource, token);
+            },
+            workspaceSymbols(
+                pluginID: string,
+                query: string,
+                token: theia.CancellationToken
+            ): Promise<theia.SymbolInformation[]> {
+                return languageTestAPI.$provideWorkspaceSymbols(pluginID, query, token);
+            },
+            foldingRange(
+                pluginID: string,
+                resource: theia.Uri,
+                context: theia.FoldingContext,
+                token: theia.CancellationToken
+            ): Promise<theia.FoldingRange[] | undefined> {
+                return languageTestAPI.$provideFoldingRange(pluginID, resource, context, token);
+            },
+            documentColors(
+                pluginID: string,
+                resource: theia.Uri,
+                token: theia.CancellationToken
+            ): Promise<theia.ColorInformation[]> {
+                return languageTestAPI.$provideDocumentColors(pluginID, resource, token);
+            },
+            renameEdits(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                newName: string,
+                token: theia.CancellationToken
+            ): Promise<theia.WorkspaceEdit | undefined> {
+                return languageTestAPI.$provideRenameEdits(pluginID, resource, position, newName, token);
+            }
+        };
+
+        const languages: typeof che.languages = {
+            test: languagesTest
+        };
+
         return <typeof che>{
             workspace,
             factory,
@@ -242,7 +415,8 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             oAuth,
             telemetry,
             TaskStatus,
-            TaskTerminallKind
+            TaskTerminallKind,
+            languages
         };
     };
 

@@ -301,4 +301,132 @@ declare module '@eclipse-che/plugin' {
         export let links: LinkMap;
     }
 
+    export namespace languages {
+        export namespace test {
+            export function completion(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                context: theia.CompletionContext,
+                token: theia.CancellationToken
+            ): Promise<theia.CompletionList | undefined>;
+            export function implementation(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.Definition | theia.DefinitionLink[] | undefined>;
+            export function typeDefinition(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.Definition | theia.DefinitionLink[] | undefined>;
+            export function definition(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.Definition | theia.DefinitionLink[] | undefined>;
+            export function declaration(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.Definition | theia.DefinitionLink[] | undefined>;
+            export function references(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                context: theia.ReferenceContext,
+                token: theia.CancellationToken
+            ): Promise<theia.Location[] | undefined>;
+            export function signatureHelp(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                context: theia.SignatureHelpContext,
+                token: theia.CancellationToken
+            ): Promise<theia.SignatureHelp | undefined>;
+            export function hover(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.Hover | undefined>;
+            export function documentHighlights(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                token: theia.CancellationToken
+            ): Promise<theia.DocumentHighlight[] | undefined>;
+            export function documentFormattingEdits(
+                pluginID: string,
+                resource: theia.Uri,
+                options: theia.FormattingOptions,
+                token: theia.CancellationToken
+            ): Promise<theia.TextEdit[] | undefined>;
+            export function documentRangeFormattingEdits(
+                pluginID: string,
+                resource: theia.Uri,
+                range: theia.Range,
+                options: theia.FormattingOptions,
+                token: theia.CancellationToken
+            ): Promise<theia.TextEdit[] | undefined>;
+            export function onTypeFormattingEdits(
+                pluginID: string,
+                resource: theia.Uri,
+                position: theia.Position,
+                ch: string,
+                options: theia.FormattingOptions,
+                token: theia.CancellationToken
+            ): Promise<theia.TextEdit[] | undefined>;
+            export function documentLinks(
+                pluginID: string,
+                resource: theia.Uri,
+                token: theia.CancellationToken
+            ): Promise<theia.DocumentLink[] | undefined>;
+            export function codeLenses(
+                pluginID: string,
+                resource: theia.Uri,
+                token: theia.CancellationToken
+            ): Promise<theia.CodeLens[] | undefined>;
+            export function codeActions(
+                pluginID: string,
+                resource: theia.Uri,
+                rangeOrSelection: theia.Range | theia.Selection,
+                context: theia.CodeActionContext,
+                token: theia.CancellationToken
+            ): Promise<theia.CodeAction[] | undefined>;
+            export function documentSymbols(
+                pluginID: string,
+                resource: theia.Uri,
+                token: theia.CancellationToken
+            ): Promise<theia.DocumentSymbol[] | undefined>;
+            export function workspaceSymbols(
+                pluginID: string,
+                query: string,
+                token: theia.CancellationToken
+            ): Promise<theia.SymbolInformation[]>;
+            export function foldingRange(
+                pluginID: string,
+                resource: theia.Uri,
+                context: theia.FoldingContext,
+                token: theia.CancellationToken
+            ): Promise<theia.FoldingRange[] | undefined>;
+            export function documentColors(
+                pluginID: string,
+                resource: theia.Uri,
+                token: theia.CancellationToken
+            ): Promise<theia.ColorInformation[]>;
+            export function renameEdits(
+                pluginID: string, 
+                resource: theia.Uri, 
+                position: theia.Position, 
+                newName: string, 
+                token: theia.CancellationToken
+            ): Promise<theia.WorkspaceEdit | undefined>;
+        }
+    }
+
 }
