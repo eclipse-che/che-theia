@@ -107,12 +107,9 @@ export class ChePluginServiceImpl implements ChePluginService {
         }
     }
 
-    private getAxiosInstance(): AxiosInstance {
-        if (!this.isItNode()) {
-            return axios;
-        }
-
+    private getAxiosInstance(uri: string): AxiosInstance {
         const certificateAuthority = this.getCertificateAuthority();
+
         const proxyUrl = process.env.http_proxy;
         const baseUrl = process.env.CHE_API;
         if (proxyUrl && proxyUrl !== '' && baseUrl) {
@@ -145,7 +142,7 @@ export class ChePluginServiceImpl implements ChePluginService {
             }
         }
 
-        if (certificateAuthority) {
+        if (uri.startsWith(this.defaultRegistry.uri) && certificateAuthority) {
             return axios.create({
                 httpsAgent: new https.Agent({
                     ca: certificateAuthority
@@ -191,10 +188,6 @@ export class ChePluginServiceImpl implements ChePluginService {
             }
             return hostname === rule;
         });
-    }
-
-    private isItNode(): boolean {
-        return (typeof process !== 'undefined') && (typeof process.versions.node !== 'undefined');
     }
 
     private getCertificateAuthority(): Array<Buffer> | undefined {
@@ -319,7 +312,7 @@ export class ChePluginServiceImpl implements ChePluginService {
      * @return list of available plugins
      */
     private async loadPluginList(registry: ChePluginRegistry): Promise<ChePluginMetadataInternal[]> {
-        return (await this.getAxiosInstance().get<ChePluginMetadataInternal[]>(registry.uri)).data;
+        return (await this.getAxiosInstance(registry.uri).get<ChePluginMetadataInternal[]>(registry.uri)).data;
     }
 
     /**
@@ -362,7 +355,7 @@ export class ChePluginServiceImpl implements ChePluginService {
     private async loadPluginYaml(yamlURI: string): Promise<ChePluginMetadata> {
         let err;
         try {
-            const data = (await this.getAxiosInstance().get<ChePluginMetadata[]>(yamlURI)).data;
+            const data = (await this.getAxiosInstance(yamlURI).get<ChePluginMetadata[]>(yamlURI)).data;
             return yaml.safeLoad(data);
         } catch (error) {
             console.error(error);
@@ -374,7 +367,7 @@ export class ChePluginServiceImpl implements ChePluginService {
                 yamlURI += '/';
             }
             yamlURI += 'meta.yaml';
-            const data = (await this.getAxiosInstance().get<ChePluginMetadata[]>(yamlURI)).data;
+            const data = (await this.getAxiosInstance(yamlURI).get<ChePluginMetadata[]>(yamlURI)).data;
             return yaml.safeLoad(data);
         } catch (error) {
             console.error(error);
