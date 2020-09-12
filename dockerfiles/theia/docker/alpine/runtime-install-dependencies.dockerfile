@@ -6,4 +6,5 @@
 # Install ssh for cloning ssh-repositories
 # Install less for handling git diff properly
 # Install sshpass for handling passwords for SSH keys
-RUN apk add --update --no-cache sudo git bzip2 which bash curl openssh openssh-keygen less sshpass
+# Install lsblk as Theia requires it
+RUN apk add --update --no-cache sudo git bzip2 which bash curl openssh openssh-keygen less sshpass lsblk
