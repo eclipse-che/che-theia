@@ -48,8 +48,7 @@ context('TypeScript', () => {
                     cy.get('.theia-LocationList').select('file:///');
                     cy.wait(2000);
                     cy.get('.dialogContent .theia-TreeNodeSegment').should('exist');
-                    cy.get('.dialogContent .theia-TreeNodeSegment').contains('tmp').click({ force: true })
-                    cy.get('.dialogContent  .theia-TreeNodeSegment').contains('tmp').click({ force: true })
+                    cy.get('.dialogContent .theia-TreeNodeSegment').contains('tmp').click({ force: true });
                     cy.get('button.theia-button.main').click({ force: true });
                 })
             });
@@ -67,14 +66,15 @@ context('TypeScript', () => {
             });
         }).then(() => {
             // enable the explorer view
-            cy.get('body').type('{ctrl}{cmd}{shift}e')
+            cy.get('body').type('{ctrl}{cmd}{shift}e');
         }).then(() => {
             // wait for explorer to be opened
-            cy.wait(2000);
-            // select new folder
-            cy.get('.p-TabBar-content > #shell-tab-explorer-view-container > div.theia-tab-icon-label > div.p-TabBar-tabIcon.navigator-tab-icon').click({ force: true }).then(() => {
+            cy.get('#explorer-view-container--files').should('exist').then(() => {
+                cy.get('#explorer-view-container--files > div.theia-header').click({ force: true });
+                // select new folder
                 cy.get('#files').contains(FOLDER_NAME).click({ force: true });
-            })
+            });
+
         }).then(() => {
             // create file
             cy.get('#theia-top-panel').should('exist').then(() => {
