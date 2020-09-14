@@ -13,7 +13,7 @@
     "@theia/plugin-dev": "next",
     "@theia/plugin-ext": "next",
     "@eclipse-che/workspace-client": "latest",
-    "@eclipse-che/api": "latest"
+    "@eclipse-che/api": "7.5.0-SNAPSHOT"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",

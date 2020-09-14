@@ -10,7 +10,7 @@
     "src"
   ],
   "dependencies": {
-    "@eclipse-che/api": "latest",
+    "@eclipse-che/api": "7.5.0-SNAPSHOT",
     "@eclipse-che/theia-plugin-ext": "^0.0.1",
     "@theia/core": "next",
     "@theia/preferences": "next",

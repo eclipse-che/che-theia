@@ -854,15 +854,15 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@eclipse-che/api@7.5.0-SNAPSHOT", "@eclipse-che/api@latest":
+  version "7.5.0-SNAPSHOT"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.5.0-SNAPSHOT.tgz#bf0c5be60354e34c73bc52b2e18be8680ce8d900"
+  integrity sha512-4CgKEGCBOIOBGBNoH0dhN8TkP1Sj39fG4LGCXYw3JB7nQucVooJyq7AhIV+w7L4iZ+ln+y2KEfZugCmOIuzIeQ==
+
 "@eclipse-che/api@^7.0.0-beta-4.0", "@eclipse-che/api@^7.3.2":
   version "7.4.0"
   resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.4.0.tgz#74be0ca037ea2e9702d74971ac2ed8befdcb8a46"
   integrity sha512-/WDMO6F2lKNuNMAIBmPDYQ22TqGIhrSpK6OaU0aie3qeQa7yxXHtK5nuxyyQGFOZWVdKD9cWisjDyaro7+OM0Q==
-
-"@eclipse-che/api@latest":
-  version "7.5.0-SNAPSHOT"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.5.0-SNAPSHOT.tgz#bf0c5be60354e34c73bc52b2e18be8680ce8d900"
-  integrity sha512-4CgKEGCBOIOBGBNoH0dhN8TkP1Sj39fG4LGCXYw3JB7nQucVooJyq7AhIV+w7L4iZ+ln+y2KEfZugCmOIuzIeQ==
 
 "@eclipse-che/plugin@latest":
   version "0.0.1-1595942817"
