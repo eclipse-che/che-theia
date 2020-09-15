@@ -168,9 +168,9 @@ export class CheLanguagesMainTestImpl implements LanguagesMain {
         this.languagesMainImpl.$registerDocumentFormattingSupport(handle, pluginInfo, selector);
     }
 
-    $registerRangeFormattingProvider(handle: number, pluginInfo: PluginInfo, selector: SerializedDocumentFilter[]): void {
+    $registerRangeFormattingSupport(handle: number, pluginInfo: PluginInfo, selector: SerializedDocumentFilter[]): void {
         this.pluginHandleRegistry.registerPluginWithFeatureHandle(handle, pluginInfo.id, 'documentRangeFormattingEdits', this.languagesExtProxy);
-        this.languagesMainImpl.$registerRangeFormattingProvider(handle, pluginInfo, selector);
+        this.languagesMainImpl.$registerRangeFormattingSupport(handle, pluginInfo, selector);
     }
 
     $registerOnTypeFormattingProvider(handle: number, pluginInfo: PluginInfo, selector: SerializedDocumentFilter[], autoFormatTriggerCharacters: string[]): void {
