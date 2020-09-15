@@ -38,9 +38,9 @@ import { LanguagesContainerAware } from './languages-container-aware';
 import { PluginManagerExtImpl } from '@theia/plugin-ext/lib/plugin/plugin-manager';
 import { ExecuteCommandContainerAware } from './execute-command-container-aware';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
-import { EnvVariablesServerImpl } from '@theia/core/lib/node/env-variables';
 import { PluginRemoteNodeImpl } from './plugin-remote-node-impl';
 import { MAIN_REMOTE_RPC_CONTEXT } from '../common/plugin-remote-rpc';
+import { CheEnvVariablesServerImpl } from '@eclipse-che/theia-plugin-ext/lib/node/che-env-variables-server';
 
 interface CheckAliveWS extends ws {
     alive: boolean;
@@ -105,7 +105,7 @@ export class PluginRemoteInit {
         // Bind VsCode system
         inversifyContainer.load(pluginVscodeBackendModule);
 
-        inversifyContainer.bind(EnvVariablesServer).to(EnvVariablesServerImpl).inSingletonScope();
+        inversifyContainer.bind(EnvVariablesServer).to(CheEnvVariablesServerImpl).inSingletonScope();
 
         // override handler to our own class
         inversifyContainer.bind(PluginDeployerHandlerImpl).toSelf().inSingletonScope();

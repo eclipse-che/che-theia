@@ -35,8 +35,13 @@ import { CheProductServiceImpl } from './che-product-service';
 import { PluginApiContributionIntercepted } from './plugin-service';
 import { PluginApiContribution } from '@theia/plugin-ext/lib/main/node/plugin-service';
 import { CheClientIpServiceContribution } from './che-client-ip-service';
+import { CheEnvVariablesServerImpl } from './che-env-variables-server';
+import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
+    bind(CheEnvVariablesServerImpl).toSelf().inSingletonScope();
+    rebind(EnvVariablesServer).toService(CheEnvVariablesServerImpl);
+
     bind(ChePluginApiProvider).toSelf().inSingletonScope();
     bind(Symbol.for(ExtPluginApiProvider)).toService(ChePluginApiProvider);
 

@@ -12,7 +12,8 @@
     "@theia/plugin-ext": "next",
     "@theia/plugin-ext-vscode": "next",
     "deasync": "^0.1.19",
-    "vscode-uri": "2.1.1"
+    "vscode-uri": "2.1.1",
+    "@eclipse-che/theia-plugin-ext": "^0.0.1"
   },
   "devDependencies": {
     "@types/deasync": "^0.1.0",
