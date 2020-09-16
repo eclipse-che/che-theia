@@ -25,7 +25,8 @@ export function start(context: theia.PluginContext): void {
                 token
             }], theia.ConfigurationTarget.Global);
             theia.window.showWarningMessage('GitHub token has been set to preferences. ' +
-                'Refresh the page to reinitialise the vscode GitHub pull-request plugin with the token');
+                'Refresh the page to reinitialize the vscode GitHub pull-request plugin with the token',
+                'Reload').then(() => theia.commands.executeCommand('workbench.action.reloadWindow'));
         }));
     }
 }
