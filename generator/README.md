@@ -51,7 +51,7 @@ In order to build the product, just run `yarn` at the root folder (where theia h
 
 Also you can provide custom `yaml` with your extension set, by using `-c` or `--config` parameter of `che-theia init` :
 
-`che-heia init -c ./path/to/custom/che-theia-init-sources.yaml`
+`che-theia init -c ./path/to/custom/che-theia-init-sources.yaml`
 
 The sample of `che-theia-init-sources.yaml` can be found [there](https://github.com/eclipse/che-theia/blob/master/che-theia-init-sources.yml)
 
