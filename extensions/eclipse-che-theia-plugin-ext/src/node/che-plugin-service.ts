@@ -108,7 +108,6 @@ export class ChePluginServiceImpl implements ChePluginService {
     }
 
     /**
-     * URI for which an axios instance will be created.
      * If the URI points to default plugin registry, axios will use local authority certificates.
      */
     private getAxiosInstance(uri: string): AxiosInstance {
