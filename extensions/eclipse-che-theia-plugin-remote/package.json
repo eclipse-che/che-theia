@@ -1,16 +1,16 @@
 {
   "name": "@eclipse-che/theia-remote",
   "author": "Florent Benoit",
-  "version": "0.0.1",
+  "version": "7.19.0",
   "license": "EPL-2.0",
   "files": [
     "lib",
     "src"
   ],
   "dependencies": {
-    "@theia/core": "next",
-    "@theia/plugin-ext": "next",
-    "@theia/plugin-ext-vscode": "next",
+    "@theia/core": "1.6.0-next.993b7a8b",
+    "@theia/plugin-ext": "1.6.0-next.993b7a8b",
+    "@theia/plugin-ext-vscode": "1.6.0-next.993b7a8b",
     "deasync": "^0.1.19",
     "vscode-uri": "2.1.1"
   },
