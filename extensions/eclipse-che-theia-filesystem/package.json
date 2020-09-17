@@ -9,7 +9,7 @@
     "src"
   ],
   "dependencies": {
-    "@theia/filesystem": "1.4.0-next.89694867"
+    "@theia/filesystem": "next"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",
