@@ -17,7 +17,6 @@ sources:
     - extensions/eclipse-che-theia-file-sync-tracker
     - extensions/eclipse-che-theia-cli-endpoint
     - extensions/eclipse-che-theia-workspace
-    - extensions/eclipse-che-theia-filesystem
   plugins:
     - plugins/containers-plugin
     - plugins/workspace-plugin
