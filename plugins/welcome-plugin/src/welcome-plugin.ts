@@ -113,6 +113,8 @@ export async function addPanel(context: theia.PluginContext): Promise<void> {
 export function start(context: theia.PluginContext): void {
     let showWelcomePage: boolean | undefined = true;
 
+    theia.window.registerWebviewPanelSerializer(welcomePageViewType, new WelcomePageSerializer(context));
+
     const configuration = theia.workspace.getConfiguration(Settings.CHE_CONFIGURATION);
     if (configuration) {
         showWelcomePage = configuration.get(Settings.SHOW_WELCOME_PAGE);
@@ -127,4 +129,15 @@ export function start(context: theia.PluginContext): void {
 }
 
 export function stop(): void {
+}
+
+export class WelcomePageSerializer implements theia.WebviewPanelSerializer {
+
+    constructor(readonly context: theia.PluginContext) {
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async deserializeWebviewPanel(webviewPanel: theia.WebviewPanel, state: any): Promise<void> {
+        webviewPanel.webview.html = await getHtmlForWebview(this.context);
+    }
 }
