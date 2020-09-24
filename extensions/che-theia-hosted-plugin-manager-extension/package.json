@@ -3,7 +3,7 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "7.19.0",
+  "version": "7.19.1",
   "files": [
     "lib",
     "node"
