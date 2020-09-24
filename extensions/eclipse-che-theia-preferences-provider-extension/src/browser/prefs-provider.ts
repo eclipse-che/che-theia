@@ -77,15 +77,21 @@ export class PreferencesProvider implements FrontendApplicationContribution {
 
     private async setPluginProperties(props: [string, string][]): Promise<void> {
         await this.workspaceService.roots;
-        const workspace = this.workspaceService.workspace;
-        if (!workspace) {
-            throw new Error('Failed to get Theia workspace.');
-        }
         for (const [key, value] of props) {
-            if (this.preferenceService.has(key, workspace.resource.toString())) {
-                continue;
+
+            try {
+                this.setPreferenceValue(key, JSON.parse(value));
+            } catch (error) {
+                console.warn('could not parse value for prefernece key %s, using string value: %o', key, error);
+                this.setPreferenceValue(key, value);
             }
-            await this.preferenceService.set(key, value, PreferenceScope.Workspace, workspace.resource.toString());
+        }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private async setPreferenceValue(key: string, value: any): Promise<void> {
+        if (!this.preferenceService.has(key)) {
+            await this.preferenceService.set(key, value, PreferenceScope.Workspace);
         }
     }
 
