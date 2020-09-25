@@ -82,7 +82,7 @@ export class PreferencesProvider implements FrontendApplicationContribution {
             try {
                 this.setPreferenceValue(key, JSON.parse(value));
             } catch (error) {
-                console.warn('could not parse value for prefernece key %s, using string value: %o', key, error);
+                console.warn('could not parse value for preference key %s, using string value: %o', key, error);
                 this.setPreferenceValue(key, value);
             }
         }
