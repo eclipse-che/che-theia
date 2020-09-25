@@ -17,9 +17,9 @@
 import { injectable, inject, postConstruct } from 'inversify';
 import { FrontendApplicationContribution, CommonCommands } from '@theia/core/lib/browser';
 import { StatusBar, StatusBarAlignment } from '@theia/core/lib/browser/status-bar/status-bar';
-import { CheApiService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
 import { CheGitService, GIT_USER_EMAIL, GIT_USER_NAME } from '../common/git-protocol';
 import { CheGitClientImpl } from './git-config-changes-tracker';
+import { UserService } from '@eclipse-che/theia-remote-api/lib/common/user-service';
 
 @injectable()
 export class CheTheiaStatusBarFrontendContribution implements FrontendApplicationContribution {
@@ -27,8 +27,8 @@ export class CheTheiaStatusBarFrontendContribution implements FrontendApplicatio
     @inject(StatusBar)
     private statusBar: StatusBar;
 
-    @inject(CheApiService)
-    protected cheApiService: CheApiService;
+    @inject(UserService)
+    protected userService: UserService;
 
     @inject(CheGitService)
     protected gitService: CheGitService;
@@ -49,7 +49,7 @@ export class CheTheiaStatusBarFrontendContribution implements FrontendApplicatio
     }
 
     checkGitCommiterSettings(): void {
-        this.cheApiService.getUserPreferences('theia-user-preferences').then(async chePreferences => {
+        this.userService.getUserPreferences('theia-user-preferences').then(async chePreferences => {
             const theiaPreferences = JSON.parse(chePreferences['theia-user-preferences'] ? chePreferences['theia-user-preferences'] : '{}');
             const email = theiaPreferences[GIT_USER_EMAIL];
             const name = theiaPreferences[GIT_USER_NAME];

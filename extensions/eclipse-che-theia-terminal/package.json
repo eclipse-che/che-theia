@@ -22,8 +22,8 @@
     "@theia/core": "next",
     "@theia/terminal": "next",
     "reconnecting-websocket": "^4.2.0",
-    "@eclipse-che/workspace-client": "latest",
     "@eclipse-che/api": "latest",
+    "@eclipse-che/theia-remote-api": "^0.0.1",
     "vscode-ws-jsonrpc": "0.2.0"
   },
   "license": "EPL-2.0",
@@ -42,8 +42,7 @@
   },
   "theiaExtensions": [
     {
-      "frontend": "lib/browser/terminal-frontend-module",
-      "backend": "lib/node/terminal-backend-module"
+      "frontend": "lib/browser/terminal-frontend-module"
     }
   ]
 }

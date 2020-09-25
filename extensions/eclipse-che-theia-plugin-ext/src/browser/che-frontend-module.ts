@@ -15,10 +15,8 @@ import { ContainerModule } from 'inversify';
 import { MainPluginApiProvider } from '@theia/plugin-ext/lib/common/plugin-ext-api-contribution';
 import { CheApiProvider } from './che-api-provider';
 import {
-    CHE_API_SERVICE_PATH,
     CHE_TASK_SERVICE_PATH,
     CHE_PRODUCT_SERVICE_PATH,
-    CheApiService,
     CheTaskClient,
     CheTaskService,
     CheProductService,
@@ -47,7 +45,6 @@ import { WebviewEnvironment } from '@theia/plugin-ext/lib/main/browser/webview/w
 import { CheWebviewEnvironment } from './che-webview-environment';
 import { TaskStatusHandler } from './task-status-handler';
 import { PluginFrontendViewContribution } from '@theia/plugin-ext/lib/main/browser/plugin-frontend-view-contribution';
-import { OauthUtils } from './oauth-utils';
 import { TaskService } from '@theia/task/lib/browser';
 import { TaskConfigurationsService } from './task-config-service';
 import { CheTaskResolver } from './che-task-resolver';
@@ -64,11 +61,6 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(CheApiProvider).toSelf().inSingletonScope();
     bind(MainPluginApiProvider).toService(CheApiProvider);
 
-    bind(CheApiService).toDynamicValue(ctx => {
-        const provider = ctx.container.get(WebSocketConnectionProvider);
-        return provider.createProxy<CheApiService>(CHE_API_SERVICE_PATH);
-    }).inSingletonScope();
-
     bind(CheTaskClient).to(CheTaskClientImpl).inSingletonScope();
     bind(CheTaskService).toDynamicValue(ctx => {
         const provider = ctx.container.get(WebSocketConnectionProvider);
@@ -83,7 +75,7 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(ChePluginService).toDynamicValue(ctx => {
         const provider = ctx.container.get(WebSocketConnectionProvider);
         const client: ChePluginServiceClient = ctx.container.get(ChePluginServiceClient);
-        return provider.createProxy<CheApiService>(CHE_PLUGIN_SERVICE_PATH, client);
+        return provider.createProxy<ChePluginService>(CHE_PLUGIN_SERVICE_PATH, client);
     }).inSingletonScope();
 
     rebind(WebviewEnvironment).to(CheWebviewEnvironment).inSingletonScope();
@@ -117,7 +109,6 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
     rebind(MiniBrowserOpenHandler).to(CheMiniBrowserOpenHandler).inSingletonScope();
 
     bind(TaskStatusHandler).toSelf().inSingletonScope();
-    bind(OauthUtils).toSelf().inSingletonScope();
 
     bind(TaskConfigurationsService).toSelf().inSingletonScope();
     rebind(TaskService).toService(TaskConfigurationsService);

@@ -14,7 +14,6 @@
     },
     "devDependencies": {
         "@types/node": "^12.0.0",
-        "@eclipse-che/api": "latest",
         "@eclipse-che/plugin": "0.0.1",
         "@theia/plugin": "next",
         "@theia/plugin-packager": "latest",

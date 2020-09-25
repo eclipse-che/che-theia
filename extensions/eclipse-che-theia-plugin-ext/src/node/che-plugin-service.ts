@@ -7,7 +7,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
-import { CheApiService, WorkspaceSettings } from '../common/che-protocol';
 import {
     ChePluginService,
     ChePluginServiceClient,
@@ -22,10 +21,9 @@ import * as tunnel from 'tunnel';
 import { che as cheApi } from '@eclipse-che/api';
 import URI from '@theia/core/lib/common/uri';
 import { PluginFilter } from '../common/plugin/plugin-filter';
-import * as fs from 'fs-extra';
 import * as https from 'https';
-import { PUBLIC_CRT_PATH, SS_CRT_PATH } from './che-https';
-import * as path from 'path';
+import { WorkspaceService, WorkspaceSettings } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
+import { CertificateService } from '@eclipse-che/theia-remote-api/lib/common/certificate-service';
 
 const yaml = require('js-yaml');
 
@@ -50,7 +48,8 @@ export interface ChePluginMetadataInternal {
 @injectable()
 export class ChePluginServiceImpl implements ChePluginService {
 
-    private cheApiService: CheApiService;
+    private workspaceService: WorkspaceService;
+    private certificateService: CertificateService;
 
     private defaultRegistry: ChePluginRegistry;
 
@@ -59,7 +58,7 @@ export class ChePluginServiceImpl implements ChePluginService {
     private cachedPlugins: ChePluginMetadata[] = [];
 
     constructor(container: interfaces.Container) {
-        this.cheApiService = container.get(CheApiService);
+        this.workspaceService = container.get(WorkspaceService);
     }
 
     setClient(client: ChePluginServiceClient): void {
@@ -79,7 +78,7 @@ export class ChePluginServiceImpl implements ChePluginService {
         }
 
         try {
-            const workspaceSettings: WorkspaceSettings = await this.cheApiService.getWorkspaceSettings();
+            const workspaceSettings: WorkspaceSettings = await this.workspaceService.getWorkspaceSettings();
             if (workspaceSettings && workspaceSettings['cheWorkspacePluginRegistryUrl']) {
                 let uri = workspaceSettings['cheWorkspacePluginRegistryUrl'];
 
@@ -110,8 +109,8 @@ export class ChePluginServiceImpl implements ChePluginService {
     /**
      * If the URI points to default plugin registry, axios will use local authority certificates.
      */
-    private getAxiosInstance(uri: string): AxiosInstance {
-        const certificateAuthority = this.getCertificateAuthority();
+    private async getAxiosInstance(uri: string): Promise<AxiosInstance> {
+        const certificateAuthority = await this.certificateService.getCertificateAuthority();
 
         const proxyUrl = process.env.http_proxy;
         const baseUrl = process.env.CHE_API;
@@ -191,25 +190,6 @@ export class ChePluginServiceImpl implements ChePluginService {
             }
             return hostname === rule;
         });
-    }
-
-    private getCertificateAuthority(): Array<Buffer> | undefined {
-        const certificateAuthority: Buffer[] = [];
-        if (fs.existsSync(SS_CRT_PATH)) {
-            certificateAuthority.push(fs.readFileSync(SS_CRT_PATH));
-        }
-
-        if (fs.existsSync(PUBLIC_CRT_PATH)) {
-            const publicCertificates = fs.readdirSync(PUBLIC_CRT_PATH);
-            for (const publicCertificate of publicCertificates) {
-                if (publicCertificate.endsWith('.crt')) {
-                    const certPath = path.join(PUBLIC_CRT_PATH, publicCertificate);
-                    certificateAuthority.push(fs.readFileSync(certPath));
-                }
-            }
-        }
-
-        return certificateAuthority.length > 0 ? certificateAuthority : undefined;
     }
 
     /**
@@ -315,7 +295,8 @@ export class ChePluginServiceImpl implements ChePluginService {
      * @return list of available plugins
      */
     private async loadPluginList(registry: ChePluginRegistry): Promise<ChePluginMetadataInternal[]> {
-        return (await this.getAxiosInstance(registry.uri).get<ChePluginMetadataInternal[]>(registry.uri)).data;
+        const axiosInstance = await this.getAxiosInstance(registry.uri);
+        return (await axiosInstance.get<ChePluginMetadataInternal[]>(registry.uri)).data;
     }
 
     /**
@@ -371,7 +352,8 @@ export class ChePluginServiceImpl implements ChePluginService {
     private async loadPluginYaml(yamlURI: string): Promise<ChePluginMetadata> {
         let err;
         try {
-            const data = (await this.getAxiosInstance(yamlURI).get<ChePluginMetadata[]>(yamlURI)).data;
+            const axiosInstance = await this.getAxiosInstance(yamlURI);
+            const data = (await axiosInstance.get<ChePluginMetadata[]>(yamlURI)).data;
             return yaml.safeLoad(data);
         } catch (error) {
             console.error(error);
@@ -383,7 +365,8 @@ export class ChePluginServiceImpl implements ChePluginService {
                 yamlURI += '/';
             }
             yamlURI += 'meta.yaml';
-            const data = (await this.getAxiosInstance(yamlURI).get<ChePluginMetadata[]>(yamlURI)).data;
+            const axiosInstance = await this.getAxiosInstance(yamlURI);
+            const data = (await axiosInstance.get<ChePluginMetadata[]>(yamlURI)).data;
             return yaml.safeLoad(data);
         } catch (error) {
             console.error(error);
@@ -462,7 +445,7 @@ export class ChePluginServiceImpl implements ChePluginService {
      * Returns list of plugins described in workspace configuration.
      */
     async getWorkspacePlugins(): Promise<string[]> {
-        const workspace: cheApi.workspace.Workspace = await this.cheApiService.currentWorkspace();
+        const workspace: cheApi.workspace.Workspace = await this.workspaceService.currentWorkspace();
 
         if (workspace.config) {
             if (workspace.config.attributes && workspace.config.attributes['plugins']) {
@@ -496,7 +479,7 @@ export class ChePluginServiceImpl implements ChePluginService {
      * Sets new list of plugins to workspace configuration.
      */
     async setWorkspacePlugins(plugins: string[]): Promise<void> {
-        const workspace: cheApi.workspace.Workspace = await this.cheApiService.currentWorkspace();
+        const workspace: cheApi.workspace.Workspace = await this.workspaceService.currentWorkspace();
         if (!workspace.devfile!.components) {
             workspace.devfile!.components = [];
         }
@@ -528,7 +511,7 @@ export class ChePluginServiceImpl implements ChePluginService {
             });
         }
 
-        await this.cheApiService.updateWorkspace(workspace.id!, workspace);
+        await this.workspaceService.updateWorkspace(workspace.id!, workspace);
     }
 
     /**

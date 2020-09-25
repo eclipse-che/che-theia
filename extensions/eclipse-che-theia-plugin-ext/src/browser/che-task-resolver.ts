@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 import { che as cheApi } from '@eclipse-che/api';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { TaskResolver, TaskResolverRegistry } from '@theia/task/lib/browser';
 import { TaskConfiguration } from '@theia/task/lib/common';
 import { VariableResolverService } from '@theia/variable-resolver/lib/browser';
 import { inject, injectable, postConstruct } from 'inversify';
-import { CheApiService } from '../common/che-protocol';
 import { ContainerPicker } from './container-picker';
 
 const COMPONENT_ATTRIBUTE: string = 'component';
@@ -20,8 +20,8 @@ const COMPONENT_ATTRIBUTE: string = 'component';
 @injectable()
 export class CheTaskResolver implements TaskResolver {
 
-    @inject(CheApiService)
-    protected readonly cheApi: CheApiService;
+    @inject(WorkspaceService)
+    protected readonly workspaceService: WorkspaceService;
 
     @inject(VariableResolverService)
     protected readonly variableResolverService: VariableResolverService;
@@ -113,7 +113,7 @@ export class CheTaskResolver implements TaskResolver {
             return this.workspaceId;
         }
 
-        this.workspaceId = this.cheApi.getCurrentWorkspaceId();
+        this.workspaceId = await this.workspaceService.getCurrentWorkspaceId();
         return this.workspaceId;
     }
 
@@ -124,7 +124,7 @@ export class CheTaskResolver implements TaskResolver {
 
         this.containers = [];
         try {
-            const containersList = await this.cheApi.getCurrentWorkspacesContainers();
+            const containersList = await this.workspaceService.getCurrentWorkspacesContainers();
             for (const containerName in containersList) {
                 if (!containersList.hasOwnProperty(containerName)) {
                     continue;

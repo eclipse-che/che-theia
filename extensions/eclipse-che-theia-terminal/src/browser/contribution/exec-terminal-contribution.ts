@@ -17,7 +17,6 @@ import { TerminalApiEndPointProvider } from '../server-definition/terminal-proxy
 import { BrowserMainMenuFactory } from '@theia/core/lib/browser/menu/browser-menu-plugin';
 import { MenuBar as MenuBarWidget } from '@phosphor/widgets';
 import { TerminalKeybindingContext } from './keybinding-context';
-import { CHEWorkspaceService } from '../../common/workspace-service';
 import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/browser/base/terminal-widget';
 import { REMOTE_TERMINAL_WIDGET_FACTORY_ID, RemoteTerminalWidgetFactoryOptions } from '../terminal-widget/remote-terminal-widget';
 import { filterRecipeContainers } from './terminal-command-filter';
@@ -25,6 +24,7 @@ import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { isOSX } from '@theia/core/lib/common/os';
 import { TerminalKeybindingContexts } from '@theia/terminal/lib/browser/terminal-keybinding-contexts';
 import { TERMINAL_WIDGET_FACTORY_ID } from '@theia/terminal/lib/browser/terminal-widget-impl';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 export const NewTerminalInSpecificContainer = {
     id: 'terminal-in-specific-container:new',
@@ -50,15 +50,14 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     @inject(BrowserMainMenuFactory)
     protected readonly mainMenuFactory: BrowserMainMenuFactory;
 
-    @inject(CHEWorkspaceService)
-    protected readonly cheWorkspaceService: CHEWorkspaceService;
+    @inject(WorkspaceService)
+    protected readonly remoteWorkspaceService: WorkspaceService;
 
     @inject(EnvVariablesServer)
     protected readonly baseEnvVariablesServer: EnvVariablesServer;
 
     private readonly mainMenuId = 'theia:menubar';
     private editorContainerName: string | undefined;
-    private workspaceId: string | undefined;
 
     async registerCommands(registry: CommandRegistry): Promise<void> {
         const serverUrl = await this.termApiEndPointProvider();
@@ -152,7 +151,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     }
 
     private async registerTerminalCommandPerContainer(registry: CommandRegistry): Promise<void> {
-        const containers = await this.cheWorkspaceService.getContainerList();
+        const containers = await this.remoteWorkspaceService.getContainerList();
 
         for (const container of filterRecipeContainers(containers)) {
             const termCommandPerContainer: Command = {
@@ -167,7 +166,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
 
     public async newTerminalPerContainer(containerName: string, options: TerminalWidgetOptions, closeWidgetOnExitOrError: boolean = true): Promise<TerminalWidget> {
         try {
-            const workspaceId = await this.getWorkspaceId();
+            const workspaceId = await this.remoteWorkspaceService.getCurrentWorkspaceId();
             const termApiEndPoint = await this.termApiEndPointProvider();
 
             const widget = await this.widgetManager.getOrCreateWidget(REMOTE_TERMINAL_WIDGET_FACTORY_ID, <RemoteTerminalWidgetFactoryOptions>{
@@ -192,19 +191,9 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         termWidget.start();
     }
 
-    protected async getWorkspaceId(): Promise<string | undefined> {
-        if (this.workspaceId) {
-            return this.workspaceId;
-        }
-
-        this.workspaceId = await this.baseEnvVariablesServer.getValue('CHE_WORKSPACE_ID').then(v => v ? v.value : undefined);
-
-        return this.workspaceId;
-    }
-
     async getEditorContainerName(): Promise<string | undefined> {
         if (!this.editorContainerName) {
-            this.editorContainerName = await this.cheWorkspaceService.findEditorMachineName();
+            this.editorContainerName = await this.remoteWorkspaceService.findEditorContainer();
         }
         return this.editorContainerName;
     }

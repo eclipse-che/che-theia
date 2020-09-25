@@ -9,11 +9,11 @@
  **********************************************************************/
 
 import { injectable, inject, postConstruct } from 'inversify';
-import { CheApiService } from '../common/che-protocol';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { WebviewEnvironment } from '@theia/plugin-ext/lib/main/browser/webview/webview-environment';
 import { WebviewExternalEndpoint } from '@theia/plugin-ext/lib/main/common/webview-protocol';
 import { getUrlDomain, SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE } from '../common/che-server-common';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 @injectable()
 export class CheWebviewEnvironment extends WebviewEnvironment {
@@ -21,14 +21,14 @@ export class CheWebviewEnvironment extends WebviewEnvironment {
     @inject(EnvVariablesServer)
     protected readonly environments: EnvVariablesServer;
 
-    @inject(CheApiService)
-    private cheApi: CheApiService;
+    @inject(WorkspaceService)
+    private workspaceService: WorkspaceService;
 
     @postConstruct()
     protected async init(): Promise<void> {
         try {
             const webviewExternalEndpointPattern = await this.environments.getValue(WebviewExternalEndpoint.pattern);
-            const webviewServer = await this.cheApi.findUniqueServerByAttribute(SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE);
+            const webviewServer = await this.workspaceService.findUniqueEndpointByAttribute(SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE);
             let webviewDomain: string | undefined;
             if (webviewServer && webviewServer.url) {
                 webviewDomain = getUrlDomain(webviewServer.url);

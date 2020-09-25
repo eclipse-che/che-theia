@@ -9,51 +9,29 @@
  **********************************************************************/
 
 import { interfaces } from 'inversify';
-import { CheDevfileMain, CheApiService } from '../common/che-protocol';
+import { CheDevfileMain } from '../common/che-protocol';
 import { AbstractDialog } from '@theia/core/lib/browser';
 import { WindowService } from '@theia/core/lib/browser/window/window-service';
-import { MessageService } from '@theia/core';
+import { FactoryService } from '@eclipse-che/theia-remote-api/lib/common/factory-service';
 
 export class CheDevfileMainImpl implements CheDevfileMain {
 
-    private readonly cheApiService: CheApiService;
+    private readonly factoryService: FactoryService;
 
     private readonly windowService: WindowService;
-
-    private readonly messageService: MessageService;
 
     private readonly openFactoryLinkDialog: OpenFactoryLinkDialog;
 
     constructor(container: interfaces.Container) {
-        this.cheApiService = container.get(CheApiService);
+        this.factoryService = container.get(FactoryService);
         this.windowService = container.get(WindowService);
-        this.messageService = container.get(MessageService);
-
         this.openFactoryLinkDialog = new OpenFactoryLinkDialog(this.windowService);
     }
 
     async $createWorkspace(devfilePath: string): Promise<void> {
-        return new Promise<void>(async (resolve, reject) => {
-            let baseURI = this.cheApiService.getCheApiURI();
-
-            if (!baseURI) {
-                const error = 'Che API URI is not set!';
-                this.messageService.error(error);
-                reject(error);
-                return;
-            }
-
-            if (baseURI.endsWith('/api')) {
-                baseURI = baseURI.substring(0, baseURI.length - 4);
-            }
-
-            const fileDownloadURI = window.location.origin + '/files/?uri=' + devfilePath;
-            const factoryURI = `${baseURI}/f?url=${fileDownloadURI}`;
-
-            this.openFactoryWindow(factoryURI);
-
-            resolve();
-        });
+        const fileDownloadURI = window.location.origin + '/files/?uri=' + devfilePath;
+        const factoryURI = await this.factoryService.getFactoryLink(fileDownloadURI);
+        await this.openFactoryWindow(factoryURI);
     }
 
     /**

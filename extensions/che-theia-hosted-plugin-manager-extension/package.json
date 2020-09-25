@@ -12,8 +12,7 @@
     "@theia/core": "next",
     "@theia/plugin-dev": "next",
     "@theia/plugin-ext": "next",
-    "@eclipse-che/workspace-client": "latest",
-    "@eclipse-che/api": "latest"
+    "@eclipse-che/theia-remote-api": "^0.0.1"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",

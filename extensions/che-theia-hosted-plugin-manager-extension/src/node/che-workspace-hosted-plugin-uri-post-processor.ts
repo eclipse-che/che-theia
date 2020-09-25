@@ -8,22 +8,18 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 import URI from '@theia/core/lib/common/uri';
 import { HostedPluginUriPostProcessor } from '@theia/plugin-dev';
-import WorkspaceClient, { IRemoteAPI } from '@eclipse-che/workspace-client';
-import { che } from '@eclipse-che/api';
+import { Endpoint, WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 @injectable()
 export class CheWorkspaceHostedPluginUriPostProcessor implements HostedPluginUriPostProcessor {
 
-    protected restApiClient: IRemoteAPI;
+    @inject(WorkspaceService)
+    protected workspaceService: WorkspaceService;
 
     constructor() {
-        this.restApiClient = WorkspaceClient.getRestApi({
-            baseUrl: process.env.CHE_API,
-            machineToken: process.env.CHE_MACHINE_TOKEN
-        });
     }
 
     async processUri(uri: URI): Promise<URI> {
@@ -36,11 +32,11 @@ export class CheWorkspaceHostedPluginUriPostProcessor implements HostedPluginUri
     }
 
     /**
-     * Searches for server which exposes hosted Theia instance.
-     * The server label is the attribute "type": "ide-dev".
+     * Searches for endpoint which exposes hosted Theia instance.
+     * The endpoint label is the attribute "type": "ide-dev".
      */
-    protected async getHostedPluginTheiaInstanceServer(): Promise<che.workspace.Server | undefined> {
-        const workspace = await this.getCurrentWorkspace();
+    protected async getHostedPluginTheiaInstanceServer(): Promise<Endpoint | undefined> {
+        const workspace = await this.workspaceService.currentWorkspace();
         if (!workspace.runtime) {
             throw new Error('Workspace is not running.');
         }
@@ -62,14 +58,6 @@ export class CheWorkspaceHostedPluginUriPostProcessor implements HostedPluginUri
             }
         }
         return undefined;
-    }
-
-    protected getCurrentWorkspace(): Promise<che.workspace.Workspace> {
-        const workspaceId = process.env.CHE_WORKSPACE_ID;
-        if (!workspaceId) {
-            throw new Error('Environment variable CHE_WORKSPACE_ID is not set.');
-        }
-        return this.restApiClient.getById<che.workspace.Workspace>(workspaceId);
     }
 
     async processOptions(options: object): Promise<object> {
