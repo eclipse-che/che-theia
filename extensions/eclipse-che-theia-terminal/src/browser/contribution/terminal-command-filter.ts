@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 
-import { WorkspaceContainer } from '../../common/workspace-service';
+import { Container } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 export const RECIPE_CONTAINER_SOURCE = 'recipe';
 export const CONTAINER_SOURCE_ATTRIBUTE = 'source';
@@ -16,11 +16,11 @@ export const CONTAINER_SOURCE_ATTRIBUTE = 'source';
 /**
  * Return list containers with recipe source attribute.
  */
-export function filterRecipeContainers(containers: WorkspaceContainer[]): WorkspaceContainer[] {
+export function filterRecipeContainers(containers: Container[]): Container[] {
     return containers.filter(container => isDevContainer(container));
 }
 
-export function isDevContainer(container: WorkspaceContainer): boolean {
+export function isDevContainer(container: Container): boolean {
     return container.attributes !== undefined
         && (!container.attributes[CONTAINER_SOURCE_ATTRIBUTE] || container.attributes[CONTAINER_SOURCE_ATTRIBUTE] === RECIPE_CONTAINER_SOURCE);
 }

@@ -43,6 +43,9 @@
          "path": "../../packages/@che-eclipse-che-theia-logging/tsconfig.json"
       },
       {
+         "path": "../../packages/@che-eclipse-che-theia-remote-api/tsconfig.json"
+      },
+      {
          "path": "../../packages/@che-eclipse-che-theia-messaging/tsconfig.json"
       }
    ]

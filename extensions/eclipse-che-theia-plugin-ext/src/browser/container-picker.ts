@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 import { che as cheApi } from '@eclipse-che/api';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { QuickOpenHandler } from '@theia/core/lib/browser/quick-open';
 import { QuickOpenOptions, QuickOpenService } from '@theia/core/lib/browser/quick-open/quick-open-service';
 import { QuickOpenGroupItem, QuickOpenItem, QuickOpenMode, QuickOpenModel } from '@theia/core/lib/common/quick-open-model';
 import { inject, injectable } from 'inversify';
-import { CheApiService } from '../common/che-protocol';
 
 const CONTAINERS_PLACE_HOLDER = 'Pick a container to run the task';
 const RECIPE_CONTAINER_SOURCE = 'recipe';
@@ -23,8 +23,8 @@ export class ContainerPicker implements QuickOpenHandler, QuickOpenModel {
     prefix: string = 'container ';
     description: string = 'Pick a container name.';
 
-    @inject(CheApiService)
-    protected readonly cheApi: CheApiService;
+    @inject(WorkspaceService)
+    protected readonly workspaceService: WorkspaceService;
 
     @inject(QuickOpenService)
     protected readonly quickOpenService: QuickOpenService;
@@ -137,7 +137,7 @@ export class ContainerPicker implements QuickOpenHandler, QuickOpenModel {
 
         this.containers = [];
         try {
-            const containersList = await this.cheApi.getCurrentWorkspacesContainers();
+            const containersList = await this.workspaceService.getCurrentWorkspacesContainers();
             for (const containerName in containersList) {
                 if (!containersList.hasOwnProperty(containerName)) {
                     continue;

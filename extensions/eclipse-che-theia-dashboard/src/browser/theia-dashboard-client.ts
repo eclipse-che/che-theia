@@ -10,9 +10,8 @@
 
 import { injectable, inject } from 'inversify';
 import { FrontendApplicationContribution, FrontendApplication } from '@theia/core/lib/browser';
-import { EnvVariablesServer, EnvVariable } from '@theia/core/lib/common/env-variables';
 import { FrontendApplicationStateService } from '@theia/core/lib/browser/frontend-application-state';
-import { CheApiService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import '../../src/browser/style/che-theia-dashboard-module.css';
 
 const THEIA_ICON_ID = 'theia:icon';
@@ -25,11 +24,10 @@ export class TheiaDashboardClient implements FrontendApplicationContribution {
 
     private isExpanded: boolean = false;
 
-    @inject(CheApiService)
-    private cheApi: CheApiService;
+    @inject(WorkspaceService)
+    private workspaceService: WorkspaceService;
 
     constructor(
-        @inject(EnvVariablesServer) private readonly envVariablesServer: EnvVariablesServer,
         @inject(FrontendApplicationStateService) protected readonly frontendApplicationStateService: FrontendApplicationStateService,
     ) {
         this.frontendApplicationStateService.reachedState('ready').then(() => this.onReady());
@@ -80,17 +78,7 @@ export class TheiaDashboardClient implements FrontendApplicationContribution {
     }
 
     async getIdeUrl(): Promise<string | undefined> {
-        const envVariables: EnvVariable[] = await this.envVariablesServer.getVariables();
-        if (!envVariables) {
-            return undefined;
-        }
-        const workspaceIdEnvVar = envVariables.find(envVariable =>
-            envVariable.name === 'CHE_WORKSPACE_ID');
-        if (!workspaceIdEnvVar || !workspaceIdEnvVar.value) {
-            return undefined;
-        }
-
-        const workspace = await this.cheApi.currentWorkspace();
+        const workspace = await this.workspaceService.currentWorkspace();
 
         if (workspace && workspace.links && workspace.links.ide) {
             return workspace.links.ide;

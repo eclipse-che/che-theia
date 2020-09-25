@@ -10,7 +10,7 @@
 
 import { CheOauthMain } from '../common/che-protocol';
 import { interfaces } from 'inversify';
-import { OauthUtils } from './oauth-utils';
+import { OauthUtils } from '@eclipse-che/theia-remote-api/lib/browser/oauth-utils';
 
 export class CheOauthMainImpl implements CheOauthMain {
     private readonly oAuthUtils: OauthUtils;

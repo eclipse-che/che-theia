@@ -9,12 +9,11 @@
  **********************************************************************/
 
 import { ContainerModule, Container, interfaces } from 'inversify';
-import { WidgetFactory, WebSocketConnectionProvider, KeybindingContext, QuickOpenContribution } from '@theia/core/lib/browser';
+import { WidgetFactory, KeybindingContext, QuickOpenContribution } from '@theia/core/lib/browser';
 import { TerminalQuickOpenService } from './contribution/terminal-quick-open';
 import { RemoteTerminalWidgetOptions, REMOTE_TERMINAL_WIDGET_FACTORY_ID, REMOTE_TERMINAL_TARGET_SCOPE } from './terminal-widget/remote-terminal-widget';
 import { RemoteWebSocketConnectionProvider } from './server-definition/remote-connection';
 import { TerminalProxyCreator, TerminalProxyCreatorProvider, TerminalApiEndPointProvider } from './server-definition/terminal-proxy-creator';
-import { cheWorkspaceServicePath, CHEWorkspaceService } from '../common/workspace-service';
 import { ExecTerminalFrontendContribution, NewTerminalInSpecificContainer } from './contribution/exec-terminal-contribution';
 import { TerminalFrontendContribution } from '@theia/terminal/lib/browser/terminal-frontend-contribution';
 import { TerminalService } from '@theia/terminal/lib/browser/base/terminal-service';
@@ -27,6 +26,7 @@ import { createTerminalSearchFactory } from '@theia/terminal/lib/browser/search/
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { TerminalWidgetImpl } from '@theia/terminal/lib/browser/terminal-widget-impl';
 import { TerminalSearchWidgetFactory } from '@theia/terminal/lib/browser/search/terminal-search-widget';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Unbind, isBound: interfaces.IsBound, rebind: interfaces.Rebind) => {
     // bind this contstant to prevent circle dependency
@@ -75,11 +75,6 @@ export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Un
         }
     }));
 
-    bind(CHEWorkspaceService).toDynamicValue(ctx => {
-        const provider = ctx.container.get(WebSocketConnectionProvider);
-        return provider.createProxy<CHEWorkspaceService>(cheWorkspaceServicePath);
-    }).inSingletonScope();
-
     let terminalApiEndPoint: URI | undefined = undefined;
     bind<TerminalApiEndPointProvider>('TerminalApiEndPointProvider').toProvider<URI | undefined>(context =>
         async () => {
@@ -87,7 +82,7 @@ export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Un
                 return terminalApiEndPoint;
             }
 
-            const workspaceService = context.container.get<CHEWorkspaceService>(CHEWorkspaceService);
+            const workspaceService = context.container.get<WorkspaceService>(WorkspaceService);
             const envServer = context.container.get<EnvVariablesServer>(EnvVariablesServer);
             try {
                 const server = await workspaceService.findTerminalServer();

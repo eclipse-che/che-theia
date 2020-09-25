@@ -9,33 +9,34 @@
  **********************************************************************/
 
 import { interfaces } from 'inversify';
-import { CheWorkspaceMain, CheApiService } from '../common/che-protocol';
+import { CheWorkspaceMain } from '../common/che-protocol';
 import { che as cheApi } from '@eclipse-che/api';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 export class CheWorkspaceMainImpl implements CheWorkspaceMain {
 
-    private readonly cheApiService: CheApiService;
+    private readonly workspaceService: WorkspaceService;
 
     constructor(container: interfaces.Container) {
-        this.cheApiService = container.get(CheApiService);
+        this.workspaceService = container.get(WorkspaceService);
     }
 
     $getCurrentWorkspace(): Promise<cheApi.workspace.Workspace> {
-        return this.cheApiService.currentWorkspace().then(workspace => workspace, error => {
+        return this.workspaceService.currentWorkspace().then(workspace => workspace, error => {
             console.log(error);
             return undefined!;
         });
     }
 
     async $getById(workspaceId: string): Promise<cheApi.workspace.Workspace> {
-        return this.cheApiService.getWorkspaceById(workspaceId).then(workspace => workspace, error => {
+        return this.workspaceService.getWorkspaceById(workspaceId).then(workspace => workspace, error => {
             console.log(error);
             return undefined!;
         });
     }
 
     async $update(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<cheApi.workspace.Workspace> {
-        return await this.cheApiService.updateWorkspace(workspaceId, workspace);
+        return await this.workspaceService.updateWorkspace(workspaceId, workspace);
     }
 
 }

@@ -22,14 +22,14 @@ import {
     FrontendApplication
 } from '@theia/core/lib/browser';
 import { WorkspaceService } from '@theia/workspace/lib/browser';
-import { CheApiService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
+import { WorkspaceService as CheWorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { che } from '@eclipse-che/api';
 
 @injectable()
 export class PreferencesProvider implements FrontendApplicationContribution {
 
-    @inject(CheApiService)
-    private cheApi: CheApiService;
+    @inject(CheWorkspaceService)
+    private devWorkspaceService: CheWorkspaceService;
 
     constructor(
         @inject(PreferenceServiceImpl) private readonly preferenceService: PreferenceServiceImpl,
@@ -96,7 +96,7 @@ export class PreferencesProvider implements FrontendApplicationContribution {
     }
 
     async restorePluginProperties(): Promise<void> {
-        const workspace = await this.cheApi.currentWorkspace();
+        const workspace = await this.devWorkspaceService.currentWorkspace();
         const propsTuples = this.getPluginsProperties(workspace);
         return this.setPluginProperties(propsTuples);
     }

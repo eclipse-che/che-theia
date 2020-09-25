@@ -18,7 +18,7 @@ import { injectable, inject } from 'inversify';
 import { FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { MessageService } from '@theia/core/lib/common';
 import { StatusBar, StatusBarAlignment, StatusBarEntry } from '@theia/core/lib/browser/status-bar/status-bar';
-import { CheApiService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import URI from '@theia/core/lib/common/uri';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { DisposableCollection, Disposable } from '@theia/core';
@@ -30,8 +30,8 @@ export class SyncProcessTracker implements FrontendApplicationContribution {
     private statusBar: StatusBar;
     @inject(MessageService)
     protected readonly messageService: MessageService;
-    @inject(CheApiService)
-    protected cheApiService: CheApiService;
+    @inject(WorkspaceService)
+    protected workspaceService: WorkspaceService;
     private readonly ID = 'file-synchronization-indicator-id';
     protected readonly statusBarDisposable = new DisposableCollection();
 
@@ -44,7 +44,7 @@ export class SyncProcessTracker implements FrontendApplicationContribution {
     }
 
     async getSyncServiceURL(): Promise<string> {
-        const server = await this.cheApiService.findUniqueServerByAttribute('type', 'rsync');
+        const server = await this.workspaceService.findUniqueEndpointByAttribute('type', 'rsync');
         if (server) {
             return new URI(server.url).resolve('track').toString();
         } else {

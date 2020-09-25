@@ -22,8 +22,8 @@ import { readFile, writeFile, ensureDir } from 'fs-extra';
 import { homedir } from 'os';
 import { resolve, dirname } from 'path';
 import * as nsfw from 'nsfw';
-import { CheApiService, Preferences } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
 import { Emitter, Event } from '@theia/core';
+import { UserService, Preferences } from '@eclipse-che/theia-remote-api/lib/common/user-service';
 
 export const THEIA_PREFERENCES_KEY = 'theia-user-preferences';
 export const THEIA_USER_PREFERENCES_PATH = resolve(homedir(), '.theia', 'settings.json');
@@ -31,8 +31,8 @@ export const THEIA_USER_PREFERENCES_PATH = resolve(homedir(), '.theia', 'setting
 @injectable()
 export class CheTheiaUserPreferencesSynchronizer {
 
-    @inject(CheApiService)
-    protected cheApiService: CheApiService;
+    @inject(UserService)
+    protected userService: UserService;
 
     protected settingsJsonWatcher: nsfw.NSFW | undefined;
 
@@ -47,7 +47,7 @@ export class CheTheiaUserPreferencesSynchronizer {
      * Provides stored Theia user preferences into workspace.
      */
     public async readTheiaUserPreferencesFromCheSettings(): Promise<void> {
-        const chePreferences = await this.cheApiService.getUserPreferences(THEIA_PREFERENCES_KEY);
+        const chePreferences = await this.userService.getUserPreferences(THEIA_PREFERENCES_KEY);
         const theiaPreferences = chePreferences[THEIA_PREFERENCES_KEY] ? chePreferences[THEIA_PREFERENCES_KEY] : '{}';
         const theiaPreferencesBeautified = JSON.stringify(JSON.parse(theiaPreferences), undefined, 3);
         await ensureDir(dirname(THEIA_USER_PREFERENCES_PATH));
@@ -107,7 +107,7 @@ export class CheTheiaUserPreferencesSynchronizer {
 
         const update: Preferences = {};
         update[THEIA_PREFERENCES_KEY] = userPreferencesContent;
-        await this.cheApiService.updateUserPreferences(update);
+        await this.userService.updateUserPreferences(update);
     }
 
 }

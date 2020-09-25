@@ -11,19 +11,19 @@
 import { interfaces } from 'inversify';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { CheTelemetryMain, PLUGIN_RPC_CONTEXT, CheTelemetry } from '../common/che-protocol';
-import { CheApiService } from '../common/che-protocol';
 import { CommandRegistry } from '@theia/core';
 import * as axios from 'axios';
 import { ClientAddressInfo } from '@eclipse-che/plugin';
+import { TelemetryService } from '@eclipse-che/theia-remote-api/lib/common/telemetry-service';
 
 export class CheTelemetryMainImpl implements CheTelemetryMain {
 
-    private readonly cheApiService: CheApiService;
+    private readonly telemetryService: TelemetryService;
     private ip: string;
 
     constructor(container: interfaces.Container, rpc: RPCProtocol) {
         const proxy: CheTelemetry = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_TELEMETRY);
-        this.cheApiService = container.get(CheApiService);
+        this.telemetryService = container.get(TelemetryService);
         const commandRegistry = container.get(CommandRegistry);
         commandRegistry.onWillExecuteCommand(event => {
             proxy.$onWillCommandExecute(event.commandId);
@@ -50,7 +50,7 @@ export class CheTelemetryMainImpl implements CheTelemetryMain {
             }
         }
 
-        return this.cheApiService.submitTelemetryEvent(id, ownerId, this.ip, agent, resolution, properties);
+        return this.telemetryService.submitTelemetryEvent(id, ownerId, this.ip, agent, resolution, properties);
     }
 
     async $getClientAddressInfo(): Promise<ClientAddressInfo> {

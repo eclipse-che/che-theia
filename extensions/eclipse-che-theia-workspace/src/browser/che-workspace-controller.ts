@@ -8,7 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  **********************************************************************/
 import { inject, injectable } from 'inversify';
-import { CheApiService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
 import { che } from '@eclipse-che/api';
 import { AbstractDialog, ConfirmDialog, DefaultUriLabelProviderContribution } from '@theia/core/lib/browser';
 import { Message } from '@theia/core/lib/browser/widgets';
@@ -17,7 +16,7 @@ import { CheWorkspaceCommands } from './che-workspace-contribution';
 import { QuickOpenCheWorkspace } from './che-quick-open-workspace';
 import { FileDialogService, FileDialogTreeFilters, OpenFileDialogProps } from '@theia/filesystem/lib/browser';
 import {
-    WorkspaceService,
+    WorkspaceService as TheiaWorkspaceService,
     WorkspacePreferences
 } from '@theia/workspace/lib/browser';
 import URI from '@theia/core/lib/common/uri';
@@ -25,6 +24,7 @@ import { THEIA_EXT, VSCODE_EXT } from '@theia/workspace/lib/common';
 import { QuickOpenWorkspace } from '@theia/workspace/lib/browser/quick-open-workspace';
 import { FileService } from '@theia/filesystem/lib/browser/file-service';
 import { FileStat } from '@theia/filesystem/lib/common/files';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 const YAML = require('js-yaml');
 
@@ -81,10 +81,10 @@ export class StopWorkspaceDialog extends AbstractDialog<boolean | undefined> {
 @injectable()
 export class CheWorkspaceController {
 
-    @inject(CheApiService) protected readonly cheApi: CheApiService;
+    @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService;
     @inject(QuickOpenCheWorkspace) protected readonly quickOpenWorkspace: QuickOpenCheWorkspace;
     @inject(QuickOpenWorkspace) protected readonly quickOpenRecentWorkspaceRoots: QuickOpenWorkspace;
-    @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService;
+    @inject(TheiaWorkspaceService) protected readonly theiaWorkspaceService: TheiaWorkspaceService;
     @inject(FileDialogService) protected readonly fileDialogService: FileDialogService;
     @inject(FileService) protected readonly fileService: FileService;
     @inject(WorkspacePreferences) protected preferences: WorkspacePreferences;
@@ -113,7 +113,7 @@ export class CheWorkspaceController {
             const result = await dialog.open();
             if (typeof result === 'boolean') {
                 if (result) {
-                    await this.cheApi.stop();
+                    await this.workspaceService.stop();
                 }
                 window.parent.postMessage(`open-workspace:${workspace.id}`, '*');
             }
@@ -126,7 +126,7 @@ export class CheWorkspaceController {
             msg: 'Do you really want to close the workspace?'
         });
         if (await dialog.open()) {
-            await this.cheApi.stop();
+            await this.workspaceService.stop();
 
             window.parent.postMessage('show-workspaces', '*');
         }
@@ -138,7 +138,7 @@ export class CheWorkspaceController {
             msg: 'Do you really want to close the workspace roots?'
         });
         if (await dialog.open()) {
-            await this.workspaceService.close();
+            await this.theiaWorkspaceService.close();
         }
     }
 
@@ -148,13 +148,13 @@ export class CheWorkspaceController {
 
     async openWorkspaceRoots(): Promise<URI | undefined> {
         const props = await this.openWorkspaceOpenFileDialogProps();
-        const [rootStat] = await this.workspaceService.roots;
+        const [rootStat] = await this.theiaWorkspaceService.roots;
         const workspaceFolderOrWorkspaceFileUri = await this.fileDialogService.showOpenDialog(props, rootStat);
         if (workspaceFolderOrWorkspaceFileUri &&
             this.getCurrentWorkspaceUri().toString() !== workspaceFolderOrWorkspaceFileUri.toString()) {
             const destinationFolder = await this.fileService.resolve(workspaceFolderOrWorkspaceFileUri);
             if (destinationFolder) {
-                this.workspaceService.open(workspaceFolderOrWorkspaceFileUri);
+                this.theiaWorkspaceService.open(workspaceFolderOrWorkspaceFileUri);
                 return workspaceFolderOrWorkspaceFileUri;
             }
         }
@@ -170,7 +170,7 @@ export class CheWorkspaceController {
     }
 
     private getCurrentWorkspaceUri(): URI {
-        return new URI(this.workspaceService.workspace && this.workspaceService.workspace.resource.toString());
+        return new URI(this.theiaWorkspaceService.workspace && this.theiaWorkspaceService.workspace.resource.toString());
     }
 
     private createOpenWorkspaceOpenFileDialogProps(options: Readonly<{ supportMultiRootWorkspace: boolean }>): OpenFileDialogProps {
@@ -217,7 +217,7 @@ export class CheWorkspaceController {
         } while (selected && exist && !overwrite);
 
         if (selected) {
-            await this.workspaceService.save(selected);
+            await this.theiaWorkspaceService.save(selected);
         }
     }
 
@@ -248,7 +248,7 @@ export class CheWorkspaceController {
         } while (selected && exist && !overwrite);
 
         if (selected) {
-            const workspace = await this.cheApi.currentWorkspace();
+            const workspace = await this.workspaceService.currentWorkspace();
             if (!workspace.devfile) {
                 return;
             }

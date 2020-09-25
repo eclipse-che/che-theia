@@ -9,37 +9,39 @@
  **********************************************************************/
 
 import { interfaces } from 'inversify';
-import { CheApiService, CheUserMain, User } from '../common/che-protocol';
+import { CheUserMain } from '../common/che-protocol';
 import { Preferences } from '@eclipse-che/plugin';
-import { OauthUtils } from './oauth-utils';
+
+import { UserService, User } from '@eclipse-che/theia-remote-api/lib/common/user-service';
+import { OauthUtils } from '@eclipse-che/theia-remote-api/lib/browser/oauth-utils';
 
 export class CheUserMainImpl implements CheUserMain {
 
-    private readonly cheApiService: CheApiService;
+    private readonly userService: UserService;
     private readonly oAuthUtils: OauthUtils;
 
     constructor(container: interfaces.Container) {
-        this.cheApiService = container.get(CheApiService);
+        this.userService = container.get(UserService);
         this.oAuthUtils = container.get(OauthUtils);
     }
 
     async $getCurrentUser(): Promise<User> {
-        return this.cheApiService.getCurrentUser(await this.oAuthUtils.getUserToken());
+        return this.userService.getCurrentUser(await this.oAuthUtils.getUserToken());
     }
 
     $getUserPreferences(filter?: string): Promise<Preferences> {
-        return this.cheApiService.getUserPreferences(filter);
+        return this.userService.getUserPreferences(filter);
     }
 
     $updateUserPreferences(preferences: Preferences): Promise<Preferences> {
-        return this.cheApiService.updateUserPreferences(preferences);
+        return this.userService.updateUserPreferences(preferences);
     }
 
     $replaceUserPreferences(preferences: Preferences): Promise<Preferences> {
-        return this.cheApiService.replaceUserPreferences(preferences);
+        return this.userService.replaceUserPreferences(preferences);
     }
 
     $deleteUserPreferences(list?: string[]): Promise<void> {
-        return this.cheApiService.deleteUserPreferences(list);
+        return this.userService.deleteUserPreferences(list);
     }
 }

@@ -15,7 +15,7 @@ import * as ws from 'ws';
 import { inject, injectable, Container } from 'inversify';
 import URI from '@theia/core/lib/common/uri';
 import { MessagingContribution } from '@theia/core/lib/node/messaging/messaging-contribution';
-import { CheApiService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 @injectable()
 export class CheMessagingContribution extends MessagingContribution {
@@ -23,8 +23,8 @@ export class CheMessagingContribution extends MessagingContribution {
     private connectionContainers: Set<Container> = new Set();
     private connectionContainersMap: Map<ws, Container> = new Map();
 
-    @inject(CheApiService)
-    protected cheApiService: CheApiService;
+    @inject(WorkspaceService)
+    protected workspaceService: WorkspaceService;
 
     /**
      * Keep reference to containers used by connections
@@ -55,7 +55,7 @@ export class CheMessagingContribution extends MessagingContribution {
     async isRequestAllowed(request: http.IncomingMessage): Promise<boolean> {
         const theiaEndpoints = [];
         try {
-            const containers = await this.cheApiService.getCurrentWorkspacesContainers();
+            const containers = await this.workspaceService.getCurrentWorkspacesContainers();
             for (const containerName of Object.keys(containers)) {
                 const servers = containers[containerName].servers;
                 if (servers) {
