@@ -329,6 +329,19 @@ export class ChePluginServiceImpl implements ChePluginService {
         if (plugin.links && plugin.links.self) {
             const self: string = plugin.links.self;
             if (self.startsWith('/')) {
+                if (registry.uri === this.defaultRegistry.uri) {
+                    // To work in both single host and multi host modes.
+                    // In single host mode plugin registry url path is `plugin-registry/v3/plugins`,
+                    // for multi host mode the path is `v3/plugins`. So, in both cases plugin registry url
+                    // ends with `v3/plugins`, but ${plugin.links.self} starts with `/v3/plugins/${plugin.id}.
+                    // See https://github.com/eclipse/che-plugin-registry/blob/master/build/scripts/index.sh#L27
+                    // So the correct plugin url for both cases will be plugin registry url + plugin id.
+                    if (registry.uri.endsWith('/')) {
+                        return `${registry.uri}${plugin.id}/`;
+                    } else {
+                        return `${registry.uri}/${plugin.id}/`;
+                    }
+                }
                 const uri = new URI(registry.uri);
                 return `${uri.scheme}://${uri.authority}${self}`;
             } else {
