@@ -342,7 +342,7 @@ export class ChePluginServiceImpl implements ChePluginService {
                         return `${registry.uri}/${plugin.id}/`;
                     }
                 }
-                const uri = new URI();
+                const uri = new URI(registry.uri);
                 return `${uri.scheme}://${uri.authority}${self}`;
             } else {
                 const base = this.getBaseDirectory(registry);
