@@ -331,9 +331,9 @@ export class ChePluginServiceImpl implements ChePluginService {
             if (self.startsWith('/')) {
                 if (registry.uri === this.defaultRegistry.uri) {
                     if (registry.uri.endsWith('/')) {
-                        return `${registry.uri}${plugin.id}`;
+                        return `${registry.uri}${plugin.id}/`;
                     } else {
-                        return `${registry.uri}/${plugin.id}`;
+                        return `${registry.uri}/${plugin.id}/`;
                     }
                 }
                 const uri = new URI();
