@@ -39,10 +39,6 @@ fi
 
 build
 
-if ! skip_tests; then
-  bash "${base_dir}"/e2e/build.sh "$PREFIX-$NAME" "$@"
-fi
-
 if [[ -z "$DOCKER_BUILD_TARGET" ]]; then
   echo "Extracting artifacts for the CDN"
   mkdir -p "${base_dir}/theia_artifacts"
