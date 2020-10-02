@@ -14,7 +14,7 @@ IMAGE_TAG="next"
 THEIA_VERSION="master"
 THEIA_BRANCH="master"
 THEIA_COMMIT_SHA=
-THEIA_GIT_REFS="refs\\/heads\\/master"
+THEIA_GIT_REFS="refs\\/heads\\/theia-8405"
 THEIA_DOCKER_IMAGE_VERSION=
 
 prepare_yarn_root_args() {
