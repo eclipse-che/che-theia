@@ -9,7 +9,6 @@
  **********************************************************************/
 
 import * as theia from '@theia/plugin';
-import { FactoryInitializer } from './factory-initializer';
 import { handleWorkspaceProjects } from './workspace-projects-manager';
 import { EphemeralWorkspaceChecker } from './ephemeral-workspace-checker';
 import { Devfile } from './devfile';
@@ -25,7 +24,6 @@ export async function start(context: theia.PluginContext): Promise<void> {
     new Devfile(context).init();
     new EphemeralWorkspaceChecker().check();
     await initAskpassEnv();
-    await new FactoryInitializer(projectsRoot).run();
     handleWorkspaceProjects(context, projectsRoot);
 }
 
