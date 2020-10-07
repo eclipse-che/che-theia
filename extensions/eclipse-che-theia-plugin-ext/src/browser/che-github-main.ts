@@ -12,6 +12,7 @@ import { CheGithubMain } from '../common/che-protocol';
 import { interfaces } from 'inversify';
 import axios, { AxiosInstance } from 'axios';
 import { OauthUtils } from './oauth-utils';
+import { GithubUser } from '@eclipse-che/plugin';
 
 export class CheGithubMainImpl implements CheGithubMain {
     private axiosInstance: AxiosInstance = axios;
@@ -37,6 +38,12 @@ export class CheGithubMainImpl implements CheGithubMain {
         } else {
             throw new Error('Failed to get GitHub authentication token');
         }
+    }
+
+    async $getUser(): Promise<GithubUser> {
+        await this.fetchToken();
+        const result = await this.axiosInstance.get<GithubUser>('https://api.github.com/user?access_token=' + this.token);
+        return result.data;
     }
 
     private async fetchToken(): Promise<void> {

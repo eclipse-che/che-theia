@@ -10,6 +10,7 @@
 
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { PLUGIN_RPC_CONTEXT, CheGithub, CheGithubMain } from '../common/che-protocol';
+import { GithubUser } from '@eclipse-che/plugin';
 
 export class CheGithubImpl implements CheGithub {
 
@@ -25,5 +26,9 @@ export class CheGithubImpl implements CheGithub {
 
     getToken(): Promise<string> {
         return this.githubMain.$getToken();
+    }
+
+    getUser(): Promise<GithubUser> {
+        return this.githubMain.$getUser();
     }
 }

@@ -73,11 +73,13 @@ export interface CheOpenshiftMain {
 export interface CheGithub {
     uploadPublicSshKey(publicKey: string): Promise<void>;
     getToken(): Promise<string>;
+    getUser(): Promise<che.GithubUser>;
 }
 
 export interface CheGithubMain {
     $uploadPublicSshKey(publicKey: string): Promise<void>;
     $getToken(): Promise<string>;
+    $getUser(): Promise<che.GithubUser>;
 }
 
 export interface CheOauth {

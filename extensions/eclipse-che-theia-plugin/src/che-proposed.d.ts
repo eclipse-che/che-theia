@@ -44,9 +44,17 @@ declare module '@eclipse-che/plugin' {
         export function createWorkspace(devfilePath: string): Promise<void>;
     }
 
+    export interface GithubUser {
+        login: string,
+        id: number,
+        name: string,
+        email: string
+    }
+
     export namespace github {
         export function uploadPublicSshKey(publicKey: string): Promise<void>;
         export function getToken(): Promise<string>;
+        export function getUser(): Promise<GithubUser>;
     }
 
     export namespace openshift {
