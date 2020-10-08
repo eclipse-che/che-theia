@@ -10,12 +10,12 @@
 set -e
 set -u
 
-IMAGE_TAG="next"
+IMAGE_TAG="latest"
 THEIA_VERSION="master"
 THEIA_BRANCH="master"
-THEIA_COMMIT_SHA=
+THEIA_COMMIT_SHA="eb1136b1"
 THEIA_GIT_REFS="refs\\/heads\\/master"
-THEIA_DOCKER_IMAGE_VERSION=
+THEIA_DOCKER_IMAGE_VERSION="7.20.0"
 
 prepare_yarn_root_args() {
     IFS=',' read -r -a YARN_ARGS_ARRAY <<< "$@"
