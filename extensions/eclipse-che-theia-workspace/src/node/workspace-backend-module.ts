@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { ContainerModule } from 'inversify';
 import { CheWorkspaceServer } from './che-workspace-server';
+import { ContainerModule } from 'inversify';
 import { WorkspaceServer } from '@theia/workspace/lib/common';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
-    bind(CheWorkspaceServer).toSelf().inSingletonScope();
-    rebind(WorkspaceServer).toService(CheWorkspaceServer);
+  bind(CheWorkspaceServer).toSelf().inSingletonScope();
+  rebind(WorkspaceServer).toService(CheWorkspaceServer);
 });
