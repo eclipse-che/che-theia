@@ -63,6 +63,11 @@ describe("Test Port Changes", () => {
         expect(newClosedPorts[0].interfaceListen).toBe('0.0.0.0');
         expect(newClosedPorts[0].portNumber).toBe(5555);
 
+
+        const listeningPorts = portChangesDetector.getOpenedPorts();
+        expect(listeningPorts.length).toBe(2);
+
+
     });
 
 });

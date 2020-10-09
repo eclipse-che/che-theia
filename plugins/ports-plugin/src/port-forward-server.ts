@@ -11,12 +11,12 @@
 import * as net from 'net';
 
 /**
- * Allow to Listen on a port and redirect traffic.
+ * Allow to forward a port and redirect traffic.
  * @author Florent Benoit
  */
-export class PortRedirectListener {
+export class PortForwardServer {
 
-    private server: net.Server;
+    private server: net.Server | undefined;
 
     constructor(private readonly localPort: number, private readonly remoteHost: string, private readonly remotePort: number) {
 
@@ -67,6 +67,8 @@ export class PortRedirectListener {
     }
 
     stop(): void {
-        this.server.close();
+        if (this.server) {
+            this.server.close();
+        }
     }
 }

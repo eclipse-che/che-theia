@@ -1,0 +1,283 @@
+{
+    "links": {
+        "environment/statusChannel": "wss://che.openshift.io/api/websocket",
+        "environment/outputChannel": "wss://che.openshift.io/api/websocket"
+    },
+    "attributes": {
+    },
+    "id": "workspacelovax82cryk5kfht",
+    "temporary": false,
+    "status": "RUNNING",
+    "runtime": {
+        "machines": {
+            "che-machine-exec9cr": {
+                "attributes": {
+                    "plugin": "eclipse/che-machine-exec-plugin/7.18.2",
+                    "memoryRequestBytes": "67108864",
+                    "memoryLimitBytes": "157286400",
+                    "source": "tool",
+                    "cpuLimitCores": "0.0",
+                    "cpuRequestCores": "0.0"
+                },
+                "servers": {
+                    "che-machine-exec": {
+                        "url": "wss://routewxrk0x26-dummy-che.8a09.starter-us-east-2.openshiftapps.com",
+                        "attributes": {
+                            "internal": "false",
+                            "port": "4444",
+                            "discoverable": "false",
+                            "cookiesAuthEnabled": "true",
+                            "type": "terminal",
+                            "secure": "true"
+                        },
+                        "status": "UNKNOWN"
+                    }
+                },
+                "status": "RUNNING"
+            },
+            "che-jwtproxy": {
+                "attributes": {
+                    "memoryLimitBytes": "157286400",
+                    "memoryRequestBytes": "157286400",
+                    "source": "tool",
+                    "cpuRequestCores": "0.0",
+                    "cpuLimitCores": "0.5"
+                },
+                "status": "RUNNING"
+            },
+            "nodejs": {
+                "attributes": {
+                    "component": "nodejs",
+                    "memoryRequestBytes": "209715200",
+                    "memoryLimitBytes": "1073741824",
+                    "source": "recipe",
+                    "cpuLimitCores": "0.0",
+                    "cpuRequestCores": "0.0"
+                },
+                "servers": {
+                    "nodejs": {
+                        "url": "https://route9a078wl2-dummy-che.8a09.starter-us-east-2.openshiftapps.com",
+                        "attributes": {
+                            "port": "3000"
+                        },
+                        "status": "UNKNOWN"
+                    }
+                },
+                "status": "RUNNING"
+            },
+            "che-workspace-telemetry-woopra-backendfz9": {
+                "attributes": {
+                    "plugin": "redhat-developer/che-workspace-telemetry-woopra-backend/0.0.1",
+                    "memoryRequestBytes": "67108864",
+                    "memoryLimitBytes": "157286400",
+                    "source": "tool",
+                    "cpuLimitCores": "0.0",
+                    "cpuRequestCores": "0.0"
+                },
+                "status": "RUNNING"
+            },
+            "theia-idewm3": {
+                "attributes": {
+                    "plugin": "eclipse/che-theia/7.18.2",
+                    "memoryRequestBytes": "67108864",
+                    "memoryLimitBytes": "512000000",
+                    "source": "tool",
+                    "cpuLimitCores": "0.0",
+                    "cpuRequestCores": "0.0"
+                },
+                "servers": {
+                    "webviews": {
+                        "url": "https://router6dq0kzh-dummy-che.8a09.starter-us-east-2.openshiftapps.com",
+                        "attributes": {
+                            "internal": "false",
+                            "port": "3100",
+                            "discoverable": "false",
+                            "unique": "true",
+                            "cookiesAuthEnabled": "true",
+                            "secure": "true",
+                            "type": "webview"
+                        },
+                        "status": "UNKNOWN"
+                    },
+                    "theia-dev": {
+                        "url": "https://routeacdrn339-dummy-che.8a09.starter-us-east-2.openshiftapps.com",
+                        "attributes": {
+                            "internal": "false",
+                            "type": "ide-dev",
+                            "port": "3130",
+                            "discoverable": "false"
+                        },
+                        "status": "UNKNOWN"
+                    },
+                    "theia": {
+                        "url": "https://routefgfrck4w-dummy-che.8a09.starter-us-east-2.openshiftapps.com",
+                        "attributes": {
+                            "internal": "false",
+                            "port": "3100",
+                            "discoverable": "false",
+                            "cookiesAuthEnabled": "true",
+                            "type": "ide",
+                            "secure": "true"
+                        },
+                        "status": "RUNNING"
+                    },
+                    "theia-redirect-3": {
+                        "url": "https://routevshrnooy-dummy-che.8a09.starter-us-east-2.openshiftapps.com",
+                        "attributes": {
+                            "internal": "false",
+                            "port": "13133",
+                            "discoverable": "false"
+                        },
+                        "status": "UNKNOWN"
+                    },
+                    "theia-redirect-2": {
+                        "url": "https://route4wnnldxo-dummy-che.8a09.starter-us-east-2.openshiftapps.com",
+                        "attributes": {
+                            "internal": "false",
+                            "port": "13132",
+                            "discoverable": "false"
+                        },
+                        "status": "UNKNOWN"
+                    },
+                    "theia-redirect-1": {
+                        "url": "https://route52rh6j3z-dummy-che.8a09.starter-us-east-2.openshiftapps.com",
+                        "attributes": {
+                            "internal": "false",
+                            "port": "13131",
+                            "discoverable": "false"
+                        },
+                        "status": "UNKNOWN"
+                    }
+                },
+                "status": "RUNNING"
+            },
+            "vscode-typescripthc1": {
+                "attributes": {
+                    "plugin": "che-incubator/typescript/latest",
+                    "memoryRequestBytes": "67108864",
+                    "memoryLimitBytes": "536870912",
+                    "source": "tool",
+                    "cpuLimitCores": "0.0",
+                    "cpuRequestCores": "0.0"
+                },
+                "status": "RUNNING"
+            }
+        },
+        "activeEnv": "default",
+        "commands": [
+            {
+                "commandLine": "yarn install",
+                "name": "install all required dependencies",
+                "attributes": {
+                    "componentAlias": "nodejs",
+                    "machineName": "nodejs",
+                    "workingDir": "${CHE_PROJECTS_ROOT}/react-web-app"
+                },
+                "type": "exec"
+            },
+            {
+                "commandLine": "yarn start",
+                "name": "run the app",
+                "attributes": {
+                    "componentAlias": "nodejs",
+                    "machineName": "nodejs",
+                    "workingDir": "${CHE_PROJECTS_ROOT}/react-web-app"
+                },
+                "type": "exec"
+            },
+            {
+                "commandLine": "yarn test",
+                "name": "launch tests",
+                "attributes": {
+                    "componentAlias": "nodejs",
+                    "machineName": "nodejs",
+                    "workingDir": "${CHE_PROJECTS_ROOT}/react-web-app"
+                },
+                "type": "exec"
+            },
+            {
+                "commandLine": "yarn build",
+                "name": "build the app",
+                "attributes": {
+                    "componentAlias": "nodejs",
+                    "machineName": "nodejs",
+                    "workingDir": "${CHE_PROJECTS_ROOT}/react-web-app"
+                },
+                "type": "exec"
+            }
+        ],
+        "machineToken": "eyJhbGciOiJSUzI1NiIsImtpbmQiOiJtYWNoaW5lX3Rva2VuIiwia2lkIjoid29ya3NwYWNlbG92YXg4MmNyeWs1a2ZodCJ9.eyJ3c2lkIjoid29ya3NwYWNlbG92YXg4MmNyeWs1a2ZodCIsInVpZCI6IjcwMGY5NDEwLWIzZTYtNGZmNy1iYWViLWZjZWY0YTAzOWZlYyIsImF1ZCI6IndvcmtzcGFjZWxvdmF4ODJjcnlrNWtmaHQiLCJuYmYiOi0xLCJ1bmFtZSI6ImZiZW5vaXRAcmVkaGF0LmNvbSIsImlzcyI6IndzbWFzdGVyIiwiZXhwIjoxNjMzNzgwNDc2LCJpYXQiOjE2MDIyNDQ0NzYsImp0aSI6IjA5MWI0ZDNiLWZjZmItNDVhNi1hZjRiLWUzMTY4YTJmODIxMSJ9.XywX8q7REDkDX_5bItpBoVjKBV2kOdXB0gFviODtQbOn-TVpvGq9cq-mmEhhgOfKUIikth6s--GWqSYxzgw_Ejvf9FI5XdFG3lLJSN1_2g-GHNl4VZXNWE-7LU9-UXkLdaSQoIdQid_ryJG0gNFbwNLnAx73kT2Gqvk7C5sGkpT9VB2FOrl3hj9mltiojp6EULfRlrzJGdpfoKnvghiGBhkXArPiSSARqhP55927b3-n1ZKouV7PZr6QbQG0P7VBEsPAEAITuJbSRTGVMQ2BKhKw3taccOZTEokmRUo0PIUcoDXVm3AhuYGl09hrz-f1k-_qPRymlqd_e40fLYoavw"
+    },
+    "devfile": {
+        "metadata": {
+            "name": "nodejs-web-app-t4vr8"
+        },
+        "components": [
+            {
+                "id": "che-incubator/typescript/latest",
+                "memoryLimit": "512Mi",
+                "type": "chePlugin"
+            },
+            {
+                "mountSources": true,
+                "endpoints": [
+                    {
+                        "name": "nodejs",
+                        "port": 3000
+                    }
+                ],
+                "memoryLimit": "1Gi",
+                "type": "dockerimage",
+                "alias": "nodejs",
+                "image": "quay.io/eclipse/che-nodejs10-community:7.18.2"
+            }
+        ],
+        "apiVersion": "1.0.0",
+        "commands": [
+            {
+                "name": "install all required dependencies",
+                "actions": [
+                    {
+                        "workdir": "${CHE_PROJECTS_ROOT}/react-web-app",
+                        "type": "exec",
+                        "command": "yarn install",
+                        "component": "nodejs"
+                    }
+                ]
+            },
+            {
+                "name": "build the app",
+                "actions": [
+                    {
+                        "workdir": "${CHE_PROJECTS_ROOT}/react-web-app",
+                        "type": "exec",
+                        "command": "yarn build",
+                        "component": "nodejs"
+                    }
+                ]
+            },
+            {
+                "name": "run the app",
+                "actions": [
+                    {
+                        "workdir": "${CHE_PROJECTS_ROOT}/react-web-app",
+                        "type": "exec",
+                        "command": "yarn start",
+                        "component": "nodejs"
+                    }
+                ]
+            },
+            {
+                "name": "launch tests",
+                "actions": [
+                    {
+                        "workdir": "${CHE_PROJECTS_ROOT}/react-web-app",
+                        "type": "exec",
+                        "command": "yarn test",
+                        "component": "nodejs"
+                    }
+                ]
+            }
+        ]
+    }
+}
