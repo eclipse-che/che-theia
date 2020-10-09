@@ -12,6 +12,7 @@ import { CheGithubMain } from '../common/che-protocol';
 import { interfaces } from 'inversify';
 import axios, { AxiosInstance } from 'axios';
 import { OauthUtils } from '@eclipse-che/theia-remote-api/lib/browser/oauth-utils';
+import { GithubUser } from '@eclipse-che/plugin';
 
 export class CheGithubMainImpl implements CheGithubMain {
     private axiosInstance: AxiosInstance = axios;
@@ -39,12 +40,23 @@ export class CheGithubMainImpl implements CheGithubMain {
         }
     }
 
+    async $getUser(): Promise<GithubUser> {
+        await this.fetchToken();
+        return this.getUser();
+    }
+
+    private async getUser(): Promise<GithubUser> {
+        const result =  await this.axiosInstance.get<GithubUser>('https://api.github.com/user?access_token=' + this.token);
+        return result.data;
+    }
+
     private async fetchToken(): Promise<void> {
         if (!this.token) {
             await this.updateToken();
         } else {
             try {
-                await this.axiosInstance.get('https://api.github.com/user?access_token=' + this.token);
+                // Validate the GitHub token.
+                await this.getUser();
             } catch (e) {
                 await this.updateToken();
             }
@@ -55,8 +67,10 @@ export class CheGithubMainImpl implements CheGithubMain {
         const oAuthProvider = 'github';
         try {
             this.token = await this.oAuthUtils.getToken(oAuthProvider);
+            // Validate the GitHub token.
+            await this.getUser();
         } catch (e) {
-            if (e.message.indexOf('Request failed with status code 401') > 0) {
+            if (e.message.indexOf('Request failed with status code 401') !== -1) {
                 await this.oAuthUtils.authenticate(oAuthProvider, ['write:public_key']);
                 this.token = await this.oAuthUtils.getToken(oAuthProvider);
             }
