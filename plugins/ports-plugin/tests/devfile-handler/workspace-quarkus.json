@@ -1,0 +1,389 @@
+{
+    "links": {
+        "self": "https://che.openshift.io/api/workspace/workspace7gcp2ollorwkb3xk",
+        "ide": "https://che.openshift.io/fbenoit@redhat.com/quarkus-quickstart",
+        "environment/statusChannel": "wss://che.openshift.io/api/websocket",
+        "environment/outputChannel": "wss://che.openshift.io/api/websocket"
+    },
+    "attributes": {
+        "org.eclipse.che.runtimes_id": "runtimesgifxyel5p27x8h0f",
+        "infrastructureNamespace": "fbenoit2-che",
+        "factoryurl": "https://raw.githubusercontent.com/chepullreq4/pr-check-files/master/che-theia/pr-875/simple/che-theia-nodejs-devfile.yaml",
+        "updated": "1602497400678",
+        "created": "1602343441572"
+    },
+    "namespace": "fbenoit@redhat.com",
+    "id": "workspace7gcp2ollorwkb3xk",
+    "temporary": false,
+    "status": "RUNNING",
+    "runtime": {
+        "machines": {
+            "che-workspace-telemetry-woopra-backendqrk": {
+                "attributes": {
+                    "plugin": "redhat-developer/che-workspace-telemetry-woopra-backend/0.0.1",
+                    "memoryRequestBytes": "67108864",
+                    "memoryLimitBytes": "157286400",
+                    "source": "tool",
+                    "cpuLimitCores": "0.0",
+                    "cpuRequestCores": "0.0"
+                },
+                "status": "RUNNING"
+            },
+            "che-jwtproxy": {
+                "attributes": {
+                    "memoryLimitBytes": "157286400",
+                    "memoryRequestBytes": "157286400",
+                    "source": "tool",
+                    "cpuRequestCores": "0.0",
+                    "cpuLimitCores": "0.5"
+                },
+                "status": "RUNNING"
+            },
+            "vscode-quarkusrba": {
+                "attributes": {
+                    "plugin": "redhat/quarkus-java11/latest",
+                    "memoryRequestBytes": "67108864",
+                    "memoryLimitBytes": "1572864000",
+                    "source": "tool",
+                    "cpuLimitCores": "0.0",
+                    "cpuRequestCores": "0.0"
+                },
+                "status": "RUNNING"
+            },
+            "theia-ide9qo": {
+                "attributes": {
+                    "plugin": "eclipse/che-theia/next",
+                    "memoryRequestBytes": "67108864",
+                    "memoryLimitBytes": "512000000",
+                    "source": "tool",
+                    "cpuLimitCores": "0.0",
+                    "cpuRequestCores": "0.0"
+                },
+                "servers": {
+                    "webviews": {
+                        "url": "https://routekdd3i46f-fbenoit2-che.8a09.starter-us-east-2.openshiftapps.com",
+                        "attributes": {
+                            "internal": "false",
+                            "port": "3100",
+                            "discoverable": "false",
+                            "unique": "true",
+                            "cookiesAuthEnabled": "true",
+                            "secure": "true",
+                            "type": "webview"
+                        },
+                        "status": "UNKNOWN"
+                    },
+                    "theia-dev": {
+                        "url": "https://routeu5gac0sh-fbenoit2-che.8a09.starter-us-east-2.openshiftapps.com",
+                        "attributes": {
+                            "internal": "false",
+                            "type": "ide-dev",
+                            "port": "3130",
+                            "discoverable": "false"
+                        },
+                        "status": "UNKNOWN"
+                    },
+                    "theia": {
+                        "url": "https://route9mdwlfur-fbenoit2-che.8a09.starter-us-east-2.openshiftapps.com",
+                        "attributes": {
+                            "internal": "false",
+                            "port": "3100",
+                            "discoverable": "false",
+                            "cookiesAuthEnabled": "true",
+                            "type": "ide",
+                            "secure": "true"
+                        },
+                        "status": "RUNNING"
+                    },
+                    "theia-redirect-3": {
+                        "url": "https://route7l2r8ggv-fbenoit2-che.8a09.starter-us-east-2.openshiftapps.com",
+                        "attributes": {
+                            "internal": "false",
+                            "port": "13133",
+                            "discoverable": "false"
+                        },
+                        "status": "UNKNOWN"
+                    },
+                    "theia-redirect-2": {
+                        "url": "https://routecj8u5esb-fbenoit2-che.8a09.starter-us-east-2.openshiftapps.com",
+                        "attributes": {
+                            "internal": "false",
+                            "port": "13132",
+                            "discoverable": "false"
+                        },
+                        "status": "UNKNOWN"
+                    },
+                    "theia-redirect-1": {
+                        "url": "https://route34ob9d9s-fbenoit2-che.8a09.starter-us-east-2.openshiftapps.com",
+                        "attributes": {
+                            "internal": "false",
+                            "port": "13131",
+                            "discoverable": "false"
+                        },
+                        "status": "UNKNOWN"
+                    }
+                },
+                "status": "RUNNING"
+            },
+            "centos-quarkus-maven": {
+                "attributes": {
+                    "component": "centos-quarkus-maven",
+                    "memoryRequestBytes": "209715200",
+                    "memoryLimitBytes": "4927000000",
+                    "source": "recipe",
+                    "cpuLimitCores": "0.0",
+                    "cpuRequestCores": "0.0"
+                },
+                "servers": {
+                    "hello-greeting-endpoint": {
+                        "url": "https://routevrfzproj-fbenoit2-che.8a09.starter-us-east-2.openshiftapps.com/hello/greeting/che-user",
+                        "attributes": {
+                            "port": "8080"
+                        },
+                        "status": "UNKNOWN"
+                    }
+                },
+                "status": "RUNNING"
+            },
+            "ubi-minimal": {
+                "attributes": {
+                    "component": "ubi-minimal",
+                    "memoryRequestBytes": "32000000",
+                    "memoryLimitBytes": "32000000",
+                    "source": "recipe",
+                    "cpuLimitCores": "0.0",
+                    "cpuRequestCores": "0.0"
+                },
+                "servers": {
+                    "hello-greeting-endpoint": {
+                        "url": "https://routemfo4gbfz-fbenoit2-che.8a09.starter-us-east-2.openshiftapps.com/hello/greeting/che-user",
+                        "attributes": {
+                            "port": "8080"
+                        },
+                        "status": "UNKNOWN"
+                    }
+                },
+                "status": "RUNNING"
+            },
+            "che-machine-exec08v": {
+                "attributes": {
+                    "plugin": "eclipse/che-machine-exec-plugin/7.18.2",
+                    "memoryRequestBytes": "67108864",
+                    "memoryLimitBytes": "157286400",
+                    "source": "tool",
+                    "cpuLimitCores": "0.0",
+                    "cpuRequestCores": "0.0"
+                },
+                "servers": {
+                    "che-machine-exec": {
+                        "url": "wss://routeb5dtw3zr-fbenoit2-che.8a09.starter-us-east-2.openshiftapps.com",
+                        "attributes": {
+                            "internal": "false",
+                            "port": "4444",
+                            "discoverable": "false",
+                            "cookiesAuthEnabled": "true",
+                            "type": "terminal",
+                            "secure": "true"
+                        },
+                        "status": "UNKNOWN"
+                    }
+                },
+                "status": "RUNNING"
+            }
+        },
+        "activeEnv": "default",
+        "commands": [
+            {
+                "commandLine": "./getting-started-1.0-SNAPSHOT-runner",
+                "name": "Start Native",
+                "attributes": {
+                    "componentAlias": "ubi-minimal",
+                    "machineName": "ubi-minimal",
+                    "workingDir": "${CHE_PROJECTS_ROOT}/quarkus-quickstarts/getting-started/target"
+                },
+                "type": "exec"
+            },
+            {
+                "commandLine": "./mvnw package -Dnative -Dmaven.test.skip",
+                "name": "Package Native",
+                "attributes": {
+                    "componentAlias": "centos-quarkus-maven",
+                    "machineName": "centos-quarkus-maven",
+                    "workingDir": "${CHE_PROJECTS_ROOT}/quarkus-quickstarts/getting-started"
+                },
+                "type": "exec"
+            },
+            {
+                "commandLine": "./mvnw compile quarkus:dev",
+                "name": "Start Development mode (Hot reload + debug)",
+                "attributes": {
+                    "componentAlias": "centos-quarkus-maven",
+                    "machineName": "centos-quarkus-maven",
+                    "workingDir": "${CHE_PROJECTS_ROOT}/quarkus-quickstarts/getting-started"
+                },
+                "type": "exec"
+            },
+            {
+                "commandLine": "./mvnw package",
+                "name": "Package",
+                "attributes": {
+                    "componentAlias": "centos-quarkus-maven",
+                    "machineName": "centos-quarkus-maven",
+                    "workingDir": "${CHE_PROJECTS_ROOT}/quarkus-quickstarts/getting-started"
+                },
+                "type": "exec"
+            },
+            {
+                "name": "Attach remote debugger",
+                "attributes": {
+                    "actionReferenceContent": "{\n  \"version\": \"0.2.0\",\n  \"configurations\": [\n    {\n      \"type\": \"java\",\n      \"request\": \"attach\",\n      \"name\": \"Attach to Remote Quarkus App\",\n      \"hostName\": \"localhost\",\n      \"port\": 5005\n    }\n  ]\n}\n"
+                },
+                "type": "vscode-launch"
+            }
+        ],
+        "machineToken": "eyJhbGciOiJSUzI1NiIsImtpbmQiOiJtYWNoaW5lX3Rva2VuIiwia2lkIjoid29ya3NwYWNlN2djcDJvbGxvcndrYjN4ayJ9.eyJ3c2lkIjoid29ya3NwYWNlN2djcDJvbGxvcndrYjN4ayIsInVpZCI6IjcwMGY5NDEwLWIzZTYtNGZmNy1iYWViLWZjZWY0YTAzOWZlYyIsImF1ZCI6IndvcmtzcGFjZTdnY3Ayb2xsb3J3a2IzeGsiLCJuYmYiOi0xLCJ1bmFtZSI6ImZiZW5vaXRAcmVkaGF0LmNvbSIsImlzcyI6IndzbWFzdGVyIiwiZXhwIjoxNjM0MDMzNDAxLCJpYXQiOjE2MDI0OTc0MDEsImp0aSI6ImE1ZjRjY2UwLTFlN2QtNGYzNS1iNTY5LWU2ZTUzMjBlYzg3MSJ9.IAcPYYnkhrw-unC6LT7mNeq0KHYb6lrUHdaNdAcocjrjpj3XE4HDgaoI2dxZAWz41DEvfV4Rj9hlfgNgpfAH5J0iglwZ0RFoiUyATbdIhWMf0UpSvv3kGIYbVn4U1h02Tv-lQikJpybURUQuW-FsSrac8_6flxLhQfQoXi5ZP-DFFs4FH-_hDoEJKUGmyX04fD8QnJaZlo0dVpnsLfumSF6QQb2NviUcR12llGOZPJj58vVhzoM8B8WqCv2MGHomdkBZwcAGN8V1xh6fCaCIn2d3-PbQ6yHreOCh5Wdht22VjE4vANaUSRfLT3fGKUQZsTvPQdJ7M8QJmhaRl0jeSQ"
+    },
+    "devfile": {
+        "metadata": {
+            "name": "quarkus-quickstart"
+        },
+        "projects": [
+            {
+                "name": "quarkus-quickstarts",
+                "source": {
+                    "location": "https://github.com/quarkusio/quarkus-quickstarts.git",
+                    "type": "git",
+                    "sparseCheckoutDir": "getting-started"
+                }
+            }
+        ],
+        "components": [
+            {
+                "type": "cheEditor",
+                "reference": "https://raw.githubusercontent.com/chepullreq4/pr-check-files/master/che-theia/pr-875/simple/che-theia-editor.yaml"
+            },
+            {
+                "id": "redhat/quarkus-java11/latest",
+                "type": "chePlugin"
+            },
+            {
+                "mountSources": true,
+                "endpoints": [
+                    {
+                        "name": "hello-greeting-endpoint",
+                        "port": 8080,
+                        "attributes": {
+                            "path": "/hello/greeting/che-user"
+                        }
+                    }
+                ],
+                "memoryLimit": "4927M",
+                "type": "dockerimage",
+                "volumes": [
+                    {
+                        "name": "m2",
+                        "containerPath": "/home/user/.m2"
+                    }
+                ],
+                "alias": "centos-quarkus-maven",
+                "image": "quay.io/eclipse/che-quarkus:nightly",
+                "env": [
+                    {
+                        "value": "-XX:MaxRAMPercentage=50.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xms20m -Djava.security.egd=file:/dev/./urandom -Duser.home=/home/user",
+                        "name": "JAVA_OPTS"
+                    },
+                    {
+                        "value": "$(JAVA_OPTS)",
+                        "name": "MAVEN_OPTS"
+                    }
+                ]
+            },
+            {
+                "mountSources": true,
+                "endpoints": [
+                    {
+                        "name": "quarkus-debug",
+                        "port": 5005,
+                        "attributes": {
+                            "public": "false"
+                        }
+                    },
+                    {
+                        "name": "hello-greeting-endpoint",
+                        "port": 8080,
+                        "attributes": {
+                            "path": "/hello/greeting/che-user"
+                        }
+                    }
+                ],
+                "command": [
+                    "tail"
+                ],
+                "args": [
+                    "-f",
+                    "/dev/null"
+                ],
+                "memoryLimit": "32M",
+                "type": "dockerimage",
+                "alias": "ubi-minimal",
+                "image": "registry.access.redhat.com/ubi8/ubi-minimal"
+            }
+        ],
+        "apiVersion": "1.0.0",
+        "commands": [
+            {
+                "name": "Package",
+                "actions": [
+                    {
+                        "workdir": "${CHE_PROJECTS_ROOT}/quarkus-quickstarts/getting-started",
+                        "type": "exec",
+                        "command": "./mvnw package",
+                        "component": "centos-quarkus-maven"
+                    }
+                ]
+            },
+            {
+                "name": "Start Development mode (Hot reload + debug)",
+                "actions": [
+                    {
+                        "workdir": "${CHE_PROJECTS_ROOT}/quarkus-quickstarts/getting-started",
+                        "type": "exec",
+                        "command": "./mvnw compile quarkus:dev",
+                        "component": "centos-quarkus-maven"
+                    }
+                ]
+            },
+            {
+                "name": "Package Native",
+                "actions": [
+                    {
+                        "workdir": "${CHE_PROJECTS_ROOT}/quarkus-quickstarts/getting-started",
+                        "type": "exec",
+                        "command": "./mvnw package -Dnative -Dmaven.test.skip",
+                        "component": "centos-quarkus-maven"
+                    }
+                ]
+            },
+            {
+                "name": "Start Native",
+                "actions": [
+                    {
+                        "workdir": "${CHE_PROJECTS_ROOT}/quarkus-quickstarts/getting-started/target",
+                        "type": "exec",
+                        "command": "./getting-started-1.0-SNAPSHOT-runner",
+                        "component": "ubi-minimal"
+                    }
+                ]
+            },
+            {
+                "name": "Attach remote debugger",
+                "actions": [
+                    {
+                        "referenceContent": "{\n  \"version\": \"0.2.0\",\n  \"configurations\": [\n    {\n      \"type\": \"java\",\n      \"request\": \"attach\",\n      \"name\": \"Attach to Remote Quarkus App\",\n      \"hostName\": \"localhost\",\n      \"port\": 5005\n    }\n  ]\n}\n",
+                        "type": "vscode-launch"
+                    }
+                ]
+            }
+        ]
+    }
+}

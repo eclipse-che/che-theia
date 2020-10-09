@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2019 Red Hat, Inc.
+ * Copyright (c) 2019-2020 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,19 +9,13 @@
  **********************************************************************/
 
 /**
- * Exposed server port of a workspace.
+ * Defines a Listening Port with a port number and the network interface
+ * @author Florent Benoit
  */
-export interface WorkspacePort {
-    url: string;
-    portNumber: string;
-    serverName: string;
-    previewUrl?: PreviewUrl;
-}
+export interface ListeningPort {
 
-/**
- * Exposed server preview url configuration.
- */
-export interface PreviewUrl {
-    port: string;
-    path?: string;
+    portNumber: number;
+
+    interfaceListen: string;
+
 }

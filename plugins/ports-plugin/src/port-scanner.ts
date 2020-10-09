@@ -8,7 +8,7 @@
 * SPDX-License-Identifier: EPL-2.0
 **********************************************************************/
 
-import { Port } from './port';
+import { ListeningPort } from './listening-port';
 import { IpConverter } from './ip-converter';
 import { readFile } from 'fs';
 
@@ -77,7 +77,7 @@ export class PortScanner {
     /**
      * Get opened ports.
      */
-    public async getListeningPorts(): Promise<Port[]> {
+    public async getListeningPorts(): Promise<ListeningPort[]> {
 
         const ipConverter = new IpConverter();
         const outIPV6 = this.scanner.getListeningPortV6();
@@ -95,7 +95,7 @@ export class PortScanner {
             const interfaceListen = ipConverter.convert(ipRaw);
             // convert port which is in HEX to int
             const portNumber = parseInt(portRaw, 16);
-            const port: Port = { portNumber, interfaceListen };
+            const port: ListeningPort = { portNumber, interfaceListen };
             ports.push(port);
         }
         return ports;

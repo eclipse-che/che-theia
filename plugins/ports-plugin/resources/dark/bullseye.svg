@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   viewBox="0 0 496 512"
+   version="1.1"
+   id="svg1667"
+   sodipodi:docname="bullseye.svg"
+   inkscape:version="1.0.1 (c497b03c, 2020-09-10)">
+  <metadata
+     id="metadata1673">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs1671" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1946"
+     inkscape:window-height="980"
+     id="namedview1669"
+     showgrid="false"
+     inkscape:zoom="1.96875"
+     inkscape:cx="238.85714"
+     inkscape:cy="256"
+     inkscape:window-x="0"
+     inkscape:window-y="23"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg1667" />
+  <!-- Font Awesome Free 5.15.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) -->
+  <path
+     d="M 248,8 C 111.03,8 0,119.03 0,256 0,392.97 111.03,504 248,504 384.97,504 496,392.97 496,256 496,119.03 384.97,8 248,8 Z m 0,432 C 146.31,440 64,357.71 64,256 64,154.31 146.29,72.000001 248,72.000001 349.69,72.000001 432,154.29 432,256 432,357.69 349.71,440 248,440 Z m 0,-312 c -70.69,0 -128,57.31 -128,128 0,70.69 57.31,128 128,128 70.69,0 128,-57.31 128,-128 0,-70.69 -57.31,-128 -128,-128 z m 0,192 c -35.29,0 -64,-28.71 -64,-64 0,-35.29 28.71,-64 64,-64 35.29,0 64,28.71 64,64 0,35.29 -28.71,64 -64,64 z"
+     id="path1665"
+     style="stroke-width:0.999999;fill:#c8c8c8;fill-opacity:1" />
+</svg>
