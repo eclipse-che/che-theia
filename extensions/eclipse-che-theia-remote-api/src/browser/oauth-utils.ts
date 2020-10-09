@@ -9,8 +9,8 @@
  **********************************************************************/
 import { inject, injectable } from 'inversify';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
-import { CheApiService } from '../common/che-protocol';
 import { Emitter, Event, MessageService } from '@theia/core/lib/common';
+import { OAuthService } from '../common/oauth-service';
 
 @injectable()
 export class OauthUtils {
@@ -20,9 +20,12 @@ export class OauthUtils {
     private oAuthPopup: Window | undefined;
     private userToken: string | undefined;
     private readonly onDidReceiveToken: Event<void>;
-    @inject(MessageService) private readonly messageService: MessageService;
+
+    @inject(MessageService)
+    private readonly messageService: MessageService;
+
     constructor(@inject(EnvVariablesServer) private readonly envVariableServer: EnvVariablesServer,
-        @inject(CheApiService) private readonly cheApiService: CheApiService) {
+        @inject(OAuthService) private readonly oAuthService: OAuthService) {
         const onDidReceiveTokenEmitter = new Emitter<void>();
         this.onDidReceiveToken = onDidReceiveTokenEmitter.event;
         this.envVariableServer.getValue('CHE_API').then(variable => {
@@ -73,16 +76,16 @@ export class OauthUtils {
     }
 
     async getToken(oAuthProvider: string): Promise<string | undefined> {
-        return await this.cheApiService.getOAuthToken(oAuthProvider, await this.getUserToken());
+        return this.oAuthService.getOAuthToken(oAuthProvider, await this.getUserToken());
     }
 
     async getProviders(): Promise<string[]> {
-        return await this.cheApiService.getOAuthProviders(await this.getUserToken());
+        return this.oAuthService.getOAuthProviders(await this.getUserToken());
     }
 
     async isAuthenticated(provider: string): Promise<boolean> {
         try {
-            await this.cheApiService.getOAuthToken(provider, await this.getUserToken());
+            await this.oAuthService.getOAuthToken(provider, await this.getUserToken());
             return true;
         } catch (e) {
             return false;
@@ -91,7 +94,7 @@ export class OauthUtils {
 
     async isRegistered(provider: string): Promise<boolean> {
         try {
-            await this.cheApiService.getOAuthToken(provider, await this.getUserToken());
+            await this.oAuthService.getOAuthToken(provider, await this.getUserToken());
             return true;
         } catch (e) {
             return e.message.indexOf('Request failed with status code 401') > 0;

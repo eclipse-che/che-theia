@@ -16,7 +16,8 @@
 
 import { injectable, inject } from 'inversify';
 import { ActivityTrackerService } from '../common/activity-tracker-protocol';
-import { CheApiService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
+import { TelemetryService } from '@eclipse-che/theia-remote-api/lib/common/telemetry-service';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 /**
  * Server side part of Theia activity tracker.
@@ -41,8 +42,11 @@ export class ActivityTrackerServiceImpl implements ActivityTrackerService {
     // Flag which is used to check if new requests were received during timer awaiting.
     private isNewRequest: boolean;
 
-    @inject(CheApiService)
-    protected cheApiService: CheApiService;
+    @inject(WorkspaceService)
+    protected workspaceService: WorkspaceService;
+
+    @inject(TelemetryService)
+    protected telemetryService: TelemetryService;
 
     constructor() {
         this.isTimerRunning = false;
@@ -78,9 +82,9 @@ export class ActivityTrackerServiceImpl implements ActivityTrackerService {
     }
 
     private sendRequest(attemptsLeft: number = ActivityTrackerServiceImpl.RETRY_COUNT): void {
-        this.cheApiService.submitTelemetryActivity();
+        this.telemetryService.submitTelemetryActivity();
         try {
-            this.cheApiService.updateWorkspaceActivity();
+            this.workspaceService.updateWorkspaceActivity();
         } catch (error) {
             if (attemptsLeft > 0) {
                 setTimeout(() => this.sendRequest(), ActivityTrackerServiceImpl.RETRY_REQUEST_PERIOD_MS, --attemptsLeft);

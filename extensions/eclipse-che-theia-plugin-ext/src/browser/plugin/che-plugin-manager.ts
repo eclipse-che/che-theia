@@ -15,7 +15,6 @@
  ********************************************************************************/
 
 import { injectable, inject } from 'inversify';
-import { CheApiService } from '../../common/che-protocol';
 import {
     ChePluginService,
     ChePluginRegistry,
@@ -31,6 +30,7 @@ import { ChePluginFrontentService } from './che-plugin-frontend-service';
 import { PreferenceService, PreferenceScope } from '@theia/core/lib/browser/preferences';
 import { PluginFilter } from '../../common/plugin/plugin-filter';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 @injectable()
 export class ChePluginManager {
@@ -57,9 +57,6 @@ export class ChePluginManager {
     @inject(PluginServer)
     protected readonly pluginServer: PluginServer;
 
-    @inject(CheApiService)
-    protected readonly cheApiService: CheApiService;
-
     @inject(MessageService)
     protected readonly messageService: MessageService;
 
@@ -74,6 +71,9 @@ export class ChePluginManager {
 
     @inject(ChePluginFrontentService)
     protected readonly pluginFrontentService: ChePluginFrontentService;
+
+    @inject(WorkspaceService)
+    protected readonly workspaceService: WorkspaceService;
 
     /********************************************************************************
      * Changing the Workspace Configuration
@@ -515,15 +515,13 @@ export class ChePluginManager {
 
         if (await confirm.open()) {
             // get workspace ID
-            const cheWorkspaceID = await this.envVariablesServer.getValue('CHE_WORKSPACE_ID');
+            const cheWorkspaceID = await this.workspaceService.getCurrentWorkspaceId();
             // get machine token
             const cheMachineToken = await this.envVariablesServer.getValue('CHE_MACHINE_TOKEN');
-            if (cheWorkspaceID && cheWorkspaceID.value) {
-                this.messageService.info('Workspace is restarting...');
-                const cheMachineTokenValue = cheMachineToken && cheMachineToken.value ? cheMachineToken.value : '';
-                // ask Dashboard to restart the workspace giving him workspace ID & machine token
-                window.parent.postMessage(`restart-workspace:${cheWorkspaceID.value}:${cheMachineTokenValue}`, '*');
-            }
+            this.messageService.info('Workspace is restarting...');
+            const cheMachineTokenValue = cheMachineToken && cheMachineToken.value ? cheMachineToken.value : '';
+            // ask Dashboard to restart the workspace giving him workspace ID & machine token
+            window.parent.postMessage(`restart-workspace:${cheWorkspaceID}:${cheMachineTokenValue}`, '*');
         }
     }
 

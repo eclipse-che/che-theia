@@ -11,7 +11,7 @@
 import { CheGithubMain } from '../common/che-protocol';
 import { interfaces } from 'inversify';
 import axios, { AxiosInstance } from 'axios';
-import { OauthUtils } from './oauth-utils';
+import { OauthUtils } from '@eclipse-che/theia-remote-api/lib/browser/oauth-utils';
 import { GithubUser } from '@eclipse-che/plugin';
 
 export class CheGithubMainImpl implements CheGithubMain {

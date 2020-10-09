@@ -16,7 +16,6 @@ import { Plugin } from '@theia/plugin-ext/lib/common/plugin-api-rpc';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
 import { CheDevfileImpl } from './che-devfile';
-import { CheFactoryImpl } from './che-factory';
 import { CheGithubImpl } from './che-github';
 import { CheProductImpl } from './che-product';
 import { CheSideCarContentReaderImpl } from './che-sidecar-content-reader';
@@ -36,7 +35,6 @@ export interface CheApiFactory {
 
 export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
     const cheWorkspaceImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_WORKSPACE, new CheWorkspaceImpl(rpc));
-    const cheFactoryImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_FACTORY, new CheFactoryImpl(rpc));
     const cheDevfileImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_DEVFILE, new CheDevfileImpl(rpc));
     const cheVariablesImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_VARIABLES, new CheVariablesImpl(rpc));
     const cheTaskImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_TASK, new CheTaskImpl(rpc));
@@ -92,12 +90,6 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             },
             getSettings(): Promise<che.KeyValue> {
                 return cheWorkspaceImpl.getSettings();
-            }
-        };
-
-        const factory: typeof che.factory = {
-            getById(id: string): PromiseLike<cheApi.factory.Factory> {
-                return cheFactoryImpl.getFactoryById(id);
             }
         };
 
@@ -406,7 +398,6 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
 
         return <typeof che>{
             workspace,
-            factory,
             devfile,
             variables,
             task,

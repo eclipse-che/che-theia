@@ -22,18 +22,18 @@ import * as express from 'express';
 import { injectable, inject } from 'inversify';
 import { WebviewExternalEndpoint } from '@theia/plugin-ext/lib/main/common/webview-protocol';
 import { PluginApiContribution } from '@theia/plugin-ext/lib/main/node/plugin-service';
-import { CheApiService } from '../common/che-protocol';
 import { getUrlDomain, SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE } from '../common/che-server-common';
 import { Deferred } from '@theia/core/lib/common/promise-util';
 import { ILogger } from '@theia/core/lib/common/logger';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 const pluginPath = (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + './theia/plugins/';
 
 @injectable()
 export class PluginApiContributionIntercepted extends PluginApiContribution {
 
-    @inject(CheApiService)
-    private cheApi: CheApiService;
+    @inject(WorkspaceService)
+    private workspaceService: WorkspaceService;
 
     @inject(ILogger)
     protected readonly logger: ILogger;
@@ -50,7 +50,7 @@ export class PluginApiContributionIntercepted extends PluginApiContribution {
         const pluginExtModulePath = path.dirname(require.resolve('@theia/plugin-ext/package.json'));
         const webviewStaticResources = path.join(pluginExtModulePath, 'src/main/browser/webview/pre');
 
-        this.cheApi.findUniqueServerByAttribute(SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE).then(server => {
+        this.workspaceService.findUniqueEndpointByAttribute(SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE).then(server => {
             let domain;
             if (server.url) {
                 domain = getUrlDomain(server.url);

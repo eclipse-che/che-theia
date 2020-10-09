@@ -13,7 +13,6 @@ import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { injectable, interfaces } from 'inversify';
 import { PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
 import { CheWorkspaceMainImpl } from './che-workspace-main';
-import { CheFactoryMainImpl } from './che-factory-main';
 import { CheTelemetryMainImpl } from './che-telemetry-main';
 import { CheVariablesMainImpl } from './che-variables-main';
 import { CheTaskMainImpl } from './che-task-main';
@@ -32,7 +31,6 @@ export class CheApiProvider implements MainPluginApiProvider {
 
     initialize(rpc: RPCProtocol, container: interfaces.Container): void {
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_WORKSPACE_MAIN, new CheWorkspaceMainImpl(container));
-        rpc.set(PLUGIN_RPC_CONTEXT.CHE_FACTORY_MAIN, new CheFactoryMainImpl(container));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_DEVFILE_MAIN, new CheDevfileMainImpl(container));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_TELEMETRY_MAIN, new CheTelemetryMainImpl(container, rpc));
         rpc.set(PLUGIN_RPC_CONTEXT.CHE_VARIABLES_MAIN, new CheVariablesMainImpl(container, rpc));

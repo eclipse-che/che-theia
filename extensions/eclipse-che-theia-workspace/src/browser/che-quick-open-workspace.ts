@@ -15,12 +15,12 @@ import {
     QuickOpenModel
 } from '@theia/core/lib/common/quick-open-model';
 import { LabelProvider, QuickOpenService } from '@theia/core/lib/browser';
-import { CheApiService } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
 import { che } from '@eclipse-che/api';
-import { OauthUtils } from '@eclipse-che/theia-plugin-ext/lib/browser/oauth-utils';
+import { OauthUtils } from '@eclipse-che/theia-remote-api/lib/browser/oauth-utils';
 import { MessageService } from '@theia/core/lib/common/message-service';
 import * as moment from 'moment';
 import { CheWorkspaceUtils } from './che-workspace-utils';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 @injectable()
 export class QuickOpenCheWorkspace implements QuickOpenModel {
@@ -28,7 +28,7 @@ export class QuickOpenCheWorkspace implements QuickOpenModel {
     protected currentWorkspace: che.workspace.Workspace;
 
     @inject(QuickOpenService) protected readonly quickOpenService: QuickOpenService;
-    @inject(CheApiService) protected readonly cheApi: CheApiService;
+    @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService;
     @inject(OauthUtils) protected readonly oAuthUtils: OauthUtils;
     @inject(LabelProvider) protected readonly labelProvider: LabelProvider;
     @inject(MessageService) protected readonly messageService: MessageService;
@@ -85,14 +85,14 @@ export class QuickOpenCheWorkspace implements QuickOpenModel {
         const token = await this.oAuthUtils.getUserToken();
 
         if (!this.currentWorkspace) {
-            this.currentWorkspace = await this.cheApi.currentWorkspace();
+            this.currentWorkspace = await this.workspaceService.currentWorkspace();
         }
 
         if (!this.currentWorkspace.namespace) {
             return;
         }
 
-        let workspaces = await this.cheApi.getAllByNamespace(this.currentWorkspace.namespace, token);
+        let workspaces = await this.workspaceService.getAllByNamespace(this.currentWorkspace.namespace, token);
 
         if (recent) {
             workspaces.sort(CheWorkspaceUtils.modificationTimeComparator);

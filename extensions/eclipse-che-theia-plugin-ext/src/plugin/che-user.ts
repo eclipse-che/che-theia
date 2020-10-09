@@ -9,13 +9,12 @@
  **********************************************************************/
 
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
-import { Preferences } from '@eclipse-che/plugin';
 import {
     CheUser,
     CheUserMain,
-    User,
     PLUGIN_RPC_CONTEXT,
 } from '../common/che-protocol';
+import { User, Preferences } from '@eclipse-che/theia-remote-api/lib/common/user-service';
 
 export class CheUserImpl implements CheUser {
 

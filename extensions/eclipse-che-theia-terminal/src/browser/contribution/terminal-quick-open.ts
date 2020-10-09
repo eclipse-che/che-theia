@@ -13,7 +13,7 @@ import {
     QuickOpenMode, QuickOpenOptions, ApplicationShell, KeybindingRegistry,
     QuickOpenModel, QuickOpenItem, QuickOpenHandler, QuickOpenService, QuickOpenGroupItem, QuickOpenGroupItemOptions, QuickOpenItemOptions
 } from '@theia/core/lib/browser';
-import { CHEWorkspaceService } from '../../common/workspace-service';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { TerminalApiEndPointProvider } from '../server-definition/terminal-proxy-creator';
 import { OpenTerminalHandler } from './exec-terminal-contribution';
 import { isDevContainer } from './terminal-command-filter';
@@ -30,8 +30,8 @@ export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenMode
     @inject('TerminalApiEndPointProvider')
     protected readonly termApiEndPointProvider: TerminalApiEndPointProvider;
 
-    @inject(CHEWorkspaceService)
-    protected readonly workspaceService: CHEWorkspaceService;
+    @inject(WorkspaceService)
+    protected readonly workspaceService: WorkspaceService;
 
     @inject(ApplicationShell)
     protected readonly shell: ApplicationShell;

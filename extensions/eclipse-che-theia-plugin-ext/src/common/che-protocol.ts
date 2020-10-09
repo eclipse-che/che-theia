@@ -13,6 +13,7 @@ import * as che from '@eclipse-che/plugin';
 import { Event, JsonRpcServer } from '@theia/core';
 import { createProxyIdentifier } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { CheLanguagesTestAPI } from './che-languages-test-protocol';
+import { User, Preferences } from '@eclipse-che/theia-remote-api/lib/common/user-service';
 
 /**
  * Workspace plugin API
@@ -32,16 +33,6 @@ export interface CheWorkspaceMain {
     // startTemporary(config: WorkspaceConfig): Promise<any>;
     // stop(workspaceId: string): Promise<any>;
     // getSettings(): Promise<WorkspaceSettings>;
-}
-
-/**
- * Factory plugin API
- */
-export interface CheFactory {
-}
-
-export interface CheFactoryMain {
-    $getFactoryById(factoryId: string): Promise<cheApi.factory.Factory>;
 }
 
 export interface CheDevfile {
@@ -397,25 +388,9 @@ export interface RequestBodyDescriptor {
     description: string;
 }
 
-export interface Preferences {
-    [key: string]: string;
-}
-
-export interface User {
-    id: string;
-    name: string;
-}
-
-export interface WorkspaceSettings {
-    [key: string]: string;
-}
-
 export const PLUGIN_RPC_CONTEXT = {
     CHE_WORKSPACE: createProxyIdentifier<CheWorkspace>('CheWorkspace'),
     CHE_WORKSPACE_MAIN: createProxyIdentifier<CheWorkspaceMain>('CheWorkspaceMain'),
-
-    CHE_FACTORY: createProxyIdentifier<CheFactory>('CheFactory'),
-    CHE_FACTORY_MAIN: createProxyIdentifier<CheFactoryMain>('CheFactoryMain'),
 
     CHE_DEVFILE: createProxyIdentifier<CheDevfile>('CheDevfile'),
     CHE_DEVFILE_MAIN: createProxyIdentifier<CheDevfileMain>('CheDevfileMain'),
@@ -453,49 +428,6 @@ export const PLUGIN_RPC_CONTEXT = {
 };
 
 // Theia RPC protocol
-
-export const CHE_API_SERVICE_PATH = '/che-api-service';
-
-export const CheApiService = Symbol('CheApiService');
-
-export interface CheApiService {
-    getCurrentWorkspaceId(): string;
-    getCheApiURI(): string;
-
-    currentWorkspace(): Promise<cheApi.workspace.Workspace>;
-    getWorkspaceById(workspaceId: string): Promise<cheApi.workspace.Workspace>;
-    getAll(userToken?: string): Promise<cheApi.workspace.Workspace[]>;
-    getAllByNamespace(namespace: string, userToken?: string): Promise<cheApi.workspace.Workspace[]>;
-    getCurrentWorkspacesContainers(): Promise<{ [key: string]: cheApi.workspace.Machine }>;
-    findUniqueServerByAttribute(attributeName: string, attributeValue: string): Promise<cheApi.workspace.Server>;
-
-    updateWorkspace(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<cheApi.workspace.Workspace>;
-    updateWorkspaceActivity(): Promise<void>;
-    stop(): Promise<void>;
-
-    getFactoryById(factoryId: string): Promise<cheApi.factory.Factory>;
-
-    /** @deprecated use {@link getCurrentUser} instead. */
-    getUserId(userToken?: string): Promise<string>;
-    getCurrentUser(userToken?: string): Promise<User>;
-    getUserPreferences(): Promise<Preferences>;
-    getUserPreferences(filter: string | undefined): Promise<Preferences>;
-    updateUserPreferences(update: Preferences): Promise<Preferences>;
-    replaceUserPreferences(preferences: Preferences): Promise<Preferences>;
-    deleteUserPreferences(): Promise<void>;
-    deleteUserPreferences(list: string[] | undefined): Promise<void>;
-    getWorkspaceSettings(): Promise<WorkspaceSettings>;
-
-    generateSshKey(service: string, name: string): Promise<cheApi.ssh.SshPair>;
-    createSshKey(sshKeyPair: cheApi.ssh.SshPair): Promise<void>;
-    getSshKey(service: string, name: string): Promise<cheApi.ssh.SshPair>;
-    deleteSshKey(service: string, name: string): Promise<void>;
-    getAllSshKey(service: string): Promise<cheApi.ssh.SshPair[]>;
-    submitTelemetryEvent(id: string, ownerId: string, ip: string, agent: string, resolution: string, properties: [string, string][]): Promise<void>;
-    submitTelemetryActivity(): Promise<void>;
-    getOAuthToken(oAuthProvider: string, userToken?: string): Promise<string | undefined>;
-    getOAuthProviders(userToken?: string): Promise<string[]>;
-}
 
 export const CHE_TASK_SERVICE_PATH = '/che-task-service';
 

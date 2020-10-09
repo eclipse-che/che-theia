@@ -36,10 +36,6 @@ declare module '@eclipse-che/plugin' {
         export function getSettings(): Promise<KeyValue>;
     }
 
-    export namespace factory {
-        export function getById(id: string): PromiseLike<cheApi.factory.Factory>;
-    }
-
     export namespace devfile {
         export function createWorkspace(devfilePath: string): Promise<void>;
     }
