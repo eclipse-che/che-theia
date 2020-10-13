@@ -19,7 +19,8 @@
     "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
     "compile": "tsc",
     "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
   },
   "license": "EPL-2.0",
   "theiaExtensions": [
