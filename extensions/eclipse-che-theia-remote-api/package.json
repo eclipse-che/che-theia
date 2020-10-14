@@ -3,6 +3,9 @@
   "keywords": [
     "theia-extension"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "version": "0.0.1",
   "files": [
     "lib",
