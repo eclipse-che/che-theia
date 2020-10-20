@@ -46,7 +46,7 @@ export class CheGithubMainImpl implements CheGithubMain {
     }
 
     private async getUser(): Promise<GithubUser> {
-        const result =  await this.axiosInstance.get<GithubUser>('https://api.github.com/user?access_token=' + this.token);
+        const result = await this.axiosInstance.get<GithubUser>('https://api.github.com/user?access_token=' + this.token);
         return result.data;
     }
 
