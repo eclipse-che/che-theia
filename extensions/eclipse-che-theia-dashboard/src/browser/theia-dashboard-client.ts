@@ -92,14 +92,4 @@ export class TheiaDashboardClient implements FrontendApplicationContribution {
         }
         return url.replace(/^https?:\/\/[^\/]+/, match => `${match}/dashboard/#/ide`);
     }
-
-    async openDashboardWorkspacePage(): Promise<void> {
-        const url = await this.getIdeUrl();
-        if (!url) {
-            return;
-        }
-        const workspacePageUrl = url.replace(/^https?:\/\/[^\/]+/, match => `${match}/dashboard/#/workspace`);
-        window.location.href = workspacePageUrl + '?tab=Share';
-    }
-
 }
