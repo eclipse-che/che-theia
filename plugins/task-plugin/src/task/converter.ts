@@ -25,7 +25,8 @@ export function toTaskConfiguration(command: cheApi.workspace.Command): TaskConf
             workingDir: getAttribute(WORKING_DIR_ATTRIBUTE, command.attributes),
             component: getAttribute(COMPONENT_ALIAS_ATTRIBUTE, command.attributes)
         },
-        previewUrl: getAttribute(PREVIEW_URL_ATTRIBUTE, command.attributes)
+        previewUrl: getAttribute(PREVIEW_URL_ATTRIBUTE, command.attributes),
+        problemMatcher: []
     };
 
     return taskConfig;
