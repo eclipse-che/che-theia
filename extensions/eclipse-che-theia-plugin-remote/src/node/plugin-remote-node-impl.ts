@@ -204,7 +204,6 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
             }
         });
         pluginManagerInternal.activatedPlugins.set(pluginId, activatedPlugin);
-        await pluginManagerInternal.activatePlugin(pluginId);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
