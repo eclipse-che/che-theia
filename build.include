@@ -15,7 +15,7 @@ THEIA_VERSION="master"
 THEIA_BRANCH="master"
 THEIA_COMMIT_SHA="eb1136b1"
 THEIA_GIT_REFS="refs\\/heads\\/master"
-THEIA_DOCKER_IMAGE_VERSION="7.20.0"
+THEIA_DOCKER_IMAGE_VERSION="7.20.1"
 
 prepare_yarn_root_args() {
     IFS=',' read -r -a YARN_ARGS_ARRAY <<< "$@"
