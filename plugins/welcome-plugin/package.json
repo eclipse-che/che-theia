@@ -35,6 +35,9 @@
     "@theia/plugin-packager": "latest",
     "@eclipse-che/plugin": "0.0.1"
   },
+  "extensionDependencies": [
+    "Eclipse Che.@eclipse-che/workspace-plugin"
+  ],
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",
