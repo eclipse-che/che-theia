@@ -18,6 +18,9 @@ import * as theia from '@theia/plugin';
 import * as che from '@eclipse-che/plugin';
 import { che as cheApi } from '@eclipse-che/api';
 
+const onDidCloneSourcesEmitter = new theia.EventEmitter<void>();
+export const onDidCloneSources = onDidCloneSourcesEmitter.event;
+
 export function handleWorkspaceProjects(pluginContext: theia.PluginContext, projectsRoot: string): void {
     che.workspace.getCurrentWorkspace().then((workspace: cheApi.workspace.Workspace) => {
         if (workspace.devfile) {
@@ -65,6 +68,7 @@ abstract class WorkspaceProjectsManager {
             cloneCommandList.map(cloneCommand => cloneCommand.execute())
         );
         theia.window.showInformationMessage('Che Workspace: Finished importing projects.');
+        onDidCloneSourcesEmitter.fire();
     }
 
     async startSyncWorkspaceProjects(): Promise<void> {
