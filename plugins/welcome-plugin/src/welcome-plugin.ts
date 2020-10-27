@@ -123,7 +123,13 @@ export function start(context: theia.PluginContext): void {
     if (showWelcomePage && theia.window.visibleTextEditors.length === 0) {
         setTimeout(async () => {
             addPanel(context);
-            handleReadmeFiles();
+
+            const workspacePlugin = theia.plugins.getPlugin('Eclipse Che.@eclipse-che/workspace-plugin');
+            if (workspacePlugin) {
+                workspacePlugin.exports.onDidCloneSources(() => handleReadmeFiles());
+            } else {
+                handleReadmeFiles();
+            }
         }, 100);
     }
 }
