@@ -9,12 +9,16 @@
  **********************************************************************/
 
 import * as theia from '@theia/plugin';
-import { handleWorkspaceProjects } from './workspace-projects-manager';
+import { handleWorkspaceProjects, onDidCloneSources } from './workspace-projects-manager';
 import { EphemeralWorkspaceChecker } from './ephemeral-workspace-checker';
 import { Devfile } from './devfile';
 import { initAskpassEnv } from './askpass';
 
-export async function start(context: theia.PluginContext): Promise<void> {
+interface API {
+    readonly onDidCloneSources: theia.Event<void>
+}
+
+export async function start(context: theia.PluginContext): Promise<API> {
     let projectsRoot = '/projects';
     const projectsRootEnvVar = await theia.env.getEnvVariable('CHE_PROJECTS_ROOT');
     if (projectsRootEnvVar) {
@@ -25,6 +29,12 @@ export async function start(context: theia.PluginContext): Promise<void> {
     new EphemeralWorkspaceChecker().check();
     await initAskpassEnv();
     handleWorkspaceProjects(context, projectsRoot);
+
+    return {
+        get onDidCloneSources(): theia.Event<void> {
+            return onDidCloneSources;
+        }
+    };
 }
 
 export function stop(): void {
