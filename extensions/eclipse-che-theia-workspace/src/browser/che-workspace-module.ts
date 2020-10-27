@@ -9,9 +9,11 @@
  **********************************************************************/
 import { ContainerModule } from 'inversify';
 import { QuickOpenCheWorkspace } from './che-quick-open-workspace';
+import { FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { CommandContribution, MenuContribution } from '@theia/core/lib/common';
 import { CheWorkspaceContribution } from './che-workspace-contribution';
 import { CheWorkspaceController } from './che-workspace-controller';
+import { ExplorerContribution } from './explorer-contribution';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(QuickOpenCheWorkspace).toSelf().inSingletonScope();
@@ -20,4 +22,7 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
     for (const identifier of [CommandContribution, MenuContribution]) {
         bind(identifier).toService(CheWorkspaceContribution);
     }
+
+    bind(ExplorerContribution).toSelf().inSingletonScope();
+    bind(FrontendApplicationContribution).to(ExplorerContribution);
 });
