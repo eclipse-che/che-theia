@@ -59,6 +59,7 @@ export class ChePluginServiceImpl implements ChePluginService {
 
     constructor(container: interfaces.Container) {
         this.workspaceService = container.get(WorkspaceService);
+        this.certificateService = container.get(CertificateService);
     }
 
     setClient(client: ChePluginServiceClient): void {
