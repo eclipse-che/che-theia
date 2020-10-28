@@ -11,6 +11,7 @@
 import * as theia from '@theia/plugin';
 import { LanguagesExtImpl } from '@theia/plugin-ext/lib/plugin/languages';
 import { overrideUri } from './che-content-aware-utils';
+import { PluginInfo } from '@theia/plugin-ext/lib/common/plugin-api-rpc';
 
 export class LanguagesContainerAware {
 
@@ -21,7 +22,7 @@ export class LanguagesContainerAware {
 
     overrideDefinitionProvider(languagesExt: LanguagesExtImpl): void {
         const originalRegisterDefinitionProvider = languagesExt.registerDefinitionProvider.bind(languagesExt);
-        const registerDefinitionProvider = (selector: theia.DocumentSelector, provider: theia.DefinitionProvider) =>
+        const registerDefinitionProvider = (selector: theia.DocumentSelector, provider: theia.DefinitionProvider, pluginInfo: PluginInfo) =>
             originalRegisterDefinitionProvider(selector, {
                 provideDefinition: async (
                     document: theia.TextDocument,
@@ -43,7 +44,7 @@ export class LanguagesContainerAware {
 
                     return result;
                 }
-            });
+            }, pluginInfo);
 
         languagesExt.registerDefinitionProvider = registerDefinitionProvider;
     }
