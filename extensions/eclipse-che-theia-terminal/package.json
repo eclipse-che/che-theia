@@ -4,7 +4,7 @@
     "theia-extension",
     "terminal"
   ],
-  "version": "0.0.1",
+  "version": "7.21.0",
   "publishConfig": {
     "access": "public"
   },
@@ -19,11 +19,11 @@
     "src"
   ],
   "dependencies": {
-    "@theia/core": "next",
-    "@theia/terminal": "next",
+    "@theia/core": "1.7.0-next.b3aa18fa",
+    "@theia/terminal": "1.7.0-next.b3aa18fa",
     "reconnecting-websocket": "^4.2.0",
-    "@eclipse-che/api": "latest",
-    "@eclipse-che/theia-remote-api": "^0.0.1",
+    "@eclipse-che/api": "7.18.1",
+    "@eclipse-che/theia-remote-api": "7.21.0",
     "vscode-ws-jsonrpc": "0.2.0"
   },
   "license": "EPL-2.0",
