@@ -71,4 +71,9 @@ export class CheWorkspaceImpl implements CheWorkspace {
         return this.workspaceMain.$getCurrentWorkspace();
     }
 
+    async restartWorkspace(restartWorkspaceOptions?: che.RestartWorkspaceOptions): Promise<boolean> {
+        const machineToken = process.env['CHE_MACHINE_TOKEN'] || '';
+        return this.workspaceMain.$restartWorkspace(machineToken, restartWorkspaceOptions);
+    }
+
 }

@@ -90,6 +90,9 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
             },
             getSettings(): Promise<che.KeyValue> {
                 return cheWorkspaceImpl.getSettings();
+            },
+            restartWorkspace(restartWorkspaceOptions?: che.RestartWorkspaceOptions): Promise<boolean> {
+                return cheWorkspaceImpl.restartWorkspace(restartWorkspaceOptions);
             }
         };
 

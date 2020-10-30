@@ -19,6 +19,7 @@ import { User, Preferences } from '@eclipse-che/theia-remote-api/lib/common/user
  * Workspace plugin API
  */
 export interface CheWorkspace {
+    restartWorkspace(restartWorkspaceOptions?: che.RestartWorkspaceOptions): Promise<boolean>;
 }
 
 export interface CheWorkspaceMain {
@@ -33,6 +34,7 @@ export interface CheWorkspaceMain {
     // startTemporary(config: WorkspaceConfig): Promise<any>;
     // stop(workspaceId: string): Promise<any>;
     // getSettings(): Promise<WorkspaceSettings>;
+    $restartWorkspace(machineToken: string, restartWorkspaceOptions?: che.RestartWorkspaceOptions): Promise<boolean>;
 }
 
 export interface CheDevfile {
