@@ -52,7 +52,6 @@
     "vscode-builtin-yaml": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/yaml-1.39.1-prel.vsix",
     "vscode-editorconfig": "https://github.com/theia-ide/editorconfig-vscode/releases/download/v0.14.4/EditorConfig-0.14.4.vsix",
     "vscode-git": "https://open-vsx.org/api/vscode/git/1.49.3/file/vscode.git-1.49.3.vsix",
-    "vscode-github": "https://open-vsx.org/api/vscode/github/1.50.0/file/vscode.github-1.50.0.vsix",
     "vscode-references-view": "https://github.com/theia-ide/vscode-references-view/releases/download/v0.0.47/references-view-0.0.47.vsix",
     "vscode-builtin-theme-abyss": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/theme-abyss-1.39.1-prel.vsix",
     "vscode-builtin-theme-defaults": "https://github.com/theia-ide/vscode-builtin-extensions/releases/download/v1.39.1-prel/theme-defaults-1.39.1-prel.vsix",
