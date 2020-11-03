@@ -43,6 +43,7 @@ export class CheServerRemoteApiImpl {
     public getAPI(userToken?: string): IRemoteAPI {
         return WorkspaceClient.getRestApi({
             baseUrl: this.baseAPIUrl,
+            headers: {},
             ssCrtPath: SS_CRT_PATH,
             publicCrtPath: PUBLIC_CRT_PATH,
             machineToken: userToken && userToken.length > 0 ? undefined : this.machineToken,
