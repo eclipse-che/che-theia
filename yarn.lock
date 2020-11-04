@@ -907,10 +907,10 @@
   dependencies:
     "@eclipse-che/api" latest
 
-"@eclipse-che/workspace-client@latest":
-  version "0.0.1-1598950097"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-client/-/workspace-client-0.0.1-1598950097.tgz#4e341849b74ce9f123952ba7edc3be1005c20f68"
-  integrity sha512-z07pA8MrfSAYZzFnTXifKBAG3w6QxUl0eWVonFxU2lucMq+vFdUI6yPxNgj7dVdm0EeQ1BHZqgnkO1eNaTT1fA==
+"@eclipse-che/workspace-client@0.0.1-1600695209":
+  version "0.0.1-1600695209"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-client/-/workspace-client-0.0.1-1600695209.tgz#2b38606e90f71e96bac0f588be26dfd3d66e897e"
+  integrity sha512-7FeRqUvLBdrtpst3oBgzVpdlyX2WZ9ASBQB2nFXV+u6e5TFCzDuCWfuwga8TSEI2Gxz0PUFtbPO0YsGFk7VTrA==
   dependencies:
     "@eclipse-che/api" "^7.0.0-beta-4.0"
     axios "0.19.0"
