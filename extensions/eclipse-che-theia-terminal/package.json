@@ -4,7 +4,7 @@
     "theia-extension",
     "terminal"
   ],
-  "version": "7.21.0",
+  "version": "7.21.1",
   "publishConfig": {
     "access": "public"
   },
@@ -23,7 +23,7 @@
     "@theia/terminal": "1.7.0-next.b3aa18fa",
     "reconnecting-websocket": "^4.2.0",
     "@eclipse-che/api": "7.18.1",
-    "@eclipse-che/theia-remote-api": "7.21.0",
+    "@eclipse-che/theia-remote-api": "7.21.1",
     "vscode-ws-jsonrpc": "0.2.0"
   },
   "license": "EPL-2.0",

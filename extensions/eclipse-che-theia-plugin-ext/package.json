@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/theia-plugin-ext",
-  "version": "7.21.0",
+  "version": "7.21.1",
   "description": "Theia extension",
   "author": "Yevhen Vydolob",
   "license": "EPL-2.0",
@@ -13,7 +13,7 @@
     "src"
   ],
   "dependencies": {
-    "@eclipse-che/plugin": "7.21.0",
+    "@eclipse-che/plugin": "7.21.1",
     "@theia/core": "1.7.0-next.b3aa18fa",
     "@theia/task": "1.7.0-next.b3aa18fa",
     "@theia/mini-browser": "1.7.0-next.b3aa18fa",
@@ -23,7 +23,7 @@
     "vscode-uri": "2.1.1",
     "js-yaml": "3.13.1",
     "drivelist": "9.0.2",
-    "@eclipse-che/theia-remote-api": "7.21.0",
+    "@eclipse-che/theia-remote-api": "7.21.1",
     "@eclipse-che/workspace-telemetry-client": "0.0.1-1602768919"
   },
   "devDependencies": {
