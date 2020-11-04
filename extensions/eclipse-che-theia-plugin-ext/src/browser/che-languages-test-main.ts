@@ -193,6 +193,21 @@ export class CheLanguagesMainTestImpl implements LanguagesMain {
         this.languagesMainImpl.$registerRenameProvider(handle, pluginInfo, selector, supportsResolveLocation);
     }
 
+    $registerDocumentSemanticTokensProvider(handle: number, pluginInfo: PluginInfo, selector: SerializedDocumentFilter[],
+        legend: theia.SemanticTokensLegend, eventHandle: number | undefined): void {
+        this.pluginHandleRegistry.registerPluginWithFeatureHandle(handle, pluginInfo.id, 'documentSemanticTokens', this.languagesExtProxy);
+        this.languagesMainImpl.$registerDocumentSemanticTokensProvider(handle, pluginInfo, selector, legend, eventHandle);
+    }
+
+    $emitDocumentSemanticTokensEvent(eventHandle: number): void {
+        this.languagesMainImpl.$emitDocumentSemanticTokensEvent(eventHandle);
+    }
+
+    $registerDocumentRangeSemanticTokensProvider(handle: number, pluginInfo: PluginInfo, selector: SerializedDocumentFilter[], legend: theia.SemanticTokensLegend): void {
+        this.pluginHandleRegistry.registerPluginWithFeatureHandle(handle, pluginInfo.id, 'documentRangeSemanticTokens', this.languagesExtProxy);
+        this.languagesMainImpl.$registerDocumentRangeSemanticTokensProvider(handle, pluginInfo, selector, legend);
+    }
+
     $registerCallHierarchyProvider(handle: number, selector: SerializedDocumentFilter[]): void {
         // This doesnt have pluginInfo so it cannot register with the pluginHandleRegistry for now
         this.languagesMainImpl.$registerCallHierarchyProvider(handle, selector);
