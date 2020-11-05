@@ -51,7 +51,7 @@ export async function start(context: theia.PluginContext): Promise<void> {
     );
     if (theia.plugins.getPlugin('github.vscode-pull-request-github')) {
         if (sessions.length > 0) {
-            onDidChangeSessions.fire({added: sessions.map(s => s.id), removed: [], changed: []});
+            onDidChangeSessions.fire({ added: sessions.map(s => s.id), removed: [], changed: [] });
         // TODO Remove the notification when https://github.com/eclipse-theia/theia/issues/7178 is fixed.
         } else {
             const signIn = 'Sign in';
