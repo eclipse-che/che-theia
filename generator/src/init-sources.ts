@@ -116,7 +116,7 @@ export class InitSources {
 
         // write it back
         const json = JSON.stringify(parsed, undefined, 2);
-        await fs.writeFile(rootCompilationUnitPath, json + '\n');
+        await fs.writeFile(rootCompilationUnitPath, `${json}\n`);
     }
 
     /**
