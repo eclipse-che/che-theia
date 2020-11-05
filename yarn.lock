@@ -896,13 +896,14 @@
   dependencies:
     "@eclipse-che/api" "7.18.1"
 
-"@eclipse-che/workspace-client@0.0.1-1600695209":
-  version "0.0.1-1600695209"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-client/-/workspace-client-0.0.1-1600695209.tgz#2b38606e90f71e96bac0f588be26dfd3d66e897e"
-  integrity sha512-7FeRqUvLBdrtpst3oBgzVpdlyX2WZ9ASBQB2nFXV+u6e5TFCzDuCWfuwga8TSEI2Gxz0PUFtbPO0YsGFk7VTrA==
+"@eclipse-che/workspace-client@latest":
+  version "0.0.1-1604565687"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-client/-/workspace-client-0.0.1-1604565687.tgz#f2d917c969fe03f461647fec018279ea91e85422"
+  integrity sha512-oC9+fsO+SgUrMACBWe4zcSaW594vAYBcQ3WIyZmsOskcHhe/EbqJkIk5iQ5hRu3gZQg5aVbquRt76Xf+Bn5UAw==
   dependencies:
     "@eclipse-che/api" "^7.0.0-beta-4.0"
-    axios "0.19.0"
+    axios "0.20.0"
+    qs "^6.9.4"
     tunnel "0.0.6"
     websocket "1.0.23"
 
@@ -4325,6 +4326,13 @@ axios@0.19.0:
     follow-redirects "1.5.10"
     is-buffer "^2.0.2"
 
+axios@0.20.0:
+  version "0.20.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.20.0.tgz#057ba30f04884694993a8cd07fa394cff11c50bd"
+  integrity sha512-ANA4rr2BDcmmAQLOKft2fufrtuvlqR+cXNNinUmvfeSNCOF98PZL+7M/v1zIdGo7OLjEA9J2gXJL+j4zGsl0bA==
+  dependencies:
+    follow-redirects "^1.10.0"
+
 babel-code-frame@^6.22.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-code-frame/-/babel-code-frame-6.26.0.tgz#63fd43f7dc1e3bb7ce35947db8fe369a3f58c74b"
@@ -7744,7 +7752,7 @@ follow-redirects@1.5.10:
   dependencies:
     debug "=3.1.0"
 
-follow-redirects@^1.0.0:
+follow-redirects@^1.0.0, follow-redirects@^1.10.0:
   version "1.13.0"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.13.0.tgz#b42e8d93a2a7eea5ed88633676d6597bc8e384db"
   integrity sha512-aq6gF1BEKje4a9i9+5jimNFIpq4Q1WiwBToeRK5NvZBd/TRsmW8BsJfOEGkr76TbOyPVD3OVDN910EcUNtRYEA==
@@ -13159,6 +13167,11 @@ qs@6.7.0:
   version "6.7.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.7.0.tgz#41dc1a015e3d581f1621776be31afb2876a9b1bc"
   integrity sha512-VCdBRNFTX1fyE7Nb6FYoURo/SPe62QCaAyzJvUjwRaIsc+NePBEniHlvxFmmX56+HZphIGtV0XeCirBtpDrTyQ==
+
+qs@^6.9.4:
+  version "6.9.4"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.9.4.tgz#9090b290d1f91728d3c22e54843ca44aea5ab687"
+  integrity sha512-A1kFqHekCTM7cz0udomYUoYNWjBebHm/5wzU/XqrBRBNWectVH0QIiN+NEcZ0Dte5hvzHwbr8+XQmguPhJ6WdQ==
 
 qs@~6.5.2:
   version "6.5.2"
