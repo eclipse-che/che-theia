@@ -101,7 +101,6 @@ export class InitSources {
      * Update configs/root-compilation.tsconfig.json
      */
     async initRootCompilationUnits() {
-
         const rootCompilationUnitPath = path.join(this.rootFolder, 'configs/root-compilation.tsconfig.json');
         const rawData = await fs.readFile(rootCompilationUnitPath);
         const parsed = JSON.parse(rawData.toString());
@@ -117,8 +116,7 @@ export class InitSources {
 
         // write it back
         const json = JSON.stringify(parsed, undefined, 2);
-        await fs.writeFile(rootCompilationUnitPath, json);
-
+        await fs.writeFile(rootCompilationUnitPath, `${json}\n`);
     }
 
     /**
