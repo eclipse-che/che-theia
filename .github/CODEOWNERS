@@ -2,9 +2,9 @@
 * @azatsarynnyy @benoitf
 
 # custom folders
-configs/** @azatsarynnyy @RomanNikitenko @vzhukovskii @benoitf
-devfiles/** @azatsarynnyy @RomanNikitenko @vzhukovskii @benoitf
-dockerfiles/** @azatsarynnyy @RomanNikitenko @vzhukovskii @benoitf
-extensions/** @azatsarynnyy @RomanNikitenko @vzhukovskii @benoitf
-generator/** @azatsarynnyy @RomanNikitenko @vzhukovskii @benoitf
+configs/** @azatsarynnyy @RomanNikitenko @vzhukovs @benoitf
+devfiles/** @azatsarynnyy @RomanNikitenko @vzhukovs @benoitf
+dockerfiles/** @azatsarynnyy @RomanNikitenko @vzhukovs @benoitf
+extensions/** @azatsarynnyy @RomanNikitenko @vzhukovs @benoitf
+generator/** @azatsarynnyy @RomanNikitenko @vzhukovs @benoitf
 plugins/** @ericwill @vinokurig @vitaliy-guliy @svor @tsmaeder @benoitf
