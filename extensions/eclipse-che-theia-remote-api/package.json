@@ -13,7 +13,7 @@
   ],
   "dependencies": {
     "@eclipse-che/api": "latest",
-    "@eclipse-che/workspace-client": "0.0.1-1600695209"
+    "@eclipse-che/workspace-client": "latest"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",
