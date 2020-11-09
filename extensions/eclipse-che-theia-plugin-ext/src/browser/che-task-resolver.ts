@@ -56,14 +56,15 @@ export class CheTaskResolver implements TaskResolver {
         resultTarget.workspaceId = target && target.workspaceId ? target.workspaceId : await this.getWorkspaceId();
         resultTarget.containerName = await this.getContainerName(target);
 
+        const variableResolverOptions = { configurationSection: 'tasks' };
         if (target && target.workingDir) {
-            resultTarget.workingDir = await this.variableResolverService.resolve(target.workingDir);
+            resultTarget.workingDir = await this.variableResolverService.resolve(target.workingDir, variableResolverOptions);
         }
 
         let commandLine = undefined;
         const command = taskConfig.command;
         if (command) {
-            commandLine = await this.variableResolverService.resolve(command) || command;
+            commandLine = await this.variableResolverService.resolve(command, variableResolverOptions) || command;
         }
 
         return { ...taskConfig, command: commandLine, target: resultTarget };
