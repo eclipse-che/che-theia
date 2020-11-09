@@ -23,7 +23,7 @@ export class CheWorkspaceImpl implements CheWorkspace {
   }
 
   getSettings(): Promise<che.KeyValue> {
-    throw new Error('Method not implemented.');
+    return this.workspaceMain.$getSettings();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

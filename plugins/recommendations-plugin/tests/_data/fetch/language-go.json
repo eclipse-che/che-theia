@@ -1,0 +1,32 @@
+[
+    {
+        "category": "Programming Languages",
+        "ids": [
+            "golang/go/latest"
+        ]
+    },
+    {
+        "category": "Snippets",
+        "ids": [
+            "golang/go/latest"
+        ]
+    },
+    {
+        "category": "Linters",
+        "ids": [
+            "golang/go/latest"
+        ]
+    },
+    {
+        "category": "Debuggers",
+        "ids": [
+            "golang/go/latest"
+        ]
+    },
+    {
+        "category": "Formatters",
+        "ids": [
+            "golang/go/latest"
+        ]
+    }
+]

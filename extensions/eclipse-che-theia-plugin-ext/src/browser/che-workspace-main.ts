@@ -8,12 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import { WorkspaceService, WorkspaceSettings } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
+
 import { CheWorkspaceMain } from '../common/che-protocol';
 import { ConfirmDialog } from '@theia/core/lib/browser';
 import { MessageService } from '@theia/core';
 import { RestartWorkspaceOptions } from '@eclipse-che/plugin';
 import { WindowService } from '@theia/core/lib/browser/window/window-service';
-import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { che as cheApi } from '@eclipse-che/api';
 import { interfaces } from 'inversify';
 
@@ -48,6 +49,9 @@ export class CheWorkspaceMainImpl implements CheWorkspaceMain {
         return undefined!;
       }
     );
+  }
+  async $getSettings(): Promise<WorkspaceSettings> {
+    return this.workspaceService.getWorkspaceSettings();
   }
 
   async $update(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<cheApi.workspace.Workspace> {
