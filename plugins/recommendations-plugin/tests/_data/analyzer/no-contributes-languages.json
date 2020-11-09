@@ -1,0 +1,21 @@
+{
+    "name": "no-contributes-java",
+    "publisher": "test",
+    "contributes": {
+      "configuration": {
+        "type": "object",
+        "title": "Java",
+        "properties": {
+          "java.home": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "default": null,
+            "description": "Specifies the folder path to the JDK (8 or more recent) used to launch the Java Language Server.\nOn Windows, backslashes must be escaped, i.e.\n\"java.home\":\"C:\\\\Program Files\\\\Java\\\\jdk1.8.0_161\"",
+            "scope": "window"
+          }
+        }
+      }
+    }
+  }

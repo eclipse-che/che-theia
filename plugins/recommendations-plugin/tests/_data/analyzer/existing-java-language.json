@@ -1,0 +1,14 @@
+{
+  "name": "java-contribute-bis",
+  "publisher": "test",
+  "contributes": {
+    "languages": [
+      {
+        "id": "java",
+        "extensions": [
+          ".class"
+        ]
+      }
+    ]
+  }
+}

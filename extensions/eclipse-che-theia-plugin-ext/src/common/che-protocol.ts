@@ -38,7 +38,7 @@ export interface CheWorkspaceMain {
   // start(workspaceId: string, environmentName: string): Promise<any>;
   // startTemporary(config: WorkspaceConfig): Promise<any>;
   // stop(workspaceId: string): Promise<any>;
-  // getSettings(): Promise<WorkspaceSettings>;
+  $getSettings(): Promise<che.KeyValue>;
   $restartWorkspace(machineToken: string, restartWorkspaceOptions?: che.RestartWorkspaceOptions): Promise<boolean>;
 }
 
