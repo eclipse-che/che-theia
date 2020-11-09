@@ -1,12 +1,12 @@
-/*********************************************************************
-* Copyright (c) 2018 Red Hat, Inc.
-*
-* This program and the accompanying materials are made
-* available under the terms of the Eclipse Public License 2.0
-* which is available at https://www.eclipse.org/legal/epl-2.0/
-*
-* SPDX-License-Identifier: EPL-2.0
-**********************************************************************/
+/**********************************************************************
+ * Copyright (c) 2018-2020 Red Hat, Inc.
+ *
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ***********************************************************************/
 
 const path = require('path');
 import * as webpack from 'webpack';
@@ -16,6 +16,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 export function customizeWebpackConfig(
     cdn: string,
     monacopkg: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     baseConfig: any): any {
 
     let theiaCDN = '';
@@ -59,6 +60,7 @@ export function customizeWebpackConfig(
             splitChunks: {
                 cacheGroups: {
                     che: {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         test(module: any, chunks: any) {
                             const req = module.userRequest;
                             const takeit = req && (req.endsWith(frontendIndex) ||
@@ -105,8 +107,11 @@ export function customizeWebpackConfig(
 
         // Insert a custom loader to override file and url loaders,
         // in order to insert CDN-related logic
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         baseConfig.module.rules.filter((rule: any) => rule.loader && rule.loader.match(/(file-loader|url-loader)/))
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .forEach((rule: any) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const originalLoader: any = {
                     loader: rule.loader
                 };

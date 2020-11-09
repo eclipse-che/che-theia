@@ -1,12 +1,12 @@
-/*
- * Copyright (c) 2018 Red Hat, Inc.
- * All rights reserved. This program and the accompanying materials are made
+/**********************************************************************
+ * Copyright (c) 2018-2020 Red Hat, Inc.
+ *
+ * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
- * Contributors:
- *   Red Hat, Inc. - initial API and implementation
- */
+ * SPDX-License-Identifier: EPL-2.0
+ ***********************************************************************/
 
 /// <reference path="index.d.ts"/>
 import { InitSources, ISource } from "../../src/init-sources";
@@ -15,7 +15,6 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import * as json2yaml from "json2yaml";
 import * as cp from 'child_process';
-import { CliError } from "../../src/cli-error";
 import * as yargs from 'yargs';
 import { YargsMockup } from "../cdn.spec";
 
@@ -311,7 +310,6 @@ describe("Test Extensions", () => {
         try {
             await initSources.readConfigurationAndGenerate('some/path/foo/bar.yaml', false);
         } catch (e) {
-            expect(e).toBeInstanceOf(CliError)
             expect(e.message).toMatch('Config file does not exists');
         }
     });

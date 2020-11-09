@@ -1,12 +1,12 @@
-/*********************************************************************
-* Copyright (c) 2018 Red Hat, Inc.
-*
-* This program and the accompanying materials are made
-* available under the terms of the Eclipse Public License 2.0
-* which is available at https://www.eclipse.org/legal/epl-2.0/
-*
-* SPDX-License-Identifier: EPL-2.0
-**********************************************************************/
+/**********************************************************************
+ * Copyright (c) 2018-2020 Red Hat, Inc.
+ *
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ***********************************************************************/
 
 import * as yargs from 'yargs';
 import { Logger } from './logger';
@@ -30,7 +30,7 @@ const commandArgs = yargs
         command: 'init',
         describe: 'Initialize current theia to beahve like a Che/Theia',
         builder: InitSources.argBuilder,
-        handler: async (args) => {
+        handler: async args => {
             try {
                 const assemblyFolder = path.resolve(process.cwd(), ASSSEMBLY_PATH);
                 const packagesFolder = path.resolve(process.cwd(), 'packages');
@@ -66,7 +66,7 @@ const commandArgs = yargs
         command: 'cdn',
         describe: 'Add or update the CDN support configuration',
         builder: Cdn.argBuilder,
-        handler: async (argv) => {
+        handler: async argv => {
             try {
                 const assemblyFolder = path.resolve(process.cwd(), ASSSEMBLY_PATH);
                 const cdn = new Cdn(assemblyFolder, argv.theia, argv.monaco);
@@ -87,7 +87,7 @@ const commandArgs = yargs
                 const cheFolder = path.resolve(process.cwd(), 'che');
                 const nodeModules = path.resolve(process.cwd(), 'node_modules');
                 const clean = new Clean(assemblyFolder, cheFolder, packagesFolder, pluginsFolder, nodeModules);
-                await clean.cleanCheTheia();
+                clean.cleanCheTheia();
             } catch (err) {
                 handleError(err);
             }
@@ -102,6 +102,7 @@ if (!commandArgs) {
     yargs.showHelp();
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function handleError(error: any): void {
     if (error instanceof CliError) {
         Logger.error('=> 🚒 ' + error.message);

@@ -1,12 +1,13 @@
-/*********************************************************************
-* Copyright (c) 2018 Red Hat, Inc.
-*
-* This program and the accompanying materials are made
-* available under the terms of the Eclipse Public License 2.0
-* which is available at https://www.eclipse.org/legal/epl-2.0/
-*
-* SPDX-License-Identifier: EPL-2.0
-**********************************************************************/
+/**********************************************************************
+ * Copyright (c) 2018-2020 Red Hat, Inc.
+ *
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ***********************************************************************/
+
 import * as jsYaml from 'js-yaml';
 import * as path from 'path';
 import * as fs from 'fs-extra';
@@ -29,20 +30,18 @@ export class InitSources {
     public static readonly PREFIX_PACKAGES_EXTENSIONS = '@che-';
 
     public static readonly DEFAULT_EXTENSIONS_URI = 'https://raw.githubusercontent.com/eclipse/che-theia/master/che-theia-init-sources.yml';
-    static argBuilder = (theYargs: yargs.Argv) => {
-        return theYargs.option('config', {
-            description: 'Path to custom config file',
-            alias: 'c',
-        }).option('dev', {
-            description: 'Initialize current Theia with Che/Theia extensions from "master" branch instead of provided branches',
-            alias: 'd',
-            type: 'boolean',
-            default: false,
-        }).option('alias', {
-            description: 'Replace clone source location. If a local path is provided, it won\'t clone anything but use the folder as a source folder.',
-            type: 'array'
-        });
-    }
+    static argBuilder = (theYargs: yargs.Argv) => theYargs.option('config', {
+        description: 'Path to custom config file',
+        alias: 'c',
+    }).option('dev', {
+        description: 'Initialize current Theia with Che/Theia extensions from "master" branch instead of provided branches',
+        alias: 'd',
+        type: 'boolean',
+        default: false,
+    }).option('alias', {
+        description: 'Replace clone source location. If a local path is provided, it won\'t clone anything but use the folder as a source folder.',
+        type: 'array'
+    });
     /**
      * Source clone locations could be replaced from the command line --alias option.
      */
@@ -109,7 +108,7 @@ export class InitSources {
         const item = {
             'path': '../examples/assembly/compile.tsconfig.json'
         };
-        const assemblyTsConfig = (parsed['references'] as Array<{ 'path': string }>).find(reference => { return reference['path'] === item['path']; });
+        const assemblyTsConfig = (parsed['references'] as Array<{ 'path': string }>).find(reference => reference['path'] === item['path']);
         if (!assemblyTsConfig) {
             parsed['references'].push(item);
         }
@@ -123,7 +122,7 @@ export class InitSources {
      * Scan package.json file and grab all dev dependencies and store them in globalDevDependencies variable
      */
     async initGlobalDependencies(): Promise<void> {
-        const extensionPackage: any = await readPkg(path.join(this.rootFolder, 'package.json'), { normalize: false });
+        const extensionPackage = await readPkg(path.join(this.rootFolder, 'package.json'), { normalize: false });
 
         const keys = Object.keys(extensionPackage.devDependencies);
         await Promise.all(keys.map(key => {
@@ -170,9 +169,13 @@ export class InitSources {
             const extensionPackage = await readPkg(extensionJsonPath, { normalize: false });
             const rawExtensionPackage = require(extensionJsonPath);
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const dependencies: any = extensionPackage.dependencies;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const devDependencies: any = extensionPackage.devDependencies;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const updatedDependencies: any = {};
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const updatedDevDependencies: any = {};
 
             const keysDependencies = dependencies ? Object.keys(dependencies) : [];

@@ -34,7 +34,6 @@
     "json2yaml": "^1.1.0",
     "rimraf": "2.6.2",
     "ts-jest": "25.3.1",
-    "tslint": "5.11.0",
     "typescript": "3.9.2",
     "typescript-formatter": "7.2.2"
   },
@@ -45,14 +44,14 @@
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf dist",
-    "build": "yarn run compile && yarn run format-code && yarn run tslint-fix && yarn run test",
+    "build": "yarn run compile && yarn run format-code && yarn run lint && yarn run test",
     "compile": "tsc && chmod +x dist/index.js",
     "watch": "tsc -w",
     "test": "jest",
     "test-watch": "jest --watchAll",
     "format-code": "tsfmt -r",
-    "tslint-fix": "tslint --fix --project .",
-    "tslint": "tslint --project .",
+    "lint-fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
+    "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
     "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
   },
   "jest": {

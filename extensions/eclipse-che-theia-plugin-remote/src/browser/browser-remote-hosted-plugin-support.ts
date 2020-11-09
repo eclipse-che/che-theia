@@ -1,4 +1,4 @@
-/*********************************************************************
+/**********************************************************************
  * Copyright (c) 2020 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
@@ -6,7 +6,7 @@
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- **********************************************************************/
+ ***********************************************************************/
 
 import { HostedPluginSupport, PluginHost, PluginContributions } from '@theia/plugin-ext/lib/hosted/browser/hosted-plugin';
 import { DisposableCollection } from '@theia/core';

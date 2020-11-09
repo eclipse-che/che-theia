@@ -7,6 +7,8 @@
     },
     "include": [
         "dev-packages/*/src",
+        "generator/src",
+        "generator/tests",
         "plugins/*/src",
         "extensions/*/src",
         "tools/*/src"

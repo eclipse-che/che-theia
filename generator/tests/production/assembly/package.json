@@ -32,7 +32,6 @@
     "@theia/search-in-workspace": "^0.3.16",
     "@theia/task": "^0.3.16",
     "@theia/textmate-grammars": "^0.3.16",
-    "@theia/tslint": "^0.3.16",
     "@theia/userstorage": "^0.3.16",
     "@theia/variable-resolver": "^0.3.16",
     "@theia/workspace": "^0.3.16",
