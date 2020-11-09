@@ -1,4 +1,4 @@
-/* tslint:disable */
+/* eslint-disable header/header */
 /*
  * Copyright (C) 2017 TypeFox and others.
  *
@@ -6,7 +6,6 @@
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  */
 // Copied from 'terminal-widget.ts' with some modifications, CQ: https://dev.eclipse.org/ipzilla/show_bug.cgi?id=16269
-/* tslint:enable */
 
 import { injectable, inject, postConstruct } from 'inversify';
 import { TerminalWidgetImpl } from '@theia/terminal/lib/browser/terminal-widget-impl';

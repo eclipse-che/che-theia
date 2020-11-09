@@ -1,12 +1,12 @@
-/*********************************************************************
-* Copyright (c) 2018 Red Hat, Inc.
-*
-* This program and the accompanying materials are made
-* available under the terms of the Eclipse Public License 2.0
-* which is available at https://www.eclipse.org/legal/epl-2.0/
-*
-* SPDX-License-Identifier: EPL-2.0
-**********************************************************************/
+/**********************************************************************
+ * Copyright (c) 2018-2020 Red Hat, Inc.
+ *
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ***********************************************************************/
 
 import * as path from 'path';
 import { Command } from './command';
@@ -90,9 +90,7 @@ export class Yarn {
         subsetDependencies.forEach(moduleName => this.addNodePackage(nodeModulesFolder, moduleName, nodePackages));
 
         // return unique entries
-        return Promise.resolve(nodePackages.map((e) => e.path).filter((value, index, array) => {
-            return index === array.indexOf(value);
-        }));
+        return Promise.resolve(nodePackages.map(e => e.path).filter((value, index, array) => index === array.indexOf(value)));
     }
 
     /**

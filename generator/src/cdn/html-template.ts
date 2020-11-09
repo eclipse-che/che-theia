@@ -1,12 +1,12 @@
-/*********************************************************************
-* Copyright (c) 2018 Red Hat, Inc.
-*
-* This program and the accompanying materials are made
-* available under the terms of the Eclipse Public License 2.0
-* which is available at https://www.eclipse.org/legal/epl-2.0/
-*
-* SPDX-License-Identifier: EPL-2.0
-**********************************************************************/
+/**********************************************************************
+ * Copyright (c) 2018-2020 Red Hat, Inc.
+ *
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ***********************************************************************/
 
 import * as decls from './base';
 const fs = require('fs-extra');
@@ -15,6 +15,7 @@ export class CdnHtmlTemplate {
     cdnInfo: decls.CdnInfo;
     nocacheChunks: decls.CdnChunk[] = [];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(readonly htmlWebpackPlugin: any, readonly compilation: any) {
         const cachedChunks: decls.CdnChunk[] = [];
         const cachedChunkRegexp = new RegExp(htmlWebpackPlugin.options.customparams.cachedChunkRegexp);
@@ -23,7 +24,7 @@ export class CdnHtmlTemplate {
         const monacoCdnPrefix = htmlWebpackPlugin.options.customparams.monacoCdnPrefix ? htmlWebpackPlugin.options.customparams.monacoCdnPrefix : '';
         const monacoEditorCorePackage = htmlWebpackPlugin.options.customparams.monacoEditorCorePackage ? htmlWebpackPlugin.options.customparams.monacoEditorCorePackage : '';
 
-        /* tslint:disable:forin */
+        // eslint-disable-next-line guard-for-in
         for (const key in htmlWebpackPlugin.files.chunks) {
             const url: string = htmlWebpackPlugin.files.chunks[key].entry;
             const chunk: decls.CdnChunk = {
@@ -38,8 +39,6 @@ export class CdnHtmlTemplate {
                 this.nocacheChunks.push(chunk);
             }
         }
-        /* tslint:enable:forin */
-
         const cachedResourceFiles: decls.CdnResource[] = [];
         if (cdnPrefix) {
             let asset: string;
@@ -73,12 +72,10 @@ export class CdnHtmlTemplate {
 
         if (cdnPrefix || monacoCdnPrefix) {
             const monacoFiles: decls.CdnExternal[] = monacoRequirePaths.map(elem =>
-                ['.js', '.css', '.nls.js'].map(extension => {
-                    return {
-                        'external': elem.external + extension,
-                        'cdn': elem.cdn + extension
-                    };
-                }).filter(elemt => compilation.assets[elemt.external])
+                ['.js', '.css', '.nls.js'].map(extension => ({
+                    'external': elem.external + extension,
+                    'cdn': elem.cdn + extension
+                })).filter(elemt => compilation.assets[elemt.external])
             ).reduce((acc, val) => acc.concat(val), []);
 
             monacoFiles.push(vsLoader);

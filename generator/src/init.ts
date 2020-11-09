@@ -1,12 +1,13 @@
-/*********************************************************************
-* Copyright (c) 2018 Red Hat, Inc.
-*
-* This program and the accompanying materials are made
-* available under the terms of the Eclipse Public License 2.0
-* which is available at https://www.eclipse.org/legal/epl-2.0/
-*
-* SPDX-License-Identifier: EPL-2.0
-**********************************************************************/
+/**********************************************************************
+ * Copyright (c) 2018-2020 Red Hat, Inc.
+ *
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ***********************************************************************/
+
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as mustache from 'mustache';
@@ -91,11 +92,11 @@ export class Init {
         await fs.writeFile(theiaPackagePath, json);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private async getPluginsList(): Promise<any> {
         const srcDir = path.resolve(__dirname, '../src');
         const templateDir = path.join(srcDir, 'templates');
         const pluginsJsonContent = await fs.readFile(path.join(templateDir, 'theiaPlugins.json'));
-
         return JSON.parse(pluginsJsonContent.toString());
     }
 

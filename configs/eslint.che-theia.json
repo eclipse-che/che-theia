@@ -1,10 +1,10 @@
 {
     "plugins": [
         "@typescript-eslint",
-        "@typescript-eslint/tslint",
         "import",
         "no-null",
-        "sonarjs"
+        "sonarjs",
+        "header"
     ],
     "rules": {
         "@typescript-eslint/await-thenable": "error",

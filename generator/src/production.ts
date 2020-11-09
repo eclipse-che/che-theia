@@ -1,12 +1,13 @@
-/*********************************************************************
-* Copyright (c) 2018 Red Hat, Inc.
-*
-* This program and the accompanying materials are made
-* available under the terms of the Eclipse Public License 2.0
-* which is available at https://www.eclipse.org/legal/epl-2.0/
-*
-* SPDX-License-Identifier: EPL-2.0
-**********************************************************************/
+/**********************************************************************
+ * Copyright (c) 2018-2020 Red Hat, Inc.
+ *
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ***********************************************************************/
+
 import * as fs from 'fs-extra';
 import { Logger } from './logger';
 import { Yarn } from './yarn';
@@ -73,7 +74,7 @@ export class Production {
     protected async copyFiles(): Promise<void> {
         const assemblyLength = this.assemblyFolder.length;
         const rootDirLength = this.rootFolder.length;
-        await Promise.all(this.toCopyFiles.map((file) => {
+        await Promise.all(this.toCopyFiles.map(file => {
 
             let destFile;
             if (file.startsWith(this.assemblyFolder)) {
@@ -115,7 +116,7 @@ export class Production {
 
         const cleanupFindContent = await fs.readFile(path.join(cleanupFindFolder, 'cleanup-find'));
         const command = new Command(this.productionDirectory);
-        await Promise.all(cleanupFindContent.toString().split('\n').map(async (line) => {
+        await Promise.all(cleanupFindContent.toString().split('\n').map(async line => {
             if (line.length > 0 && !line.startsWith('#')) {
                 await command.exec(`find . -name ${line} | xargs rm -rf {}`);
             }
@@ -125,7 +126,7 @@ export class Production {
 
     public async resolveFiles(): Promise<boolean> {
         // check dependency folders are there
-        this.dependencies.forEach((dependency) => {
+        this.dependencies.forEach(dependency => {
             if (!fs.existsSync(dependency)) {
                 throw new CliError('The dependency ' + dependency
                     + ' is referenced but is not available on the filesystem');
@@ -135,18 +136,16 @@ export class Production {
         // ok now, add all files from these dependencies
         const globOptions = { nocase: true, nosort: true, nodir: true, dot: true };
         this.toCopyFiles = this.toCopyFiles.concat.apply([],
-            await Promise.all(this.dependencies.map(dependencyDirectory => {
-                return glob.promise('**', Object.assign(globOptions, { cwd: dependencyDirectory }))
-                    .then((data) => data.map((name) => path.join(dependencyDirectory, name)));
-            })));
+            await Promise.all(this.dependencies.map(dependencyDirectory => glob.promise('**', Object.assign(globOptions, { cwd: dependencyDirectory }))
+                .then(data => data.map(name => path.join(dependencyDirectory, name))))));
         // add as well the lib folder
         this.toCopyFiles = this.toCopyFiles.concat(
             await (glob.promise('lib/**', Object.assign(globOptions, { cwd: this.assemblyFolder }))
-                .then((data) => data.map((name) => path.join(this.assemblyFolder, name)))));
+                .then(data => data.map(name => path.join(this.assemblyFolder, name)))));
 
         this.toCopyFiles = this.toCopyFiles.concat(
             await (glob.promise('src-gen/**', Object.assign(globOptions, { cwd: this.assemblyFolder }))
-                .then((data) => data.map((name) => path.join(this.assemblyFolder, name)))));
+                .then(data => data.map(name => path.join(this.assemblyFolder, name)))));
 
         this.toCopyFiles = this.toCopyFiles.concat(path.join(this.assemblyFolder, 'package.json'));
 
