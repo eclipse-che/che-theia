@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import * as path from 'path';
 import * as theia from '@theia/plugin';
 
 import { Endpoint } from './endpoint';
@@ -148,16 +149,22 @@ export class EndpointsTreeDataProvider implements theia.TreeDataProvider<Endpoin
     const publicEndpointsGroup: EndpointTreeNodeItem = {
       id: this.getNextId(),
       label: 'Public',
-      iconPath: 'fa-cloud',
+      iconPath: {
+        light: path.join(__filename, '..', '..', 'resources', 'light', 'globe.svg'),
+        dark: path.join(__filename, '..', '..', 'resources', 'dark', 'globe.svg'),
+      },
       tooltip: 'Public endpoints referenced in the devfile',
       collapsibleState: theia.TreeItemCollapsibleState.Expanded,
     };
 
     const privateEndpointsGroup: EndpointTreeNodeItem = {
       id: this.getNextId(),
-      iconPath: 'fa-circle',
-      label: 'Private',
-      tooltip: 'Private endpoints (only available within workspace)',
+      iconPath: {
+        light: path.join(__filename, '..', '..', 'resources', 'light', 'home.svg'),
+        dark: path.join(__filename, '..', '..', 'resources', 'dark', 'home.svg'),
+      },
+      label: 'Internal',
+      tooltip: 'Internal endpoints (only available within workspace)',
       collapsibleState: theia.TreeItemCollapsibleState.Expanded,
     };
 

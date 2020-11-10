@@ -36,16 +36,16 @@
         "command": "portPlugin.filterOutPlugins",
         "title": "Hide plug-in endpoints",
         "icon": {
-          "light": "resources/light/filter.svg",
-          "dark": "resources/dark/filter.svg"
+          "light": "resources/light/filter-off.svg",
+          "dark": "resources/dark/filter-off.svg"
         }
       },
       {
         "command": "portPlugin.filterInPlugins",
         "title": "Show plug-in endpoints",
         "icon": {
-          "light": "resources/light/bullseye.svg",
-          "dark": "resources/dark/bullseye.svg"
+          "light": "resources/light/filter-on.svg",
+          "dark": "resources/dark/filter-on.svg"
         }
       },
       {
