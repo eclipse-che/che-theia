@@ -8,12 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { TheiaDashboardClient } from './theia-dashboard-client';
-import { FrontendApplicationContribution } from '@theia/core/lib/browser';
-
 import { ContainerModule } from 'inversify';
+import { FrontendApplicationContribution } from '@theia/core/lib/browser';
+import { TheiaDashboardClient } from './theia-dashboard-client';
 
 export default new ContainerModule(bind => {
-    bind(TheiaDashboardClient).toSelf().inSingletonScope();
-    bind(FrontendApplicationContribution).toDynamicValue(c => c.container.get(TheiaDashboardClient));
+  bind(TheiaDashboardClient).toSelf().inSingletonScope();
+  bind(FrontendApplicationContribution).toDynamicValue(c => c.container.get(TheiaDashboardClient));
 });

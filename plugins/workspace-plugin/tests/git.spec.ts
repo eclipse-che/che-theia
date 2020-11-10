@@ -14,51 +14,50 @@ const rimraf = require('rimraf');
 jest.setTimeout(30000);
 
 describe('Test git commands', () => {
+  beforeAll(async () => {
+    await removeFolder('/tmp/che-theia-samples');
+    await gitClone('/tmp/', 'https://github.com/eclipse/che-theia-samples');
+  });
 
-    beforeAll(async () => {
-        await removeFolder('/tmp/che-theia-samples');
-        await gitClone('/tmp/', 'https://github.com/eclipse/che-theia-samples');
-    });
+  test('parse results of  git rev-parse --abbrev-ref --symbolic-full-name @{upstream}', async () => {
+    const output = 'origin/master';
+    const gitBranch: git.GitUpstreamBranch | undefined = git.parseGitUpstreamBranch(output);
+    expect(gitBranch).toBeDefined();
+    expect(gitBranch!.remote).toBe('origin');
+    expect(gitBranch!.branch).toBe('master');
+  });
 
-    test('parse results of  git rev-parse --abbrev-ref --symbolic-full-name @{upstream}', async () => {
-        const output = 'origin/master';
-        const gitBranch: git.GitUpstreamBranch | undefined = git.parseGitUpstreamBranch(output);
-        expect(gitBranch).toBeDefined();
-        expect(gitBranch!.remote).toBe('origin');
-        expect(gitBranch!.branch).toBe('master');
-    });
+  test('get git current branch', async () => {
+    const currentBranch = await git.getUpstreamBranch('/tmp/che-theia-samples');
+    expect(currentBranch!.branch).toBe('master');
+    expect(currentBranch!.remoteURL).toBe('https://github.com/eclipse/che-theia-samples');
+  });
 
-    test('get git current branch', async () => {
-        const currentBranch = await git.getUpstreamBranch('/tmp/che-theia-samples');
-        expect(currentBranch!.branch).toBe('master');
-        expect(currentBranch!.remoteURL).toBe('https://github.com/eclipse/che-theia-samples');
-    });
+  test('get git current branch after checkout', async () => {
+    await gitCheckout('/tmp/che-theia-samples', 'hello-world-plugins');
+    expect(await git.getUpstreamBranch('/tmp/che-theia-samples')).toBeUndefined();
+  });
 
-    test('get git current branch after checkout', async () => {
-        await gitCheckout('/tmp/che-theia-samples', 'hello-world-plugins');
-        expect((await git.getUpstreamBranch('/tmp/che-theia-samples'))).toBeUndefined();
-    });
+  test('Get git root folder from git config or index file', async () => {
+    expect(git.getGitRootFolder('/tmp/che-theia-samples/.git/config')).toBe('/tmp/che-theia-samples/');
+    expect(git.getGitRootFolder('/tmp/che-theia-samples/.git/HEAD')).toBe('/tmp/che-theia-samples/');
+  });
 
-    test('Get git root folder from git config or index file', async () => {
-        expect(git.getGitRootFolder('/tmp/che-theia-samples/.git/config')).toBe('/tmp/che-theia-samples/');
-        expect(git.getGitRootFolder('/tmp/che-theia-samples/.git/HEAD')).toBe('/tmp/che-theia-samples/');
-    });
-
-    afterAll(async () => {
-        await removeFolder('/tmp/che-theia-samples');
-    });
+  afterAll(async () => {
+    await removeFolder('/tmp/che-theia-samples');
+  });
 });
 
 async function removeFolder(folderPath: string): Promise<undefined> {
-    return new Promise<undefined>((resolve, reject) => {
-        rimraf(folderPath, () => resolve());
-    });
+  return new Promise<undefined>((resolve, reject) => {
+    rimraf(folderPath, () => resolve());
+  });
 }
 
 async function gitCheckout(projectPath: string, branch: string): Promise<string | undefined> {
-    return git.execGit(projectPath, 'checkout', '-b', branch);
+  return git.execGit(projectPath, 'checkout', '-b', branch);
 }
 
 async function gitClone(targetFolderPath: string, gitRepo: string): Promise<string | undefined> {
-    return git.execGit(targetFolderPath, 'clone', gitRepo);
+  return git.execGit(targetFolderPath, 'clone', gitRepo);
 }

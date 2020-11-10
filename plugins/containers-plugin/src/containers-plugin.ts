@@ -9,35 +9,39 @@
  ***********************************************************************/
 
 import * as theia from '@theia/plugin';
-import { ContainersService } from './containers-service';
+
 import {
-    ContainersTreeDataProvider,
-    CONTAINERS_PLUGIN_RUN_TASK_COMMAND_ID,
-    containersTreeTaskLauncherCommandHandler
+  CONTAINERS_PLUGIN_RUN_TASK_COMMAND_ID,
+  ContainersTreeDataProvider,
+  containersTreeTaskLauncherCommandHandler,
 } from './containers-tree-data-provider';
 
+import { ContainersService } from './containers-service';
+
 export function start(context: theia.PluginContext): void {
-    const treeDataProvider = new ContainersTreeDataProvider();
-    const treeDataDisposableFn = theia.Disposable.create(() => {
-        treeDataProvider.dispose();
-    });
-    context.subscriptions.push(treeDataDisposableFn);
+  const treeDataProvider = new ContainersTreeDataProvider();
+  const treeDataDisposableFn = theia.Disposable.create(() => {
+    treeDataProvider.dispose();
+  });
+  context.subscriptions.push(treeDataDisposableFn);
 
-    theia.window.createTreeView('workspace', { treeDataProvider });
+  theia.window.createTreeView('workspace', { treeDataProvider });
 
-    const containersService = new ContainersService();
-    containersService.updateContainers().then(() => {
-        treeDataProvider.updateContainersTreeData(containersService.containers);
-    }, error => {
-        console.error(error);
-        theia.window.showErrorMessage(error);
-    });
+  const containersService = new ContainersService();
+  containersService.updateContainers().then(
+    () => {
+      treeDataProvider.updateContainersTreeData(containersService.containers);
+    },
+    error => {
+      console.error(error);
+      theia.window.showErrorMessage(error);
+    }
+  );
 
-    const containersTreeTaskLauncherCommand = { id: CONTAINERS_PLUGIN_RUN_TASK_COMMAND_ID };
-    context.subscriptions.push(
-        theia.commands.registerCommand(containersTreeTaskLauncherCommand, containersTreeTaskLauncherCommandHandler)
-    );
+  const containersTreeTaskLauncherCommand = { id: CONTAINERS_PLUGIN_RUN_TASK_COMMAND_ID };
+  context.subscriptions.push(
+    theia.commands.registerCommand(containersTreeTaskLauncherCommand, containersTreeTaskLauncherCommandHandler)
+  );
 }
 
-export function stop(): void {
-}
+export function stop(): void {}

@@ -8,20 +8,19 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { injectable } from 'inversify';
 import { RemoteTerminalWidget } from '../terminal-widget/remote-terminal-widget';
 import { TerminalActiveContext } from '@theia/terminal/lib/browser/terminal-keybinding-contexts';
+import { injectable } from 'inversify';
 
 export namespace TerminalKeybindingContext {
-    export const contextId = 'TerminalInSpecificContainerContext';
+  export const contextId = 'TerminalInSpecificContainerContext';
 }
 
 @injectable()
 export class RemoteTerminaActiveKeybingContext extends TerminalActiveContext {
+  readonly id: string = TerminalKeybindingContext.contextId;
 
-    readonly id: string = TerminalKeybindingContext.contextId;
-
-    isEnabled(): boolean {
-        return this.shell.activeWidget instanceof RemoteTerminalWidget;
-    }
+  isEnabled(): boolean {
+    return this.shell.activeWidget instanceof RemoteTerminalWidget;
+  }
 }

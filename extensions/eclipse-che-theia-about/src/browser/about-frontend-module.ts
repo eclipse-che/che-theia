@@ -8,16 +8,15 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { ContainerModule } from 'inversify';
 import { AboutDialog, AboutDialogProps } from '@theia/core/lib/browser/about-dialog';
+
 import { AboutCheTheiaDialog } from './about-che-theia-dialog';
+import { ContainerModule } from 'inversify';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
+  bind(AboutCheTheiaDialog).toSelf().inSingletonScope();
 
-    bind(AboutCheTheiaDialog).toSelf().inSingletonScope();
-
-    // rebind the AboutDialog of theia by our custom one
-    rebind(AboutDialog).to(AboutCheTheiaDialog).inSingletonScope();
-    rebind(AboutDialogProps).toConstantValue({ title: 'Eclipse Che - Theia' });
-
+  // rebind the AboutDialog of theia by our custom one
+  rebind(AboutDialog).to(AboutCheTheiaDialog).inSingletonScope();
+  rebind(AboutDialogProps).toConstantValue({ title: 'Eclipse Che - Theia' });
 });

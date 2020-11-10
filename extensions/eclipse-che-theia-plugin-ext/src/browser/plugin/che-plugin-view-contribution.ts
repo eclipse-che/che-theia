@@ -8,26 +8,24 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { injectable } from 'inversify';
 import { AbstractViewContribution } from '@theia/core/lib/browser/shell/view-contribution';
 import { ChePluginView } from './che-plugin-view';
+import { injectable } from 'inversify';
 
 @injectable()
 export class ChePluginViewContribution extends AbstractViewContribution<ChePluginView> {
+  public static PLUGINS_WIDGET_ID = 'che-plugins';
 
-    public static PLUGINS_WIDGET_ID = 'che-plugins';
-
-    constructor() {
-        super({
-            widgetId: ChePluginViewContribution.PLUGINS_WIDGET_ID,
-            widgetName: 'Plugins',
-            defaultWidgetOptions: {
-                area: 'left',
-                rank: 400
-            },
-            toggleCommandId: 'chePluginsView:toggle',
-            toggleKeybinding: 'ctrlcmd+shift+j'
-        });
-    }
-
+  constructor() {
+    super({
+      widgetId: ChePluginViewContribution.PLUGINS_WIDGET_ID,
+      widgetName: 'Plugins',
+      defaultWidgetOptions: {
+        area: 'left',
+        rank: 400,
+      },
+      toggleCommandId: 'chePluginsView:toggle',
+      toggleKeybinding: 'ctrlcmd+shift+j',
+    });
+  }
 }

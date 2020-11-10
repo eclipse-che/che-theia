@@ -8,40 +8,39 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { interfaces } from 'inversify';
-import { CheUserMain } from '../common/che-protocol';
-import { Preferences } from '@eclipse-che/plugin';
+import { User, UserService } from '@eclipse-che/theia-remote-api/lib/common/user-service';
 
-import { UserService, User } from '@eclipse-che/theia-remote-api/lib/common/user-service';
+import { CheUserMain } from '../common/che-protocol';
 import { OauthUtils } from '@eclipse-che/theia-remote-api/lib/browser/oauth-utils';
+import { Preferences } from '@eclipse-che/plugin';
+import { interfaces } from 'inversify';
 
 export class CheUserMainImpl implements CheUserMain {
+  private readonly userService: UserService;
+  private readonly oAuthUtils: OauthUtils;
 
-    private readonly userService: UserService;
-    private readonly oAuthUtils: OauthUtils;
+  constructor(container: interfaces.Container) {
+    this.userService = container.get(UserService);
+    this.oAuthUtils = container.get(OauthUtils);
+  }
 
-    constructor(container: interfaces.Container) {
-        this.userService = container.get(UserService);
-        this.oAuthUtils = container.get(OauthUtils);
-    }
+  async $getCurrentUser(): Promise<User> {
+    return this.userService.getCurrentUser(await this.oAuthUtils.getUserToken());
+  }
 
-    async $getCurrentUser(): Promise<User> {
-        return this.userService.getCurrentUser(await this.oAuthUtils.getUserToken());
-    }
+  $getUserPreferences(filter?: string): Promise<Preferences> {
+    return this.userService.getUserPreferences(filter);
+  }
 
-    $getUserPreferences(filter?: string): Promise<Preferences> {
-        return this.userService.getUserPreferences(filter);
-    }
+  $updateUserPreferences(preferences: Preferences): Promise<Preferences> {
+    return this.userService.updateUserPreferences(preferences);
+  }
 
-    $updateUserPreferences(preferences: Preferences): Promise<Preferences> {
-        return this.userService.updateUserPreferences(preferences);
-    }
+  $replaceUserPreferences(preferences: Preferences): Promise<Preferences> {
+    return this.userService.replaceUserPreferences(preferences);
+  }
 
-    $replaceUserPreferences(preferences: Preferences): Promise<Preferences> {
-        return this.userService.replaceUserPreferences(preferences);
-    }
-
-    $deleteUserPreferences(list?: string[]): Promise<void> {
-        return this.userService.deleteUserPreferences(list);
-    }
+  $deleteUserPreferences(list?: string[]): Promise<void> {
+    return this.userService.deleteUserPreferences(list);
+  }
 }

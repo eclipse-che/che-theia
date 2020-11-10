@@ -13,9 +13,7 @@
  * @author Florent Benoit
  */
 export interface ListeningPort {
+  portNumber: number;
 
-    portNumber: number;
-
-    interfaceListen: string;
-
+  interfaceListen: string;
 }

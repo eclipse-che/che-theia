@@ -13,8 +13,13 @@ export const cheTelemetryServicePath = '/services/che-telemetry-service';
 export const TelemetryService = Symbol('TelemetryService');
 
 export interface TelemetryService {
-
-    submitTelemetryEvent(id: string, ownerId: string, ip: string, agent: string, resolution: string, properties: [string, string][]): Promise<void>;
-    submitTelemetryActivity(): Promise<void>;
-
+  submitTelemetryEvent(
+    id: string,
+    ownerId: string,
+    ip: string,
+    agent: string,
+    resolution: string,
+    properties: [string, string][]
+  ): Promise<void>;
+  submitTelemetryActivity(): Promise<void>;
 }

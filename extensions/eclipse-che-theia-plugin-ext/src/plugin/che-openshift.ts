@@ -8,18 +8,18 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import { CheOpenshift, CheOpenshiftMain, PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
+
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
-import { PLUGIN_RPC_CONTEXT, CheOpenshift, CheOpenshiftMain } from '../common/che-protocol';
 
 export class CheOpenshiftImpl implements CheOpenshift {
+  private readonly openshift: CheOpenshiftMain;
 
-    private readonly openshift: CheOpenshiftMain;
+  constructor(rpc: RPCProtocol) {
+    this.openshift = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_OPENSHIFT_MAIN);
+  }
 
-    constructor(rpc: RPCProtocol) {
-        this.openshift = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_OPENSHIFT_MAIN);
-    }
-
-    getToken(): Promise<string> {
-        return this.openshift.$getToken();
-    }
+  getToken(): Promise<string> {
+    return this.openshift.$getToken();
+  }
 }

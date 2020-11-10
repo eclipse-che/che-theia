@@ -8,10 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { injectable, inject } from 'inversify';
-import { ILogger } from '@theia/core/lib/common';
 import { MetadataProcessor, PluginMetadata, getPluginId } from '@theia/plugin-ext';
+import { inject, injectable } from 'inversify';
+
 import { HostedPluginMapping } from './plugin-remote-mapping';
+import { ILogger } from '@theia/core/lib/common';
 
 /**
  * Add on top of metadata the endpoint host
@@ -19,18 +20,16 @@ import { HostedPluginMapping } from './plugin-remote-mapping';
  */
 @injectable()
 export class RemoteMetadataProcessor implements MetadataProcessor {
+  @inject(ILogger)
+  protected readonly logger: ILogger;
 
-    @inject(ILogger)
-    protected readonly logger: ILogger;
+  @inject(HostedPluginMapping)
+  protected hostedPluginMapping: HostedPluginMapping;
 
-    @inject(HostedPluginMapping)
-    protected hostedPluginMapping: HostedPluginMapping;
-
-    process(pluginMetadata: PluginMetadata): void {
-        const pluginID = getPluginId(pluginMetadata.model);
-        if (this.hostedPluginMapping.hasEndpoint(pluginID)) {
-            pluginMetadata.host = this.hostedPluginMapping.getEndpoint(pluginID)!.replace(/\W/g, '_');
-        }
+  process(pluginMetadata: PluginMetadata): void {
+    const pluginID = getPluginId(pluginMetadata.model);
+    if (this.hostedPluginMapping.hasEndpoint(pluginID)) {
+      pluginMetadata.host = this.hostedPluginMapping.getEndpoint(pluginID)!.replace(/\W/g, '_');
     }
-
+  }
 }

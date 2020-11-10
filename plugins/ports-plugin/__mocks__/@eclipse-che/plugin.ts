@@ -9,20 +9,20 @@
  */
 
 /**
- * Mock of @eclipse-che/plugin module 
+ * Mock of @eclipse-che/plugin module
  * @author Florent Benoit
  */
 const che: any = {};
 let currentWorkspace: any = undefined;
 
 che.setWorkspaceOutput = (result: string) => {
-    currentWorkspace = JSON.parse(result);
+  currentWorkspace = JSON.parse(result);
 };
 
 che.workspace = {};
 
 che.workspace.getCurrentWorkspace = () => {
-    return currentWorkspace;
-}
+  return currentWorkspace;
+};
 
 module.exports = che;

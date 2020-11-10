@@ -8,12 +8,14 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { MiniBrowserOpenerOptions, MiniBrowserOpenHandler } from '@theia/mini-browser/lib/browser/mini-browser-open-handler';
+import {
+  MiniBrowserOpenHandler,
+  MiniBrowserOpenerOptions,
+} from '@theia/mini-browser/lib/browser/mini-browser-open-handler';
 
 export class CheMiniBrowserOpenHandler extends MiniBrowserOpenHandler {
-
-    protected async getOpenPreviewProps(startPage: string): Promise<MiniBrowserOpenerOptions> {
-        const miniBrowserOpenerOptions = await super.getOpenPreviewProps(startPage);
-        return { ...miniBrowserOpenerOptions, toolbar: 'show' };
-    }
+  protected async getOpenPreviewProps(startPage: string): Promise<MiniBrowserOpenerOptions> {
+    const miniBrowserOpenerOptions = await super.getOpenPreviewProps(startPage);
+    return { ...miniBrowserOpenerOptions, toolbar: 'show' };
+  }
 }

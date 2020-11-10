@@ -13,8 +13,6 @@ export const cheOAuthServicePath = '/services/che-oauth-service';
 export const OAuthService = Symbol('OAuthService');
 
 export interface OAuthService {
-
-    getOAuthToken(oAuthProvider: string, userToken?: string): Promise<string | undefined>;
-    getOAuthProviders(userToken?: string): Promise<string[]>;
-
+  getOAuthToken(oAuthProvider: string, userToken?: string): Promise<string | undefined>;
+  getOAuthProviders(userToken?: string): Promise<string[]>;
 }

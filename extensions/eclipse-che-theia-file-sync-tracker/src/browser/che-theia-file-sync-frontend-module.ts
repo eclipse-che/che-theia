@@ -13,6 +13,5 @@ import { FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { SyncProcessTracker } from './sync-process-tracker';
 
 export default new ContainerModule(bind => {
-
-    bind(FrontendApplicationContribution).to(SyncProcessTracker).inSingletonScope();
+  bind(FrontendApplicationContribution).to(SyncProcessTracker).inSingletonScope();
 });
