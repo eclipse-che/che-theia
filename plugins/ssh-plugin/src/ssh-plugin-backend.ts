@@ -159,7 +159,7 @@ export async function start(): Promise<void> {
 const RESTART_WARNING_MESSAGE = 'Che Git plugin can leverage the generated keys now. To make them available in all workspace containers please restart your workspace.';
 const ENTER_KEY_NAME_OR_LEAVE_EMPTY_MESSAGE = 'Please provide a hostname (e.g. github.com) or leave empty to setup default name';
 
-const hostNamePattern = new RegExp('[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*');
+const hostNamePattern = new RegExp('^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$');
 
 const getHostName = async (message?: string) => await theia.window.showInputBox({
     placeHolder: message ? message : 'Please provide a hostname e.g. github.com',
