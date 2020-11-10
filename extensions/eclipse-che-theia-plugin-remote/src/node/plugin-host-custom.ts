@@ -19,30 +19,30 @@
  * pluginRemoteNodeImpl.setPluginManager(pluginManager);
  */
 import { Emitter } from '@theia/core/lib/common/event';
-import { RPCProtocolImpl } from '@theia/plugin-ext/lib/common/rpc-protocol';
+import { MAIN_REMOTE_RPC_CONTEXT } from '../common/plugin-remote-rpc';
 import { PluginHostRPC } from '@theia/plugin-ext/lib/hosted/node/plugin-host-rpc';
 import { PluginRemoteNodeImpl } from './plugin-remote-node-impl';
-import { MAIN_REMOTE_RPC_CONTEXT } from '../common/plugin-remote-rpc';
+import { RPCProtocolImpl } from '@theia/plugin-ext/lib/common/rpc-protocol';
 console.log('PLUGIN_HOST_CHE_THEIA(' + process.pid + ') starting instance');
 
 // override exit() function, to do not allow plugin kill this node
 process.exit = function (code?: number): void {
-    const err = new Error('An plugin call process.exit() and it was prevented.');
-    console.warn(err.stack);
+  const err = new Error('An plugin call process.exit() and it was prevented.');
+  console.warn(err.stack);
 } as (code?: number) => never;
 
 // same for 'crash'(works only in electron)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const proc = process as any;
 if (proc.crash) {
-    proc.crash = function (): void {
-        const err = new Error('An plugin call process.crash() and it was prevented.');
-        console.warn(err.stack);
-    };
+  proc.crash = function (): void {
+    const err = new Error('An plugin call process.crash() and it was prevented.');
+    console.warn(err.stack);
+  };
 }
 
 process.on('uncaughtException', (err: Error) => {
-    console.error(err);
+  console.error(err);
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -50,45 +50,45 @@ const unhandledPromises: Promise<any>[] = [];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
-    unhandledPromises.push(promise);
-    setTimeout(() => {
-        const index = unhandledPromises.indexOf(promise);
-        if (index >= 0) {
-            promise.catch(err => {
-                unhandledPromises.splice(index, 1);
-                console.error(`Promise rejection not handled in one second: ${err} , reason: ${reason}`);
-                if (err && err.stack) {
-                    console.error(`With stack trace: ${err.stack}`);
-                }
-            });
+  unhandledPromises.push(promise);
+  setTimeout(() => {
+    const index = unhandledPromises.indexOf(promise);
+    if (index >= 0) {
+      promise.catch(err => {
+        unhandledPromises.splice(index, 1);
+        console.error(`Promise rejection not handled in one second: ${err} , reason: ${reason}`);
+        if (err && err.stack) {
+          console.error(`With stack trace: ${err.stack}`);
         }
-    }, 1000);
+      });
+    }
+  }, 1000);
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 process.on('rejectionHandled', (promise: Promise<any>) => {
-    const index = unhandledPromises.indexOf(promise);
-    if (index >= 0) {
-        unhandledPromises.splice(index, 1);
-    }
+  const index = unhandledPromises.indexOf(promise);
+  if (index >= 0) {
+    unhandledPromises.splice(index, 1);
+  }
 });
 
 const emitter = new Emitter();
 const rpc = new RPCProtocolImpl({
-    onMessage: emitter.event,
-    send: (m: {}) => {
-        if (process.send) {
-            process.send(JSON.stringify(m));
-        }
+  onMessage: emitter.event,
+  send: (m: {}) => {
+    if (process.send) {
+      process.send(JSON.stringify(m));
     }
+  },
 });
 
 process.on('message', (message: string) => {
-    try {
-        emitter.fire(JSON.parse(message));
-    } catch (e) {
-        console.error(e);
-    }
+  try {
+    emitter.fire(JSON.parse(message));
+  } catch (e) {
+    console.error(e);
+  }
 });
 
 const pluginHostRPC = new PluginHostRPC(rpc);

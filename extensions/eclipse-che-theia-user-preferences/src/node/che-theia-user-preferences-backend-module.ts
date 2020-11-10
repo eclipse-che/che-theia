@@ -8,25 +8,24 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { ContainerModule } from 'inversify';
-import { BackendApplicationContribution } from '@theia/core/lib/node/backend-application';
-import { CheTheiaUserPreferencesSynchronizer } from './che-theia-preferences-synchronizer';
-import { CheTheiaPreferencesContribution } from './che-theia-preferences-contribution';
+import { ConnectionHandler, JsonRpcConnectionHandler } from '@theia/core/lib/common/messaging';
 import { StorageServer, storageServerPath } from '../common/storage-server';
+
+import { BackendApplicationContribution } from '@theia/core/lib/node/backend-application';
 import { CheStorageServer } from './che-storage-server';
-import { JsonRpcConnectionHandler, ConnectionHandler } from '@theia/core/lib/common/messaging';
+import { CheTheiaPreferencesContribution } from './che-theia-preferences-contribution';
+import { CheTheiaUserPreferencesSynchronizer } from './che-theia-preferences-synchronizer';
+import { ContainerModule } from 'inversify';
 
 export default new ContainerModule(bind => {
-    bind(CheTheiaUserPreferencesSynchronizer).toSelf().inSingletonScope();
+  bind(CheTheiaUserPreferencesSynchronizer).toSelf().inSingletonScope();
 
-    bind(CheTheiaPreferencesContribution).toSelf().inSingletonScope();
-    bind(BackendApplicationContribution).toService(CheTheiaPreferencesContribution);
+  bind(CheTheiaPreferencesContribution).toSelf().inSingletonScope();
+  bind(BackendApplicationContribution).toService(CheTheiaPreferencesContribution);
 
-    bind(CheStorageServer).toSelf().inSingletonScope();
-    bind(StorageServer).toService(CheStorageServer);
-    bind(ConnectionHandler).toDynamicValue(ctx =>
-        new JsonRpcConnectionHandler(storageServerPath, () =>
-            ctx.container.get(StorageServer)
-        )
-    ).inSingletonScope();
+  bind(CheStorageServer).toSelf().inSingletonScope();
+  bind(StorageServer).toService(CheStorageServer);
+  bind(ConnectionHandler)
+    .toDynamicValue(ctx => new JsonRpcConnectionHandler(storageServerPath, () => ctx.container.get(StorageServer)))
+    .inSingletonScope();
 });

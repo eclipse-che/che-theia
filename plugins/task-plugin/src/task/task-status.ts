@@ -9,44 +9,48 @@
  ***********************************************************************/
 
 import * as che from '@eclipse-che/plugin';
-import { injectable } from 'inversify';
 import * as startPoint from '../task-plugin-backend';
+
 import { CHE_TASK_TYPE } from './task-protocol';
+import { injectable } from 'inversify';
 
 @injectable()
 export class TaskStatusHandler {
+  init(): void {
+    che.task.onDidEndTask(
+      async (event: che.TaskExitedEvent) => {
+        const status = this.getTaskStatus(event);
+        const terminalIdentifier = this.getTerminalIdentifier(event);
 
-    init(): void {
-        che.task.onDidEndTask(async (event: che.TaskExitedEvent) => {
-            const status = this.getTaskStatus(event);
-            const terminalIdentifier = this.getTerminalIdentifier(event);
+        che.task.setTaskStatus({ status, terminalIdentifier });
+      },
+      undefined,
+      startPoint.getSubscriptions()
+    );
+  }
 
-            che.task.setTaskStatus({ status, terminalIdentifier });
-        }, undefined, startPoint.getSubscriptions());
+  private getTerminalIdentifier(event: che.TaskInfo | che.TaskExitedEvent): che.TerminalWidgetIdentifier {
+    const taskConfig = event.config;
+    if (taskConfig && taskConfig.type === CHE_TASK_TYPE) {
+      return { kind: che.TaskTerminallKind.RemoteTask, terminalId: event.processId };
+    } else {
+      return { kind: che.TaskTerminallKind.Task, terminalId: event.terminalId || -1 };
+    }
+  }
+
+  private getTaskStatus(event: che.TaskInfo | che.TaskExitedEvent): che.TaskStatus {
+    if (event.signal !== undefined) {
+      return che.TaskStatus.Error;
     }
 
-    private getTerminalIdentifier(event: che.TaskInfo | che.TaskExitedEvent): che.TerminalWidgetIdentifier {
-        const taskConfig = event.config;
-        if (taskConfig && taskConfig.type === CHE_TASK_TYPE) {
-            return { kind: che.TaskTerminallKind.RemoteTask, terminalId: event.processId };
-        } else {
-            return { kind: che.TaskTerminallKind.Task, terminalId: event.terminalId || -1 };
-        }
+    if (event.code === undefined) {
+      return che.TaskStatus.Unknown;
     }
 
-    private getTaskStatus(event: che.TaskInfo | che.TaskExitedEvent): che.TaskStatus {
-        if (event.signal !== undefined) {
-            return che.TaskStatus.Error;
-        }
-
-        if (event.code === undefined) {
-            return che.TaskStatus.Unknown;
-        }
-
-        if (event.code === 0) {
-            return che.TaskStatus.Success;
-        } else {
-            return che.TaskStatus.Error;
-        }
+    if (event.code === 0) {
+      return che.TaskStatus.Success;
+    } else {
+      return che.TaskStatus.Error;
     }
+  }
 }

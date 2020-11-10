@@ -13,6 +13,5 @@ export const cheFactoryServicePath = '/services/che-factory-service';
 export const FactoryService = Symbol('FactoryService');
 
 export interface FactoryService {
-
-    getFactoryLink(url: string): Promise<string>
+  getFactoryLink(url: string): Promise<string>;
 }

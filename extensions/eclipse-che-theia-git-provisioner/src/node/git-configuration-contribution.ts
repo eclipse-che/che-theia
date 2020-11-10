@@ -8,18 +8,18 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
+
 import { BackendApplicationContribution } from '@theia/core/lib/node/backend-application';
 import { GitConfigurationController } from './git-configuration-controller';
 
 @injectable()
 export class GitConfigurationListenerContribution implements BackendApplicationContribution {
+  @inject(GitConfigurationController)
+  gitConfigurationListener: GitConfigurationController;
 
-    @inject(GitConfigurationController)
-    gitConfigurationListener: GitConfigurationController;
-
-    public onStart(): void {
-        this.gitConfigurationListener.watchGitConfigChanges();
-        this.gitConfigurationListener.watchUserPreferencesChanges();
-    }
+  public onStart(): void {
+    this.gitConfigurationListener.watchGitConfigChanges();
+    this.gitConfigurationListener.watchUserPreferencesChanges();
+  }
 }

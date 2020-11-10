@@ -13,8 +13,8 @@ export const ACTIVITY_TRACKER_SERVICE_PATH = '/services/activity-tracker';
 export const ActivityTrackerService = Symbol('ActivityTrackerService');
 
 export interface ActivityTrackerService {
-    /**
-     * Asks backend to reset current workspace inactivity timeout.
-     */
-    resetTimeout(): void;
+  /**
+   * Asks backend to reset current workspace inactivity timeout.
+   */
+  resetTimeout(): void;
 }

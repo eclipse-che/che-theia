@@ -11,7 +11,6 @@
 export const storageServerPath = '/che-storage';
 export const StorageServer = Symbol('StorageServer');
 export interface StorageServer {
-
-    setData(key: string, data: string): Promise<void>;
-    getData(key: string): Promise<string | undefined>;
+  setData(key: string, data: string): Promise<void>;
+  getData(key: string): Promise<string | undefined>;
 }

@@ -8,15 +8,20 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { ContainerModule } from 'inversify';
-import { WebSocketConnectionProvider, FrontendApplicationContribution } from '@theia/core/lib/browser';
-import { ActivityTrackerService, ACTIVITY_TRACKER_SERVICE_PATH } from '../common/activity-tracker-protocol';
+import { ACTIVITY_TRACKER_SERVICE_PATH, ActivityTrackerService } from '../common/activity-tracker-protocol';
+import { FrontendApplicationContribution, WebSocketConnectionProvider } from '@theia/core/lib/browser';
+
 import { CheTheiaActivityTrackerFrontendContribution } from './che-theia-activity-tracker-contribution';
+import { ContainerModule } from 'inversify';
 
 export default new ContainerModule(bind => {
-    bind(ActivityTrackerService).toDynamicValue(context =>
-        context.container.get(WebSocketConnectionProvider).createProxy<ActivityTrackerService>(ACTIVITY_TRACKER_SERVICE_PATH)
-    ).inSingletonScope();
+  bind(ActivityTrackerService)
+    .toDynamicValue(context =>
+      context.container
+        .get(WebSocketConnectionProvider)
+        .createProxy<ActivityTrackerService>(ACTIVITY_TRACKER_SERVICE_PATH)
+    )
+    .inSingletonScope();
 
-    bind(FrontendApplicationContribution).to(CheTheiaActivityTrackerFrontendContribution);
+  bind(FrontendApplicationContribution).to(CheTheiaActivityTrackerFrontendContribution);
 });

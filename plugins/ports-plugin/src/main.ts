@@ -9,17 +9,18 @@
  ***********************************************************************/
 
 import * as theia from '@theia/plugin';
+
 import { PortsPlugin } from './ports-plugin';
 
 let portsPlugin: PortsPlugin | undefined;
 
 export async function start(context: theia.PluginContext): Promise<void> {
-    portsPlugin = new PortsPlugin(context);
-    return portsPlugin.start();
+  portsPlugin = new PortsPlugin(context);
+  return portsPlugin.start();
 }
 
 export function stop(): void {
-    if (portsPlugin) {
-        portsPlugin.stop();
-    }
+  if (portsPlugin) {
+    portsPlugin.stop();
+  }
 }

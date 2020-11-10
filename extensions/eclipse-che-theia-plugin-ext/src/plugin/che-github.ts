@@ -8,27 +8,27 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
-import { PLUGIN_RPC_CONTEXT, CheGithub, CheGithubMain } from '../common/che-protocol';
+import { CheGithub, CheGithubMain, PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
+
 import { GithubUser } from '@eclipse-che/plugin';
+import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 
 export class CheGithubImpl implements CheGithub {
+  private readonly githubMain: CheGithubMain;
 
-    private readonly githubMain: CheGithubMain;
+  constructor(rpc: RPCProtocol) {
+    this.githubMain = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_GITHUB_MAIN);
+  }
 
-    constructor(rpc: RPCProtocol) {
-        this.githubMain = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_GITHUB_MAIN);
-    }
+  uploadPublicSshKey(publicKey: string): Promise<void> {
+    return this.githubMain.$uploadPublicSshKey(publicKey);
+  }
 
-    uploadPublicSshKey(publicKey: string): Promise<void> {
-        return this.githubMain.$uploadPublicSshKey(publicKey);
-    }
+  getToken(): Promise<string> {
+    return this.githubMain.$getToken();
+  }
 
-    getToken(): Promise<string> {
-        return this.githubMain.$getToken();
-    }
-
-    getUser(): Promise<GithubUser> {
-        return this.githubMain.$getUser();
-    }
+  getUser(): Promise<GithubUser> {
+    return this.githubMain.$getUser();
+  }
 }

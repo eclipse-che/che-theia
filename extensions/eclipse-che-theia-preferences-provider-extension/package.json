@@ -43,6 +43,9 @@
     "moduleNameMapper": {
       "\\.(css|less)$": "<rootDir>/tests/mock.js"
     },
-    "moduleFileExtensions": ["js", "ts"]
+    "moduleFileExtensions": [
+      "js",
+      "ts"
+    ]
   }
 }

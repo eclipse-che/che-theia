@@ -8,18 +8,18 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import { ApplicationShell, FrontendApplication, FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { inject, injectable } from 'inversify';
-import { FrontendApplicationContribution, FrontendApplication, ApplicationShell } from '@theia/core/lib/browser';
+
 import { FILE_NAVIGATOR_ID } from '@theia/navigator/lib/browser';
 
 @injectable()
 export class ExplorerContribution implements FrontendApplicationContribution {
+  @inject(ApplicationShell)
+  protected readonly shell: ApplicationShell;
 
-    @inject(ApplicationShell)
-    protected readonly shell: ApplicationShell;
-
-    // Note, it's called only when there is no previous workbench layout state is stored.
-    async initializeLayout(app: FrontendApplication): Promise<void> {
-        this.shell.revealWidget(FILE_NAVIGATOR_ID);
-    }
+  // Note, it's called only when there is no previous workbench layout state is stored.
+  async initializeLayout(app: FrontendApplication): Promise<void> {
+    this.shell.revealWidget(FILE_NAVIGATOR_ID);
+  }
 }

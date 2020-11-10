@@ -12,17 +12,13 @@ import { che } from '@eclipse-che/api';
 
 export const cheSshKeyServicePath = '/services/che-ssh-service';
 
-export interface SshPair extends che.ssh.SshPair {
-
-}
+export interface SshPair extends che.ssh.SshPair {}
 
 export const SshKeyService = Symbol('SshKeyService');
 export interface SshKeyService {
-
-    generate(service: string, name: string): Promise<SshPair>;
-    create(sshKeyPair: SshPair): Promise<void>;
-    get(service: string, name: string): Promise<SshPair>;
-    delete(service: string, name: string): Promise<void>;
-    getAll(service: string): Promise<SshPair[]>;
-
+  generate(service: string, name: string): Promise<SshPair>;
+  create(sshKeyPair: SshPair): Promise<void>;
+  get(service: string, name: string): Promise<SshPair>;
+  delete(service: string, name: string): Promise<void>;
+  getAll(service: string): Promise<SshPair[]>;
 }

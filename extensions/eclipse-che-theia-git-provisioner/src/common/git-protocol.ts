@@ -19,13 +19,13 @@ export const CheGitServicePath = '/services/che-git-service';
 export const CheGitClient = Symbol('CheGitClient');
 
 export interface CheGitClient {
-    firePreferencesChanged(): void;
+  firePreferencesChanged(): void;
 }
 
 export const CheGitService = Symbol('CheGitService');
 
 export interface CheGitService extends JsonRpcServer<CheGitClient> {
-    getUserConfigurationFromGitConfig(): Promise<UserConfiguration>
+  getUserConfigurationFromGitConfig(): Promise<UserConfiguration>;
 }
 
-export interface GitConfigChanged { }
+export interface GitConfigChanged {}

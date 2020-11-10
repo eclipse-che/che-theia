@@ -16,5 +16,5 @@ export const cliServicePath = '/services/cli-endpoint-service';
  */
 export const CliEndpoint = Symbol('CliEndpoint');
 export interface CliEndpoint {
-    openFile(uri: string): Promise<void>
+  openFile(uri: string): Promise<void>;
 }

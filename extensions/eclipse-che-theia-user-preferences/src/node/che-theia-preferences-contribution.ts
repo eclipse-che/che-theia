@@ -8,24 +8,24 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
+
 import { BackendApplicationContribution } from '@theia/core/lib/node/backend-application';
 import { CheTheiaUserPreferencesSynchronizer } from './che-theia-preferences-synchronizer';
 
 @injectable()
 export class CheTheiaPreferencesContribution implements BackendApplicationContribution {
+  @inject(CheTheiaUserPreferencesSynchronizer)
+  cheTheiaUserPreferencesSynchronizer: CheTheiaUserPreferencesSynchronizer;
 
-    @inject(CheTheiaUserPreferencesSynchronizer)
-    cheTheiaUserPreferencesSynchronizer: CheTheiaUserPreferencesSynchronizer;
+  public onStart(): void {
+    // do not block Theia start here, initialize preferences asynchronously
+    this.retrieveAndWatchSettings();
+  }
 
-    public onStart(): void {
-        // do not block Theia start here, initialize preferences asynchronously
-        this.retrieveAndWatchSettings();
-    }
-
-    private async retrieveAndWatchSettings(): Promise<void> {
-        // to be able to start file watcher the settings.json file should be in place
-        await this.cheTheiaUserPreferencesSynchronizer.readTheiaUserPreferencesFromCheSettings();
-        this.cheTheiaUserPreferencesSynchronizer.watchUserPreferencesChanges();
-    }
+  private async retrieveAndWatchSettings(): Promise<void> {
+    // to be able to start file watcher the settings.json file should be in place
+    await this.cheTheiaUserPreferencesSynchronizer.readTheiaUserPreferencesFromCheSettings();
+    this.cheTheiaUserPreferencesSynchronizer.watchUserPreferencesChanges();
+  }
 }
