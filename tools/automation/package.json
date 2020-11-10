@@ -9,8 +9,8 @@
     "clean": "rimraf lib",
     "build": "yarn run format && yarn run compile && yarn run lint",
     "compile": "tsc --project .",
-    "format": "prettier --write **/*.ts **/**/*.ts package.json",
-    "format-check": "prettier --check **/*.ts **/**/*.ts package.json",
+    "format:fix": "prettier --write **/*.ts **/**/*.ts package.json",
+    "format": "prettier --check **/*.ts **/**/*.ts package.json",
     "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
     "test": "jest"
   },

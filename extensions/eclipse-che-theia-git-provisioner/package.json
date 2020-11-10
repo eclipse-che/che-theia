@@ -25,8 +25,10 @@
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",
-    "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
+    "format": "prettier --check '**/*.ts' package.json",
+    "format:fix": "prettier --write '**/*.ts' package.json",
     "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
     "compile": "tsc",
     "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
     "test": "jest",
