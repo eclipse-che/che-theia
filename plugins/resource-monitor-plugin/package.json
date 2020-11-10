@@ -1,0 +1,42 @@
+{
+    "name": "@eclipse-che/resource-monitor-plugin",
+    "publisher": "Eclipse Che",
+    "keywords": [
+        "theia-plugin"
+    ],
+    "version": "0.0.1",
+    "description": "Resource Monitor Plugin",
+    "license": "EPL-2.0",
+    "files": [
+        "src"
+    ],
+    "activationEvents": [
+        "*"
+    ],
+    "devDependencies": {
+        "@eclipse-che/plugin": "latest",
+        "@theia/plugin-packager": "latest",
+        "@types/node": "^12.0.0",
+        "typescript": "3.9.2",
+        "@theia/plugin": "next",
+        "got": "11.8.0"
+    },
+    "dependencies": {
+        "@kubernetes/client-node": "^0.12.1",
+        "pseudomap": "1.0.2"
+    },
+    "scripts": {
+        "prepare": "yarn run clean && yarn run build",
+        "clean": "rimraf lib",
+        "format-code": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
+        "watch": "tsc -watch",
+        "compile": "tsc",
+        "build": "yarn run format-code && yarn run compile && theia-plugin pack"
+    },
+    "engines": {
+        "theiaPlugin": "next"
+    },
+    "theiaPlugin": {
+        "backend": "lib/resource-monitor-plugin.js"
+    }
+}
