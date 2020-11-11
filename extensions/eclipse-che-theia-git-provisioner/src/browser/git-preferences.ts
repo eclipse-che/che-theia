@@ -8,41 +8,48 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import {
+  PreferenceContribution,
+  PreferenceProxy,
+  PreferenceSchema,
+  PreferenceService,
+  createPreferenceProxy,
+} from '@theia/core/lib/browser';
+
 import { interfaces } from 'inversify';
-import { createPreferenceProxy, PreferenceProxy, PreferenceService, PreferenceContribution, PreferenceSchema } from '@theia/core/lib/browser';
 
 export const GitConfigSchema: PreferenceSchema = {
-    'type': 'object',
-    'properties': {
-        'git.user.name': {
-            'type': 'string',
-            'description': 'Your full name to be recorded in any newly created commits.',
-            'default': undefined
-        },
-        'git.user.email': {
-            'type': 'string',
-            'description': 'Your email address to be recorded in any newly created commits.',
-            'default': undefined
-        }
-    }
+  type: 'object',
+  properties: {
+    'git.user.name': {
+      type: 'string',
+      description: 'Your full name to be recorded in any newly created commits.',
+      default: undefined,
+    },
+    'git.user.email': {
+      type: 'string',
+      description: 'Your email address to be recorded in any newly created commits.',
+      default: undefined,
+    },
+  },
 };
 
 export interface GitConfiguration {
-    'git.user.name': string,
-    'git.user.email': string
+  'git.user.name': string;
+  'git.user.email': string;
 }
 
 export const GitPreferences = Symbol('GitPreferences');
 export type GitPreferences = PreferenceProxy<GitConfiguration>;
 
 export function createGitPreferences(preferences: PreferenceService): GitPreferences {
-    return createPreferenceProxy(preferences, GitConfigSchema);
+  return createPreferenceProxy(preferences, GitConfigSchema);
 }
 
 export function bindGitPreferences(bind: interfaces.Bind): void {
-    bind(GitPreferences).toDynamicValue(ctx => {
-        const preferences = ctx.container.get<PreferenceService>(PreferenceService);
-        return createGitPreferences(preferences);
-    });
-    bind(PreferenceContribution).toConstantValue({ schema: GitConfigSchema });
+  bind(GitPreferences).toDynamicValue(ctx => {
+    const preferences = ctx.container.get<PreferenceService>(PreferenceService);
+    return createGitPreferences(preferences);
+  });
+  bind(PreferenceContribution).toConstantValue({ schema: GitConfigSchema });
 }

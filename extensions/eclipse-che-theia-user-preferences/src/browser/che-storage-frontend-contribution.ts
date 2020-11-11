@@ -8,43 +8,45 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { FrontendApplicationContribution, FrontendApplication, StorageService, ShellLayoutRestorer } from '@theia/core/lib/browser';
-import { injectable, inject } from 'inversify';
+import {
+  FrontendApplication,
+  FrontendApplicationContribution,
+  ShellLayoutRestorer,
+  StorageService,
+} from '@theia/core/lib/browser';
+import { inject, injectable } from 'inversify';
+
 import { StorageServicePreferences } from './che-storage-preferences';
 
 @injectable()
 export class LayoutChangeListener implements FrontendApplicationContribution {
+  @inject(StorageService)
+  protected storageService: StorageService;
 
-    @inject(StorageService)
-    protected storageService: StorageService;
+  @inject(StorageServicePreferences)
+  protected storagePreferences: StorageServicePreferences;
 
-    @inject(StorageServicePreferences)
-    protected storagePreferences: StorageServicePreferences;
+  @inject(ShellLayoutRestorer)
+  protected shellLayoutRestorer: ShellLayoutRestorer;
 
-    @inject(ShellLayoutRestorer)
-    protected shellLayoutRestorer: ShellLayoutRestorer;
+  protected timer: number | undefined;
+  protected app: FrontendApplication;
 
-    protected timer: number | undefined;
-    protected app: FrontendApplication;
+  configure(app: FrontendApplication): void {
+    this.app = app;
+    app.shell.onDidAddWidget(() => this.startTimer());
+    app.shell.onDidRemoveWidget(() => this.startTimer());
+    app.shell.onDidChangeActiveWidget(() => this.startTimer());
+    app.shell.onDidChangeCurrentWidget(() => this.startTimer());
+  }
 
-    configure(app: FrontendApplication): void {
-        this.app = app;
-        app.shell.onDidAddWidget(() => this.startTimer());
-        app.shell.onDidRemoveWidget(() => this.startTimer());
-        app.shell.onDidChangeActiveWidget(() => this.startTimer());
-        app.shell.onDidChangeCurrentWidget(() => this.startTimer());
+  protected startTimer(): void {
+    if (this.timer) {
+      clearTimeout(this.timer);
     }
-
-    protected startTimer(): void {
-        if (this.timer) {
-            clearTimeout(this.timer);
-        }
-        this.timer = window.setTimeout(() => {
-            this.timer = undefined;
-            this.shellLayoutRestorer.storeLayout(this.app);
-
-        }, this.storagePreferences['workbench.layout.saveTimeout']);
-
-    }
-
+    this.timer = window.setTimeout(() => {
+      this.timer = undefined;
+      this.shellLayoutRestorer.storeLayout(this.app);
+    }, this.storagePreferences['workbench.layout.saveTimeout']);
+  }
 }

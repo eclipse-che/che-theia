@@ -9,11 +9,12 @@
  ***********************************************************************/
 
 import { ContainerModule, interfaces } from 'inversify';
+
 import { CliEndpointCommands } from './cli-endpoint-commands';
 import { CommandContribution } from '@theia/core/lib/common';
 
-export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Unbind, isBound: interfaces.IsBound, rebind: interfaces.Rebind) => {
-
+export default new ContainerModule(
+  (bind: interfaces.Bind, unbind: interfaces.Unbind, isBound: interfaces.IsBound, rebind: interfaces.Rebind) => {
     bind(CommandContribution).to(CliEndpointCommands).inSingletonScope();
-
-});
+  }
+);

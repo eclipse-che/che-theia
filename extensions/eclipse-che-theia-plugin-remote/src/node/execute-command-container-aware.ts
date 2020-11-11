@@ -12,15 +12,16 @@ import { CommandRegistryImpl } from '@theia/plugin-ext/lib/plugin/command-regist
 import { overrideUri } from './che-content-aware-utils';
 
 export class ExecuteCommandContainerAware {
-    static makeExecuteCommandContainerAware(commandRegistryExt: CommandRegistryImpl): void {
-        const executeCommandContainerAware = new ExecuteCommandContainerAware();
-        executeCommandContainerAware.overrideExecuteCommand(commandRegistryExt);
-    }
+  static makeExecuteCommandContainerAware(commandRegistryExt: CommandRegistryImpl): void {
+    const executeCommandContainerAware = new ExecuteCommandContainerAware();
+    executeCommandContainerAware.overrideExecuteCommand(commandRegistryExt);
+  }
 
-    overrideExecuteCommand(commandRegistryExt: CommandRegistryImpl): void {
-        const originalExecuteCommand = commandRegistryExt.executeCommand.bind(commandRegistryExt);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const executeCommand = (id: string, ...args: any[]) => originalExecuteCommand(id, ...args.map(arg => arg.scheme ? overrideUri(arg) : arg));
-        commandRegistryExt.executeCommand = executeCommand;
-    }
+  overrideExecuteCommand(commandRegistryExt: CommandRegistryImpl): void {
+    const originalExecuteCommand = commandRegistryExt.executeCommand.bind(commandRegistryExt);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const executeCommand = (id: string, ...args: any[]) =>
+      originalExecuteCommand(id, ...args.map(arg => (arg.scheme ? overrideUri(arg) : arg)));
+    commandRegistryExt.executeCommand = executeCommand;
+  }
 }

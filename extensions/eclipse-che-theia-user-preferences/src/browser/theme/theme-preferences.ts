@@ -8,37 +8,46 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { interfaces } from 'inversify';
-import { createPreferenceProxy, PreferenceProxy, PreferenceService, PreferenceContribution, PreferenceSchema } from '@theia/core/lib/browser';
+import {
+  PreferenceContribution,
+  PreferenceProxy,
+  PreferenceSchema,
+  PreferenceService,
+  createPreferenceProxy,
+} from '@theia/core/lib/browser';
+
 import { ThemeService } from '@theia/core/lib/browser/theming';
+import { interfaces } from 'inversify';
 
 export const TheiaThemeConfigurationSchema: PreferenceSchema = {
-    'type': 'object',
-    properties: {
-        'workbench.appearance.colorTheme': {
-            type: 'string',
-            description: 'Specifies the color theme used in the Theia.',
-            default: 'dark',
-            enum: ThemeService.get().getThemes().map(theme => theme.id)
-        }
-    }
+  type: 'object',
+  properties: {
+    'workbench.appearance.colorTheme': {
+      type: 'string',
+      description: 'Specifies the color theme used in the Theia.',
+      default: 'dark',
+      enum: ThemeService.get()
+        .getThemes()
+        .map(theme => theme.id),
+    },
+  },
 };
 
 export interface TheiaThemeConfiguration {
-    'workbench.appearance.colorTheme': string;
+  'workbench.appearance.colorTheme': string;
 }
 
 export const TheiaThemePreferences = Symbol('TheiaThemePreferences');
 export type TheiaThemePreferences = PreferenceProxy<TheiaThemeConfiguration>;
 
 export function createTheiaThemePreferences(preferences: PreferenceService): TheiaThemePreferences {
-    return createPreferenceProxy(preferences, TheiaThemeConfigurationSchema);
+  return createPreferenceProxy(preferences, TheiaThemeConfigurationSchema);
 }
 
 export function bindTheiaThemePreferences(bind: interfaces.Bind): void {
-    bind(TheiaThemePreferences).toDynamicValue(ctx => {
-        const preferences = ctx.container.get<PreferenceService>(PreferenceService);
-        return createTheiaThemePreferences(preferences);
-    });
-    bind(PreferenceContribution).toConstantValue({ schema: TheiaThemeConfigurationSchema });
+  bind(TheiaThemePreferences).toDynamicValue(ctx => {
+    const preferences = ctx.container.get<PreferenceService>(PreferenceService);
+    return createTheiaThemePreferences(preferences);
+  });
+  bind(PreferenceContribution).toConstantValue({ schema: TheiaThemeConfigurationSchema });
 }

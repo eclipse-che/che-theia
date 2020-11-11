@@ -8,22 +8,23 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { ContainerModule } from 'inversify';
-import { QuickOpenCheWorkspace } from './che-quick-open-workspace';
-import { FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { CommandContribution, MenuContribution } from '@theia/core/lib/common';
+
 import { CheWorkspaceContribution } from './che-workspace-contribution';
 import { CheWorkspaceController } from './che-workspace-controller';
+import { ContainerModule } from 'inversify';
 import { ExplorerContribution } from './explorer-contribution';
+import { FrontendApplicationContribution } from '@theia/core/lib/browser';
+import { QuickOpenCheWorkspace } from './che-quick-open-workspace';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
-    bind(QuickOpenCheWorkspace).toSelf().inSingletonScope();
-    bind(CheWorkspaceController).toSelf().inSingletonScope();
-    bind(CheWorkspaceContribution).toSelf().inSingletonScope();
-    for (const identifier of [CommandContribution, MenuContribution]) {
-        bind(identifier).toService(CheWorkspaceContribution);
-    }
+  bind(QuickOpenCheWorkspace).toSelf().inSingletonScope();
+  bind(CheWorkspaceController).toSelf().inSingletonScope();
+  bind(CheWorkspaceContribution).toSelf().inSingletonScope();
+  for (const identifier of [CommandContribution, MenuContribution]) {
+    bind(identifier).toService(CheWorkspaceContribution);
+  }
 
-    bind(ExplorerContribution).toSelf().inSingletonScope();
-    bind(FrontendApplicationContribution).to(ExplorerContribution);
+  bind(ExplorerContribution).toSelf().inSingletonScope();
+  bind(FrontendApplicationContribution).to(ExplorerContribution);
 });

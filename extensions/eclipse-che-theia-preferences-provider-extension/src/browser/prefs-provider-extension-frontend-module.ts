@@ -9,11 +9,10 @@
  ***********************************************************************/
 
 import { ContainerModule } from 'inversify';
-
 import { FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { PreferencesProvider } from './prefs-provider';
 
 export default new ContainerModule(bind => {
-    bind(PreferencesProvider).toSelf().inSingletonScope();
-    bind(FrontendApplicationContribution).toDynamicValue(c => c.container.get(PreferencesProvider));
+  bind(PreferencesProvider).toSelf().inSingletonScope();
+  bind(FrontendApplicationContribution).toDynamicValue(c => c.container.get(PreferencesProvider));
 });

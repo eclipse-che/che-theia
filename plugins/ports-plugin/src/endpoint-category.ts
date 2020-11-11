@@ -13,13 +13,13 @@
  * (meta.yaml devfile v1  definition) or from devfile itself
  */
 export enum EndpointCategory {
-    /**
-     * Defined in a plug-in (like theia, etc.)
-     */
-    PLUGINS,
+  /**
+   * Defined in a plug-in (like theia, etc.)
+   */
+  PLUGINS,
 
-    /**
-     * Defined in the user devfile (not linked through a chePlugin/cheEditor)
-     */
-    USER
+  /**
+   * Defined in the user devfile (not linked through a chePlugin/cheEditor)
+   */
+  USER,
 }

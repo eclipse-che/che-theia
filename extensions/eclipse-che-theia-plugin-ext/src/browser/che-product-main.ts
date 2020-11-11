@@ -8,20 +8,19 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { interfaces } from 'inversify';
 import { CheProductMain, CheProductService, Product } from '../common/che-protocol';
+
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
+import { interfaces } from 'inversify';
 
 export class CheProductMainImpl implements CheProductMain {
+  private readonly cheProductService: CheProductService;
 
-    private readonly cheProductService: CheProductService;
+  constructor(container: interfaces.Container, rpc: RPCProtocol) {
+    this.cheProductService = container.get(CheProductService);
+  }
 
-    constructor(container: interfaces.Container, rpc: RPCProtocol) {
-        this.cheProductService = container.get(CheProductService);
-    }
-
-    async $getProduct(): Promise<Product> {
-        return await this.cheProductService.getProduct();
-    }
-
+  async $getProduct(): Promise<Product> {
+    return await this.cheProductService.getProduct();
+  }
 }

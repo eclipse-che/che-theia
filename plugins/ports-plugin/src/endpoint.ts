@@ -12,15 +12,15 @@ import { EndpointCategory } from './endpoint-category';
 import { EndpointExposure } from './endpoint-exposure';
 
 export interface Endpoint {
-    name: string;
-    exposure: EndpointExposure;
-    category?: EndpointCategory;
-    url?: string;
-    secured?: boolean;
-    public?: boolean;
-    targetPort: number;
-    protocol?: string;
-    path?: string
-    // terminal, etc
-    type?: string;
+  name: string;
+  exposure: EndpointExposure;
+  category?: EndpointCategory;
+  url?: string;
+  secured?: boolean;
+  public?: boolean;
+  targetPort: number;
+  protocol?: string;
+  path?: string;
+  // terminal, etc
+  type?: string;
 }

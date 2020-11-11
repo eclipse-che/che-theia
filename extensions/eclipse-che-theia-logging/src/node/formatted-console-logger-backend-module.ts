@@ -9,9 +9,9 @@
  ***********************************************************************/
 
 import { ContainerModule } from 'inversify';
-import { ILoggerServer } from '@theia/core/lib/common/logger-protocol';
 import { FormattedConsoleLoggerServer } from './formatted-console-logger-server';
+import { ILoggerServer } from '@theia/core/lib/common/logger-protocol';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
-    rebind(ILoggerServer).to(FormattedConsoleLoggerServer).inSingletonScope();
+  rebind(ILoggerServer).to(FormattedConsoleLoggerServer).inSingletonScope();
 });

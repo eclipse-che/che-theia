@@ -8,15 +8,19 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { ContainerModule } from 'inversify';
+import { ACTIVITY_TRACKER_SERVICE_PATH, ActivityTrackerService } from '../common/activity-tracker-protocol';
 import { ConnectionHandler, JsonRpcConnectionHandler } from '@theia/core/lib/common';
-import { ActivityTrackerService, ACTIVITY_TRACKER_SERVICE_PATH } from '../common/activity-tracker-protocol';
+
 import { ActivityTrackerServiceImpl } from './activity-tracker-service';
+import { ContainerModule } from 'inversify';
 
 export default new ContainerModule(bind => {
-    bind(ActivityTrackerService).to(ActivityTrackerServiceImpl).inSingletonScope();
+  bind(ActivityTrackerService).to(ActivityTrackerServiceImpl).inSingletonScope();
 
-    bind(ConnectionHandler).toDynamicValue(context =>
+  bind(ConnectionHandler)
+    .toDynamicValue(
+      context =>
         new JsonRpcConnectionHandler(ACTIVITY_TRACKER_SERVICE_PATH, () => context.container.get(ActivityTrackerService))
-    ).inSingletonScope();
+    )
+    .inSingletonScope();
 });

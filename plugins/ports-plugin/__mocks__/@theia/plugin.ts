@@ -9,23 +9,19 @@
  */
 
 /**
- * Mock of @theia/plugin module 
+ * Mock of @theia/plugin module
  * @author Florent Benoit
  */
 const theia: any = {};
 export class EventEmitter {
-    constructor() {
-
-    }
-    fire() {
-
-    }
+  constructor() {}
+  fire() {}
 }
 
 export enum TreeItemCollapsibleState {
-    None,
-    Collapsed,
-    Expanded
+  None,
+  Collapsed,
+  Expanded,
 }
 
 theia.EventEmitter = EventEmitter;

@@ -17,13 +17,13 @@ export const WORKING_DIR_ATTRIBUTE: string = 'workingDir';
 export const COMPONENT_ALIAS_ATTRIBUTE: string = 'componentAlias';
 
 export interface CheTaskDefinition extends TaskDefinition {
-    readonly target?: Target,
-    readonly previewUrl?: string
+  readonly target?: Target;
+  readonly previewUrl?: string;
 }
 
 export interface Target {
-    workspaceId?: string,
-    containerName?: string,
-    workingDir?: string
-    component?: string,
+  workspaceId?: string;
+  containerName?: string;
+  workingDir?: string;
+  component?: string;
 }

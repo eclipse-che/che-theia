@@ -13,6 +13,5 @@ export const cheCertificateServicePath = '/services/che-certificate-service';
 export const CertificateService = Symbol('CertificateService');
 
 export interface CertificateService {
-
-    getCertificateAuthority(): Promise<Array<Buffer> | undefined>
+  getCertificateAuthority(): Promise<Array<Buffer> | undefined>;
 }

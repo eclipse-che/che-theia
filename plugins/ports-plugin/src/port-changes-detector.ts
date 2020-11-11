@@ -8,11 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { PortScanner, AbstractInternalScanner } from './port-scanner';
+import { AbstractInternalScanner, PortScanner } from './port-scanner';
+
 import { ListeningPort } from './listening-port';
 
 export interface PortCallback {
-    (port: ListeningPort): void;
+  (port: ListeningPort): void;
 }
 
 /**
@@ -20,69 +21,69 @@ export interface PortCallback {
  * @author Florent Benoit
  */
 export class PortChangesDetector {
+  private static readonly WAIT = 3000;
+  private openedPorts: ListeningPort[] = [];
 
-    private static readonly WAIT = 3000;
-    private openedPorts: ListeningPort[] = [];
+  private readonly portScanner: PortScanner;
 
-    private readonly portScanner: PortScanner;
+  private onDidOpenPorts: ((openPort: ListeningPort) => void)[] = [];
+  private onDidClosePorts: ((closedPort: ListeningPort) => void)[] = [];
 
-    private onDidOpenPorts: ((openPort: ListeningPort) => void)[] = [];
-    private onDidClosePorts: ((closedPort: ListeningPort) => void)[] = [];
+  public onDidOpenPort(callback: PortCallback): void {
+    this.onDidOpenPorts.push(callback);
+  }
 
-    public onDidOpenPort(callback: PortCallback): void {
-        this.onDidOpenPorts.push(callback);
-    }
+  public onDidClosePort(callback: PortCallback): void {
+    this.onDidClosePorts.push(callback);
+  }
 
-    public onDidClosePort(callback: PortCallback): void {
-        this.onDidClosePorts.push(callback);
-    }
+  constructor(internalScanner?: AbstractInternalScanner) {
+    this.portScanner = new PortScanner(internalScanner);
+  }
 
-    constructor(internalScanner?: AbstractInternalScanner) {
-        this.portScanner = new PortScanner(internalScanner);
-    }
+  /**
+   * Get opened ports.
+   */
+  public async init(): Promise<void> {
+    this.openedPorts = await this.portScanner.getListeningPorts();
+  }
 
-    /**
-     * Get opened ports.
-     */
-    public async init(): Promise<void> {
-        this.openedPorts = await this.portScanner.getListeningPorts();
-    }
+  public async monitor(): Promise<void> {
+    // grab new port opened and compare
+    const scanPorts = await this.portScanner.getListeningPorts();
 
-    public async monitor(): Promise<void> {
+    // not yet opened ?
+    const newOpened = scanPorts.filter(
+      port => !this.openedPorts.some(openPort => openPort.portNumber === port.portNumber)
+    );
 
-        // grab new port opened and compare
-        const scanPorts = await this.portScanner.getListeningPorts();
+    // new closed
+    const closed = this.openedPorts.filter(
+      port => !scanPorts.some(openPort => openPort.portNumber === port.portNumber)
+    );
 
-        // not yet opened ?
-        const newOpened = scanPorts.filter(port => !this.openedPorts.some(openPort => openPort.portNumber === port.portNumber));
+    // update
+    this.openedPorts = scanPorts;
 
-        // new closed
-        const closed = this.openedPorts.filter(port => !scanPorts.some(openPort => openPort.portNumber === port.portNumber));
+    // send events
+    this.onDidOpenPorts.map(func => {
+      newOpened.map(port => func(port));
+    });
 
-        // update
-        this.openedPorts = scanPorts;
+    this.onDidClosePorts.map(func => {
+      closed.map(port => func(port));
+    });
+  }
 
-        // send events
-        this.onDidOpenPorts.map(func => {
-            newOpened.map(port => func(port));
-        });
+  public getOpenedPorts(): ListeningPort[] {
+    return this.openedPorts;
+  }
 
-        this.onDidClosePorts.map(func => {
-            closed.map(port => func(port));
-        });
+  public async check(): Promise<void> {
+    // monitor
+    await this.monitor();
 
-    }
-
-    public getOpenedPorts(): ListeningPort[] {
-        return this.openedPorts;
-    }
-
-    public async check(): Promise<void> {
-
-        // monitor
-        await this.monitor();
-
-        // start again check
-        setTimeout(() => this.check(), PortChangesDetector.WAIT);
-    }
+    // start again check
+    setTimeout(() => this.check(), PortChangesDetector.WAIT);
+  }
 }

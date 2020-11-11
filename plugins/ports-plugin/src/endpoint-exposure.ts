@@ -13,32 +13,32 @@
  * contained in the devfile, created at runtime, etc.
  */
 export enum EndpointExposure {
-    /**
-     * Defined by devfile 2.0 specification
-     * public means that the endpoint will be exposed on the public network, typically through a K8S ingress
-     *  or an OpenShift route.
-     */
-    FROM_DEVFILE_PUBLIC,
+  /**
+   * Defined by devfile 2.0 specification
+   * public means that the endpoint will be exposed on the public network, typically through a K8S ingress
+   *  or an OpenShift route.
+   */
+  FROM_DEVFILE_PUBLIC,
 
-    /**
-     * internal means that the endpoint will be exposed internally outside of the main workspace POD,
-     * typically by K8S services, to be consumed by other elements running on the same cloud internal network.
-     */
-    FROM_DEVFILE_PRIVATE,
+  /**
+   * internal means that the endpoint will be exposed internally outside of the main workspace POD,
+   * typically by K8S services, to be consumed by other elements running on the same cloud internal network.
+   */
+  FROM_DEVFILE_PRIVATE,
 
-    /**
-     * none means that the endpoint will not be exposed and will only be accessible inside the main workspace POD,
-     * on a local address.
-     */
-    FROM_DEVFILE_NONE,
+  /**
+   * none means that the endpoint will not be exposed and will only be accessible inside the main workspace POD,
+   * on a local address.
+   */
+  FROM_DEVFILE_NONE,
 
-    /**
-     * This endpoint has been created to forward a local port publicly
-     */
-    FROM_RUNTIME_PORT_FORWARDING,
+  /**
+   * This endpoint has been created to forward a local port publicly
+   */
+  FROM_RUNTIME_PORT_FORWARDING,
 
-    /**
-     * Process started by the user but not specified anywhere of the devfile.
-     */
-    FROM_RUNTIME_USER,
+  /**
+   * Process started by the user but not specified anywhere of the devfile.
+   */
+  FROM_RUNTIME_USER,
 }

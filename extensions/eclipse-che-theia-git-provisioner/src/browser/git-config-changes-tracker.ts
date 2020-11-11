@@ -8,20 +8,20 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { injectable } from 'inversify';
-import { Emitter, Event } from '@theia/core';
 import { CheGitClient, GitConfigChanged } from '../common/git-protocol';
+import { Emitter, Event } from '@theia/core';
+
+import { injectable } from 'inversify';
 
 @injectable()
 export class CheGitClientImpl implements CheGitClient {
+  private onChangedEmitter = new Emitter<GitConfigChanged>();
 
-    private onChangedEmitter = new Emitter<GitConfigChanged>();
-
-    get changeEvent(): Event<GitConfigChanged> {
-        return this.onChangedEmitter.event;
-    }
-    firePreferencesChanged(): void {
-        const event: GitConfigChanged = {};
-        this.onChangedEmitter.fire(event);
-    }
+  get changeEvent(): Event<GitConfigChanged> {
+    return this.onChangedEmitter.event;
+  }
+  firePreferencesChanged(): void {
+    const event: GitConfigChanged = {};
+    this.onChangedEmitter.fire(event);
+  }
 }

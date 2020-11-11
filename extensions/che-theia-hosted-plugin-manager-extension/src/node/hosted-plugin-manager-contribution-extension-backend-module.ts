@@ -8,10 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import { CheWorkspaceHostedPluginUriPostProcessor } from './che-workspace-hosted-plugin-uri-post-processor';
 import { ContainerModule } from 'inversify';
 import { HostedPluginUriPostProcessorSymbolName } from '@theia/plugin-dev';
-import { CheWorkspaceHostedPluginUriPostProcessor } from './che-workspace-hosted-plugin-uri-post-processor';
 
 export default new ContainerModule(bind => {
-    bind(Symbol.for(HostedPluginUriPostProcessorSymbolName)).to(CheWorkspaceHostedPluginUriPostProcessor);
+  bind(Symbol.for(HostedPluginUriPostProcessorSymbolName)).to(CheWorkspaceHostedPluginUriPostProcessor);
 });

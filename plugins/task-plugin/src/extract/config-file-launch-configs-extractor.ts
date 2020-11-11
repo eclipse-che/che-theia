@@ -8,22 +8,23 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { injectable } from 'inversify';
 import * as theia from '@theia/plugin';
+
 import { parse, readFileSync } from '../utils';
+
 import { Configurations } from '../export/export-configs-manager';
+import { injectable } from 'inversify';
 
 /** Extracts launch configurations from config file by given uri. */
 @injectable()
 export class ConfigFileLaunchConfigsExtractor {
-
-    extract(launchConfigFileUri: string): Configurations<theia.DebugConfiguration> {
-        const configsContent = readFileSync(launchConfigFileUri);
-        const configsJson = parse(configsContent);
-        if (!configsJson || !configsJson.configurations) {
-            return { content: '', configs: [] };
-        }
-
-        return { content: configsContent, configs: configsJson.configurations };
+  extract(launchConfigFileUri: string): Configurations<theia.DebugConfiguration> {
+    const configsContent = readFileSync(launchConfigFileUri);
+    const configsJson = parse(configsContent);
+    if (!configsJson || !configsJson.configurations) {
+      return { content: '', configs: [] };
     }
+
+    return { content: configsContent, configs: configsJson.configurations };
+  }
 }

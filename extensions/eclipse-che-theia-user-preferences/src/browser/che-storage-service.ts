@@ -8,49 +8,47 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { injectable, inject, postConstruct } from 'inversify';
-import { StorageService } from '@theia/core/lib/browser';
-import { StorageServer } from '../common/storage-server';
+import { inject, injectable, postConstruct } from 'inversify';
+
 import { ILogger } from '@theia/core/lib/common/logger';
+import { StorageServer } from '../common/storage-server';
+import { StorageService } from '@theia/core/lib/browser';
 import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
 
 @injectable()
 export class CheStorageService implements StorageService {
+  @inject(StorageServer)
+  private storageServer: StorageServer;
 
-    @inject(StorageServer)
-    private storageServer: StorageServer;
+  @inject(WorkspaceService)
+  protected workspaceService: WorkspaceService;
 
-    @inject(WorkspaceService)
-    protected workspaceService: WorkspaceService;
+  @inject(ILogger)
+  protected logger: ILogger;
 
-    @inject(ILogger)
-    protected logger: ILogger;
+  private initialized: Promise<void>;
 
-    private initialized: Promise<void>;
+  @postConstruct()
+  protected init(): void {
+    this.initialized = this.workspaceService.roots.then(() => {});
+  }
 
-    @postConstruct()
-    protected init(): void {
-        this.initialized = this.workspaceService.roots.then(() => { });
+  async setData<T>(key: string, data?: T): Promise<void> {
+    await this.initialized;
+    return this.storageServer.setData(key, JSON.stringify(data));
+  }
+
+  async getData<T>(key: string, defaultValue?: T): Promise<T | undefined> {
+    await this.initialized;
+    try {
+      const data = await this.storageServer.getData(key);
+      if (data === undefined) {
+        return defaultValue;
+      }
+      return JSON.parse(data);
+    } catch (e) {
+      this.logger.warn(`Can't receive data for key:${key}, returning default value: ${defaultValue}`, e);
+      return defaultValue;
     }
-
-    async setData<T>(key: string, data?: T): Promise<void> {
-        await this.initialized;
-        return this.storageServer.setData(key, JSON.stringify(data));
-    }
-
-    async getData<T>(key: string, defaultValue?: T): Promise<T | undefined> {
-        await this.initialized;
-        try {
-            const data = await this.storageServer.getData(key);
-            if (data === undefined) {
-                return defaultValue;
-            }
-            return JSON.parse(data);
-        } catch (e) {
-            this.logger.warn(`Can't receive data for key:${key}, returning default value: ${defaultValue}`, e);
-            return defaultValue;
-        }
-
-    }
-
+  }
 }

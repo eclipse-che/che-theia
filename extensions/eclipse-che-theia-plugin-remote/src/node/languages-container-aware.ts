@@ -9,51 +9,58 @@
  ***********************************************************************/
 
 import * as theia from '@theia/plugin';
+
 import { LanguagesExtImpl } from '@theia/plugin-ext/lib/plugin/languages';
-import { overrideUri } from './che-content-aware-utils';
 import { PluginInfo } from '@theia/plugin-ext/lib/common/plugin-api-rpc';
+import { overrideUri } from './che-content-aware-utils';
 
 export class LanguagesContainerAware {
+  static makeLanguagesContainerAware(languagesExt: LanguagesExtImpl): void {
+    const languagesContainerAware = new LanguagesContainerAware();
+    languagesContainerAware.overrideDefinitionProvider(languagesExt);
+  }
 
-    static makeLanguagesContainerAware(languagesExt: LanguagesExtImpl): void {
-        const languagesContainerAware = new LanguagesContainerAware();
-        languagesContainerAware.overrideDefinitionProvider(languagesExt);
+  overrideDefinitionProvider(languagesExt: LanguagesExtImpl): void {
+    const originalRegisterDefinitionProvider = languagesExt.registerDefinitionProvider.bind(languagesExt);
+    const registerDefinitionProvider = (
+      selector: theia.DocumentSelector,
+      provider: theia.DefinitionProvider,
+      pluginInfo: PluginInfo
+    ) =>
+      originalRegisterDefinitionProvider(
+        selector,
+        {
+          provideDefinition: async (
+            document: theia.TextDocument,
+            position: theia.Position,
+            token: theia.CancellationToken | undefined
+          ): Promise<theia.Definition | theia.DefinitionLink[]> => {
+            const result = await provider.provideDefinition(document, position, token);
+            if (!result) {
+              return [];
+            }
+
+            if (Array.isArray(result)) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (result as any[]).forEach(value => this.overrideResult(value));
+            } else {
+              this.overrideResult(result);
+            }
+
+            return result;
+          },
+        },
+        pluginInfo
+      );
+
+    languagesExt.registerDefinitionProvider = registerDefinitionProvider;
+  }
+
+  overrideResult(reference: theia.Location | theia.DefinitionLink): void {
+    if ('uri' in reference) {
+      reference.uri = overrideUri(reference.uri);
+    } else {
+      reference.targetUri = overrideUri(reference.targetUri);
     }
-
-    overrideDefinitionProvider(languagesExt: LanguagesExtImpl): void {
-        const originalRegisterDefinitionProvider = languagesExt.registerDefinitionProvider.bind(languagesExt);
-        const registerDefinitionProvider = (selector: theia.DocumentSelector, provider: theia.DefinitionProvider, pluginInfo: PluginInfo) =>
-            originalRegisterDefinitionProvider(selector, {
-                provideDefinition: async (
-                    document: theia.TextDocument,
-                    position: theia.Position,
-                    token: theia.CancellationToken | undefined
-                ): Promise<theia.Definition | theia.DefinitionLink[]> => {
-
-                    const result = await provider.provideDefinition(document, position, token);
-                    if (!result) {
-                        return [];
-                    }
-
-                    if (Array.isArray(result)) {
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        (result as any[]).forEach(value => this.overrideResult(value));
-                    } else {
-                        this.overrideResult(result);
-                    }
-
-                    return result;
-                }
-            }, pluginInfo);
-
-        languagesExt.registerDefinitionProvider = registerDefinitionProvider;
-    }
-
-    overrideResult(reference: theia.Location | theia.DefinitionLink): void {
-        if ('uri' in reference) {
-            reference.uri = overrideUri(reference.uri);
-        } else {
-            reference.targetUri = overrideUri(reference.targetUri);
-        }
-    }
+  }
 }
