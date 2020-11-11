@@ -1,42 +1,45 @@
 {
-    "name": "@eclipse-che/resource-monitor-plugin",
-    "publisher": "Eclipse Che",
-    "keywords": [
-        "theia-plugin"
-    ],
-    "version": "0.0.1",
-    "description": "Resource Monitor Plugin",
-    "license": "EPL-2.0",
-    "files": [
-        "src"
-    ],
-    "activationEvents": [
-        "*"
-    ],
-    "devDependencies": {
-        "@eclipse-che/plugin": "latest",
-        "@theia/plugin-packager": "latest",
-        "@types/node": "^12.0.0",
-        "typescript": "3.9.2",
-        "@theia/plugin": "next",
-        "got": "11.8.0"
-    },
-    "dependencies": {
-        "@kubernetes/client-node": "^0.12.1",
-        "pseudomap": "1.0.2"
-    },
-    "scripts": {
-        "prepare": "yarn run clean && yarn run build",
-        "clean": "rimraf lib",
-        "format-code": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
-        "watch": "tsc -watch",
-        "compile": "tsc",
-        "build": "yarn run format-code && yarn run compile && theia-plugin pack"
-    },
-    "engines": {
-        "theiaPlugin": "next"
-    },
-    "theiaPlugin": {
-        "backend": "lib/resource-monitor-plugin.js"
-    }
+  "name": "@eclipse-che/resource-monitor-plugin",
+  "publisher": "Eclipse Che",
+  "keywords": [
+    "theia-plugin"
+  ],
+  "version": "0.0.1",
+  "description": "Resource Monitor Plugin",
+  "license": "EPL-2.0",
+  "files": [
+    "src"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "devDependencies": {
+    "@eclipse-che/plugin": "latest",
+    "@theia/plugin-packager": "latest",
+    "@types/node": "^12.0.0",
+    "typescript": "3.9.2",
+    "@theia/plugin": "next",
+    "got": "11.8.0"
+  },
+  "dependencies": {
+    "@kubernetes/client-node": "^0.12.1",
+    "pseudomap": "1.0.2"
+  },
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "format": "prettier --check '**/*.ts' package.json",
+    "format:fix": "prettier --write '**/*.ts' package.json",
+    "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
+    "compile": "tsc",
+    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia-plugin pack",
+    "watch": "tsc -w"
+  },
+  "engines": {
+    "theiaPlugin": "next"
+  },
+  "theiaPlugin": {
+    "backend": "lib/resource-monitor-plugin.js"
+  }
 }
