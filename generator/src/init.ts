@@ -14,6 +14,7 @@ import * as mustache from 'mustache';
 import * as readPkg from 'read-pkg';
 import { Command } from './command';
 import { Logger } from './logger';
+import { ISource } from './init-sources';
 
 /**
  * Generates the examples/assembly
@@ -69,7 +70,7 @@ export class Init {
         return mustache.render(template, tags).replace(/&#x2F;/g, '/');
     }
 
-    async updadeBuildConfiguration(): Promise<void> {
+    async updadeBuildConfiguration(extensions: ISource[]): Promise<void> {
         const theiaPackagePath = path.join(this.rootFolder, 'package.json');
         const theiaPackage = await readPkg(theiaPackagePath);
         const scriptsConfiguration = theiaPackage.scripts;
@@ -78,6 +79,23 @@ export class Init {
             scriptsConfiguration['prepare:build'] = 'yarn build && run lint && lerna run build';
         }
 
+        const theiaDevDependencies = theiaPackage.devDependencies || {};
+        const appendDevDependencies: Map<string, string> = new Map();
+        // add prettier and linters used by extensions
+        await Promise.all(extensions.map(async extension => {
+            const extensionPackagePath = path.join(extension.clonedDir, 'package.json');
+            const exists = await fs.pathExists(extensionPackagePath);
+            if (exists) {
+                const extensionPackage = await readPkg(extensionPackagePath);
+                if (extensionPackage.devDependencies) {
+                    // not existing in theia and match prettier or eslint
+                    const keys = Object.keys(extensionPackage.devDependencies).filter(key => !theiaDevDependencies[key] && (key.includes('prettier') || key.includes('eslint')));
+                    keys.forEach(key => appendDevDependencies.set(key, extensionPackage.devDependencies![key]));
+                }
+            }
+        }));
+        // grab all prettier and eslint packages
+        appendDevDependencies.forEach((value, key) => theiaDevDependencies[key] = value);
         const json = JSON.stringify(theiaPackage, undefined, 2);
         await fs.writeFile(theiaPackagePath, json);
     }
