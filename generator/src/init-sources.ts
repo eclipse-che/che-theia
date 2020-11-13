@@ -58,6 +58,11 @@ export class InitSources {
     private keepHistory: boolean = true;
 
     /**
+     * extensions processed
+     */
+    public extensions: ISource[];
+
+    /**
      * Constructor
      */
     constructor(readonly rootFolder: string,
@@ -66,6 +71,7 @@ export class InitSources {
         readonly cheTheiaFolder: string,
         readonly assemblyFolder: string,
         readonly theiaVersion: string) {
+        this.extensions = [];
     }
 
     /**
@@ -90,6 +96,7 @@ export class InitSources {
                 extension.checkoutTo = 'master';
             }
             await this.addExtension(extension);
+            this.extensions.push(extension);
         }));
 
         await this.initRootCompilationUnits();
