@@ -53,7 +53,6 @@
     "vscode-builtin-vb": "https://open-vsx.org/api/vscode/vb/1.44.2/file/vscode.vb-1.44.2.vsix",
     "vscode-builtin-xml": "https://open-vsx.org/api/vscode/xml/1.44.2/file/vscode.xml-1.44.2.vsix",
     "vscode-builtin-yaml": "https://open-vsx.org/api/vscode/yaml/1.44.2/file/vscode.yaml-1.44.2.vsix",
-    "vscode-eslint": "https://open-vsx.org/api/dbaeumer/vscode-eslint/2.1.1/file/dbaeumer.vscode-eslint-2.1.1.vsix",
     "vscode-git": "https://open-vsx.org/api/vscode/git/1.49.3/file/vscode.git-1.49.3.vsix",
     "vscode-github": "https://open-vsx.org/api/vscode/github/1.50.1/file/vscode.github-1.50.1.vsix",
     "vscode-references-view": "https://open-vsx.org/api/ms-vscode/references-view/0.0.47/file/ms-vscode.references-view-0.0.47.vsix",
