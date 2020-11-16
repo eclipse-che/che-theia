@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as fs from 'fs-extra';
 
 import { CdnHtmlTemplate } from '../../src/cdn/html-template';
@@ -253,7 +254,11 @@ describe('Test CdnHtmlTemplate', () => {
         const htmlTemplate = buildTemplate();
 
         expect(htmlTemplate.generateCdnScript()).toBe(
-            'new CheCdnSupport({"chunks":[{"chunk":"cachedChunk1","cdn":"http://cdnPrefix/cachedChunk1"}],"resources":[{"resource":"cachedResource1","cdn":"http://cdnPrefix/cachedResource1"}],"monaco":{"vsLoader":{"external":"./vs/original-loader.js","cdn":"http://cdnPrefix/monacoEditorCorePackage/min/vs/loader.js"},"requirePaths":[{"external":"vs/editor/editor.main","cdn":"http://cdnPrefix/monacoEditorCorePackage/min/vs/editor/editor.main"}]}}).buildScripts();'
+            'new CheCdnSupport({"chunks":[{"chunk":"cachedChunk1","cdn":"http://cdnPrefix/cachedChunk1"}],"resources":' +
+                '[{"resource":"cachedResource1","cdn":"http://cdnPrefix/cachedResource1"}],"monaco":' +
+                '{"vsLoader":{"external":"./vs/original-loader.js","cdn":' +
+                '"http://cdnPrefix/monacoEditorCorePackage/min/vs/loader.js"},"requirePaths":[{"external":"vs/editor/editor.main","cdn":' +
+                '"http://cdnPrefix/monacoEditorCorePackage/min/vs/editor/editor.main"}]}}).buildScripts();'
         );
     });
 });

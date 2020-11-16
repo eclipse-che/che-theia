@@ -8,6 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-null/no-null */
 import * as fs from 'fs-extra';
 
 import { customizeWebpackConfig } from '../../src/cdn/webpack-customizer';
