@@ -51,7 +51,6 @@ __tests__
 test
 tests
 powered-test
-test.js
 *.spec.js
 testData
 
