@@ -8,28 +8,29 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-/// <reference path="index.d.ts"/>
-import { InitSources, ISource } from "../../src/init-sources";
-import * as tmp from "tmp";
-import * as fs from "fs-extra";
-import * as path from "path";
-import * as json2yaml from "json2yaml";
 import * as cp from 'child_process';
+import * as fs from 'fs-extra';
+import * as json2yaml from 'json2yaml';
+import * as path from 'path';
+import * as tmp from 'tmp';
 import * as yargs from 'yargs';
-import { YargsMockup } from "../cdn.spec";
+
+/// <reference path="index.d.ts"/>
+import { ISource, InitSources } from '../../src/init-sources';
+
+import { YargsMockup } from '../cdn.spec';
 
 jest.setTimeout(10000);
 
-describe("Test Extensions", () => {
-
+describe('Test Extensions', () => {
     // Increase timeout to 30 seconds
     jest.setTimeout(30000);
 
     const THEIA_DUMMY_VERSION = '1.2.3';
     const rootFolder = process.cwd();
-    const assemblyExamplePath = path.resolve(rootFolder, "tests/init-sources/assembly-example");
-    const extensionExample1Path = path.resolve(rootFolder, "tests/init-sources/extension-example");
-    const extensionExample2Path = path.resolve(rootFolder, "tests/init-sources/extension-example2");
+    const assemblyExamplePath = path.resolve(rootFolder, 'tests/init-sources/assembly-example');
+    const extensionExample1Path = path.resolve(rootFolder, 'tests/init-sources/extension-example');
+    const extensionExample2Path = path.resolve(rootFolder, 'tests/init-sources/extension-example2');
     let rootFolderTmp: string;
     let packagesFolderTmp: string;
     let pluginsFolderTmp: string;
@@ -40,7 +41,7 @@ describe("Test Extensions", () => {
     let extensionYamlTmp: string;
 
     beforeEach(async () => {
-        rootFolderTmp = tmp.dirSync({ mode: 0o750, prefix: "tmpExtensions", postfix: "" }).name;
+        rootFolderTmp = tmp.dirSync({ mode: 0o750, prefix: 'tmpExtensions', postfix: '' }).name;
         assemblyFolderTmp = path.resolve(rootFolderTmp, 'assembly');
 
         packagesFolderTmp = path.resolve(rootFolderTmp, 'packages');
@@ -55,7 +56,10 @@ describe("Test Extensions", () => {
         await fs.ensureDir(pluginsFolderTmp);
 
         await fs.ensureDir(assemblyFolderTmp);
-        await fs.copy(path.join(assemblyExamplePath, 'assembly-package.json'), path.join(assemblyFolderTmp, 'package.json'))
+        await fs.copy(
+            path.join(assemblyExamplePath, 'assembly-package.json'),
+            path.join(assemblyFolderTmp, 'package.json')
+        );
 
         await fs.ensureDir(sourceExtension1Tmp);
         await fs.copy(path.join(extensionExample1Path), sourceExtension1Tmp);
@@ -79,26 +83,27 @@ describe("Test Extensions", () => {
         fs.removeSync(rootFolderTmp);
     });
 
-    test("test init sources generator", async () => {
+    test('test init sources generator', async () => {
         const initSources = new InitSources(
             assemblyExamplePath,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
             assemblyFolderTmp,
-            THEIA_DUMMY_VERSION);
+            THEIA_DUMMY_VERSION
+        );
 
         const yamlExtensionsContent = {
             sources: [
                 {
-                    'source': 'file://' + sourceExtension1Tmp,
-                    'extensions': ['folder1', 'folder2']
+                    source: 'file://' + sourceExtension1Tmp,
+                    extensions: ['folder1', 'folder2'],
                 },
                 {
-                    'source': 'file://' + sourceExtension2Tmp,
-                    'checkoutTo': 'master'
-                }
-            ]
+                    source: 'file://' + sourceExtension2Tmp,
+                    checkoutTo: 'master',
+                },
+            ],
         };
 
         const yml = json2yaml.stringify(yamlExtensionsContent);
@@ -128,12 +133,18 @@ describe("Test Extensions", () => {
         expect(ext2Package.devDependencies['unknown-dependencies']).toBe(`0.0.1`);
 
         // check symlink are ok as well
-        const ext1Folder1Link = await fs.readlink(path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder1`));
+        const ext1Folder1Link = await fs.readlink(
+            path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder1`)
+        );
         expect(ext1Folder1Link).toBe(path.join(cheTheiaFolderTmp, 'source-code1/folder1'));
-        const ext1Folder2Link = await fs.readlink(path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder2`));
+        const ext1Folder2Link = await fs.readlink(
+            path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder2`)
+        );
         expect(ext1Folder2Link).toBe(path.join(cheTheiaFolderTmp, 'source-code1/folder2'));
 
-        const ext2Link = await fs.readlink(path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}source-code2`));
+        const ext2Link = await fs.readlink(
+            path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}source-code2`)
+        );
         expect(ext2Link).toBe(path.join(cheTheiaFolderTmp, 'source-code2'));
 
         // check extension have been added into the assembly
@@ -151,9 +162,13 @@ describe("Test Extensions", () => {
             pluginsFolderTmp,
             cheTheiaFolderTmp,
             assemblyFolderTmp,
-            THEIA_DUMMY_VERSION);
+            THEIA_DUMMY_VERSION
+        );
 
-        await initSources.updateDependencies({ extSymbolicLinks: [path.resolve(rootFolder, "tests/init-sources/extension-empty")] } as ISource, false);
+        await initSources.updateDependencies(
+            { extSymbolicLinks: [path.resolve(rootFolder, 'tests/init-sources/extension-empty')] } as ISource,
+            false
+        );
         expect(true).toBeTruthy();
     });
 
@@ -164,19 +179,20 @@ describe("Test Extensions", () => {
             pluginsFolderTmp,
             cheTheiaFolderTmp,
             assemblyFolderTmp,
-            THEIA_DUMMY_VERSION);
+            THEIA_DUMMY_VERSION
+        );
 
         const yamlExtensionsContent = {
             sources: [
                 {
-                    'source': 'file://' + sourceExtension1Tmp,
-                    'extensions': ['folder1', 'folder2'],
+                    source: 'file://' + sourceExtension1Tmp,
+                    extensions: ['folder1', 'folder2'],
                 },
                 {
-                    'source': 'file://' + sourceExtension2Tmp,
-                    'checkoutTo': 'foo'
-                }
-            ]
+                    source: 'file://' + sourceExtension2Tmp,
+                    checkoutTo: 'foo',
+                },
+            ],
         };
 
         const yml = json2yaml.stringify(yamlExtensionsContent);
@@ -186,9 +202,13 @@ describe("Test Extensions", () => {
         await initSources.generate(extensionYamlTmp, true);
 
         // check symlink are ok as well
-        const ext1Folder1Link = await fs.readlink(path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder1`));
+        const ext1Folder1Link = await fs.readlink(
+            path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder1`)
+        );
         expect(ext1Folder1Link).toBe(path.join(cheTheiaFolderTmp, 'source-code1/folder1'));
-        const ext1Folder2Link = await fs.readlink(path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder2`));
+        const ext1Folder2Link = await fs.readlink(
+            path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder2`)
+        );
         expect(ext1Folder2Link).toBe(path.join(cheTheiaFolderTmp, 'source-code1/folder2'));
     });
 
@@ -199,19 +219,20 @@ describe("Test Extensions", () => {
             pluginsFolderTmp,
             cheTheiaFolderTmp,
             assemblyFolderTmp,
-            THEIA_DUMMY_VERSION);
+            THEIA_DUMMY_VERSION
+        );
 
         const yamlExtensionsContent = {
             sources: [
                 {
-                    'source': 'file://' + sourceExtension1Tmp,
-                    'extensions': ['folder1', 'folder2'],
+                    source: 'file://' + sourceExtension1Tmp,
+                    extensions: ['folder1', 'folder2'],
                 },
                 {
-                    'source': 'file://' + sourceExtension2Tmp,
-                    'checkoutTo': 'master'
-                }
-            ]
+                    source: 'file://' + sourceExtension2Tmp,
+                    checkoutTo: 'master',
+                },
+            ],
         };
 
         const yml = json2yaml.stringify(yamlExtensionsContent);
@@ -220,9 +241,13 @@ describe("Test Extensions", () => {
         initSources.keepGitHistory = false;
         await initSources.readConfigurationAndGenerate(extensionYamlTmp, false);
 
-        const ext1Folder1Link = await fs.readlink(path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder1`));
+        const ext1Folder1Link = await fs.readlink(
+            path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder1`)
+        );
         expect(ext1Folder1Link).toBe(path.join(cheTheiaFolderTmp, 'source-code1/folder1'));
-        const ext1Folder2Link = await fs.readlink(path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder2`));
+        const ext1Folder2Link = await fs.readlink(
+            path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder2`)
+        );
         expect(ext1Folder2Link).toBe(path.join(cheTheiaFolderTmp, 'source-code1/folder2'));
     });
 
@@ -233,7 +258,8 @@ describe("Test Extensions", () => {
             pluginsFolderTmp,
             cheTheiaFolderTmp,
             assemblyFolderTmp,
-            THEIA_DUMMY_VERSION);
+            THEIA_DUMMY_VERSION
+        );
 
         initSources.keepGitHistory = false;
         await initSources.readConfigurationAndGenerate(undefined, false);
@@ -248,19 +274,20 @@ describe("Test Extensions", () => {
             pluginsFolderTmp,
             cheTheiaFolderTmp,
             assemblyFolderTmp,
-            THEIA_DUMMY_VERSION);
+            THEIA_DUMMY_VERSION
+        );
 
         const yamlExtensionsContent = {
             sources: [
                 {
-                    'source': 'file://' + sourceExtension1Tmp,
-                    'extensions': ['folder1', 'folder2'],
+                    source: 'file://' + sourceExtension1Tmp,
+                    extensions: ['folder1', 'folder2'],
                 },
                 {
-                    'source': 'file://' + sourceExtension2Tmp,
-                    'checkoutTo': 'master'
-                }
-            ]
+                    source: 'file://' + sourceExtension2Tmp,
+                    checkoutTo: 'master',
+                },
+            ],
         };
 
         const yml = json2yaml.stringify(yamlExtensionsContent);
@@ -269,9 +296,13 @@ describe("Test Extensions", () => {
         initSources.keepGitHistory = false;
         await initSources.readConfigurationAndGenerate(extensionYamlTmp, true);
 
-        const ext1Folder1Link = await fs.readlink(path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder1`));
+        const ext1Folder1Link = await fs.readlink(
+            path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder1`)
+        );
         expect(ext1Folder1Link).toBe(path.join(cheTheiaFolderTmp, 'source-code1/folder1'));
-        const ext1Folder2Link = await fs.readlink(path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder2`));
+        const ext1Folder2Link = await fs.readlink(
+            path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder2`)
+        );
         expect(ext1Folder2Link).toBe(path.join(cheTheiaFolderTmp, 'source-code1/folder2'));
     });
 
@@ -282,7 +313,8 @@ describe("Test Extensions", () => {
             pluginsFolderTmp,
             cheTheiaFolderTmp,
             assemblyFolderTmp,
-            THEIA_DUMMY_VERSION);
+            THEIA_DUMMY_VERSION
+        );
 
         let generateCalled = false;
         let configurationContent = undefined;
@@ -305,7 +337,8 @@ describe("Test Extensions", () => {
             pluginsFolderTmp,
             cheTheiaFolderTmp,
             assemblyFolderTmp,
-            THEIA_DUMMY_VERSION);
+            THEIA_DUMMY_VERSION
+        );
 
         try {
             await initSources.readConfigurationAndGenerate('some/path/foo/bar.yaml', false);
@@ -321,7 +354,8 @@ describe("Test Extensions", () => {
             pluginsFolderTmp,
             cheTheiaFolderTmp,
             assemblyFolderTmp,
-            THEIA_DUMMY_VERSION);
+            THEIA_DUMMY_VERSION
+        );
 
         let uri: string = InitSources.DEFAULT_EXTENSIONS_URI;
         try {
@@ -334,7 +368,7 @@ describe("Test Extensions", () => {
         }
     });
 
-    test("test command options", async () => {
+    test('test command options', async () => {
         const yargs = new YargsMockup();
         InitSources.argBuilder(<yargs.Argv>yargs);
 
@@ -344,7 +378,8 @@ describe("Test Extensions", () => {
         });
 
         expect(yargs.options['dev']).toEqual({
-            description: 'Initialize current Theia with Che/Theia extensions from "master" branch instead of provided branches',
+            description:
+                'Initialize current Theia with Che/Theia extensions from "master" branch instead of provided branches',
             alias: 'd',
             type: 'boolean',
             default: false,
@@ -358,20 +393,21 @@ describe("Test Extensions", () => {
             pluginsFolderTmp,
             cheTheiaFolderTmp,
             assemblyFolderTmp,
-            THEIA_DUMMY_VERSION);
+            THEIA_DUMMY_VERSION
+        );
 
         const yamlExtensionsContent = {
             sources: [
                 {
-                    'source': 'file://' + sourceExtension1Tmp,
-                    'extensions': ['folder1', 'folder2'],
-                    'plugins': ['plugin-folder1', 'plugin-folder2']
+                    source: 'file://' + sourceExtension1Tmp,
+                    extensions: ['folder1', 'folder2'],
+                    plugins: ['plugin-folder1', 'plugin-folder2'],
                 },
                 {
-                    'source': 'file://' + sourceExtension2Tmp,
-                    'checkoutTo': 'master'
-                }
-            ]
+                    source: 'file://' + sourceExtension2Tmp,
+                    checkoutTo: 'master',
+                },
+            ],
         };
 
         const yml = json2yaml.stringify(yamlExtensionsContent);
@@ -380,16 +416,19 @@ describe("Test Extensions", () => {
         initSources.keepGitHistory = false;
         await initSources.readConfigurationAndGenerate(extensionYamlTmp, false);
 
-        const ext1Folder1Link = await fs.readlink(path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder1`));
+        const ext1Folder1Link = await fs.readlink(
+            path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder1`)
+        );
         expect(ext1Folder1Link).toBe(path.join(cheTheiaFolderTmp, 'source-code1/folder1'));
-        const ext1Folder2Link = await fs.readlink(path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder2`));
+        const ext1Folder2Link = await fs.readlink(
+            path.join(packagesFolderTmp, `${InitSources.PREFIX_PACKAGES_EXTENSIONS}folder2`)
+        );
         expect(ext1Folder2Link).toBe(path.join(cheTheiaFolderTmp, 'source-code1/folder2'));
 
         const pluginFolder1Link = await fs.readlink(path.join(pluginsFolderTmp, `plugin-folder1`));
         expect(pluginFolder1Link).toBe(path.join(cheTheiaFolderTmp, 'source-code1/plugin-folder1'));
         const pluginFolder2Link = await fs.readlink(path.join(pluginsFolderTmp, `plugin-folder2`));
         expect(pluginFolder2Link).toBe(path.join(cheTheiaFolderTmp, 'source-code1/plugin-folder2'));
-
     });
 
     test('aliases replace with local source folder', async () => {
@@ -399,9 +438,14 @@ describe("Test Extensions", () => {
             pluginsFolderTmp,
             cheTheiaFolderTmp,
             assemblyFolderTmp,
-            THEIA_DUMMY_VERSION);
+            THEIA_DUMMY_VERSION
+        );
 
-        const aliases = ['https://github.com/eclipse/che-theia=../che-theia', 'key1=value1', '../test=https://github.com/eclipse/che-theia'];
+        const aliases = [
+            'https://github.com/eclipse/che-theia=../che-theia',
+            'key1=value1',
+            '../test=https://github.com/eclipse/che-theia',
+        ];
 
         initSources.initSourceLocationAliases(aliases);
 
@@ -411,8 +455,7 @@ describe("Test Extensions", () => {
     });
 
     test('should skip clonning if source is an existing folder (and not a git uri to clone) and use it as the clonedDir', async () => {
-        const source: ISource =
-        {
+        const source: ISource = {
             source: sourceExtension1Tmp,
             checkoutTo: '',
             type: '',
@@ -420,7 +463,7 @@ describe("Test Extensions", () => {
             extensions: [],
             plugins: [],
             extSymbolicLinks: [],
-            pluginSymbolicLinks: []
+            pluginSymbolicLinks: [],
         };
 
         const initSources = new InitSources(
@@ -429,11 +472,12 @@ describe("Test Extensions", () => {
             pluginsFolderTmp,
             cheTheiaFolderTmp,
             assemblyFolderTmp,
-            THEIA_DUMMY_VERSION);
+            THEIA_DUMMY_VERSION
+        );
 
         initSources.keepGitHistory = false;
         initSources.clone(source);
 
         expect(source.clonedDir).toBe(sourceExtension1Tmp);
-    })
+    });
 });

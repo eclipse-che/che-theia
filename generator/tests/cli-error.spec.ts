@@ -8,17 +8,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { CliError } from "../src/cli-error";
+import { CliError } from '../src/cli-error';
 
-describe("Test Custom Cli Error", () => {
-
-    test("test error", async () => {
-        const errMessage: string = "custom message";
+describe('Test Custom Cli Error', () => {
+    test('test error', async () => {
+        const errMessage: string = 'custom message';
         try {
             throw new CliError(errMessage);
         } catch (error) {
             expect(error.message).toMatch(errMessage);
         }
     });
-
 });

@@ -8,25 +8,23 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Command } from "../src/command";
+import { Command } from '../src/command';
 
-describe("Test Command", () => {
-
-    test("test exec", async () => {
+describe('Test Command', () => {
+    test('test exec', async () => {
         const command = new Command(__dirname);
         const result = await command.exec("echo 'foo'");
-        expect(result).toBe("foo\n");
+        expect(result).toBe('foo\n');
     });
 
-    test("test exec error", async () => {
+    test('test exec error', async () => {
         let error;
         const command = new Command(__dirname);
         try {
-            await command.exec("invalid-command-not-exists");
+            await command.exec('invalid-command-not-exists');
         } catch (err) {
             error = err;
         }
         expect(error).toBeDefined();
     });
-
 });

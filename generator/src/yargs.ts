@@ -8,15 +8,16 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import * as yargs from 'yargs';
-import { Logger } from './logger';
 import * as path from 'path';
-import { CliError } from './cli-error';
-import { Production } from './production';
-import { Init } from './init';
+import * as yargs from 'yargs';
+
 import { Cdn } from './cdn';
-import { InitSources } from './init-sources';
 import { Clean } from './clean';
+import { CliError } from './cli-error';
+import { Init } from './init';
+import { InitSources } from './init-sources';
+import { Logger } from './logger';
+import { Production } from './production';
 
 const ASSSEMBLY_PATH = 'examples/assembly';
 
@@ -40,7 +41,14 @@ const commandArgs = yargs
                 const version = await init.getCurrentVersion();
                 await init.generate();
                 await init.updatePluginsConfigurtion();
-                const initSources = new InitSources(process.cwd(), packagesFolder, pluginsFolder, cheFolder, assemblyFolder, version);
+                const initSources = new InitSources(
+                    process.cwd(),
+                    packagesFolder,
+                    pluginsFolder,
+                    cheFolder,
+                    assemblyFolder,
+                    version
+                );
                 await initSources.initSourceLocationAliases(args.alias);
                 await initSources.readConfigurationAndGenerate(args.config, args.dev);
                 await init.updadeBuildConfiguration(initSources.extensions);
@@ -91,12 +99,11 @@ const commandArgs = yargs
             } catch (err) {
                 handleError(err);
             }
-        }
+        },
     })
     .help()
     .strict()
-    .demandCommand()
-    .argv;
+    .demandCommand().argv;
 
 if (!commandArgs) {
     yargs.showHelp();

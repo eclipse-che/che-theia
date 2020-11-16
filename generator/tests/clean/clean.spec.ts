@@ -8,15 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { Clean } from '../../src/clean';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
+import { Clean } from '../../src/clean';
+
 describe('Test clean command', () => {
-
-    beforeAll(() => {
-
-    });
+    beforeAll(() => {});
 
     test('Test clean', () => {
         const chePath = path.resolve(__dirname, 'che');
@@ -50,5 +48,4 @@ describe('Test clean command', () => {
 
         fs.removeSync(path.resolve(packagesFolder, 'default-ext'));
     });
-
 });
