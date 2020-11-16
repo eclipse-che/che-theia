@@ -9,20 +9,19 @@
  ***********************************************************************/
 
 import * as fs from 'fs-extra';
-import { Logger } from './logger';
-import { Yarn } from './yarn';
-import { CliError } from './cli-error';
-
 import * as glob from 'glob-promise';
 import * as path from 'path';
+
+import { CliError } from './cli-error';
 import { Command } from './command';
+import { Logger } from './logger';
+import { Yarn } from './yarn';
 
 /**
  * Generates the assembly directory, copying only subset of files and cleaning up some folders
  * @author Florent Benoit
  */
 export class Production {
-
     /**
      * Ensure we've no dependencies to these packages that bring a lot of dependencies !
      */
@@ -31,7 +30,8 @@ export class Production {
     /**
      * Remove these client dependencies as they're already bundled with webpack
      */
-    private static EXCLUDED_PACKAGES = ['electron',
+    private static EXCLUDED_PACKAGES = [
+        'electron',
         'react',
         'react-virtualized',
         'onigasm',
@@ -39,7 +39,8 @@ export class Production {
         '@theia/monaco',
         'react-dom',
         'font-awesome',
-        '@theia/monaco-editor-core'];
+        '@theia/monaco-editor-core',
+    ];
 
     private dependencies: string[] = [];
     private toCopyFiles: string[] = [];
@@ -52,7 +53,6 @@ export class Production {
     }
 
     public async create(): Promise<string> {
-
         Logger.info('🗂  Get dependencies...');
         // get dependencies
         await this.getDependencies();
@@ -74,16 +74,17 @@ export class Production {
     protected async copyFiles(): Promise<void> {
         const assemblyLength = this.assemblyFolder.length;
         const rootDirLength = this.rootFolder.length;
-        await Promise.all(this.toCopyFiles.map(file => {
-
-            let destFile;
-            if (file.startsWith(this.assemblyFolder)) {
-                destFile = file.substring(assemblyLength);
-            } else {
-                destFile = file.substring(rootDirLength);
-            }
-            return fs.copy(file, path.join(this.productionDirectory, destFile));
-        }));
+        await Promise.all(
+            this.toCopyFiles.map(file => {
+                let destFile;
+                if (file.startsWith(this.assemblyFolder)) {
+                    destFile = file.substring(assemblyLength);
+                } else {
+                    destFile = file.substring(rootDirLength);
+                }
+                return fs.copy(file, path.join(this.productionDirectory, destFile));
+            })
+        );
     }
 
     protected async cleanup(): Promise<void> {
@@ -116,51 +117,65 @@ export class Production {
 
         const cleanupFindContent = await fs.readFile(path.join(cleanupFindFolder, 'cleanup-find'));
         const command = new Command(this.productionDirectory);
-        await Promise.all(cleanupFindContent.toString().split('\n').map(async line => {
-            if (line.length > 0 && !line.startsWith('#')) {
-                await command.exec(`find . -name ${line} | xargs rm -rf {}`);
-            }
-        }));
-
+        await Promise.all(
+            cleanupFindContent
+                .toString()
+                .split('\n')
+                .map(async line => {
+                    if (line.length > 0 && !line.startsWith('#')) {
+                        await command.exec(`find . -name ${line} | xargs rm -rf {}`);
+                    }
+                })
+        );
     }
 
     public async resolveFiles(): Promise<boolean> {
         // check dependency folders are there
         this.dependencies.forEach(dependency => {
             if (!fs.existsSync(dependency)) {
-                throw new CliError('The dependency ' + dependency
-                    + ' is referenced but is not available on the filesystem');
+                throw new CliError(
+                    'The dependency ' + dependency + ' is referenced but is not available on the filesystem'
+                );
             }
         });
 
         // ok now, add all files from these dependencies
         const globOptions = { nocase: true, nosort: true, nodir: true, dot: true };
-        this.toCopyFiles = this.toCopyFiles.concat.apply([],
-            await Promise.all(this.dependencies.map(dependencyDirectory => glob.promise('**', Object.assign(globOptions, { cwd: dependencyDirectory }))
-                .then(data => data.map(name => path.join(dependencyDirectory, name))))));
+        this.toCopyFiles = this.toCopyFiles.concat.apply(
+            [],
+            await Promise.all(
+                this.dependencies.map(dependencyDirectory =>
+                    glob
+                        .promise('**', Object.assign(globOptions, { cwd: dependencyDirectory }))
+                        .then(data => data.map(name => path.join(dependencyDirectory, name)))
+                )
+            )
+        );
         // add as well the lib folder
         this.toCopyFiles = this.toCopyFiles.concat(
-            await (glob.promise('lib/**', Object.assign(globOptions, { cwd: this.assemblyFolder }))
-                .then(data => data.map(name => path.join(this.assemblyFolder, name)))));
+            await glob
+                .promise('lib/**', Object.assign(globOptions, { cwd: this.assemblyFolder }))
+                .then(data => data.map(name => path.join(this.assemblyFolder, name)))
+        );
 
         this.toCopyFiles = this.toCopyFiles.concat(
-            await (glob.promise('src-gen/**', Object.assign(globOptions, { cwd: this.assemblyFolder }))
-                .then(data => data.map(name => path.join(this.assemblyFolder, name)))));
+            await glob
+                .promise('src-gen/**', Object.assign(globOptions, { cwd: this.assemblyFolder }))
+                .then(data => data.map(name => path.join(this.assemblyFolder, name)))
+        );
 
         this.toCopyFiles = this.toCopyFiles.concat(path.join(this.assemblyFolder, 'package.json'));
 
         return Promise.resolve(true);
-
     }
 
     public async getDependencies(): Promise<boolean> {
-
-        this.dependencies = (await new Yarn('',
+        this.dependencies = await new Yarn(
+            '',
             Production.ASSEMBLY_DIRECTORY,
             Production.FORBIDDEN_PACKAGES,
-            Production.EXCLUDED_PACKAGES,
-        ).getDependencies('@eclipse-che/theia-assembly'));
+            Production.EXCLUDED_PACKAGES
+        ).getDependencies('@eclipse-che/theia-assembly');
         return Promise.resolve(true);
     }
-
 }

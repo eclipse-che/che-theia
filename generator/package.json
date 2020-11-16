@@ -44,14 +44,15 @@
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf dist",
-    "build": "yarn run compile && yarn run format-code && yarn run lint && yarn run test",
+    "build": "yarn run compile && yarn run format && yarn run lint && yarn run test",
     "compile": "tsc && chmod +x dist/index.js",
     "watch": "tsc -w",
     "test": "jest",
     "test-watch": "jest --watchAll",
-    "format-code": "tsfmt -r",
-    "lint-fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
-    "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
+    "format": "prettier --check '{src,tests}/**/*.ts' package.json",
+    "format:fix": "prettier --write '{src,tests}/**/*.ts' package.json",
+    "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,tests}/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,tests}/**/*.{ts,tsx}\"",
     "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
   },
   "jest": {

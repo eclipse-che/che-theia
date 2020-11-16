@@ -1,12 +1,14 @@
-/*********************************************************************
- * Copyright (c) 2019 Red Hat, Inc.
+/**********************************************************************
+ * Copyright (c) 2019-2020 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- **********************************************************************/
+ ***********************************************************************/
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { AbstractInternalScanner } from '../../src/port-scanner';
 import { Port } from '../../src/port';
@@ -28,7 +30,7 @@ class DummyInternalScanner extends AbstractInternalScanner {
 }
 
 describe('Test Port Changes', () => {
-  let dummyInternalScanner = new DummyInternalScanner();
+  const dummyInternalScanner = new DummyInternalScanner();
   let portChangesDetector: PortChangesDetector;
 
   beforeEach(() => {

@@ -9,9 +9,10 @@
  ***********************************************************************/
 
 import * as path from 'path';
+
+import { CliError } from './cli-error';
 import { Command } from './command';
 import { Logger } from './logger';
-import { CliError } from './cli-error';
 
 /**
  * Handle the parsing of node packages with Yarn.
@@ -19,7 +20,6 @@ import { CliError } from './cli-error';
  * @author Florent Benoit
  */
 export class Yarn {
-
     /**
      * Command to grab dependencies
      */
@@ -30,17 +30,17 @@ export class Yarn {
      */
     public static readonly YARN_GET_CONFIG = 'yarn config current --json';
 
-    constructor(readonly rootFolder: string,
+    constructor(
+        readonly rootFolder: string,
         private readonly dependenciesDirectory: string,
         private readonly forbiddenPackages: string[],
-        private readonly excludedPackages: string[],
-    ) { }
+        private readonly excludedPackages: string[]
+    ) {}
 
     /**
      * Get package.json dependency paths (not including dev dependencies)
      */
     public async getDependencies(rootModule: string): Promise<string[]> {
-
         // grab output of the command
         const command = new Command(this.dependenciesDirectory);
         const stdout = await command.exec(Yarn.YARN_GET_DEPENDENCIES);
@@ -48,8 +48,9 @@ export class Yarn {
         // Check that we've tree array
         const match = /^{"type":"tree","data":{"type":"list","trees":(.*)}}$/gm.exec(stdout);
         if (!match || match.length !== 2) {
-            throw new CliError('Not able to find a dependency tree when executing '
-                + Yarn.YARN_GET_DEPENDENCIES + '. Found ' + stdout);
+            throw new CliError(
+                'Not able to find a dependency tree when executing ' + Yarn.YARN_GET_DEPENDENCIES + '. Found ' + stdout
+            );
         }
 
         // parse array into JSON
@@ -60,8 +61,9 @@ export class Yarn {
 
         const matchConfig = /^{"type":"log","data":"(.*)"}$/gm.exec(configStdout);
         if (!matchConfig || matchConfig.length !== 2) {
-            throw new CliError('Not able to get yarn configuration when executing '
-                + Yarn.YARN_GET_CONFIG + '. Found ' + configStdout);
+            throw new CliError(
+                'Not able to get yarn configuration when executing ' + Yarn.YARN_GET_CONFIG + '. Found ' + configStdout
+            );
         }
 
         // parse array into JSON
@@ -90,7 +92,9 @@ export class Yarn {
         subsetDependencies.forEach(moduleName => this.addNodePackage(nodeModulesFolder, moduleName, nodePackages));
 
         // return unique entries
-        return Promise.resolve(nodePackages.map(e => e.path).filter((value, index, array) => index === array.indexOf(value)));
+        return Promise.resolve(
+            nodePackages.map(e => e.path).filter((value, index, array) => index === array.indexOf(value))
+        );
     }
 
     /**
@@ -100,7 +104,11 @@ export class Yarn {
      * @param nodeTreeDependencies the object containing the tree of dependencies
      * @param subsetDependencies  the
      */
-    protected findDependencies(children: string[], nodeTreeDependencies: Map<string, string[]>, subsetDependencies: string[]): void {
+    protected findDependencies(
+        children: string[],
+        nodeTreeDependencies: Map<string, string[]>,
+        subsetDependencies: string[]
+    ): void {
         children.map(child => {
             // only loop on exist
             if (subsetDependencies.indexOf(child) >= 0) {
@@ -128,13 +136,14 @@ export class Yarn {
                     return res;
                 });
                 if (foundForbiddenPackage) {
-                    throw new CliError(`Forbidden dependencies ${matching} has been found as dependencies of ${child}` +
-                        `Current dependencies: ${depChildren}, excluded list: ${this.forbiddenPackages}`);
+                    throw new CliError(
+                        `Forbidden dependencies ${matching} has been found as dependencies of ${child}` +
+                            `Current dependencies: ${depChildren}, excluded list: ${this.forbiddenPackages}`
+                    );
                 }
                 this.findDependencies(depChildren, nodeTreeDependencies, subsetDependencies);
             }
-        }
-        );
+        });
     }
 
     /**
@@ -169,15 +178,17 @@ export class Yarn {
      * @param yarnNode the node entry to add
      * @param packages the array representing all node dependencies
      */
-    protected async addNodePackage(nodeModulesFolder: string, moduleName: string, packages: INodePackage[]): Promise<void> {
-
+    protected async addNodePackage(
+        nodeModulesFolder: string,
+        moduleName: string,
+        packages: INodePackage[]
+    ): Promise<void> {
         // build package
         const nodePackage = { name: moduleName, path: path.resolve(nodeModulesFolder, moduleName) };
 
         // add to the array
         packages.push(nodePackage);
     }
-
 }
 
 /**

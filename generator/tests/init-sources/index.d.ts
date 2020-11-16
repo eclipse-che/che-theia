@@ -1,5 +1,3 @@
-
 declare module 'json2yaml' {
-
-    export function stringify(object: any) : string;
+    export function stringify(object: any): string;
 }
