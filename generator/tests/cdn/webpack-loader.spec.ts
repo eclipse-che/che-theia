@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-const exported = require("../../src/cdn/webpack-loader");
-import { CheCdnSupport } from "../../src/cdn/base";
+const exported = require('../../src/cdn/webpack-loader');
 
-describe("Test webpack-loader", () => {
-    
-    test("test CheCdnSupport.webpackLoader function is exported", async () => {
+import { CheCdnSupport } from '../../src/cdn/base';
+
+describe('Test webpack-loader', () => {
+    test('test CheCdnSupport.webpackLoader function is exported', async () => {
         expect(exported).toBe(CheCdnSupport.webpackLoader);
     });
 });

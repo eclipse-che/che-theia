@@ -8,8 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import * as path from 'path';
 import * as fs from 'fs-extra';
+import * as path from 'path';
 
 /**
  * Clean up Theia repository:
@@ -25,11 +25,9 @@ export class Clean {
         private readonly packagesFolder: string,
         private readonly pluginsFolder: string,
         private readonly nodeModules: string
-    ) {
-    }
+    ) {}
 
     cleanCheTheia(): void {
-
         console.log('Removing extension symbolic links...');
         const packages = fs.readdirSync(this.packagesFolder);
         for (const pack of packages) {

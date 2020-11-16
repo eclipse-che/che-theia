@@ -8,18 +8,17 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Repository } from "../src/repository";
+import { Repository } from '../src/repository';
 
-describe("Test Repository", () => {
-
-    test("test valid repository", async () => {
-        const repository = new Repository("https://github.com/eclipse/che");
-        expect(repository.getRepositoryName()).toBe("che");
+describe('Test Repository', () => {
+    test('test valid repository', async () => {
+        const repository = new Repository('https://github.com/eclipse/che');
+        expect(repository.getRepositoryName()).toBe('che');
     });
 
-    test("test invalid repository", async () => {
+    test('test invalid repository', async () => {
         let error;
-        const repository = new Repository("https://foo.com");
+        const repository = new Repository('https://foo.com');
         try {
             await repository.getRepositoryName();
         } catch (err) {
@@ -27,5 +26,4 @@ describe("Test Repository", () => {
         }
         expect(error).toBeDefined();
     });
-
 });

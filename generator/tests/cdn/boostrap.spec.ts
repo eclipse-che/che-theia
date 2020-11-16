@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-require("../../src/cdn/bootstrap");
-import { CheCdnSupport } from "../../src/cdn/base";
+require('../../src/cdn/bootstrap');
 
-describe("Test bootstrap", () => {
-    
-    test("test CheCdnSupport added in window object", async () => {
+import { CheCdnSupport } from '../../src/cdn/base';
+
+describe('Test bootstrap', () => {
+    test('test CheCdnSupport added in window object', async () => {
         expect((<any>window).CheCdnSupport).toBe(CheCdnSupport);
     });
 });
