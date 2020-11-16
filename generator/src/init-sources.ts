@@ -11,6 +11,7 @@
 import * as axios from 'axios';
 import * as fs from 'fs-extra';
 import * as jsYaml from 'js-yaml';
+import * as os from 'os';
 import * as path from 'path';
 import * as readPkg from 'read-pkg';
 import * as tmp from 'tmp';
@@ -221,7 +222,7 @@ export class InitSources {
                 // write again the file
                 if (rewrite) {
                     const json = JSON.stringify(rawExtensionPackage, undefined, 2);
-                    await fs.writeFile(extensionJsonPath, json);
+                    await fs.writeFile(extensionJsonPath, json + os.EOL, { encoding: 'utf-8' });
                 }
             })
         );
