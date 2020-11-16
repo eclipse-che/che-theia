@@ -8,6 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-null/no-null */
 import { CheCdnSupport } from '../../src/cdn/base';
 
 describe('Test CheCdnSupport', () => {
@@ -117,7 +120,7 @@ describe('Test CheCdnSupport', () => {
         cdnSupport.buildScripts();
         expect(document!.head!.children!.length).toBe(2);
 
-        var child: any = document!.head!.children![0];
+        let child: any = document!.head!.children![0];
         expect(child.async).toBe(true);
         expect(child.defer).toBe(true);
         expect(child.crossOrigin).toBe('anonymous');
@@ -149,7 +152,7 @@ describe('Test CheCdnSupport', () => {
         cdnSupport.buildScripts();
         expect(document!.head!.children!.length).toBe(2);
 
-        var child: any = document!.head!.children![0];
+        let child: any = document!.head!.children![0];
         expect(child.async).toBe(true);
         expect(child.defer).toBe(true);
         expect(child.crossOrigin).toBe('anonymous');

@@ -8,6 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import * as cp from 'child_process';
 import * as fs from 'fs-extra';
 import * as json2yaml from 'json2yaml';
@@ -15,6 +17,7 @@ import * as path from 'path';
 import * as tmp from 'tmp';
 import * as yargs from 'yargs';
 
+// eslint-disable-next-line spaced-comment
 /// <reference path="index.d.ts"/>
 import { ISource, InitSources } from '../../src/init-sources';
 
@@ -70,12 +73,12 @@ describe('Test Extensions', () => {
         initGit(sourceExtension2Tmp);
     });
 
-    function initGit(path: string) {
-        cp.execSync('git init', { cwd: path });
-        cp.execSync('git config --local user.name "test user"', { cwd: path });
-        cp.execSync('git config --local user.email user@example.com', { cwd: path });
-        cp.execSync(`git add ${path}`, { cwd: path });
-        cp.execSync(`git commit -m "Init repo"`, { cwd: path });
+    function initGit(cwd: string) {
+        cp.execSync('git init', { cwd });
+        cp.execSync('git config --local user.name "test user"', { cwd });
+        cp.execSync('git config --local user.email user@example.com', { cwd });
+        cp.execSync(`git add ${cwd}`, { cwd });
+        cp.execSync(`git commit -m "Init repo"`, { cwd });
     }
 
     afterEach(() => {
@@ -318,9 +321,9 @@ describe('Test Extensions', () => {
 
         let generateCalled = false;
         let configurationContent = undefined;
-        initSources.generate = jest.fn(async (path: string) => {
+        initSources.generate = jest.fn(async (pathGenerate: string) => {
             generateCalled = true;
-            configurationContent = fs.readFileSync(path).toString();
+            configurationContent = fs.readFileSync(pathGenerate).toString();
         });
 
         initSources.keepGitHistory = false;
@@ -357,7 +360,7 @@ describe('Test Extensions', () => {
             THEIA_DUMMY_VERSION
         );
 
-        let uri: string = InitSources.DEFAULT_EXTENSIONS_URI;
+        const uri: string = InitSources.DEFAULT_EXTENSIONS_URI;
         try {
             (<any>InitSources)['DEFAULT_EXTENSIONS_URI'] = 'https://foobarfoo.com/foo/bar';
             await initSources.readConfigurationAndGenerate(undefined, false);
@@ -369,15 +372,15 @@ describe('Test Extensions', () => {
     });
 
     test('test command options', async () => {
-        const yargs = new YargsMockup();
-        InitSources.argBuilder(<yargs.Argv>yargs);
+        const yargsMockup = new YargsMockup();
+        InitSources.argBuilder(<yargs.Argv>yargsMockup);
 
-        expect(yargs.options['config']).toEqual({
+        expect(yargsMockup.options['config']).toEqual({
             description: 'Path to custom config file',
             alias: 'c',
         });
 
-        expect(yargs.options['dev']).toEqual({
+        expect(yargsMockup.options['dev']).toEqual({
             description:
                 'Initialize current Theia with Che/Theia extensions from "master" branch instead of provided branches',
             alias: 'd',

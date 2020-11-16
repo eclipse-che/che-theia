@@ -1,12 +1,14 @@
-/*
- * Copyright (c) 2018 Red Hat, Inc.
- * All rights reserved. This program and the accompanying materials are made
+/**********************************************************************
+ * Copyright (c) 2018-2020 Red Hat, Inc.
+ *
+ * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
- * Contributors:
- *   Red Hat, Inc. - initial API and implementation
- */
+ * SPDX-License-Identifier: EPL-2.0
+ ***********************************************************************/
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import * as fs from 'fs-extra';
 import * as path from 'path';
@@ -72,14 +74,14 @@ describe('Test production', () => {
         const productionReady = await production.create();
 
         // check if src-gen files are there
-        expect(await fs.existsSync(path.join(productionReady, 'src-gen/foo/index.js'))).toBeTruthy();
-        expect(await fs.existsSync(path.join(productionReady, 'src-gen/bar/index.js'))).toBeTruthy();
+        expect(fs.existsSync(path.join(productionReady, 'src-gen/foo/index.js'))).toBeTruthy();
+        expect(fs.existsSync(path.join(productionReady, 'src-gen/bar/index.js'))).toBeTruthy();
 
         // check if lib files are there
-        expect(await fs.existsSync(path.join(productionReady, 'lib/dummy/mylib'))).toBeTruthy();
+        expect(fs.existsSync(path.join(productionReady, 'lib/dummy/mylib'))).toBeTruthy();
 
         // check dependencies are there
-        expect(await fs.existsSync(path.join(productionReady, dependency1Name))).toBeTruthy();
+        expect(fs.existsSync(path.join(productionReady, dependency1Name))).toBeTruthy();
     });
 
     test('Test invalid dependency', async () => {
@@ -87,9 +89,9 @@ describe('Test production', () => {
         (Yarn as any).__setDependencies('@eclipse-che/theia-assembly', dependencies);
 
         // write a package.json file
-        //await fs.copy(path.join(assemblyExamplePath, 'package.json'), path.join(examplesAssemblyFolderTmp, 'package.json'));
+        // await fs.copy(path.join(assemblyExamplePath, 'package.json'), path.join(examplesAssemblyFolderTmp, 'package.json'));
         // write lock file
-        //await fs.copy(path.join(assemblyExamplePath, 'yarn.lock'), path.join(rootFolderTmp, 'yarn.lock'));
+        // await fs.copy(path.join(assemblyExamplePath, 'yarn.lock'), path.join(rootFolderTmp, 'yarn.lock'));
 
         production = new Production(rootFolderTmp, examplesAssemblyFolderTmp, productionFolderTmp);
         try {

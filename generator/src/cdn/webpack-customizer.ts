@@ -19,6 +19,7 @@ export function customizeWebpackConfig(
     monacopkg: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     baseConfig: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
     let theiaCDN = '';
     let monacoCDN = '';
@@ -108,8 +109,8 @@ export function customizeWebpackConfig(
 
         // Insert a custom loader to override file and url loaders,
         // in order to insert CDN-related logic
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         baseConfig.module.rules
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .filter((rule: any) => rule.loader && rule.loader.match(/(file-loader|url-loader)/))
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .forEach((rule: any) => {

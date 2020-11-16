@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as tmp from 'tmp';
