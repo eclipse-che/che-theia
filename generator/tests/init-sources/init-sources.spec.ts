@@ -10,6 +10,9 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+// eslint-disable-next-line spaced-comment
+/// <reference path="index.d.ts"/>
+
 import * as cp from 'child_process';
 import * as fs from 'fs-extra';
 import * as json2yaml from 'json2yaml';
@@ -17,8 +20,6 @@ import * as path from 'path';
 import * as tmp from 'tmp';
 import * as yargs from 'yargs';
 
-// eslint-disable-next-line spaced-comment
-/// <reference path="index.d.ts"/>
 import { ISource, InitSources } from '../../src/init-sources';
 
 import { YargsMockup } from '../cdn.spec';
