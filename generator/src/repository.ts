@@ -8,22 +8,20 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import * as path from 'path';
+
 import { CliError } from './cli-error';
 import { Command } from './command';
-import * as path from 'path';
 
 /**
  * Allow to clone git repositories easily
  */
 export class Repository {
-
     /**
      * Default constructor with the given URI
      * @param uri
      */
-    constructor(private readonly uri: string) {
-
-    }
+    constructor(private readonly uri: string) {}
 
     /**
      * Grab the repository name based on the given URI of repository.
@@ -45,7 +43,12 @@ export class Repository {
      * @param checkoutTo the optional branch/tag to use when cloning
      * @param keepHistory the optional flag to keep / omit git history
      */
-    public async clone(checkoutFolder: string, dest: string, checkoutTo?: string, keepHistory: boolean = true): Promise<string> {
+    public async clone(
+        checkoutFolder: string,
+        dest: string,
+        checkoutTo?: string,
+        keepHistory: boolean = true
+    ): Promise<string> {
         const commandTheiaFolder = new Command(checkoutFolder);
 
         // Use -b to clone the specific branch
@@ -59,5 +62,4 @@ export class Repository {
         const clonedDir = path.resolve(checkoutFolder, dest);
         return clonedDir;
     }
-
 }

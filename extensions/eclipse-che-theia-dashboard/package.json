@@ -16,10 +16,10 @@
   "scripts": {
     "prepare": "yarn clean && yarn build",
     "clean": "rimraf lib",
-    "format": "prettier --check '**/*.ts' package.json",
-    "format:fix": "prettier --write '**/*.ts' package.json",
-    "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
-    "lint:fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
+    "format": "prettier --check '{src,tests}/**/*.ts' package.json",
+    "format:fix": "prettier --write '{src,tests}/**/*.ts' package.json",
+    "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,tests}/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,tests}/**/*.{ts,tsx}\"",
     "compile": "tsc",
     "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
     "watch": "tsc -w"

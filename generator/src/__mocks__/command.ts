@@ -14,7 +14,6 @@
  * Mock of the command class.
  */
 export class Command {
-
     /**
      * Map between the name of the exec command and the output.
      */
@@ -25,9 +24,7 @@ export class Command {
         Command.execMap.set(command, output);
     }
 
-    constructor() {
-
-    }
+    constructor() {}
 
     public async exec(command: string): Promise<string> {
         const result = Command.execMap.get(command);
@@ -37,5 +34,4 @@ export class Command {
             return Promise.resolve('');
         }
     }
-
 }

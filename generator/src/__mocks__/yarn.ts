@@ -14,7 +14,6 @@
  * Mock of the Yarn class.
  */
 export class Yarn {
-
     /**
      * Map between the name of the root Moduleand the output.
      */
@@ -25,9 +24,7 @@ export class Yarn {
         Yarn.dependenciesMap.set(rootModule, dependencies);
     }
 
-    constructor() {
-
-    }
+    constructor() {}
 
     public async getDependencies(rootModule: string): Promise<string[]> {
         const result = Yarn.dependenciesMap.get(rootModule);
@@ -37,5 +34,4 @@ export class Yarn {
             return Promise.resolve([]);
         }
     }
-
 }

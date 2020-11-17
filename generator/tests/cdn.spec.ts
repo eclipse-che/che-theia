@@ -1,17 +1,19 @@
-/*
- * Copyright (c) 2018 Red Hat, Inc.
- * All rights reserved. This program and the accompanying materials are made
+/**********************************************************************
+ * Copyright (c) 2018-2020 Red Hat, Inc.
+ *
+ * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
- * Contributors:
- *   Red Hat, Inc. - initial API and implementation
- */
+ * SPDX-License-Identifier: EPL-2.0
+ ***********************************************************************/
 
-import { Cdn } from "../src/cdn";
-import * as path from 'path';
-import * as tmp from "tmp";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as fs from 'fs-extra';
+import * as path from 'path';
+import * as tmp from 'tmp';
+
+import { Cdn } from '../src/cdn';
 
 export class YargsMockup {
     options: any = {};
@@ -21,17 +23,17 @@ export class YargsMockup {
     }
 }
 
-describe("Test Cdn command", () => {
+describe('Test Cdn command', () => {
     let rootFolderTmp: string;
     let examplesAssemblyFolderTmp: string;
 
     beforeEach(async () => {
-        rootFolderTmp = tmp.dirSync({ mode: 0o750, prefix: "tmpInit", postfix: "" }).name;
+        rootFolderTmp = tmp.dirSync({ mode: 0o750, prefix: 'tmpInit', postfix: '' }).name;
         examplesAssemblyFolderTmp = path.resolve(rootFolderTmp, 'examples/assembly');
         await fs.ensureDir(examplesAssemblyFolderTmp);
     });
 
-    test("test command options", async () => {
+    test('test command options', async () => {
         const yargs = new YargsMockup();
         Cdn.argBuilder(yargs);
         expect(yargs.options['theia']).toEqual({
@@ -39,18 +41,18 @@ describe("Test Cdn command", () => {
             requiresArg: true,
             type: 'string',
             default: Cdn.defaultTheiaCdnPrefix,
-            defaultDescription: Cdn.defaultTheiaCdnPrefix
+            defaultDescription: Cdn.defaultTheiaCdnPrefix,
         });
         expect(yargs.options['monaco']).toEqual({
             describe: 'Base URL of the CDN that will host Monaco Editor files',
             requiresArg: true,
             type: 'string',
             default: Cdn.defaultMonacoCdnPrefix,
-            defaultDescription: Cdn.defaultMonacoCdnPrefix
+            defaultDescription: Cdn.defaultMonacoCdnPrefix,
         });
     });
 
-    test("test create", async () => {
+    test('test create', async () => {
         const theiaCDN = 'theiaCDN';
         const monacoCDN = 'monacoCDN';
 

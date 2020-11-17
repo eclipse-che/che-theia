@@ -8,28 +8,28 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import * as path from 'path';
-import * as tmp from "tmp";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as fs from 'fs-extra';
-import { Init } from "../../src/init";
-import { Command } from "../../src/command";
+import * as path from 'path';
+import * as tmp from 'tmp';
+
+import { Command } from '../../src/command';
+import { Init } from '../../src/init';
 
 jest.setTimeout(10000);
-jest.mock("../../src/command");
+jest.mock('../../src/command');
 
-describe("Test Init", () => {
-
+describe('Test Init', () => {
     const rootFolder = process.cwd();
-    const rootFolderTheia = path.resolve(rootFolder, "tests/init/root-folder");
+    const rootFolderTheia = path.resolve(rootFolder, 'tests/init/root-folder');
     let rootFolderTmp: string;
     let examplesAssemblyFolderTmp: string;
     let cdnFolderTmp: string;
     let checkoutFolderTmp: string;
     let pluginsFolderTmp: string;
 
-
     beforeEach(async () => {
-        rootFolderTmp = tmp.dirSync({ mode: 0o750, prefix: "tmpInit", postfix: "" }).name;
+        rootFolderTmp = tmp.dirSync({ mode: 0o750, prefix: 'tmpInit', postfix: '' }).name;
         examplesAssemblyFolderTmp = path.resolve(rootFolderTmp, 'examples/assembly');
         checkoutFolderTmp = path.resolve(rootFolderTmp, 'checkout-folder');
         cdnFolderTmp = path.resolve(examplesAssemblyFolderTmp, 'cdn');
@@ -41,27 +41,27 @@ describe("Test Init", () => {
         fs.removeSync(rootFolderTmp);
     });
 
-
-    test("test getTheia version", async () => {
+    test('test getTheia version', async () => {
         const init = new Init(rootFolderTheia, '', '', '');
         expect(await init.getCurrentVersion()).toBe('0.0.123');
     });
 
-    test("test getPackageWithVersion when no version is available", async () => {
+    test('test getPackageWithVersion when no version is available', async () => {
         (Command as any).__setExecCommandOutput(
-                Init.GET_PACKAGE_WITH_VERSION_CMD + Init.MONACO_CORE_PKG,
-                '{"type":"tree","data":{"type":"list","trees":[]}}');
+            Init.GET_PACKAGE_WITH_VERSION_CMD + Init.MONACO_CORE_PKG,
+            '{"type":"tree","data":{"type":"list","trees":[]}}'
+        );
         const init = new Init(rootFolderTheia, '', '', '');
         expect(await init.getPackageWithVersion(Init.MONACO_CORE_PKG)).toBe('');
     });
 
-    test("test generate", async () => {
+    test('test generate', async () => {
         const coreVersion = 'coreVersion';
-        [[Init.MONACO_CORE_PKG, coreVersion]]
-        .forEach(([pkg, version]) => {
+        [[Init.MONACO_CORE_PKG, coreVersion]].forEach(([pkg, version]) => {
             (Command as any).__setExecCommandOutput(
                 Init.GET_PACKAGE_WITH_VERSION_CMD + pkg,
-                '{"type":"tree","data":{"type":"list","trees":[{"name": "' + pkg + '@' + version + '"}]}}');
+                '{"type":"tree","data":{"type":"list","trees":[{"name": "' + pkg + '@' + version + '"}]}}'
+            );
         });
 
         const init = new Init(rootFolderTheia, examplesAssemblyFolderTmp, checkoutFolderTmp, pluginsFolderTmp);
@@ -70,10 +70,15 @@ describe("Test Init", () => {
         const contentPackageJson = await fs.readFile(path.join(examplesAssemblyFolderTmp, 'package.json'));
         const packageJson = JSON.parse(contentPackageJson.toString());
         expect(packageJson.name).toBe('@eclipse-che/theia-assembly');
-        expect(packageJson['dependencies']['@theia/core']).toBe('^' + await init.getCurrentVersion());
-        expect(packageJson['scripts']['build']).toBe('theia build --mode production --config cdn/webpack.config.js --env.cdn=./cdn.json'
-            + ' --env.monacopkg=' + Init.MONACO_CORE_PKG + '@' + coreVersion
-            + ' && yarn run override-vs-loader');
+        expect(packageJson['dependencies']['@theia/core']).toBe('^' + (await init.getCurrentVersion()));
+        expect(packageJson['scripts']['build']).toBe(
+            'theia build --mode production --config cdn/webpack.config.js --env.cdn=./cdn.json' +
+                ' --env.monacopkg=' +
+                Init.MONACO_CORE_PKG +
+                '@' +
+                coreVersion +
+                ' && yarn run override-vs-loader'
+        );
         // check folders have been created
         expect(fs.existsSync(examplesAssemblyFolderTmp)).toBeTruthy();
         expect(fs.existsSync(checkoutFolderTmp)).toBeTruthy();
@@ -91,5 +96,4 @@ describe("Test Init", () => {
         // check that build plugins script has been copied
         expect(fs.existsSync(path.resolve(pluginsFolderTmp, 'foreach_yarn'))).toBeTruthy();
     });
-
 });
