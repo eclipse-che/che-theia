@@ -36,13 +36,9 @@
   "devDependencies": {
     "@types/fs-extra": "^9.0.1",
     "@types/semver": "^7.3.1",
-    "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-jest": "^23.11.0",
     "import-sort-style-eslint": "^6.0.0",
-    "prettier": "^2.0.5",
-    "prettier-plugin-import-sort": "^0.0.4",
     "ts-mockito": "^2.5.0",
-    "ts-node": "^8.10.1",
     "vuepress": "^1.5.2"
   },
   "jest": {
