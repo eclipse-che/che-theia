@@ -1,20 +1,30 @@
 {
-    "plugins": [
-        "@typescript-eslint",
-        "import",
-        "no-null",
-        "sonarjs",
-        "header"
-    ],
-    "extends": [
-        "prettier/@typescript-eslint"
-    ],
-    "rules": {
-        "@typescript-eslint/await-thenable": "error",
-        "@typescript-eslint/no-unnecessary-type-assertion": "error",
-        "sonarjs/no-unused-collection": "error",
-        "sonarjs/no-small-switch": "error",
-        "no-shadow": "off",
-        "@typescript-eslint/no-shadow": ["error"]
-    }
+  "plugins": ["@typescript-eslint", "import", "no-null", "sonarjs", "header"],
+  "extends": ["prettier/@typescript-eslint"],
+  "rules": {
+    "@typescript-eslint/await-thenable": "error",
+    "@typescript-eslint/no-unnecessary-type-assertion": "error",
+    "sonarjs/no-unused-collection": "error",
+    "sonarjs/no-small-switch": "error",
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": ["error"],
+    "header/header": [
+      2,
+      "block",
+      [
+        "*********************************************************************",
+        {
+          "pattern": "^ \\* Copyright \\(c\\) \\d{4}(-\\d{4})* Red Hat, Inc\\.$",
+          "template": " * Copyright (c) 2020 Red Hat, Inc."
+        },
+        " *",
+        " * This program and the accompanying materials are made",
+        " * available under the terms of the Eclipse Public License 2.0",
+        " * which is available at https://www.eclipse.org/legal/epl-2.0/",
+        " *",
+        " * SPDX-License-Identifier: EPL-2.0",
+        " **********************************************************************"
+      ]
+    ]
+  }
 }
