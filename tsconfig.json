@@ -7,8 +7,12 @@
     },
     "include": [
         "dev-packages/*/src",
+        "generator/src",
+        "generator/tests",
         "plugins/*/src",
+        "plugins/*/tests",
         "extensions/*/src",
+        "extensions/*/tests",
         "tools/*/src"
     ],
     "types": [

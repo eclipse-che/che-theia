@@ -94,40 +94,23 @@
                 ]
             }
         ],
-        "@typescript-eslint/tslint/config": [
-            "error",
-            {
-                "rules": {
-                    "file-header": [
-                        true,
-                        "SPDX-License-Identifier: EPL-2\\.0"
-                    ],
-                    "jsdoc-format": [
-                        true,
-                        "check-multiline-start"
-                    ],
-                    "one-line": [
-                        true,
-                        "check-open-brace",
-                        "check-catch",
-                        "check-else",
-                        "check-whitespace"
-                    ],
-                    "typedef": [
-                        true,
-                        "call-signature",
-                        "property-declaration"
-                    ],
-                    "whitespace": [
-                        true,
-                        "check-branch",
-                        "check-decl",
-                        "check-operator",
-                        "check-separator",
-                        "check-type"
-                    ]
-                }
-            }
+        "header/header": [
+            2,
+            "block",
+            [
+              "*********************************************************************",
+              {
+                "pattern": "^ \\* Copyright \\(c\\) \\d{4}(-\\d{4})* Red Hat, Inc\\.$",
+                "template": " * Copyright (c) 2020 Red Hat, Inc."
+              },
+              " *",
+              " * This program and the accompanying materials are made",
+              " * available under the terms of the Eclipse Public License 2.0",
+              " * which is available at https://www.eclipse.org/legal/epl-2.0/",
+              " *",
+              " * SPDX-License-Identifier: EPL-2.0",
+              " **********************************************************************"
+            ]
         ]
     }
 }

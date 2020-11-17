@@ -1,12 +1,12 @@
-/*********************************************************************
- * Copyright (c) 2018 Red Hat, Inc.
+/**********************************************************************
+ * Copyright (c) 2018-2020 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- **********************************************************************/
+ ***********************************************************************/
 
 /**
  * This is the place for API experiments and proposals.
@@ -21,6 +21,11 @@ declare module '@eclipse-che/plugin' {
     export interface KeyValue {
         [key: string]: string;
     }
+    
+    export interface RestartWorkspaceOptions {
+        prompt?: boolean;
+        promptMessage? : string;
+    }
 
     export namespace workspace {
         export function getCurrentWorkspace(): Promise<cheApi.workspace.Workspace>;
@@ -34,6 +39,12 @@ declare module '@eclipse-che/plugin' {
         export function startTemporary(config: cheApi.workspace.WorkspaceConfig): Promise<any>;
         export function stop(workspaceId: string): Promise<any>;
         export function getSettings(): Promise<KeyValue>;
+        /**
+         * Restart the current workspace
+         * @param restartWorkspaceOptions options to restart
+         * @return true if restart will occur
+         */
+        export function restartWorkspace(restartWorkspaceOptions?: RestartWorkspaceOptions): Promise<boolean>;
     }
 
     export namespace devfile {

@@ -1,29 +1,30 @@
-/*
- * Copyright (c) 2018 Red Hat, Inc.
- * All rights reserved. This program and the accompanying materials are made
+/**********************************************************************
+ * Copyright (c) 2018-2020 Red Hat, Inc.
+ *
+ * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
- * Contributors:
- *   Red Hat, Inc. - initial API and implementation
- */
+ * SPDX-License-Identifier: EPL-2.0
+ ***********************************************************************/
 
-import * as fs from "fs";
-import { Command } from "../../src/command";
-import { Yarn } from "../../src/yarn";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import * as fs from 'fs';
 
-jest.mock("../../src/command");
+import { Command } from '../../src/command';
+import { Yarn } from '../../src/yarn';
 
-describe("Test yarn dependencies", () => {
+jest.mock('../../src/command');
 
+describe('Test yarn dependencies', () => {
     let yarn: Yarn;
 
     beforeEach(() => {
-        yarn = new Yarn("/tmp", '/tmp', [], []);
+        yarn = new Yarn('/tmp', '/tmp', [], []);
     });
 
-    test("invalid output", async () => {
-        (Command as any).__setExecCommandOutput(Yarn.YARN_GET_DEPENDENCIES, "error");
+    test('invalid output', async () => {
+        (Command as any).__setExecCommandOutput(Yarn.YARN_GET_DEPENDENCIES, 'error');
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_CONFIG, '{"type":"log","data":"{}"}');
         try {
             await yarn.getDependencies('foo');
@@ -32,8 +33,8 @@ describe("Test yarn dependencies", () => {
         }
     });
 
-    test("invalid config output", async () => {
-        const output = fs.readFileSync(__dirname + "/json-list-prod-no-dep.stdout");
+    test('invalid config output', async () => {
+        const output = fs.readFileSync(__dirname + '/json-list-prod-no-dep.stdout');
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_DEPENDENCIES, output);
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_CONFIG, 'error');
         try {
@@ -43,87 +44,87 @@ describe("Test yarn dependencies", () => {
         }
     });
 
-    test("module not fond", async () => {
-        const output = fs.readFileSync(__dirname + "/json-list-prod-no-dep.stdout");
+    test('module not fond', async () => {
+        const output = fs.readFileSync(__dirname + '/json-list-prod-no-dep.stdout');
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_DEPENDENCIES, output);
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_CONFIG, '{"type":"log","data":"{}"}');
         try {
-        await yarn.getDependencies('');
-    } catch (e) {
-        expect(e.toString()).toMatch(/The initial module  was not found in dependencies.*$/);
-    }
+            await yarn.getDependencies('');
+        } catch (e) {
+            expect(e.toString()).toMatch(/The initial module  was not found in dependencies.*$/);
+        }
     });
 
-    test("one dependency", async () => {
-        const output = fs.readFileSync(__dirname + "/json-list-prod-one-dep.stdout");
+    test('one dependency', async () => {
+        const output = fs.readFileSync(__dirname + '/json-list-prod-one-dep.stdout');
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_DEPENDENCIES, output);
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_CONFIG, '{"type":"log","data":"{}"}');
         const dependencyList = await yarn.getDependencies('lodash');
-        expect(dependencyList).toEqual(["/tmp/node_modules/depd"]);
+        expect(dependencyList).toEqual(['/tmp/node_modules/depd']);
     });
 
-    test("one dependency duplicated", async () => {
-        const output = fs.readFileSync(__dirname + "/json-list-prod-one-dep-duplicate.stdout");
+    test('one dependency duplicated', async () => {
+        const output = fs.readFileSync(__dirname + '/json-list-prod-one-dep-duplicate.stdout');
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_DEPENDENCIES, output);
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_CONFIG, '{"type":"log","data":"{}"}');
         const dependencyList = await yarn.getDependencies('lodash');
-        expect(dependencyList).toEqual(["/tmp/node_modules/depd"]);
+        expect(dependencyList).toEqual(['/tmp/node_modules/depd']);
     });
 
-
-    test("dependencies with excluding not matching", async () => {
-        const customYarn = new Yarn("/tmp", '/tmp', [], ['not-a-dependency']);
-        const output = fs.readFileSync(__dirname + "/json-list-prod-webpack.stdout");
+    test('dependencies with excluding not matching', async () => {
+        const customYarn = new Yarn('/tmp', '/tmp', [], ['not-a-dependency']);
+        const output = fs.readFileSync(__dirname + '/json-list-prod-webpack.stdout');
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_DEPENDENCIES, output);
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_CONFIG, '{"type":"log","data":"{}"}');
         const dependencyList = await customYarn.getDependencies('webpack');
         expect(dependencyList.length).toEqual(309);
     });
 
-    test("one dependency with forbidden not matching", async () => {
-        const customYarn = new Yarn("/tmp", '/tmp', ['not-a-dependency'], []);
-        const output = fs.readFileSync(__dirname + "/json-list-prod-excluded.stdout");
+    test('one dependency with forbidden not matching', async () => {
+        const customYarn = new Yarn('/tmp', '/tmp', ['not-a-dependency'], []);
+        const output = fs.readFileSync(__dirname + '/json-list-prod-excluded.stdout');
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_DEPENDENCIES, output);
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_CONFIG, '{"type":"log","data":"{}"}');
         const dependencyList = await customYarn.getDependencies('react');
-        expect(dependencyList).toEqual(["/tmp/node_modules/loose-envify", "/tmp/node_modules/js-tokens"]);
+        expect(dependencyList).toEqual(['/tmp/node_modules/loose-envify', '/tmp/node_modules/js-tokens']);
     });
 
-    test("one dependency with excluded", async () => {
-        const customYarn = new Yarn("/tmp", '/tmp', [], ['js-tokens']);
-        const output = fs.readFileSync(__dirname + "/json-list-prod-excluded.stdout");
+    test('one dependency with excluded', async () => {
+        const customYarn = new Yarn('/tmp', '/tmp', [], ['js-tokens']);
+        const output = fs.readFileSync(__dirname + '/json-list-prod-excluded.stdout');
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_DEPENDENCIES, output);
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_CONFIG, '{"type":"log","data":"{}"}');
         const dependencyList = await customYarn.getDependencies('react');
-        expect(dependencyList).toEqual(["/tmp/node_modules/loose-envify"]);
+        expect(dependencyList).toEqual(['/tmp/node_modules/loose-envify']);
     });
 
-    test("one dependency with forbidden matching", async () => {
-        const customYarn = new Yarn("/tmp", '/tmp', ['js-tokens'], []);
-        const output = fs.readFileSync(__dirname + "/json-list-prod-excluded.stdout");
+    test('one dependency with forbidden matching', async () => {
+        const customYarn = new Yarn('/tmp', '/tmp', ['js-tokens'], []);
+        const output = fs.readFileSync(__dirname + '/json-list-prod-excluded.stdout');
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_DEPENDENCIES, output);
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_CONFIG, '{"type":"log","data":"{}"}');
         try {
             await customYarn.getDependencies('react');
         } catch (e) {
-            expect(e.toString()).toMatch(/Forbidden dependencies js-tokens has been found as dependencies of loose-envifyCurrent dependencies: js-tokens, excluded list: js-tokens.*$/);
+            expect(e.toString()).toMatch(
+                /Forbidden dependencies js-tokens has been found as dependencies of loose-envifyCurrent dependencies: js-tokens, excluded list: js-tokens.*$/
+            );
         }
     });
 
-
-    test("one dependency with custom node_modules folder", async () => {
-        const output = fs.readFileSync(__dirname + "/json-list-prod-one-dep.stdout");
+    test('one dependency with custom node_modules folder', async () => {
+        const output = fs.readFileSync(__dirname + '/json-list-prod-one-dep.stdout');
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_DEPENDENCIES, output);
 
-        const configOutput = fs.readFileSync(__dirname + "/json-config-modules-folder.stdout");
+        const configOutput = fs.readFileSync(__dirname + '/json-config-modules-folder.stdout');
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_CONFIG, configOutput);
 
         const dependencyList = await yarn.getDependencies('lodash');
-        expect(dependencyList).toEqual(["/node_modules/depd"]);
+        expect(dependencyList).toEqual(['/node_modules/depd']);
     });
 
-    test("one dependency with children", async () => {
-        const output = fs.readFileSync(__dirname + "/json-list-prod-one-dep-children.stdout");
+    test('one dependency with children', async () => {
+        const output = fs.readFileSync(__dirname + '/json-list-prod-one-dep-children.stdout');
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_DEPENDENCIES, output);
         (Command as any).__setExecCommandOutput(Yarn.YARN_GET_CONFIG, '{"type":"log","data":"{}"}');
         const dependencyList = await yarn.getDependencies('http-errors');

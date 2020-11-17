@@ -1,12 +1,12 @@
-/*********************************************************************
-* Copyright (c) 2018 Red Hat, Inc.
-*
-* This program and the accompanying materials are made
-* available under the terms of the Eclipse Public License 2.0
-* which is available at https://www.eclipse.org/legal/epl-2.0/
-*
-* SPDX-License-Identifier: EPL-2.0
-**********************************************************************/
+/**********************************************************************
+ * Copyright (c) 2018-2020 Red Hat, Inc.
+ *
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ***********************************************************************/
 
 export interface Extension {
     name: string;
@@ -44,6 +44,7 @@ export class CheCdnSupport {
 
     static instance: CheCdnSupport;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     static register(context: any) {
         context[CheCdnSupport.className] = CheCdnSupport;
     }
@@ -63,7 +64,8 @@ export class CheCdnSupport {
     noCDN: boolean = false;
 
     buildScripts(): void {
-        this.info.chunks.map((entry: CdnChunk) => this.url(entry.cdn, entry.chunk))
+        this.info.chunks
+            .map((entry: CdnChunk) => this.url(entry.cdn, entry.chunk))
             .forEach((url: string) => {
                 const script = document.createElement('script');
                 script.src = url;
@@ -71,7 +73,7 @@ export class CheCdnSupport {
                 script.defer = true;
                 script.crossOrigin = 'anonymous';
                 script.charset = 'utf-8';
-                document!.head!.append(script);
+                document!.head.append(script);
             });
     }
     buildScriptsWithoutCdn(): void {
@@ -82,8 +84,9 @@ export class CheCdnSupport {
         let result = fallback;
         if (!this.noCDN && withCDN) {
             const request = new XMLHttpRequest();
-            request.onload = function() {
-                if (this.status >= 200 && this.status < 300 || this.status === 304) {
+            // eslint-disable-next-line space-before-function-paren
+            request.onload = function () {
+                if ((this.status >= 200 && this.status < 300) || this.status === 304) {
                     result = withCDN;
                 }
             };
@@ -98,12 +101,13 @@ export class CheCdnSupport {
         return result;
     }
     resourceUrl(path: string): string {
-        const cached = this.info.resources.find((entry) => entry.resource === path);
+        const cached = this.info.resources.find(entry => entry.resource === path);
         if (cached) {
             return this.url(cached.cdn, cached.resource);
         }
         return path;
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vsLoader(context: any): void {
         const loaderURL = this.url(this.info.monaco.vsLoader.cdn, this.info.monaco.vsLoader.external);
         const request = new XMLHttpRequest();
@@ -111,17 +115,17 @@ export class CheCdnSupport {
         request.send();
         new Function(request.responseText).call(context);
         if (this.info.monaco.vsLoader.cdn && loaderURL === this.info.monaco.vsLoader.cdn) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const pathsWithCdns: any = {};
-            this.info.monaco.requirePaths
-                .forEach((path: CdnExternal) => {
-                    const jsFile = path.external + '.js';
-                    const jsCdnFile = path.cdn ? path.cdn + '.js' : undefined;
-                    if (this.url(jsCdnFile, jsFile) === jsCdnFile) {
-                        pathsWithCdns[path.external] = path.cdn;
-                    }
-                });
+            this.info.monaco.requirePaths.forEach((path: CdnExternal) => {
+                const jsFile = path.external + '.js';
+                const jsCdnFile = path.cdn ? path.cdn + '.js' : undefined;
+                if (this.url(jsCdnFile, jsFile) === jsCdnFile) {
+                    pathsWithCdns[path.external] = path.cdn;
+                }
+            });
             context.require.config({
-                paths: pathsWithCdns
+                paths: pathsWithCdns,
             });
         }
     }

@@ -9,6 +9,6 @@
  */
 
 /**
- * Mock of @theia/plugin module 
+ * Mock of @theia/plugin module
  * @author Valerii Svydenko
  */

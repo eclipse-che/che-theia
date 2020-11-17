@@ -1,28 +1,27 @@
-/********************************************************************************
- * Copyright (C) 2019 Red Hat, Inc. and others.
+/**********************************************************************
+ * Copyright (c) 2019-2020 Red Hat, Inc.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License v. 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
- * This Source Code may also be made available under the following Secondary
- * Licenses when the conditions for such availability set forth in the Eclipse
- * Public License v. 2.0 are satisfied: GNU General Public License, version 2
- * with the GNU Classpath Exception which is available at
- * https://www.gnu.org/software/classpath/license.html.
- *
- * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
- ********************************************************************************/
+ * SPDX-License-Identifier: EPL-2.0
+ ***********************************************************************/
 
-import { ContainerModule } from 'inversify';
-import { WebSocketConnectionProvider, FrontendApplicationContribution } from '@theia/core/lib/browser';
-import { ActivityTrackerService, ACTIVITY_TRACKER_SERVICE_PATH } from '../common/activity-tracker-protocol';
+import { ACTIVITY_TRACKER_SERVICE_PATH, ActivityTrackerService } from '../common/activity-tracker-protocol';
+import { FrontendApplicationContribution, WebSocketConnectionProvider } from '@theia/core/lib/browser';
+
 import { CheTheiaActivityTrackerFrontendContribution } from './che-theia-activity-tracker-contribution';
+import { ContainerModule } from 'inversify';
 
 export default new ContainerModule(bind => {
-    bind(ActivityTrackerService).toDynamicValue(context =>
-        context.container.get(WebSocketConnectionProvider).createProxy<ActivityTrackerService>(ACTIVITY_TRACKER_SERVICE_PATH)
-    ).inSingletonScope();
+  bind(ActivityTrackerService)
+    .toDynamicValue(context =>
+      context.container
+        .get(WebSocketConnectionProvider)
+        .createProxy<ActivityTrackerService>(ACTIVITY_TRACKER_SERVICE_PATH)
+    )
+    .inSingletonScope();
 
-    bind(FrontendApplicationContribution).to(CheTheiaActivityTrackerFrontendContribution);
+  bind(FrontendApplicationContribution).to(CheTheiaActivityTrackerFrontendContribution);
 });

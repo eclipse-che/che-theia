@@ -1,4 +1,4 @@
-/*********************************************************************
+/**********************************************************************
  * Copyright (c) 2020 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
@@ -6,19 +6,20 @@
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- **********************************************************************/
+ ***********************************************************************/
 
-import { ContainerModule } from 'inversify';
 import { CliEndpoint, cliPath } from '../common';
-import { DefaultCliEndpoint } from './default-cli-endpoint';
+
 import { ConnectionContainerModule } from '@theia/core/lib/node/messaging/connection-container-module';
+import { ContainerModule } from 'inversify';
+import { DefaultCliEndpoint } from './default-cli-endpoint';
 
 const cliServiceModule = ConnectionContainerModule.create(({ bindBackendService }) => {
-    bindBackendService(cliPath, CliEndpoint);
+  bindBackendService(cliPath, CliEndpoint);
 });
 
 export default new ContainerModule(bind => {
-    bind(DefaultCliEndpoint).toSelf().inSingletonScope();
-    bind(CliEndpoint).toService(DefaultCliEndpoint);
-    bind(ConnectionContainerModule).toConstantValue(cliServiceModule);
+  bind(DefaultCliEndpoint).toSelf().inSingletonScope();
+  bind(CliEndpoint).toService(DefaultCliEndpoint);
+  bind(ConnectionContainerModule).toConstantValue(cliServiceModule);
 });

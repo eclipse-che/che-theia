@@ -1,15 +1,20 @@
 {
     "plugins": [
         "@typescript-eslint",
-        "@typescript-eslint/tslint",
         "import",
         "no-null",
-        "sonarjs"
+        "sonarjs",
+        "header"
+    ],
+    "extends": [
+        "prettier/@typescript-eslint"
     ],
     "rules": {
         "@typescript-eslint/await-thenable": "error",
         "@typescript-eslint/no-unnecessary-type-assertion": "error",
         "sonarjs/no-unused-collection": "error",
-        "sonarjs/no-small-switch": "error"
+        "sonarjs/no-small-switch": "error",
+        "no-shadow": "off",
+        "@typescript-eslint/no-shadow": ["error"]
     }
 }

@@ -1,38 +1,39 @@
-/*********************************************************************
- * Copyright (c) 2019 Red Hat, Inc.
+/**********************************************************************
+ * Copyright (c) 2019-2020 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- **********************************************************************/
+ ***********************************************************************/
 
-import { Container } from 'inversify';
-import { CheTaskProvider } from './task/che-task-provider';
-import { MachinesPicker } from './machine/machines-picker';
-import { ProjectPathVariableResolver } from './variable/project-path-variable-resolver';
-import { CheTaskRunner } from './task/che-task-runner';
-import { ServerVariableResolver } from './variable/server-variable-resolver';
-import { MachineExecClient } from './machine/machine-exec-client';
-import { MachineExecWatcher } from './machine/machine-exec-watcher';
-import { CheTaskEventsHandler } from './preview/task-events-handler';
-import { TasksPreviewManager } from './preview/tasks-preview-manager';
-import { PreviewUrlsWidgetFactory, PreviewUrlsWidget, PreviewUrlsWidgetOptions } from './preview/previews-widget';
-import { CheTaskPreviewMode } from './preview/task-preview-mode';
-import { PreviewUrlOpenService } from './preview/preview-url-open-service';
-import { CheWorkspaceClient } from './che-workspace-client';
-import { LaunchConfigurationsExporter } from './export/launch-configs-exporter';
-import { TaskConfigurationsExporter } from './export/task-configs-exporter';
-import { ExportConfigurationsManager, ConfigurationsExporter } from './export/export-configs-manager';
+import { ConfigurationsExporter, ExportConfigurationsManager } from './export/export-configs-manager';
+import { PreviewUrlsWidget, PreviewUrlsWidgetFactory, PreviewUrlsWidgetOptions } from './preview/previews-widget';
+
+import { BackwardCompatibilityResolver } from './task/backward-compatibility';
 import { CheTaskConfigsExtractor } from './extract/che-task-configs-extractor';
+import { CheTaskEventsHandler } from './preview/task-events-handler';
+import { CheTaskPreviewMode } from './preview/task-preview-mode';
+import { CheTaskProvider } from './task/che-task-provider';
+import { CheTaskRunner } from './task/che-task-runner';
+import { CheWorkspaceClient } from './che-workspace-client';
 import { ConfigFileLaunchConfigsExtractor } from './extract/config-file-launch-configs-extractor';
 import { ConfigFileTasksExtractor } from './extract/config-file-task-configs-extractor';
+import { Container } from 'inversify';
+import { LaunchConfigurationsExporter } from './export/launch-configs-exporter';
+import { MachineExecClient } from './machine/machine-exec-client';
+import { MachineExecWatcher } from './machine/machine-exec-watcher';
+import { MachinesPicker } from './machine/machines-picker';
+import { PreviewUrlOpenService } from './preview/preview-url-open-service';
+import { PreviewUrlVariableResolver } from './variable/preview-url-variable-resolver';
+import { ProjectPathVariableResolver } from './variable/project-path-variable-resolver';
+import { ServerVariableResolver } from './variable/server-variable-resolver';
+import { TaskConfigurationsExporter } from './export/task-configs-exporter';
+import { TaskStatusHandler } from './task/task-status';
+import { TasksPreviewManager } from './preview/tasks-preview-manager';
 import { VsCodeLaunchConfigsExtractor } from './extract/vscode-launch-configs-extractor';
 import { VsCodeTaskConfigsExtractor } from './extract/vscode-task-configs-extractor';
-import { PreviewUrlVariableResolver } from './variable/preview-url-variable-resolver';
-import { BackwardCompatibilityResolver } from './task/backward-compatibility';
-import { TaskStatusHandler } from './task/task-status';
 
 const container = new Container();
 container.bind(CheTaskProvider).toSelf().inSingletonScope();
@@ -61,12 +62,12 @@ container.bind(TaskStatusHandler).toSelf().inSingletonScope();
 
 container.bind(PreviewUrlsWidget).toSelf().inTransientScope();
 container.bind(PreviewUrlsWidgetFactory).toDynamicValue(ctx => ({
-    createWidget: (options: PreviewUrlsWidgetOptions) => {
-        const child = new Container({ defaultScope: 'Singleton' });
-        child.parent = ctx.container;
-        child.bind(PreviewUrlsWidgetOptions).toConstantValue(options);
-        return child.get(PreviewUrlsWidget);
-    }
+  createWidget: (options: PreviewUrlsWidgetOptions) => {
+    const child = new Container({ defaultScope: 'Singleton' });
+    child.parent = ctx.container;
+    child.bind(PreviewUrlsWidgetOptions).toConstantValue(options);
+    return child.get(PreviewUrlsWidget);
+  },
 }));
 
 export { container };
