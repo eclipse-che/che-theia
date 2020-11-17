@@ -64,7 +64,8 @@ export class CheCdnSupport {
     noCDN: boolean = false;
 
     buildScripts(): void {
-        this.info.chunks.map((entry: CdnChunk) => this.url(entry.cdn, entry.chunk))
+        this.info.chunks
+            .map((entry: CdnChunk) => this.url(entry.cdn, entry.chunk))
             .forEach((url: string) => {
                 const script = document.createElement('script');
                 script.src = url;
@@ -84,8 +85,8 @@ export class CheCdnSupport {
         if (!this.noCDN && withCDN) {
             const request = new XMLHttpRequest();
             // eslint-disable-next-line space-before-function-paren
-            request.onload = function() {
-                if (this.status >= 200 && this.status < 300 || this.status === 304) {
+            request.onload = function () {
+                if ((this.status >= 200 && this.status < 300) || this.status === 304) {
                     result = withCDN;
                 }
             };
@@ -116,16 +117,15 @@ export class CheCdnSupport {
         if (this.info.monaco.vsLoader.cdn && loaderURL === this.info.monaco.vsLoader.cdn) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const pathsWithCdns: any = {};
-            this.info.monaco.requirePaths
-                .forEach((path: CdnExternal) => {
-                    const jsFile = path.external + '.js';
-                    const jsCdnFile = path.cdn ? path.cdn + '.js' : undefined;
-                    if (this.url(jsCdnFile, jsFile) === jsCdnFile) {
-                        pathsWithCdns[path.external] = path.cdn;
-                    }
-                });
+            this.info.monaco.requirePaths.forEach((path: CdnExternal) => {
+                const jsFile = path.external + '.js';
+                const jsCdnFile = path.cdn ? path.cdn + '.js' : undefined;
+                if (this.url(jsCdnFile, jsFile) === jsCdnFile) {
+                    pathsWithCdns[path.external] = path.cdn;
+                }
+            });
             context.require.config({
-                paths: pathsWithCdns
+                paths: pathsWithCdns,
             });
         }
     }

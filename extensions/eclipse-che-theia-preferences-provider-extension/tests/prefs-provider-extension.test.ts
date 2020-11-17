@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
 
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
@@ -15,27 +16,23 @@ import { PreferenceServiceImpl } from '@theia/core/lib/browser';
 import { PreferencesProvider } from '../src/browser/prefs-provider';
 import { WorkspaceService } from '@theia/workspace/lib/browser';
 
-let mockGetValue: any = jest.fn();
-let mockGetWorkspace: any = jest.fn();
-let mockSetPluginProperties: any = jest.fn();
-let mockSetProperty: any = jest.fn();
-let mockHasProperty: any = jest.fn();
+const mockGetValue: any = jest.fn();
+const mockGetWorkspace: any = jest.fn();
+const mockSetPluginProperties: any = jest.fn();
+const mockSetProperty: any = jest.fn();
+const mockHasProperty: any = jest.fn();
 
 let prefsProvider: PreferencesProvider;
 beforeAll(() => {
-  const envVariablesServer = {
-    getVariables: jest.fn(),
-    getValue: mockGetValue,
-  } as EnvVariablesServer;
   const preferenceServiceImpl = {
     has: mockHasProperty,
     set: mockSetProperty,
   } as PreferenceServiceImpl;
-  const workspaceService = {
+  const workspaceService = ({
     roots: jest.fn().mockResolvedValue({}),
     workspace: jest.fn().mockReturnValue({ uri: 'workspace-uri' }),
-  } as WorkspaceService;
-  prefsProvider = new PreferencesProvider(envVariablesServer, preferenceServiceImpl, workspaceService);
+  } as unknown) as WorkspaceService;
+  prefsProvider = new PreferencesProvider(preferenceServiceImpl, workspaceService);
 });
 
 beforeEach(() => {

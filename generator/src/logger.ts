@@ -13,7 +13,6 @@
  * @author Florent Benoit
  */
 export class Logger {
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public static debug(...args: any): void {
         console.log.apply(console, args);

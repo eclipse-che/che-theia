@@ -9,10 +9,12 @@
  ***********************************************************************/
 
 import * as fs from 'fs-extra';
-import * as path from 'path';
 import * as mustache from 'mustache';
+import * as path from 'path';
 import * as readPkg from 'read-pkg';
+
 import { Command } from './command';
+import { ISource } from './init-sources';
 import { Logger } from './logger';
 
 /**
@@ -23,16 +25,21 @@ export class Init {
     public static readonly GET_PACKAGE_WITH_VERSION_CMD = 'yarn --json --non-interactive --no-progress list --pattern=';
     public static readonly MONACO_CORE_PKG = '@theia/monaco-editor-core';
 
-    constructor(readonly rootFolder: string, readonly examplesAssemblyFolder: string, readonly checkoutFolder: string, readonly pluginsFolder: string) {
-
-    }
+    constructor(
+        readonly rootFolder: string,
+        readonly examplesAssemblyFolder: string,
+        readonly checkoutFolder: string,
+        readonly pluginsFolder: string
+    ) {}
 
     async getCurrentVersion(): Promise<string> {
         return (await readPkg(path.join(this.rootFolder, 'packages/core/package.json'))).version;
     }
 
     async getPackageWithVersion(name: string): Promise<string> {
-        const pkg = JSON.parse(await new Command(path.resolve(this.rootFolder)).exec(Init.GET_PACKAGE_WITH_VERSION_CMD + name)).data.trees[0];
+        const pkg = JSON.parse(
+            await new Command(path.resolve(this.rootFolder)).exec(Init.GET_PACKAGE_WITH_VERSION_CMD + name)
+        ).data.trees[0];
         return pkg ? pkg.name : '';
     }
 
@@ -64,12 +71,12 @@ export class Init {
     async generateAssemblyPackage(template: string): Promise<string> {
         const tags = {
             version: await this.getCurrentVersion(),
-            monacopkg: await this.getPackageWithVersion(Init.MONACO_CORE_PKG)
+            monacopkg: await this.getPackageWithVersion(Init.MONACO_CORE_PKG),
         };
         return mustache.render(template, tags).replace(/&#x2F;/g, '/');
     }
 
-    async updadeBuildConfiguration(): Promise<void> {
+    async updadeBuildConfiguration(extensions: ISource[]): Promise<void> {
         const theiaPackagePath = path.join(this.rootFolder, 'package.json');
         const theiaPackage = await readPkg(theiaPackagePath);
         const scriptsConfiguration = theiaPackage.scripts;
@@ -78,6 +85,27 @@ export class Init {
             scriptsConfiguration['prepare:build'] = 'yarn build && run lint && lerna run build';
         }
 
+        const theiaDevDependencies = theiaPackage.devDependencies || {};
+        const appendDevDependencies: Map<string, string> = new Map();
+        // add prettier and linters used by extensions
+        await Promise.all(
+            extensions.map(async extension => {
+                const extensionPackagePath = path.join(extension.clonedDir, 'package.json');
+                const exists = await fs.pathExists(extensionPackagePath);
+                if (exists) {
+                    const extensionPackage = await readPkg(extensionPackagePath);
+                    if (extensionPackage.devDependencies) {
+                        // not existing in theia and match prettier or eslint
+                        const keys = Object.keys(extensionPackage.devDependencies).filter(
+                            key => !theiaDevDependencies[key] && (key.includes('prettier') || key.includes('eslint'))
+                        );
+                        keys.forEach(key => appendDevDependencies.set(key, extensionPackage.devDependencies![key]));
+                    }
+                }
+            })
+        );
+        // grab all prettier and eslint packages
+        appendDevDependencies.forEach((value, key) => (theiaDevDependencies[key] = value));
         const json = JSON.stringify(theiaPackage, undefined, 2);
         await fs.writeFile(theiaPackagePath, json);
     }
@@ -99,5 +127,4 @@ export class Init {
         const pluginsJsonContent = await fs.readFile(path.join(templateDir, 'theiaPlugins.json'));
         return JSON.parse(pluginsJsonContent.toString());
     }
-
 }
