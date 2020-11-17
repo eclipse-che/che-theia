@@ -7,11 +7,18 @@
       "jsx": true
     }
   },
-  "plugins": ["@typescript-eslint", "import", "no-null"],
+  "plugins": [
+    "@typescript-eslint",
+    "import",
+    "no-null"
+  ],
   "env": {
     "browser": true,
     "mocha": true,
     "node": true
   },
-  "ignorePatterns": ["node_modules", "*.d.ts"]
+  "ignorePatterns": [
+    "node_modules",
+    "lib"
+  ]
 }
