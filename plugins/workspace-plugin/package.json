@@ -13,11 +13,9 @@
     "fs-extra": "7.0.1"
   },
   "devDependencies": {
-    "@types/node": "^12.0.0",
     "@eclipse-che/plugin": "0.0.1",
     "@theia/plugin": "next",
-    "@theia/plugin-packager": "latest",
-    "jest": "25.2.7"
+    "@theia/plugin-packager": "latest"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build && yarn lint:fix && yarn test",
