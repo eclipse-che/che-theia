@@ -50,6 +50,7 @@ describe('Test production', () => {
 
         await fs.ensureDir(dependencyDir1);
         await fs.writeFile(path.join(dependencyDir1, 'lib1.js'), '');
+        await fs.writeFile(path.join(dependencyDir1, 'test.js'), '');
 
         const srcGenDir1 = path.join(examplesAssemblyFolderTmp, 'src-gen/foo');
         await fs.ensureDir(srcGenDir1);
@@ -81,7 +82,8 @@ describe('Test production', () => {
         expect(fs.existsSync(path.join(productionReady, 'lib/dummy/mylib'))).toBeTruthy();
 
         // check dependencies are there
-        expect(fs.existsSync(path.join(productionReady, dependency1Name))).toBeTruthy();
+        expect(fs.existsSync(path.join(productionReady, dependency1Name, 'lib1.js'))).toBeTruthy();
+        expect(fs.existsSync(path.join(productionReady, dependency1Name, 'test.js'))).toBeTruthy();
     });
 
     test('Test invalid dependency', async () => {
