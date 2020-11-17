@@ -137,4 +137,3 @@ export function start(context: theia.PluginContext): void {
 }
 
 export function stop(): void {}
-
