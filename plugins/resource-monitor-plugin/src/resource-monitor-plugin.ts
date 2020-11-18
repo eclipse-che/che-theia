@@ -65,7 +65,7 @@ class ResMon {
     const requestURL = `/api/v1/namespaces/${this.namespace}/pods/${process.env.HOSTNAME}`;
     const opts = { url: `${this.METRICS_REQUEST_URL}${this.namespace}/pods` };
     try {
-      let response = await che.k8s.sendRawQuery(requestURL, opts);
+      const response = await che.k8s.sendRawQuery(requestURL, opts);
       const pod: Pod = JSON.parse(response);
       pod.spec.containers.forEach(element => {
         this.containers.push({
@@ -84,7 +84,7 @@ class ResMon {
     const requestURL = `${this.METRICS_REQUEST_URL}${this.namespace}/pods/${process.env.HOSTNAME}`;
     const opts = { url: `${this.METRICS_REQUEST_URL}${this.namespace}/pods` };
     try {
-      let response = await che.k8s.sendRawQuery(requestURL, opts);
+      const response = await che.k8s.sendRawQuery(requestURL, opts);
       const metrics: Metrics = JSON.parse(response);
       metrics.containers.forEach(element => {
         this.setUsedResources(element);
