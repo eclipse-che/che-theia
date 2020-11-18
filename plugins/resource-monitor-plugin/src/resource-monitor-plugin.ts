@@ -9,7 +9,6 @@
  ***********************************************************************/
 
 import * as che from '@eclipse-che/plugin';
-import * as k8s from '@kubernetes/client-node';
 import * as theia from '@theia/plugin';
 
 import { Container, MetricContainer, Metrics, Pod } from './objects';
@@ -17,8 +16,6 @@ import { convertMemory, convertToMilliCPU } from './units-converter';
 
 import { ShowResourcesInformation } from './commands';
 import { Units } from './constants';
-
-const request = require('request');
 
 export async function start(context: theia.PluginContext): Promise<void> {
   const namespace = await getNamespace();
@@ -30,10 +27,6 @@ class ResMon {
   private METRICS_REQUEST_URL = '/apis/metrics.k8s.io/v1beta1/namespaces/';
 
   private statusBarItem: theia.StatusBarItem;
-  private kc: k8s.KubeConfig;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private cluster: any;
-  private opts: { url: string };
   private containers: Container[] = [];
   private namespace: string;
 
@@ -45,19 +38,10 @@ class ResMon {
     this.statusBarItem.color = '#FFFFFF';
     this.statusBarItem.show();
     this.statusBarItem.command = ShowResourcesInformation.id;
-
-    this.kc = new k8s.KubeConfig();
-    this.kc.loadFromCluster();
-    this.opts = { url: `${this.METRICS_REQUEST_URL}${this.namespace}/pods` };
-    this.kc.applyToRequest(this.opts);
-
-    this.cluster = this.kc.getCurrentCluster();
-
-    this.getContainers();
   }
 
   public show(): void {
-    setInterval(() => this.getMetrics(), 5000);
+    this.getContainersInfo();
   }
 
   private showDetailedInfo(): void {
@@ -77,23 +61,12 @@ class ResMon {
     theia.window.showQuickPick(items, {});
   }
 
-  private getContainers(): void {
-    if (!this.cluster) {
-      console.error('Cluster is not defined');
-      return;
-    }
-
-    const requestURL = `${this.cluster.server}/api/v1/namespaces/${this.namespace}/pods/${process.env.HOSTNAME}`;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    request.get(requestURL, this.opts, (error: any, response: { statusCode: any }, body: any) => {
-      if (error) {
-        console.error(`error: ${error}`);
-        return;
-      }
-      if (response && response.statusCode !== 200) {
-        return;
-      }
-      const pod: Pod = JSON.parse(body);
+  private async getContainersInfo(): Promise<void> {
+    const requestURL = `/api/v1/namespaces/${this.namespace}/pods/${process.env.HOSTNAME}`;
+    const opts = { url: `${this.METRICS_REQUEST_URL}${this.namespace}/pods` };
+    try {
+      let response = await che.k8s.sendRawQuery(requestURL, opts);
+      const pod: Pod = JSON.parse(response);
       pod.spec.containers.forEach(element => {
         this.containers.push({
           name: element.name,
@@ -101,31 +74,25 @@ class ResMon {
           memoryLimit: convertMemory(element.resources.limits.memory),
         });
       });
-    });
+      setInterval(() => this.getMetrics(), 5000);
+    } catch (error) {
+      console.error(`Cannot read Pod information. ${error}`);
+    }
   }
 
-  private getMetrics(): void {
-    if (!this.cluster) {
-      console.error('Cluster is not defined');
-      return;
-    }
-
-    const requestURL = `${this.cluster.server}${this.METRICS_REQUEST_URL}${this.namespace}/pods/${process.env.HOSTNAME}`;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    request.get(requestURL, this.opts, (error: any, response: { statusCode: any }, body: any) => {
-      if (error) {
-        console.error(`error: ${error}`);
-        return;
-      }
-      if (response && response.statusCode !== 200) {
-        return;
-      }
-      const pod: Metrics = JSON.parse(body);
-      pod.containers.forEach(element => {
+  private async getMetrics(): Promise<void> {
+    const requestURL = `${this.METRICS_REQUEST_URL}${this.namespace}/pods/${process.env.HOSTNAME}`;
+    const opts = { url: `${this.METRICS_REQUEST_URL}${this.namespace}/pods` };
+    try {
+      let response = await che.k8s.sendRawQuery(requestURL, opts);
+      const metrics: Metrics = JSON.parse(response);
+      metrics.containers.forEach(element => {
         this.setUsedResources(element);
       });
       this.updateStatusBar();
-    });
+    } catch (error) {
+      console.error(`Cannot read Metrics information. ${error}`);
+    }
   }
 
   private setUsedResources(element: MetricContainer): void {
@@ -166,5 +133,3 @@ export async function getNamespace(): Promise<string> {
   const workspace = await che.workspace.getCurrentWorkspace();
   return workspace.attributes ? workspace.attributes.infrastructureNamespace : '';
 }
-
-export function stop() {}

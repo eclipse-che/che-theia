@@ -63,6 +63,24 @@ export interface CheOpenshiftMain {
   $getToken(): Promise<string>;
 }
 
+export interface CheK8S {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sendRawQuery(requestURL: string, opts: any): Promise<string>;
+}
+
+export interface CheK8SMain {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  $sendRawQuery(requestURL: string, opts: any): Promise<string>;
+}
+
+export const CHE_K8S_SERVICE_PATH = '/che-k8s-service';
+export const CheK8SService = Symbol('CheK8SService');
+
+export interface CheK8SService {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sendRawQuery(requestURL: string, opts: any): Promise<string>;
+}
+
 export interface CheGithub {
   uploadPublicSshKey(publicKey: string): Promise<void>;
   getToken(): Promise<string>;
@@ -409,6 +427,9 @@ export const PLUGIN_RPC_CONTEXT = {
 
   CHE_OPENSHIFT: createProxyIdentifier<CheOpenshift>('CheOpenshift'),
   CHE_OPENSHIFT_MAIN: createProxyIdentifier<CheOpenshiftMain>('CheOpenshiftMain'),
+
+  CHE_K8S: createProxyIdentifier<CheK8S>('CheK8S'),
+  CHE_K8S_MAIN: createProxyIdentifier<CheK8SMain>('CheK8SMain'),
 
   CHE_USER: createProxyIdentifier<CheUser>('CheUser'),
   CHE_USER_MAIN: createProxyIdentifier<CheUserMain>('CheUserMain'),

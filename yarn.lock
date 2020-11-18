@@ -2430,6 +2430,13 @@
   dependencies:
     defer-to-connect "^1.0.1"
 
+"@szmarczak/http-timer@^4.0.5":
+  version "4.0.5"
+  resolved "https://registry.yarnpkg.com/@szmarczak/http-timer/-/http-timer-4.0.5.tgz#bfbd50211e9dfa51ba07da58a14cdfd333205152"
+  integrity sha512-PyRA9sm1Yayuj5OIoJ1hGt2YISX45w9WcFbh6ddT0Z/0yaFxOtGLInr4jUfU1EAFVs0Yfyfev4RNwBlUaHdlDQ==
+  dependencies:
+    defer-to-connect "^2.0.0"
+
 "@theia/application-package@1.8.0-next.16fec095":
   version "1.8.0-next.16fec095"
   resolved "https://registry.yarnpkg.com/@theia/application-package/-/application-package-1.8.0-next.16fec095.tgz#1980caf7bb524ec975b0850e6e6ca54b383e7638"
@@ -8655,7 +8662,7 @@ good-listener@^1.2.2:
   dependencies:
     delegate "^3.1.2"
 
-got@11.8.0, got@^11.8.0:
+got@^11.8.0:
   version "11.8.0"
   resolved "https://registry.yarnpkg.com/got/-/got-11.8.0.tgz#be0920c3586b07fd94add3b5b27cb28f49e6545f"
   integrity sha512-k9noyoIIY9EejuhaBNLyZ31D5328LeqnyPNXJQb2XlJZcKakLqN5m6O/ikhq/0lw56kUYS54fVm+D1x57YC9oQ==
@@ -13719,7 +13726,7 @@ ps-tree@^1.2.0:
   dependencies:
     event-stream "=3.3.4"
 
-pseudomap@1.0.2, pseudomap@^1.0.2:
+pseudomap@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/pseudomap/-/pseudomap-1.0.2.tgz#f052a28da70e618917ef0a8ac34c1ae5a68286b3"
   integrity sha1-8FKijacOYYkX7wqKw0wa5aaChrM=

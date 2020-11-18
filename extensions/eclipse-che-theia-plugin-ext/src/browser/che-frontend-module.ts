@@ -11,15 +11,17 @@
 import '../../src/browser/style/che-plugins.css';
 import '../../src/browser/style/tasks.css';
 
-import { CHE_PLUGIN_SERVICE_PATH, ChePluginService, ChePluginServiceClient } from '../common/che-plugin-protocol';
 import {
+  CHE_K8S_SERVICE_PATH,
   CHE_PRODUCT_SERVICE_PATH,
   CHE_TASK_SERVICE_PATH,
+  CheK8SService,
   CheProductService,
   CheSideCarContentReaderRegistry,
   CheTaskClient,
   CheTaskService,
 } from '../common/che-protocol';
+import { CHE_PLUGIN_SERVICE_PATH, ChePluginService, ChePluginServiceClient } from '../common/che-plugin-protocol';
 import { CheSideCarContentReaderRegistryImpl, CheSideCarResourceResolver } from './che-sidecar-resource';
 import { CommandContribution, ResourceResolver } from '@theia/core/lib/common';
 import { WebSocketConnectionProvider, WidgetFactory } from '@theia/core/lib/browser';
@@ -101,6 +103,13 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
     .toDynamicValue(ctx => {
       const provider = ctx.container.get(WebSocketConnectionProvider);
       return provider.createProxy<CheProductService>(CHE_PRODUCT_SERVICE_PATH);
+    })
+    .inSingletonScope();
+
+  bind(CheK8SService)
+    .toDynamicValue(ctx => {
+      const provider = ctx.container.get(WebSocketConnectionProvider);
+      return provider.createProxy<CheK8SService>(CHE_K8S_SERVICE_PATH);
     })
     .inSingletonScope();
 
