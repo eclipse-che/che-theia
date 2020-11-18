@@ -1,1 +1,1 @@
-FROM node:12.18.2-alpine3.12 as runtime
+FROM node:12.18.4-alpine3.12 as runtime
