@@ -36,16 +36,16 @@
         "command": "portPlugin.filterOutPlugins",
         "title": "Hide plug-in endpoints",
         "icon": {
-          "light": "resources/light/filter.svg",
-          "dark": "resources/dark/filter.svg"
+          "light": "resources/light/filter-off.svg",
+          "dark": "resources/dark/filter-off.svg"
         }
       },
       {
         "command": "portPlugin.filterInPlugins",
         "title": "Show plug-in endpoints",
         "icon": {
-          "light": "resources/light/bullseye.svg",
-          "dark": "resources/dark/bullseye.svg"
+          "light": "resources/light/filter-on.svg",
+          "dark": "resources/dark/filter-on.svg"
         }
       },
       {
@@ -109,9 +109,7 @@
   "devDependencies": {
     "@eclipse-che/plugin": "latest",
     "@theia/plugin": "next",
-    "@theia/plugin-packager": "latest",
-    "@types/jest": "25.2.1",
-    "@types/node": "^12.0.0"
+    "@theia/plugin-packager": "latest"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build && yarn lint:fix && yarn test",

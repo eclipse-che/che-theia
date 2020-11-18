@@ -17,7 +17,7 @@ on: [push, pull_request]
 jobs:
   # check EOF newline
   linelint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     name: eof-newline
     steps:
       - name: Checkout
@@ -26,7 +26,7 @@ jobs:
         uses: fernandrone/linelint@0.0.5
         id: linelint
   node-build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
       name: Checkout che-theia source code
@@ -40,7 +40,7 @@ jobs:
     strategy:
       matrix:
         dist: [ 'alpine', 'ubi8' ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
       name: Checkout che-theia source code
