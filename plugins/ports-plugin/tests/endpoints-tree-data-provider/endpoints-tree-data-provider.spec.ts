@@ -63,6 +63,6 @@ describe('Test EndpointTree data provider', () => {
     expect(firstElement.label).toBe('Public');
 
     const secondElement = endpointsTreeDataProvider.getTreeItem(children![1]);
-    expect(secondElement.label).toBe('Private');
+    expect(secondElement.label).toBe('Internal');
   });
 });

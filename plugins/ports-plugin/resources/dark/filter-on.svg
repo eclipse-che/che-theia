@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   viewBox="0 0 640 512"
+   version="1.1"
+   id="svg96665"
+   sodipodi:docname="filter-on.svg"
+   inkscape:version="1.0.1 (c497b03c, 2020-09-10)">
+  <metadata
+     id="metadata96671">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs96669" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1507"
+     inkscape:window-height="991"
+     id="namedview96667"
+     showgrid="false"
+     inkscape:zoom="1.64375"
+     inkscape:cx="202.88973"
+     inkscape:cy="256"
+     inkscape:window-x="516"
+     inkscape:window-y="404"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg96665"
+     inkscape:document-rotation="0" />
+  <!-- Font Awesome Free 5.15.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) -->
+  <path
+     d="m 596.61126,189.81065 c -54.23,-105.810003 -161.59,-177.400003 -284.52001,-177.400003 -122.93,0 -230.319993,71.64 -284.519993,177.410003 a 32.35,32.35 0 0 0 0,29.19 c 54.23,105.81 161.589993,177.4 284.519993,177.4 122.93001,0 230.32001,-71.64 284.52001,-177.41 a 32.35,32.35 0 0 0 0,-29.19 z m -284.52001,158.6 a 144,144 0 1 1 144.00001,-144 143.93,143.93 0 0 1 -144.00001,144 z m 0,-240 a 95.31,95.31 0 0 0 -25.31,3.79 47.85,47.85 0 0 1 -66.9,66.9 95.78,95.78 0 1 0 92.21,-70.69 z"
+     id="path96587"
+     style="fill:#c8c8c8;fill-opacity:1" />
+</svg>

@@ -18,8 +18,7 @@
   "devDependencies": {
     "@types/deasync": "^0.1.0",
     "@types/escape-html": "0.0.20",
-    "concurrently": "^3.5.0",
-    "typescript-formatter": "7.2.2"
+    "concurrently": "^3.5.0"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",

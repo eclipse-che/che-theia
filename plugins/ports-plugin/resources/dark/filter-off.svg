@@ -7,13 +7,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   viewBox="0 0 512 512"
+   viewBox="0 0 640 512"
    version="1.1"
-   id="svg994"
-   sodipodi:docname="filter-light.svg"
+   id="svg96665"
+   sodipodi:docname="filter-off.svg"
    inkscape:version="1.0.1 (c497b03c, 2020-09-10)">
   <metadata
-     id="metadata1000">
+     id="metadata96671">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
@@ -25,7 +25,7 @@
     </rdf:RDF>
   </metadata>
   <defs
-     id="defs998" />
+     id="defs96669" />
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -35,20 +35,21 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1214"
-     inkscape:window-height="816"
-     id="namedview996"
+     inkscape:window-width="1507"
+     inkscape:window-height="991"
+     id="namedview96667"
      showgrid="false"
-     inkscape:zoom="0.69605824"
-     inkscape:cx="230.14009"
+     inkscape:zoom="0.20546875"
+     inkscape:cx="1473.1271"
      inkscape:cy="256"
-     inkscape:window-x="0"
-     inkscape:window-y="23"
+     inkscape:window-x="516"
+     inkscape:window-y="404"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg994" />
+     inkscape:current-layer="svg96665"
+     inkscape:document-rotation="0" />
   <!-- Font Awesome Free 5.15.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) -->
   <path
-     d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
-     id="path992"
-     style="fill:#323232;fill-opacity:1" />
+     d="M320 400c-75.85 0-137.25-58.71-142.9-133.11L72.2 185.82c-13.79 17.3-26.48 35.59-36.72 55.59a32.35 32.35 0 0 0 0 29.19C89.71 376.41 197.07 448 320 448c26.91 0 52.87-4 77.89-10.46L346 397.39a144.13 144.13 0 0 1-26 2.61zm313.82 58.1l-110.55-85.44a331.25 331.25 0 0 0 81.25-102.07 32.35 32.35 0 0 0 0-29.19C550.29 135.59 442.93 64 320 64a308.15 308.15 0 0 0-147.32 37.7L45.46 3.37A16 16 0 0 0 23 6.18L3.37 31.45A16 16 0 0 0 6.18 53.9l588.36 454.73a16 16 0 0 0 22.46-2.81l19.64-25.27a16 16 0 0 0-2.82-22.45zm-183.72-142l-39.3-30.38A94.75 94.75 0 0 0 416 256a94.76 94.76 0 0 0-121.31-92.21A47.65 47.65 0 0 1 304 192a46.64 46.64 0 0 1-1.54 10l-73.61-56.89A142.31 142.31 0 0 1 320 112a143.92 143.92 0 0 1 144 144c0 21.63-5.29 41.79-13.9 60.11z"
+     id="path96663"
+     style="fill:#c8c8c8;fill-opacity:1" />
 </svg>
