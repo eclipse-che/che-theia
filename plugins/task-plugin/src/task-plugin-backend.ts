@@ -53,7 +53,7 @@ export async function start(context: theia.PluginContext): Promise<void> {
   await che.task.addTaskSubschema(CHE_TASK_SCHEMA);
 
   const exportConfigurationsManager = container.get<ExportConfigurationsManager>(ExportConfigurationsManager);
-  exportConfigurationsManager.export();
+  exportConfigurationsManager.init();
 
   const taskStatusHandler = container.get<TaskStatusHandler>(TaskStatusHandler);
   taskStatusHandler.init();

@@ -54,22 +54,8 @@ export class CheWorkspaceServer extends DefaultWorkspaceServer {
     if (devfile) {
       const projects = devfile.projects;
       if (projects) {
-        // create a struc for each project
         const theiaWorkspace: TheiaWorkspace = { folders: [] };
-        for (const project of projects) {
-          const projectPath = project.clonePath
-            ? path.join(projectsRoot, project.clonePath)
-            : path.join(projectsRoot, project.name!);
-          // check parent folder exists
-          const parentDir = path.resolve(projectPath, '..');
-          await fs.ensureDir(parentDir);
-          theiaWorkspace.folders.push({ path: FileUri.create(projectPath).toString() });
-        }
-
-        // now, need to write the content of this file
         await fs.writeFile(cheTheiaWorkspaceFile, JSON.stringify(theiaWorkspace), { encoding: 'utf8' });
-
-        // return this content
         return FileUri.create(cheTheiaWorkspaceFile).toString();
       }
     }
