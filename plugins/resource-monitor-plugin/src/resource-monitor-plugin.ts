@@ -24,7 +24,8 @@ export async function start(context: theia.PluginContext): Promise<void> {
 }
 
 class ResMon {
-  private METRICS_REQUEST_URL = '/apis/metrics.k8s.io/v1beta1/namespaces/';
+  private METRICS_SERVER_ENDPOINT = '/apis/metrics.k8s.io/v1beta1/';
+  private METRICS_REQUEST_URL = `${this.METRICS_SERVER_ENDPOINT}namespaces/`;
 
   private statusBarItem: theia.StatusBarItem;
   private containers: Container[] = [];
@@ -64,35 +65,43 @@ class ResMon {
   private async getContainersInfo(): Promise<void> {
     const requestURL = `/api/v1/namespaces/${this.namespace}/pods/${process.env.HOSTNAME}`;
     const opts = { url: `${this.METRICS_REQUEST_URL}${this.namespace}/pods` };
-    try {
-      const response = await che.k8s.sendRawQuery(requestURL, opts);
-      const pod: Pod = JSON.parse(response);
-      pod.spec.containers.forEach(element => {
-        this.containers.push({
-          name: element.name,
-          cpuLimit: convertToMilliCPU(element.resources.limits.cpu),
-          memoryLimit: convertMemory(element.resources.limits.memory),
-        });
-      });
-      setInterval(() => this.getMetrics(), 5000);
-    } catch (error) {
-      console.error(`Cannot read Pod information. ${error}`);
+    const response = await che.k8s.sendRawQuery(requestURL, opts);
+    if (response.statusCode !== 200) {
+      console.error(`Cannot read Pod information. Error: ${response.statusCode}`);
+      return;
     }
+    const pod: Pod = JSON.parse(response.data);
+    pod.spec.containers.forEach(element => {
+      this.containers.push({
+        name: element.name,
+        cpuLimit: convertToMilliCPU(element.resources.limits.cpu),
+        memoryLimit: convertMemory(element.resources.limits.memory),
+      });
+    });
+    this.requestMetricsServer();
+  }
+
+  private async requestMetricsServer(): Promise<void> {
+    const result = await che.k8s.sendRawQuery(this.METRICS_SERVER_ENDPOINT, { url: this.METRICS_SERVER_ENDPOINT });
+    if (result.statusCode !== 200) {
+      console.error(`Cannot connect to Metrics Server. Status code: ${result.statusCode}. Error: ${result.data}`);
+      return;
+    }
+    setInterval(() => this.getMetrics(), 5000);
   }
 
   private async getMetrics(): Promise<void> {
     const requestURL = `${this.METRICS_REQUEST_URL}${this.namespace}/pods/${process.env.HOSTNAME}`;
     const opts = { url: `${this.METRICS_REQUEST_URL}${this.namespace}/pods` };
-    try {
-      const response = await che.k8s.sendRawQuery(requestURL, opts);
-      const metrics: Metrics = JSON.parse(response);
-      metrics.containers.forEach(element => {
-        this.setUsedResources(element);
-      });
-      this.updateStatusBar();
-    } catch (error) {
-      console.error(`Cannot read Metrics information. ${error}`);
+    const response = await che.k8s.sendRawQuery(requestURL, opts);
+    if (response.statusCode !== 200) {
+      return;
     }
+    const metrics: Metrics = JSON.parse(response.data);
+    metrics.containers.forEach(element => {
+      this.setUsedResources(element);
+    });
+    this.updateStatusBar();
   }
 
   private setUsedResources(element: MetricContainer): void {

@@ -10,7 +10,8 @@
 
 import * as k8s from '@kubernetes/client-node';
 
-import { CheK8SService } from '../common/che-protocol';
+import { CheK8SService, K8SRawResponse } from '../common/k8s-service';
+
 import { injectable } from 'inversify';
 
 const request = require('request');
@@ -25,7 +26,7 @@ export class CheK8SServiceImpl implements CheK8SService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sendRawQuery(requestURL: string, opts: any): Promise<string> {
+  sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse> {
     this.kc.applyToRequest(opts);
     const cluster = this.kc.getCurrentCluster();
     if (!cluster) {
@@ -37,16 +38,14 @@ export class CheK8SServiceImpl implements CheK8SService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  makeRequest(URL: string, opts: any): Promise<string> {
+  makeRequest(URL: string, opts: any): Promise<K8SRawResponse> {
     return new Promise((resolve, reject) => {
       request.get(URL, opts, (error: string, response: { statusCode: number }, body: string) => {
-        if (error) {
-          reject(error);
-        }
-        if (response.statusCode !== 200) {
-          reject(`Request ${URL} fas failed with status code ${response.statusCode}`);
-        }
-        resolve(body);
+        resolve({
+          statusCode: response.statusCode,
+          data: body,
+          error: error,
+        });
       });
     });
   }

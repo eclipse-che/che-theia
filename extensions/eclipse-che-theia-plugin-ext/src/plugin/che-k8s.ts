@@ -10,6 +10,7 @@
 
 import { CheK8S, CheK8SMain, PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
 
+import { K8SRawResponse } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 
 export class CheK8SImpl implements CheK8S {
@@ -20,7 +21,7 @@ export class CheK8SImpl implements CheK8S {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sendRawQuery(requestURL: string, opts: any): Promise<string> {
+  sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse> {
     return this.cheK8S.$sendRawQuery(requestURL, opts);
   }
 }

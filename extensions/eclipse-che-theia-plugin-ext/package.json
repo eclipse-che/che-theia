@@ -19,7 +19,6 @@
     "@theia/mini-browser": "next",
     "@theia/plugin-ext": "next",
     "axios": "0.19.0",
-    "@kubernetes/client-node": "^0.12.1",
     "tunnel": "0.0.6",
     "vscode-uri": "2.1.1",
     "js-yaml": "3.13.1",

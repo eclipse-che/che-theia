@@ -8,8 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { CheK8SMain, CheK8SService } from '../common/che-protocol';
+import { CheK8SService, K8SRawResponse } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
 
+import { CheK8SMain } from '../common/che-protocol';
 import { interfaces } from 'inversify';
 
 export class CheK8SMainImpl implements CheK8SMain {
@@ -20,7 +21,7 @@ export class CheK8SMainImpl implements CheK8SMain {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  $sendRawQuery(requestURL: string, opts: any): Promise<string> {
+  $sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse> {
     return this.cheK8SService.sendRawQuery(requestURL, opts);
   }
 }

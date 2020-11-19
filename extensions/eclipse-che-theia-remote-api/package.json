@@ -13,6 +13,7 @@
   ],
   "dependencies": {
     "@eclipse-che/api": "latest",
+    "@kubernetes/client-node": "^0.12.1",
     "@eclipse-che/workspace-client": "latest"
   },
   "scripts": {

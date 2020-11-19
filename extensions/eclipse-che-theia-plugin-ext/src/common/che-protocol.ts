@@ -14,6 +14,7 @@ import { Event, JsonRpcServer } from '@theia/core';
 import { Preferences, User } from '@eclipse-che/theia-remote-api/lib/common/user-service';
 
 import { CheLanguagesTestAPI } from './che-languages-test-protocol';
+import { K8SRawResponse } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
 import { che as cheApi } from '@eclipse-che/api';
 import { createProxyIdentifier } from '@theia/plugin-ext/lib/common/rpc-protocol';
 
@@ -65,20 +66,12 @@ export interface CheOpenshiftMain {
 
 export interface CheK8S {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sendRawQuery(requestURL: string, opts: any): Promise<string>;
+  sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse>;
 }
 
 export interface CheK8SMain {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  $sendRawQuery(requestURL: string, opts: any): Promise<string>;
-}
-
-export const CHE_K8S_SERVICE_PATH = '/che-k8s-service';
-export const CheK8SService = Symbol('CheK8SService');
-
-export interface CheK8SService {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sendRawQuery(requestURL: string, opts: any): Promise<string>;
+  $sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse>;
 }
 
 export interface CheGithub {

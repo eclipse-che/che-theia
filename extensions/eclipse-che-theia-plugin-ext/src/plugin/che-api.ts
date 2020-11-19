@@ -26,6 +26,7 @@ import { CheUserImpl } from './che-user';
 import { CheVariablesImpl } from './che-variables';
 import { CheWorkspaceImpl } from './che-workspace';
 import { Disposable } from '@theia/core';
+import { K8SRawResponse } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
 import { PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
 import { Plugin } from '@theia/plugin-ext/lib/common/plugin-api-rpc';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
@@ -404,7 +405,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
 
     const k8s: typeof che.k8s = {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      sendRawQuery(requestURL: string, opts: any): Promise<string> {
+      sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse> {
         return cheK8SImpl.sendRawQuery(requestURL, opts);
       },
     };

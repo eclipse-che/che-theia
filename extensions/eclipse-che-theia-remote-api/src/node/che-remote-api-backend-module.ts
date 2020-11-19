@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 import { CertificateService, cheCertificateServicePath } from '../common/certificate-service';
+import { CheK8SService, cheK8SServicePath } from '../common/k8s-service';
 import { ConnectionHandler, JsonRpcConnectionHandler } from '@theia/core';
 import { FactoryService, cheFactoryServicePath } from '../common/factory-service';
 import { OAuthService, cheOAuthServicePath } from '../common/oauth-service';
@@ -16,6 +17,7 @@ import { TelemetryService, cheTelemetryServicePath } from '../common/telemetry-s
 import { UserService, cheUserServicePath } from '../common/user-service';
 import { WorkspaceService, cheWorkspaceServicePath } from '../common/workspace-service';
 
+import { CheK8SServiceImpl } from './che-server-k8s-service-impl';
 import { CheServerCertificateServiceImpl } from './che-server-certificate-service-impl';
 import { CheServerFactoryServiceImpl } from './che-server-factory-service-impl';
 import { CheServerOAuthServiceImpl } from './che-server-oauth-service-impl';
@@ -36,6 +38,7 @@ export default new ContainerModule(bind => {
   bind(CheServerTelemetryServiceImpl).toSelf().inSingletonScope();
   bind(CheServerUserServiceImpl).toSelf().inSingletonScope();
   bind(CheServerWorkspaceServiceImpl).toSelf().inSingletonScope();
+  bind(CheK8SServiceImpl).toSelf().inSingletonScope();
 
   bind(CertificateService).to(CheServerCertificateServiceImpl).inSingletonScope();
   bind(FactoryService).to(CheServerFactoryServiceImpl).inSingletonScope();
@@ -44,6 +47,7 @@ export default new ContainerModule(bind => {
   bind(TelemetryService).to(CheServerTelemetryServiceImpl).inSingletonScope();
   bind(UserService).to(CheServerUserServiceImpl).inSingletonScope();
   bind(WorkspaceService).to(CheServerWorkspaceServiceImpl).inSingletonScope();
+  bind(CheK8SService).to(CheK8SServiceImpl).inSingletonScope();
 
   bind(ConnectionHandler)
     .toDynamicValue(
@@ -77,5 +81,9 @@ export default new ContainerModule(bind => {
     .toDynamicValue(
       ctx => new JsonRpcConnectionHandler(cheWorkspaceServicePath, () => ctx.container.get(WorkspaceService))
     )
+    .inSingletonScope();
+
+  bind(ConnectionHandler)
+    .toDynamicValue(ctx => new JsonRpcConnectionHandler(cheK8SServicePath, () => ctx.container.get(CheK8SService)))
     .inSingletonScope();
 });
