@@ -42,7 +42,11 @@ export class WorkspaceProjectsManager {
 
     const workspace = await che.workspace.getCurrentWorkspace();
     const cloneCommandList = await this.buildCloneCommands(workspace);
-    await this.executeCloneCommands(cloneCommandList);
+
+    const cloningPromise = this.executeCloneCommands(cloneCommandList);
+    theia.window.withProgress({ location: { viewId: 'explorer' } }, () => cloningPromise);
+
+    await cloningPromise;
 
     await this.startSyncWorkspaceProjects();
   }
@@ -71,7 +75,22 @@ export class WorkspaceProjectsManager {
     }
 
     theia.window.showInformationMessage('Che Workspace: Starting importing projects.');
-    await Promise.all(cloneCommandList.map(cloneCommand => cloneCommand.execute()));
+
+    const cloningPromises: PromiseLike<void>[] = [];
+    for (const cloneCommand of cloneCommandList) {
+      const cloningPromise = cloneCommand.execute();
+
+      cloningPromises.push(cloningPromise);
+
+      cloningPromise.then(() => {
+        const workspaceFolders = theia.workspace.workspaceFolders;
+        theia.workspace.updateWorkspaceFolders(workspaceFolders ? workspaceFolders.length : 0, undefined, {
+          uri: theia.Uri.file(cloneCommand.getProjectPath()),
+        });
+      });
+    }
+
+    await Promise.all(cloningPromises);
     theia.window.showInformationMessage('Che Workspace: Finished importing projects.');
     onDidCloneSourcesEmitter.fire();
   }

@@ -45,6 +45,7 @@ function isDevfileProjectConfig(
 
 export interface TheiaImportCommand {
   execute(): Promise<void>;
+  getProjectPath(): string;
 }
 
 export function buildProjectImportCommand(
@@ -117,6 +118,10 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
     }
 
     this.projectsRoot = projectsRoot;
+  }
+
+  getProjectPath(): string {
+    return this.projectPath;
   }
 
   clone(): PromiseLike<void> {
@@ -314,6 +319,10 @@ export class TheiaImportZipCommand implements TheiaImportCommand {
       // legacy project config
       theia.window.showErrorMessage('Legacy workspace config is not supported. Please use devfile instead.');
     }
+  }
+
+  getProjectPath(): string {
+    return this.projectDir;
   }
 
   async execute(): Promise<void> {

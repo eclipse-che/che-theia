@@ -8,6 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import * as startPoint from '../task-plugin-backend';
+import * as theia from '@theia/plugin';
+
 import { inject, injectable, multiInject } from 'inversify';
 
 import { CheWorkspaceClient } from '../che-workspace-client';
@@ -41,6 +44,21 @@ export class ExportConfigurationsManager {
 
   @multiInject(ConfigurationsExporter)
   protected readonly exporters: ConfigurationsExporter[];
+
+  init(): void {
+    this.export();
+
+    theia.workspace.onDidChangeWorkspaceFolders(
+      event => {
+        const workspaceFolders = event.added;
+        if (workspaceFolders && workspaceFolders.length > 0) {
+          this.export();
+        }
+      },
+      undefined,
+      startPoint.getSubscriptions()
+    );
+  }
 
   async export(): Promise<void> {
     const exportPromises = [];
