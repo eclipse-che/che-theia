@@ -8,17 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-export function getUrlDomain(routeUrl: string): string {
-  // Remove trailing slash if any
-  if (routeUrl.endsWith('/')) {
-    routeUrl = routeUrl.substring(0, routeUrl.length - 1);
-  }
-  // Remove protocol
-  const webviewDomain = routeUrl.replace(/^https?:\/\//, '');
-
-  return webviewDomain;
-}
-
 export const SERVER_TYPE_ATTR = 'type';
 export const SERVER_IDE_ATTR_VALUE = 'ide';
 export const SERVER_WEBVIEWS_ATTR_VALUE = 'webview';
