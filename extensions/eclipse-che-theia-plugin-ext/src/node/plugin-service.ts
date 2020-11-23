@@ -54,7 +54,9 @@ export class PluginApiContributionIntercepted extends PluginApiContribution {
           webviewCheEndpointHostname = new URL(webviewCheEndpoint.url).hostname;
         }
         const webviewHostname = this.handleAliases(
-          process.env[WebviewExternalEndpoint.pattern] || webviewCheEndpointHostname || WebviewExternalEndpoint.defaultPattern
+          process.env[WebviewExternalEndpoint.pattern] ||
+            webviewCheEndpointHostname ||
+            WebviewExternalEndpoint.defaultPattern
         );
         webviewApp.use('/webview', serveStatic(webviewStaticResources));
 
