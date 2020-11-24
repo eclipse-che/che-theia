@@ -60,15 +60,5 @@
       "jsx",
       "json"
     ]
-  },
-  "prettier": {
-    "printWidth": 120,
-    "singleQuote": true
-  },
-  "importSort": {
-    ".ts": {
-      "style": "eslint",
-      "parser": "typescript"
-    }
   }
 }
