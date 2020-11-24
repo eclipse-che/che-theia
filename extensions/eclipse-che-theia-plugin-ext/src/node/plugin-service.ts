@@ -22,7 +22,7 @@ import * as express from 'express';
 import { injectable, inject } from 'inversify';
 import { WebviewExternalEndpoint } from '@theia/plugin-ext/lib/main/common/webview-protocol';
 import { PluginApiContribution } from '@theia/plugin-ext/lib/main/node/plugin-service';
-import { getUrlDomain, SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE } from '../common/che-server-common';
+import { SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE } from '../common/che-server-common';
 import { Deferred } from '@theia/core/lib/common/promise-util';
 import { ILogger } from '@theia/core/lib/common/logger';
 import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
@@ -53,7 +53,7 @@ export class PluginApiContributionIntercepted extends PluginApiContribution {
         this.workspaceService.findUniqueEndpointByAttribute(SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE).then(server => {
             let domain;
             if (server.url) {
-                domain = getUrlDomain(server.url);
+                domain = new URL(server.url).hostname;
             }
             const hostName = this.handleAliases(process.env[WebviewExternalEndpoint.pattern] || domain || WebviewExternalEndpoint.pattern);
             webviewApp.use('/webview', serveStatic(webviewStaticResources));

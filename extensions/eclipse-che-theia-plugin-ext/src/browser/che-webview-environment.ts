@@ -12,7 +12,7 @@ import { injectable, inject, postConstruct } from 'inversify';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { WebviewEnvironment } from '@theia/plugin-ext/lib/main/browser/webview/webview-environment';
 import { WebviewExternalEndpoint } from '@theia/plugin-ext/lib/main/common/webview-protocol';
-import { getUrlDomain, SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE } from '../common/che-server-common';
+import { SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE } from '../common/che-server-common';
 import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 @injectable()
@@ -31,7 +31,7 @@ export class CheWebviewEnvironment extends WebviewEnvironment {
             const webviewServer = await this.workspaceService.findUniqueEndpointByAttribute(SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE);
             let webviewDomain: string | undefined;
             if (webviewServer && webviewServer.url) {
-                webviewDomain = getUrlDomain(webviewServer.url);
+                webviewDomain = new URL(webviewServer.url).hostname;
             }
             const hostName = webviewExternalEndpointPattern && webviewExternalEndpointPattern.value || webviewDomain || WebviewExternalEndpoint.pattern;
             this.externalEndpointHost.resolve(hostName.replace('{{hostname}}', window.location.host || 'localhost'));
