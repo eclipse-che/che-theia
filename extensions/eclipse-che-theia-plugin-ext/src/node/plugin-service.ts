@@ -11,7 +11,7 @@
 import * as express from 'express';
 import * as path from 'path';
 
-import { SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE, getUrlDomain } from '../common/che-server-common';
+import { SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE } from '../common/che-server-common';
 import { inject, injectable } from 'inversify';
 
 import { Deferred } from '@theia/core/lib/common/promise-util';
@@ -48,18 +48,20 @@ export class PluginApiContributionIntercepted extends PluginApiContribution {
 
     this.workspaceService
       .findUniqueEndpointByAttribute(SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE)
-      .then(server => {
-        let domain;
-        if (server.url) {
-          domain = getUrlDomain(server.url);
+      .then(webviewCheEndpoint => {
+        let webviewCheEndpointHostname;
+        if (webviewCheEndpoint.url) {
+          webviewCheEndpointHostname = new URL(webviewCheEndpoint.url).hostname;
         }
-        const hostName = this.handleAliases(
-          process.env[WebviewExternalEndpoint.pattern] || domain || WebviewExternalEndpoint.pattern
+        const webviewHostname = this.handleAliases(
+          process.env[WebviewExternalEndpoint.pattern] ||
+            webviewCheEndpointHostname ||
+            WebviewExternalEndpoint.defaultPattern
         );
         webviewApp.use('/webview', serveStatic(webviewStaticResources));
 
-        this.logger.info(`Configuring to accept webviews on '${hostName}' hostname.`);
-        app.use(vhost(new RegExp(hostName, 'i'), webviewApp));
+        this.logger.info(`Configuring to accept webviews on '${webviewHostname}' hostname.`);
+        app.use(vhost(new RegExp(webviewHostname, 'i'), webviewApp));
 
         this.waitWebviewEndpoint.resolve();
       })
