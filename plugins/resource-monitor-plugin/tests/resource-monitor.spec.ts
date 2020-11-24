@@ -74,7 +74,7 @@ describe('Test Resource Monitor Plugin', () => {
 
     che.k8s.sendRawQuery = sendRawQuery;
 
-    //Prepare Namespace
+    // Prepare Namespace
     che.workspace.getCurrentWorkspace = getCurrentWorkspace;
     const attributes = { infrastructureNamespace: 'che-namespace' };
     const workspace: cheApi.workspace.Workspace = {
@@ -82,7 +82,7 @@ describe('Test Resource Monitor Plugin', () => {
     };
     getCurrentWorkspace.mockReturnValue(workspace);
 
-    //Prepare StatusBarItem
+    // Prepare StatusBarItem
     theia.window.createStatusBarItem = createStatusBar;
     createStatusBar.mockReturnValue(statusBarItem);
   });
@@ -273,7 +273,7 @@ describe('Test Resource Monitor Plugin', () => {
         memoryUsed: 5242880,
       });
 
-      //Check message from the status bar
+      // Check message from the status bar
       expect(statusBarItem.text).toBe('$(ellipsis) Mem: 0.24/2.37 GB 10%$(pulse) CPU: 395 m');
     });
   });
