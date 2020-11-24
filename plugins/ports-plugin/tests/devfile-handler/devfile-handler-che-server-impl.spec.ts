@@ -27,7 +27,7 @@ describe('Test Workspace Endpoints', () => {
   beforeEach(() => {
     devfileHandler = new CheServerDevfileHandlerImpl();
     jest.resetModules();
-    process.env = { ...OLD_ENV };
+    process.env = {};
   });
 
   afterAll(() => {
