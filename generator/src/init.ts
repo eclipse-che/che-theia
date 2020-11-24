@@ -86,6 +86,8 @@ export class Init {
         }
 
         const theiaDevDependencies = theiaPackage.devDependencies || {};
+        const prettierConfiguration = theiaPackage.prettier || {};
+        const importSortConfiguration = theiaPackage.importSort || {};
         const appendDevDependencies: Map<string, string> = new Map();
         // add prettier and linters used by extensions
         await Promise.all(
@@ -94,6 +96,16 @@ export class Init {
                 const exists = await fs.pathExists(extensionPackagePath);
                 if (exists) {
                     const extensionPackage = await readPkg(extensionPackagePath);
+                    if (extensionPackage.prettier) {
+                        Object.keys(extensionPackage.prettier).forEach(key => {
+                            prettierConfiguration[key] = extensionPackage.prettier[key];
+                        });
+                    }
+                    if (extensionPackage.importSort) {
+                        Object.keys(extensionPackage.importSort).forEach(key => {
+                            importSortConfiguration[key] = extensionPackage.importSort[key];
+                        });
+                    }
                     if (extensionPackage.devDependencies) {
                         // not existing in theia and match prettier or eslint
                         const keys = Object.keys(extensionPackage.devDependencies).filter(
@@ -104,7 +116,9 @@ export class Init {
                 }
             })
         );
-        // grab all prettier and eslint packages
+        // grab all prettier, eslint stuff
+        theiaPackage.prettier = prettierConfiguration;
+        theiaPackage.importSort = importSortConfiguration;
         appendDevDependencies.forEach((value, key) => (theiaDevDependencies[key] = value));
         const json = JSON.stringify(theiaPackage, undefined, 2);
         await fs.writeFile(theiaPackagePath, json);
