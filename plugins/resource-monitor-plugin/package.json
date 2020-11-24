@@ -18,7 +18,12 @@
     "@theia/plugin-packager": "latest",
     "@types/node": "^12.0.0",
     "typescript": "3.9.2",
-    "@theia/plugin": "next"
+    "@theia/plugin": "next",
+    "ts-jest": "26.4.3",
+    "jest": "^26.6.3",
+    "@types/jest": "^26",
+    "prettier": "^2.1.2",
+    "prettier-plugin-import-sort": "^0.0.6"
   },
   "dependencies": {},
   "scripts": {
@@ -29,13 +34,50 @@
     "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
     "lint:fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
     "compile": "tsc",
-    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia-plugin pack",
-    "watch": "tsc -w"
+    "build": "yarn run format && yarn run compile && yarn run lint && yarn run test && theia-plugin pack",
+    "watch": "tsc -w",
+    "test": "jest --forceExit",
+    "test-watch": "jest --watchAll"
   },
   "engines": {
     "theiaPlugin": "next"
   },
   "theiaPlugin": {
     "backend": "lib/resource-monitor-plugin.js"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.ts"
+    ],
+    "coverageThreshold": {
+      "global": {}
+    },
+    "coverageDirectory": "./coverage",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "modulePathIgnorePatterns": [
+      "<rootDir>/lib"
+    ],
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json"
+    ]
+  },
+  "prettier": {
+    "printWidth": 120,
+    "singleQuote": true,
+    "arrowParens": "avoid"
+  },
+  "importSort": {
+    ".ts": {
+      "style": "eslint",
+      "parser": "typescript"
+    }
   }
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2020 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -8,8 +8,14 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import * as theia from '@theia/plugin';
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-export const ShowResourcesInformation: theia.CommandDescription = {
-  id: 'show-resources-information',
-};
+/**
+ * Mock of @theia/plugin module
+ * @author Valerii Svydenko
+ */
+const che: any = {};
+che.workspace = {};
+che.k8s = {};
+module.exports = che;

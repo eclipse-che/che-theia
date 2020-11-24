@@ -8,6 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import * as theia from '@theia/plugin';
+
+export const SHOW_RESOURCES_INFORMATION_COMMAND: theia.CommandDescription = {
+  id: 'show-resources-information',
+};
+
 export enum Units {
   None = 1,
   K = 1024,

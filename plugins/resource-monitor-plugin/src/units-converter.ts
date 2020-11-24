@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-export function convertMemory(unit: string | undefined): number {
+export function converToBytes(unit: string | undefined): number {
   if (!unit) {
     return 0;
   }

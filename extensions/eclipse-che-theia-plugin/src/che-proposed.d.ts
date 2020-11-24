@@ -16,7 +16,6 @@
 import * as theia from '@theia/plugin';
 
 import { che as cheApi } from '@eclipse-che/api';
-import { K8SRawResponse } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
 
 declare module '@eclipse-che/plugin' {
   export interface KeyValue {
@@ -448,5 +447,11 @@ declare module '@eclipse-che/plugin' {
     /** Sends a raw query to the cluster. */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export function sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse>;
+  }
+
+  export interface K8SRawResponse {
+    statusCode: number;
+    data: string;
+    error: string;
   }
 }

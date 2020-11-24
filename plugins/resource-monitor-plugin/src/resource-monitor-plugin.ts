@@ -12,10 +12,8 @@ import * as che from '@eclipse-che/plugin';
 import * as theia from '@theia/plugin';
 
 import { Container, MetricContainer, Metrics, Pod } from './objects';
-import { convertMemory, convertToMilliCPU } from './units-converter';
-
-import { ShowResourcesInformation } from './commands';
-import { Units } from './constants';
+import { SHOW_RESOURCES_INFORMATION_COMMAND, Units } from './constants';
+import { converToBytes, convertToMilliCPU } from './units-converter';
 
 export async function start(context: theia.PluginContext): Promise<void> {
   const namespace = await getNamespace();
@@ -23,7 +21,7 @@ export async function start(context: theia.PluginContext): Promise<void> {
   resourceMonitor.show();
 }
 
-class ResMon {
+export class ResMon {
   private METRICS_SERVER_ENDPOINT = '/apis/metrics.k8s.io/v1beta1/';
   private METRICS_REQUEST_URL = `${this.METRICS_SERVER_ENDPOINT}namespaces/`;
 
@@ -32,89 +30,74 @@ class ResMon {
   private namespace: string;
 
   constructor(context: theia.PluginContext, namespace: string) {
-    context.subscriptions.push(theia.commands.registerCommand(ShowResourcesInformation, () => this.showDetailedInfo()));
+    context.subscriptions.push(
+      theia.commands.registerCommand(SHOW_RESOURCES_INFORMATION_COMMAND, () => this.showDetailedInfo())
+    );
 
     this.namespace = namespace;
     this.statusBarItem = theia.window.createStatusBarItem(theia.StatusBarAlignment.Left);
     this.statusBarItem.color = '#FFFFFF';
     this.statusBarItem.show();
-    this.statusBarItem.command = ShowResourcesInformation.id;
+    this.statusBarItem.command = SHOW_RESOURCES_INFORMATION_COMMAND.id;
   }
 
-  public show(): void {
-    this.getContainersInfo();
+  async show(): Promise<void> {
+    await this.getContainersInfo();
+    await this.requestMetricsServer();
   }
 
-  private showDetailedInfo(): void {
-    const items: theia.QuickPickItem[] = [];
-    this.containers.forEach(element => {
-      const memUsed = element.memoryUsed ? (element.memoryUsed / Units.M).toFixed(2) : '';
-      const memLimited = element.memoryLimit ? (element.memoryLimit / Units.M).toFixed(2) : '';
-      const cpuUsed = element.cpuUsed;
-      const cpuLimited = element.cpuLimit ? `${element.cpuLimit}m` : 'not set';
-
-      items.push(<theia.QuickPickItem>{
-        label: element.name,
-        detail: `Mem (MB): ${memUsed} (Used) / ${memLimited} (Limited) | CPU : ${cpuUsed}m (Used) / ${cpuLimited} (Limited)`,
-        showBorder: true,
-      });
-    });
-    theia.window.showQuickPick(items, {});
-  }
-
-  private async getContainersInfo(): Promise<void> {
+  async getContainersInfo(): Promise<Container[]> {
     const requestURL = `/api/v1/namespaces/${this.namespace}/pods/${process.env.HOSTNAME}`;
     const opts = { url: `${this.METRICS_REQUEST_URL}${this.namespace}/pods` };
-    const response = await che.k8s.sendRawQuery(requestURL, opts);
+    const response: che.K8SRawResponse = await che.k8s.sendRawQuery(requestURL, opts);
     if (response.statusCode !== 200) {
-      console.error(`Cannot read Pod information. Error: ${response.statusCode}`);
-      return;
+      throw new Error(`Cannot read Pod information. Status code: ${response.statusCode}. Error: ${response.data}`);
     }
     const pod: Pod = JSON.parse(response.data);
     pod.spec.containers.forEach(element => {
       this.containers.push({
         name: element.name,
         cpuLimit: convertToMilliCPU(element.resources.limits.cpu),
-        memoryLimit: convertMemory(element.resources.limits.memory),
+        memoryLimit: converToBytes(element.resources.limits.memory),
       });
     });
-    this.requestMetricsServer();
+    return this.containers;
   }
 
-  private async requestMetricsServer(): Promise<void> {
+  async requestMetricsServer(): Promise<void> {
     const result = await che.k8s.sendRawQuery(this.METRICS_SERVER_ENDPOINT, { url: this.METRICS_SERVER_ENDPOINT });
     if (result.statusCode !== 200) {
-      console.error(`Cannot connect to Metrics Server. Status code: ${result.statusCode}. Error: ${result.data}`);
-      return;
+      throw new Error(`Cannot connect to Metrics Server. Status code: ${result.statusCode}. Error: ${result.data}`);
     }
     setInterval(() => this.getMetrics(), 5000);
   }
 
-  private async getMetrics(): Promise<void> {
+  async getMetrics(): Promise<Container[]> {
     const requestURL = `${this.METRICS_REQUEST_URL}${this.namespace}/pods/${process.env.HOSTNAME}`;
     const opts = { url: `${this.METRICS_REQUEST_URL}${this.namespace}/pods` };
     const response = await che.k8s.sendRawQuery(requestURL, opts);
     if (response.statusCode !== 200) {
-      return;
+      return this.containers;
     }
     const metrics: Metrics = JSON.parse(response.data);
     metrics.containers.forEach(element => {
       this.setUsedResources(element);
     });
     this.updateStatusBar();
+    return this.containers;
   }
 
-  private setUsedResources(element: MetricContainer): void {
+  setUsedResources(element: MetricContainer): void {
     this.containers.map(container => {
       if (container.name === element.name) {
         container.cpuUsed = convertToMilliCPU(element.usage.cpu);
-        container.memoryUsed = convertMemory(element.usage.memory);
+        container.memoryUsed = converToBytes(element.usage.memory);
         return;
       }
     });
   }
 
-  private updateStatusBar(): void {
+  updateStatusBar(): void {
     let memTotal = 0;
     let memUsed = 0;
     let cpuUsed = 0;
@@ -135,6 +118,23 @@ class ResMon {
     const cpuValue = `$(pulse) CPU: ${cpuUsed} m`;
 
     this.statusBarItem.text = memoryValue + cpuValue;
+  }
+
+  showDetailedInfo(): void {
+    const items: theia.QuickPickItem[] = [];
+    this.containers.forEach(element => {
+      const memUsed = element.memoryUsed ? (element.memoryUsed / Units.M).toFixed(2) : '';
+      const memLimited = element.memoryLimit ? (element.memoryLimit / Units.M).toFixed(2) : '';
+      const cpuUsed = element.cpuUsed;
+      const cpuLimited = element.cpuLimit ? `${element.cpuLimit}m` : 'not set';
+
+      items.push(<theia.QuickPickItem>{
+        label: element.name,
+        detail: `Mem (MB): ${memUsed} (Used) / ${memLimited} (Limited) | CPU : ${cpuUsed}m (Used) / ${cpuLimited} (Limited)`,
+        showBorder: true,
+      });
+    });
+    theia.window.showQuickPick(items, {});
   }
 }
 
