@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE, getUrlDomain } from '../common/che-server-common';
+import { SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE } from '../common/che-server-common';
 import { inject, injectable, postConstruct } from 'inversify';
 
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
@@ -28,19 +28,19 @@ export class CheWebviewEnvironment extends WebviewEnvironment {
   protected async init(): Promise<void> {
     try {
       const webviewExternalEndpointPattern = await this.environments.getValue(WebviewExternalEndpoint.pattern);
-      const webviewServer = await this.workspaceService.findUniqueEndpointByAttribute(
+      const webviewCheEndpoint = await this.workspaceService.findUniqueEndpointByAttribute(
         SERVER_TYPE_ATTR,
         SERVER_WEBVIEWS_ATTR_VALUE
       );
-      let webviewDomain: string | undefined;
-      if (webviewServer && webviewServer.url) {
-        webviewDomain = getUrlDomain(webviewServer.url);
+      let webviewCheEndpointHostname: string | undefined;
+      if (webviewCheEndpoint && webviewCheEndpoint.url) {
+        webviewCheEndpointHostname = new URL(webviewCheEndpoint.url).hostname;
       }
-      const hostName =
+      const webviewHostname =
         (webviewExternalEndpointPattern && webviewExternalEndpointPattern.value) ||
-        webviewDomain ||
-        WebviewExternalEndpoint.pattern;
-      this.externalEndpointHost.resolve(hostName.replace('{{hostname}}', window.location.host || 'localhost'));
+        webviewCheEndpointHostname ||
+        WebviewExternalEndpoint.defaultPattern;
+      this.externalEndpointHost.resolve(webviewHostname.replace('{{hostname}}', window.location.host || 'localhost'));
     } catch (e) {
       this.externalEndpointHost.reject(e);
     }
