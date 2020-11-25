@@ -1,0 +1,72 @@
+# A devfile to develop VS Code extensions.
+# For developers who would like to create his plugin inside Che-Theia.
+
+apiVersion: 1.0.0
+metadata:
+  generateName: vscode-rust-ext-in-che-
+
+projects:
+
+  - name: che-theia
+    source:
+      type: git
+      location: 'https://github.com/eclipse/che-theia.git'
+
+  - name: vscode-rust
+    source:
+      type: git
+      location: 'https://github.com/rust-lang/vscode-rust'
+
+components:
+
+  - memoryLimit: 1Gi
+    type: chePlugin
+    reference: 'https://gist.github.com/sunix/eb86fdf6802afbfb4de059ed19f08d37/raw/5f90a4ae99c338b23d9c75e493abbae56fb379da/meta.yaml'
+
+  - id: eclipse/che-theia/next
+    type: cheEditor
+    alias: che-theia
+    env:
+      - name: NODE_TLS_REJECT_UNAUTHORIZED
+        value: "0"
+
+  - alias: che-dev
+    type: dockerimage
+    image: eclipse/che-theia-dev:next
+    mountSources: true
+    endpoints:
+      - name: "theia-dev-flow"
+        port: 3010
+        attributes:
+          protocol: http
+          public: 'true'
+    memoryLimit: "3Gi"
+
+  - id: redhat/vscode-yaml/latest
+    type: chePlugin
+
+  - id: che-incubator/typescript/latest
+    type: chePlugin
+    memoryLimit: 2048M
+
+commands:
+  - name: 1. package ... Rust extension
+    actions:
+      - workdir: /projects/vscode-rust
+        type: exec
+        command: |
+          npm install; yes | vsce package; echo -e "\e[32mDone.\e[0m Packaging complete"
+        component: che-dev
+
+  - name: 2. run ... HOSTED Che-Theia + Rust extension
+    actions:
+      - workdir: /home/theia
+        type: exec
+        command: |
+          mkdir -p /tmp/theiadev_projects; \
+          export THEIA_PLUGINS="local-dir:///projects/vscode-rust"; \
+          node src-gen/backend/main.js \
+            /tmp/theiadev_projects \
+            --hostname=0.0.0.0 \
+            --port=3130
+        component: che-theia
