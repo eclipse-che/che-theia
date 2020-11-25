@@ -7,21 +7,23 @@ metadata:
 
 projects:
 
-  - name: che-theia
-    source:
-      type: git
-      location: 'https://github.com/eclipse/che-theia.git'
-
   - name: vscode-rust
     source:
       type: git
       location: 'https://github.com/rust-lang/vscode-rust'
+
+  - name: helloworld-rust
+    source:
+      location: 'https://github.com/che-samples/helloworld-rust.git'
+      type: git
+      branch: master
 
 components:
 
   - memoryLimit: 1Gi
     type: chePlugin
     reference: 'https://gist.github.com/sunix/eb86fdf6802afbfb4de059ed19f08d37/raw/5f90a4ae99c338b23d9c75e493abbae56fb379da/meta.yaml'
+    alias: rust-sidecar
 
   - id: eclipse/che-theia/next
     type: cheEditor
@@ -58,15 +60,23 @@ commands:
           npm install; yes | vsce package; echo -e "\e[32mDone.\e[0m Packaging complete"
         component: che-dev
 
-  - name: 2. run ... HOSTED Che-Theia + Rust extension
+  - name: 2. run ... HOSTED che-theia + detect remote vscode ext
     actions:
       - workdir: /home/theia
         type: exec
         command: |
-          mkdir -p /tmp/theiadev_projects; \
-          export THEIA_PLUGINS="local-dir:///projects/vscode-rust"; \
+          export THEIA_PLUGIN_ENDPOINT_DISCOVERY_PORT='2504' &&  \
           node src-gen/backend/main.js \
-            /tmp/theiadev_projects \
+            /projects \
             --hostname=0.0.0.0 \
             --port=3130
         component: che-theia
+
+  - name: 3. run ... Rust extension from sidecar
+    actions:
+      - workdir: /home/theia/
+        type: exec
+        command: |
+          export THEIA_PLUGIN_ENDPOINT_DISCOVERY_PORT='2504' && export THEIA_PLUGINS='local-dir:///projects/vscode-rust/' && export THEIA_PLUGIN_ENDPOINT_PORT='10000' &&  /remote-endpoint/plugin-remote-endpoint
+        component: rust-sidecar
+
