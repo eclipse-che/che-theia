@@ -5,7 +5,7 @@
     "che",
     "preferences"
   ],
-  "version": "7.22.0",
+  "version": "7.22.1",
   "license": "EPL-2.0",
   "files": [
     "lib",
@@ -16,7 +16,7 @@
     "@theia/workspace": "1.8.0-next.e2098321",
     "nsfw": "^1.2.9",
     "@theia/preferences": "1.8.0-next.e2098321",
-    "@eclipse-che/theia-plugin-ext": "7.22.0"
+    "@eclipse-che/theia-plugin-ext": "7.22.1"
   },
   "devDependencies": {
     "rimraf": "latest"
