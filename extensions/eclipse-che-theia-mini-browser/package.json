@@ -17,7 +17,8 @@
   },
   "theiaExtensions": [
     {
-      "frontend": "lib/browser/che-mini-browser-frontend-module"
+      "frontend": "lib/browser/che-mini-browser-frontend-module",
+      "backend": "lib/node/che-mini-browser-backend-module"
     }
   ],
   "license": "EPL-2.0",
