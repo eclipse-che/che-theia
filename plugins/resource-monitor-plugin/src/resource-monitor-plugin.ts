@@ -104,10 +104,9 @@ export class ResMon {
     let memTotal = 0;
     let memUsed = 0;
     let cpuUsed = 0;
+    let text = '';
     let color = this.defaultColor;
     let tooltip = this.defaultTooltip;
-    let memoryInfo = '';
-    let cpuInfo = '';
     this.containers.forEach(element => {
       if (element.memoryLimit) {
         memTotal += element.memoryLimit;
@@ -122,34 +121,46 @@ export class ResMon {
       if (element.memoryLimit && element.memoryUsed && element.memoryUsed / element.memoryLimit > 0.9) {
         color = this.warningColor;
         tooltip = `${element.name} container`;
-        const used = (element.memoryUsed / Units.M).toFixed(2);
-        const limited = (element.memoryLimit / Units.M).toFixed(2);
-        const memProcent = Math.floor((element.memoryUsed / element.memoryLimit) * 100);
-        memoryInfo = `$(ellipsis) Mem: ${used}/${limited} MB ${memProcent}%`;
-        if (element.cpuUsed) {
-          cpuInfo = `$(pulse) CPU: ${element.cpuUsed} m`;
-        }
+        text = this.buildStatusBarMessage(element.memoryUsed, element.memoryLimit, element.cpuUsed);
       }
     });
 
-    // calculate workspace resources in total
+    // show workspace resources in total
     if (color === this.defaultColor) {
-      memoryInfo = `$(ellipsis) Mem: ${(memUsed / Units.G).toFixed(2)}/${(memTotal / Units.G).toFixed(
-        2
-      )} GB ${Math.floor((memUsed / memTotal) * 100)}%`;
-      cpuInfo = `$(pulse) CPU: ${cpuUsed} m`;
+      text = this.buildStatusBarMessage(memUsed, memTotal, cpuUsed);
     }
 
-    this.statusBarItem.text = memoryInfo + cpuInfo;
+    this.statusBarItem.text = text;
     this.statusBarItem.color = color;
     this.statusBarItem.tooltip = tooltip;
+  }
+
+  buildStatusBarMessage(memoryUsed: number, memoryLimit: number, cpuUsaed: number | undefined): string {
+    const unitId = memoryLimit > Units.G ? 'GB' : 'MB';
+    const unit = memoryLimit > Units.G ? Units.G : Units.M;
+
+    let used: number | string;
+    let limited: number | string;
+    const memPct = Math.floor((memoryUsed / memoryLimit) * 100);
+    if (unit === Units.G) {
+      used = (memoryUsed / unit).toFixed(2);
+      limited = (memoryLimit / unit).toFixed(2);
+    } else {
+      used = Math.floor(memoryUsed / unit);
+      limited = Math.floor(memoryLimit / unit);
+    }
+    let message = `$(ellipsis) Mem: ${used}/${limited} ${unitId} ${memPct}%`;
+    if (cpuUsaed) {
+      message = `${message} $(pulse) CPU: ${cpuUsaed} m`;
+    }
+    return message;
   }
 
   showDetailedInfo(): void {
     const items: theia.QuickPickItem[] = [];
     this.containers.forEach(element => {
-      const memUsed = element.memoryUsed ? (element.memoryUsed / Units.M).toFixed(2) : '';
-      const memLimited = element.memoryLimit ? (element.memoryLimit / Units.M).toFixed(2) : '';
+      const memUsed = element.memoryUsed ? Math.floor(element.memoryUsed / Units.M) : '';
+      const memLimited = element.memoryLimit ? Math.floor(element.memoryLimit / Units.M) : '';
       const cpuUsed = element.cpuUsed;
       const cpuLimited = element.cpuLimit ? `${element.cpuLimit}m` : 'not set';
 

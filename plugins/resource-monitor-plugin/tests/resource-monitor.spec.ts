@@ -274,7 +274,7 @@ describe('Test Resource Monitor Plugin', () => {
       });
 
       // Check status bar
-      expect(statusBarItem.text).toBe('$(ellipsis) Mem: 0.26/3.54 GB 7%$(pulse) CPU: 395 m');
+      expect(statusBarItem.text).toBe('$(ellipsis) Mem: 0.26/3.54 GB 7% $(pulse) CPU: 395 m');
       expect(statusBarItem.color).toBe('#FFFFFF');
       expect(statusBarItem.tooltip).toBe('Workspace resources');
     });
@@ -299,7 +299,7 @@ describe('Test Resource Monitor Plugin', () => {
       await resMonitor.getMetrics();
 
       // Check status bar
-      expect(statusBarItem.text).toBe('$(ellipsis) Mem: 950.00/1000.00 MB 95%$(pulse) CPU: 100 m');
+      expect(statusBarItem.text).toBe('$(ellipsis) Mem: 950/1000 MB 95% $(pulse) CPU: 100 m');
       expect(statusBarItem.color).toBe('#FFCC00');
       expect(statusBarItem.tooltip).toBe('maven container');
     });
@@ -329,27 +329,27 @@ describe('Test Resource Monitor Plugin', () => {
 
       const item1: theia.QuickPickItem = {
         label: 'che-jwtproxy7yc7hvrc',
-        detail: 'Mem (MB): 100.00 (Used) / 2000.00 (Limited) | CPU : 250m (Used) / 500m (Limited)',
+        detail: 'Mem (MB): 100 (Used) / 2000 (Limited) | CPU : 250m (Used) / 500m (Limited)',
         showBorder: true,
       };
       const item2: theia.QuickPickItem = {
         label: 'maven',
-        detail: 'Mem (MB): 153.60 (Used) / 1000.00 (Limited) | CPU : 100m (Used) / not set (Limited)',
+        detail: 'Mem (MB): 153 (Used) / 1000 (Limited) | CPU : 100m (Used) / not set (Limited)',
         showBorder: true,
       };
       const item3: theia.QuickPickItem = {
         label: 'vscode-javauil',
-        detail: 'Mem (MB): 0.10 (Used) / 0.20 (Limited) | CPU : 20m (Used) / not set (Limited)',
+        detail: 'Mem (MB): 0 (Used) / 0 (Limited) | CPU : 20m (Used) / not set (Limited)',
         showBorder: true,
       };
       const item4: theia.QuickPickItem = {
         label: 'che-machine-exec122',
-        detail: 'Mem (MB): 0.00 (Used) / 0.02 (Limited) | CPU : 15m (Used) / 5000m (Limited)',
+        detail: 'Mem (MB): 0 (Used) / 0 (Limited) | CPU : 15m (Used) / 5000m (Limited)',
         showBorder: true,
       };
       const item5: theia.QuickPickItem = {
         label: 'theia-idewf0',
-        detail: 'Mem (MB): 5.24 (Used) / 536.87 (Limited) | CPU : 10m (Used) / not set (Limited)',
+        detail: 'Mem (MB): 5 (Used) / 536 (Limited) | CPU : 10m (Used) / not set (Limited)',
         showBorder: true,
       };
       expect(theia.window.showQuickPick).toHaveBeenCalledWith([item1, item2, item3, item4, item5], {});
