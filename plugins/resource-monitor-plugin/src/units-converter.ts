@@ -8,7 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-export function converToBytes(unit: string | undefined): number {
+import { Units } from './constants';
+
+export function convertToBytes(unit: string | undefined): number {
   if (!unit) {
     return 0;
   }
@@ -30,27 +32,27 @@ export function converToBytes(unit: string | undefined): number {
 }
 
 export function fromKilobytes(unit: number): number {
-  return unit * 1000;
+  return unit * Units.K;
 }
 
 export function fromMegabytes(unit: number): number {
-  return fromKilobytes(unit) * 1000;
+  return unit * Units.M;
 }
 
 export function fromGigabytes(unit: number): number {
-  return fromMegabytes(unit) * 1000;
+  return unit * Units.G;
 }
 
 export function fromMebibytes(unit: number): number {
-  return fromKibibytes(unit) * 1024;
+  return unit * Units.MI;
 }
 
 export function fromGibibytes(unit: number): number {
-  return fromMebibytes(unit) * 1024;
+  return unit * Units.GI;
 }
 
 export function fromKibibytes(unit: number): number {
-  return unit * 1024;
+  return unit * Units.KI;
 }
 
 export function convertToMilliCPU(unit: string | undefined): number {

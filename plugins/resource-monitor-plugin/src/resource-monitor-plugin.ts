@@ -13,7 +13,7 @@ import * as theia from '@theia/plugin';
 
 import { Container, MetricContainer, Metrics, Pod } from './objects';
 import { SHOW_RESOURCES_INFORMATION_COMMAND, Units } from './constants';
-import { converToBytes, convertToMilliCPU } from './units-converter';
+import { convertToBytes, convertToMilliCPU } from './units-converter';
 
 export async function start(context: theia.PluginContext): Promise<void> {
   const namespace = await getNamespace();
@@ -24,6 +24,9 @@ export async function start(context: theia.PluginContext): Promise<void> {
 export class ResMon {
   private METRICS_SERVER_ENDPOINT = '/apis/metrics.k8s.io/v1beta1/';
   private METRICS_REQUEST_URL = `${this.METRICS_SERVER_ENDPOINT}namespaces/`;
+  private warningColor = '#FFCC00';
+  private defaultColor = '#FFFFFF';
+  private defaultTooltip = 'Workspace resources';
 
   private statusBarItem: theia.StatusBarItem;
   private containers: Container[] = [];
@@ -36,7 +39,7 @@ export class ResMon {
 
     this.namespace = namespace;
     this.statusBarItem = theia.window.createStatusBarItem(theia.StatusBarAlignment.Left);
-    this.statusBarItem.color = '#FFFFFF';
+    this.statusBarItem.color = this.defaultColor;
     this.statusBarItem.show();
     this.statusBarItem.command = SHOW_RESOURCES_INFORMATION_COMMAND.id;
   }
@@ -58,7 +61,7 @@ export class ResMon {
       this.containers.push({
         name: element.name,
         cpuLimit: convertToMilliCPU(element.resources.limits.cpu),
-        memoryLimit: converToBytes(element.resources.limits.memory),
+        memoryLimit: convertToBytes(element.resources.limits.memory),
       });
     });
     return this.containers;
@@ -91,7 +94,7 @@ export class ResMon {
     this.containers.map(container => {
       if (container.name === element.name) {
         container.cpuUsed = convertToMilliCPU(element.usage.cpu);
-        container.memoryUsed = converToBytes(element.usage.memory);
+        container.memoryUsed = convertToBytes(element.usage.memory);
         return;
       }
     });
@@ -101,6 +104,10 @@ export class ResMon {
     let memTotal = 0;
     let memUsed = 0;
     let cpuUsed = 0;
+    let color = this.defaultColor;
+    let tooltip = this.defaultTooltip;
+    let memoryInfo = '';
+    let cpuInfo = '';
     this.containers.forEach(element => {
       if (element.memoryLimit) {
         memTotal += element.memoryLimit;
@@ -111,13 +118,31 @@ export class ResMon {
       if (element.cpuUsed) {
         cpuUsed += element.cpuUsed;
       }
+      // if a container uses more than 90% of limited memory, show it in status bar with warning color
+      if (element.memoryLimit && element.memoryUsed && element.memoryUsed / element.memoryLimit > 0.9) {
+        color = this.warningColor;
+        tooltip = `${element.name} container`;
+        const used = (element.memoryUsed / Units.M).toFixed(2);
+        const limited = (element.memoryLimit / Units.M).toFixed(2);
+        const memProcent = Math.floor((element.memoryUsed / element.memoryLimit) * 100);
+        memoryInfo = `$(ellipsis) Mem: ${used}/${limited} MB ${memProcent}%`;
+        if (element.cpuUsed) {
+          cpuInfo = `$(pulse) CPU: ${element.cpuUsed} m`;
+        }
+      }
     });
-    const memoryValue = `$(ellipsis) Mem: ${(memUsed / Units.G).toFixed(2)}/${(memTotal / Units.G).toFixed(
-      2
-    )} GB ${Math.floor((memUsed / memTotal) * 100)}%`;
-    const cpuValue = `$(pulse) CPU: ${cpuUsed} m`;
 
-    this.statusBarItem.text = memoryValue + cpuValue;
+    // calculate workspace resources in total
+    if (color === this.defaultColor) {
+      memoryInfo = `$(ellipsis) Mem: ${(memUsed / Units.G).toFixed(2)}/${(memTotal / Units.G).toFixed(
+        2
+      )} GB ${Math.floor((memUsed / memTotal) * 100)}%`;
+      cpuInfo = `$(pulse) CPU: ${cpuUsed} m`;
+    }
+
+    this.statusBarItem.text = memoryInfo + cpuInfo;
+    this.statusBarItem.color = color;
+    this.statusBarItem.tooltip = tooltip;
   }
 
   showDetailedInfo(): void {

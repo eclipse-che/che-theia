@@ -155,9 +155,9 @@ describe('Test Resource Monitor Plugin', () => {
       });
       expect(containers.length).toBe(5);
       expect(containers[0]).toEqual({ name: 'che-jwtproxy7yc7hvrc', cpuLimit: 500, memoryLimit: 2000000000 });
-      expect(containers[1]).toEqual({ name: 'maven', cpuLimit: 0, memoryLimit: 3000000 });
+      expect(containers[1]).toEqual({ name: 'maven', cpuLimit: 0, memoryLimit: 1000000000 });
       expect(containers[2]).toEqual({ name: 'vscode-javauil', cpuLimit: 0, memoryLimit: 200000 });
-      expect(containers[3]).toEqual({ name: 'che-machine-exec122', cpuLimit: 5000, memoryLimit: 20 });
+      expect(containers[3]).toEqual({ name: 'che-machine-exec122', cpuLimit: 5000, memoryLimit: 20000 });
       expect(containers[4]).toEqual({ name: 'theia-idewf0', cpuLimit: 0, memoryLimit: 536870912 });
     });
   });
@@ -247,7 +247,7 @@ describe('Test Resource Monitor Plugin', () => {
       expect(containers[1]).toEqual({
         name: 'maven',
         cpuLimit: 0,
-        memoryLimit: 3000000,
+        memoryLimit: 1000000000,
         cpuUsed: 100,
         memoryUsed: 153600000,
       });
@@ -261,7 +261,7 @@ describe('Test Resource Monitor Plugin', () => {
       expect(containers[3]).toEqual({
         name: 'che-machine-exec122',
         cpuLimit: 5000,
-        memoryLimit: 20,
+        memoryLimit: 20000,
         cpuUsed: 15,
         memoryUsed: 10,
       });
@@ -273,8 +273,35 @@ describe('Test Resource Monitor Plugin', () => {
         memoryUsed: 5242880,
       });
 
-      // Check message from the status bar
-      expect(statusBarItem.text).toBe('$(ellipsis) Mem: 0.24/2.37 GB 10%$(pulse) CPU: 395 m');
+      // Check status bar
+      expect(statusBarItem.text).toBe('$(ellipsis) Mem: 0.26/3.54 GB 7%$(pulse) CPU: 395 m');
+      expect(statusBarItem.color).toBe('#FFFFFF');
+      expect(statusBarItem.tooltip).toBe('Workspace resources');
+    });
+
+    test('Status bar should be marked as warning with container information', async () => {
+      const podJson = await fs.readFile(path.join(__dirname, '_data', 'podInfo.json'), 'utf8');
+      const podInfo: che.K8SRawResponse = {
+        data: podJson,
+        error: '',
+        statusCode: 200,
+      };
+      const metricsJson = await fs.readFile(path.join(__dirname, '_data', 'limitedMemoryMetrics.json'), 'utf8');
+      const metricsInfo: che.K8SRawResponse = {
+        data: metricsJson,
+        error: '',
+        statusCode: 200,
+      };
+
+      sendRawQuery.mockReturnValueOnce(podInfo).mockReturnValueOnce(metricsInfo);
+      resMonitor = new ResMon(context, 'che-namespace');
+      await resMonitor.getContainersInfo();
+      await resMonitor.getMetrics();
+
+      // Check status bar
+      expect(statusBarItem.text).toBe('$(ellipsis) Mem: 950.00/1000.00 MB 95%$(pulse) CPU: 100 m');
+      expect(statusBarItem.color).toBe('#FFCC00');
+      expect(statusBarItem.tooltip).toBe('maven container');
     });
   });
 
@@ -302,27 +329,27 @@ describe('Test Resource Monitor Plugin', () => {
 
       const item1: theia.QuickPickItem = {
         label: 'che-jwtproxy7yc7hvrc',
-        detail: 'Mem (MB): 95.37 (Used) / 1907.35 (Limited) | CPU : 250m (Used) / 500m (Limited)',
+        detail: 'Mem (MB): 100.00 (Used) / 2000.00 (Limited) | CPU : 250m (Used) / 500m (Limited)',
         showBorder: true,
       };
       const item2: theia.QuickPickItem = {
         label: 'maven',
-        detail: 'Mem (MB): 146.48 (Used) / 2.86 (Limited) | CPU : 100m (Used) / not set (Limited)',
+        detail: 'Mem (MB): 153.60 (Used) / 1000.00 (Limited) | CPU : 100m (Used) / not set (Limited)',
         showBorder: true,
       };
       const item3: theia.QuickPickItem = {
         label: 'vscode-javauil',
-        detail: 'Mem (MB): 0.10 (Used) / 0.19 (Limited) | CPU : 20m (Used) / not set (Limited)',
+        detail: 'Mem (MB): 0.10 (Used) / 0.20 (Limited) | CPU : 20m (Used) / not set (Limited)',
         showBorder: true,
       };
       const item4: theia.QuickPickItem = {
         label: 'che-machine-exec122',
-        detail: 'Mem (MB): 0.00 (Used) / 0.00 (Limited) | CPU : 15m (Used) / 5000m (Limited)',
+        detail: 'Mem (MB): 0.00 (Used) / 0.02 (Limited) | CPU : 15m (Used) / 5000m (Limited)',
         showBorder: true,
       };
       const item5: theia.QuickPickItem = {
         label: 'theia-idewf0',
-        detail: 'Mem (MB): 5.00 (Used) / 512.00 (Limited) | CPU : 10m (Used) / not set (Limited)',
+        detail: 'Mem (MB): 5.24 (Used) / 536.87 (Limited) | CPU : 10m (Used) / not set (Limited)',
         showBorder: true,
       };
       expect(theia.window.showQuickPick).toHaveBeenCalledWith([item1, item2, item3, item4, item5], {});

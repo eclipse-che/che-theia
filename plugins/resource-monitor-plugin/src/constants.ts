@@ -16,7 +16,10 @@ export const SHOW_RESOURCES_INFORMATION_COMMAND: theia.CommandDescription = {
 
 export enum Units {
   None = 1,
-  K = 1024,
-  M = 1024 * 1024,
-  G = 1024 * 1024 * 1024,
+  K = 1000,
+  M = 1000 * 1000,
+  G = 1000 * 1000 * 1000,
+  KI = 1024,
+  MI = 1024 * 1024,
+  GI = 1024 * 1024 * 1024,
 }

@@ -8,39 +8,39 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { converToBytes, convertToMilliCPU } from '../src/units-converter';
+import { convertToBytes, convertToMilliCPU } from '../src/units-converter';
 
 describe('Test Convertor Utility', () => {
   describe('converToBytes', () => {
     test('undefined to 0', () => {
-      expect(converToBytes(undefined)).toBe(0);
+      expect(convertToBytes(undefined)).toBe(0);
     });
     test('mebibyte to bytes', () => {
-      expect(converToBytes('1Mi')).toBe(1048576);
-      expect(converToBytes('1MI')).toBe(1048576);
-      expect(converToBytes('1mi')).toBe(1048576);
+      expect(convertToBytes('1Mi')).toBe(1048576);
+      expect(convertToBytes('1MI')).toBe(1048576);
+      expect(convertToBytes('1mi')).toBe(1048576);
     });
     test('kibibyte to bytes', () => {
-      expect(converToBytes('1Ki')).toBe(1024);
-      expect(converToBytes('1KI')).toBe(1024);
-      expect(converToBytes('1ki')).toBe(1024);
+      expect(convertToBytes('1Ki')).toBe(1024);
+      expect(convertToBytes('1KI')).toBe(1024);
+      expect(convertToBytes('1ki')).toBe(1024);
     });
     test('gibibyte to bytes', () => {
-      expect(converToBytes('1Gi')).toBe(1073741824);
-      expect(converToBytes('1GI')).toBe(1073741824);
-      expect(converToBytes('1gi')).toBe(1073741824);
+      expect(convertToBytes('1Gi')).toBe(1073741824);
+      expect(convertToBytes('1GI')).toBe(1073741824);
+      expect(convertToBytes('1gi')).toBe(1073741824);
     });
     test('megabyte to bytes', () => {
-      expect(converToBytes('1M')).toBe(1000000);
-      expect(converToBytes('1m')).toBe(1000000);
+      expect(convertToBytes('1M')).toBe(1000000);
+      expect(convertToBytes('1m')).toBe(1000000);
     });
     test('kilobyte to bytes', () => {
-      expect(converToBytes('1K')).toBe(1000);
-      expect(converToBytes('1k')).toBe(1000);
+      expect(convertToBytes('1K')).toBe(1000);
+      expect(convertToBytes('1k')).toBe(1000);
     });
     test('gigabyte to bytes', () => {
-      expect(converToBytes('1G')).toBe(1000000000);
-      expect(converToBytes('1g')).toBe(1000000000);
+      expect(convertToBytes('1G')).toBe(1000000000);
+      expect(convertToBytes('1g')).toBe(1000000000);
     });
   });
   describe('convertToMilliCPU', () => {
