@@ -37,7 +37,6 @@
     "@types/fs-extra": "^9.0.1",
     "@types/semver": "^7.3.1",
     "eslint-plugin-jest": "^23.11.0",
-    "import-sort-style-eslint": "^6.0.0",
     "ts-mockito": "^2.5.0",
     "vuepress": "^1.5.2"
   },
@@ -61,15 +60,5 @@
       "jsx",
       "json"
     ]
-  },
-  "prettier": {
-    "printWidth": 120,
-    "singleQuote": true
-  },
-  "importSort": {
-    ".ts": {
-      "style": "eslint",
-      "parser": "typescript"
-    }
   }
 }
