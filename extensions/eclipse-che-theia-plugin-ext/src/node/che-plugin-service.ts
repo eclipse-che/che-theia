@@ -81,8 +81,9 @@ export class ChePluginServiceImpl implements ChePluginService {
 
     try {
       const workspaceSettings: WorkspaceSettings = await this.workspaceService.getWorkspaceSettings();
-      if (workspaceSettings && workspaceSettings['cheWorkspacePluginRegistryUrl']) {
-        let uri = workspaceSettings['cheWorkspacePluginRegistryUrl'];
+      if (workspaceSettings && workspaceSettings['cheWorkspacePluginRegistryInternalUrl']) {
+        let uri = workspaceSettings['cheWorkspacePluginRegistryInternalUrl'];
+        console.log('[INFO] Plugin registry url is: ' + uri);
 
         if (!uri.endsWith('/plugins/')) {
           if (uri.endsWith('/')) {
