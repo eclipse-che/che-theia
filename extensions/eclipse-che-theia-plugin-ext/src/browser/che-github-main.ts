@@ -24,10 +24,14 @@ export class CheGithubMainImpl implements CheGithubMain {
 
     async $uploadPublicSshKey(publicKey: string): Promise<void> {
         await this.fetchToken();
-        await this.axiosInstance.post('https://api.github.com/user/keys?access_token=' + this.token, {
-            title: 'che-theia',
-            key: publicKey
-        });
+        await this.axiosInstance.post(
+            'https://api.github.com/user/keys',
+            {
+                title: 'che-theia',
+                key: publicKey,
+            },
+            { headers: { Authorization: `Bearer ${this.token}` } }
+        );
     }
 
     async $getToken(): Promise<string> {
@@ -44,7 +48,9 @@ export class CheGithubMainImpl implements CheGithubMain {
             await this.updateToken();
         } else {
             try {
-                await this.axiosInstance.get('https://api.github.com/user?access_token=' + this.token);
+                await this.axiosInstance.get('https://api.github.com/user', {
+                    headers: { Authorization: `Bearer ${this.token}` },
+                });
             } catch (e) {
                 await this.updateToken();
             }
