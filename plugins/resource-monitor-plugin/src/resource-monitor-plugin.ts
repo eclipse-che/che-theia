@@ -12,7 +12,7 @@ import * as che from '@eclipse-che/plugin';
 import * as theia from '@theia/plugin';
 
 import { Container, MetricContainer, Metrics, Pod } from './objects';
-import { SHOW_RESOURCES_INFORMATION_COMMAND, Units } from './constants';
+import { SHOW_RESOURCES_INFORMATION_COMMAND, SHOW_WARNING_MESSAGE_COMMAND, Units } from './constants';
 import { convertToBytes, convertToMilliCPU } from './units-converter';
 
 export async function start(context: theia.PluginContext): Promise<void> {
@@ -27,6 +27,7 @@ export class ResMon {
   private warningColor = '#FFCC00';
   private defaultColor = '#FFFFFF';
   private defaultTooltip = 'Workspace resources';
+  private warningMessage = '';
 
   private statusBarItem: theia.StatusBarItem;
   private containers: Container[] = [];
@@ -34,7 +35,8 @@ export class ResMon {
 
   constructor(context: theia.PluginContext, namespace: string) {
     context.subscriptions.push(
-      theia.commands.registerCommand(SHOW_RESOURCES_INFORMATION_COMMAND, () => this.showDetailedInfo())
+      theia.commands.registerCommand(SHOW_RESOURCES_INFORMATION_COMMAND, () => this.showDetailedInfo()),
+      theia.commands.registerCommand(SHOW_WARNING_MESSAGE_COMMAND, () => this.showWarningMessage())
     );
 
     this.namespace = namespace;
@@ -42,6 +44,7 @@ export class ResMon {
     this.statusBarItem.color = this.defaultColor;
     this.statusBarItem.show();
     this.statusBarItem.command = SHOW_RESOURCES_INFORMATION_COMMAND.id;
+    this.statusBarItem.tooltip = 'Resources Monitor';
   }
 
   async show(): Promise<void> {
@@ -54,6 +57,9 @@ export class ResMon {
     const opts = { url: `${this.METRICS_REQUEST_URL}${this.namespace}/pods` };
     const response: che.K8SRawResponse = await che.k8s.sendRawQuery(requestURL, opts);
     if (response.statusCode !== 200) {
+      this.statusBarItem.text = '$(ban)';
+      this.warningMessage = "Resource monitor won't be displayed. Cannot get access to the workspace's pod.";
+      this.statusBarItem.command = SHOW_WARNING_MESSAGE_COMMAND.id;
       throw new Error(`Cannot read Pod information. Status code: ${response.statusCode}. Error: ${response.data}`);
     }
     const pod: Pod = JSON.parse(response.data);
@@ -70,6 +76,9 @@ export class ResMon {
   async requestMetricsServer(): Promise<void> {
     const result = await che.k8s.sendRawQuery(this.METRICS_SERVER_ENDPOINT, { url: this.METRICS_SERVER_ENDPOINT });
     if (result.statusCode !== 200) {
+      this.statusBarItem.text = '$(ban)';
+      this.warningMessage = "Resource monitor won't be displayed. Metrics Server is not enabled on the cluster.";
+      this.statusBarItem.command = SHOW_WARNING_MESSAGE_COMMAND.id;
       throw new Error(`Cannot connect to Metrics Server. Status code: ${result.statusCode}. Error: ${result.data}`);
     }
     setInterval(() => this.getMetrics(), 5000);
@@ -171,6 +180,10 @@ export class ResMon {
       });
     });
     theia.window.showQuickPick(items, {});
+  }
+
+  showWarningMessage(): void {
+    theia.window.showWarningMessage(this.warningMessage);
   }
 }
 

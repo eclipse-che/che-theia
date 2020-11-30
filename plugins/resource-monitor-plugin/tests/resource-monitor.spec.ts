@@ -12,7 +12,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import * as che from '@eclipse-che/plugin';
-import * as constants from '../src/constants';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as resourceMonitorPlugin from '../src/resource-monitor-plugin';
@@ -20,6 +19,7 @@ import * as theia from '@theia/plugin';
 
 import { Container } from '../src/objects';
 import { ResMon } from '../src/resource-monitor-plugin';
+import { SHOW_WARNING_MESSAGE_COMMAND } from '../src/constants';
 import { che as cheApi } from '@eclipse-che/api';
 
 describe('Test Resource Monitor Plugin', () => {
@@ -106,6 +106,8 @@ describe('Test Resource Monitor Plugin', () => {
       try {
         await resMonitor.show();
       } catch (error) {
+        expect(statusBarItem.text).toBe('$(ban)');
+        expect(statusBarItem.command).toBe(SHOW_WARNING_MESSAGE_COMMAND.id);
         expect(error).toBeInstanceOf(Error);
         expect(error).toHaveProperty(
           'message',
@@ -175,6 +177,8 @@ describe('Test Resource Monitor Plugin', () => {
       try {
         await resMonitor.requestMetricsServer();
       } catch (error) {
+        expect(statusBarItem.text).toBe('$(ban)');
+        expect(statusBarItem.command).toBe(SHOW_WARNING_MESSAGE_COMMAND.id);
         expect(error).toBeInstanceOf(Error);
         expect(error).toHaveProperty(
           'message',
@@ -365,15 +369,22 @@ describe('Test Resource Monitor Plugin', () => {
       sendRawQuery.mockReturnValue(response);
       await resourceMonitorPlugin.start(context);
 
-      expect(theia.commands.registerCommand).toHaveBeenCalledWith(
-        constants.SHOW_RESOURCES_INFORMATION_COMMAND,
-        expect.any(Function)
-      );
+      expect(theia.commands.registerCommand).toHaveBeenCalledWith(expect.any(Object), expect.any(Function));
       expect(theia.window.createStatusBarItem).toHaveBeenCalledWith(1);
       expect(statusBarItem.alignment).toBe(1);
       expect(statusBarItem.color).toBe('#FFFFFF');
       expect(statusBarItem.show).toHaveBeenCalledTimes(1);
-      expect(statusBarItem.command).toBe(constants.SHOW_RESOURCES_INFORMATION_COMMAND.id);
+      expect(statusBarItem.command).toBe(SHOW_WARNING_MESSAGE_COMMAND.id);
+    });
+  });
+
+  describe('showWarningMessage', () => {
+    test('Show warning notification with a message', async () => {
+      resMonitor = new ResMon(context, 'che-namespace');
+
+      resMonitor.showWarningMessage();
+
+      expect(theia.window.showWarningMessage).toBeCalledWith(expect.any(String));
     });
   });
 });

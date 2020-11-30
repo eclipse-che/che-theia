@@ -11,7 +11,11 @@
 import * as theia from '@theia/plugin';
 
 export const SHOW_RESOURCES_INFORMATION_COMMAND: theia.CommandDescription = {
-  id: 'show-resources-information',
+  id: 'resources-monitor-show-resources-information',
+};
+
+export const SHOW_WARNING_MESSAGE_COMMAND: theia.CommandDescription = {
+  id: 'resources-monitor-show-warning-message',
 };
 
 export enum Units {

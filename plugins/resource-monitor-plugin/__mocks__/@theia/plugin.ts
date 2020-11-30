@@ -27,4 +27,5 @@ theia.window = {};
 theia.plugins = {};
 theia.window.createStatusBarItem = jest.fn();
 theia.window.showQuickPick = jest.fn();
+theia.window.showWarningMessage = jest.fn();
 module.exports = theia;
