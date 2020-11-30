@@ -46,12 +46,22 @@ import pluginExtBackendModule from '@theia/plugin-ext/lib/plugin-ext-backend-mod
 import pluginRemoteBackendModule from './plugin-remote-backend-module';
 import pluginVscodeBackendModule from '@theia/plugin-ext-vscode/lib/node/plugin-vscode-backend-module';
 
+const DEFAULT_THEIA_HOME_DIR = '/home/theia/';
+const DEFAULT_THEIA_DEV_HOME_DIR = '/home/theia-dev';
+
 interface CheckAliveWS extends ws {
   alive: boolean;
 }
 
-function modifyPathToLocal(origPath: string): string {
-  return path.join(os.homedir(), origPath.substr(0, '/home/theia/'.length));
+function modifyPathToLocal(originalPath: string): string {
+  if (originalPath.startsWith(DEFAULT_THEIA_HOME_DIR)) {
+    return path.join(os.homedir(), originalPath.substring(DEFAULT_THEIA_HOME_DIR.length));
+  }
+
+  if (originalPath.startsWith(DEFAULT_THEIA_DEV_HOME_DIR)) {
+    return path.join(os.homedir(), originalPath.substring(DEFAULT_THEIA_DEV_HOME_DIR.length));
+  }
+  return originalPath;
 }
 
 @injectable()
@@ -127,10 +137,22 @@ export class PluginRemoteInit {
     const originalStart = PluginManagerExtImpl.prototype.$start;
     PluginManagerExtImpl.prototype.$start = async function (params: PluginManagerStartParams): Promise<void> {
       const { hostLogPath, hostStoragePath, hostGlobalStoragePath } = params.configStorage;
+
+      const overriddenLogPath = modifyPathToLocal(hostLogPath);
+      await fs.ensureDir(overriddenLogPath);
+
+      const overriddenStoragePath = hostStoragePath ? modifyPathToLocal(hostStoragePath) : undefined;
+      if (overriddenStoragePath) {
+        await fs.ensureDir(overriddenStoragePath);
+      }
+
+      const overriddenGlobalStoragePath = modifyPathToLocal(hostGlobalStoragePath);
+      await fs.ensureDir(overriddenGlobalStoragePath);
+
       params.configStorage = {
-        hostLogPath: modifyPathToLocal(hostLogPath),
-        hostStoragePath: hostStoragePath ? modifyPathToLocal(hostStoragePath) : undefined,
-        hostGlobalStoragePath: modifyPathToLocal(hostGlobalStoragePath),
+        hostLogPath: overriddenLogPath,
+        hostStoragePath: overriddenStoragePath,
+        hostGlobalStoragePath: overriddenGlobalStoragePath,
       };
       // call original method
       return originalStart.call(this, params);
