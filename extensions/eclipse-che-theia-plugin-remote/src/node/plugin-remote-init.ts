@@ -18,7 +18,13 @@ import * as theia from '@theia/plugin';
 import * as ws from 'ws';
 
 import { Container, inject, injectable } from 'inversify';
-import { DeployedPlugin, PluginEntryPoint, PluginInfo, PluginManagerStartParams } from '@theia/plugin-ext';
+import {
+  DeployedPlugin,
+  PluginEntryPoint,
+  PluginInfo,
+  PluginManagerInitializeParams,
+  PluginManagerStartParams,
+} from '@theia/plugin-ext';
 import { LogCallback, RemoteHostTraceLogger } from './remote-trace-logger';
 import { MAIN_RPC_CONTEXT, PluginDependencies, PluginDeployer, PluginDeployerEntry } from '@theia/plugin-ext';
 import { OutputChannelRegistryExt, PluginDeployerHandler } from '@theia/plugin-ext/lib/common';
@@ -113,6 +119,15 @@ export class PluginRemoteInit {
     // bind local stuff
     inversifyContainer.load(pluginRemoteBackendModule);
 
+    const embeddedCheApiNodeProviderPath = path.join(
+      __dirname,
+      '../../eclipse-che-theia-plugin-ext/lib/plugin/node/che-api-node-provider.js'
+    );
+    const chePluginApiProviderPath = path.join(
+      __dirname,
+      '../../eclipse-che-theia-plugin-ext/lib/node/che-plugin-api-provider.js'
+    );
+
     inversifyContainer.bind<number>('plugin.port').toConstantValue(this.pluginPort);
 
     // start the deployer
@@ -133,6 +148,47 @@ export class PluginRemoteInit {
       };
       // call original method
       return originalStart.call(this, params);
+    };
+
+    // in remote plugin image '/home/theia' doesn't exist
+    const originalInit = PluginManagerExtImpl.prototype.$init;
+    PluginManagerExtImpl.prototype.$init = async function (params: PluginManagerInitializeParams): Promise<void> {
+      if (params && params.extApi) {
+        const extApi = params.extApi;
+        console.log(`Calling extAPi init with array paths ${extApi.map(api => api.backendInitPath)}`);
+
+        const parentcheApiDir = path.dirname(embeddedCheApiNodeProviderPath);
+        const contentOfcheApiDir = await fs.readdir(parentcheApiDir);
+        if (contentOfcheApiDir) {
+          contentOfcheApiDir.map(entry => console.log(`Directory cheApi contains ${entry}`));
+        }
+
+        const parentchePluginDir = path.dirname(chePluginApiProviderPath);
+        const contentOfchePluginDir = await fs.readdir(parentchePluginDir);
+        if (contentOfchePluginDir) {
+          contentOfchePluginDir.map(entry => console.log(`Directory chePlugin contains ${entry}`));
+        }
+
+        const updatedExtApi = extApi.map(api => {
+          console.log(`Calling extAPi init with value ${JSON.stringify(api)}`);
+          if (api.backendInitPath && api.backendInitPath.endsWith('che-api-node-provider.js')) {
+            // update
+            console.log(
+              `Update the path to the backend init provider from ${api.backendInitPath} to ${embeddedCheApiNodeProviderPath}`
+            );
+            api.backendInitPath = embeddedCheApiNodeProviderPath;
+          }
+          return api;
+        });
+        try {
+          params.extApi = updatedExtApi;
+          console.log(`Updated extAPi to ${JSON.stringify(params.extApi)}`);
+        } catch (error) {
+          console.log('unable to update extApi');
+        }
+      }
+      // call original method
+      return originalInit.call(this, params);
     };
 
     // display message about process being started

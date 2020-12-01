@@ -42,9 +42,9 @@ const localModule = ConnectionContainerModule.create(({ bind, unbind, isBound, r
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
   try {
     // Force to include theia-plugin-ext inside node_modules
-    require('@eclipse-che/theia-plugin-ext/lib/node/che-plugin-api-provider.js');
+    require(path.join(__dirname, '../../eclipse-che-theia-plugin-ext/lib/node/che-plugin-api-provider.js'));
   } catch (err) {
-    console.log('Unable to set up che theia plugin api: ', err);
+    console.log('Unable to set up @eclipse-che/plugin api: ', err);
   }
   bind(HostedPluginMapping).toSelf().inSingletonScope();
   bind(MetadataProcessor).to(RemoteMetadataProcessor).inSingletonScope();
