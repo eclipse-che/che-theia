@@ -9,6 +9,9 @@
  ***********************************************************************/
 
 import { PluginRemoteInit } from './plugin-remote-init';
+import { provideApi } from '@eclipse-che/theia-plugin-ext/lib/plugin/node/che-api-node-provider';
+
+console.log('imported ' + provideApi.name);
 
 /**
  * Entry point of a Remote Endpoint. It is executed as a new separate nodejs process.
