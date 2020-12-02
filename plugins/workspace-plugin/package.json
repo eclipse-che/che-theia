@@ -1,7 +1,7 @@
 {
   "name": "@eclipse-che/workspace-plugin",
   "publisher": "Eclipse Che",
-  "version": "7.22.1",
+  "version": "7.22.2",
   "keywords": [
     "theia-plugin"
   ],
@@ -13,7 +13,7 @@
     "fs-extra": "7.0.1"
   },
   "devDependencies": {
-    "@eclipse-che/plugin": "7.22.1",
+    "@eclipse-che/plugin": "7.22.2",
     "@theia/plugin": "1.8.0-next.e2098321",
     "@theia/plugin-packager": "latest"
   },
