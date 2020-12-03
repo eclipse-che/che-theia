@@ -27,6 +27,9 @@ ARG THEIA_COMMIT_SHA=''
 
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
+# avoid any linter/formater/unit test
+ENV SKIP_LINT=true SKIP_FORMAT=true SKIP_TEST=true
+
 #{IF:DO_REMOTE_CHECK}
 # Invalidate cache if any source code has changed
 ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/${THEIA_GITHUB_REPO}/git/${GIT_REF} /tmp/branch_info.json
@@ -81,12 +84,8 @@ RUN rm -rf ${HOME}/theia-source-code/examples/browser && \
     sed -i -n '/.*examples\/electron/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
     # change update goal to be the eclipse che assembly
     sed -i 's|.*"prepare:build".*|    \"prepare:build\"\: \"yarn build \&\& lerna run build\", |' ${HOME}/theia-source-code/package.json && \
-    cat ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    find ${HOME}/theia-source-code/che-theia -name "package.json" | xargs sed -i 's|concurrently -n \\"format,lint,compile\\" -c \\"red,green,blue\\" \\"yarn format\\" \\"yarn lint\\" \\"yarn compile\\"|concurrently -n \\"compile\\" -c \\"blue\\" \\"yarn compile\\"|' && \
-    # disable linters of che-theia as it's already done before
-    find ${HOME}/theia-source-code/che-theia -name "package.json" | xargs sed -i 's|.*"lint:fix".*|    \"lint:fix\"\: \"echo skip linter\", |' && \
-    find ${HOME}/theia-source-code/che-theia -name "package.json" | xargs sed -i 's|.*"lint".*|    \"lint\"\: \"echo skip linter\", |'
-
+    cat ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json
+    
 RUN che-theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 
 # Compile Theia

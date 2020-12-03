@@ -109,7 +109,9 @@ export class Init {
                     if (extensionPackage.devDependencies) {
                         // not existing in theia and match prettier or eslint
                         const keys = Object.keys(extensionPackage.devDependencies).filter(
-                            key => !theiaDevDependencies[key] && (key.includes('prettier') || key.includes('eslint'))
+                            key =>
+                                !theiaDevDependencies[key] &&
+                                (key.includes('prettier') || key.includes('eslint') || key === 'if-env')
                         );
                         keys.forEach(key => appendDevDependencies.set(key, extensionPackage.devDependencies![key]));
                     }
