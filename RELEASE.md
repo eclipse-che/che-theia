@@ -1,4 +1,4 @@
-# Eclipse Che Theia release process
+# Eclipse Che-Theia release process
 
 Launch the [release script](make-release.sh) and wait until [CI Job](https://ci.centos.org/view/Devtools/job/devtools-che-theia-che-release) is completed:
 

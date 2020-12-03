@@ -38,7 +38,7 @@ async function getTheiaGitSha1() {
         return stdout.trim();
     }
 
-    // suppose Che Theia is located inside theia folder in 'che/che-theia'
+    // suppose Che-Theia is located inside theia folder in 'che/che-theia'
     let theiaDir = path.resolve(__dirname, '../../../../..');
     if (await checkIfTheiaDir(theiaDir)) {
         return await getLastCommitHash(theiaDir);
@@ -55,7 +55,7 @@ async function getTheiaGitSha1() {
 }
 
 /**
- * Grab sha1 of Che Theia
+ * Grab sha1 of Che-Theia
  */
 async function getCheTheiaGitSha1() {
 

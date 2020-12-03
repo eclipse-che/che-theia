@@ -32,13 +32,13 @@ components:
         value: 'local-dir:///projects/remote-plugins/'
     memoryLimit: 1Gi
 commands:
-  - name: Init Che Theia
+  - name: Init Che-Theia
     actions:
       - type: exec
         component: theia-dev
         command: 'che-theia init'
         workdir: /projects/theia
-  - name: Clean Che Theia
+  - name: Clean Che-Theia
     actions:
       - type: exec
         component: theia-dev
@@ -50,7 +50,7 @@ commands:
         component: theia-dev
         command: 'yes | yo @theia/plugin && mkdir -p /projects/remote-plugins && cp y/y.theia /projects/remote-plugins/hello-world-plugin.theia && rm -rf /tmp/y'
         workdir: /tmp
-  - name: Build Che Theia
+  - name: Build Che-Theia
     actions:
       - type: exec
         component: theia-dev
