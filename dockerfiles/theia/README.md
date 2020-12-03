@@ -2,7 +2,7 @@
 
 ## Build image manually using build scripts
 
-To build all the images you can easily run [build.sh](../../build.sh) script located in the repository root. It will build container with Theia editor, dev container with tools to develop on TypeScript and containers containing remote plugins. 
+To build all the images you can easily run [build.sh](../../build.sh) script located in the repository root. It will build container with Theia editor, dev container with tools to develop on TypeScript and containers containing remote plugins.
 
 ```bash
 ./build.sh
@@ -13,16 +13,16 @@ CI for checking any pull request in this repository runs this script with `--pr`
 `build.sh --pr`.
 ```
 
-**Note**: `--pr` will build only [limited set](../../build.include) of docker images.	
+**Note**: `--pr` will build only [limited set](../../build.include) of docker images.
 
-## How to build own Che Theia image with Docker
+## How to build own Che-Theia image with Docker
 
 [Che-Theia](Dockerfile) image is based on [Theia-Dev](../theia-dev/Dockerfile) image, which contains a set of tools for TypeScript development.
 Also theia-dev image includes `@theia/generator-plugin` which can be easily used in both Theia-Dev and Che-Theia containers.
 
 Build script always use current Che-Theia sources. To test your changes you don't need to push your changes somewhere. Just go to `dockerfiles/theia` directory and run:
 
-```bash	
+```bash
 ./build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=master --tag:next --branch:master --git-ref:refs\\/heads\\/master
 ```
 
@@ -107,7 +107,7 @@ This parameter is optional. Default value is `'refs\\/heads\\/master'`.
 
 Add this parameter to the build command to have a quick build and to skip running tests in dedicated container.
 
-By default tests are turned on. 
+By default tests are turned on.
 
 ## Build only for specific type of Docker images (Alpine, UBI8, etc.)
 
@@ -141,7 +141,7 @@ such as http://unpkg.com/ or https://www.jsdelivr.com/.
 
 NPM version number and file paths are added automatically by the Che-Theia CDN support.
 
-For example, using JSDelivr, the following build argument should be added: `MONACO_CDN_PREFIX=https://cdn.jsdelivr.net/npm/`. 
+For example, using JSDelivr, the following build argument should be added: `MONACO_CDN_PREFIX=https://cdn.jsdelivr.net/npm/`.
 
 Alternatively, if `CDN_PREFIX` and `MONACO_CDN_PREFIX` are provided as **environment variables**, the corresponding build arguments
 will be added automatically by the `build.sh` script. This will make CDN support configuration easier in CI builds.

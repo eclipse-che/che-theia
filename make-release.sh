@@ -8,12 +8,12 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-# Release process automation script. 
+# Release process automation script.
 # Used to create branch/tag, update the necessary files
 # and trigger release by force pushing changes to the release branch.
 
 # set to 1 to actually trigger changes in the release branch
-TRIGGER_RELEASE=0 
+TRIGGER_RELEASE=0
 NOCOMMIT=0
 
 while [[ "$#" -gt 0 ]]; do
@@ -52,7 +52,7 @@ BRANCH=${VERSION%.*}.x
 # if doing a .0 release, use master; if doing a .z release, use $BRANCH
 if [[ ${VERSION} == *".0" ]]; then
   BASEBRANCH="master"
-else 
+else
   BASEBRANCH="${BRANCH}"
 fi
 
@@ -99,7 +99,7 @@ apply_files_edits () {
     exit 1
   fi
 
-  # update config for Che Theia generator
+  # update config for Che-Theia generator
   sed_in_place -e "/checkoutTo:/s/master/${BRANCH}/" che-theia-init-sources.yml
   sed_in_place -e "/checkoutTo:/s/master/${BRANCH}/" che-theia-init-sources.yml
 
@@ -147,7 +147,7 @@ if [[ $TRIGGER_RELEASE -eq 1 ]]; then
   # push new branch to release branch to trigger CI build
   git fetch origin "${BRANCH}:${BRANCH}"
   git checkout "${BRANCH}"
-  git branch release -f 
+  git branch release -f
   git push origin release -f
 
   # tag the release

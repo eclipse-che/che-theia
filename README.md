@@ -5,7 +5,7 @@
 
 <img src="https://raw.githubusercontent.com/eclipse-theia/theia/master/logo/theia-logo.svg?sanitize=true" alt="Theia Logo" width="150" height="60"/>
 
-# Che Theia
+# Che-Theia
 
 
 </div>

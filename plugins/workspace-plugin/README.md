@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/eclipse/che-theia-factory-extension.svg?branch=master)](https://travis-ci.org/eclipse/che-theia-factory-extension)
 
-# Che Theia factory
+# Che-Theia factory
 This Theia plug-in is performing additional actions while creating/starting a Che workspace through a factory URL.
 Provides basic factory client side clone feature
 
@@ -11,11 +11,11 @@ Provides basic factory client side clone feature
 From the factory definition:
 - cloning projects defined in the factory definition
 - checking out the right branch if needed
-- executing post loading actions such as running CHE commands/tasks or openning a specific file. 
+- executing post loading actions such as running CHE commands/tasks or openning a specific file.
 
 ## Testing this extension
 ### Setting up [deprecated: https://github.com/eclipse/che/issues/11632]
-1. Clone [eclipse/che](git@github.com:eclipse/che.git). 
+1. Clone [eclipse/che](git@github.com:eclipse/che.git).
     ```
     $ git clone https://github.com/eclipse/che.git
     $ cd che/dockerfiles/theia

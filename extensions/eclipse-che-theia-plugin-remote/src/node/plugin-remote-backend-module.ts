@@ -44,7 +44,7 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
     // Force to include theia-plugin-ext inside node_modules
     require('@eclipse-che/theia-plugin-ext/lib/node/che-plugin-api-provider.js');
   } catch (err) {
-    console.log('Unable to set up che theia plugin api: ', err);
+    console.log('Unable to set up che-theia plugin api: ', err);
   }
   bind(HostedPluginMapping).toSelf().inSingletonScope();
   bind(MetadataProcessor).to(RemoteMetadataProcessor).inSingletonScope();

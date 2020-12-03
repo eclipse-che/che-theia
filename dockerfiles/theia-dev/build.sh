@@ -15,7 +15,7 @@ DIR=$(cd "$(dirname "$0")"; pwd)
 
 CHE_THEIA_GENERATOR_PACKAGE_NAME=eclipse-che-theia-generator.tgz
 CHE_THEIA_GENERATOR_PACKAGE="${base_dir}/../../generator/${CHE_THEIA_GENERATOR_PACKAGE_NAME}"
-# Rebuild Che Theia generator if:
+# Rebuild Che-Theia generator if:
 #  - it hasn't been built yet
 #  - there is any changes in the generator directory
 #  - there is a commit newer than the generator build time
@@ -26,10 +26,10 @@ if [ ! -f "$CHE_THEIA_GENERATOR_PACKAGE" ] || \
 then
     # Delete previous archive if any
     rm -f $CHE_THEIA_GENERATOR_PACKAGE
-    echo "Building Che Theia generator"
+    echo "Building Che-Theia generator"
     cd "${base_dir}"/../../generator/ && yarn && yarn pack --filename $CHE_THEIA_GENERATOR_PACKAGE_NAME
 fi
-echo "Copying Che Theia generator"
+echo "Copying Che-Theia generator"
 cp "${CHE_THEIA_GENERATOR_PACKAGE}" "${base_dir}/asset-${CHE_THEIA_GENERATOR_PACKAGE_NAME}"
 
 rm -rf ${base_dir}/asset-unpacked-generator && mkdir ${base_dir}/asset-unpacked-generator
