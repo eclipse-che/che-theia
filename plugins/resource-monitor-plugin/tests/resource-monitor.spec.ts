@@ -106,7 +106,7 @@ describe('Test Resource Monitor Plugin', () => {
       try {
         await resMonitor.show();
       } catch (error) {
-        expect(statusBarItem.text).toBe('$(ban)');
+        expect(statusBarItem.text).toBe('$(ban) Resources');
         expect(statusBarItem.command).toBe(SHOW_WARNING_MESSAGE_COMMAND.id);
         expect(error).toBeInstanceOf(Error);
         expect(error).toHaveProperty(
@@ -177,7 +177,7 @@ describe('Test Resource Monitor Plugin', () => {
       try {
         await resMonitor.requestMetricsServer();
       } catch (error) {
-        expect(statusBarItem.text).toBe('$(ban)');
+        expect(statusBarItem.text).toBe('$(ban) Resources');
         expect(statusBarItem.command).toBe(SHOW_WARNING_MESSAGE_COMMAND.id);
         expect(error).toBeInstanceOf(Error);
         expect(error).toHaveProperty(

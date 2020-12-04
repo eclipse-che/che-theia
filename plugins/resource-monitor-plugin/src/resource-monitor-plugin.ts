@@ -24,9 +24,11 @@ export async function start(context: theia.PluginContext): Promise<void> {
 export class ResMon {
   private METRICS_SERVER_ENDPOINT = '/apis/metrics.k8s.io/v1beta1/';
   private METRICS_REQUEST_URL = `${this.METRICS_SERVER_ENDPOINT}namespaces/`;
-  private warningColor = '#FFCC00';
-  private defaultColor = '#FFFFFF';
-  private defaultTooltip = 'Workspace resources';
+  private WARNING_COLOR = '#FFCC00';
+  private DEFAULT_COLOR = '#FFFFFF';
+  private DEFAULT_TOOLTIP = 'Workspace resources';
+  private MONITOR_BANNED = '$(ban) Resources';
+
   private warningMessage = '';
 
   private statusBarItem: theia.StatusBarItem;
@@ -41,7 +43,7 @@ export class ResMon {
 
     this.namespace = namespace;
     this.statusBarItem = theia.window.createStatusBarItem(theia.StatusBarAlignment.Left);
-    this.statusBarItem.color = this.defaultColor;
+    this.statusBarItem.color = this.DEFAULT_COLOR;
     this.statusBarItem.show();
     this.statusBarItem.command = SHOW_RESOURCES_INFORMATION_COMMAND.id;
     this.statusBarItem.tooltip = 'Resources Monitor';
@@ -57,7 +59,7 @@ export class ResMon {
     const opts = { url: `${this.METRICS_REQUEST_URL}${this.namespace}/pods` };
     const response: che.K8SRawResponse = await che.k8s.sendRawQuery(requestURL, opts);
     if (response.statusCode !== 200) {
-      this.statusBarItem.text = '$(ban)';
+      this.statusBarItem.text = this.MONITOR_BANNED;
       this.warningMessage = "Resource monitor won't be displayed. Cannot get access to the workspace's pod.";
       this.statusBarItem.command = SHOW_WARNING_MESSAGE_COMMAND.id;
       throw new Error(`Cannot read Pod information. Status code: ${response.statusCode}. Error: ${response.data}`);
@@ -76,7 +78,7 @@ export class ResMon {
   async requestMetricsServer(): Promise<void> {
     const result = await che.k8s.sendRawQuery(this.METRICS_SERVER_ENDPOINT, { url: this.METRICS_SERVER_ENDPOINT });
     if (result.statusCode !== 200) {
-      this.statusBarItem.text = '$(ban)';
+      this.statusBarItem.text = this.MONITOR_BANNED;
       this.warningMessage = "Resource monitor won't be displayed. Metrics Server is not enabled on the cluster.";
       this.statusBarItem.command = SHOW_WARNING_MESSAGE_COMMAND.id;
       throw new Error(`Cannot connect to Metrics Server. Status code: ${result.statusCode}. Error: ${result.data}`);
@@ -114,8 +116,8 @@ export class ResMon {
     let memUsed = 0;
     let cpuUsed = 0;
     let text = '';
-    let color = this.defaultColor;
-    let tooltip = this.defaultTooltip;
+    let color = this.DEFAULT_COLOR;
+    let tooltip = this.DEFAULT_TOOLTIP;
     this.containers.forEach(element => {
       if (element.memoryLimit) {
         memTotal += element.memoryLimit;
@@ -128,14 +130,14 @@ export class ResMon {
       }
       // if a container uses more than 90% of limited memory, show it in status bar with warning color
       if (element.memoryLimit && element.memoryUsed && element.memoryUsed / element.memoryLimit > 0.9) {
-        color = this.warningColor;
+        color = this.WARNING_COLOR;
         tooltip = `${element.name} container`;
         text = this.buildStatusBarMessage(element.memoryUsed, element.memoryLimit, element.cpuUsed);
       }
     });
 
     // show workspace resources in total
-    if (color === this.defaultColor) {
+    if (color === this.DEFAULT_COLOR) {
       text = this.buildStatusBarMessage(memUsed, memTotal, cpuUsed);
     }
 
