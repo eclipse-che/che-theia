@@ -34,12 +34,18 @@ export class WorkspaceProjectsManager {
 
   constructor(protected pluginContext: theia.PluginContext, protected projectsRoot: string) {}
 
-  async run(): Promise<void> {
-    if (!theia.workspace.name) {
-      // no workspace opened, so nothing to clone / watch
-      return;
-    }
+  getProjectPath(project: cheApi.workspace.devfile.Project): string {
+    return project.clonePath
+      ? path.join(this.projectsRoot, project.clonePath)
+      : path.join(this.projectsRoot, project.name!);
+  }
 
+  getProjects(workspace: cheApi.workspace.Workspace): cheApi.workspace.devfile.Project[] {
+    const projects = workspace.devfile!.projects;
+    return projects ? projects : [];
+  }
+
+  async run(): Promise<void> {
     const workspace = await che.workspace.getCurrentWorkspace();
     const cloneCommandList = await this.buildCloneCommands(workspace);
 
@@ -48,25 +54,42 @@ export class WorkspaceProjectsManager {
 
     await cloningPromise;
 
+    this.ensureWorkspaceFolders(workspace);
+
     await this.startSyncWorkspaceProjects();
   }
 
   async buildCloneCommands(workspace: cheApi.workspace.Workspace): Promise<TheiaImportCommand[]> {
     const instance = this;
 
-    const projects = workspace.devfile!.projects;
-    if (!projects) {
-      return [];
-    }
+    const projects = this.getProjects(workspace);
 
     return projects
-      .filter(project => {
-        const projectPath = project.clonePath
-          ? path.join(instance.projectsRoot, project.clonePath)
-          : path.join(instance.projectsRoot, project.name!);
-        return !fs.existsSync(projectPath);
-      })
+      .filter(project => !fs.existsSync(this.getProjectPath(project)))
       .map(project => buildProjectImportCommand(project, instance.projectsRoot)!);
+  }
+
+  ensureWorkspaceFolders(workspace: cheApi.workspace.Workspace): void {
+    this.getProjects(workspace)
+      .map(project => this.getProjectPath(project))
+      .filter(projectPath => fs.existsSync(projectPath))
+      .forEach(projectPath => this.addWorkspaceFolder(projectPath));
+  }
+
+  addWorkspaceFolder(projectPath: string): void {
+    const workspaceFolders = theia.workspace.workspaceFolders;
+    if (workspaceFolders && workspaceFolders.length > 0) {
+      const pathsList = workspaceFolders.map(folder => folder.uri.path);
+      if (pathsList.indexOf(projectPath) === -1) {
+        theia.workspace.updateWorkspaceFolders(workspaceFolders ? workspaceFolders.length : 0, undefined, {
+          uri: theia.Uri.file(projectPath),
+        });
+      }
+    } else {
+      theia.workspace.updateWorkspaceFolders(0, undefined, {
+        uri: theia.Uri.file(projectPath),
+      });
+    }
   }
 
   private async executeCloneCommands(cloneCommandList: TheiaImportCommand[]): Promise<void> {
