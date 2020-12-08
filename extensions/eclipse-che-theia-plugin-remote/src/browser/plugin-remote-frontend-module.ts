@@ -9,10 +9,17 @@
  ***********************************************************************/
 
 import { BrowserRemoteHostedPluginSupport } from './browser-remote-hosted-plugin-support';
+import { ChePluginResourceResolver } from './che-plugin-resource';
+import { CheSnippetSuggestProvider } from './che-snippet-suggest-provider';
 import { ContainerModule } from 'inversify';
 import { HostedPluginSupport } from '@theia/plugin-ext/lib/hosted/browser/hosted-plugin';
+import { MonacoSnippetSuggestProvider } from '@theia/monaco/lib/browser/monaco-snippet-suggest-provider';
+import { ResourceResolver } from '@theia/core/lib/common/resource';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
   bind(BrowserRemoteHostedPluginSupport).toSelf().inSingletonScope();
   rebind(HostedPluginSupport).toService(BrowserRemoteHostedPluginSupport);
+  bind(ChePluginResourceResolver).toSelf().inSingletonScope();
+  bind(ResourceResolver).toService(ChePluginResourceResolver);
+  rebind(MonacoSnippetSuggestProvider).to(CheSnippetSuggestProvider).inSingletonScope();
 });
