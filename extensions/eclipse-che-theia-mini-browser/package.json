@@ -1,0 +1,40 @@
+{
+  "name": "@eclipse-che/theia-mini-browser",
+  "keywords": [
+    "theia-extension"
+  ],
+  "version": "0.0.1",
+  "description": "Customizations of Theia mini-browser for Eclipse Che",
+  "dependencies": {
+    "inversify": "^5.0.1",
+    "@theia/core": "next",
+    "@theia/mini-browser": "next",
+    "@eclipse-che/theia-remote-api": "^0.0.1",
+    "@eclipse-che/theia-plugin-ext": "^0.0.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "theiaExtensions": [
+    {
+      "frontend": "lib/browser/che-mini-browser-frontend-module",
+      "backend": "lib/node/che-mini-browser-backend-module"
+    }
+  ],
+  "license": "EPL-2.0",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "scripts": {
+    "prepare": "yarn clean && yarn build",
+    "clean": "rimraf lib",
+    "format": "prettier --check '{src,tests}/**/*.ts' package.json",
+    "format:fix": "prettier --write '{src,tests}/**/*.ts' package.json",
+    "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,tests}/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,tests}/**/*.{ts,tsx}\"",
+    "compile": "tsc",
+    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
+    "watch": "tsc -w"
+  }
+}

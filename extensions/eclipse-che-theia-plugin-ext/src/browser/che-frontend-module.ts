@@ -26,7 +26,6 @@ import { WebSocketConnectionProvider, WidgetFactory } from '@theia/core/lib/brow
 
 import { CheApiProvider } from './che-api-provider';
 import { CheLanguagesMainTestImpl } from './che-languages-test-main';
-import { CheMiniBrowserOpenHandler } from './che-mini-browser-open-handler';
 import { ChePluginCommandContribution } from './plugin/che-plugin-command-contribution';
 import { ChePluginFrontentService } from './plugin/che-plugin-frontend-service';
 import { ChePluginHandleRegistry } from './che-plugin-handle-registry';
@@ -43,7 +42,6 @@ import { ContainerModule } from 'inversify';
 import { ContainerPicker } from './container-picker';
 import { LanguagesMainFactory } from '@theia/plugin-ext';
 import { MainPluginApiProvider } from '@theia/plugin-ext/lib/common/plugin-ext-api-contribution';
-import { MiniBrowserOpenHandler } from '@theia/mini-browser/lib/browser/mini-browser-open-handler';
 import { PluginFrontendViewContribution } from '@theia/plugin-ext/lib/main/browser/plugin-frontend-view-contribution';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { TaskConfigurationsService } from './task-config-service';
@@ -107,9 +105,6 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
   bind(CheSideCarContentReaderRegistry).to(CheSideCarContentReaderRegistryImpl).inSingletonScope();
   bind(CheSideCarResourceResolver).toSelf().inSingletonScope();
   bind(ResourceResolver).toService(CheSideCarResourceResolver);
-
-  bind(CheMiniBrowserOpenHandler).toSelf().inSingletonScope();
-  rebind(MiniBrowserOpenHandler).to(CheMiniBrowserOpenHandler).inSingletonScope();
 
   bind(TaskStatusHandler).toSelf().inSingletonScope();
 

@@ -47,6 +47,9 @@
       },
       {
          "path": "../../packages/@che-eclipse-che-theia-messaging/tsconfig.json"
+      },
+      {
+         "path": "../../packages/@che-eclipse-che-theia-mini-browser/tsconfig.json"
       }
    ]
 }

@@ -14,6 +14,7 @@ sources:
     - extensions/eclipse-che-theia-git-provisioner
     - extensions/eclipse-che-theia-logging
     - extensions/eclipse-che-theia-messaging
+    - extensions/eclipse-che-theia-mini-browser
     - extensions/eclipse-che-theia-file-sync-tracker
     - extensions/eclipse-che-theia-cli-endpoint
     - extensions/eclipse-che-theia-workspace
