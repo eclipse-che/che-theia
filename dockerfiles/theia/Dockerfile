@@ -116,9 +116,10 @@ COPY asset-untagged-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/
 COPY --from=builder /home/theia-dev/theia-source-code/production /che-theia-build
 
 # change permissions
-RUN find /che-theia-build -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt && \
-    # Add missing permissions on shell scripts of plug-ins
-    find /che-theia-build/plugins -name "*.sh" | xargs chmod +x
+RUN find /che-theia-build -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt
+
+# Add missing permissions on shell scripts of plug-ins
+RUN find /che-theia-build/plugins -name "*.sh" | xargs chmod +x
 
 ###
 # Runtime Image
