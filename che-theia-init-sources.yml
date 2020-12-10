@@ -21,11 +21,9 @@ sources:
     - extensions/eclipse-che-theia-remote-api
   plugins:
     - plugins/containers-plugin
-    - plugins/workspace-plugin
     - plugins/ports-plugin
     - plugins/task-plugin
     - plugins/welcome-plugin
-    - plugins/ssh-plugin
     - plugins/telemetry-plugin
     - plugins/github-auth-plugin
   checkoutTo: master
