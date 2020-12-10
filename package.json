@@ -31,7 +31,7 @@
     "typescript": "~4.0.5"
   },
   "scripts": {
-    "prepare": "lerna run prepare",
+    "prepare": "lerna --concurrency=2 run prepare",
     "lint": "lerna run lint",
     "lint:fix": "lerna run lint:fix",
     "format": "lerna run format",
@@ -48,10 +48,11 @@
   },
   "workspaces": {
     "packages": [
-      "extensions/*",
-      "plugins/*",
       "generator",
-      "tools/*"
+      "tools/*",
+      "extensions/*",
+      "assembly",
+      "plugins/*"
     ]
   },
   "prettier": {

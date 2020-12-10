@@ -12,6 +12,7 @@ import * as path from 'path';
 
 import { CliError } from './cli-error';
 import { Command } from './command';
+import { Init } from './init';
 import { Logger } from './logger';
 
 /**
@@ -205,4 +206,21 @@ export interface INodePackage {
 export interface IYarnNode {
     name: string;
     children: IYarnNode[];
+}
+
+/**
+ * Returns the full package name of an installed package or the emtpy string if not installed
+ */
+export async function getFullPackageName(rootFolder: string, name: string): Promise<string> {
+    const pkg = JSON.parse(await new Command(path.resolve(rootFolder)).exec(Init.GET_PACKAGE_WITH_VERSION_CMD + name))
+        .data.trees[0];
+    return pkg ? pkg.name : '';
+}
+
+/**
+ * Returns the version of an installed package or the emtpy string if not installed
+ */
+export async function getPackageVersion(rootFolder: string, name: string) {
+    const nameWithVersion = getFullPackageName(rootFolder, name);
+    return (await nameWithVersion).split('@').pop() || '';
 }
