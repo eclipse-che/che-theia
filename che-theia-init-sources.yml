@@ -23,7 +23,6 @@ sources:
     - plugins/containers-plugin
     - plugins/ports-plugin
     - plugins/task-plugin
-    - plugins/welcome-plugin
     - plugins/telemetry-plugin
     - plugins/github-auth-plugin
   checkoutTo: master
