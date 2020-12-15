@@ -20,8 +20,6 @@ import { PluginApiContribution } from '@theia/plugin-ext/lib/main/node/plugin-se
 import { WebviewExternalEndpoint } from '@theia/plugin-ext/lib/main/common/webview-protocol';
 import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
-import connect = require('connect');
-import serveStatic = require('serve-static');
 const vhost = require('vhost');
 
 const pluginPath = (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + './theia/plugins/';
@@ -42,7 +40,7 @@ export class PluginApiContributionIntercepted extends PluginApiContribution {
       res.sendFile(pluginPath + filePath);
     });
 
-    const webviewApp = connect();
+    const webviewApp = express();
     const pluginExtModulePath = path.dirname(require.resolve('@theia/plugin-ext/package.json'));
     const webviewStaticResources = path.join(pluginExtModulePath, 'src/main/browser/webview/pre');
 
@@ -58,7 +56,7 @@ export class PluginApiContributionIntercepted extends PluginApiContribution {
             webviewCheEndpointHostname ||
             WebviewExternalEndpoint.defaultPattern
         );
-        webviewApp.use('/webview', serveStatic(webviewStaticResources));
+        webviewApp.use('/webview', express.static(webviewStaticResources));
 
         this.logger.info(`Configuring to accept webviews on '${webviewHostname}' hostname.`);
         app.use(vhost(new RegExp(webviewHostname, 'i'), webviewApp));
