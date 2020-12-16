@@ -15,6 +15,7 @@
   "dependencies": {
     "@eclipse-che/plugin": "0.0.1",
     "@theia/core": "next",
+    "@theia/filesystem": "next",
     "@theia/task": "next",
     "@theia/mini-browser": "next",
     "@theia/plugin-ext": "next",
