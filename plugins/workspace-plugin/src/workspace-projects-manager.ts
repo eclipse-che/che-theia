@@ -18,6 +18,7 @@ import * as theia from '@theia/plugin';
 
 import { TheiaImportCommand, buildProjectImportCommand } from './theia-commands';
 
+import { WorkspaceFolderUpdater } from './workspace-folder-updater';
 import { che as cheApi } from '@eclipse-che/api';
 
 const onDidCloneSourcesEmitter = new theia.EventEmitter<void>();
@@ -30,7 +31,8 @@ export function handleWorkspaceProjects(pluginContext: theia.PluginContext, proj
 }
 
 export class WorkspaceProjectsManager {
-  watchers: theia.FileSystemWatcher[] = [];
+  protected watchers: theia.FileSystemWatcher[] = [];
+  protected workspaceFolderUpdater = new WorkspaceFolderUpdater();
 
   constructor(protected pluginContext: theia.PluginContext, protected projectsRoot: string) {}
 
@@ -73,23 +75,7 @@ export class WorkspaceProjectsManager {
     this.getProjects(workspace)
       .map(project => this.getProjectPath(project))
       .filter(projectPath => fs.existsSync(projectPath))
-      .forEach(projectPath => this.addWorkspaceFolder(projectPath));
-  }
-
-  addWorkspaceFolder(projectPath: string): void {
-    const workspaceFolders = theia.workspace.workspaceFolders;
-    if (workspaceFolders && workspaceFolders.length > 0) {
-      const pathsList = workspaceFolders.map(folder => folder.uri.path);
-      if (pathsList.indexOf(projectPath) === -1) {
-        theia.workspace.updateWorkspaceFolders(workspaceFolders ? workspaceFolders.length : 0, undefined, {
-          uri: theia.Uri.file(projectPath),
-        });
-      }
-    } else {
-      theia.workspace.updateWorkspaceFolders(0, undefined, {
-        uri: theia.Uri.file(projectPath),
-      });
-    }
+      .forEach(projectPath => this.workspaceFolderUpdater.addWorkspaceFolder(projectPath));
   }
 
   private async executeCloneCommands(cloneCommandList: TheiaImportCommand[]): Promise<void> {
@@ -105,12 +91,7 @@ export class WorkspaceProjectsManager {
 
       cloningPromises.push(cloningPromise);
 
-      cloningPromise.then(() => {
-        const workspaceFolders = theia.workspace.workspaceFolders;
-        theia.workspace.updateWorkspaceFolders(workspaceFolders ? workspaceFolders.length : 0, undefined, {
-          uri: theia.Uri.file(cloneCommand.getProjectPath()),
-        });
-      });
+      cloningPromise.then(() => this.workspaceFolderUpdater.addWorkspaceFolder(cloneCommand.getProjectPath()));
     }
 
     await Promise.all(cloningPromises);
