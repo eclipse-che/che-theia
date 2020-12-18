@@ -19,7 +19,7 @@ import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/works
 const THEIA_ICON_ID = 'theia:icon';
 
 /**
- * Provides basic Eclipse Che Theia Dashboard extension that adds Show/Hide Dashboard button to the top menu.
+ * Provides basic Eclipse Che-Theia Dashboard extension that adds Show/Hide Dashboard button to the top menu.
  */
 @injectable()
 export class TheiaDashboardClient implements FrontendApplicationContribution {

@@ -11,21 +11,26 @@
 import * as axios from 'axios';
 
 import { CheTelemetry, CheTelemetryMain, PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
+import { SERVER_IDE_ATTR_VALUE, SERVER_TYPE_ATTR } from '../common/che-server-common';
 
 import { ClientAddressInfo } from '@eclipse-che/plugin';
 import { CommandRegistry } from '@theia/core';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { TelemetryService } from '@eclipse-che/theia-remote-api/lib/common/telemetry-service';
+import URI from '@theia/core/lib/common/uri';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { interfaces } from 'inversify';
 
 export class CheTelemetryMainImpl implements CheTelemetryMain {
   private readonly telemetryService: TelemetryService;
+  private readonly workspaceService: WorkspaceService;
   private ip: string;
 
   constructor(container: interfaces.Container, rpc: RPCProtocol) {
     const proxy: CheTelemetry = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_TELEMETRY);
     this.telemetryService = container.get(TelemetryService);
     const commandRegistry = container.get(CommandRegistry);
+    this.workspaceService = container.get(WorkspaceService);
     commandRegistry.onWillExecuteCommand(event => {
       proxy.$onWillCommandExecute(event.commandId);
     });
@@ -59,13 +64,22 @@ export class CheTelemetryMainImpl implements CheTelemetryMain {
   }
 
   async getClientAddressInfo(): Promise<ClientAddressInfo> {
-    const response = await axios.default.get('/che/client-ip');
-    if (response.status === 200) {
-      return response.data;
-    }
-    console.log(
-      'Can`t obtain client adress information. Status: ' + response.status + 'Error message: ' + response.data
+    const ideEndpoint = await this.workspaceService.findUniqueEndpointByAttribute(
+      SERVER_TYPE_ATTR,
+      SERVER_IDE_ATTR_VALUE
     );
+    if (ideEndpoint && ideEndpoint.url) {
+      const ipServiceURL = new URI(ideEndpoint.url).resolve('che/client-ip').toString();
+      const response = await axios.default.get(ipServiceURL);
+      if (response.status === 200) {
+        return response.data;
+      }
+      console.log(
+        `Can\`t obtain client address information. Status: ${response.status} Error message: ${response.data}`
+      );
+    } else {
+      console.log('Can`t obtain client address information.');
+    }
     return {
       ip: undefined,
       ipFamily: undefined,

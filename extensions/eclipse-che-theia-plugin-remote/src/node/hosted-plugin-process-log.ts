@@ -33,14 +33,16 @@ export class LogHostedPluginProcess extends HostedPluginProcess {
 
     if (childProcess) {
       if (childProcess.stdout) {
-        childProcess.stdout.on('data', data =>
-          client.log({ data: `Extension-Host:${data.toString().trim()}`, type: LogType.Info })
-        );
+        childProcess.stdout.on('data', data => {
+          console.info(data);
+          client.log({ data: `Extension-Host:${data.toString().trim()}`, type: LogType.Info });
+        });
       }
       if (childProcess.stderr) {
-        childProcess.stderr.on('data', data =>
-          client.log({ data: `Extension-Host:${data.toString().trim()}`, type: LogType.Error })
-        );
+        childProcess.stderr.on('data', data => {
+          console.error(data);
+          client.log({ data: `Extension-Host:${data.toString().trim()}`, type: LogType.Error });
+        });
       }
     }
   }

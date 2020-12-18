@@ -10,9 +10,9 @@
     "build": "yarn run format && yarn run compile && yarn run lint",
     "compile": "tsc --project .",
     "format:fix": "prettier --write **/*.ts **/**/*.ts package.json",
-    "format": "prettier --check **/*.ts **/**/*.ts package.json",
-    "lint": "eslint --cache=true --no-error-on-unmatched-pattern=true \"{src,test}/**/*.{ts,tsx}\"",
-    "test": "jest"
+    "format": "if-env SKIP_FORMAT=true && echo 'skip format check' || prettier --check '{src,tests}/**/*.ts' package.json",
+    "lint": "if-env SKIP_LINT=true && echo 'skip lint check' || eslint --cache=true --no-error-on-unmatched-pattern=true '{src,tests}/**/*.ts'",
+    "test": "if-env SKIP_TEST=true && echo 'skip test' || jest --forceExit"
   },
   "repository": {
     "type": "git",

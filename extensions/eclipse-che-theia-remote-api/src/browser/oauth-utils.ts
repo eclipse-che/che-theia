@@ -31,7 +31,7 @@ export class OauthUtils {
   ) {
     const onDidReceiveTokenEmitter = new Emitter<void>();
     this.onDidReceiveToken = onDidReceiveTokenEmitter.event;
-    this.envVariableServer.getValue('CHE_API').then(variable => {
+    this.envVariableServer.getValue('CHE_API_EXTERNAL').then(variable => {
       if (variable && variable.value) {
         this.apiUrl = variable.value;
       }

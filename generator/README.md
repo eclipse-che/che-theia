@@ -64,15 +64,15 @@ Dev mode is the way to use all new extensions from `master` branch:
 And `che-theia` will use `master` branch for all extensions and plugins, regardless of provided configuration
 
 ### Development life-cycle
-Che Theia should be built from root directory only (Root directory of Che Theia is the directory into which Theia was clonned and `che-theia init` was executed there). In case of building from subdirectories it will mess up dependencies, don't do it.
+Che-Theia should be built from root directory only (Root directory of Che-Theia is the directory into which Theia was clonned and `che-theia init` was executed there). In case of building from subdirectories it will mess up dependencies, don't do it.
 
-To build whole Che Theia just execute `yarn` command in the root directory.
+To build whole Che-Theia just execute `yarn` command in the root directory.
 If only one module should be built, use `npx run build <module-name>`. For example `npx run build @theia/plugin-ext`.
 
-Also one may set compilation on changes for some modules. To do so, run `npx run watch <module-name>` from the root directory. Then execute `yarn watch` from `examples/assembly` folder and run Che Theia with `yarn run start` command from the same directory. Make sure, you start watcher for all modules under development.
+Also one may set compilation on changes for some modules. To do so, run `npx run watch <module-name>` from the root directory. Then execute `yarn watch` from `examples/assembly` folder and run Che-Theia with `yarn run start` command from the same directory. Make sure, you start watcher for all modules under development.
 
 Note, this is not the case for embedded plugins.
-To develop them one should place copy of their sources somewhere else (outside of the Che Theia folder) and then include new binaries into the assembly.
+To develop them one should place copy of their sources somewhere else (outside of the Che-Theia folder) and then include new binaries into the assembly.
 
 ### Compiling the plugins
 Plugins have to be compiled separately with the script `plugins/foreach_yarn`. This script simply run the `yarn` command on each subfolders of `plugins` and copy the `.theia` package in `production/plugins` folder to be reused by the che-theia product.

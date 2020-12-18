@@ -12,6 +12,7 @@ import { SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE } from '../common/che-serv
 import { inject, injectable, postConstruct } from 'inversify';
 
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
+import URI from '@theia/core/lib/common/uri';
 import { WebviewEnvironment } from '@theia/plugin-ext/lib/main/browser/webview/webview-environment';
 import { WebviewExternalEndpoint } from '@theia/plugin-ext/lib/main/common/webview-protocol';
 import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
@@ -28,21 +29,31 @@ export class CheWebviewEnvironment extends WebviewEnvironment {
   protected async init(): Promise<void> {
     try {
       const webviewExternalEndpointPattern = await this.environments.getValue(WebviewExternalEndpoint.pattern);
+      const webviewCheEndpoint = await this.getWebviewCheEndpoint();
+      const webviewHost =
+        (webviewExternalEndpointPattern && webviewExternalEndpointPattern.value) ||
+        webviewCheEndpoint ||
+        WebviewExternalEndpoint.defaultPattern;
+      this.externalEndpointHost.resolve(webviewHost.replace('{{hostname}}', window.location.host || 'localhost'));
+    } catch (e) {
+      this.externalEndpointHost.reject(e);
+    }
+  }
+
+  async externalEndpointUrl(): Promise<URI> {
+    const host = await this.externalEndpointHost.promise;
+    return new URI(host).resolve('webview');
+  }
+
+  protected async getWebviewCheEndpoint(): Promise<string | undefined> {
+    try {
       const webviewCheEndpoint = await this.workspaceService.findUniqueEndpointByAttribute(
         SERVER_TYPE_ATTR,
         SERVER_WEBVIEWS_ATTR_VALUE
       );
-      let webviewCheEndpointHostname: string | undefined;
-      if (webviewCheEndpoint && webviewCheEndpoint.url) {
-        webviewCheEndpointHostname = new URL(webviewCheEndpoint.url).hostname;
-      }
-      const webviewHostname =
-        (webviewExternalEndpointPattern && webviewExternalEndpointPattern.value) ||
-        webviewCheEndpointHostname ||
-        WebviewExternalEndpoint.defaultPattern;
-      this.externalEndpointHost.resolve(webviewHostname.replace('{{hostname}}', window.location.host || 'localhost'));
-    } catch (e) {
-      this.externalEndpointHost.reject(e);
+      return webviewCheEndpoint.url;
+    } catch (error) {
+      return undefined;
     }
   }
 }

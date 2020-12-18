@@ -1,19 +1,31 @@
 {
-  "name": "@eclipse-che/che-theia-hosted-plugin-manager-extension",
+  "name": "@eclipse-che/theia-mini-browser",
   "keywords": [
     "theia-extension"
   ],
   "version": "0.0.1",
+  "description": "Customizations of Theia mini-browser for Eclipse Che",
+  "dependencies": {
+    "inversify": "^5.0.1",
+    "@theia/core": "next",
+    "@theia/mini-browser": "next",
+    "@eclipse-che/theia-remote-api": "^0.0.1",
+    "@eclipse-che/theia-plugin-ext": "^0.0.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "theiaExtensions": [
+    {
+      "frontend": "lib/browser/che-mini-browser-frontend-module",
+      "backend": "lib/node/che-mini-browser-backend-module"
+    }
+  ],
+  "license": "EPL-2.0",
   "files": [
     "lib",
-    "node"
+    "src"
   ],
-  "dependencies": {
-    "@theia/core": "next",
-    "@theia/plugin-dev": "next",
-    "@theia/plugin-ext": "next",
-    "@eclipse-che/theia-remote-api": "^0.0.1"
-  },
   "scripts": {
     "prepare": "yarn clean && yarn build",
     "clean": "rimraf lib",
@@ -24,11 +36,5 @@
     "compile": "tsc",
     "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
     "watch": "tsc -w"
-  },
-  "license": "EPL-2.0",
-  "theiaExtensions": [
-    {
-      "backend": "lib/node/hosted-plugin-manager-contribution-extension-backend-module"
-    }
-  ]
+  }
 }
