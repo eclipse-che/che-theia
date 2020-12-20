@@ -13,7 +13,9 @@ import * as che from '@eclipse-che/plugin';
 import { Event, JsonRpcServer } from '@theia/core';
 import { Preferences, User } from '@eclipse-che/theia-remote-api/lib/common/user-service';
 
+import { BinaryBuffer } from '@theia/core/lib/common/buffer';
 import { CheLanguagesTestAPI } from './che-languages-test-protocol';
+import { Stat } from '@theia/filesystem/lib/common/files';
 import { che as cheApi } from '@eclipse-che/api';
 import { createProxyIdentifier } from '@theia/plugin-ext/lib/common/rpc-protocol';
 
@@ -136,6 +138,16 @@ export interface CheSideCarContentReader {
 
 export interface CheSideCarContentReaderMain {
   $registerContentReader(scheme: string): Promise<void>;
+}
+
+export interface CheSideCarFileSystem {
+  $stat(resource: string): Promise<Stat>;
+  $readFile(resource: string): Promise<BinaryBuffer>;
+}
+
+export interface CheSideCarFileSystemMain {
+  $registerFileSystemProvider(scheme: string): Promise<void>;
+  $disposeFileSystemProvider(scheme: string): Promise<void>;
 }
 
 export interface Variable {
@@ -418,6 +430,9 @@ export const PLUGIN_RPC_CONTEXT = {
 
   CHE_SIDERCAR_CONTENT_READER: createProxyIdentifier<CheSideCarContentReader>('CheSideCarContentReader'),
   CHE_SIDERCAR_CONTENT_READER_MAIN: createProxyIdentifier<CheSideCarContentReaderMain>('CheSideCarContentReaderMain'),
+
+  CHE_SIDECAR_FILE_SYSTEM: createProxyIdentifier<CheSideCarFileSystem>('CheSideCarFileSystem'),
+  CHE_SIDECAR_FILE_SYSTEM_MAIN: createProxyIdentifier<CheSideCarFileSystemMain>('CheSideCarFileSystemMain'),
 
   CHE_LANGUAGES_TEST_API_MAIN: createProxyIdentifier<CheLanguagesTestAPI>('CheLanguagesTestAPI'),
 };

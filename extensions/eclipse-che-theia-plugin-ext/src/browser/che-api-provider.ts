@@ -17,6 +17,7 @@ import { CheOauthMainImpl } from './che-oauth-main';
 import { CheOpenshiftMainImpl } from './che-openshift-main';
 import { CheProductMainImpl } from './che-product-main';
 import { CheSideCarContentReaderMainImpl } from './che-sidecar-content-reader-main';
+import { CheSideCarFileSystemMainImpl } from './che-sidecar-file-system-main';
 import { CheSshMainImpl } from './che-ssh-main';
 import { CheTaskMainImpl } from './che-task-main';
 import { CheTelemetryMainImpl } from './che-telemetry-main';
@@ -43,5 +44,6 @@ export class CheApiProvider implements MainPluginApiProvider {
     rpc.set(PLUGIN_RPC_CONTEXT.CHE_PRODUCT_MAIN, new CheProductMainImpl(container, rpc));
     rpc.set(PLUGIN_RPC_CONTEXT.CHE_SIDERCAR_CONTENT_READER_MAIN, new CheSideCarContentReaderMainImpl(container, rpc));
     rpc.set(PLUGIN_RPC_CONTEXT.CHE_LANGUAGES_TEST_API_MAIN, new CheLanguagesTestAPIImpl(container));
+    rpc.set(PLUGIN_RPC_CONTEXT.CHE_SIDECAR_FILE_SYSTEM_MAIN, new CheSideCarFileSystemMainImpl(container, rpc));
   }
 }
