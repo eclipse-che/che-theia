@@ -40,6 +40,7 @@ import { PluginReaderExtension } from './plugin-reader-extension';
 import { PluginRemoteNodeImpl } from './plugin-remote-node-impl';
 import { RPCProtocolImpl } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import { TerminalContainerAware } from './terminal-container-aware';
+import { WebviewsContentAware } from './webviews-content-aware';
 import { logger } from '@theia/core';
 import pluginExtBackendModule from '@theia/plugin-ext/lib/plugin-ext-backend-module';
 import pluginRemoteBackendModule from './plugin-remote-backend-module';
@@ -246,6 +247,10 @@ to pick-up automatically a free port`)
     ExecuteCommandContainerAware.makeExecuteCommandContainerAware(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.COMMAND_REGISTRY_EXT.id)
+    );
+    WebviewsContentAware.makeWebviewsContentAware(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.WEBVIEWS_EXT.id)
     );
 
     let channelName = '';
