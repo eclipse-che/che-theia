@@ -53,8 +53,7 @@ async function getHtmlForWebview(context: theia.PluginContext): Promise<string> 
 }
 
 // Open Readme file is there is one
-export async function handleReadmeFiles(): Promise<void> {
-  const roots: theia.WorkspaceFolder[] | undefined = theia.workspace.workspaceFolders;
+export async function handleReadmeFiles(roots: theia.WorkspaceFolder[]): Promise<void> {
   // In case of only one workspace
   if (roots && roots.length === 1) {
     const children = await theia.workspace.findFiles('README.md', 'node_modules/**', 1);
@@ -126,12 +125,9 @@ export function start(context: theia.PluginContext): void {
     setTimeout(async () => {
       addPanel(context);
 
-      const workspacePlugin = theia.plugins.getPlugin('Eclipse Che.@eclipse-che/workspace-plugin');
-      if (workspacePlugin) {
-        workspacePlugin.exports.onDidCloneSources(() => handleReadmeFiles());
-      } else {
-        handleReadmeFiles();
-      }
+      theia.workspace.onDidChangeWorkspaceFolders(event => {
+        handleReadmeFiles(event.added);
+      }, context.subscriptions);
     }, 100);
   }
 }
