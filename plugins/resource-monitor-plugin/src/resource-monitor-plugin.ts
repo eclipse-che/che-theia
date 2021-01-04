@@ -91,6 +91,9 @@ export class ResMon {
     const opts = { url: `${this.METRICS_REQUEST_URL}${this.namespace}/pods` };
     const response = await che.k8s.sendRawQuery(requestURL, opts);
     if (response.statusCode !== 200) {
+      this.statusBarItem.text = this.MONITOR_BANNED;
+      this.warningMessage = `Resource monitor won't be displayed. Cannot read metrics: ${response.data}.`;
+      this.statusBarItem.command = SHOW_WARNING_MESSAGE_COMMAND.id;
       return this.containers;
     }
     const metrics: Metrics = JSON.parse(response.data);

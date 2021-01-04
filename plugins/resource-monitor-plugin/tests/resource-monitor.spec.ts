@@ -283,6 +283,30 @@ describe('Test Resource Monitor Plugin', () => {
       expect(statusBarItem.tooltip).toBe('Workspace resources');
     });
 
+    test('Cannot read metrics', async () => {
+      const podJson = await fs.readFile(path.join(__dirname, '_data', 'podInfo.json'), 'utf8');
+      const podInfo: che.K8SRawResponse = {
+        data: podJson,
+        error: '',
+        statusCode: 200,
+      };
+      const metricsInfo: che.K8SRawResponse = {
+        data: 'Error from server (Forbidden)',
+        error: 'Error from server (Forbidden)',
+        statusCode: 403,
+      };
+
+      sendRawQuery.mockReturnValueOnce(podInfo).mockReturnValueOnce(metricsInfo);
+      resMonitor = new ResMon(context, 'che-namespace');
+      await resMonitor.getContainersInfo();
+      await resMonitor.getMetrics();
+
+      // Check status bar
+      expect(statusBarItem.text).toBe('$(ban) Resources');
+      expect(statusBarItem.color).toBe('#FFFFFF');
+      expect(statusBarItem.tooltip).toBe('Resources Monitor');
+    });
+
     test('Status bar should be marked as warning with container information', async () => {
       const podJson = await fs.readFile(path.join(__dirname, '_data', 'podInfo.json'), 'utf8');
       const podInfo: che.K8SRawResponse = {
