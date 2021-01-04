@@ -20,6 +20,7 @@ import { CheOauthImpl } from './che-oauth';
 import { CheOpenshiftImpl } from './che-openshift';
 import { CheProductImpl } from './che-product';
 import { CheSideCarContentReaderImpl } from './che-sidecar-content-reader';
+import { CheSideCarFileSystemImpl } from './che-sidecar-file-system';
 import { CheSshImpl } from './che-ssh';
 import { CheTelemetryImpl } from './che-telemetry';
 import { CheUserImpl } from './che-user';
@@ -49,6 +50,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
   const cheK8SImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_K8S, new CheK8SImpl(rpc));
   const cheUserImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_USER, new CheUserImpl(rpc));
   rpc.set(PLUGIN_RPC_CONTEXT.CHE_SIDERCAR_CONTENT_READER, new CheSideCarContentReaderImpl(rpc));
+  rpc.set(PLUGIN_RPC_CONTEXT.CHE_SIDECAR_FILE_SYSTEM, new CheSideCarFileSystemImpl(rpc));
 
   const cheProductImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_PRODUCT, new CheProductImpl(rpc));
   const cheTelemetryImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_TELEMETRY, new CheTelemetryImpl(rpc));
