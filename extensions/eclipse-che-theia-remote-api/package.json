@@ -6,14 +6,14 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.0.1",
+  "version": "7.24.0",
   "files": [
     "lib",
     "src"
   ],
   "dependencies": {
-    "@eclipse-che/api": "latest",
-    "@eclipse-che/workspace-client": "latest"
+    "@eclipse-che/api": "7.18.1",
+    "@eclipse-che/workspace-client": "0.0.1-1608729566"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",
