@@ -8,6 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import 'jest';
+
 import { convertToCheProjectPath, convertToFileURI } from '../src/file-uri';
 
 describe('Test exec commands', () => {
