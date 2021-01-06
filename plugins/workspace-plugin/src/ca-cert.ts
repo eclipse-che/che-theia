@@ -10,7 +10,6 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import * as theia from '@theia/plugin';
 
 const PUBLIC_CRT_PATH = '/public-certs';
 const SS_CRT_PATH = '/tmp/che/secret/ca.crt';
@@ -26,12 +25,7 @@ export async function getAuthorityCertificate(): Promise<string | undefined> {
 
   const certificateAuthority: Buffer[] = [];
 
-  const output = theia.window.createOutputChannel('workspace plugin');
-  output.appendLine('Prepare CA bundle:');
-
   if (fs.existsSync(SS_CRT_PATH)) {
-    output.appendLine('   > ' + SS_CRT_PATH);
-
     certificateAuthority.push(fs.readFileSync(SS_CRT_PATH));
   }
 
@@ -40,9 +34,6 @@ export async function getAuthorityCertificate(): Promise<string | undefined> {
     for (const publicCertificate of publicCertificates) {
       if (publicCertificate.endsWith('.crt')) {
         const certPath = path.join(PUBLIC_CRT_PATH, publicCertificate);
-
-        output.appendLine('   > ' + certPath);
-
         certificateAuthority.push(fs.readFileSync(certPath));
       }
     }

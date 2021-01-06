@@ -18,7 +18,7 @@ import * as theia from '@theia/plugin';
 import { TaskScope } from '@eclipse-che/plugin';
 import { che as cheApi } from '@eclipse-che/api';
 import { execute } from './exec';
-import { getAuthorityCertificate } from './ca-bundle';
+import { getAuthorityCertificate } from './ca-cert';
 
 const CHE_TASK_TYPE = 'che';
 
@@ -244,15 +244,10 @@ export class TheiaImportZipCommand implements TheiaImportCommand {
         // download
         const curlArgs = ['-sSL', '--output', this.zipfilePath];
 
+        // with certificate
         const cert = await getAuthorityCertificate();
-        const output = theia.window.createOutputChannel('certificate');
-
         if (cert) {
-          output.appendLine(`--cacert ${cert}`);
-          curlArgs.push('--cacert');
-          curlArgs.push(cert);
-        } else {
-          output.appendLine('certificate is not set');
+          curlArgs.push('--cacert', cert);
         }
 
         curlArgs.push(this.locationURI!);
