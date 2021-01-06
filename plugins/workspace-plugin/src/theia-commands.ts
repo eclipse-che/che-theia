@@ -249,7 +249,8 @@ export class TheiaImportZipCommand implements TheiaImportCommand {
 
         if (cert) {
           output.appendLine(`--cacert ${cert}`);
-          curlArgs.push(`--cacert ${cert}`);
+          curlArgs.push('--cacert');
+          curlArgs.push(cert);
         } else {
           output.appendLine('certificate is not set');
         }

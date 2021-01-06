@@ -50,7 +50,7 @@ export async function getAuthorityCertificate(): Promise<string | undefined> {
 
   if (certificateAuthority.length > 0) {
     for (const certificate of certificateAuthority) {
-      fs.writeFileSync(CA_BUNDLE_PATH, certificate);
+      fs.appendFileSync(CA_BUNDLE_PATH, certificate);
     }
 
     bundle = CA_BUNDLE_PATH;
