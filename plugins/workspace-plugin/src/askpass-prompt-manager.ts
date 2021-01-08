@@ -7,38 +7,34 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
+import { Mutex } from 'async-mutex';
 
 export class PromptManager {
-  private askPassResults: Map<HostPlaceHolderKey, PromiseLike<string | undefined>> = new Map();
+  private askPassResults: Map<Symbol, string> = new Map();
+  private mutex: Mutex = new Mutex();
 
   constructor(promptLauncher: (host: string, placeHolder: string) => PromiseLike<string | undefined>) {
     this.askPassPromptLauncher = promptLauncher;
   }
 
   async askPass(host: string, placeHolder: string): Promise<string> {
-    let existingPromise: PromiseLike<string | undefined> | undefined;
-
-    // wait for all promises to be finished sequencially
-    this.askPassResults.forEach(async (promise, key) => {
-      if (key.host === host && key.placeHolder === placeHolder) {
-        existingPromise = promise;
+    const release = await this.mutex.acquire();
+    try {
+      const key = getKey(host, placeHolder);
+      if (this.askPassResults.has(key)) {
+        return this.askPassResults.get(key) || '';
       }
-      await promise;
-    });
-
-    if (existingPromise) {
-      return (await existingPromise) || '';
+      const result = (await this.askPassPromptLauncher(host, placeHolder)) || '';
+      this.askPassResults.set(key, result);
+      return result;
+    } finally {
+      release();
     }
-
-    const askPassPromise = this.askPassPromptLauncher(host, placeHolder);
-    this.askPassResults.set({ host: host, placeHolder: placeHolder }, askPassPromise);
-    return (await askPassPromise) || '';
   }
 
   askPassPromptLauncher: (host: string, placeHolder: string) => PromiseLike<string | undefined>;
 }
 
-class HostPlaceHolderKey {
-  host: string;
-  placeHolder: string;
+function getKey(host: string, placeHolder: string) {
+  return Symbol.for(`key[${host}:${placeHolder}]`);
 }

@@ -10,6 +10,7 @@
     "src"
   ],
   "dependencies": {
+    "async-mutex": "^0.2.6",
     "fs-extra": "7.0.1"
   },
   "devDependencies": {
