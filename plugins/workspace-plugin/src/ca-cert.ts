@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import * as path from 'path';
 
 const PUBLIC_CRT_PATH = '/public-certs';
@@ -16,38 +16,30 @@ const SS_CRT_PATH = '/tmp/che/secret/ca.crt';
 
 const CA_BUNDLE_PATH = '/tmp/ca-bundle.crt';
 
-let bundle: string | undefined = undefined;
+export const getCertificate = new Promise<string | undefined>(async resolve => {
+  const certificates: Buffer[] = [];
 
-export async function getAuthorityCertificate(): Promise<string | undefined> {
-  if (bundle !== undefined) {
-    return bundle;
+  if (await fs.pathExists(SS_CRT_PATH)) {
+    certificates.push(await fs.readFile(SS_CRT_PATH));
   }
 
-  const certificateAuthority: Buffer[] = [];
-
-  if (fs.existsSync(SS_CRT_PATH)) {
-    certificateAuthority.push(fs.readFileSync(SS_CRT_PATH));
-  }
-
-  if (fs.existsSync(PUBLIC_CRT_PATH)) {
-    const publicCertificates = fs.readdirSync(PUBLIC_CRT_PATH);
+  if (await fs.pathExists(PUBLIC_CRT_PATH)) {
+    const publicCertificates = await fs.readdir(PUBLIC_CRT_PATH);
     for (const publicCertificate of publicCertificates) {
       if (publicCertificate.endsWith('.crt')) {
         const certPath = path.join(PUBLIC_CRT_PATH, publicCertificate);
-        certificateAuthority.push(fs.readFileSync(certPath));
+        certificates.push(await fs.readFile(certPath));
       }
     }
   }
 
-  if (certificateAuthority.length > 0) {
-    for (const certificate of certificateAuthority) {
-      fs.appendFileSync(CA_BUNDLE_PATH, certificate);
+  if (certificates.length > 0) {
+    for (const certificate of certificates) {
+      await fs.appendFile(CA_BUNDLE_PATH, certificate);
     }
 
-    bundle = CA_BUNDLE_PATH;
+    resolve(CA_BUNDLE_PATH);
   } else {
-    bundle = '';
+    resolve(undefined);
   }
-
-  return bundle;
-}
+});
