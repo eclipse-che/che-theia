@@ -1,0 +1,135 @@
+#
+# Copyright (c) 2021 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+# Che-Theia workflow
+# matrix jobs with alpine and ubi8 on next and stable channels
+name: Happy Path
+
+# Trigger the workflow on push or pull request
+on: [push, pull_request]
+
+jobs:
+  happy-path:
+    strategy:
+      fail-fast: false
+      matrix:
+        dist: [ 'alpine', 'ubi8' ]
+        chectlchannel: [ 'next', 'stable' ]
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout che-theia source code
+      - uses: actions/setup-node@v1
+        name: Configuring nodejs 12.x version
+        with:
+          node-version: '12.x'
+      - name: build
+        run: |
+          docker image prune -a -f
+          docker pull quay.io/eclipse/che-theia-dev:next
+          docker tag quay.io/eclipse/che-theia-dev:next eclipse/che-theia-dev:next
+          ./build.sh --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.${{matrix.dist}}
+      - name: Start minikube
+        id: run-minikube
+        uses: che-incubator/setup-minikube-action@next
+      - name: Deploy Eclipse Che
+        id: deploy-che
+        uses: che-incubator/che-deploy-action@next
+        with:
+          chectl-channel: ${{matrix.chectlchannel}}
+      - name: devfile-che-theia
+        id: devfile-che-theia
+        run: |
+          cat <<EOF | kubectl apply -f -
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: custom-devfile-deployment
+            labels:
+              app: customdevfile
+          spec:
+            selector:
+              matchLabels:
+                app: customdevfile
+            template:
+              metadata:
+                labels:
+                  app: customdevfile
+              spec:
+                containers:
+                - name: customdevfile
+                  image: docker.io/httpd:2.4.46-alpine
+                  ports:
+                  - containerPort: 80
+          EOF
+          cat <<EOF | kubectl apply -f -
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: customdevfile-service
+          spec:
+            type: ClusterIP
+            selector:
+              app: customdevfile
+            ports:
+              - port: 80
+                targetPort: 80
+          EOF
+          cat <<EOF | kubectl apply -f -
+          apiVersion: extensions/v1beta1
+          kind: Ingress
+          metadata:
+            annotations:
+              kubernetes.io/ingress.class: nginx
+            name: custom-devfile
+          spec:
+            rules:
+            - host: custom-devfile.$(minikube ip).nip.io
+              http:
+                paths:
+                - backend:
+                    serviceName: customdevfile-service
+                    servicePort: 80
+                  path: /
+                  pathType: ImplementationSpecific
+          EOF
+          while [[ $(kubectl get pods -l app=customdevfile -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for pod" && sleep 1; done
+          while [[ $(kubectl get ingress/custom-devfile -o 'jsonpath={..status.loadBalancer.ingress[0].ip}') != "$(minikube ip)" ]]; do echo "waiting for ingress" && sleep 1; done
+          DEPLOY_POD_NAME=$(kubectl get pods -l app=customdevfile  -o 'jsonpath={...metadata.name}')
+          
+          export DEVFILE_CUSTOM_URL=http://custom-devfile.$(minikube ip).nip.io/devfile.yaml
+          export CHE_THEIA_META_YAML_URL='https://che-plugin-registry-main.surge.sh/v3/plugins/eclipse/che-theia/next/meta.yaml'
+          wget $CHE_THEIA_META_YAML_URL -O che-theia-meta.yaml
+          sed -i 's|quay.io/eclipse/che-theia:next|local-che-theia:latest|' che-theia-meta.yaml
+          sed -i 's|quay.io/eclipse/che-theia-endpoint-runtime-binary:next|local-che-theia-endpoint-runtime-binary:latest|' che-theia-meta.yaml
+
+          # patch happy-path-workspace.yaml
+          wget https://raw.githubusercontent.com/eclipse/che/master/tests/e2e/files/happy-path/happy-path-workspace.yaml -O devfile.yaml
+          sed -i "s|id: eclipse/che-theia/next|alias: che-theia\n    reference: http://custom-devfile.$(minikube ip).nip.io/che-theia-meta.yaml|" devfile.yaml
+
+          kubectl cp che-theia-meta.yaml $DEPLOY_POD_NAME:/usr/local/apache2/htdocs/
+          kubectl cp devfile.yaml $DEPLOY_POD_NAME:/usr/local/apache2/htdocs/
+
+          echo "::set-output name=devfile-url::http://custom-devfile.$(minikube ip).nip.io/devfile.yaml"
+          echo "devfile yaml content from http://custom-devfile.$(minikube ip).nip.io/devfile.yaml is:"
+          curl http://custom-devfile.$(minikube ip).nip.io/devfile.yaml
+          echo "che-theia-meta.yaml content from http://custom-devfile.$(minikube ip).nip.io/che-theia-meta.yaml is:"
+          curl http://custom-devfile.$(minikube ip).nip.io/che-theia-meta.yaml
+          
+          docker tag eclipse/che-theia:next local-che-theia:latest
+          docker tag eclipse/che-theia-endpoint-runtime-binary:next local-che-theia-endpoint-runtime-binary:latest
+          docker save -o che-theia-images.tar local-che-theia:latest local-che-theia-endpoint-runtime-binary:latest
+          eval $(minikube docker-env)
+          docker load --input=che-theia-images.tar
+      - name: Run Happy Path tests
+        id: run-happy-path-tests
+        uses: che-incubator/happy-path-tests-action@next
+        with:
+          che-url: ${{ steps.deploy-che.outputs.che-url }}
+          devfile-url: ${{ steps.devfile-che-theia.outputs.devfile-url }}
