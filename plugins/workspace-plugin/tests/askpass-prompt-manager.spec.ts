@@ -8,8 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import 'jest';
-
 import { PromptManager } from '../src/askpass-prompt-manager';
 
 describe('testing async prompt request', () => {
