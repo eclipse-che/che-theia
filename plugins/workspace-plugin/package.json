@@ -16,8 +16,7 @@
   "devDependencies": {
     "@eclipse-che/plugin": "0.0.1",
     "@theia/plugin": "next",
-    "@theia/plugin-packager": "latest",
-    "@types/jest": "^26.0.19"
+    "@theia/plugin-packager": "latest"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build && yarn lint:fix && yarn test",

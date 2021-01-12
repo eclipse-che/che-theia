@@ -7,10 +7,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
-import 'jest';
 
 import * as git from '../src/git';
-
 const rimraf = require('rimraf');
 
 jest.setTimeout(30000);

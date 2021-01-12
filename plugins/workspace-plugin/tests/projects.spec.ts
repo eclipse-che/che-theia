@@ -8,8 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import 'jest';
-
 import * as projecthelper from '../src/projects';
 
 import { che as cheApi } from '@eclipse-che/api';
