@@ -9,17 +9,13 @@
  ***********************************************************************/
 
 import * as WS from 'ws';
-import * as fs from 'fs';
+import * as che from '@eclipse-che/plugin';
 import * as http from 'http';
 import * as https from 'https';
-import * as path from 'path';
 import * as tunnel from 'tunnel';
 import * as url from 'url';
 
 import { ConsoleLogger, IWebSocket, Logger, MessageConnection, createWebSocketConnection } from 'vscode-ws-jsonrpc';
-
-const SS_CRT_PATH = '/tmp/che/secret/ca.crt';
-const PUBLIC_CRT_PATH = '/public-certs';
 
 /** Websocket wrapper allows to reconnect in case of failures */
 export class ReconnectingWebSocket {
@@ -41,12 +37,12 @@ export class ReconnectingWebSocket {
   constructor(targetUrl: string) {
     this.url = targetUrl;
     this.logger = new ConsoleLogger();
-    this.open();
   }
 
   /** Open the websocket. If error, try to reconnect. */
-  open(): void {
-    this.ws = new WS(this.url, this.getOptions());
+  async open(): Promise<void> {
+    const options = await this.getOptions();
+    this.ws = new WS(this.url, options);
 
     this.ws.on('open', () => {
       this.onOpen(this.url);
@@ -94,10 +90,11 @@ export class ReconnectingWebSocket {
     this.ws.close(1000);
   }
 
-  private getOptions(): WS.ClientOptions {
+  private async getOptions(): Promise<WS.ClientOptions> {
     let options: WS.ClientOptions = {};
 
-    const certificateAuthority = this.getCertificateAuthority();
+    const certificateAuthority = await che.authority.getCertificates();
+
     const baseUrl = process.env.CHE_API;
     const proxyUrl = process.env.http_proxy;
 
@@ -147,9 +144,9 @@ export class ReconnectingWebSocket {
       `Task plugin webSocket: Reconnecting in ${ReconnectingWebSocket.RECONNECTION_DELAY}ms due to ${reason}`
     );
 
-    this.reconnectionTimeout = setTimeout(() => {
+    this.reconnectionTimeout = setTimeout(async () => {
       this.logger.warn('Task plugin webSocket: Reconnecting...');
-      this.open();
+      await this.open();
     }, ReconnectingWebSocket.RECONNECTION_DELAY);
   }
 
@@ -192,25 +189,6 @@ export class ReconnectingWebSocket {
   ): http.Agent {
     const httpsProxyOptions = this.getHttpsProxyOptions(mainProxyOptions, servername, certificateAuthority);
     return tunnel.httpOverHttps({ proxy: httpsProxyOptions });
-  }
-
-  private getCertificateAuthority(): Buffer[] | undefined {
-    const certificateAuthority: Buffer[] = [];
-    if (fs.existsSync(SS_CRT_PATH)) {
-      certificateAuthority.push(fs.readFileSync(SS_CRT_PATH));
-    }
-
-    if (fs.existsSync(PUBLIC_CRT_PATH)) {
-      const publicCertificates = fs.readdirSync(PUBLIC_CRT_PATH);
-      for (const publicCertificate of publicCertificates) {
-        if (publicCertificate.endsWith('.crt')) {
-          const certPath = path.join(PUBLIC_CRT_PATH, publicCertificate);
-          certificateAuthority.push(fs.readFileSync(certPath));
-        }
-      }
-    }
-
-    return certificateAuthority.length > 0 ? certificateAuthority : undefined;
   }
 
   private shouldProxy(hostname: string): boolean {
@@ -259,11 +237,12 @@ export class ReconnectingWebSocket {
   public onError(reason: Error): void {}
 }
 
-export function createConnection(
+export async function createConnection(
   targetUrl: string,
   openConnectionHandler?: (connection: MessageConnection) => void
 ): Promise<MessageConnection> {
   const webSocket = new ReconnectingWebSocket(targetUrl);
+  await webSocket.open();
   const logger = new ConsoleLogger();
 
   return new Promise<MessageConnection>((resolve, reject) => {
