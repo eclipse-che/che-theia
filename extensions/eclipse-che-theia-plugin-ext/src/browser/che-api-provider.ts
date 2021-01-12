@@ -10,6 +10,7 @@
 
 import { injectable, interfaces } from 'inversify';
 
+import { CheAuthorityMainImpl } from './che-authority-main';
 import { CheDevfileMainImpl } from './che-devfile-main';
 import { CheGithubMainImpl } from './che-github-main';
 import { CheLanguagesTestAPIImpl } from './che-languages-test-api';
@@ -37,6 +38,7 @@ export class CheApiProvider implements MainPluginApiProvider {
     rpc.set(PLUGIN_RPC_CONTEXT.CHE_VARIABLES_MAIN, new CheVariablesMainImpl(container, rpc));
     rpc.set(PLUGIN_RPC_CONTEXT.CHE_TASK_MAIN, new CheTaskMainImpl(container, rpc));
     rpc.set(PLUGIN_RPC_CONTEXT.CHE_SSH_MAIN, new CheSshMainImpl(container));
+    rpc.set(PLUGIN_RPC_CONTEXT.CHE_AUTHORITY_MAIN, new CheAuthorityMainImpl(container));
     rpc.set(PLUGIN_RPC_CONTEXT.CHE_GITHUB_MAIN, new CheGithubMainImpl(container));
     rpc.set(PLUGIN_RPC_CONTEXT.CHE_OPENSHIFT_MAIN, new CheOpenshiftMainImpl(container));
     rpc.set(PLUGIN_RPC_CONTEXT.CHE_OAUTH_MAIN, new CheOauthMainImpl(container));

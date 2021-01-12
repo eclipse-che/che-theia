@@ -13,6 +13,7 @@ import * as theia from '@theia/plugin';
 
 import { CheTaskImpl, TaskStatus, TaskTerminallKind } from './che-task-impl';
 
+import { CheAuthorityImpl } from './che-authority';
 import { CheDevfileImpl } from './che-devfile';
 import { CheGithubImpl } from './che-github';
 import { CheOauthImpl } from './che-oauth';
@@ -42,6 +43,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
   const cheVariablesImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_VARIABLES, new CheVariablesImpl(rpc));
   const cheTaskImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_TASK, new CheTaskImpl(rpc));
   const cheSshImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_SSH, new CheSshImpl(rpc));
+  const cheAuthorityImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_AUTHORITY, new CheAuthorityImpl(rpc));
   const cheGithubImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_GITHUB, new CheGithubImpl(rpc));
   const cheOpenshiftImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_OPENSHIFT, new CheOpenshiftImpl(rpc));
   const cheOauthImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_OAUTH, new CheOauthImpl(rpc));
@@ -172,6 +174,12 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
       },
       get(service: string, name: string): Promise<cheApi.ssh.SshPair> {
         return cheSshImpl.get(service, name);
+      },
+    };
+
+    const authority: typeof che.authority = {
+      getCertificates(): Promise<Buffer[] | undefined> {
+        return cheAuthorityImpl.getCertificates();
       },
     };
 
@@ -408,6 +416,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
       variables,
       task,
       ssh,
+      authority,
       user,
       product,
       github,

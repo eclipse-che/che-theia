@@ -8,32 +8,15 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import * as che from '@eclipse-che/plugin';
 import * as fs from 'fs-extra';
-import * as path from 'path';
-
-const PUBLIC_CRT_PATH = '/public-certs';
-const SS_CRT_PATH = '/tmp/che/secret/ca.crt';
 
 const CA_BUNDLE_PATH = '/tmp/ca-bundle.crt';
 
 export const getCertificate = new Promise<string | undefined>(async resolve => {
-  const certificates: Buffer[] = [];
+  const certificates = await che.authority.getCertificates();
 
-  if (await fs.pathExists(SS_CRT_PATH)) {
-    certificates.push(await fs.readFile(SS_CRT_PATH));
-  }
-
-  if (await fs.pathExists(PUBLIC_CRT_PATH)) {
-    const publicCertificates = await fs.readdir(PUBLIC_CRT_PATH);
-    for (const publicCertificate of publicCertificates) {
-      if (publicCertificate.endsWith('.crt')) {
-        const certPath = path.join(PUBLIC_CRT_PATH, publicCertificate);
-        certificates.push(await fs.readFile(certPath));
-      }
-    }
-  }
-
-  if (certificates.length > 0) {
+  if (certificates) {
     for (const certificate of certificates) {
       await fs.appendFile(CA_BUNDLE_PATH, certificate);
     }

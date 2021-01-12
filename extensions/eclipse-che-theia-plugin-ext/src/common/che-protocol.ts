@@ -57,6 +57,12 @@ export interface CheSshMain {
   $deleteKey(service: string, name: string): Promise<void>;
 }
 
+export interface CheAuthority {}
+
+export interface CheAuthorityMain {
+  $getCertificates(): Promise<Buffer[] | undefined>;
+}
+
 export interface CheOpenshift {
   getToken(): Promise<string>;
 }
@@ -413,6 +419,9 @@ export const PLUGIN_RPC_CONTEXT = {
   CHE_SSH: createProxyIdentifier<CheSsh>('CheSsh'),
   CHE_SSH_MAIN: createProxyIdentifier<CheSshMain>('CheSshMain'),
 
+  CHE_AUTHORITY: createProxyIdentifier<CheAuthority>('CheAuthority'),
+  CHE_AUTHORITY_MAIN: createProxyIdentifier<CheAuthorityMain>('CheAuthorityMain'),
+
   CHE_GITHUB: createProxyIdentifier<CheGithub>('CheGithub'),
   CHE_GITHUB_MAIN: createProxyIdentifier<CheGithubMain>('CheGithubMain'),
 
@@ -438,6 +447,13 @@ export const PLUGIN_RPC_CONTEXT = {
 };
 
 // Theia RPC protocol
+
+export const CHE_AUTHORITY_SERVICE_PATH = '/che-authority-service';
+
+export const CheAuthorityService = Symbol('CheAuthorityService');
+export interface CheAuthorityService {
+  getCertificates(): Promise<Buffer[] | undefined>;
+}
 
 export const CHE_TASK_SERVICE_PATH = '/che-task-service';
 
