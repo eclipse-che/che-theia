@@ -18,8 +18,8 @@ import * as theia from '@theia/plugin';
 import { TaskScope } from '@eclipse-che/plugin';
 import { che as cheApi } from '@eclipse-che/api';
 import { execute } from './exec';
+import { getCertificate } from './ca-cert';
 
-const SS_CRT_PATH = '/tmp/che/secret/ca.crt';
 const CHE_TASK_TYPE = 'che';
 
 /**
@@ -243,9 +243,13 @@ export class TheiaImportZipCommand implements TheiaImportCommand {
       try {
         // download
         const curlArgs = ['-sSL', '--output', this.zipfilePath];
-        if (fs.existsSync(SS_CRT_PATH)) {
-          curlArgs.push('-k');
+
+        // with certificate
+        const cert = await getCertificate;
+        if (cert) {
+          curlArgs.push('--cacert', cert);
         }
+
         curlArgs.push(this.locationURI!);
         await execute('curl', curlArgs);
 
