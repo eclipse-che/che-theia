@@ -1,7 +1,7 @@
 {
   "name": "@eclipse-che/ports-plugin",
   "publisher": "Eclipse Che",
-  "version": "7.24.1",
+  "version": "7.24.2",
   "keywords": [
     "theia-plugin"
   ],
@@ -107,7 +107,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@eclipse-che/plugin": "7.24.1",
+    "@eclipse-che/plugin": "7.24.2",
     "@theia/plugin": "1.10.0-next.39887bf9",
     "@theia/plugin-packager": "latest"
   },
