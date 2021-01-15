@@ -15,6 +15,7 @@ import { CheTaskImpl, TaskStatus, TaskTerminallKind } from './che-task-impl';
 
 import { CheDevfileImpl } from './che-devfile';
 import { CheGithubImpl } from './che-github';
+import { CheK8SImpl } from './che-k8s';
 import { CheOauthImpl } from './che-oauth';
 import { CheOpenshiftImpl } from './che-openshift';
 import { CheProductImpl } from './che-product';
@@ -26,6 +27,7 @@ import { CheUserImpl } from './che-user';
 import { CheVariablesImpl } from './che-variables';
 import { CheWorkspaceImpl } from './che-workspace';
 import { Disposable } from '@theia/core';
+import { K8SRawResponse } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
 import { PLUGIN_RPC_CONTEXT } from '../common/che-protocol';
 import { Plugin } from '@theia/plugin-ext/lib/common/plugin-api-rpc';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
@@ -45,6 +47,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
   const cheGithubImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_GITHUB, new CheGithubImpl(rpc));
   const cheOpenshiftImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_OPENSHIFT, new CheOpenshiftImpl(rpc));
   const cheOauthImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_OAUTH, new CheOauthImpl(rpc));
+  const cheK8SImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_K8S, new CheK8SImpl(rpc));
   const cheUserImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_USER, new CheUserImpl(rpc));
   rpc.set(PLUGIN_RPC_CONTEXT.CHE_SIDERCAR_CONTENT_READER, new CheSideCarContentReaderImpl(rpc));
   rpc.set(PLUGIN_RPC_CONTEXT.CHE_SIDECAR_FILE_SYSTEM, new CheSideCarFileSystemImpl(rpc));
@@ -402,6 +405,13 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
       test: languagesTest,
     };
 
+    const k8s: typeof che.k8s = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse> {
+        return cheK8SImpl.sendRawQuery(requestURL, opts);
+      },
+    };
+
     return <typeof che>{
       workspace,
       devfile,
@@ -417,6 +427,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
       TaskStatus,
       TaskTerminallKind,
       languages,
+      k8s,
     };
   };
 }

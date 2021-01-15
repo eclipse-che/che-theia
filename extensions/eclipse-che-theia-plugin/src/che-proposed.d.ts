@@ -443,5 +443,18 @@ declare module '@eclipse-che/plugin' {
             ): Promise<theia.WorkspaceEdit | undefined>;
         }
     }
+  /**
+   * Namespace to communicate with Kubernetes API.
+   */
+  export namespace k8s {
+    /** Sends a raw query to the cluster. */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    export function sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse>;
+  }
 
+  export interface K8SRawResponse {
+    statusCode: number;
+    data: string;
+    error: string;
+  }
 }

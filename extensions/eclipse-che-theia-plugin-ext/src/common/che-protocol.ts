@@ -15,6 +15,7 @@ import { Preferences, User } from '@eclipse-che/theia-remote-api/lib/common/user
 
 import { BinaryBuffer } from '@theia/core/lib/common/buffer';
 import { CheLanguagesTestAPI } from './che-languages-test-protocol';
+import { K8SRawResponse } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
 import { Stat } from '@theia/filesystem/lib/common/files';
 import { che as cheApi } from '@eclipse-che/api';
 import { createProxyIdentifier } from '@theia/plugin-ext/lib/common/rpc-protocol';
@@ -63,6 +64,16 @@ export interface CheOpenshift {
 
 export interface CheOpenshiftMain {
   $getToken(): Promise<string>;
+}
+
+export interface CheK8S {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse>;
+}
+
+export interface CheK8SMain {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  $sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse>;
 }
 
 export interface CheGithub {
@@ -421,6 +432,9 @@ export const PLUGIN_RPC_CONTEXT = {
 
   CHE_OPENSHIFT: createProxyIdentifier<CheOpenshift>('CheOpenshift'),
   CHE_OPENSHIFT_MAIN: createProxyIdentifier<CheOpenshiftMain>('CheOpenshiftMain'),
+
+  CHE_K8S: createProxyIdentifier<CheK8S>('CheK8S'),
+  CHE_K8S_MAIN: createProxyIdentifier<CheK8SMain>('CheK8SMain'),
 
   CHE_USER: createProxyIdentifier<CheUser>('CheUser'),
   CHE_USER_MAIN: createProxyIdentifier<CheUserMain>('CheUserMain'),

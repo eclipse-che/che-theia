@@ -22,6 +22,7 @@ sources:
   plugins:
     - plugins/containers-plugin
     - plugins/workspace-plugin
+    - plugins/resource-monitor-plugin
     - plugins/ports-plugin
     - plugins/task-plugin
     - plugins/welcome-plugin
