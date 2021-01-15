@@ -11,7 +11,7 @@
 import * as startPoint from '../task-plugin-backend';
 
 import { inject, injectable } from 'inversify';
-import { modify, writeFileSync } from '../utils';
+import { modify, writeFile } from '../utils';
 
 import { BackwardCompatibilityResolver } from '../task/backward-compatibility';
 import { CheTaskConfigsExtractor } from '../extract/che-task-configs-extractor';
@@ -49,7 +49,7 @@ export class TaskConfigurationsExporter implements ConfigurationsExporter {
   protected readonly backwardCompatibilityResolver: BackwardCompatibilityResolver;
 
   async export(commands: cheApi.workspace.Command[]): Promise<void> {
-    const configFileTasks = this.configFileTasksExtractor.extract(THEIA_USER_TASKS_PATH);
+    const configFileTasks = await this.configFileTasksExtractor.extract(THEIA_USER_TASKS_PATH);
 
     const cheTasks = this.cheTaskConfigsExtractor.extract(commands);
     const vsCodeTasks = this.vsCodeTaskConfigsExtractor.extract(commands);
@@ -58,22 +58,20 @@ export class TaskConfigurationsExporter implements ConfigurationsExporter {
 
     const configFileContent = configFileTasks.content;
     if (configFileContent) {
-      this.saveConfigs(
+      return this.saveConfigs(
         THEIA_USER_TASKS_PATH,
         configFileContent,
         this.merge(configFileConfigs, devfileConfigs, this.getConsoleConflictLogger())
       );
-      return;
     }
 
     const vsCodeTasksContent = vsCodeTasks.content;
     if (vsCodeTasksContent) {
-      this.saveConfigs(THEIA_USER_TASKS_PATH, vsCodeTasksContent, devfileConfigs);
-      return;
+      return this.saveConfigs(THEIA_USER_TASKS_PATH, vsCodeTasksContent, devfileConfigs);
     }
 
     if (cheTasks) {
-      this.saveConfigs(THEIA_USER_TASKS_PATH, '', cheTasks);
+      return this.saveConfigs(THEIA_USER_TASKS_PATH, '', cheTasks);
     }
   }
 
@@ -112,14 +110,18 @@ export class TaskConfigurationsExporter implements ConfigurationsExporter {
     return JSON.stringify(properties1) === JSON.stringify(properties2);
   }
 
-  private saveConfigs(tasksConfigFileUri: string, content: string, configurations: TaskConfiguration[]): void {
+  private async saveConfigs(
+    tasksConfigFileUri: string,
+    content: string,
+    configurations: TaskConfiguration[]
+  ): Promise<void> {
     const result = modify(
       content,
       ['tasks'],
       configurations.map(config => Object.assign(config, { _scope: undefined })),
       formattingOptions
     );
-    writeFileSync(tasksConfigFileUri, result);
+    return writeFile(tasksConfigFileUri, result);
   }
 
   private getOutputChannelConflictLogger(): (config1: TaskConfiguration, config2: TaskConfiguration) => void {

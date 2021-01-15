@@ -10,8 +10,8 @@
 
 import * as theia from '@theia/plugin';
 
+import { ensureDirExists, modify, writeFile } from '../utils';
 import { inject, injectable } from 'inversify';
-import { modify, writeFileSync } from '../utils';
 
 import { ConfigFileLaunchConfigsExtractor } from '../extract/config-file-launch-configs-extractor';
 import { ConfigurationsExporter } from './export-configs-manager';
@@ -46,23 +46,23 @@ export class LaunchConfigurationsExporter implements ConfigurationsExporter {
   }
 
   async doExport(workspaceFolder: theia.WorkspaceFolder, commands: cheApi.workspace.Command[]): Promise<void> {
-    const launchConfigFileUri = this.getConfigFileUri(workspaceFolder.uri.path);
-    const configFileConfigs = this.configFileLaunchConfigsExtractor.extract(launchConfigFileUri);
+    const workspaceFolderPath = workspaceFolder.uri.path;
+    const launchConfigFilePath = resolve(workspaceFolderPath, CONFIG_DIR, LAUNCH_CONFIG_FILE);
+    const configFileConfigs = await this.configFileLaunchConfigsExtractor.extract(launchConfigFilePath);
     const vsCodeConfigs = this.vsCodeLaunchConfigsExtractor.extract(commands);
 
     const configFileContent = configFileConfigs.content;
     if (configFileContent) {
-      this.saveConfigs(
-        launchConfigFileUri,
+      return this.saveConfigs(
+        workspaceFolderPath,
         configFileContent,
         this.merge(configFileConfigs.configs, vsCodeConfigs.configs, this.getConsoleConflictLogger())
       );
-      return;
     }
 
     const vsCodeConfigsContent = vsCodeConfigs.content;
     if (vsCodeConfigsContent) {
-      this.saveConfigs(launchConfigFileUri, vsCodeConfigsContent, vsCodeConfigs.configs);
+      return this.saveConfigs(workspaceFolderPath, vsCodeConfigsContent, vsCodeConfigs.configs);
     }
   }
 
@@ -100,13 +100,32 @@ export class LaunchConfigurationsExporter implements ConfigurationsExporter {
     return JSON.stringify(properties1) === JSON.stringify(properties2);
   }
 
-  private getConfigFileUri(rootDir: string): string {
-    return resolve(rootDir.toString(), CONFIG_DIR, LAUNCH_CONFIG_FILE);
-  }
+  private async saveConfigs(
+    workspaceFolderPath: string,
+    content: string,
+    configurations: theia.DebugConfiguration[]
+  ): Promise<void> {
+    /*
+        There is an issue related to file watchers: the watcher only reports the first directory when creating recursively directories.
+        For example:
+            - we would like to create /projects/someProject/.theia/launch.json recursively
+            - /projects/someProject directory already exists
+            - .theia directory and launch.json file should be created
+            - as result file watcher fires an event that .theia directory was created, there is no an event about launch.json file
 
-  private saveConfigs(launchConfigFileUri: string, content: string, configurations: theia.DebugConfiguration[]): void {
+        The issue is reproduced not permanently.
+
+        We had to use the workaround to avoid the issue: first we create the directory and then - config file
+    */
+
+    const configDirPath = resolve(workspaceFolderPath, CONFIG_DIR);
+    await ensureDirExists(configDirPath);
+
+    const launchConfigFilePath = resolve(configDirPath, LAUNCH_CONFIG_FILE);
+    await ensureDirExists(launchConfigFilePath);
+
     const result = modify(content, ['configurations'], configurations, formattingOptions);
-    writeFileSync(launchConfigFileUri, result);
+    return writeFile(launchConfigFilePath, result);
   }
 
   private getConsoleConflictLogger(): (config1: theia.DebugConfiguration, config2: theia.DebugConfiguration) => void {

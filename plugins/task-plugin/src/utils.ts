@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import * as fs from 'fs-extra';
 import * as jsoncparser from 'jsonc-parser';
 import * as path from 'path';
 
@@ -15,8 +16,6 @@ import { FormattingOptions, JSONPath, ParseError } from 'jsonc-parser';
 
 import { URL } from 'url';
 import { resolve } from 'path';
-
-const fs = require('fs');
 
 /** Allows to get attribute by given name, returns `undefined` if attribute is not found */
 export function getAttribute(attributeName: string, attributes?: { [key: string]: string }): string | undefined {
@@ -102,10 +101,29 @@ export function readFileSync(filePath: string): string {
   }
 }
 
+/** Asynchronously reads the file by given path. Returns content of the file or empty string if file doesn't exist */
+export async function readFile(filePath: string): Promise<string> {
+  try {
+    if (await fs.pathExists(filePath)) {
+      return fs.readFile(filePath, 'utf8');
+    }
+    return '';
+  } catch (e) {
+    console.error(e);
+    return '';
+  }
+}
+
 /** Synchronously writes  given content to the file. Creates directories to the file if they don't exist */
 export function writeFileSync(filePath: string, content: string): void {
   ensureDirExistence(filePath);
   fs.writeFileSync(filePath, content);
+}
+
+/** Asynchronously writes given content to the file. Creates directories to the file if they don't exist */
+export async function writeFile(filePath: string, content: string): Promise<void> {
+  await ensureDirExists(filePath);
+  return fs.writeFile(filePath, content);
 }
 
 /** Synchronously creates a directory to the file if they don't exist */
@@ -115,4 +133,13 @@ export function ensureDirExistence(filePath: string): void {
     return;
   }
   fs.mkdirSync(dirName, { recursive: true });
+}
+
+/** Creates a directory containing the file if they don't exist */
+export async function ensureDirExists(filePath: string): Promise<void> {
+  const dirName = path.dirname(filePath);
+  if (await fs.pathExists(dirName)) {
+    return;
+  }
+  return fs.mkdirp(dirName);
 }
