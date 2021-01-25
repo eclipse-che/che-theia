@@ -11,9 +11,9 @@ set -e
 set -u
 
 IMAGE_TAG="next"
-THEIA_GITHUB_REPO="eclipse-theia/theia"
+THEIA_GITHUB_REPO="tsmaeder/theia"
 THEIA_VERSION="master"
-THEIA_BRANCH="master"
+THEIA_BRANCH="16502_refactor_rpcprotocol"
 THEIA_COMMIT_SHA=
 THEIA_GIT_REFS="refs\\/heads\\/master"
 THEIA_DOCKER_IMAGE_VERSION=
