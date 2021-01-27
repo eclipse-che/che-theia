@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/telemetry-plugin",
-  "version": "7.25.0",
+  "version": "7.25.1",
   "publisher": "Eclipse Che",
   "keywords": [
     "theia-plugin"
@@ -16,7 +16,7 @@
   "devDependencies": {
     "@theia/plugin": "1.10.0-next.31d47498",
     "@theia/plugin-packager": "latest",
-    "@eclipse-che/plugin": "7.25.0"
+    "@eclipse-che/plugin": "7.25.1"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
