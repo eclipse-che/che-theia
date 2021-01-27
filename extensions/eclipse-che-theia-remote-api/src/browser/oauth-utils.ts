@@ -63,8 +63,8 @@ export class OauthUtils {
       if (this.machineToken && this.machineToken.length > 0) {
         const timer = setTimeout(() => {
           this.messageService.warn(
-            'Authentication is taking too long, the oauth pop-up may be blocked by your browser, ' +
-              'if so, allow popup windows for the current url and restart the workspace'
+            'Authentication is taking too long, the OAuth pop-up may be blocked by your browser, ' +
+              'if so, allow pop-up windows for the current url and restart the workspace'
           );
         }, 10000);
         const popup = window.open(
@@ -119,7 +119,7 @@ export class OauthUtils {
       await this.oAuthService.getOAuthToken(provider, await this.getUserToken());
       return true;
     } catch (e) {
-      return new RegExp(`User \[.*] is not associated with identity provider \[${provider}]\.`).test(e.message);
+      return new RegExp(`User \\[.*] is not associated with identity provider \\[${provider}]\\.`).test(e.message);
     }
   }
 
