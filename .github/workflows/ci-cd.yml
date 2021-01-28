@@ -1,0 +1,43 @@
+#
+# Copyright (c) 2021 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+name: CI/CD Workflow
+
+on:
+  push:
+    branches:
+      - $default-branch
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        dist: [ 'alpine', 'ubi8' ]
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout che-theia source code
+    - uses: actions/setup-node@v1
+      name: Configuring nodejs 12.x version
+      with:
+        node-version: '12.x'
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    - name: Login to quay.io
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.QUAY_ECLIPSE_CHE_USERNAME }}
+        password: ${{ secrets.QUAY_ECLIPSE_CHE_PASSWORD }}
+    - name: Build and publish images
+      run: |
+        docker image prune -a -f
+        ./build.sh --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.${{ matrix.dist }} --push-to-quay
+    - name: Publish packages to npmjs
+      run: yarn publish:next

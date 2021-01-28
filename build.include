@@ -26,6 +26,7 @@ prepare_yarn_root_args() {
 
 parse() {
   PUBLISH_IMAGES=false
+  PUBLISH_IMAGES_TO_QUAY=false
   YARN_OPTS=""
   FILTERED_ARGS=""
   while [ $# -gt 0 ]; do
@@ -35,6 +36,9 @@ parse() {
       shift ;;
       --push)
         PUBLISH_IMAGES=true
+      shift ;;
+      --push-to-quay)
+        PUBLISH_IMAGES_TO_QUAY=true
       shift ;;
       --root-yarn-opts*:*)
         ROOT_YARN_CSV="${1#*:}"
@@ -52,6 +56,14 @@ is_publish_images() {
     return 0
   else
     return 1
+  fi
+}
+
+is_publish_images_to_quay() {
+  if [[ "${PUBLISH_IMAGES_TO_QUAY}" == "true" ]]; then
+    return 1
+  else
+    return 0
   fi
 }
 
@@ -104,6 +116,20 @@ publishImages() {
       echo y | docker push "${image}:${THEIA_DOCKER_IMAGE_VERSION}"
     else
       echo y | docker push "${image}:${IMAGE_TAG}"
+    fi
+  done
+}
+
+publishImagesToQuay() {
+  REGISTRY="quay.io"
+  for image in "${PUBLISH_IMAGES_LIST[@]}"
+  do
+    echo "Publishing image ${image}..."
+    docker tag "${image}:${IMAGE_TAG}" "${REGISTRY}/${image}:${IMAGE_TAG}"
+    echo y | docker push "${REGISTRY}/${image}:${IMAGE_TAG}"
+    if [[ -n "${THEIA_DOCKER_IMAGE_VERSION}" ]]; then
+      docker tag "${image}:${IMAGE_TAG}" "${REGISTRY}/${image}:${THEIA_DOCKER_IMAGE_VERSION}"
+      echo y | docker push "${REGISTRY}/${image}:${THEIA_DOCKER_IMAGE_VERSION}"
     fi
   done
 }
