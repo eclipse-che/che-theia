@@ -1,0 +1,35 @@
+#
+# Copyright (c) 2021 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+name: Check a Theia branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      theia_branch:
+        description: 'Theia branch name to build Che-Theia image on top:'
+        required: true
+
+jobs:
+  build:
+    name: Build an image against Theia branch ${{ github.event.inputs.theia_branch }}
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout che-theia source code
+    - uses: actions/setup-node@v1
+      name: Configuring nodejs 12.x version
+      with:
+        node-version: '12.x'
+    - name: build
+      run: |
+        docker image prune -a -f
+        docker pull quay.io/eclipse/che-theia-dev:next
+        docker tag quay.io/eclipse/che-theia-dev:next eclipse/che-theia-dev:next
+        ./build.sh --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.alpine --branch:${{ github.event.inputs.theia_branch }}
