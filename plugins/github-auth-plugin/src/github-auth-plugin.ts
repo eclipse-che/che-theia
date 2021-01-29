@@ -25,11 +25,10 @@ export async function start(context: theia.PluginContext): Promise<void> {
     login: async (scopes: string[]) => {
       if (!(await che.oAuth.isRegistered('github'))) {
         if (
-          (await theia.window.showWarningMessage(
-            'GitHub OAuth provider is not setup! Would you like to open the documentation page?',
-            'Yes',
-            'No'
-          )) === 'Yes'
+          await theia.window.showWarningMessage(
+            'Che could not authenticate to your Github account. The setup for Github OAuth provider is not complete.',
+            'Setup instructions'
+          )
         ) {
           theia.commands.executeCommand(
             'theia.open',
