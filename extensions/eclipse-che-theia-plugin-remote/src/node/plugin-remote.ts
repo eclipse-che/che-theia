@@ -40,7 +40,7 @@ process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
         unhandledPromises.splice(index, 1);
         const containerName = process.env['CHE_MACHINE_NAME'];
         console.error(`Remote plugin in ${containerName}: promise rejection is not handled in two seconds: ${err}`);
-        if (err.stack) {
+        if (err && err.stack) {
           console.error(`Remote plugin in ${containerName}: promise rejection stack trace: ${err.stack}`);
         }
       });
