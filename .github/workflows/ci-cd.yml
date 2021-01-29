@@ -33,8 +33,8 @@ jobs:
     - name: Login to quay.io
       uses: docker/login-action@v1
       with:
-        username: ${{ secrets.QUAY_ECLIPSE_CHE_USERNAME }}
-        password: ${{ secrets.QUAY_ECLIPSE_CHE_PASSWORD }}
+        username: ${{ secrets.QUAY_USERNAME }}
+        password: ${{ secrets.QUAY_PASSWORD }}
     - name: Build and publish images
       run: |
         docker image prune -a -f
