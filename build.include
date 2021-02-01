@@ -26,7 +26,6 @@ prepare_yarn_root_args() {
 
 parse() {
   PUBLISH_IMAGES=false
-  PUBLISH_IMAGES_TO_QUAY=false
   YARN_OPTS=""
   FILTERED_ARGS=""
   while [ $# -gt 0 ]; do
