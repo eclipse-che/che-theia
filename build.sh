@@ -20,7 +20,3 @@ buildImages
 if is_publish_images; then
     publishImages
 fi
-
-if is_publish_images_to_quay; then
-    publishImagesToQuay
-fi
