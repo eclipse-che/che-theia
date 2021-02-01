@@ -28,8 +28,6 @@ jobs:
       name: Configuring nodejs 12.x version
       with:
         node-version: '12.x'
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     - name: Login to docker.io
       uses: docker/login-action@v1
       with:
@@ -49,5 +47,7 @@ jobs:
       env:
         CDN_PREFIX: https://static.developers.redhat.com/che/theia_artifacts/
         MONACO_CDN_PREFIX: https://cdn.jsdelivr.net/npm/
+    - name: Set-up npmjs auth token
+      run: printf "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}\n" >> ~/.npmrc
     - name: Publish packages to npmjs
       run: yarn publish:next
