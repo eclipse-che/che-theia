@@ -46,5 +46,8 @@ jobs:
       run: |
         docker image prune -a -f
         ./build.sh --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.${{ matrix.dist }} --push-to-quay
+      env:
+        CDN_PREFIX: https://static.developers.redhat.com/che/theia_artifacts/
+        MONACO_CDN_PREFIX: https://cdn.jsdelivr.net/npm/
     - name: Publish packages to npmjs
       run: yarn publish:next
