@@ -31,7 +31,11 @@ import { R_OK } from 'constants';
 import { che as cheApi } from '@eclipse-che/api';
 import { spawn } from 'child_process';
 
-export async function start(): Promise<void> {
+export interface PluginModel {
+  generateAndUploadKey(message?: string): Promise<void>;
+}
+
+export async function start(): Promise<PluginModel> {
   const sshKeyManager = new RemoteSshKeyManager();
   let keys: cheApi.ssh.SshPair[] = [];
   try {
@@ -114,27 +118,43 @@ export async function start(): Promise<void> {
 
   const askToGenerateIfEmptyAndUploadKeyToGithub = async (
     keysParam: cheApi.ssh.SshPair[],
-    tryAgain: boolean
+    tryAgain: boolean,
+    messagePrefix?: string
   ): Promise<boolean> => {
+    const out = theia.window.createOutputChannel('askToGenerateIfEmptyAndUploadKeyToGithub');
+    out.show(true);
+
     let key = keysParam.find(
       k => !!k.publicKey && !!k.name && (k.name.startsWith('github.com') || k.name.startsWith('default-'))
     );
-    const message = `Permission denied, would you like to ${
-      !key ? 'generate and ' : ''
-    }upload the public SSH key to GitHub${tryAgain ? ' and try again' : ''}?`;
+
+    if (!messagePrefix) {
+      messagePrefix = 'Permission denied.';
+    }
+
+    const message = `${messagePrefix} Would you like to ${key ? '' : 'generate and'}
+      upload the public SSH key to GitHub${tryAgain ? ' and try again' : ''}?`;
     const action = await theia.window.showWarningMessage(message, key ? 'Upload' : 'Generate and upload');
+    out.appendLine('# ACTION ' + action);
+
     if (action) {
       if (!key) {
+        out.appendLine('>>>>>>>>>>> GENERATE');
         key = await sshKeyManager.generate('vcs', 'github.com');
         await updateConfig('github.com');
         await writeKey('github.com', key.privateKey!);
       }
+
       if (key && key.publicKey) {
+        out.appendLine('>>>>>>>>>>> UPLOAD');
         await che.github.uploadPublicSshKey(key.publicKey);
         return true;
       }
+
+      out.appendLine('<<<<<<<<<<< RETURN FALSE');
       return false;
     } else {
+      out.appendLine('<<<<<<<<<<< CANCEL');
       return false;
     }
   };
@@ -164,6 +184,11 @@ export async function start(): Promise<void> {
     label: 'SSH: upload private key...',
   };
 
+  const GENERATE_AND_UPLOAD: theia.CommandDescription = {
+    id: 'ssh:generate_and_upload',
+    label: 'SSH: TEST [ generate and upload ]',
+  };
+
   theia.commands.registerCommand(GENERATE_FOR_HOST, () => {
     generateKeyPairForHost(sshKeyManager);
   });
@@ -182,6 +207,16 @@ export async function start(): Promise<void> {
   theia.commands.registerCommand(UPLOAD, () => {
     uploadPrivateKey(sshKeyManager);
   });
+
+  theia.commands.registerCommand(GENERATE_AND_UPLOAD, async () => {
+    await askToGenerateIfEmptyAndUploadKeyToGithub(keys, true);
+  });
+
+  return {
+    generateAndUploadKey: async (message?: string) => {
+      askToGenerateIfEmptyAndUploadKeyToGithub(keys, true, message);
+    },
+  };
 }
 
 const RESTART_WARNING_MESSAGE =

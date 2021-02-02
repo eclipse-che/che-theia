@@ -100,3 +100,18 @@ export function getGitRootFolder(uri: string): string {
 export async function execGit(directory: string, ...args: string[]): Promise<string | undefined> {
   return execute('git', args, { cwd: directory });
 }
+
+export function isSecureGitURI(uri: string): boolean {
+  // git@github.com:eclipse/che-theia.git
+  // git@bitbucket.org:atlassianlabs/atlascode.git
+
+  return uri.startsWith('git@github.com');
+}
+
+export async function testSecureLogin(uri: string): Promise<string> {
+  const host = uri.substring(0, uri.indexOf(':'));
+  const args: string[] = ['-T', host];
+
+  const result = await execute('ssh', args);
+  return result;
+}

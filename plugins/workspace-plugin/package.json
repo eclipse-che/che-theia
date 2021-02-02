@@ -18,6 +18,9 @@
     "@theia/plugin": "next",
     "@theia/plugin-packager": "latest"
   },
+  "extensionDependencies": [
+    "Eclipse Che.@eclipse-che/theia-ssh-plugin"
+  ],
   "scripts": {
     "prepare": "yarn clean && yarn build && yarn lint:fix && yarn test",
     "clean": "rimraf lib",

@@ -43,7 +43,7 @@ function isDevfileProjectConfig(
 }
 
 export interface TheiaImportCommand {
-  execute(): PromiseLike<void>;
+  execute(): Promise<void>;
 }
 
 export function buildProjectImportCommand(
@@ -116,17 +116,22 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
     this.projectsRoot = projectsRoot;
   }
 
-  execute(): PromiseLike<void> {
-    let cloneFunc: (
+  async execute(): Promise<void> {
+    let clone: (
       progress: theia.Progress<{ message?: string; increment?: number }>,
       token: theia.CancellationToken
     ) => Promise<void>;
+
+    theia.window.showWarningMessage('>>> go clone ' + this.locationURI);
+
+    await this.checkSecureClone();
+
     if (this.sparseCheckoutDir) {
       // Sparse checkout
-      cloneFunc = this.gitSparseCheckout;
+      clone = this.gitSparseCheckout;
     } else {
       // Regular clone
-      cloneFunc = this.gitClone;
+      clone = this.gitClone;
     }
 
     return theia.window.withProgress(
@@ -134,8 +139,47 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
         location: theia.ProgressLocation.Notification,
         title: `Cloning ${this.locationURI} ...`,
       },
-      (progress, token) => cloneFunc.call(this, progress, token)
+      (progress, token) => clone.call(this, progress, token)
     );
+  }
+
+  readonly out: theia.OutputChannel = theia.window.createOutputChannel('GIT clone');
+
+  readonly SSH_PLUGIN_ID = 'Eclipse Che.@eclipse-che/theia-ssh-plugin';
+
+  private async checkSecureClone(): Promise<void> {
+    if (git.isSecureGitURI(this.locationURI)) {
+      this.out.appendLine('> Testing secure login: ' + this.locationURI);
+
+      try {
+        const result = await git.testSecureLogin(this.locationURI);
+        this.out.appendLine('-----------------------------------------------------');
+        this.out.appendLine(result);
+      } catch (error) {
+        this.out.appendLine('! Cannot test secure login !');
+        this.out.appendLine(error.message);
+
+        await this.generateAndUploadKey();
+      }
+    } else {
+      this.out.appendLine('> is not secure uri. Regular cloning...');
+    }
+  }
+
+  // const git: any = gitExtension.exports._model.git;
+  private async generateAndUploadKey(): Promise<void> {
+    const sshPlugin = theia.plugins.getPlugin(this.SSH_PLUGIN_ID);
+    console.log('>>> ssh plugin ', sshPlugin);
+
+    if (sshPlugin) {
+      this.out.appendLine(`## found ${this.SSH_PLUGIN_ID}`);
+
+      if (sshPlugin?.exports) {
+        await sshPlugin?.exports.generateAndUploadKey('SSH key not found.');
+      }
+    } else {
+      this.out.appendLine(`##### Unable to find ${this.SSH_PLUGIN_ID}`);
+    }
   }
 
   // Clones git repository
@@ -235,7 +279,7 @@ export class TheiaImportZipCommand implements TheiaImportCommand {
     }
   }
 
-  execute(): PromiseLike<void> {
+  async execute(): Promise<void> {
     const importZip = async (
       progress: theia.Progress<{ message?: string; increment?: number }>,
       token: theia.CancellationToken
