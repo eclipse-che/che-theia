@@ -24,7 +24,7 @@ export const StorageServiceConfigurationSchema: PreferenceSchema = {
     'workbench.layout.saveTimeout': {
       type: 'number',
       description: 'Timeout in milliseconds before the Theia store it layout. Must be a positive integer.',
-      default: 10000,
+      default: 2000,
     },
   },
 };

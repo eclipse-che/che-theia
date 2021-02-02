@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { FrontendApplicationContribution, StorageService, WebSocketConnectionProvider } from '@theia/core/lib/browser';
-import { StorageServer, storageServerPath } from '../common/storage-server';
+import { FrontendApplicationContribution, ShellLayoutRestorer, StorageService } from '@theia/core/lib/browser';
 
+import { CheFrontendApplication } from './che-frontend-application';
+import { CheShellLayoutRestorer } from './che-shell-layout-restorer';
 import { CheStorageService } from './che-storage-service';
 import { ContainerModule } from 'inversify';
-import { LayoutChangeListener } from './che-storage-frontend-contribution';
 import { TheiaThemePreferenceSynchronizer } from './theme/theme-synchronizer';
 import { bindStorageServicePreferences } from './che-storage-preferences';
 import { bindTheiaThemePreferences } from './theme/theme-preferences';
@@ -22,15 +22,11 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
   bindTheiaThemePreferences(bind);
   bindStorageServicePreferences(bind);
   bind(FrontendApplicationContribution).to(TheiaThemePreferenceSynchronizer).inSingletonScope();
-  bind(FrontendApplicationContribution).to(LayoutChangeListener).inSingletonScope();
-
-  bind(StorageServer)
-    .toDynamicValue(ctx => {
-      const connection = ctx.container.get(WebSocketConnectionProvider);
-      return connection.createProxy<StorageServer>(storageServerPath);
-    })
-    .inSingletonScope();
+  bind(FrontendApplicationContribution).to(CheFrontendApplication).inSingletonScope();
 
   bind(CheStorageService).toSelf().inSingletonScope();
   rebind(StorageService).toService(CheStorageService);
+
+  bind(CheShellLayoutRestorer).toSelf().inSingletonScope();
+  rebind(ShellLayoutRestorer).to(CheShellLayoutRestorer);
 });
