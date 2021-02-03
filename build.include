@@ -97,13 +97,17 @@ publishImages() {
   echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   for image in "${PUBLISH_IMAGES_LIST[@]}"
   do
-    echo "Publishing image ${image}..."
     if [[ -n "${THEIA_DOCKER_IMAGE_VERSION}" ]]; then
+      echo "Publish ${image}:${IMAGE_TAG} and :${THEIA_DOCKER_IMAGE_VERSION} ..."
       docker tag "${image}:${IMAGE_TAG}" "${image}:${THEIA_DOCKER_IMAGE_VERSION}"
       echo y | docker push "${image}:${IMAGE_TAG}"
       echo y | docker push "${image}:${THEIA_DOCKER_IMAGE_VERSION}"
     else
+      SHORT_SHA=$(git rev-parse --short HEAD)
+      echo "Publish ${image}:${IMAGE_TAG} and :${SHORT_SHA} ..."
+      docker tag "${image}:${IMAGE_TAG}" "${image}:${SHORT_SHA}"
       echo y | docker push "${image}:${IMAGE_TAG}"
+      echo y | docker push "${image}:${SHORT_SHA}"
     fi
   done
 }
