@@ -13,6 +13,8 @@ on:
   push:
     branches:
       - $default-branch
+  # schedule:
+  #   - cron: '0 0 * * *' # once a day at midnight
   workflow_dispatch:
 
 jobs:
