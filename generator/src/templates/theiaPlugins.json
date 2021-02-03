@@ -31,7 +31,7 @@
   "vscode-builtin-lua": "https://open-vsx.org/api/vscode/lua/1.44.2/file/vscode.lua-1.44.2.vsix",
   "vscode-builtin-make": "https://open-vsx.org/api/vscode/make/1.44.2/file/vscode.make-1.44.2.vsix",
   "vscode-builtin-markdown": "https://open-vsx.org/api/vscode/markdown/1.44.2/file/vscode.markdown-1.44.2.vsix",
-  "vscode-builtin-markdown-language-features": "https://open-vsx.org/api/vscode/markdown-language-features/1.39.1/file/vscode.markdown-language-features-1.39.1.vsix",
+  "vscode-builtin-markdown-language-features": "https://open-vsx.org/api/vscode/markdown-language-features/1.39.2/file/vscode.markdown-language-features-1.39.2.vsix",
   "vscode-builtin-merge-conflicts": "https://open-vsx.org/api/vscode/merge-conflict/1.44.2/file/vscode.merge-conflict-1.44.2.vsix",
   "vscode-builtin-npm": "https://open-vsx.org/api/vscode/npm/1.44.2/file/vscode.npm-1.44.2.vsix",
   "vscode-builtin-objective-c": "https://open-vsx.org/api/vscode/objective-c/1.44.2/file/vscode.objective-c-1.44.2.vsix",
