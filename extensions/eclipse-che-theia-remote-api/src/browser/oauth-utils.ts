@@ -13,6 +13,7 @@ import { inject, injectable } from 'inversify';
 
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { OAuthService } from '../common/oauth-service';
+import { UserService } from '../common/user-service';
 
 @injectable()
 export class OauthUtils {
@@ -27,7 +28,8 @@ export class OauthUtils {
 
   constructor(
     @inject(EnvVariablesServer) private readonly envVariableServer: EnvVariablesServer,
-    @inject(OAuthService) private readonly oAuthService: OAuthService
+    @inject(OAuthService) private readonly oAuthService: OAuthService,
+    @inject(UserService) private readonly userService: UserService
   ) {
     const onDidReceiveTokenEmitter = new Emitter<void>();
     this.onDidReceiveToken = onDidReceiveTokenEmitter.event;
@@ -57,29 +59,41 @@ export class OauthUtils {
   }
 
   async getUserToken(): Promise<string | undefined> {
-    if (this.userToken) {
-      return this.userToken;
-    } else if (this.machineToken && this.machineToken.length > 0) {
-      const timer = setTimeout(() => {
-        this.messageService.warn(
-          'Authentication is taking too long, the oauth pop-up may be blocked by your browser, ' +
-            'if so, allow popup windows for the current url and restart the workspace'
+    const updateToken: () => Promise<string | undefined> = async () => {
+      if (this.machineToken && this.machineToken.length > 0) {
+        const timer = setTimeout(() => {
+          this.messageService.warn(
+            'Authentication is taking too long, the OAuth pop-up may be blocked by your browser, ' +
+              'if so, allow pop-up windows for the current url and restart the workspace'
+          );
+        }, 10000);
+        const popup = window.open(
+          `${this.apiUrl.substring(0, this.apiUrl.indexOf('/api'))}/_app/oauth.html`,
+          'popup',
+          'toolbar=no, status=no, menubar=no, scrollbars=no, width=10, height=10, visible=none'
         );
-      }, 10000);
-      const popup = window.open(
-        `${this.apiUrl.substring(0, this.apiUrl.indexOf('/api'))}/_app/oauth.html`,
-        'popup',
-        'toolbar=no, status=no, menubar=no, scrollbars=no, width=10, height=10, visible=none'
-      );
-      if (popup) {
-        this.oAuthPopup = popup;
-      }
-      return new Promise(async resolve => {
-        this.onDidReceiveToken(() => {
-          clearTimeout(timer);
-          resolve(this.userToken);
+        if (popup) {
+          this.oAuthPopup = popup;
+        }
+        return new Promise(async resolve => {
+          this.onDidReceiveToken(() => {
+            clearTimeout(timer);
+            resolve(this.userToken);
+          });
         });
-      });
+      }
+    };
+    if (this.userToken) {
+      try {
+        await this.userService.getCurrentUser(this.userToken);
+      } catch (e) {
+        if (/Request getCurrentUser failed with message: "401"/g.test(e.message)) {
+          return updateToken();
+        }
+      }
+      return this.userToken;
+    } else {
+      return updateToken();
     }
   }
 
@@ -105,7 +119,7 @@ export class OauthUtils {
       await this.oAuthService.getOAuthToken(provider, await this.getUserToken());
       return true;
     } catch (e) {
-      return e.message.indexOf('Request failed with status code 401') > 0;
+      return new RegExp(`User \\[.*] is not associated with identity provider \\[${provider}]\\.`).test(e.message);
     }
   }
 
