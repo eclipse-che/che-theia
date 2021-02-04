@@ -50,6 +50,6 @@ jobs:
         CDN_PREFIX: https://static.developers.redhat.com/che/theia_artifacts/
         MONACO_CDN_PREFIX: https://cdn.jsdelivr.net/npm/
     - name: Set-up npmjs auth token
-      run: printf "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}\n" >> ~/.npmrc
+      run: printf "//registry.npmjs.org/:_authToken=${{ secrets.CHE_NPM_AUTH_TOKEN }}\n" >> ~/.npmrc
     - name: Publish packages to npmjs
       run: yarn publish:next
