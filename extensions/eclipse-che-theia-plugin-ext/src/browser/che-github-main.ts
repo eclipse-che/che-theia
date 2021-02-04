@@ -72,15 +72,21 @@ export class CheGithubMainImpl implements CheGithubMain {
 
   private async updateToken(): Promise<void> {
     const oAuthProvider = 'github';
-    try {
+    const authenticateAndUpdateToken: () => Promise<void> = async () => {
+      await this.oAuthUtils.authenticate(oAuthProvider, ['repo', 'user', 'write:public_key']);
       this.token = await this.oAuthUtils.getToken(oAuthProvider);
-      // Validate the GitHub token.
-      await this.getUser();
-    } catch (e) {
-      if (e.message.indexOf('Request failed with status code 401') !== -1) {
-        await this.oAuthUtils.authenticate(oAuthProvider, ['write:public_key']);
-        this.token = await this.oAuthUtils.getToken(oAuthProvider);
+    };
+    if (await this.oAuthUtils.isAuthenticated(oAuthProvider)) {
+      try {
+        // Validate the GitHub token.
+        await this.getUser();
+      } catch (e) {
+        if (/Request failed with status code 401/g.test(e.message)) {
+          await authenticateAndUpdateToken();
+        }
       }
+    } else {
+      await authenticateAndUpdateToken();
     }
   }
 }
