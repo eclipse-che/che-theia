@@ -107,7 +107,7 @@ publishImages() {
     else
       SHORT_SHA=$(git rev-parse --short HEAD)
       echo "Publishing ${image}:${SHORT_SHA}..."
-      docker tag "${image}:${IMAGE_TAG}" "${image}:${SHORT_SHA}"
+      docker tag "${image}:${IMAGE_TAG}" "${REGISTRY}/${image}:${SHORT_SHA}"
       echo y | docker push "${REGISTRY}/${image}:${SHORT_SHA}"
     fi
   done
