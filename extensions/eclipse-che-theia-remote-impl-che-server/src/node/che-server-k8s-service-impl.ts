@@ -10,7 +10,7 @@
 
 import * as k8s from '@kubernetes/client-node';
 
-import { CheK8SService, K8SRawResponse } from '../common/k8s-service';
+import { CheK8SService, K8SRawResponse } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
 
 import { injectable } from 'inversify';
 

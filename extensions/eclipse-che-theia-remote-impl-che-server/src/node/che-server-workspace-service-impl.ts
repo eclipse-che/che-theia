@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2020 Red Hat, Inc.
+ * Copyright (c) 2020-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -8,7 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { Container, Endpoint, Workspace, WorkspaceService, WorkspaceSettings } from '../common/workspace-service';
+import {
+  Container,
+  Endpoint,
+  Workspace,
+  WorkspaceService,
+  WorkspaceSettings,
+} from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { inject, injectable } from 'inversify';
 
 import { CheServerRemoteApiImpl } from './che-server-remote-api-impl';

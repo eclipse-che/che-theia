@@ -10,7 +10,7 @@
 
 import { EventProperty, TelemetryClient } from '@eclipse-che/workspace-telemetry-client';
 
-import { TelemetryService } from '../common/telemetry-service';
+import { TelemetryService } from '@eclipse-che/theia-remote-api/lib/common/telemetry-service';
 import { injectable } from 'inversify';
 
 @injectable()

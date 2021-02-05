@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { SshKeyService, SshPair } from '../common/ssh-key-service';
+import { SshKeyService, SshPair } from '@eclipse-che/theia-remote-api/lib/common/ssh-key-service';
 import { inject, injectable } from 'inversify';
 
 import { CheServerRemoteApiImpl } from './che-server-remote-api-impl';
