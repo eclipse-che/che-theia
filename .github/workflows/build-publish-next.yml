@@ -13,15 +13,9 @@ on:
   push:
     branches:
       - master
-  # schedule:
-  #   - cron: '0 0 * * *' # once a day at midnight
-  workflow_dispatch:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        dist: [ 'alpine', 'ubi8' ]
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
@@ -45,7 +39,7 @@ jobs:
     - name: Build and publish images
       run: |
         docker image prune -a -f
-        ./build.sh --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.${{ matrix.dist }} --push
+        ./build.sh --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.alpine --push
       env:
         CDN_PREFIX: https://static.developers.redhat.com/che/theia_artifacts/
         MONACO_CDN_PREFIX: https://cdn.jsdelivr.net/npm/
