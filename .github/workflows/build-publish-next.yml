@@ -12,7 +12,7 @@ name: Build & Publish `next`
 on:
   push:
     branches:
-      - $default-branch
+      - master
   # schedule:
   #   - cron: '0 0 * * *' # once a day at midnight
   workflow_dispatch:
