@@ -7,27 +7,22 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
+
 import { inject, injectable } from 'inversify';
 
 import { CheServerRemoteApiImpl } from './che-server-remote-api-impl';
-import { FactoryService } from '../common/factory-service';
+import { OAuthService } from '@eclipse-che/theia-remote-api/lib/common/oauth-service';
 
 @injectable()
-export class CheServerFactoryServiceImpl implements FactoryService {
+export class CheServerOAuthServiceImpl implements OAuthService {
   @inject(CheServerRemoteApiImpl)
   private cheServerRemoteApiImpl: CheServerRemoteApiImpl;
 
-  public async getFactoryLink(url: string): Promise<string> {
-    let baseURI = this.cheServerRemoteApiImpl.getCheApiURI();
+  public async getOAuthToken(oAuthProvider: string, userToken?: string): Promise<string | undefined> {
+    return this.cheServerRemoteApiImpl.getAPI(userToken).getOAuthToken(oAuthProvider);
+  }
 
-    if (!baseURI) {
-      throw new Error('Che API URI is not set');
-    }
-
-    if (baseURI.endsWith('/api')) {
-      baseURI = baseURI.substring(0, baseURI.length - 4);
-    }
-
-    return `${baseURI}/f?url=${url}`;
+  public async getOAuthProviders(userToken?: string): Promise<string[]> {
+    return this.cheServerRemoteApiImpl.getAPI(userToken).getOAuthProviders();
   }
 }

@@ -11,18 +11,24 @@
 import { inject, injectable } from 'inversify';
 
 import { CheServerRemoteApiImpl } from './che-server-remote-api-impl';
-import { OAuthService } from '../common/oauth-service';
+import { FactoryService } from '@eclipse-che/theia-remote-api/lib/common/factory-service';
 
 @injectable()
-export class CheServerOAuthServiceImpl implements OAuthService {
+export class CheServerFactoryServiceImpl implements FactoryService {
   @inject(CheServerRemoteApiImpl)
   private cheServerRemoteApiImpl: CheServerRemoteApiImpl;
 
-  public async getOAuthToken(oAuthProvider: string, userToken?: string): Promise<string | undefined> {
-    return this.cheServerRemoteApiImpl.getAPI(userToken).getOAuthToken(oAuthProvider);
-  }
+  public async getFactoryLink(url: string): Promise<string> {
+    let baseURI = this.cheServerRemoteApiImpl.getCheApiURI();
 
-  public async getOAuthProviders(userToken?: string): Promise<string[]> {
-    return this.cheServerRemoteApiImpl.getAPI(userToken).getOAuthProviders();
+    if (!baseURI) {
+      throw new Error('Che API URI is not set');
+    }
+
+    if (baseURI.endsWith('/api')) {
+      baseURI = baseURI.substring(0, baseURI.length - 4);
+    }
+
+    return `${baseURI}/f?url=${url}`;
   }
 }

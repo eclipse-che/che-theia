@@ -1,5 +1,5 @@
 {
-  "name": "@eclipse-che/theia-remote-api",
+  "name": "@eclipse-che/theia-remote-impl-che-server",
   "keywords": [
     "theia-extension"
   ],
@@ -12,7 +12,10 @@
     "src"
   ],
   "dependencies": {
-    "@kubernetes/client-node": "^0.12.1"
+    "@eclipse-che/api": "latest",
+    "@kubernetes/client-node": "^0.12.1",
+    "@eclipse-che/theia-remote-api": "^0.0.1",
+    "@eclipse-che/workspace-client": "latest"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",
@@ -29,7 +32,7 @@
   "license": "EPL-2.0",
   "theiaExtensions": [
     {
-      "frontend": "lib/browser/che-remote-api-frontend-module"
+      "backend": "lib/node/che-remote-impl-che-server-backend-module"
     }
   ]
 }

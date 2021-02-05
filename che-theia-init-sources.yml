@@ -19,6 +19,7 @@ sources:
     - extensions/eclipse-che-theia-cli-endpoint
     - extensions/eclipse-che-theia-workspace
     - extensions/eclipse-che-theia-remote-api
+    - extensions/eclipse-che-theia-remote-impl-che-server
   plugins:
     - plugins/containers-plugin
     - plugins/workspace-plugin

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { Preferences, User, UserService } from '../common/user-service';
+import { Preferences, User, UserService } from '@eclipse-che/theia-remote-api/lib/common/user-service';
 import { inject, injectable } from 'inversify';
 
 import { CheServerRemoteApiImpl } from './che-server-remote-api-impl';
