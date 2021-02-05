@@ -12,8 +12,7 @@
 
 <div id="badges" align="center">
 
-  [![Build Status](https://ci.centos.org/buildStatus/icon?job=devtools-che-theia-che-build-master)](https://ci.centos.org/view/Devtools/job/devtools-che-theia-che-build-master/)
-  [![Build Status](https://ci.centos.org/buildStatus/icon?job=devtools-che-theia-che-nightly)](https://ci.centos.org/view/Devtools/job/devtools-che-theia-che-nightly/)
+  [![Build Status](https://github.com/eclipse/che-theia/workflows/Build%20&%20Publish%20%60next%60/badge.svg)](https://github.com/eclipse/che-theia/actions?query=workflow%3A%22Build+%26+Publish+%60next%60%22)
   [![mattermost](https://img.shields.io/badge/chat-on%20mattermost-blue.svg)](https://mattermost.eclipse.org/eclipse/channels/eclipse-che-ide2-team)
   [![Open questions](https://img.shields.io/badge/Open-questions-blue.svg?style=flat-curved)](https://github.com/eclipse/che/issues?utf8=%E2%9C%93&q=label%3Aarea%2Ftheia+label%3Akind%2Fquestion+)
   [![Open bugs](https://img.shields.io/badge/Open-bugs-red.svg?style=flat-curved)](https://github.com/eclipse/che/issues?utf8=%E2%9C%93&q=label%3Aarea%2Ftheia+label%3Akind%2Fbug+)

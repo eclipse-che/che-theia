@@ -9,24 +9,4 @@
 #
 # See: https://sipb.mit.edu/doc/safe-shell/
 
-# Output command before executing
-set -x
-
-# Exit on error
-set -e
-
-#include common scripts
-. ./cico_common.sh
-
-install_deps
-load_jenkins_vars
-
-#Set images tag to current commit id. 
-sed -i -e 's/IMAGE_TAG="..*"/IMAGE_TAG="'${GIT_COMMIT}'"/' build.include
-
-
-. ./build.include
-
-parse "$@"
-
-buildImages
+echo "Build is moved to GitHub Workflow"
