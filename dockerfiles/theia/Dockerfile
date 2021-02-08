@@ -85,7 +85,7 @@ RUN rm -rf ${HOME}/theia-source-code/examples/browser && \
     # change update goal to be the eclipse che assembly
     sed -i 's|.*"prepare:build".*|    \"prepare:build\"\: \"yarn build \&\& lerna run build\", |' ${HOME}/theia-source-code/package.json && \
     cat ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json
-
+    
 RUN che-theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 
 # Compile Theia
