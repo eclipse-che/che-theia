@@ -1,0 +1,57 @@
+---
+apiVersion: 1.0.0
+metadata:
+  generateName: java-maven-
+projects:
+  - name: console-java-simple
+    source:
+      type: git
+      location: 'https://github.com/che-samples/console-java-simple.git'
+      branch: java1.11
+components:
+  - type: chePlugin
+    id: redhat/java/latest
+    preferences:
+      java.server.launchMode: Standard
+  - type: dockerimage
+    alias: maven
+    image: quay.io/eclipse/che-java11-maven:nightly
+    env:
+      - name: MAVEN_CONFIG
+        value: ''
+      - name: MAVEN_OPTS
+        value: '-XX:MaxRAMPercentage=50 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10
+          -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90
+          -Dsun.zip.disableMemoryMapping=true -Xms20m -Djava.security.egd=file:/dev/./urandom
+          -Duser.home=/home/user'
+      - name: JAVA_OPTS
+        value: '-XX:MaxRAMPercentage=50 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10
+          -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90
+          -Dsun.zip.disableMemoryMapping=true -Xms20m -Djava.security.egd=file:/dev/./urandom'
+      - name: JAVA_TOOL_OPTIONS
+        value: '-XX:MaxRAMPercentage=50 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10
+          -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90
+          -Dsun.zip.disableMemoryMapping=true -Xms20m -Djava.security.egd=file:/dev/./urandom'
+    memoryLimit: 512Mi
+    mountSources: true
+    volumes:
+      - name: m2
+        containerPath: /home/user/.m2
+    endpoints:
+      - name: 'debug'
+        port: 5005
+        attributes:
+          public: 'false'
+commands:
+  - name: maven build
+    actions:
+      - type: exec
+        component: maven
+        command: 'mvn clean install'
+        workdir: ${CHE_PROJECTS_ROOT}/console-java-simple
+  - name: maven build and run
+    actions:
+      - type: exec
+        component: maven
+        command: 'mvn clean install && java -jar ./target/*.jar'
+        workdir: ${CHE_PROJECTS_ROOT}/console-java-simple

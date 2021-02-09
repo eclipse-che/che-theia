@@ -31,6 +31,7 @@ import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/brows
 import { inject, injectable } from 'inversify';
 
 import { BrowserMainMenuFactory } from '@theia/core/lib/browser/menu/browser-menu-plugin';
+import { EndpointService } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { MenuBar as MenuBarWidget } from '@phosphor/widgets';
 import { TERMINAL_WIDGET_FACTORY_ID } from '@theia/terminal/lib/browser/terminal-widget-impl';
@@ -67,6 +68,9 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
 
   @inject(WorkspaceService)
   protected readonly remoteWorkspaceService: WorkspaceService;
+
+  @inject(EndpointService)
+  protected readonly endpointService: EndpointService;
 
   @inject(EnvVariablesServer)
   protected readonly baseEnvVariablesServer: EnvVariablesServer;
@@ -214,7 +218,12 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
 
   async getEditorContainerName(): Promise<string | undefined> {
     if (!this.editorContainerName) {
-      this.editorContainerName = await this.remoteWorkspaceService.findEditorContainer();
+      const ideComponents = await this.endpointService.getEndpointsByType('ide');
+      if (ideComponents.length !== 1) {
+        throw new Error('Only one endpoint should be of ide type.');
+      }
+      const ideComponent = ideComponents[0];
+      this.editorContainerName = ideComponent.component;
     }
     return this.editorContainerName;
   }

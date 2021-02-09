@@ -14,17 +14,17 @@ import * as ws from 'ws';
 
 import { Container, inject, injectable } from 'inversify';
 
+import { EndpointService } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
 import { MessagingContribution } from '@theia/core/lib/node/messaging/messaging-contribution';
 import URI from '@theia/core/lib/common/uri';
-import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 @injectable()
 export class CheMessagingContribution extends MessagingContribution {
   private connectionContainers: Set<Container> = new Set();
   private connectionContainersMap: Map<ws, Container> = new Map();
 
-  @inject(WorkspaceService)
-  protected workspaceService: WorkspaceService;
+  @inject(EndpointService)
+  protected endpointService: EndpointService;
 
   /**
    * Keep reference to containers used by connections
@@ -53,24 +53,8 @@ export class CheMessagingContribution extends MessagingContribution {
   }
 
   async isRequestAllowed(request: http.IncomingMessage): Promise<boolean> {
-    const theiaEndpoints = [];
-    try {
-      const containers = await this.workspaceService.getCurrentWorkspacesContainers();
-      for (const containerName of Object.keys(containers)) {
-        const servers = containers[containerName].servers;
-        if (servers) {
-          for (const serverName of Object.keys(servers)) {
-            const server = servers[serverName];
-            if (serverName === 'theia' || serverName === 'theia-dev' || serverName === 'theia-dev-flow') {
-              theiaEndpoints.push(new URI(server.url));
-            }
-          }
-        }
-      }
-    } catch (e) {
-      console.error(e);
-      return true; // we're outside of Che Workspace, so allow a request
-    }
+    const theiaEndpoints = await this.endpointService.getEndpointsByName('theia', 'theia-dev', 'theia-dev-flow');
+    const theiaEndpointsUri = theiaEndpoints.map(endpoint => new URI(endpoint.url));
 
     const requestOrigin = request.headers.origin;
     if (typeof requestOrigin !== 'string') {
@@ -78,7 +62,7 @@ export class CheMessagingContribution extends MessagingContribution {
     }
     const requestOriginURI = new URI(requestOrigin);
 
-    return theiaEndpoints.some(uri => requestOriginURI.isEqualOrParent(uri));
+    return theiaEndpointsUri.some(uri => requestOriginURI.isEqualOrParent(uri));
   }
 
   public getConnectionContainers(): Container[] {

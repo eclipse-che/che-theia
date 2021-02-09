@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import { DevfileComponentStatus, DevfileService } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 import { TaskResolver, TaskResolverRegistry } from '@theia/task/lib/browser';
 import { inject, injectable, postConstruct } from 'inversify';
 
@@ -15,14 +16,14 @@ import { ContainerPicker } from './container-picker';
 import { TaskConfiguration } from '@theia/task/lib/common';
 import { VariableResolverService } from '@theia/variable-resolver/lib/browser';
 import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
-import { che as cheApi } from '@eclipse-che/api';
-
-const COMPONENT_ATTRIBUTE: string = 'component';
 
 @injectable()
 export class CheTaskResolver implements TaskResolver {
   @inject(WorkspaceService)
   protected readonly workspaceService: WorkspaceService;
+
+  @inject(DevfileService)
+  protected readonly devfileService: DevfileService;
 
   @inject(VariableResolverService)
   protected readonly variableResolverService: VariableResolverService;
@@ -34,14 +35,14 @@ export class CheTaskResolver implements TaskResolver {
   protected readonly taskResolverRegistry: TaskResolverRegistry;
 
   private workspaceId: string | undefined;
-  private containers: { name: string; container: cheApi.workspace.Machine }[] = [];
+  private componentStatuses: DevfileComponentStatus[];
 
   @postConstruct()
   protected init(): void {
     this.taskResolverRegistry.register('che', this);
 
     this.getWorkspaceId();
-    this.getWorkspaceContainers();
+    this.getComponentStatuses();
   }
 
   async resolveTask(taskConfig: TaskConfiguration): Promise<TaskConfiguration> {
@@ -75,7 +76,7 @@ export class CheTaskResolver implements TaskResolver {
       return this.containerPicker.pick();
     }
 
-    const containers = await this.getWorkspaceContainers();
+    const containers = await this.getComponentStatuses();
 
     const containerName = target && target.containerName;
     if (containerName && containers.find(container => container.name === containerName)) {
@@ -90,22 +91,17 @@ export class CheTaskResolver implements TaskResolver {
       return undefined;
     }
 
-    const containers = await this.getWorkspaceContainers();
-    const names = [];
-    for (const containerEntity of containers) {
-      const container = containerEntity.container;
-      const component = getAttribute(COMPONENT_ATTRIBUTE, container.attributes);
-      if (component && component === targetComponent) {
-        names.push(containerEntity.name);
-      }
+    const components = await this.getComponentStatuses();
+    const containers = components
+      .filter(component => component.name === targetComponent)
+      .map(container => container.name);
+
+    if (containers.length === 1) {
+      return containers[0];
     }
 
-    if (names.length === 1) {
-      return names[0];
-    }
-
-    if (names.length > 1) {
-      return this.containerPicker.pick(names);
+    if (containers.length > 1) {
+      return this.containerPicker.pick(containers);
     }
     return undefined;
   }
@@ -119,26 +115,12 @@ export class CheTaskResolver implements TaskResolver {
     return this.workspaceId;
   }
 
-  private async getWorkspaceContainers(): Promise<{ name: string; container: cheApi.workspace.Machine }[]> {
-    if (this.containers.length > 0) {
-      return this.containers;
+  private async getComponentStatuses(): Promise<DevfileComponentStatus[]> {
+    if (!this.componentStatuses) {
+      this.componentStatuses = await this.devfileService.getComponentStatuses();
     }
 
-    this.containers = [];
-    try {
-      const containersList = await this.workspaceService.getCurrentWorkspacesContainers();
-      for (const containerName in containersList) {
-        if (!containersList.hasOwnProperty(containerName)) {
-          continue;
-        }
-        const container = { name: containerName, container: containersList[containerName] };
-        this.containers.push(container);
-      }
-    } catch (e) {
-      throw new Error('Unable to get list workspace containers. Cause: ' + e);
-    }
-
-    return this.containers;
+    return this.componentStatuses;
   }
 }
 
