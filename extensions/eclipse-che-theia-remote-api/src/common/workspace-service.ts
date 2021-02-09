@@ -12,7 +12,36 @@ import { che as cheApi } from '@eclipse-che/api';
 
 export const cheWorkspaceServicePath = '/services/che-workspace-service';
 
-export interface Workspace extends cheApi.workspace.Workspace {}
+export interface Workspace {
+  /**
+   * @deprecated There is not anymore temporary workspace
+   */
+  temporary?: boolean;
+
+  /**
+   * @deprecated devfile should be grabbed using devfile.get()
+   */
+  devfile?: cheApi.workspace.devfile.Devfile;
+
+  namespace?: string;
+
+  /**
+   * @deprecated should use devfileService or endpointService instead
+   */
+  runtime?: cheApi.workspace.Runtime;
+
+  links?: { [key: string]: string };
+
+  attributes?: { [key: string]: string };
+
+  id?: string;
+
+  name?: string;
+
+  config?: cheApi.workspace.WorkspaceConfig;
+
+  status?: 'STARTING' | 'RUNNING' | 'STOPPING' | 'STOPPED';
+}
 
 export interface Container extends cheApi.workspace.Machine {
   name: string;
@@ -40,8 +69,4 @@ export interface WorkspaceService {
   stop(): Promise<void>;
 
   getContainerList(): Promise<Container[]>;
-
-  findTerminalServer(): Promise<Endpoint | undefined>;
-
-  findEditorContainer(): Promise<string | undefined>;
 }

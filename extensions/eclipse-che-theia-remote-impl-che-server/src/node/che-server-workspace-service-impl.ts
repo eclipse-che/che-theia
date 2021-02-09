@@ -19,9 +19,6 @@ import { inject, injectable } from 'inversify';
 
 import { CheServerRemoteApiImpl } from './che-server-remote-api-impl';
 
-const TYPE: string = 'type';
-const EDITOR_SERVER_TYPE: string = 'ide';
-
 @injectable()
 export class CheServerWorkspaceServiceImpl implements WorkspaceService {
   @inject(CheServerRemoteApiImpl)
@@ -141,48 +138,5 @@ export class CheServerWorkspaceServiceImpl implements WorkspaceService {
     }
 
     return containers;
-  }
-
-  public async findTerminalServer(): Promise<Endpoint | undefined> {
-    const containers = await this.getContainerList();
-
-    for (const container of containers) {
-      const servers = container.servers || {};
-      for (const serverName in servers) {
-        if (!servers.hasOwnProperty(serverName)) {
-          continue;
-        }
-        const attrs = servers[serverName].attributes || {};
-
-        for (const attrName in attrs) {
-          if (attrName === TYPE && attrs[attrName] === 'terminal') {
-            return servers[serverName];
-          }
-        }
-      }
-    }
-
-    return undefined;
-  }
-
-  public async findEditorContainer(): Promise<string | undefined> {
-    const containers = await this.getContainerList();
-
-    for (const container of containers) {
-      const servers = container.servers || {};
-      for (const serverName in servers) {
-        if (!servers.hasOwnProperty(serverName)) {
-          continue;
-        }
-        const attrs = servers[serverName].attributes || {};
-        for (const attrName in attrs) {
-          if (attrName === TYPE && attrs[attrName] === EDITOR_SERVER_TYPE) {
-            return container.name;
-          }
-        }
-      }
-    }
-
-    return undefined;
   }
 }

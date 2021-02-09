@@ -1,0 +1,81 @@
+metadata:
+  name: rewine-backend
+projects:
+  - name: rewine-backend
+    source:
+      location: 'https://github.com/foo/backend.git'
+      type: git
+      branch: master
+components:
+  - id: redhat/quarkus-java11/latest
+    type: chePlugin
+  - mountSources: true
+    endpoints:
+      - name: quarkus-development-server
+        port: 8080
+    memoryLimit: 512Mi
+    type: dockerimage
+    volumes:
+      - name: m2
+        containerPath: /home/jboss/.m2
+    alias: maven
+    image: >-
+      registry.redhat.io/codeready-workspaces/plugin-java11-rhel8@sha256:38e363ba28941e6ef688d511c388324d0f83f7a1fac3eb65e09aa50858f0ae84
+    env:
+      - value: >-
+          -XX:MaxRAMPercentage=50.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10
+          -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4
+          -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true
+          -Xms20m -Djava.security.egd=file:/dev/./urandom
+          -Duser.home=/home/jboss
+        name: JAVA_OPTS
+      - value: $(JAVA_OPTS)
+        name: MAVEN_OPTS
+  - id: redhat/vscode-openshift-connector/latest
+    type: chePlugin
+apiVersion: 1.0.0
+commands:
+  - name: Attach remote debugger
+    actions:
+      - referenceContent: |
+          {
+            "version": "0.2.0",
+            "configurations": [
+              {
+                "type": "java",
+                "request": "attach",
+                "name": "Attach to Remote Quarkus App",
+                "hostName": "localhost",
+                "port": 5005
+              }
+            ]
+          }
+        type: vscode-launch
+  - name: Configure tasks
+    actions:
+      - referenceContent: |
+          {
+            "tasks": [
+              {
+                  "type": "che",
+                  "label": "Package",
+                  "command": "mvn package",
+                  "target": {
+                      "workingDir": "${CHE_PROJECTS_ROOT}/rewine-backend",
+                      "component": "maven"
+                  },
+                  "problemMatcher": []
+              },
+              {
+                  "type": "che",
+                  "label": "Start in Devmode (hot deploy + debug)",
+                  "command": "mvn compile quarkus:dev",
+                  "target": {
+                      "workingDir": "${CHE_PROJECTS_ROOT}/rewine-backend",
+                      "component": "maven"
+                  },
+                  "problemMatcher": []
+              }
+            ]
+          }
+        type: vscode-task

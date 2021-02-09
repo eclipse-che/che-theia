@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2019-2020 Red Hat, Inc.
+ * Copyright (c) 2019-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -16,68 +16,50 @@ import {
 } from '@theia/core/lib/browser';
 import { inject, injectable } from 'inversify';
 
-import { WorkspaceService as CheWorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
+import { DevfileService } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 import { WorkspaceService } from '@theia/workspace/lib/browser';
-import { che } from '@eclipse-che/api';
 
 @injectable()
 export class PreferencesProvider implements FrontendApplicationContribution {
-  @inject(CheWorkspaceService)
-  private devWorkspaceService: CheWorkspaceService;
+  @inject(DevfileService)
+  private devfileService: DevfileService;
 
-  constructor(
-    @inject(PreferenceServiceImpl) private readonly preferenceService: PreferenceServiceImpl,
-    @inject(WorkspaceService) private readonly workspaceService: WorkspaceService
-  ) {}
+  @inject(PreferenceServiceImpl)
+  private readonly preferenceService: PreferenceServiceImpl;
 
-  private getPluginsProperties(workspace: che.workspace.Workspace): [string, string][] {
-    if (!!workspace.devfile) {
-      return this.getPropsFromDevfile(workspace);
-    } else if (!!workspace.config) {
-      return this.getPropsFromConfig(workspace);
-    }
-    throw new TypeError('Can\'t get either "config" or "devfile" of current workspace configuration.');
-  }
+  @inject(WorkspaceService)
+  private readonly workspaceService: WorkspaceService;
 
-  private getPropsFromConfig(workspace: che.workspace.Workspace): [string, string][] {
-    const attributes = workspace.config!.attributes;
-    if (!attributes) {
-      return [];
-    }
-
-    return Object.keys(attributes)
-      .filter((attrKey: string) => attrKey.indexOf('plugin.') === 0 && attrKey.indexOf('.preference.') !== -1)
-      .map((attrKey: string) => <[string, string]>[attrKey.split('.preference.')[1], attributes[attrKey]]);
-  }
-
-  private getPropsFromDevfile(workspace: che.workspace.Workspace): [string, string][] {
-    const components = workspace.devfile!.components;
+  private async getPluginsProperties(): Promise<[string, string][]> {
+    const devfile = await this.devfileService.get();
+    const components = devfile.components;
     if (!components) {
       throw new TypeError('Can\'t get "components" of current workspace "devfile" section.');
     }
 
-    return (
-      components
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .filter((component: che.workspace.devfile.Component) => (<any>component).preferences)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((component: che.workspace.devfile.Component) => (<any>component).preferences)
-        .reduce((result: [string, string][], preferences: { [key: string]: string }) => {
-          Object.keys(preferences).forEach(key => {
-            result.push(<[string, string]>[key, preferences[key]]);
-          });
-          return result;
-        }, [])
-    );
+    return components
+      .map(component => {
+        if (component.plugin) {
+          return component.plugin.preferences || {};
+        } else {
+          return {};
+        }
+      })
+      .reduce((result: [string, string][], preferences: { [key: string]: string }) => {
+        Object.keys(preferences).forEach(key => {
+          result.push(<[string, string]>[key, preferences[key]]);
+        });
+        return result;
+      }, []);
   }
 
-  private async setPluginProperties(props: [string, string][]): Promise<void> {
+  async setPluginProperties(props: [string, string][]): Promise<void> {
     await this.workspaceService.roots;
     for (const [key, value] of props) {
       try {
         this.setPreferenceValue(key, JSON.parse(value));
       } catch (error) {
-        console.warn('could not parse value for preference key %s, using string value: %o', key, error);
+        console.warn('could not parse value for preference key %s, using string value: %o', key, value, error);
         this.setPreferenceValue(key, value);
       }
     }
@@ -91,8 +73,7 @@ export class PreferencesProvider implements FrontendApplicationContribution {
   }
 
   async restorePluginProperties(): Promise<void> {
-    const workspace = await this.devWorkspaceService.currentWorkspace();
-    const propsTuples = this.getPluginsProperties(workspace);
+    const propsTuples = await this.getPluginsProperties();
     return this.setPluginProperties(propsTuples);
   }
 

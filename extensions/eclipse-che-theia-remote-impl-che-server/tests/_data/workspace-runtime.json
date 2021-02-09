@@ -1,0 +1,303 @@
+{
+  "links": {
+    "self": "https://che.openshift.io/api/workspace/workspacenvu80n6bjjqcxtjj",
+    "ide": "https://che.openshift.io/foo@bar.com/java-maven-xzl0e",
+    "environment/statusChannel": "wss://che.openshift.io/api/websocket",
+    "environment/outputChannel": "wss://che.openshift.io/api/websocket"
+  },
+  "attributes": {
+    "stackName": "Java Maven",
+    "org.eclipse.che.runtimes_id": "foo",
+    "infrastructureNamespace": "foo",
+    "updated": "1612530162103",
+    "created": "1612530072845"
+  },
+  "namespace": "foo@bar.com",
+  "id": "workspacenvu80n6bjjqcxtjj",
+  "temporary": false,
+  "status": "RUNNING",
+  "runtime": {
+    "machines": {
+      "che-machine-execwq5": {
+        "attributes": {
+          "plugin": "eclipse/che-machine-exec-plugin/7.24.2",
+          "memoryRequestBytes": "67108864",
+          "memoryLimitBytes": "157286400",
+          "source": "tool",
+          "cpuLimitCores": "0.0",
+          "cpuRequestCores": "0.0"
+        },
+        "servers": {
+          "che-machine-exec": {
+            "url": "wss://route5miqjz34-che.8a09.starter-us-east-2.openshiftapps.com",
+            "attributes": {
+              "internal": "false",
+              "port": "4444",
+              "discoverable": "false",
+              "cookiesAuthEnabled": "true",
+              "secure": "true",
+              "type": "terminal",
+              "endpointOrigin": "/"
+            },
+            "status": "UNKNOWN"
+          }
+        },
+        "status": "RUNNING"
+      },
+      "che-jwtproxy": {
+        "attributes": {
+          "memoryLimitBytes": "157286400",
+          "memoryRequestBytes": "15728640",
+          "source": "tool",
+          "cpuRequestCores": "0.03",
+          "cpuLimitCores": "0.5"
+        },
+        "status": "RUNNING"
+      },
+      "maven": {
+        "attributes": {
+          "component": "maven",
+          "memoryRequestBytes": "209715200",
+          "memoryLimitBytes": "536870912",
+          "source": "recipe",
+          "cpuLimitCores": "0.0",
+          "cpuRequestCores": "0.0"
+        },
+        "status": "RUNNING"
+      },
+      "theia-ide9fa": {
+        "attributes": {
+          "plugin": "eclipse/che-theia/7.24.2",
+          "memoryRequestBytes": "67108864",
+          "memoryLimitBytes": "512000000",
+          "source": "tool",
+          "cpuLimitCores": "0.0",
+          "cpuRequestCores": "0.0"
+        },
+        "servers": {
+          "webviews": {
+            "url": "https://routeqrwnpq0u-che.8a09.starter-us-east-2.openshiftapps.com",
+            "attributes": {
+              "internal": "false",
+              "port": "3100",
+              "discoverable": "false",
+              "unique": "true",
+              "cookiesAuthEnabled": "true",
+              "secure": "true",
+              "type": "webview",
+              "endpointOrigin": "/"
+            },
+            "status": "UNKNOWN"
+          },
+          "mini-browser": {
+            "url": "https://routec6f5mpks-che.8a09.starter-us-east-2.openshiftapps.com",
+            "attributes": {
+              "internal": "false",
+              "port": "3100",
+              "discoverable": "false",
+              "unique": "true",
+              "cookiesAuthEnabled": "true",
+              "secure": "true",
+              "type": "mini-browser",
+              "endpointOrigin": "/"
+            },
+            "status": "UNKNOWN"
+          },
+          "theia": {
+            "url": "https://route4if6ve1d-che.8a09.starter-us-east-2.openshiftapps.com",
+            "attributes": {
+              "internal": "false",
+              "port": "3100",
+              "discoverable": "false",
+              "cookiesAuthEnabled": "true",
+              "secure": "true",
+              "type": "ide",
+              "endpointOrigin": "/"
+            },
+            "status": "RUNNING"
+          },
+          "theia-dev": {
+            "url": "https://route4q6bj41w-che.8a09.starter-us-east-2.openshiftapps.com",
+            "attributes": {
+              "internal": "false",
+              "type": "ide-dev",
+              "port": "3130",
+              "discoverable": "false",
+              "endpointOrigin": "/"
+            },
+            "status": "UNKNOWN"
+          },
+          "theia-redirect-3": {
+            "url": "https://routed3h1aw0e-che.8a09.starter-us-east-2.openshiftapps.com",
+            "attributes": {
+              "internal": "false",
+              "port": "13133",
+              "discoverable": "false",
+              "endpointOrigin": "/"
+            },
+            "status": "UNKNOWN"
+          },
+          "theia-redirect-2": {
+            "url": "https://route1uqvjnuy-che.8a09.starter-us-east-2.openshiftapps.com",
+            "attributes": {
+              "internal": "false",
+              "port": "13132",
+              "discoverable": "false",
+              "endpointOrigin": "/"
+            },
+            "status": "UNKNOWN"
+          },
+          "theia-redirect-1": {
+            "url": "https://route8mbhvseu-che.8a09.starter-us-east-2.openshiftapps.com",
+            "attributes": {
+              "internal": "false",
+              "port": "13131",
+              "discoverable": "false",
+              "endpointOrigin": "/"
+            },
+            "status": "UNKNOWN"
+          }
+        },
+        "status": "RUNNING"
+      },
+      "che-workspace-telemetry-woopra-plugin75t": {
+        "attributes": {
+          "plugin": "eclipse/che-workspace-telemetry-woopra-plugin/0.0.1",
+          "memoryRequestBytes": "67108864",
+          "memoryLimitBytes": "157286400",
+          "source": "tool",
+          "cpuLimitCores": "0.0",
+          "cpuRequestCores": "0.0"
+        },
+        "status": "RUNNING"
+      },
+      "vscode-javais4": {
+        "attributes": {
+          "plugin": "redhat/java/latest",
+          "memoryRequestBytes": "67108864",
+          "memoryLimitBytes": "1572864000",
+          "source": "tool",
+          "cpuLimitCores": "0.0",
+          "cpuRequestCores": "0.0"
+        },
+        "status": "RUNNING"
+      }
+    },
+    "activeEnv": "default",
+    "commands": [
+      {
+        "commandLine": "mvn clean install \u0026\u0026 java -jar ./target/*.jar",
+        "name": "maven build and run",
+        "attributes": {
+          "componentAlias": "maven",
+          "machineName": "maven",
+          "workingDir": "${CHE_PROJECTS_ROOT}/console-java-simple"
+        },
+        "type": "exec"
+      },
+      {
+        "commandLine": "mvn clean install",
+        "name": "maven build",
+        "attributes": {
+          "componentAlias": "maven",
+          "machineName": "maven",
+          "workingDir": "${CHE_PROJECTS_ROOT}/console-java-simple"
+        },
+        "type": "exec"
+      }
+    ],
+    "machineToken": "eyJhbGciOiJSUzI1NiIsImtpbmQiOiJtYWNoaW5lX3Rva2VuIiwia2lkIjoid29ya3NwYWNlbnZ1ODBuNmJqanFjeHRqaiJ9.eyJ3c2lkIjoid29ya3NwYWNlbnZ1ODBuNmJqanFjeHRqaiIsInVpZCI6IjcwMGY5NDEwLWIzZTYtNGZmNy1iYWViLWZjZWY0YTAzOWZlYyIsImF1ZCI6IndvcmtzcGFjZW52dTgwbjZiampxY3h0amoiLCJuYmYiOi0xLCJ1bmFtZSI6ImZiZW5vaXRAcmVkaGF0LmNvbSIsImlzcyI6IndzbWFzdGVyIiwiZXhwIjoxNjQ0MDY2MTA2LCJpYXQiOjE2MTI1MzAxMDYsImp0aSI6ImZlNjQyM2VjLTRjYWYtNDNmMy1hM2Q4LThjMmUzNzBkNTJlYSJ9.lySMa5IdTLlnKOiowRM3PZD4yAX5LdbhGdYDAw-0CO_nFxPgkM0fXsaXVFkovKQEa59aRi_mz4xcxXBxqu6G-XoYEgG-7vGh72IQrynkE-PePM_HPYPviRLjWaFj85TNpN0CovzKLX29y8ZmeHKA1D5fKNY7Wp9HNn0Xzr4ZPEMlJw41mvw-grc517LW9MQrBeR9FOK5NhxkCQVPrVpwkff90YGQTpFSBn66hvhozUWAgfnen_dnfFINib5Iqua7h7-TgCcg2RV7wXSlShfyuwQaEMT57XfWUzwZ0Sb_POln1NMtu_iO7cLNS5GyS39KGTxS9NUsMs5Sg5HsBAC6Dg"
+  },
+  "devfile": {
+    "metadata": {
+      "name": "java-maven-xzl0e"
+    },
+    "attributes": {
+      "persistVolumes": "false"
+    },
+    "projects": [
+      {
+        "name": "console-java-simple",
+        "source": {
+          "location": "https://github.com/che-samples/console-java-simple.git",
+          "type": "git",
+          "branch": "java1.11"
+        }
+      }
+    ],
+    "components": [
+      {
+        "id": "redhat/java/latest",
+        "preferences": {
+          "java.server.launchMode": "Standard"
+        },
+        "type": "chePlugin"
+      },
+      {
+        "mountSources": true,
+        "endpoints": [
+          {
+            "name": "debug",
+            "port": 5005,
+            "attributes": {
+              "public": "false"
+            }
+          }
+        ],
+        "memoryLimit": "512Mi",
+        "type": "dockerimage",
+        "volumes": [
+          {
+            "name": "m2",
+            "containerPath": "/home/user/.m2"
+          }
+        ],
+        "image": "quay.io/eclipse/che-java11-maven:nightly",
+        "alias": "maven",
+        "env": [
+          {
+            "value": "",
+            "name": "MAVEN_CONFIG"
+          },
+          {
+            "value": "-XX:MaxRAMPercentage\u003d50 -XX:+UseParallelGC -XX:MinHeapFreeRatio\u003d10 -XX:MaxHeapFreeRatio\u003d20 -XX:GCTimeRatio\u003d4 -XX:AdaptiveSizePolicyWeight\u003d90 -Dsun.zip.disableMemoryMapping\u003dtrue -Xms20m -Djava.security.egd\u003dfile:/dev/./urandom -Duser.home\u003d/home/user",
+            "name": "MAVEN_OPTS"
+          },
+          {
+            "value": "-XX:MaxRAMPercentage\u003d50 -XX:+UseParallelGC -XX:MinHeapFreeRatio\u003d10 -XX:MaxHeapFreeRatio\u003d20 -XX:GCTimeRatio\u003d4 -XX:AdaptiveSizePolicyWeight\u003d90 -Dsun.zip.disableMemoryMapping\u003dtrue -Xms20m -Djava.security.egd\u003dfile:/dev/./urandom",
+            "name": "JAVA_OPTS"
+          },
+          {
+            "value": "-XX:MaxRAMPercentage\u003d50 -XX:+UseParallelGC -XX:MinHeapFreeRatio\u003d10 -XX:MaxHeapFreeRatio\u003d20 -XX:GCTimeRatio\u003d4 -XX:AdaptiveSizePolicyWeight\u003d90 -Dsun.zip.disableMemoryMapping\u003dtrue -Xms20m -Djava.security.egd\u003dfile:/dev/./urandom",
+            "name": "JAVA_TOOL_OPTIONS"
+          }
+        ]
+      }
+    ],
+    "apiVersion": "1.0.0",
+    "commands": [
+      {
+        "name": "maven build",
+        "actions": [
+          {
+            "workdir": "${CHE_PROJECTS_ROOT}/console-java-simple",
+            "type": "exec",
+            "command": "mvn clean install",
+            "component": "maven"
+          }
+        ]
+      },
+      {
+        "name": "maven build and run",
+        "actions": [
+          {
+            "workdir": "${CHE_PROJECTS_ROOT}/console-java-simple",
+            "type": "exec",
+            "command": "mvn clean install \u0026\u0026 java -jar ./target/*.jar",
+            "component": "maven"
+          }
+        ]
+      }
+    ]
+  }
+}

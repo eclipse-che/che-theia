@@ -12,9 +12,11 @@ import { AbstractDialog, ConfirmDialog, DefaultUriLabelProviderContribution } fr
 import { FileDialogService, FileDialogTreeFilters, OpenFileDialogProps } from '@theia/filesystem/lib/browser';
 import { THEIA_EXT, VSCODE_EXT } from '@theia/workspace/lib/common';
 import { WorkspaceService as TheiaWorkspaceService, WorkspacePreferences } from '@theia/workspace/lib/browser';
+import { Workspace, WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { inject, injectable } from 'inversify';
 
 import { CheWorkspaceCommands } from './che-workspace-contribution';
+import { DevfileService } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 import { FileService } from '@theia/filesystem/lib/browser/file-service';
 import { FileStat } from '@theia/filesystem/lib/common/files';
 import { Key } from '@theia/core/lib/browser/keyboard/keys';
@@ -22,10 +24,6 @@ import { Message } from '@theia/core/lib/browser/widgets';
 import { QuickOpenCheWorkspace } from './che-quick-open-workspace';
 import { QuickOpenWorkspace } from '@theia/workspace/lib/browser/quick-open-workspace';
 import URI from '@theia/core/lib/common/uri';
-import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
-import { che } from '@eclipse-che/api';
-
-const YAML = require('js-yaml');
 
 export class StopWorkspaceDialog extends AbstractDialog<boolean | undefined> {
   protected confirmed: boolean | undefined = true;
@@ -85,6 +83,7 @@ export class StopWorkspaceDialog extends AbstractDialog<boolean | undefined> {
 @injectable()
 export class CheWorkspaceController {
   @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService;
+  @inject(DevfileService) protected readonly devfileService: DevfileService;
   @inject(QuickOpenCheWorkspace) protected readonly quickOpenWorkspace: QuickOpenCheWorkspace;
   @inject(QuickOpenWorkspace) protected readonly quickOpenRecentWorkspaceRoots: QuickOpenWorkspace;
   @inject(TheiaWorkspaceService) protected readonly theiaWorkspaceService: TheiaWorkspaceService;
@@ -111,7 +110,7 @@ export class CheWorkspaceController {
   }
 
   private doOpenWorkspace(recent: boolean): Promise<void> {
-    return this.quickOpenWorkspace.select(recent, async (workspace: che.workspace.Workspace) => {
+    return this.quickOpenWorkspace.select(recent, async (workspace: Workspace) => {
       const dialog = new StopWorkspaceDialog();
       const result = await dialog.open();
       if (typeof result === 'boolean') {
@@ -255,12 +254,7 @@ export class CheWorkspaceController {
     } while (selected && exist && !overwrite);
 
     if (selected) {
-      const workspace = await this.workspaceService.currentWorkspace();
-      if (!workspace.devfile) {
-        return;
-      }
-
-      const devfileContent = YAML.safeDump(workspace.devfile);
+      const devfileContent = await this.devfileService.getRaw();
       await this.writeDevfileFile(selected, devfileContent);
     }
   }
