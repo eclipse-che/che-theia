@@ -8,7 +8,7 @@ components:
       - tail
       - '-f'
       - /dev/null
-    memoryLimit: 512Gi
+    memoryLimit: 1Gi
     type: dockerimage
     image: 'quay.io/eclipse/che-theia:next'
     alias: che-theia-next-prod
