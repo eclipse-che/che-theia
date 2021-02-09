@@ -42,10 +42,9 @@ commands:
     actions:
       - workdir: '${fileDirname}'
         type: exec
-        command: >
-          echo "build from ${fileDirname}" && killall node; yarn || (yarn
-          lint:fix && yarn format:fix && yarn) && echo -e "\e[32mDone.\e[0m
-          build ... from folder ${fileDirname}"
+        command: |
+          echo "build from ${fileDirname}" && killall node;
+          yarn --ignore-scripts && yarn lint:fix && yarn format:fix && yarn && echo -e "\e[32mDone build from folder ${fileDirname}\e[0m"
         component: dev
 
   - name: test-watch ... current yarn project
