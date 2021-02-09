@@ -11,7 +11,7 @@ components:
     memoryLimit: 512Gi
     type: dockerimage
     image: 'quay.io/eclipse/che-theia:next'
-    alias: che-theia-next-dev
+    alias: che-theia-next-prod
     env:
       - value: 0.0.0.0
         name: THEIA_HOST
@@ -24,7 +24,7 @@ components:
     memoryLimit: 3Gi
     type: dockerimage
     image: 'quay.io/eclipse/che-theia-dev:next'
-    alias: che-dev
+    alias: dev
 
   - id: redhat/vscode-yaml/latest
     type: chePlugin
@@ -46,7 +46,7 @@ commands:
           echo "build from ${fileDirname}" && killall node; yarn || (yarn
           lint:fix && yarn format:fix && yarn) && echo -e "\e[32mDone.\e[0m
           build ... from folder ${fileDirname}"
-        component: che-dev
+        component: dev
 
   - name: test-watch ... current yarn project
     actions:
@@ -55,7 +55,7 @@ commands:
         command: >
           echo "yarn test:watch from ${fileDirname}" && killall node; yarn
           test:watch
-        component: che-dev
+        component: dev
 
   - name: build current plugin ... and run with che-theia
     previewUrl:
@@ -78,4 +78,4 @@ commands:
             exit 1;
           fi
           mkdir -p /tmp/theiadev_projects && export CHE_PROJECTS_ROOT=/tmp/theiadev_projects && cp "$project_folder"/*.theia /default-theia-plugins/ && /entrypoint.sh
-        component: che-theia-next-dev
+        component: che-theia-next-prod
