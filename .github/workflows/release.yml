@@ -22,6 +22,8 @@ on:
         default: 'false'
       pushToNpmJs:
         description: If true, will push images to npmjs
+        required: false
+        default: 'true'
 
 jobs:
   build:
@@ -71,6 +73,8 @@ jobs:
         CDN_PREFIX: https://static.developers.redhat.com/che/theia_artifacts/
         MONACO_CDN_PREFIX: https://cdn.jsdelivr.net/npm/
     - name: Set-up npmjs auth token
+      if: github.event.inputs.pushToNpmJs == true 
       run: printf "//registry.npmjs.org/:_authToken=${{ secrets.CHE_NPM_AUTH_TOKEN }}\n" >> ~/.npmrc
     - name: Publish packages to npmjs
+      if: github.event.inputs.pushToNpmJs == true 
       run: yarn publish:next
