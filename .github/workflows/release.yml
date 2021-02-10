@@ -64,7 +64,7 @@ jobs:
         registry: quay.io
     - name: Prepare release
       run: |
-        ./make-release.sh ${{ github.event.inputs.version }}
+        ./make-release.sh --version ${{ github.event.inputs.version }}
     - name: Build and publish images
       run: |
         docker image prune -a -f
