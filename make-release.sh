@@ -9,30 +9,24 @@
 #
 
 # Release process automation script.
-# Used to create branch/tag, update the necessary files
-# and trigger release by force pushing changes to the release branch.
 
-# set to 1 to actually trigger changes in the release branch
-TRIGGER_RELEASE=0
 NOCOMMIT=0
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    '-t'|'--trigger-release') TRIGGER_RELEASE=1; NOCOMMIT=0; shift 0;;
-    '-r'|'--repo') REPO="$2"; shift 1;;
     '-v'|'--version') VERSION="$2"; shift 1;;
-    '-n'|'--no-commit') NOCOMMIT=1; TRIGGER_RELEASE=0; shift 0;;
+    '-n'|'--no-commit') NOCOMMIT=1; shift 0;;
   esac
   shift 1
 done
 
 usage ()
 {
-  echo "Usage: $0 --repo <GIT REPO TO EDIT> --version <VERSION_TO_RELEASE> --trigger-release"
-  echo "Example: $0 --repo git@github.com:eclipse/che-theia --version 7.7.0 --trigger-release"; echo
+  echo "Usage: $0 --version <VERSION_TO_RELEASE>"
+  echo "Example: $0 --repo git@github.com:eclipse/che-theia --version 7.7.0"; echo
 }
 
-if [[ ! ${VERSION} ]] || [[ ! ${REPO} ]]; then
+if [[ ! ${VERSION} ]]; then
   usage
   exit 1
 fi
@@ -56,14 +50,7 @@ else
   BASEBRANCH="${BRANCH}"
 fi
 
-# work in tmp dir
-TMP=$(mktemp -d); pushd "$TMP" > /dev/null || exit 1
-
-# get sources from ${BASEBRANCH} branch
-echo "Check out ${REPO} to ${TMP}/${REPO##*/}"
-git clone "${REPO}" -q
-cd "${REPO##*/}" || exit 1
-git fetch origin "${BASEBRANCH}":"${BASEBRANCH}"
+git fetch origin "${BASEBRANCH}":"${BASEBRANCH}" || true
 git checkout "${BASEBRANCH}"
 
 # create new branch off ${BASEBRANCH} (or check out latest commits if branch already exists), then push to origin
@@ -143,20 +130,8 @@ if [[ ${NOCOMMIT} -eq 0 ]]; then
   git push origin "${BRANCH}"
 fi
 
-if [[ $TRIGGER_RELEASE -eq 1 ]]; then
-  # push new branch to release branch to trigger CI build
-  git fetch origin "${BRANCH}:${BRANCH}"
-  git checkout "${BRANCH}"
-  git branch release -f
-  git push origin release -f
-
-  # tag the release
-  git checkout "${BRANCH}"
-  git tag "${VERSION}"
-  git push origin "${VERSION}"
-fi
+git checkout "${BRANCH}"
+git tag "${VERSION}"
+git push origin "${VERSION}"
 
 popd > /dev/null || exit
-
-# cleanup tmp dir
-cd /tmp && rm -fr "$TMP"
