@@ -21,6 +21,8 @@ jobs:
       matrix:
         dist: [ 'alpine', 'ubi8' ]
         chectlchannel: [ 'next', 'stable' ]
+    env:
+      JOB_NAME_SUFFIX: ${{matrix.dist}} ${{matrix.chectlchannel}}
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
