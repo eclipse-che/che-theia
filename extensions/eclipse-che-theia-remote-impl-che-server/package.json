@@ -6,16 +6,16 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.0.1",
+  "version": "7.26.0",
   "files": [
     "lib",
     "src"
   ],
   "dependencies": {
-    "@eclipse-che/api": "latest",
+    "@eclipse-che/api": "7.18.1",
     "@kubernetes/client-node": "^0.12.1",
-    "@eclipse-che/theia-remote-api": "^0.0.1",
-    "@eclipse-che/workspace-client": "latest"
+    "@eclipse-che/theia-remote-api": "7.26.0",
+    "@eclipse-che/workspace-client": "0.0.1-1612278649"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",
