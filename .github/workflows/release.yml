@@ -21,7 +21,7 @@ on:
         required: false
         default: 'false'
       pushToNpmJs:
-        description: If true, will push images to npmjs
+        description: If true, will push packages to npmjs
         required: false
         default: 'true'
 
