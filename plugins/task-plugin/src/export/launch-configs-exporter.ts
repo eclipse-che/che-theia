@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2019-2020 Red Hat, Inc.
+ * Copyright (c) 2019-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import * as startPoint from '../task-plugin-backend';
 import * as theia from '@theia/plugin';
 
 import { ensureDirExists, modify, writeFile } from '../utils';
@@ -32,14 +33,28 @@ export class LaunchConfigurationsExporter implements ConfigurationsExporter {
   @inject(VsCodeLaunchConfigsExtractor)
   protected readonly vsCodeLaunchConfigsExtractor: VsCodeLaunchConfigsExtractor;
 
-  async export(commands: cheApi.workspace.Command[]): Promise<void> {
-    if (!theia.workspace.workspaceFolders) {
+  async init(commands: cheApi.workspace.Command[]): Promise<void> {
+    theia.workspace.onDidChangeWorkspaceFolders(
+      event => {
+        const workspaceFolders: theia.WorkspaceFolder[] | undefined = event.added;
+        if (workspaceFolders && workspaceFolders.length > 0) {
+          this.export(commands, workspaceFolders);
+        }
+      },
+      undefined,
+      startPoint.getSubscriptions()
+    );
+  }
+
+  async export(commands: cheApi.workspace.Command[], workspaceFolders?: theia.WorkspaceFolder[]): Promise<void> {
+    workspaceFolders = workspaceFolders ? workspaceFolders : theia.workspace.workspaceFolders;
+    if (!workspaceFolders) {
       return;
     }
 
     const exportConfigsPromises: Promise<void>[] = [];
 
-    for (const workspaceFolder of theia.workspace.workspaceFolders) {
+    for (const workspaceFolder of workspaceFolders) {
       exportConfigsPromises.push(this.doExport(workspaceFolder, commands));
     }
     await Promise.all(exportConfigsPromises);
