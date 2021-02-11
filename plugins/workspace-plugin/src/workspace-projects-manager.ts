@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -51,12 +51,9 @@ export class WorkspaceProjectsManager {
     const workspace = await che.workspace.getCurrentWorkspace();
     const cloneCommandList = await this.buildCloneCommands(workspace);
 
-    const cloningPromise = this.executeCloneCommands(cloneCommandList);
+    const cloningPromise = this.executeCloneCommands(cloneCommandList, workspace);
     theia.window.withProgress({ location: { viewId: 'explorer' } }, () => cloningPromise);
-
     await cloningPromise;
-
-    this.ensureWorkspaceFolders(workspace);
 
     await this.startSyncWorkspaceProjects();
   }
@@ -71,30 +68,34 @@ export class WorkspaceProjectsManager {
       .map(project => buildProjectImportCommand(project, instance.projectsRoot)!);
   }
 
-  ensureWorkspaceFolders(workspace: cheApi.workspace.Workspace): void {
-    this.getProjects(workspace)
-      .map(project => this.getProjectPath(project))
-      .filter(projectPath => fs.existsSync(projectPath))
-      .forEach(projectPath => this.workspaceFolderUpdater.addWorkspaceFolder(projectPath));
-  }
-
-  private async executeCloneCommands(cloneCommandList: TheiaImportCommand[]): Promise<void> {
+  private async executeCloneCommands(
+    cloneCommandList: TheiaImportCommand[],
+    workspace: cheApi.workspace.Workspace
+  ): Promise<void> {
     if (cloneCommandList.length === 0) {
       return;
     }
 
     theia.window.showInformationMessage('Che Workspace: Starting importing projects.');
 
-    const cloningPromises: PromiseLike<void>[] = [];
+    const isMultiRoot = isMultiRootWorkspace(workspace);
+
+    const cloningPromises: PromiseLike<string>[] = [];
     for (const cloneCommand of cloneCommandList) {
-      const cloningPromise = cloneCommand.execute();
+      try {
+        const cloningPromise = cloneCommand.execute();
+        cloningPromises.push(cloningPromise);
 
-      cloningPromises.push(cloningPromise);
-
-      cloningPromise.then(() => this.workspaceFolderUpdater.addWorkspaceFolder(cloneCommand.getProjectPath()));
+        if (isMultiRoot) {
+          cloningPromise.then(projectPath => this.workspaceFolderUpdater.addWorkspaceFolder(projectPath));
+        }
+      } catch (e) {
+        // we continue to clone other projects even if a clone process failed for a project
+      }
     }
 
     await Promise.all(cloningPromises);
+
     theia.window.showInformationMessage('Che Workspace: Finished importing projects.');
     onDidCloneSourcesEmitter.fire();
   }
@@ -166,4 +167,9 @@ export class WorkspaceProjectsManager {
       fileUri.convertToCheProjectPath(projectFolderURI, this.projectsRoot)
     );
   }
+}
+
+function isMultiRootWorkspace(workspace: cheApi.workspace.Workspace): boolean {
+  const devfile = workspace.devfile;
+  return !!devfile && !!devfile.attributes && !!devfile.attributes.multiRoot && devfile.attributes.multiRoot === 'on';
 }
