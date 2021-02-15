@@ -1,29 +1,26 @@
 {
-  "name": "@eclipse-che/workspace-plugin",
-  "publisher": "Eclipse Che",
+  "name": "ext-plugin",
+  "publisher": "@eclipse-che",
   "version": "0.0.1",
   "keywords": [
     "theia-plugin"
   ],
+  "description": "Exports @eclipse-che/plugin namespace",
   "license": "EPL-2.0",
   "files": [
     "src"
   ],
-  "dependencies": {
-    "async-mutex": "^0.2.6",
-    "fs-extra": "7.0.1"
-  },
+  "activationEvents": [
+    "*"
+  ],
+  "dependencies": {},
   "devDependencies": {
-    "@eclipse-che/plugin": "0.0.1",
+    "@eclipse-che/plugin": "latest",
     "@theia/plugin": "next",
     "@theia/plugin-packager": "latest"
   },
-  "extensionDependencies": [
-    "Eclipse Che.@eclipse-che/theia-ssh-plugin",
-    "@eclipse-che.ext-plugin"
-  ],
   "scripts": {
-    "prepare": "yarn clean && yarn lint:fix && yarn build && yarn test",
+    "prepare": "yarn clean && yarn build && yarn lint:fix && yarn test",
     "clean": "rimraf lib",
     "format": "if-env SKIP_FORMAT=true && echo 'skip format check' || prettier --check '{src,tests}/**/*.ts' package.json",
     "format:fix": "prettier --write '{src,tests}/**/*.ts' package.json",
@@ -33,13 +30,13 @@
     "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia-plugin pack",
     "watch": "tsc -w",
     "test": "if-env SKIP_TEST=true && echo 'skip test' || jest --forceExit",
-    "test:watch": "jest --watchAll"
+    "test-watch": "jest --watchAll"
   },
   "engines": {
     "theiaPlugin": "next"
   },
   "theiaPlugin": {
-    "backend": "lib/workspace-plugin.js"
+    "backend": "lib/ext-plugin.js"
   },
   "jest": {
     "collectCoverage": true,
@@ -48,44 +45,18 @@
     ],
     "coverageDirectory": "./coverage",
     "transform": {
-      "^.+\\.tsx?$": "<rootDir>/../../node_modules/ts-jest/preprocessor.js"
+      "^.+\\.tsx?$": "ts-jest"
     },
     "modulePathIgnorePatterns": [
-      "<rootDir>/lib"
+      "<rootDir>/dist"
     ],
-    "testRegex": "(/tests/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
     "moduleFileExtensions": [
       "ts",
       "tsx",
       "js",
       "jsx",
       "json"
-    ],
-    "testURL": "http://localhost/"
-  },
-  "activationEvents": [
-    "*"
-  ],
-  "contributes": {
-    "menus": {
-      "editor/context": [
-        {
-          "command": "workspace-plugin.create-workspace",
-          "when": "resourceFilename =~ /devfile/"
-        }
-      ],
-      "editor/title": [
-        {
-          "command": "workspace-plugin.create-workspace",
-          "when": "resourceFilename =~ /devfile/"
-        }
-      ],
-      "explorer/context": [
-        {
-          "command": "workspace-plugin.create-workspace",
-          "when": "resourceFilename =~ /devfile/"
-        }
-      ]
-    }
+    ]
   }
 }

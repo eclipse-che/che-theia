@@ -22,6 +22,7 @@ sources:
     - extensions/eclipse-che-theia-remote-impl-che-server
   plugins:
     - plugins/containers-plugin
+    - plugins/ext-plugin
     - plugins/workspace-plugin
     - plugins/resource-monitor-plugin
     - plugins/ports-plugin
