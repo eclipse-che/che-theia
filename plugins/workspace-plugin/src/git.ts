@@ -102,16 +102,34 @@ export async function execGit(directory: string, ...args: string[]): Promise<str
 }
 
 export function isSecureGitURI(uri: string): boolean {
-  // git@github.com:eclipse/che-theia.git
-  // git@bitbucket.org:atlassianlabs/atlascode.git
+  return uri.startsWith('git@');
+}
 
+export function isSecureGitGubURI(uri: string): boolean {
   return uri.startsWith('git@github.com');
 }
 
+export function getHost(uri: string): string {
+  if (uri.startsWith('git@')) {
+    return uri.substring(0, uri.indexOf(':'));
+  } else {
+    return uri;
+  }
+}
+
 export async function testSecureLogin(uri: string): Promise<string> {
-  const host = uri.substring(0, uri.indexOf(':'));
+  const host = getHost(uri);
   const args: string[] = ['-T', host];
 
-  const result = await execute('ssh', args);
-  return result;
+  try {
+    const result = await execute('ssh', args);
+    return result;
+  } catch (error) {
+    const searchString = "You've successfully authenticated";
+    if (error.message.indexOf(searchString) > 0) {
+      return error.message;
+    } else {
+      throw error;
+    }
+  }
 }

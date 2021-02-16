@@ -13,6 +13,7 @@ import * as fs from 'fs-extra';
 import * as git from './git';
 import * as os from 'os';
 import * as path from 'path';
+import * as ssh from './ssh';
 import * as theia from '@theia/plugin';
 
 import { TaskScope } from '@eclipse-che/plugin';
@@ -116,70 +117,115 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
     this.projectsRoot = projectsRoot;
   }
 
-  async execute(): Promise<void> {
-    let clone: (
-      progress: theia.Progress<{ message?: string; increment?: number }>,
-      token: theia.CancellationToken
-    ) => Promise<void>;
-
-    theia.window.showWarningMessage('>>> go clone ' + this.locationURI);
-
-    await this.checkSecureClone();
-
-    if (this.sparseCheckoutDir) {
-      // Sparse checkout
-      clone = this.gitSparseCheckout;
-    } else {
-      // Regular clone
-      clone = this.gitClone;
-    }
-
+  clone(): PromiseLike<void> {
     return theia.window.withProgress(
       {
         location: theia.ProgressLocation.Notification,
         title: `Cloning ${this.locationURI} ...`,
       },
-      (progress, token) => clone.call(this, progress, token)
+      (progress, token) => {
+        if (this.sparseCheckoutDir) {
+          return this.gitSparseCheckout(progress, token);
+        } else {
+          return this.gitClone(progress, token);
+        }
+      }
     );
   }
 
-  readonly out: theia.OutputChannel = theia.window.createOutputChannel('GIT clone');
-
-  readonly SSH_PLUGIN_ID = 'Eclipse Che.@eclipse-che/theia-ssh-plugin';
-
-  private async checkSecureClone(): Promise<void> {
-    if (git.isSecureGitURI(this.locationURI)) {
-      this.out.appendLine('> Testing secure login: ' + this.locationURI);
-
-      try {
-        const result = await git.testSecureLogin(this.locationURI);
-        this.out.appendLine('-----------------------------------------------------');
-        this.out.appendLine(result);
-      } catch (error) {
-        this.out.appendLine('! Cannot test secure login !');
-        this.out.appendLine(error.message);
-
-        await this.generateAndUploadKey();
-      }
-    } else {
-      this.out.appendLine('> is not secure uri. Regular cloning...');
+  async execute(): Promise<void> {
+    if (!git.isSecureGitURI(this.locationURI)) {
+      // clone using regular URI
+      return this.clone();
     }
+
+    // clone using SSH URI
+    while (true) {
+      // test secure login
+      try {
+        await git.testSecureLogin(this.locationURI);
+        // exit the loop when successfull login
+        break;
+      } catch (error) {
+        console.error(error.message);
+      }
+
+      // unable to login
+      // Give the user possible actions
+      // - retry the login
+      // - upload key (if GitHub)
+      // - show existent certificates to be able to copy its content and add it to the Git server by hands
+      // - ask the user for custom certificate
+
+      const RETRY = 'Retry';
+      const UPLOAD_CERT = 'Autorize on GitHub';
+      const SHOW_CERTS = 'Show Certificates';
+      const ADD_USER_CERT = 'Add custom Certificate';
+
+      let buttons: string[];
+      if (git.isSecureGitGubURI(this.locationURI)) {
+        buttons = [RETRY, UPLOAD_CERT, SHOW_CERTS, ADD_USER_CERT];
+      } else {
+        buttons = [RETRY, SHOW_CERTS, ADD_USER_CERT];
+      }
+
+      const action = await theia.window.showWarningMessage(
+        'Unable to secure login to ' + git.getHost(this.locationURI),
+        ...buttons
+      );
+      if (action === RETRY) {
+        // Retry Secure login
+        // Do nothing, just continue the loop
+        continue;
+      } else if (action === UPLOAD_CERT) {
+        // Try to upload existent certificate to GitHub
+        if (await ssh.generateAndUploadKey()) {
+          await theia.window.showInformationMessage('CA certificate seems to be uploaded successfully.', 'Continue');
+        } else {
+          await theia.window.showErrorMessage('Unable to upload certificate to GitHub', 'Continue');
+        }
+        continue;
+      } else if (action === SHOW_CERTS) {
+        // Show certificates and ask the user to retry the flow
+        await ssh.showCertificates();
+        const CONTINUE = 'Continue';
+        const confirmClone = await theia.window.showInformationMessage(
+          'Add the certificate your GitHub account and continue cloning',
+          CONTINUE
+        );
+
+        if (confirmClone === CONTINUE) {
+          continue;
+        } else {
+          // User closed the popup.
+          // Do nothing, skip cloning.
+          return;
+        }
+      } else if (action === ADD_USER_CERT) {
+        // Ask the user to upload its own certificate
+        try {
+          await ssh.uploadCertificate();
+        } catch (error) {
+          console.error(error.message);
+        }
+        continue;
+      } else {
+        // It seems user closed the popup.
+        // Skip cloning the project.
+        return;
+      }
+
+      // pause will be removed after debugging this method
+      await this.pause(500);
+    }
+
+    return this.clone();
   }
 
-  // const git: any = gitExtension.exports._model.git;
-  private async generateAndUploadKey(): Promise<void> {
-    const sshPlugin = theia.plugins.getPlugin(this.SSH_PLUGIN_ID);
-    console.log('>>> ssh plugin ', sshPlugin);
-
-    if (sshPlugin) {
-      this.out.appendLine(`## found ${this.SSH_PLUGIN_ID}`);
-
-      if (sshPlugin?.exports) {
-        await sshPlugin?.exports.generateAndUploadKey('SSH key not found.');
-      }
-    } else {
-      this.out.appendLine(`##### Unable to find ${this.SSH_PLUGIN_ID}`);
-    }
+  private async pause(miliseconds: number): Promise<void> {
+    return new Promise(resolve => {
+      setTimeout(resolve, miliseconds);
+    });
   }
 
   // Clones git repository
