@@ -12,9 +12,14 @@ name: Check a Theia branch
 on:
   workflow_dispatch:
     inputs:
-      theia_branch:
-        description: 'Theia branch name to build Che-Theia image on top:'
+      theia_github_repo:
+        description: 'Theia GitHub repository to build Che-Theia image on top:'
         required: true
+        default: eclipse-theia/theia
+      theia_branch:
+        description: 'Theia branch:'
+        required: true
+        default: master
 
 jobs:
   build:
@@ -32,4 +37,4 @@ jobs:
         docker image prune -a -f
         docker pull quay.io/eclipse/che-theia-dev:next
         docker tag quay.io/eclipse/che-theia-dev:next eclipse/che-theia-dev:next
-        ./build.sh --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.alpine --branch:${{ github.event.inputs.theia_branch }}
+        ./build.sh --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.alpine --build-args:THEIA_GITHUB_REPO=${{ github.event.inputs.theia_github_repo }} --branch:${{ github.event.inputs.theia_branch }}

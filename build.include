@@ -11,6 +11,7 @@ set -e
 set -u
 
 IMAGE_TAG="next"
+THEIA_GITHUB_REPO="eclipse-theia/theia"
 THEIA_VERSION="master"
 THEIA_BRANCH="master"
 THEIA_COMMIT_SHA=
@@ -79,7 +80,7 @@ buildImages() {
     GITHUB_TOKEN_ARG="GITHUB_TOKEN=${GITHUB_TOKEN:-}"
     echo "Building image in ${image_dir}"
      if [ "$image_dir" == "dockerfiles/theia" ]; then
-       bash $(pwd)/$image_dir/build.sh --build-args:${GITHUB_TOKEN_ARG},THEIA_VERSION=${THEIA_VERSION},THEIA_COMMIT_SHA=${THEIA_COMMIT_SHA} --tag:${IMAGE_TAG} --branch:${THEIA_BRANCH} --git-ref:${THEIA_GIT_REFS} ${FILTERED_ARGS}
+       bash $(pwd)/$image_dir/build.sh --build-args:${GITHUB_TOKEN_ARG},THEIA_VERSION=${THEIA_VERSION},THEIA_COMMIT_SHA=${THEIA_COMMIT_SHA},THEIA_GITHUB_REPO=${THEIA_GITHUB_REPO} --tag:${IMAGE_TAG} --branch:${THEIA_BRANCH} --git-ref:${THEIA_GIT_REFS} ${FILTERED_ARGS}
      elif [ "$image_dir" == "dockerfiles/theia-dev" ]; then
        bash $(pwd)/$image_dir/build.sh --build-arg:${GITHUB_TOKEN_ARG} --tag:${IMAGE_TAG} ${FILTERED_ARGS}
      else
@@ -94,20 +95,21 @@ buildImages() {
 }
 
 publishImages() {
-  echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  REGISTRY="quay.io"
   for image in "${PUBLISH_IMAGES_LIST[@]}"
   do
+    echo "Publishing ${image}:${IMAGE_TAG}..."
+    docker tag "${image}:${IMAGE_TAG}" "${REGISTRY}/${image}:${IMAGE_TAG}"
+    echo y | docker push "${REGISTRY}/${image}:${IMAGE_TAG}"
     if [[ -n "${THEIA_DOCKER_IMAGE_VERSION}" ]]; then
-      echo "Publish ${image}:${IMAGE_TAG} and :${THEIA_DOCKER_IMAGE_VERSION} ..."
-      docker tag "${image}:${IMAGE_TAG}" "${image}:${THEIA_DOCKER_IMAGE_VERSION}"
-      echo y | docker push "${image}:${IMAGE_TAG}"
-      echo y | docker push "${image}:${THEIA_DOCKER_IMAGE_VERSION}"
+      echo "Publishing ${image}:${THEIA_DOCKER_IMAGE_VERSION}..."
+      docker tag "${image}:${IMAGE_TAG}" "${REGISTRY}/${image}:${THEIA_DOCKER_IMAGE_VERSION}"
+      echo y | docker push "${REGISTRY}/${image}:${THEIA_DOCKER_IMAGE_VERSION}"
     else
       SHORT_SHA=$(git rev-parse --short HEAD)
-      echo "Publish ${image}:${IMAGE_TAG} and :${SHORT_SHA} ..."
-      docker tag "${image}:${IMAGE_TAG}" "${image}:${SHORT_SHA}"
-      echo y | docker push "${image}:${IMAGE_TAG}"
-      echo y | docker push "${image}:${SHORT_SHA}"
+      echo "Publishing ${image}:${SHORT_SHA}..."
+      docker tag "${image}:${IMAGE_TAG}" "${REGISTRY}/${image}:${SHORT_SHA}"
+      echo y | docker push "${REGISTRY}/${image}:${SHORT_SHA}"
     fi
   done
 }

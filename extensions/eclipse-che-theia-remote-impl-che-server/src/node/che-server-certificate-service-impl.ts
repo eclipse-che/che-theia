@@ -13,7 +13,7 @@ import * as path from 'path';
 
 import { PUBLIC_CRT_PATH, SS_CRT_PATH } from './che-server-https';
 
-import { CertificateService } from '../common/certificate-service';
+import { CertificateService } from '@eclipse-che/theia-remote-api/lib/common/certificate-service';
 import { injectable } from 'inversify';
 
 @injectable()
