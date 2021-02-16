@@ -133,3 +133,11 @@ export async function testSecureLogin(uri: string): Promise<string> {
     }
   }
 }
+
+export function getErrorReason(message: string): string | undefined {
+  if (message.indexOf('Permission denied (publickey)') >= 0) {
+    return 'It may be missing SSH key';
+  }
+
+  return undefined;
+}

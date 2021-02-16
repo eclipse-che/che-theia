@@ -69,6 +69,8 @@ export function buildProjectImportCommand(
   }
 }
 
+let output: theia.OutputChannel;
+
 export class TheiaGitCloneCommand implements TheiaImportCommand {
   private projectName: string | undefined;
   private locationURI: string;
@@ -140,6 +142,7 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
     }
 
     // clone using SSH URI
+    let latestError: string | undefined;
     while (true) {
       // test secure login
       try {
@@ -147,76 +150,58 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
         // exit the loop when successfull login
         break;
       } catch (error) {
-        console.error(error.message);
+        // let out: theia.OutputChannel = theia.window.createOutputChannel('GIT clone');
+        if (!output) {
+          output = theia.window.createOutputChannel('GIT');
+        }
+
+        output.show(true);
+        output.appendLine(error.message);
+
+        latestError = git.getErrorReason(error.message);
       }
 
       // unable to login
       // Give the user possible actions
       // - retry the login
-      // - upload key (if GitHub)
-      // - show existent certificates to be able to copy its content and add it to the Git server by hands
-      // - ask the user for custom certificate
+      // - show SSH options
 
       const RETRY = 'Retry';
-      const UPLOAD_CERT = 'Autorize on GitHub';
-      const SHOW_CERTS = 'Show Certificates';
-      const ADD_USER_CERT = 'Add custom Certificate';
+      const CONFIGURE_SSH = 'Configure SSH';
 
-      let buttons: string[];
-      if (git.isSecureGitGubURI(this.locationURI)) {
-        buttons = [RETRY, UPLOAD_CERT, SHOW_CERTS, ADD_USER_CERT];
-      } else {
-        buttons = [RETRY, SHOW_CERTS, ADD_USER_CERT];
+      let message = `It is failing to clone Git project ${this.locationURI}`;
+      if (latestError) {
+        message += ` ${latestError}`;
       }
 
-      const action = await theia.window.showWarningMessage(
-        'Unable to secure login to ' + git.getHost(this.locationURI),
-        ...buttons
-      );
+      const action = await theia.window.showWarningMessage(message, RETRY, CONFIGURE_SSH);
       if (action === RETRY) {
         // Retry Secure login
         // Do nothing, just continue the loop
         continue;
-      } else if (action === UPLOAD_CERT) {
-        // Try to upload existent certificate to GitHub
-        if (await ssh.generateAndUploadKey()) {
-          await theia.window.showInformationMessage('CA certificate seems to be uploaded successfully.', 'Continue');
-        } else {
-          await theia.window.showErrorMessage('Unable to upload certificate to GitHub', 'Continue');
-        }
-        continue;
-      } else if (action === SHOW_CERTS) {
-        // Show certificates and ask the user to retry the flow
-        await ssh.showCertificates();
-        const CONTINUE = 'Continue';
-        const confirmClone = await theia.window.showInformationMessage(
-          'Add the certificate your GitHub account and continue cloning',
-          CONTINUE
-        );
-
-        if (confirmClone === CONTINUE) {
-          continue;
-        } else {
-          // User closed the popup.
-          // Do nothing, skip cloning.
-          return;
-        }
-      } else if (action === ADD_USER_CERT) {
-        // Ask the user to upload its own certificate
-        try {
-          await ssh.uploadCertificate();
-        } catch (error) {
-          console.error(error.message);
-        }
+      } else if (action === CONFIGURE_SSH) {
+        await ssh.configure(git.isSecureGitGubURI(this.locationURI));
         continue;
       } else {
         // It seems user closed the popup.
-        // Skip cloning the project.
+        // Ask the user to retry cloning the project.
+        const SKIP = 'Skip';
+        const TRY_AGAIN = 'Try Again';
+        const tryAgain = await theia.window.showWarningMessage(
+          `Cloning of ${this.locationURI} will be skipped`,
+          SKIP,
+          TRY_AGAIN
+        );
+        if (tryAgain === TRY_AGAIN) {
+          // continue the loop to try again
+          continue;
+        }
+        // skip
         return;
       }
 
       // pause will be removed after debugging this method
-      await this.pause(500);
+      await this.pause(100);
     }
 
     return this.clone();
