@@ -169,7 +169,7 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
       const RETRY = 'Retry';
       const CONFIGURE_SSH = 'Configure SSH';
 
-      let message = `It is failing to clone Git project ${this.locationURI}`;
+      let message = `Failure to clone git project ${this.locationURI}`;
       if (latestError) {
         message += ` ${latestError}`;
       }
