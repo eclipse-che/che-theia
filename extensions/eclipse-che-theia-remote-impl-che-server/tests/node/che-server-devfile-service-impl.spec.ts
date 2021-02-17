@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 
 import 'reflect-metadata';
 
@@ -55,8 +56,8 @@ describe.only('Test CheServerDevfileServiceImpl', () => {
     expect(devfile).toBeDefined();
 
     // check projects
-    expect(devfile.projects.length).toBe(1);
-    const devfileProject = devfile.projects[0];
+    expect(devfile.projects?.length).toBe(1);
+    const devfileProject = devfile.projects![0];
     expect(devfileProject.name).toBe('console-java-simple');
     expect(devfileProject.git).toStrictEqual({
       checkoutFrom: { revision: 'java1.11' },
@@ -71,9 +72,9 @@ describe.only('Test CheServerDevfileServiceImpl', () => {
     expect(devfileAttributes.persistVolumes).toBe('false');
 
     // check components
-    expect(devfile.components.length).toBe(2);
+    expect(devfile.components?.length).toBe(2);
 
-    const cheRedhatComponent = devfile.components.find(
+    const cheRedhatComponent = devfile.components?.find(
       component => component.plugin !== undefined && component.plugin.id === 'redhat/java/latest'
     );
     expect(cheRedhatComponent).toBeDefined();
@@ -81,7 +82,7 @@ describe.only('Test CheServerDevfileServiceImpl', () => {
     const cheRedhatPlugin = cheRedhatComponent!.plugin!;
     expect(cheRedhatPlugin.id).toBe('redhat/java/latest');
 
-    const mavenComponent = devfile.components.find(component => component.name === 'maven');
+    const mavenComponent = devfile.components?.find(component => component.name === 'maven');
     expect(mavenComponent).toBeDefined();
     const mavenContainer: any = mavenComponent!.container! || {};
     expect(mavenContainer.image).toBe('quay.io/eclipse/che-java11-maven:nightly');
