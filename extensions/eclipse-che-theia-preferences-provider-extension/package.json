@@ -24,7 +24,7 @@
     "lint": "if-env SKIP_LINT=true && echo 'skip lint check' || eslint --cache=true --no-error-on-unmatched-pattern=true '{src,tests}/**/*.ts'",
     "lint:fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,tests}/**/*.{ts,tsx}\"",
     "compile": "tsc",
-    "build": "concurrently -n \"format,lint,compile,test\" -c \"red,green,blue,purple\" \"yarn format\" \"yarn lint\" \"yarn compile\" \"yarn test\"",
+    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue,purple\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
     "test": "if-env SKIP_TEST=true && echo 'skip test' || jest --forceExit"
   },
   "theiaExtensions": [

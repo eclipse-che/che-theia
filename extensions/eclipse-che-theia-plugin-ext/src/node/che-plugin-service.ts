@@ -485,8 +485,8 @@ export class ChePluginServiceImpl implements ChePluginService {
     const components = devfileComponents.filter(component => component.plugin !== undefined);
 
     components.forEach(component => {
-      const id = component.plugin!.url ? this.normalizeId(component.plugin!.url) : component.plugin!.id;
-      const foundIndex = plugins.indexOf(id!);
+      const id = component.plugin!.url ? this.normalizeId(component.plugin!.url) : component.plugin?.id!;
+      const foundIndex = plugins.indexOf(id);
       if (foundIndex >= 0) {
         plugins.splice(foundIndex, 1);
       } else {
