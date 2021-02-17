@@ -70,9 +70,9 @@ const UPLOAD: theia.CommandDescription = {
   label: 'SSH: Upload Private Key...',
 };
 
-const UPLOAD_TO_GITHUB: theia.CommandDescription = {
-  id: 'ssh:upload_key_to_github',
-  label: 'SSH: Upload Existing Key To GitHub...',
+const ADD_TO_GITHUB: theia.CommandDescription = {
+  id: 'ssh:add_key_to_github',
+  label: 'SSH: Add Existing Key To GitHub...',
 };
 
 export async function start(): Promise<PluginModel> {
@@ -173,8 +173,8 @@ export async function start(): Promise<PluginModel> {
   theia.commands.registerCommand(UPLOAD, () => {
     uploadPrivateKey();
   });
-  theia.commands.registerCommand(UPLOAD_TO_GITHUB, () => {
-    uploadGitHubKey();
+  theia.commands.registerCommand(ADD_TO_GITHUB, () => {
+    addGitHubKey();
   });
 
   return {
@@ -223,7 +223,7 @@ async function showCommandPalette(gitHubActions: boolean): Promise<boolean> {
   ];
 
   if (gitHubActions) {
-    items.push({ label: UPLOAD_TO_GITHUB.label!, showBorder: true });
+    items.push({ label: ADD_TO_GITHUB.label!, showBorder: true });
   }
 
   const command = await theia.window.showQuickPick<theia.QuickPickItem>(items, {});
@@ -247,8 +247,8 @@ async function showCommandPalette(gitHubActions: boolean): Promise<boolean> {
     } else if (command.label === UPLOAD.label) {
       await uploadPrivateKey();
       return true;
-    } else if (command.label === UPLOAD_TO_GITHUB.label) {
-      await uploadGitHubKey();
+    } else if (command.label === ADD_TO_GITHUB.label) {
+      await addGitHubKey();
       return true;
     }
   }
@@ -282,9 +282,9 @@ async function generateGitHubKey(): Promise<cheApi.ssh.SshPair> {
 }
 
 /**
- * Uploads public key to GitHub.
+ * Adds an existing public key to GitHub.
  */
-async function uploadGitHubKey(): Promise<boolean> {
+async function addGitHubKey(): Promise<boolean> {
   let key = await getGitHubKey();
 
   try {
