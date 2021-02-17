@@ -42,22 +42,22 @@ const ENTER_KEY_NAME_OR_LEAVE_EMPTY_MESSAGE =
 
 const GENERATE_FOR_HOST: theia.CommandDescription = {
   id: 'ssh:generate_for_host',
-  label: 'SSH: Generate Key Pair For Particular Host...',
+  label: 'SSH: Generate Key For Particular Host...',
 };
 
 const GENERATE: theia.CommandDescription = {
   id: 'ssh:generate',
-  label: 'SSH: Generate Key Pair...',
+  label: 'SSH: Generate Key...',
 };
 
 const CREATE: theia.CommandDescription = {
   id: 'ssh:create',
-  label: 'SSH: Create Key Pair...',
+  label: 'SSH: Create Key...',
 };
 
 const DELETE: theia.CommandDescription = {
   id: 'ssh:delete',
-  label: 'SSH: Delete Key Pair...',
+  label: 'SSH: Delete Key...',
 };
 
 const VIEW: theia.CommandDescription = {
