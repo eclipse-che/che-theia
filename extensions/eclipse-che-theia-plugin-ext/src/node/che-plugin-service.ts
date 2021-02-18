@@ -287,7 +287,7 @@ export class ChePluginServiceImpl implements ChePluginService {
             const pluginMetadata = await this.loadPluginMetadata(
               pluginYamlURI,
               longKeyFormat,
-              registry.publicUri ? registry.publicUri : registry.uri
+              registry.publicUri || registry.uri
             );
             this.cachedPlugins.push(pluginMetadata);
             await this.client.notifyPluginCached(this.cachedPlugins.length);
