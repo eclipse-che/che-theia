@@ -180,7 +180,7 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
         // Do nothing, just continue the loop
         continue;
       } else if (action === CONFIGURE_SSH) {
-        await ssh.configure(git.isSecureGitGubURI(this.locationURI));
+        await ssh.configure(git.isSecureGitHubURI(this.locationURI));
         continue;
       } else {
         // It seems user closed the popup.

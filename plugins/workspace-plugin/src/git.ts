@@ -105,7 +105,7 @@ export function isSecureGitURI(uri: string): boolean {
   return uri.startsWith('git@');
 }
 
-export function isSecureGitGubURI(uri: string): boolean {
+export function isSecureGitHubURI(uri: string): boolean {
   return uri.startsWith('git@github.com');
 }
 
