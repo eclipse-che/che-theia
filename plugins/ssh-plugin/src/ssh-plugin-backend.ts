@@ -13,6 +13,15 @@ import * as os from 'os';
 import * as theia from '@theia/plugin';
 
 import {
+  SSH_ADD_TO_GITHUB,
+  SSH_CREATE,
+  SSH_DELETE,
+  SSH_GENERATE,
+  SSH_GENERATE_FOR_HOST,
+  SSH_UPLOAD,
+  SSH_VIEW,
+} from './commands';
+import {
   access,
   appendFile,
   chmod,
@@ -34,56 +43,27 @@ export interface PluginModel {
   configureSSH(gitHubActions: boolean): Promise<boolean>;
 }
 
-const RESTART_WARNING_MESSAGE =
+const MESSAGE_NEED_RESTART_WORKSPACE =
   'Che Git plugin can leverage the generated keys now. To make them available in all workspace containers please restart your workspace.';
 
-const ENTER_KEY_NAME_OR_LEAVE_EMPTY_MESSAGE =
+const MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY =
   'Please provide a hostname (e.g. github.com) or leave empty to setup default name';
 
-const GENERATE_FOR_HOST: theia.CommandDescription = {
-  id: 'ssh:generate_for_host',
-  label: 'SSH: Generate Key For Particular Host...',
-};
+const MESSAGE_NO_SSH_KEYS = 'There are no SSH keys.';
 
-const GENERATE: theia.CommandDescription = {
-  id: 'ssh:generate',
-  label: 'SSH: Generate Key...',
-};
+const MESSAGE_GET_KEYS_FAILED = 'Failure to fetch SSH keys.';
 
-const CREATE: theia.CommandDescription = {
-  id: 'ssh:create',
-  label: 'SSH: Create Key...',
-};
-
-const DELETE: theia.CommandDescription = {
-  id: 'ssh:delete',
-  label: 'SSH: Delete Key...',
-};
-
-const VIEW: theia.CommandDescription = {
-  id: 'ssh:view',
-  label: 'SSH: View Public Key...',
-};
-
-const UPLOAD: theia.CommandDescription = {
-  id: 'ssh:upload',
-  label: 'SSH: Upload Private Key...',
-};
-
-const ADD_TO_GITHUB: theia.CommandDescription = {
-  id: 'ssh:add_key_to_github',
-  label: 'SSH: Add Existing Key To GitHub...',
-};
+const CONTINUE = 'Continue';
 
 export async function start(): Promise<PluginModel> {
-  let keys: cheApi.ssh.SshPair[] = [];
+  let keys: cheApi.ssh.SshPair[];
   try {
-    keys = await getKeys();
+    keys = await che.ssh.getAll('vcs');
   } catch (e) {
-    if (e.message !== 'No SSH key pair has been defined.') {
-      console.error(e.message);
-    }
+    console.error(e.message);
+    keys = [];
   }
+
   const keyPath = (keyName: string | undefined) => (keyName ? '/etc/ssh/private/' + keyName : '');
   const passphrase = (privateKey: string | undefined) =>
     privateKey ? privateKey.substring(privateKey.indexOf('\npassphrase: ') + 13, privateKey.length - 1) : '';
@@ -147,33 +127,33 @@ export async function start(): Promise<PluginModel> {
 
   const showWarningMessage = (showGenerate: boolean, gitProviderName?: string) =>
     theia.window.showWarningMessage(`Permission denied, please ${
-      showGenerate ? 'generate (F1 => ' + GENERATE.label + ') and ' : ''
+      showGenerate ? 'generate (F1 => ' + SSH_GENERATE.label + ') and ' : ''
     }
         upload your public SSH key to ${
           gitProviderName ? gitProviderName : 'the Git provider'
-        } and try again. To get the public key press F1 => ${VIEW.label}`);
+        } and try again. To get the public key press F1 => ${SSH_VIEW.label}`);
 
   theia.plugins.onDidChange(onChange);
 
-  theia.commands.registerCommand(GENERATE_FOR_HOST, () => {
+  theia.commands.registerCommand(SSH_GENERATE_FOR_HOST, () => {
     generateKeyPairForHost();
   });
-  theia.commands.registerCommand(GENERATE, () => {
+  theia.commands.registerCommand(SSH_GENERATE, () => {
     generateKeyPair();
   });
-  theia.commands.registerCommand(CREATE, () => {
+  theia.commands.registerCommand(SSH_CREATE, () => {
     createKeyPair();
   });
-  theia.commands.registerCommand(DELETE, () => {
+  theia.commands.registerCommand(SSH_DELETE, () => {
     deleteKeyPair();
   });
-  theia.commands.registerCommand(VIEW, () => {
+  theia.commands.registerCommand(SSH_VIEW, () => {
     viewPublicKey();
   });
-  theia.commands.registerCommand(UPLOAD, () => {
+  theia.commands.registerCommand(SSH_UPLOAD, () => {
     uploadPrivateKey();
   });
-  theia.commands.registerCommand(ADD_TO_GITHUB, () => {
+  theia.commands.registerCommand(SSH_ADD_TO_GITHUB, () => {
     addGitHubKey();
   });
 
@@ -182,10 +162,10 @@ export async function start(): Promise<PluginModel> {
   };
 }
 
-const hostNamePattern = new RegExp('^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$');
+async function getHostName(message?: string): Promise<string | undefined> {
+  const hostNamePattern = new RegExp('^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$');
 
-const getHostName = async (message?: string) =>
-  await theia.window.showInputBox({
+  return await theia.window.showInputBox({
     placeHolder: message ? message : 'Please provide a hostname e.g. github.com',
     validateInput: (text: string) => {
       if (!hostNamePattern.test(text)) {
@@ -193,10 +173,13 @@ const getHostName = async (message?: string) =>
       }
     },
   });
+}
 
-const getKeyFilePath = (name: string) => resolve(os.homedir(), '.ssh', name.replace(new RegExp('\\.'), '_'));
+function getKeyFilePath(name: string): string {
+  return resolve(os.homedir(), '.ssh', name.replace(new RegExp('\\.'), '_'));
+}
 
-const updateConfig = async (hostName: string) => {
+async function updateConfig(hostName: string): Promise<void> {
   const configFile = resolve(os.homedir(), '.ssh', 'config');
   await ensureFile(configFile);
   await chmod(configFile, '644');
@@ -210,65 +193,50 @@ const updateConfig = async (hostName: string) => {
   } else {
     await appendFile(configFile, keyConfig);
   }
-};
+}
 
 async function showCommandPalette(gitHubActions: boolean): Promise<boolean> {
   const items: theia.QuickPickItem[] = [
-    { label: GENERATE_FOR_HOST.label! },
-    { label: GENERATE.label! },
-    { label: VIEW.label! },
-    { label: CREATE.label! },
-    { label: DELETE.label! },
-    { label: UPLOAD.label! },
+    { label: SSH_GENERATE_FOR_HOST.label! },
+    { label: SSH_GENERATE.label! },
+    { label: SSH_VIEW.label! },
+    { label: SSH_CREATE.label! },
+    { label: SSH_DELETE.label! },
+    { label: SSH_UPLOAD.label! },
   ];
 
   if (gitHubActions) {
-    items.push({ label: ADD_TO_GITHUB.label!, showBorder: true });
+    items.push({ label: SSH_ADD_TO_GITHUB.label!, showBorder: true });
   }
 
   const command = await theia.window.showQuickPick<theia.QuickPickItem>(items, {});
 
   if (command) {
-    if (command.label === GENERATE_FOR_HOST.label) {
+    if (command.label === SSH_GENERATE_FOR_HOST.label) {
       await generateKeyPairForHost();
       return true;
-    } else if (command.label === GENERATE.label) {
+    } else if (command.label === SSH_GENERATE.label) {
       await generateKeyPair();
       return true;
-    } else if (command.label === VIEW.label) {
+    } else if (command.label === SSH_VIEW.label) {
       await viewPublicKey();
       return true;
-    } else if (command.label === CREATE.label) {
+    } else if (command.label === SSH_CREATE.label) {
       await createKeyPair();
       return true;
-    } else if (command.label === DELETE.label) {
-      await deleteKeyPair();
+    } else if (command.label === SSH_DELETE.label) {
+      await deleteKeyPair({ gitCloneFlow: true });
       return true;
-    } else if (command.label === UPLOAD.label) {
+    } else if (command.label === SSH_UPLOAD.label) {
       await uploadPrivateKey();
       return true;
-    } else if (command.label === ADD_TO_GITHUB.label) {
-      await addGitHubKey();
+    } else if (command.label === SSH_ADD_TO_GITHUB.label) {
+      await addGitHubKey({ gitCloneFlow: true });
       return true;
     }
   }
 
   return false;
-}
-
-/**
- * Finds appropriate key for GitHub.
- */
-async function getGitHubKey(): Promise<cheApi.ssh.SshPair | undefined> {
-  const keys = await getKeys();
-
-  let key = keys.find(k => !!k.publicKey && !!k.name && k.name.startsWith('github.com') && k.publicKey);
-
-  if (!key) {
-    key = keys.find(k => !!k.publicKey && !!k.name && k.name.startsWith('default-') && k.publicKey);
-  }
-
-  return key;
 }
 
 /**
@@ -284,25 +252,84 @@ async function generateGitHubKey(): Promise<cheApi.ssh.SshPair> {
 /**
  * Adds an existing public key to GitHub.
  */
-async function addGitHubKey(): Promise<boolean> {
-  let key = await getGitHubKey();
+async function addGitHubKey(config?: { gitCloneFlow?: boolean }): Promise<boolean> {
+  const actions = config && config.gitCloneFlow ? [CONTINUE] : [];
 
+  // get list of keys
+  let keys: cheApi.ssh.SshPair[];
   try {
-    if (!key) {
-      key = await generateGitHubKey();
+    keys = await che.ssh.getAll('vcs');
+  } catch (e) {
+    await theia.window.showErrorMessage(MESSAGE_GET_KEYS_FAILED, ...actions);
+    return false;
+  }
+
+  if (keys.length === 0) {
+    const GENERATE = 'Generate';
+    const CANCEL = 'Cancel';
+    const action = await theia.window.showWarningMessage(
+      `${MESSAGE_NO_SSH_KEYS} Do you want to generate new one?`,
+      GENERATE,
+      CANCEL
+    );
+    if (action === GENERATE) {
+      keys.push(await generateGitHubKey());
+    } else {
+      return false;
+    }
+  }
+
+  // filter keys, leave only with names and that have public keys
+  keys = keys.filter(key => key.name && key.publicKey);
+
+  let key: cheApi.ssh.SshPair | undefined;
+  if (keys.length === 1) {
+    // only one key has been found
+    // use it
+    key = keys[0];
+  } else {
+    // pick key from the list
+    const keyName = await theia.window.showQuickPick<theia.QuickPickItem>(
+      keys.map(k => ({ label: k.name! })),
+      {}
+    );
+
+    if (!keyName) {
+      // user closed the popup
+      return false;
     }
 
+    key = keys.find(k => k.name && k.name === keyName.label);
+  }
+
+  try {
     if (key && key.publicKey) {
       await che.github.uploadPublicSshKey(key.publicKey);
       return true;
     } else {
-      await theia.window.showErrorMessage('Unable to find public key.');
+      await theia.window.showErrorMessage('Unable to find public key.', ...actions);
     }
   } catch (error) {
     console.error(error.message);
+    await theia.window.showErrorMessage('Failure to add public key to GitHub.', ...actions);
   }
 
   return false;
+}
+
+/**
+ * Finds appropriate key for GitHub.
+ */
+async function getGitHubKey(): Promise<cheApi.ssh.SshPair | undefined> {
+  const keys = await che.ssh.getAll('vcs');
+
+  let key = keys.find(k => !!k.publicKey && !!k.name && k.name.startsWith('github.com') && k.publicKey);
+
+  if (!key) {
+    key = keys.find(k => !!k.publicKey && !!k.name && k.name.startsWith('default-') && k.publicKey);
+  }
+
+  return key;
 }
 
 /**
@@ -311,7 +338,13 @@ async function addGitHubKey(): Promise<boolean> {
  * @param tryAgain
  */
 async function generateAndUploadKeyToGithub(tryAgain: boolean): Promise<boolean> {
-  let key = await getGitHubKey();
+  let key;
+  try {
+    key = await getGitHubKey();
+  } catch (e) {
+    await theia.window.showErrorMessage(MESSAGE_GET_KEYS_FAILED);
+    return false;
+  }
 
   const message = `Permission denied. Would you like to ${key ? '' : 'generate and'}
     upload the public SSH key to GitHub${tryAgain ? ' and try again' : ''}?`;
@@ -356,7 +389,7 @@ async function generateKeyPair(): Promise<void> {
     await theia.window.showTextDocument(document!);
   }
 
-  await theia.window.showWarningMessage(RESTART_WARNING_MESSAGE);
+  await theia.window.showWarningMessage(MESSAGE_NEED_RESTART_WORKSPACE);
 }
 
 async function generateKeyPairForHost(): Promise<void> {
@@ -377,11 +410,11 @@ async function generateKeyPairForHost(): Promise<void> {
     await theia.window.showTextDocument(document!);
   }
 
-  await theia.window.showWarningMessage(RESTART_WARNING_MESSAGE);
+  await theia.window.showWarningMessage(MESSAGE_NEED_RESTART_WORKSPACE);
 }
 
 async function createKeyPair(): Promise<void> {
-  let hostName = await getHostName(ENTER_KEY_NAME_OR_LEAVE_EMPTY_MESSAGE);
+  let hostName = await getHostName(MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY);
   if (!hostName) {
     hostName = `default-${Date.now()}`;
   }
@@ -393,14 +426,14 @@ async function createKeyPair(): Promise<void> {
     await updateConfig(hostName);
     await writeKey(hostName, privateKey!);
     await theia.window.showInformationMessage(`Key pair for ${hostName} successfully created`);
-    await theia.window.showWarningMessage(RESTART_WARNING_MESSAGE);
+    await theia.window.showWarningMessage(MESSAGE_NEED_RESTART_WORKSPACE);
   } catch (error) {
     await theia.window.showErrorMessage(error);
   }
 }
 
 async function uploadPrivateKey(): Promise<void> {
-  let hostName = await getHostName(ENTER_KEY_NAME_OR_LEAVE_EMPTY_MESSAGE);
+  let hostName = await getHostName(MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY);
   if (!hostName) {
     hostName = `default-${Date.now()}`;
   }
@@ -440,7 +473,7 @@ async function uploadPrivateKey(): Promise<void> {
     }
 
     await theia.window.showInformationMessage(`Key pair for ${hostName} successfully uploaded`);
-    await theia.window.showWarningMessage(RESTART_WARNING_MESSAGE);
+    await theia.window.showWarningMessage(MESSAGE_NEED_RESTART_WORKSPACE);
   } catch (error) {
     theia.window.showErrorMessage(error);
   }
@@ -449,22 +482,20 @@ async function uploadPrivateKey(): Promise<void> {
   await remove(tempDir);
 }
 
-async function getKeys(): Promise<cheApi.ssh.SshPair[]> {
-  const keys: cheApi.ssh.SshPair[] = await che.ssh.getAll('vcs');
-  if (!keys || keys.length < 1) {
-    throw new Error('No SSH key pair has been defined.');
-  }
-  return keys;
-}
-
-async function deleteKeyPair(): Promise<void> {
+async function deleteKeyPair(config?: { gitCloneFlow?: boolean }): Promise<void> {
   let keys: cheApi.ssh.SshPair[];
   try {
-    keys = await getKeys();
-  } catch (error) {
-    await theia.window.showErrorMessage(`Delete SSH key operation is interrupted: ${error.message}`);
+    keys = await che.ssh.getAll('vcs');
+  } catch (e) {
+    await theia.window.showErrorMessage(MESSAGE_GET_KEYS_FAILED);
     return;
   }
+
+  if (keys.length === 0) {
+    await theia.window.showWarningMessage(MESSAGE_NO_SSH_KEYS);
+    return;
+  }
+
   const keyResp = await theia.window.showQuickPick<theia.QuickPickItem>(
     keys.map(key => ({ label: key.name ? key.name : '' })),
     {}
@@ -542,11 +573,17 @@ function startSshAgent(): Promise<void> {
 async function viewPublicKey(): Promise<void> {
   let keys: cheApi.ssh.SshPair[];
   try {
-    keys = await getKeys();
-  } catch (error) {
-    await theia.window.showWarningMessage('View public SSH key operation is interrupted: ' + error.message);
+    keys = await che.ssh.getAll('vcs');
+  } catch (e) {
+    await theia.window.showErrorMessage(MESSAGE_GET_KEYS_FAILED);
     return;
   }
+
+  if (keys.length === 0) {
+    await theia.window.showWarningMessage(MESSAGE_NO_SSH_KEYS);
+    return;
+  }
+
   const keyResp = await theia.window.showQuickPick<theia.QuickPickItem>(
     keys.map(key => ({ label: key.name ? key.name : '' })),
     {}
@@ -555,6 +592,7 @@ async function viewPublicKey(): Promise<void> {
   try {
     const key = await che.ssh.get('vcs', keyName);
     const document = await theia.workspace.openTextDocument({ content: key.publicKey });
+
     theia.window.showTextDocument(document!);
   } catch (error) {
     theia.window.showErrorMessage(error);
