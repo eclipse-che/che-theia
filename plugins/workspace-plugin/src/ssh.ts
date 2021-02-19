@@ -12,6 +12,15 @@ import * as theia from '@theia/plugin';
 
 const SSH_PLUGIN_ID = 'Eclipse Che.@eclipse-che/theia-ssh-plugin';
 
+export async function addKeyToGitHub(): Promise<void> {
+  const sshPlugin = theia.plugins.getPlugin(SSH_PLUGIN_ID);
+  if (sshPlugin && sshPlugin.exports) {
+    await sshPlugin.exports.addKeyToGitHub();
+  } else {
+    await theia.window.showErrorMessage('Unable to find SSH Plugin');
+  }
+}
+
 export async function configure(gitHubActions: boolean): Promise<void> {
   const sshPlugin = theia.plugins.getPlugin(SSH_PLUGIN_ID);
   if (sshPlugin && sshPlugin.exports) {

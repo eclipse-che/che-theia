@@ -167,6 +167,7 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
       // - show SSH options
 
       const RETRY = 'Retry';
+      const ADD_KEY_TO_GITHUB = 'Add Key To GitHub';
       const CONFIGURE_SSH = 'Configure SSH';
 
       let message = `Failure to clone git project ${this.locationURI}`;
@@ -174,13 +175,18 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
         message += ` ${latestError}`;
       }
 
-      const action = await theia.window.showWarningMessage(message, RETRY, CONFIGURE_SSH);
+      const isSecureGitHubURI = git.isSecureGitHubURI(this.locationURI);
+      const buttons = isSecureGitHubURI ? [RETRY, ADD_KEY_TO_GITHUB, CONFIGURE_SSH] : [RETRY, CONFIGURE_SSH];
+      const action = await theia.window.showWarningMessage(message, ...buttons);
       if (action === RETRY) {
         // Retry Secure login
         // Do nothing, just continue the loop
         continue;
+      } else if (action === ADD_KEY_TO_GITHUB) {
+        await ssh.addKeyToGitHub();
+        continue;
       } else if (action === CONFIGURE_SSH) {
-        await ssh.configure(git.isSecureGitHubURI(this.locationURI));
+        await ssh.configure(isSecureGitHubURI);
         continue;
       } else {
         // It seems user closed the popup.

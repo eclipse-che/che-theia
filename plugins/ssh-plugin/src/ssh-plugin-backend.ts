@@ -41,6 +41,7 @@ import { spawn } from 'child_process';
 
 export interface PluginModel {
   configureSSH(gitHubActions: boolean): Promise<boolean>;
+  addKeyToGitHub(): Promise<boolean>;
 }
 
 const MESSAGE_NEED_RESTART_WORKSPACE =
@@ -163,6 +164,7 @@ export async function start(): Promise<PluginModel> {
 
   return {
     configureSSH: async (gitHubActions: boolean) => showCommandPalette(gitHubActions),
+    addKeyToGitHub: async () => addGitHubKey({ gitCloneFlow: true }),
   };
 }
 
