@@ -271,6 +271,10 @@ export class ChePluginServiceImpl implements ChePluginService {
       try {
         // Get list of ChePluginMetadataInternal from plugin registry
         const registryPlugins = await this.loadPluginList(registry);
+        if (!Array.isArray(registryPlugins)) {
+          await this.client.invalidRegistryFound(registry);
+          return;
+        }
         availablePlugins += registryPlugins.length;
         await this.client.notifyPluginCacheSizeChanged(availablePlugins);
 
@@ -295,7 +299,7 @@ export class ChePluginServiceImpl implements ChePluginService {
             await this.client.notifyPluginCached(this.cachedPlugins.length);
           } catch (error) {
             console.log('Unable go get plugin metadata from ' + pluginYamlURI);
-            await this.client.invaligPluginFound(pluginYamlURI);
+            await this.client.invalidPluginFound(pluginYamlURI);
           }
         }
       } catch (error) {
