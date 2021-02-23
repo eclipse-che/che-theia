@@ -25,7 +25,16 @@ export class CheGithubMainImpl implements CheGithubMain {
   }
 
   async $uploadPublicSshKey(publicKey: string): Promise<void> {
-    await this.fetchToken();
+    try {
+      await this.fetchToken();
+      await this.uploadKey(publicKey);
+    } catch (error) {
+      console.error(error.message);
+      throw error;
+    }
+  }
+
+  async uploadKey(publicKey: string): Promise<void> {
     await this.axiosInstance.post(
       'https://api.github.com/user/keys',
       {
@@ -76,6 +85,7 @@ export class CheGithubMainImpl implements CheGithubMain {
       await this.oAuthUtils.authenticate(oAuthProvider, ['repo', 'user', 'write:public_key']);
       this.token = await this.oAuthUtils.getToken(oAuthProvider);
     };
+
     if (await this.oAuthUtils.isAuthenticated(oAuthProvider)) {
       try {
         // Validate the GitHub token.

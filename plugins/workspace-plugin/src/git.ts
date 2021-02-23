@@ -100,3 +100,44 @@ export function getGitRootFolder(uri: string): string {
 export async function execGit(directory: string, ...args: string[]): Promise<string | undefined> {
   return execute('git', args, { cwd: directory });
 }
+
+export function isSecureGitURI(uri: string): boolean {
+  return uri.startsWith('git@');
+}
+
+export function isSecureGitHubURI(uri: string): boolean {
+  return uri.startsWith('git@github.com');
+}
+
+export function getHost(uri: string): string {
+  if (uri.startsWith('git@')) {
+    return uri.substring(0, uri.indexOf(':'));
+  } else {
+    return uri;
+  }
+}
+
+export async function testSecureLogin(uri: string): Promise<string> {
+  const host = getHost(uri);
+  const args: string[] = ['-T', host];
+
+  try {
+    const result = await execute('ssh', args);
+    return result;
+  } catch (error) {
+    const searchString = "You've successfully authenticated";
+    if (error.message.indexOf(searchString) > 0) {
+      return error.message;
+    } else {
+      throw error;
+    }
+  }
+}
+
+export function getErrorReason(message: string): string | undefined {
+  if (message.indexOf('Permission denied (publickey)') >= 0) {
+    return 'A valid SSH key may be required';
+  }
+
+  return undefined;
+}
