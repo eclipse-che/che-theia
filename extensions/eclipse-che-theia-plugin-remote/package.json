@@ -1,7 +1,7 @@
 {
   "name": "@eclipse-che/theia-remote",
   "author": "Florent Benoit",
-  "version": "7.26.1",
+  "version": "7.26.2",
   "license": "EPL-2.0",
   "files": [
     "lib",
@@ -13,7 +13,7 @@
     "@theia/plugin-ext-vscode": "1.11.0-next.c9db9754",
     "deasync": "^0.1.19",
     "vscode-uri": "2.1.1",
-    "@eclipse-che/theia-plugin-ext": "7.26.1"
+    "@eclipse-che/theia-plugin-ext": "7.26.2"
   },
   "devDependencies": {
     "@types/deasync": "^0.1.0",
