@@ -1,3 +1,3 @@
 # Eclipse Che-Theia release process
 
-See [Release Che Theia](./.github/workflows/release.yaml) workflow.
+See [Release Che Theia](./.github/workflows/release.yml) workflow.
