@@ -35,6 +35,7 @@ jobs:
         fetch-depth: 0
     - name: Check existing tags
       run: |
+        set +e
         RECREATE_TAGS=${{ github.event.inputs.forceRecreateTags }}
         git ls-remote --exit-code origin refs/tags/${{ github.event.inputs.version}}
         TAG_EXISTS=$?
@@ -64,6 +65,10 @@ jobs:
         registry: quay.io
     - name: Prepare release
       run: |
+        git config --global user.name "Mykhailo Kuznietsov"
+        git config --global user.email "mkuznets@redhat.com"
+        export GITHUB_TOKEN=${{ secrets.CHE_BOT_GITHUB_TOKEN }}
+        export AKAMAI_CHE_AUTH=${{ secrets.AKAMAI_CHE_AUTH }}
         ./make-release.sh --version ${{ github.event.inputs.version }}
     - name: Build and publish images
       run: |

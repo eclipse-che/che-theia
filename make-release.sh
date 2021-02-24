@@ -133,5 +133,3 @@ fi
 git checkout "${BRANCH}"
 git tag "${VERSION}"
 git push origin "${VERSION}"
-
-popd > /dev/null || exit
