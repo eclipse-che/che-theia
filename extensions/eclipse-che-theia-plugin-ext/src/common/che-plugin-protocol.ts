@@ -132,5 +132,5 @@ export interface ChePluginServiceClient {
   /**
    * Called by Plugin Service when invalid plugin meta.yaml has been found while updating plugin cache.
    */
-  invaligPluginFound(pluginYaml: string): Promise<void>;
+  invalidPluginFound(pluginYaml: string): Promise<void>;
 }
