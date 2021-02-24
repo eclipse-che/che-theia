@@ -82,9 +82,7 @@ export class ChePluginManager {
   @postConstruct()
   async onStart() {
     await this.initDefaults();
-    const fireChanged = debounce(() => {
-      this.pluginRegistryListChangedEvent.fire();
-    }, 5000);
+    const fireChanged = debounce(() => this.pluginRegistryListChangedEvent.fire(), 5000);
     this.preferenceService.onPreferenceChanged(async (event: PreferenceChange) => {
       if (event.preferenceName !== 'chePlugins.repositories') {
         return;
@@ -109,7 +107,7 @@ export class ChePluginManager {
     });
     this.chePluginServiceClient.onInvalidRegistryFound(async registry => {
       const result = await this.messageService.warn(
-        `Invalid plugin registry with name "${registry.name}" and url: "${registry.uri}" is detected`,
+        `Invalid plugin registry URL: "${registry.uri}" is detected`,
         'Open settings.json'
       );
       if (result) {

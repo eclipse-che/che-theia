@@ -273,7 +273,7 @@ export class ChePluginServiceImpl implements ChePluginService {
         const registryPlugins = await this.loadPluginList(registry);
         if (!Array.isArray(registryPlugins)) {
           await this.client.invalidRegistryFound(registry);
-          return;
+          continue;
         }
         availablePlugins += registryPlugins.length;
         await this.client.notifyPluginCacheSizeChanged(availablePlugins);
