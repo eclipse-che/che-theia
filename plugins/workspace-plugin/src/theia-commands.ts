@@ -207,17 +207,10 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
         return Promise.reject(new Error(message));
       }
 
-      // pause will be removed after debugging this method
-      await this.pause(100);
+      break;
     }
 
     return this.clone();
-  }
-
-  private async pause(miliseconds: number): Promise<void> {
-    return new Promise(resolve => {
-      setTimeout(resolve, miliseconds);
-    });
   }
 
   // Clones git repository
