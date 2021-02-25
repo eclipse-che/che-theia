@@ -34,6 +34,7 @@ export interface DevfileMetadata {
 
 export interface Devfile {
   apiVersion: string;
+  attributes?: { [attributeName: string]: string };
   metadata: DevfileMetadata;
   projects?: DevfileProject[];
   components?: DevfileComponent[];
@@ -163,7 +164,7 @@ export interface DevfileProjectInfo {
 }
 export interface DevfileProject {
   name: string;
-  attributes: { [attributeName: string]: string };
+  attributes?: { [attributeName: string]: string };
   clonePath?: string;
   git?: DevfileProjectInfo;
   github?: DevfileProjectInfo;

@@ -8,29 +8,26 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import {
-  SERVER_MINI_BROWSER_ATTR_VALUE,
-  SERVER_TYPE_ATTR,
-} from '@eclipse-che/theia-plugin-ext/lib/common/che-server-common';
 import { inject, postConstruct } from 'inversify';
 
+import { EndpointService } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
 import { MiniBrowserEndpoint } from '@theia/mini-browser/lib/common/mini-browser-endpoint';
 import { MiniBrowserEnvironment } from '@theia/mini-browser/lib/browser/environment/mini-browser-environment';
-import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
+import { SERVER_MINI_BROWSER_ATTR_VALUE } from '@eclipse-che/theia-plugin-ext/lib/common/che-server-common';
 
 export class CheMiniBrowserEnvironment extends MiniBrowserEnvironment {
-  @inject(WorkspaceService)
-  private workspaceService: WorkspaceService;
+  @inject(EndpointService)
+  private endpointService: EndpointService;
 
   @postConstruct()
   protected async postConstruct(): Promise<void> {
     const miniBrowserExternalEndpointPattern = await this.environment.getValue(MiniBrowserEndpoint.HOST_PATTERN_ENV);
 
-    const miniBrowserCheEndpoint = await this.workspaceService.findUniqueEndpointByAttribute(
-      SERVER_TYPE_ATTR,
-      SERVER_MINI_BROWSER_ATTR_VALUE
-    );
-
+    const miniBrowserCheEndpoints = await this.endpointService.getEndpointsByType(SERVER_MINI_BROWSER_ATTR_VALUE);
+    if (!miniBrowserCheEndpoints || miniBrowserCheEndpoints.length !== 1) {
+      throw new Error(`Find too many ${SERVER_MINI_BROWSER_ATTR_VALUE} endpoints`);
+    }
+    const miniBrowserCheEndpoint = miniBrowserCheEndpoints[0];
     let miniBrowserCheEndpointHostname: string | undefined;
     if (miniBrowserCheEndpoint && miniBrowserCheEndpoint.url) {
       const miniBrowserCheEndpointURL = new URL(miniBrowserCheEndpoint.url);

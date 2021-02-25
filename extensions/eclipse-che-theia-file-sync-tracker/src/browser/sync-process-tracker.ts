@@ -12,11 +12,11 @@ import { Disposable, DisposableCollection } from '@theia/core';
 import { StatusBar, StatusBarAlignment, StatusBarEntry } from '@theia/core/lib/browser/status-bar/status-bar';
 import { inject, injectable } from 'inversify';
 
+import { EndpointService } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
 import { FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { MessageService } from '@theia/core/lib/common';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import URI from '@theia/core/lib/common/uri';
-import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 @injectable()
 export class SyncProcessTracker implements FrontendApplicationContribution {
@@ -24,8 +24,8 @@ export class SyncProcessTracker implements FrontendApplicationContribution {
   private statusBar: StatusBar;
   @inject(MessageService)
   protected readonly messageService: MessageService;
-  @inject(WorkspaceService)
-  protected workspaceService: WorkspaceService;
+  @inject(EndpointService)
+  protected endpointService: EndpointService;
   private readonly ID = 'file-synchronization-indicator-id';
   protected readonly statusBarDisposable = new DisposableCollection();
 
@@ -38,9 +38,9 @@ export class SyncProcessTracker implements FrontendApplicationContribution {
   }
 
   async getSyncServiceURL(): Promise<string> {
-    const server = await this.workspaceService.findUniqueEndpointByAttribute('type', 'rsync');
-    if (server) {
-      return new URI(server.url).resolve('track').toString();
+    const endpoints = await this.endpointService.getEndpointsByType('rsync');
+    if (endpoints.length === 1) {
+      return new URI(endpoints[0].url).resolve('track').toString();
     } else {
       return Promise.reject(new Error('Server rsync not found'));
     }

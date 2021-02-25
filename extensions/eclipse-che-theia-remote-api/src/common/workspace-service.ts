@@ -60,8 +60,6 @@ export interface WorkspaceService {
   getWorkspaceById(workspaceId: string): Promise<Workspace>;
   getAll(userToken?: string): Promise<Workspace[]>;
   getAllByNamespace(namespace: string, userToken?: string): Promise<Workspace[]>;
-  getCurrentWorkspacesContainers(): Promise<{ [key: string]: Container }>;
-  findUniqueEndpointByAttribute(attributeName: string, attributeValue: string): Promise<Endpoint>;
   updateWorkspace(workspaceId: string, workspace: cheApi.workspace.Workspace): Promise<Workspace>;
   updateWorkspaceActivity(): Promise<void>;
   getWorkspaceSettings(): Promise<WorkspaceSettings>;

@@ -1,5 +1,5 @@
 {
-  "name": "@eclipse-che/theia-remote-api",
+  "name": "@eclipse-che/theia-remote-impl-k8s",
   "keywords": [
     "theia-extension"
   ],
@@ -12,7 +12,8 @@
     "src"
   ],
   "dependencies": {
-    "@kubernetes/client-node": "^0.12.1"
+    "@kubernetes/client-node": "^0.12.1",
+    "@eclipse-che/theia-remote-api": "^0.0.1"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",
@@ -28,7 +29,29 @@
   "license": "EPL-2.0",
   "theiaExtensions": [
     {
-      "frontend": "lib/browser/che-remote-api-frontend-module"
+      "backend": "lib/node/k8s-backend-module"
     }
-  ]
+  ],
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.ts"
+    ],
+    "coverageDirectory": "./coverage",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "modulePathIgnorePatterns": [
+      "<rootDir>/dist"
+    ],
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json"
+    ]
+  }
 }

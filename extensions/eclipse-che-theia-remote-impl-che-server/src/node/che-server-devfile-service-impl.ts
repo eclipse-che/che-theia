@@ -408,7 +408,10 @@ export class CheServerDevfileServiceImpl implements DevfileService {
           remotes,
         };
         let checkoutFromRevision;
-
+        if (!devfileV2Project.attributes) {
+          const projectAttributes = {};
+          devfileV2Project.attributes = projectAttributes;
+        }
         if (source.branch) {
           checkoutFromRevision = source.branch;
           devfileV2Project.attributes['source-origin'] = 'branch';
@@ -443,6 +446,10 @@ export class CheServerDevfileServiceImpl implements DevfileService {
     const gitSource: cheApi.workspace.devfile.Source = {};
 
     if (projectInfo.checkoutFrom) {
+      if (!project.attributes) {
+        const projectAttributes = {};
+        project.attributes = projectAttributes;
+      }
       if (project.attributes['source-origin']) {
         const origin = project.attributes['source-origin'];
         delete project.attributes['source-origin'];
