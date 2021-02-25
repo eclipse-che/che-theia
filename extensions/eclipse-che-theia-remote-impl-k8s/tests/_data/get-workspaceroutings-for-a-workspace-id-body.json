@@ -1,0 +1,217 @@
+{
+    "apiVersion": "controller.devfile.io/v1alpha1",
+    "items": [
+      {
+        "apiVersion": "controller.devfile.io/v1alpha1",
+        "kind": "WorkspaceRouting",
+        "metadata": {
+          "creationTimestamp": "2021-02-02T16:57:30Z",
+          "generation": 1,
+          "labels": {
+            "controller.devfile.io/workspace_id": "workspaceeb55021d3cff42e0"
+          },
+          "managedFields": [
+            {
+              "apiVersion": "controller.devfile.io/v1alpha1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:metadata": {
+                  "f:labels": {
+                    ".": {},
+                    "f:controller.devfile.io/workspace_id": {}
+                  },
+                  "f:ownerReferences": {}
+                },
+                "f:spec": {
+                  ".": {},
+                  "f:endpoints": {
+                    ".": {},
+                    "f:che-rest-apis": {},
+                    "f:terminal": {},
+                    "f:theia-ide": {}
+                  },
+                  "f:podSelector": {
+                    ".": {},
+                    "f:controller.devfile.io/workspace_id": {}
+                  },
+                  "f:routingSuffix": {},
+                  "f:workspaceId": {}
+                },
+                "f:status": {
+                  ".": {},
+                  "f:exposedEndpoints": {
+                    ".": {},
+                    "f:terminal": {},
+                    "f:theia-ide": {}
+                  },
+                  "f:phase": {}
+                }
+              },
+              "manager": "devworkspace-controller",
+              "operation": "Update",
+              "time": "2021-02-02T16:57:31Z"
+            }
+          ],
+          "name": "routing-workspaceeb55021d3cff42e0",
+          "namespace": "che",
+          "ownerReferences": [
+            {
+              "apiVersion": "workspace.devfile.io/v1alpha2",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "DevWorkspace",
+              "name": "theia",
+              "uid": "eb55021d-3cff-42e0-b091-624708504bf7"
+            }
+          ],
+          "resourceVersion": "2754",
+          "selfLink": "/apis/controller.devfile.io/v1alpha1/namespaces/che/workspaceroutings/routing-workspaceeb55021d3cff42e0",
+          "uid": "40af1119-48e1-440a-ac55-9c279c526e2d"
+        },
+        "spec": {
+          "endpoints": {
+            "che-rest-apis": [
+              {
+                "exposure": "internal",
+                "name": "che-rest-apis",
+                "protocol": "tcp",
+                "targetPort": 9999
+              }
+            ],
+            "terminal": [
+              {
+                "attributes": {
+                  "cookiesAuthEnabled": "true",
+                  "type": "terminal"
+                },
+                "exposure": "public",
+                "name": "che-mach-exec",
+                "protocol": "ws",
+                "secure": true,
+                "targetPort": 4444
+              }
+            ],
+            "theia-ide": [
+              {
+                "attributes": {
+                  "cookiesAuthEnabled": "true",
+                  "type": "ide"
+                },
+                "exposure": "public",
+                "name": "theia",
+                "protocol": "http",
+                "secure": true,
+                "targetPort": 3100
+              },
+              {
+                "attributes": {
+                  "cookiesAuthEnabled": "true",
+                  "type": "webview",
+                  "unique": "true"
+                },
+                "exposure": "public",
+                "name": "webviews",
+                "protocol": "http",
+                "secure": true,
+                "targetPort": 3100
+              },
+              {
+                "attributes": {
+                  "type": "ide-dev"
+                },
+                "exposure": "public",
+                "name": "theia-dev",
+                "protocol": "http",
+                "targetPort": 3130
+              },
+              {
+                "exposure": "public",
+                "name": "theia-redir-1",
+                "protocol": "http",
+                "targetPort": 13131
+              },
+              {
+                "exposure": "public",
+                "name": "theia-redir-2",
+                "protocol": "http",
+                "targetPort": 13132
+              },
+              {
+                "exposure": "public",
+                "name": "theia-redir-3",
+                "protocol": "http",
+                "targetPort": 13133
+              }
+            ]
+          },
+          "podSelector": {
+            "controller.devfile.io/workspace_id": "workspaceeb55021d3cff42e0"
+          },
+          "routingSuffix": "192.168.64.31.nip.io",
+          "workspaceId": "workspaceeb55021d3cff42e0"
+        },
+        "status": {
+          "exposedEndpoints": {
+            "terminal": [
+              {
+                "attributes": {
+                  "cookiesAuthEnabled": "true",
+                  "type": "terminal"
+                },
+                "name": "che-mach-exec",
+                "url": "ws://workspaceeb55021d3cff42e0-che-mach-exec-4444.192.168.64.31.nip.io"
+              }
+            ],
+            "theia-ide": [
+              {
+                "attributes": {
+                  "cookiesAuthEnabled": "true",
+                  "type": "ide"
+                },
+                "name": "theia",
+                "url": "http://workspaceeb55021d3cff42e0-theia-3100.192.168.64.31.nip.io"
+              },
+              {
+                "attributes": {
+                  "cookiesAuthEnabled": "true",
+                  "type": "webview",
+                  "unique": "true"
+                },
+                "name": "webviews",
+                "url": "http://workspaceeb55021d3cff42e0-webviews-3100.192.168.64.31.nip.io"
+              },
+              {
+                "attributes": {
+                  "type": "ide-dev"
+                },
+                "name": "theia-dev",
+                "url": "http://workspaceeb55021d3cff42e0-theia-dev-3130.192.168.64.31.nip.io"
+              },
+              {
+                "attributes": {},
+                "name": "theia-redir-1",
+                "url": "http://workspaceeb55021d3cff42e0-theia-redir-1-13131.192.168.64.31.nip.io"
+              },
+              {
+                "attributes": {},
+                "name": "theia-redir-2",
+                "url": "http://workspaceeb55021d3cff42e0-theia-redir-2-13132.192.168.64.31.nip.io"
+              },
+              {
+                "attributes": {},
+                "name": "theia-redir-3",
+                "url": "http://workspaceeb55021d3cff42e0-theia-redir-3-13133.192.168.64.31.nip.io"
+              }
+            ]
+          },
+          "phase": "Ready"
+        }
+      }
+    ],
+    "kind": "WorkspaceRoutingList",
+    "metadata": {
+      "continue": "",
+      "resourceVersion": "659254",
+      "selfLink": "/apis/controller.devfile.io/v1alpha1/namespaces/che/workspaceroutings"
+    }
+  }

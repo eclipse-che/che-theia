@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
+
+import {
+  Devfile,
+  DevfileComponentStatus,
+  DevfileService,
+} from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 
 import { AbstractDialog } from '@theia/core/lib/browser';
 import { CheDevfileMain } from '../common/che-protocol';
@@ -19,11 +25,14 @@ export class CheDevfileMainImpl implements CheDevfileMain {
 
   private readonly windowService: WindowService;
 
+  private readonly devfileService: DevfileService;
+
   private readonly openFactoryLinkDialog: OpenFactoryLinkDialog;
 
   constructor(container: interfaces.Container) {
     this.factoryService = container.get(FactoryService);
     this.windowService = container.get(WindowService);
+    this.devfileService = container.get(DevfileService);
     this.openFactoryLinkDialog = new OpenFactoryLinkDialog(this.windowService);
   }
 
@@ -31,6 +40,18 @@ export class CheDevfileMainImpl implements CheDevfileMain {
     const fileDownloadURI = window.location.origin + '/files/?uri=' + devfilePath;
     const factoryURI = await this.factoryService.getFactoryLink(fileDownloadURI);
     await this.openFactoryWindow(factoryURI);
+  }
+
+  async $get(): Promise<Devfile> {
+    return this.devfileService.get();
+  }
+
+  async $update(updatedDevfile: Devfile): Promise<void> {
+    return this.devfileService.updateDevfile(updatedDevfile);
+  }
+
+  async $getComponentStatuses(): Promise<DevfileComponentStatus[]> {
+    return this.devfileService.getComponentStatuses();
   }
 
   /**

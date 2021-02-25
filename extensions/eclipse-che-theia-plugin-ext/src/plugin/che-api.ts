@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -104,6 +104,15 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
     };
 
     const devfile: typeof che.devfile = {
+      get(): Promise<che.devfile.Devfile> {
+        return cheDevfileImpl.get();
+      },
+      update(updatedDevfile: che.devfile.Devfile): Promise<void> {
+        return cheDevfileImpl.update(updatedDevfile);
+      },
+      getComponentStatuses(): Promise<che.devfile.DevfileComponentStatus[]> {
+        return cheDevfileImpl.getComponentStatuses();
+      },
       createWorkspace(devfilePath: string): Promise<void> {
         return cheDevfileImpl.createWorkspace(devfilePath);
       },

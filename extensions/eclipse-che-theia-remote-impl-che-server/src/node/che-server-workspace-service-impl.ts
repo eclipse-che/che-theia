@@ -10,7 +10,6 @@
 
 import {
   Container,
-  Endpoint,
   Workspace,
   WorkspaceService,
   WorkspaceSettings,
@@ -75,48 +74,6 @@ export class CheServerWorkspaceServiceImpl implements WorkspaceService {
     return this.cheServerRemoteApiImpl.getAPI().getSettings();
   }
 
-  public async getCurrentWorkspacesContainers(): Promise<{ [key: string]: Container }> {
-    const result: { [key: string]: Container } = {};
-    try {
-      const workspace = await this.currentWorkspace();
-      const containers = workspace.runtime!.machines;
-      if (containers) {
-        for (const containerName of Object.keys(containers)) {
-          const container: Container = { name: containerName, ...containers[containerName] };
-          container.name = containerName;
-          if (container) {
-            result[containerName] = container;
-          }
-        }
-      }
-    } catch (e) {
-      throw new Error(`Unable to get workspace containers. Cause: ${e}`);
-    }
-    return result;
-  }
-
-  public async findUniqueEndpointByAttribute(attributeName: string, attributeValue: string): Promise<Endpoint> {
-    const containers = await this.getCurrentWorkspacesContainers();
-    try {
-      if (containers) {
-        for (const containerName of Object.keys(containers)) {
-          const servers = containers[containerName].servers;
-          if (servers) {
-            for (const serverName of Object.keys(servers)) {
-              const server = servers[serverName];
-              if (server && server.attributes && server.attributes[attributeName] === attributeValue) {
-                return server;
-              }
-            }
-          }
-        }
-      }
-      return Promise.reject(`Server by attributes '${attributeName}'='${attributeValue}' was not found.`);
-    } catch (e) {
-      return Promise.reject(`Unable to get workspace servers. Cause: ${e}`);
-    }
-  }
-
   public async getContainerList(): Promise<Container[]> {
     const containers: Container[] = [];
     try {
@@ -134,7 +91,7 @@ export class CheServerWorkspaceServiceImpl implements WorkspaceService {
         }
       }
     } catch (e) {
-      throw new Error('Unable to get list workspace containers. Cause: ' + e);
+      throw new Error('Unable to get list of workspace containers. Cause: ' + e);
     }
 
     return containers;

@@ -1,0 +1,1531 @@
+{
+    "apiVersion": "v1",
+    "items": [
+      {
+        "metadata": {
+          "creationTimestamp": "2021-02-02T16:57:31.000Z",
+          "generateName": "workspaceeb55021d3cff42e0-77f7bd767f-",
+          "labels": {
+            "controller.devfile.io/workspace_id": "workspaceeb55021d3cff42e0",
+            "controller.devfile.io/workspace_name": "theia",
+            "pod-template-hash": "77f7bd767f"
+          },
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:metadata": {
+                  "f:generateName": {},
+                  "f:labels": {
+                    ".": {},
+                    "f:controller.devfile.io/workspace_id": {},
+                    "f:controller.devfile.io/workspace_name": {},
+                    "f:pod-template-hash": {}
+                  },
+                  "f:ownerReferences": {
+                    ".": {},
+                    "k:{\"uid\":\"3c7e3b78-0ae2-4d45-ac32-342f4664e5a1\"}": {
+                      ".": {},
+                      "f:apiVersion": {},
+                      "f:blockOwnerDeletion": {},
+                      "f:controller": {},
+                      "f:kind": {},
+                      "f:name": {},
+                      "f:uid": {}
+                    }
+                  }
+                },
+                "f:spec": {
+                  "f:containers": {
+                    "k:{\"name\":\"che-rest-apis\"}": {
+                      ".": {},
+                      "f:env": {
+                        ".": {},
+                        "k:{\"name\":\"CHE_WORKSPACE_DEVFILE_YAML_PATH\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_WORKSPACE_ID\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_WORKSPACE_NAME\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_WORKSPACE_NAMESPACE\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_WORKSPACE_RUNTIME_JSON_PATH\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_CREATOR\"}": {
+                          ".": {},
+                          "f:name": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_ID\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_IDLE_TIMEOUT\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_NAME\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_NAMESPACE\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        }
+                      },
+                      "f:image": {},
+                      "f:imagePullPolicy": {},
+                      "f:name": {},
+                      "f:ports": {
+                        ".": {},
+                        "k:{\"containerPort\":9999,\"protocol\":\"TCP\"}": {
+                          ".": {},
+                          "f:containerPort": {},
+                          "f:protocol": {}
+                        }
+                      },
+                      "f:resources": {},
+                      "f:terminationMessagePath": {},
+                      "f:terminationMessagePolicy": {},
+                      "f:volumeMounts": {
+                        ".": {},
+                        "k:{\"mountPath\":\"/workspace/\"}": {
+                          ".": {},
+                          "f:mountPath": {},
+                          "f:name": {},
+                          "f:readOnly": {}
+                        }
+                      }
+                    },
+                    "k:{\"name\":\"terminal\"}": {
+                      ".": {},
+                      "f:args": {},
+                      "f:command": {},
+                      "f:env": {
+                        ".": {},
+                        "k:{\"name\":\"CHE_API\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_API_EXTERNAL\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_API_INTERNAL\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_AUTH_ENABLED\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_MACHINE_NAME\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_MACHINE_TOKEN\"}": {
+                          ".": {},
+                          "f:name": {}
+                        },
+                        "k:{\"name\":\"CHE_PROJECTS_ROOT\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_WORKSPACE_ID\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_WORKSPACE_NAME\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_WORKSPACE_NAMESPACE\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_CREATOR\"}": {
+                          ".": {},
+                          "f:name": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_ID\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_IDLE_TIMEOUT\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_NAME\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_NAMESPACE\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"PROJECTS_ROOT\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"PROJECTS_SOURCE\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        }
+                      },
+                      "f:image": {},
+                      "f:imagePullPolicy": {},
+                      "f:name": {},
+                      "f:ports": {
+                        ".": {},
+                        "k:{\"containerPort\":4444,\"protocol\":\"TCP\"}": {
+                          ".": {},
+                          "f:containerPort": {},
+                          "f:name": {},
+                          "f:protocol": {}
+                        }
+                      },
+                      "f:resources": {
+                        ".": {},
+                        "f:limits": {
+                          ".": {},
+                          "f:memory": {}
+                        },
+                        "f:requests": {
+                          ".": {},
+                          "f:memory": {}
+                        }
+                      },
+                      "f:terminationMessagePath": {},
+                      "f:terminationMessagePolicy": {},
+                      "f:volumeMounts": {
+                        ".": {},
+                        "k:{\"mountPath\":\"/projects\"}": {
+                          ".": {},
+                          "f:mountPath": {},
+                          "f:name": {},
+                          "f:subPath": {}
+                        }
+                      }
+                    },
+                    "k:{\"name\":\"theia-ide\"}": {
+                      ".": {},
+                      "f:env": {
+                        ".": {},
+                        "k:{\"name\":\"CHE_API\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_API_EXTERNAL\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_API_INTERNAL\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_AUTH_ENABLED\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_MACHINE_NAME\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_MACHINE_TOKEN\"}": {
+                          ".": {},
+                          "f:name": {}
+                        },
+                        "k:{\"name\":\"CHE_PROJECTS_ROOT\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_WORKSPACE_ID\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_WORKSPACE_NAME\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_WORKSPACE_NAMESPACE\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_CREATOR\"}": {
+                          ".": {},
+                          "f:name": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_ID\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_IDLE_TIMEOUT\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_NAME\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_NAMESPACE\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"HOSTED_PLUGIN_HOSTNAME\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"HOSTED_PLUGIN_PORT\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"PROJECTS_ROOT\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"PROJECTS_SOURCE\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"THEIA_HOST\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"THEIA_PLUGINS\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        }
+                      },
+                      "f:image": {},
+                      "f:imagePullPolicy": {},
+                      "f:name": {},
+                      "f:ports": {
+                        ".": {},
+                        "k:{\"containerPort\":3100,\"protocol\":\"TCP\"}": {
+                          ".": {},
+                          "f:containerPort": {},
+                          "f:name": {},
+                          "f:protocol": {}
+                        },
+                        "k:{\"containerPort\":3130,\"protocol\":\"TCP\"}": {
+                          ".": {},
+                          "f:containerPort": {},
+                          "f:name": {},
+                          "f:protocol": {}
+                        },
+                        "k:{\"containerPort\":13131,\"protocol\":\"TCP\"}": {
+                          ".": {},
+                          "f:containerPort": {},
+                          "f:name": {},
+                          "f:protocol": {}
+                        },
+                        "k:{\"containerPort\":13132,\"protocol\":\"TCP\"}": {
+                          ".": {},
+                          "f:containerPort": {},
+                          "f:name": {},
+                          "f:protocol": {}
+                        },
+                        "k:{\"containerPort\":13133,\"protocol\":\"TCP\"}": {
+                          ".": {},
+                          "f:containerPort": {},
+                          "f:name": {},
+                          "f:protocol": {}
+                        }
+                      },
+                      "f:resources": {
+                        ".": {},
+                        "f:limits": {
+                          ".": {},
+                          "f:memory": {}
+                        },
+                        "f:requests": {
+                          ".": {},
+                          "f:memory": {}
+                        }
+                      },
+                      "f:terminationMessagePath": {},
+                      "f:terminationMessagePolicy": {},
+                      "f:volumeMounts": {
+                        ".": {},
+                        "k:{\"mountPath\":\"/plugins\"}": {
+                          ".": {},
+                          "f:mountPath": {},
+                          "f:name": {},
+                          "f:subPath": {}
+                        },
+                        "k:{\"mountPath\":\"/projects\"}": {
+                          ".": {},
+                          "f:mountPath": {},
+                          "f:name": {},
+                          "f:subPath": {}
+                        }
+                      }
+                    }
+                  },
+                  "f:dnsPolicy": {},
+                  "f:enableServiceLinks": {},
+                  "f:initContainers": {
+                    ".": {},
+                    "k:{\"name\":\"remote-runtime-injector\"}": {
+                      ".": {},
+                      "f:env": {
+                        ".": {},
+                        "k:{\"name\":\"CHE_API\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_API_EXTERNAL\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_API_INTERNAL\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_AUTH_ENABLED\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_MACHINE_NAME\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_MACHINE_TOKEN\"}": {
+                          ".": {},
+                          "f:name": {}
+                        },
+                        "k:{\"name\":\"CHE_PROJECTS_ROOT\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_WORKSPACE_ID\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_WORKSPACE_NAME\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_WORKSPACE_NAMESPACE\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_CREATOR\"}": {
+                          ".": {},
+                          "f:name": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_ID\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_IDLE_TIMEOUT\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_NAME\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_NAMESPACE\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"PLUGIN_REMOTE_ENDPOINT_EXECUTABLE\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"PROJECTS_ROOT\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"PROJECTS_SOURCE\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"REMOTE_ENDPOINT_VOLUME_NAME\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        }
+                      },
+                      "f:image": {},
+                      "f:imagePullPolicy": {},
+                      "f:name": {},
+                      "f:resources": {
+                        ".": {},
+                        "f:limits": {
+                          ".": {},
+                          "f:memory": {}
+                        },
+                        "f:requests": {
+                          ".": {},
+                          "f:memory": {}
+                        }
+                      },
+                      "f:terminationMessagePath": {},
+                      "f:terminationMessagePolicy": {},
+                      "f:volumeMounts": {
+                        ".": {},
+                        "k:{\"mountPath\":\"/projects\"}": {
+                          ".": {},
+                          "f:mountPath": {},
+                          "f:name": {},
+                          "f:subPath": {}
+                        },
+                        "k:{\"mountPath\":\"/remote-endpoint\"}": {
+                          ".": {},
+                          "f:mountPath": {},
+                          "f:name": {},
+                          "f:subPath": {}
+                        }
+                      }
+                    },
+                    "k:{\"name\":\"vsx-installer\"}": {
+                      ".": {},
+                      "f:args": {},
+                      "f:env": {
+                        ".": {},
+                        "k:{\"name\":\"CHE_API\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_API_EXTERNAL\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_API_INTERNAL\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_AUTH_ENABLED\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_MACHINE_NAME\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_MACHINE_TOKEN\"}": {
+                          ".": {},
+                          "f:name": {}
+                        },
+                        "k:{\"name\":\"CHE_PROJECTS_ROOT\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_WORKSPACE_ID\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_WORKSPACE_NAME\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"CHE_WORKSPACE_NAMESPACE\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_CREATOR\"}": {
+                          ".": {},
+                          "f:name": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_ID\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_IDLE_TIMEOUT\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_NAME\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"DEVWORKSPACE_NAMESPACE\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"PROJECTS_ROOT\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        },
+                        "k:{\"name\":\"PROJECTS_SOURCE\"}": {
+                          ".": {},
+                          "f:name": {},
+                          "f:value": {}
+                        }
+                      },
+                      "f:image": {},
+                      "f:imagePullPolicy": {},
+                      "f:name": {},
+                      "f:resources": {
+                        ".": {},
+                        "f:limits": {
+                          ".": {},
+                          "f:memory": {}
+                        },
+                        "f:requests": {
+                          ".": {},
+                          "f:memory": {}
+                        }
+                      },
+                      "f:terminationMessagePath": {},
+                      "f:terminationMessagePolicy": {},
+                      "f:volumeMounts": {
+                        ".": {},
+                        "k:{\"mountPath\":\"/plugins\"}": {
+                          ".": {},
+                          "f:mountPath": {},
+                          "f:name": {},
+                          "f:subPath": {}
+                        },
+                        "k:{\"mountPath\":\"/projects\"}": {
+                          ".": {},
+                          "f:mountPath": {},
+                          "f:name": {},
+                          "f:subPath": {}
+                        },
+                        "k:{\"mountPath\":\"/tmp/workspace-storage\"}": {
+                          ".": {},
+                          "f:mountPath": {},
+                          "f:name": {},
+                          "f:subPath": {}
+                        }
+                      }
+                    }
+                  },
+                  "f:restartPolicy": {},
+                  "f:schedulerName": {},
+                  "f:securityContext": {
+                    ".": {},
+                    "f:runAsGroup": {},
+                    "f:runAsNonRoot": {},
+                    "f:runAsUser": {}
+                  },
+                  "f:serviceAccount": {},
+                  "f:serviceAccountName": {},
+                  "f:terminationGracePeriodSeconds": {},
+                  "f:volumes": {
+                    ".": {},
+                    "k:{\"name\":\"che-rest-apis-data\"}": {
+                      ".": {},
+                      "f:configMap": {
+                        ".": {},
+                        "f:defaultMode": {},
+                        "f:name": {}
+                      },
+                      "f:name": {}
+                    },
+                    "k:{\"name\":\"claim-devworkspace\"}": {
+                      ".": {},
+                      "f:name": {},
+                      "f:persistentVolumeClaim": {
+                        ".": {},
+                        "f:claimName": {}
+                      }
+                    }
+                  }
+                }
+              },
+              "manager": "kube-controller-manager",
+              "operation": "Update",
+              "time": "2021-02-02T16:57:31.000Z"
+            },
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:status": {
+                  "f:conditions": {
+                    "k:{\"type\":\"ContainersReady\"}": {
+                      ".": {},
+                      "f:lastProbeTime": {},
+                      "f:lastTransitionTime": {},
+                      "f:status": {},
+                      "f:type": {}
+                    },
+                    "k:{\"type\":\"Initialized\"}": {
+                      ".": {},
+                      "f:lastProbeTime": {},
+                      "f:lastTransitionTime": {},
+                      "f:status": {},
+                      "f:type": {}
+                    },
+                    "k:{\"type\":\"Ready\"}": {
+                      ".": {},
+                      "f:lastProbeTime": {},
+                      "f:lastTransitionTime": {},
+                      "f:status": {},
+                      "f:type": {}
+                    }
+                  },
+                  "f:containerStatuses": {},
+                  "f:hostIP": {},
+                  "f:initContainerStatuses": {},
+                  "f:phase": {},
+                  "f:podIP": {},
+                  "f:podIPs": {
+                    ".": {},
+                    "k:{\"ip\":\"172.17.0.4\"}": {
+                      ".": {},
+                      "f:ip": {}
+                    }
+                  },
+                  "f:startTime": {}
+                }
+              },
+              "manager": "kubelet",
+              "operation": "Update",
+              "time": "2021-02-18T07:24:14.000Z"
+            }
+          ],
+          "name": "workspaceeb55021d3cff42e0-77f7bd767f-tld2s",
+          "namespace": "che",
+          "ownerReferences": [
+            {
+              "apiVersion": "apps/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "ReplicaSet",
+              "name": "workspaceeb55021d3cff42e0-77f7bd767f",
+              "uid": "3c7e3b78-0ae2-4d45-ac32-342f4664e5a1"
+            }
+          ],
+          "resourceVersion": "603279",
+          "selfLink": "/api/v1/namespaces/che/pods/workspaceeb55021d3cff42e0-77f7bd767f-tld2s",
+          "uid": "0ffe030a-9e1d-4871-a4e5-e805abdea940"
+        },
+        "spec": {
+          "containers": [
+            {
+              "env": [
+                {
+                  "name": "CHE_WORKSPACE_NAME",
+                  "value": "theia"
+                },
+                {
+                  "name": "CHE_WORKSPACE_ID",
+                  "value": "workspaceeb55021d3cff42e0"
+                },
+                {
+                  "name": "CHE_WORKSPACE_NAMESPACE",
+                  "value": "che"
+                },
+                {
+                  "name": "CHE_WORKSPACE_RUNTIME_JSON_PATH",
+                  "value": "/workspace/runtime.json"
+                },
+                {
+                  "name": "CHE_WORKSPACE_DEVFILE_YAML_PATH",
+                  "value": "/workspace/devfile.yaml"
+                },
+                {
+                  "name": "DEVWORKSPACE_NAMESPACE",
+                  "value": "che"
+                },
+                {
+                  "name": "DEVWORKSPACE_NAME",
+                  "value": "theia"
+                },
+                {
+                  "name": "DEVWORKSPACE_ID",
+                  "value": "workspaceeb55021d3cff42e0"
+                },
+                {
+                  "name": "DEVWORKSPACE_CREATOR"
+                },
+                {
+                  "name": "DEVWORKSPACE_IDLE_TIMEOUT",
+                  "value": "15m"
+                }
+              ],
+              "image": "quay.io/che-incubator/che-api-sidecar:next",
+              "imagePullPolicy": "Always",
+              "name": "che-rest-apis",
+              "ports": [
+                {
+                  "containerPort": 9999,
+                  "protocol": "TCP"
+                }
+              ],
+              "resources": {},
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/workspace/",
+                  "name": "che-rest-apis-data",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                  "name": "workspaceeb55021d3cff42e0-sa-token-8jzhh",
+                  "readOnly": true
+                }
+              ]
+            },
+            {
+              "args": [
+                "--url",
+                "0.0.0.0:4444",
+                "--pod-selector",
+                "controller.devfile.io/workspace_id=$(CHE_WORKSPACE_ID)"
+              ],
+              "command": [
+                "/go/bin/che-machine-exec"
+              ],
+              "env": [
+                {
+                  "name": "PROJECTS_ROOT",
+                  "value": "/projects"
+                },
+                {
+                  "name": "PROJECTS_SOURCE",
+                  "value": "/projects"
+                },
+                {
+                  "name": "CHE_MACHINE_NAME",
+                  "value": "terminal"
+                },
+                {
+                  "name": "CHE_MACHINE_TOKEN"
+                },
+                {
+                  "name": "CHE_PROJECTS_ROOT",
+                  "value": "/projects"
+                },
+                {
+                  "name": "CHE_API",
+                  "value": "http://localhost:9999/api/"
+                },
+                {
+                  "name": "CHE_API_INTERNAL",
+                  "value": "http://localhost:9999/api/"
+                },
+                {
+                  "name": "CHE_API_EXTERNAL",
+                  "value": "http://localhost:9999/api/"
+                },
+                {
+                  "name": "CHE_WORKSPACE_NAME",
+                  "value": "theia"
+                },
+                {
+                  "name": "CHE_WORKSPACE_ID",
+                  "value": "workspaceeb55021d3cff42e0"
+                },
+                {
+                  "name": "CHE_AUTH_ENABLED",
+                  "value": "false"
+                },
+                {
+                  "name": "CHE_WORKSPACE_NAMESPACE",
+                  "value": "che"
+                },
+                {
+                  "name": "DEVWORKSPACE_NAMESPACE",
+                  "value": "che"
+                },
+                {
+                  "name": "DEVWORKSPACE_NAME",
+                  "value": "theia"
+                },
+                {
+                  "name": "DEVWORKSPACE_ID",
+                  "value": "workspaceeb55021d3cff42e0"
+                },
+                {
+                  "name": "DEVWORKSPACE_CREATOR"
+                },
+                {
+                  "name": "DEVWORKSPACE_IDLE_TIMEOUT",
+                  "value": "15m"
+                }
+              ],
+              "image": "quay.io/eclipse/che-machine-exec:nightly",
+              "imagePullPolicy": "Always",
+              "name": "terminal",
+              "ports": [
+                {
+                  "containerPort": 4444,
+                  "name": "4444-ws",
+                  "protocol": "TCP"
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "memory": "128M"
+                },
+                "requests": {
+                  "memory": "128M"
+                }
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/projects",
+                  "name": "claim-devworkspace",
+                  "subPath": "workspaceeb55021d3cff42e0/projects"
+                },
+                {
+                  "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                  "name": "workspaceeb55021d3cff42e0-sa-token-8jzhh",
+                  "readOnly": true
+                }
+              ]
+            },
+            {
+              "env": [
+                {
+                  "name": "THEIA_PLUGINS",
+                  "value": "local-dir:///plugins"
+                },
+                {
+                  "name": "HOSTED_PLUGIN_HOSTNAME",
+                  "value": "0.0.0.0"
+                },
+                {
+                  "name": "HOSTED_PLUGIN_PORT",
+                  "value": "3130"
+                },
+                {
+                  "name": "THEIA_HOST",
+                  "value": "0.0.0.0"
+                },
+                {
+                  "name": "PROJECTS_ROOT",
+                  "value": "/projects"
+                },
+                {
+                  "name": "PROJECTS_SOURCE",
+                  "value": "/projects"
+                },
+                {
+                  "name": "CHE_MACHINE_NAME",
+                  "value": "theia-ide"
+                },
+                {
+                  "name": "CHE_MACHINE_TOKEN"
+                },
+                {
+                  "name": "CHE_PROJECTS_ROOT",
+                  "value": "/projects"
+                },
+                {
+                  "name": "CHE_API",
+                  "value": "http://localhost:9999/api/"
+                },
+                {
+                  "name": "CHE_API_INTERNAL",
+                  "value": "http://localhost:9999/api/"
+                },
+                {
+                  "name": "CHE_API_EXTERNAL",
+                  "value": "http://localhost:9999/api/"
+                },
+                {
+                  "name": "CHE_WORKSPACE_NAME",
+                  "value": "theia"
+                },
+                {
+                  "name": "CHE_WORKSPACE_ID",
+                  "value": "workspaceeb55021d3cff42e0"
+                },
+                {
+                  "name": "CHE_AUTH_ENABLED",
+                  "value": "false"
+                },
+                {
+                  "name": "CHE_WORKSPACE_NAMESPACE",
+                  "value": "che"
+                },
+                {
+                  "name": "DEVWORKSPACE_NAMESPACE",
+                  "value": "che"
+                },
+                {
+                  "name": "DEVWORKSPACE_NAME",
+                  "value": "theia"
+                },
+                {
+                  "name": "DEVWORKSPACE_ID",
+                  "value": "workspaceeb55021d3cff42e0"
+                },
+                {
+                  "name": "DEVWORKSPACE_CREATOR"
+                },
+                {
+                  "name": "DEVWORKSPACE_IDLE_TIMEOUT",
+                  "value": "15m"
+                }
+              ],
+              "image": "quay.io/eclipse/che-theia:next",
+              "imagePullPolicy": "Always",
+              "name": "theia-ide",
+              "ports": [
+                {
+                  "containerPort": 3100,
+                  "name": "3100-http",
+                  "protocol": "TCP"
+                },
+                {
+                  "containerPort": 3130,
+                  "name": "3130-http",
+                  "protocol": "TCP"
+                },
+                {
+                  "containerPort": 13131,
+                  "name": "13131-http",
+                  "protocol": "TCP"
+                },
+                {
+                  "containerPort": 13132,
+                  "name": "13132-http",
+                  "protocol": "TCP"
+                },
+                {
+                  "containerPort": 13133,
+                  "name": "13133-http",
+                  "protocol": "TCP"
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "memory": "512M"
+                },
+                "requests": {
+                  "memory": "512M"
+                }
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/plugins",
+                  "name": "claim-devworkspace",
+                  "subPath": "workspaceeb55021d3cff42e0/plugins"
+                },
+                {
+                  "mountPath": "/projects",
+                  "name": "claim-devworkspace",
+                  "subPath": "workspaceeb55021d3cff42e0/projects"
+                },
+                {
+                  "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                  "name": "workspaceeb55021d3cff42e0-sa-token-8jzhh",
+                  "readOnly": true
+                }
+              ]
+            }
+          ],
+          "dnsPolicy": "ClusterFirst",
+          "enableServiceLinks": true,
+          "initContainers": [
+            {
+              "args": [
+                "/bin/sh",
+                "-c",
+                "echo \"kube api endpoint is https://kubernetes.default.svc/apis/workspace.devfile.io/v1alpha2/namespaces/${CHE_WORKSPACE_NAMESPACE}/devworkspaces/${CHE_WORKSPACE_NAME}\" &&\\\nKUBE_API_ENDPOINT=\"https://kubernetes.default.svc/apis/workspace.devfile.io/v1alpha2/namespaces/${CHE_WORKSPACE_NAMESPACE}/devworkspaces/${CHE_WORKSPACE_NAME}\" &&\\\nTOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token) &&\\\necho \"calling curl -fsS --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt -H \"Authorization: Bearer ${TOKEN}\" $KUBE_API_ENDPOINT\" &&\\\nWORKSPACE=$(curl -fsS --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt -H \"Authorization: Bearer ${TOKEN}\" $KUBE_API_ENDPOINT) &&\\\nfor container in $(echo $WORKSPACE | sed -e 's;[[,]\\({\"attributes\":{\"app.kubernetes.io\\);\\n\\1;g' | grep '\"che-theia.eclipse.org/vscode-extensions\":' | grep -e '^{\"attributes\".*'); do \\\n  dest=$(echo \"$container\" | sed 's;.*{\"name\":\"THEIA_PLUGINS\",\"value\":\"local-dir://\\([^\"][^\"]*\\)\"}.*;\\1;' - ) ;\\\n  urls=$(echo \"$container\" | sed 's;.*\"che-theia.eclipse.org/vscode-extensions\":\\[\\([^]][^]]*\\)\\]}.*;\\1;' - ) ;\\\n  mkdir -p $dest ;\\\n  for url in $(echo $urls | sed 's/[\",]/ /g' - ); do \\\n    echo; echo downloading $urls to $dest; curl -L $url > $dest/$(basename $url) ;\\\n  done \\\ndone \\\n"
+              ],
+              "env": [
+                {
+                  "name": "PROJECTS_ROOT",
+                  "value": "/projects"
+                },
+                {
+                  "name": "PROJECTS_SOURCE",
+                  "value": "/projects"
+                },
+                {
+                  "name": "CHE_MACHINE_NAME",
+                  "value": "vsx-installer"
+                },
+                {
+                  "name": "CHE_MACHINE_TOKEN"
+                },
+                {
+                  "name": "CHE_PROJECTS_ROOT",
+                  "value": "/projects"
+                },
+                {
+                  "name": "CHE_API",
+                  "value": "http://localhost:9999/api/"
+                },
+                {
+                  "name": "CHE_API_INTERNAL",
+                  "value": "http://localhost:9999/api/"
+                },
+                {
+                  "name": "CHE_API_EXTERNAL",
+                  "value": "http://localhost:9999/api/"
+                },
+                {
+                  "name": "CHE_WORKSPACE_NAME",
+                  "value": "theia"
+                },
+                {
+                  "name": "CHE_WORKSPACE_ID",
+                  "value": "workspaceeb55021d3cff42e0"
+                },
+                {
+                  "name": "CHE_AUTH_ENABLED",
+                  "value": "false"
+                },
+                {
+                  "name": "CHE_WORKSPACE_NAMESPACE",
+                  "value": "che"
+                },
+                {
+                  "name": "DEVWORKSPACE_NAMESPACE",
+                  "value": "che"
+                },
+                {
+                  "name": "DEVWORKSPACE_NAME",
+                  "value": "theia"
+                },
+                {
+                  "name": "DEVWORKSPACE_ID",
+                  "value": "workspaceeb55021d3cff42e0"
+                },
+                {
+                  "name": "DEVWORKSPACE_CREATOR"
+                },
+                {
+                  "name": "DEVWORKSPACE_IDLE_TIMEOUT",
+                  "value": "15m"
+                }
+              ],
+              "image": "quay.io/samsahai/curl:latest",
+              "imagePullPolicy": "Always",
+              "name": "vsx-installer",
+              "resources": {
+                "limits": {
+                  "memory": "128M"
+                },
+                "requests": {
+                  "memory": "128M"
+                }
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/tmp/workspace-storage",
+                  "name": "claim-devworkspace",
+                  "subPath": "workspaceeb55021d3cff42e0"
+                },
+                {
+                  "mountPath": "/plugins",
+                  "name": "claim-devworkspace",
+                  "subPath": "workspaceeb55021d3cff42e0/plugins"
+                },
+                {
+                  "mountPath": "/projects",
+                  "name": "claim-devworkspace",
+                  "subPath": "workspaceeb55021d3cff42e0/projects"
+                },
+                {
+                  "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                  "name": "workspaceeb55021d3cff42e0-sa-token-8jzhh",
+                  "readOnly": true
+                }
+              ]
+            },
+            {
+              "env": [
+                {
+                  "name": "PLUGIN_REMOTE_ENDPOINT_EXECUTABLE",
+                  "value": "/remote-endpoint/plugin-remote-endpoint"
+                },
+                {
+                  "name": "REMOTE_ENDPOINT_VOLUME_NAME",
+                  "value": "remote-endpoint"
+                },
+                {
+                  "name": "PROJECTS_ROOT",
+                  "value": "/projects"
+                },
+                {
+                  "name": "PROJECTS_SOURCE",
+                  "value": "/projects"
+                },
+                {
+                  "name": "CHE_MACHINE_NAME",
+                  "value": "remote-runtime-injector"
+                },
+                {
+                  "name": "CHE_MACHINE_TOKEN"
+                },
+                {
+                  "name": "CHE_PROJECTS_ROOT",
+                  "value": "/projects"
+                },
+                {
+                  "name": "CHE_API",
+                  "value": "http://localhost:9999/api/"
+                },
+                {
+                  "name": "CHE_API_INTERNAL",
+                  "value": "http://localhost:9999/api/"
+                },
+                {
+                  "name": "CHE_API_EXTERNAL",
+                  "value": "http://localhost:9999/api/"
+                },
+                {
+                  "name": "CHE_WORKSPACE_NAME",
+                  "value": "theia"
+                },
+                {
+                  "name": "CHE_WORKSPACE_ID",
+                  "value": "workspaceeb55021d3cff42e0"
+                },
+                {
+                  "name": "CHE_AUTH_ENABLED",
+                  "value": "false"
+                },
+                {
+                  "name": "CHE_WORKSPACE_NAMESPACE",
+                  "value": "che"
+                },
+                {
+                  "name": "DEVWORKSPACE_NAMESPACE",
+                  "value": "che"
+                },
+                {
+                  "name": "DEVWORKSPACE_NAME",
+                  "value": "theia"
+                },
+                {
+                  "name": "DEVWORKSPACE_ID",
+                  "value": "workspaceeb55021d3cff42e0"
+                },
+                {
+                  "name": "DEVWORKSPACE_CREATOR"
+                },
+                {
+                  "name": "DEVWORKSPACE_IDLE_TIMEOUT",
+                  "value": "15m"
+                }
+              ],
+              "image": "quay.io/eclipse/che-theia-endpoint-runtime-binary:7.20.0",
+              "imagePullPolicy": "Always",
+              "name": "remote-runtime-injector",
+              "resources": {
+                "limits": {
+                  "memory": "128M"
+                },
+                "requests": {
+                  "memory": "128M"
+                }
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/remote-endpoint",
+                  "name": "claim-devworkspace",
+                  "subPath": "workspaceeb55021d3cff42e0/remote-endpoint"
+                },
+                {
+                  "mountPath": "/projects",
+                  "name": "claim-devworkspace",
+                  "subPath": "workspaceeb55021d3cff42e0/projects"
+                },
+                {
+                  "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                  "name": "workspaceeb55021d3cff42e0-sa-token-8jzhh",
+                  "readOnly": true
+                }
+              ]
+            }
+          ],
+          "nodeName": "minikube",
+          "preemptionPolicy": "PreemptLowerPriority",
+          "priority": 0,
+          "restartPolicy": "Always",
+          "schedulerName": "default-scheduler",
+          "securityContext": {
+            "runAsGroup": 0,
+            "runAsNonRoot": true,
+            "runAsUser": 1234
+          },
+          "serviceAccount": "workspaceeb55021d3cff42e0-sa",
+          "serviceAccountName": "workspaceeb55021d3cff42e0-sa",
+          "terminationGracePeriodSeconds": 1,
+          "tolerations": [
+            {
+              "effect": "NoExecute",
+              "key": "node.kubernetes.io/not-ready",
+              "operator": "Exists",
+              "tolerationSeconds": 300
+            },
+            {
+              "effect": "NoExecute",
+              "key": "node.kubernetes.io/unreachable",
+              "operator": "Exists",
+              "tolerationSeconds": 300
+            }
+          ],
+          "volumes": [
+            {
+              "configMap": {
+                "defaultMode": 420,
+                "name": "workspaceeb55021d3cff42e0-che-rest-apis"
+              },
+              "name": "che-rest-apis-data"
+            },
+            {
+              "name": "claim-devworkspace",
+              "persistentVolumeClaim": {
+                "claimName": "claim-devworkspace"
+              }
+            },
+            {
+              "name": "workspaceeb55021d3cff42e0-sa-token-8jzhh",
+              "secret": {
+                "defaultMode": 420,
+                "secretName": "workspaceeb55021d3cff42e0-sa-token-8jzhh"
+              }
+            }
+          ]
+        },
+        "status": {
+          "conditions": [
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2021-02-18T07:23:50.000Z",
+              "status": "True",
+              "type": "Initialized"
+            },
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2021-02-18T07:24:14.000Z",
+              "status": "True",
+              "type": "Ready"
+            },
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2021-02-18T07:24:14.000Z",
+              "status": "True",
+              "type": "ContainersReady"
+            },
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2021-02-02T16:57:31.000Z",
+              "status": "True",
+              "type": "PodScheduled"
+            }
+          ],
+          "containerStatuses": [
+            {
+              "containerID": "docker://f591a4d24b44bc7650e06188761cf33666fcfb0f3c351e621a8edd114ea0709c",
+              "image": "quay.io/che-incubator/che-api-sidecar:next",
+              "imageID": "docker-pullable://quay.io/che-incubator/che-api-sidecar@sha256:8ab222c5d0468f8573055f57585a2ef8f9602168f1709836950dc70f8b95fbd2",
+              "lastState": {
+                "terminated": {
+                  "containerID": "docker://3e2d9b64adaca71d9b6b639a42af4dbd803d4d03310da7064b21cae9ce2ecea9",
+                  "exitCode": 255,
+                  "finishedAt": "2021-02-18T07:22:33.000Z",
+                  "reason": "Error",
+                  "startedAt": "2021-02-02T16:57:44.000Z"
+                }
+              },
+              "name": "che-rest-apis",
+              "ready": true,
+              "restartCount": 1,
+              "started": true,
+              "state": {
+                "running": {
+                  "startedAt": "2021-02-18T07:23:51.000Z"
+                }
+              }
+            },
+            {
+              "containerID": "docker://89e5be381999b89c3bdc4609661b56903d5b0b6636dd7f2c1993e3895e1b5ba2",
+              "image": "quay.io/eclipse/che-machine-exec:nightly",
+              "imageID": "docker-pullable://quay.io/eclipse/che-machine-exec@sha256:7e26ef7a6c7c111870d6b577f5e5ddbfea32d720986de68cf80dce9c1cf6090c",
+              "lastState": {
+                "terminated": {
+                  "containerID": "docker://685b1aa1a088b5973a648f597f0661ad44cdbf5cdc72e9830d2e09f70eb1e929",
+                  "exitCode": 255,
+                  "finishedAt": "2021-02-18T07:22:33.000Z",
+                  "reason": "Error",
+                  "startedAt": "2021-02-02T16:57:50.000Z"
+                }
+              },
+              "name": "terminal",
+              "ready": true,
+              "restartCount": 1,
+              "started": true,
+              "state": {
+                "running": {
+                  "startedAt": "2021-02-18T07:23:57.000Z"
+                }
+              }
+            },
+            {
+              "containerID": "docker://94dcc362d4f87b7b786360b6d3007dbc1ba4db97b80d38e38cc4005be3dd8bdc",
+              "image": "quay.io/eclipse/che-theia:next",
+              "imageID": "docker-pullable://quay.io/eclipse/che-theia@sha256:b8b8985dd1fe090eaea4fa4f7edba60c97f7e931ba5c39b9f7bf606cfbbe9bad",
+              "lastState": {
+                "terminated": {
+                  "containerID": "docker://d90461c10671f25ed0a92f8e2e965d6bf4708bcd2b057cbb13cbd0b6716794a9",
+                  "exitCode": 255,
+                  "finishedAt": "2021-02-18T07:22:33.000Z",
+                  "reason": "Error",
+                  "startedAt": "2021-02-02T16:58:07.000Z"
+                }
+              },
+              "name": "theia-ide",
+              "ready": true,
+              "restartCount": 1,
+              "started": true,
+              "state": {
+                "running": {
+                  "startedAt": "2021-02-18T07:24:14.000Z"
+                }
+              }
+            }
+          ],
+          "hostIP": "192.168.64.31",
+          "initContainerStatuses": [
+            {
+              "containerID": "docker://be11ae6618b5c09894ca35623c6d3ec97b08b8484b0b790642296fdedab5edf5",
+              "image": "quay.io/samsahai/curl:latest",
+              "imageID": "docker-pullable://quay.io/samsahai/curl@sha256:43b0e7ab54b8f20c987eed52c73ed30bb15f235a4d6ca93fcaf526239be0da05",
+              "lastState": {},
+              "name": "vsx-installer",
+              "ready": true,
+              "restartCount": 3,
+              "state": {
+                "terminated": {
+                  "containerID": "docker://be11ae6618b5c09894ca35623c6d3ec97b08b8484b0b790642296fdedab5edf5",
+                  "exitCode": 0,
+                  "finishedAt": "2021-02-18T07:23:46.000Z",
+                  "reason": "Completed",
+                  "startedAt": "2021-02-18T07:23:45.000Z"
+                }
+              }
+            },
+            {
+              "containerID": "docker://1ff3d0d394939eca5f32a0c999a10426614287d650e40055ff503887d5586d31",
+              "image": "quay.io/eclipse/che-theia-endpoint-runtime-binary:7.20.0",
+              "imageID": "docker-pullable://quay.io/eclipse/che-theia-endpoint-runtime-binary@sha256:a618b628130b2f8cac00ea45f7a30da497ca1905699a884d9ed6b623109f702f",
+              "lastState": {},
+              "name": "remote-runtime-injector",
+              "ready": true,
+              "restartCount": 0,
+              "state": {
+                "terminated": {
+                  "containerID": "docker://1ff3d0d394939eca5f32a0c999a10426614287d650e40055ff503887d5586d31",
+                  "exitCode": 0,
+                  "finishedAt": "2021-02-18T07:23:49.000Z",
+                  "reason": "Completed",
+                  "startedAt": "2021-02-18T07:23:48.000Z"
+                }
+              }
+            }
+          ],
+          "phase": "Running",
+          "podIP": "172.17.0.4",
+          "podIPs": [
+            {
+              "ip": "172.17.0.4"
+            }
+          ],
+          "qosClass": "Burstable",
+          "startTime": "2021-02-02T16:57:31.000Z"
+        }
+      }
+    ],
+    "kind": "PodList",
+    "metadata": {
+      "resourceVersion": "677789",
+      "selfLink": "/api/v1/namespaces/che/pods"
+    }
+  }

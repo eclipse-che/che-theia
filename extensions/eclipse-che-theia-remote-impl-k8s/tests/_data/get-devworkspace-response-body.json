@@ -1,0 +1,351 @@
+{
+    "apiVersion": "workspace.devfile.io/v1alpha2",
+    "kind": "DevWorkspace",
+    "metadata": {
+      "annotations": {
+        "controller.devfile.io/timing.components.created": "1612285049877",
+        "controller.devfile.io/timing.components.duration": "1 ms",
+        "controller.devfile.io/timing.components.ready": "1612285049878",
+        "controller.devfile.io/timing.deployment.created": "1612285051868",
+        "controller.devfile.io/timing.deployment.duration": "36898 ms",
+        "controller.devfile.io/timing.deployment.ready": "1612285088766",
+        "controller.devfile.io/timing.duration": "40306 ms",
+        "controller.devfile.io/timing.healthchecks.duration": "1417 ms",
+        "controller.devfile.io/timing.ready": "1612285090183",
+        "controller.devfile.io/timing.routing.created": "1612285050457",
+        "controller.devfile.io/timing.routing.duration": "904 ms",
+        "controller.devfile.io/timing.routing.ready": "1612285051361",
+        "controller.devfile.io/timing.started": "1612285049877",
+        "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"workspace.devfile.io/v1alpha2\",\"kind\":\"DevWorkspace\",\"metadata\":{\"annotations\":{},\"name\":\"theia\",\"namespace\":\"che\"},\"spec\":{\"started\":true,\"template\":{\"commands\":[{\"exec\":{\"commandLine\":\"echo \\\"Hello from $(pwd)\\\"\",\"component\":\"plugin\",\"workingDir\":\"${PROJECTS_ROOT}/project/app\"},\"id\":\"say-hello\"},{\"apply\":{\"component\":\"remote-runtime-injector\"},\"id\":\"inject-theia-in-remote-sidecar\"},{\"apply\":{\"component\":\"vsx-installer\"},\"id\":\"copy-vsx\"}],\"components\":[{\"attributes\":{\"app.kubernetes.io/component\":\"terminal\",\"app.kubernetes.io/name\":\"che-terminal.eclipse.org\",\"app.kubernetes.io/part-of\":\"che.eclipse.org\"},\"container\":{\"args\":[\"--url\",\"0.0.0.0:4444\",\"--pod-selector\",\"controller.devfile.io/workspace_id=$(CHE_WORKSPACE_ID)\"],\"command\":[\"/go/bin/che-machine-exec\"],\"endpoints\":[{\"attributes\":{\"cookiesAuthEnabled\":\"true\",\"type\":\"terminal\"},\"exposure\":\"public\",\"name\":\"che-mach-exec\",\"protocol\":\"ws\",\"secure\":true,\"targetPort\":4444}],\"image\":\"quay.io/eclipse/che-machine-exec:nightly\"},\"name\":\"terminal\"},{\"name\":\"plugins\",\"volume\":{}},{\"name\":\"remote-endpoint\",\"volume\":{}},{\"attributes\":{\"app.kubernetes.io/component\":\"bootstrapper\",\"app.kubernetes.io/part-of\":\"che-theia.eclipse.org\"},\"container\":{\"args\":[\"/bin/sh\",\"-c\",\"echo \\\"kube api endpoint is https://kubernetes.default.svc/apis/workspace.devfile.io/v1alpha2/namespaces/${CHE_WORKSPACE_NAMESPACE}/devworkspaces/${CHE_WORKSPACE_NAME}\\\" \\u0026\\u0026\\\\\\nKUBE_API_ENDPOINT=\\\"https://kubernetes.default.svc/apis/workspace.devfile.io/v1alpha2/namespaces/${CHE_WORKSPACE_NAMESPACE}/devworkspaces/${CHE_WORKSPACE_NAME}\\\" \\u0026\\u0026\\\\\\nTOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token) \\u0026\\u0026\\\\\\necho \\\"calling curl -fsS --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt -H \\\"Authorization: Bearer ${TOKEN}\\\" $KUBE_API_ENDPOINT\\\" \\u0026\\u0026\\\\\\nWORKSPACE=$(curl -fsS --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt -H \\\"Authorization: Bearer ${TOKEN}\\\" $KUBE_API_ENDPOINT) \\u0026\\u0026\\\\\\nfor container in $(echo $WORKSPACE | sed -e 's;[[,]\\\\({\\\"attributes\\\":{\\\"app.kubernetes.io\\\\);\\\\n\\\\1;g' | grep '\\\"che-theia.eclipse.org/vscode-extensions\\\":' | grep -e '^{\\\"attributes\\\".*'); do \\\\\\n  dest=$(echo \\\"$container\\\" | sed 's;.*{\\\"name\\\":\\\"THEIA_PLUGINS\\\",\\\"value\\\":\\\"local-dir://\\\\([^\\\"][^\\\"]*\\\\)\\\"}.*;\\\\1;' - ) ;\\\\\\n  urls=$(echo \\\"$container\\\" | sed 's;.*\\\"che-theia.eclipse.org/vscode-extensions\\\":\\\\[\\\\([^]][^]]*\\\\)\\\\]}.*;\\\\1;' - ) ;\\\\\\n  mkdir -p $dest ;\\\\\\n  for url in $(echo $urls | sed 's/[\\\",]/ /g' - ); do \\\\\\n    echo; echo downloading $urls to $dest; curl -L $url \\u003e $dest/$(basename $url) ;\\\\\\n  done \\\\\\ndone \\\\\\n\"],\"image\":\"quay.io/samsahai/curl:latest\",\"volumeMounts\":[{\"name\":\"plugins\",\"path\":\"/plugins\"}]},\"name\":\"vsx-installer\"},{\"attributes\":{\"app.kubernetes.io/component\":\"bootstrapper\",\"app.kubernetes.io/part-of\":\"che-theia.eclipse.org\"},\"container\":{\"env\":[{\"name\":\"PLUGIN_REMOTE_ENDPOINT_EXECUTABLE\",\"value\":\"/remote-endpoint/plugin-remote-endpoint\"},{\"name\":\"REMOTE_ENDPOINT_VOLUME_NAME\",\"value\":\"remote-endpoint\"}],\"image\":\"quay.io/eclipse/che-theia-endpoint-runtime-binary:7.20.0\",\"volumeMounts\":[{\"name\":\"remote-endpoint\",\"path\":\"/remote-endpoint\"}]},\"name\":\"remote-runtime-injector\"},{\"attributes\":{\"app.kubernetes.io/component\":\"editor\",\"app.kubernetes.io/name\":\"che-theia.eclipse.org\",\"app.kubernetes.io/part-of\":\"che.eclipse.org\",\"che-theia.eclipse.org/vscode-extensions\":[\"https://github.com/microsoft/vscode-pull-request-github/releases/download/v0.8.0/vscode-pull-request-github-0.8.0.vsix\"]},\"container\":{\"endpoints\":[{\"attributes\":{\"cookiesAuthEnabled\":\"true\",\"type\":\"ide\"},\"exposure\":\"public\",\"name\":\"theia\",\"protocol\":\"http\",\"secure\":true,\"targetPort\":3100},{\"attributes\":{\"cookiesAuthEnabled\":\"true\",\"type\":\"webview\",\"unique\":\"true\"},\"exposure\":\"public\",\"name\":\"webviews\",\"protocol\":\"http\",\"secure\":true,\"targetPort\":3100},{\"attributes\":{\"type\":\"ide-dev\"},\"exposure\":\"public\",\"name\":\"theia-dev\",\"protocol\":\"http\",\"targetPort\":3130},{\"exposure\":\"public\",\"name\":\"theia-redir-1\",\"protocol\":\"http\",\"targetPort\":13131},{\"exposure\":\"public\",\"name\":\"theia-redir-2\",\"protocol\":\"http\",\"targetPort\":13132},{\"exposure\":\"public\",\"name\":\"theia-redir-3\",\"protocol\":\"http\",\"targetPort\":13133}],\"env\":[{\"name\":\"THEIA_PLUGINS\",\"value\":\"local-dir:///plugins\"},{\"name\":\"HOSTED_PLUGIN_HOSTNAME\",\"value\":\"0.0.0.0\"},{\"name\":\"HOSTED_PLUGIN_PORT\",\"value\":\"3130\"},{\"name\":\"THEIA_HOST\",\"value\":\"0.0.0.0\"}],\"image\":\"quay.io/eclipse/che-theia:next\",\"memoryLimit\":\"512M\",\"mountSources\":true,\"volumeMounts\":[{\"name\":\"plugins\",\"path\":\"/plugins\"}]},\"name\":\"theia-ide\"}],\"events\":{\"preStart\":[\"inject-theia-in-remote-sidecar\",\"copy-vsx\"]},\"projects\":[{\"git\":{\"remotes\":{\"origin\":\"https://github.com/che-samples/web-nodejs-sample.git\"}},\"name\":\"web-nodejs-sample\"}]}}}\n"
+      },
+      "creationTimestamp": "2021-02-02T16:57:14Z",
+      "finalizers": [
+        "storage.controller.devfile.io"
+      ],
+      "generation": 1,
+      "managedFields": [
+        {
+          "apiVersion": "workspace.devfile.io/v1alpha2",
+          "fieldsType": "FieldsV1",
+          "fieldsV1": {
+            "f:metadata": {
+              "f:annotations": {
+                ".": {},
+                "f:kubectl.kubernetes.io/last-applied-configuration": {}
+              }
+            },
+            "f:spec": {
+              ".": {},
+              "f:started": {},
+              "f:template": {
+                ".": {},
+                "f:commands": {},
+                "f:components": {},
+                "f:events": {
+                  ".": {},
+                  "f:preStart": {}
+                },
+                "f:projects": {}
+              }
+            }
+          },
+          "manager": "kubectl-client-side-apply",
+          "operation": "Update",
+          "time": "2021-02-02T16:57:14Z"
+        },
+        {
+          "apiVersion": "workspace.devfile.io/v1alpha2",
+          "fieldsType": "FieldsV1",
+          "fieldsV1": {
+            "f:metadata": {
+              "f:annotations": {
+                "f:controller.devfile.io/timing.components.created": {},
+                "f:controller.devfile.io/timing.components.duration": {},
+                "f:controller.devfile.io/timing.components.ready": {},
+                "f:controller.devfile.io/timing.deployment.created": {},
+                "f:controller.devfile.io/timing.deployment.duration": {},
+                "f:controller.devfile.io/timing.deployment.ready": {},
+                "f:controller.devfile.io/timing.duration": {},
+                "f:controller.devfile.io/timing.healthchecks.duration": {},
+                "f:controller.devfile.io/timing.ready": {},
+                "f:controller.devfile.io/timing.routing.created": {},
+                "f:controller.devfile.io/timing.routing.duration": {},
+                "f:controller.devfile.io/timing.routing.ready": {},
+                "f:controller.devfile.io/timing.started": {}
+              },
+              "f:finalizers": {
+                ".": {},
+                "v:\"storage.controller.devfile.io\"": {}
+              }
+            },
+            "f:status": {
+              ".": {},
+              "f:conditions": {},
+              "f:ideUrl": {},
+              "f:phase": {},
+              "f:workspaceId": {}
+            }
+          },
+          "manager": "devworkspace-controller",
+          "operation": "Update",
+          "time": "2021-02-18T22:57:36Z"
+        }
+      ],
+      "name": "theia",
+      "namespace": "che",
+      "resourceVersion": "644788",
+      "selfLink": "/apis/workspace.devfile.io/v1alpha2/namespaces/che/devworkspaces/theia",
+      "uid": "eb55021d-3cff-42e0-b091-624708504bf7"
+    },
+    "spec": {
+      "started": true,
+      "template": {
+        "commands": [
+          {
+            "exec": {
+              "commandLine": "echo \"Hello from $(pwd)\"",
+              "component": "plugin",
+              "workingDir": "${PROJECTS_ROOT}/project/app"
+            },
+            "id": "say-hello"
+          },
+          {
+            "apply": {
+              "component": "remote-runtime-injector"
+            },
+            "id": "inject-theia-in-remote-sidecar"
+          },
+          {
+            "apply": {
+              "component": "vsx-installer"
+            },
+            "id": "copy-vsx"
+          }
+        ],
+        "components": [
+          {
+            "attributes": {
+              "app.kubernetes.io/component": "terminal",
+              "app.kubernetes.io/name": "che-terminal.eclipse.org",
+              "app.kubernetes.io/part-of": "che.eclipse.org"
+            },
+            "container": {
+              "args": [
+                "--url",
+                "0.0.0.0:4444",
+                "--pod-selector",
+                "controller.devfile.io/workspace_id=$(CHE_WORKSPACE_ID)"
+              ],
+              "command": [
+                "/go/bin/che-machine-exec"
+              ],
+              "endpoints": [
+                {
+                  "attributes": {
+                    "cookiesAuthEnabled": "true",
+                    "type": "terminal"
+                  },
+                  "exposure": "public",
+                  "name": "che-mach-exec",
+                  "protocol": "ws",
+                  "secure": true,
+                  "targetPort": 4444
+                }
+              ],
+              "image": "quay.io/eclipse/che-machine-exec:nightly",
+              "sourceMapping": "/projects"
+            },
+            "name": "terminal"
+          },
+          {
+            "name": "plugins",
+            "volume": {}
+          },
+          {
+            "name": "remote-endpoint",
+            "volume": {}
+          },
+          {
+            "attributes": {
+              "app.kubernetes.io/component": "bootstrapper",
+              "app.kubernetes.io/part-of": "che-theia.eclipse.org"
+            },
+            "container": {
+              "args": [
+                "/bin/sh",
+                "-c",
+                "echo \"kube api endpoint is https://kubernetes.default.svc/apis/workspace.devfile.io/v1alpha2/namespaces/${CHE_WORKSPACE_NAMESPACE}/devworkspaces/${CHE_WORKSPACE_NAME}\" &&\\\nKUBE_API_ENDPOINT=\"https://kubernetes.default.svc/apis/workspace.devfile.io/v1alpha2/namespaces/${CHE_WORKSPACE_NAMESPACE}/devworkspaces/${CHE_WORKSPACE_NAME}\" &&\\\nTOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token) &&\\\necho \"calling curl -fsS --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt -H \"Authorization: Bearer ${TOKEN}\" $KUBE_API_ENDPOINT\" &&\\\nWORKSPACE=$(curl -fsS --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt -H \"Authorization: Bearer ${TOKEN}\" $KUBE_API_ENDPOINT) &&\\\nfor container in $(echo $WORKSPACE | sed -e 's;[[,]\\({\"attributes\":{\"app.kubernetes.io\\);\\n\\1;g' | grep '\"che-theia.eclipse.org/vscode-extensions\":' | grep -e '^{\"attributes\".*'); do \\\n  dest=$(echo \"$container\" | sed 's;.*{\"name\":\"THEIA_PLUGINS\",\"value\":\"local-dir://\\([^\"][^\"]*\\)\"}.*;\\1;' - ) ;\\\n  urls=$(echo \"$container\" | sed 's;.*\"che-theia.eclipse.org/vscode-extensions\":\\[\\([^]][^]]*\\)\\]}.*;\\1;' - ) ;\\\n  mkdir -p $dest ;\\\n  for url in $(echo $urls | sed 's/[\",]/ /g' - ); do \\\n    echo; echo downloading $urls to $dest; curl -L $url > $dest/$(basename $url) ;\\\n  done \\\ndone \\\n"
+              ],
+              "image": "quay.io/samsahai/curl:latest",
+              "sourceMapping": "/projects",
+              "volumeMounts": [
+                {
+                  "name": "plugins",
+                  "path": "/plugins"
+                }
+              ]
+            },
+            "name": "vsx-installer"
+          },
+          {
+            "attributes": {
+              "app.kubernetes.io/component": "bootstrapper",
+              "app.kubernetes.io/part-of": "che-theia.eclipse.org"
+            },
+            "container": {
+              "env": [
+                {
+                  "name": "PLUGIN_REMOTE_ENDPOINT_EXECUTABLE",
+                  "value": "/remote-endpoint/plugin-remote-endpoint"
+                },
+                {
+                  "name": "REMOTE_ENDPOINT_VOLUME_NAME",
+                  "value": "remote-endpoint"
+                }
+              ],
+              "image": "quay.io/eclipse/che-theia-endpoint-runtime-binary:7.20.0",
+              "sourceMapping": "/projects",
+              "volumeMounts": [
+                {
+                  "name": "remote-endpoint",
+                  "path": "/remote-endpoint"
+                }
+              ]
+            },
+            "name": "remote-runtime-injector"
+          },
+          {
+            "attributes": {
+              "app.kubernetes.io/component": "editor",
+              "app.kubernetes.io/name": "che-theia.eclipse.org",
+              "app.kubernetes.io/part-of": "che.eclipse.org",
+              "che-theia.eclipse.org/vscode-extensions": [
+                "https://github.com/microsoft/vscode-pull-request-github/releases/download/v0.8.0/vscode-pull-request-github-0.8.0.vsix"
+              ]
+            },
+            "container": {
+              "endpoints": [
+                {
+                  "attributes": {
+                    "cookiesAuthEnabled": "true",
+                    "type": "ide"
+                  },
+                  "exposure": "public",
+                  "name": "theia",
+                  "protocol": "http",
+                  "secure": true,
+                  "targetPort": 3100
+                },
+                {
+                  "attributes": {
+                    "cookiesAuthEnabled": "true",
+                    "type": "webview",
+                    "unique": "true"
+                  },
+                  "exposure": "public",
+                  "name": "webviews",
+                  "protocol": "http",
+                  "secure": true,
+                  "targetPort": 3100
+                },
+                {
+                  "attributes": {
+                    "type": "ide-dev"
+                  },
+                  "exposure": "public",
+                  "name": "theia-dev",
+                  "protocol": "http",
+                  "targetPort": 3130
+                },
+                {
+                  "exposure": "public",
+                  "name": "theia-redir-1",
+                  "protocol": "http",
+                  "targetPort": 13131
+                },
+                {
+                  "exposure": "public",
+                  "name": "theia-redir-2",
+                  "protocol": "http",
+                  "targetPort": 13132
+                },
+                {
+                  "exposure": "public",
+                  "name": "theia-redir-3",
+                  "protocol": "http",
+                  "targetPort": 13133
+                }
+              ],
+              "env": [
+                {
+                  "name": "THEIA_PLUGINS",
+                  "value": "local-dir:///plugins"
+                },
+                {
+                  "name": "HOSTED_PLUGIN_HOSTNAME",
+                  "value": "0.0.0.0"
+                },
+                {
+                  "name": "HOSTED_PLUGIN_PORT",
+                  "value": "3130"
+                },
+                {
+                  "name": "THEIA_HOST",
+                  "value": "0.0.0.0"
+                }
+              ],
+              "image": "quay.io/eclipse/che-theia:next",
+              "memoryLimit": "512M",
+              "mountSources": true,
+              "sourceMapping": "/projects",
+              "volumeMounts": [
+                {
+                  "name": "plugins",
+                  "path": "/plugins"
+                }
+              ]
+            },
+            "name": "theia-ide"
+          }
+        ],
+        "events": {
+          "preStart": [
+            "inject-theia-in-remote-sidecar",
+            "copy-vsx"
+          ]
+        },
+        "projects": [
+          {
+            "git": {
+              "remotes": {
+                "origin": "https://github.com/che-samples/web-nodejs-sample.git"
+              }
+            },
+            "name": "web-nodejs-sample"
+          }
+        ]
+      }
+    },
+    "status": {
+      "conditions": [
+        {
+          "lastTransitionTime": "2021-02-18T22:57:36Z",
+          "status": "True",
+          "type": "ServiceAccountReady"
+        },
+        {
+          "lastTransitionTime": "2021-02-18T22:57:36Z",
+          "status": "True",
+          "type": "RoutingReady"
+        },
+        {
+          "lastTransitionTime": "2021-02-18T22:57:36Z",
+          "status": "True",
+          "type": "Ready"
+        }
+      ],
+      "ideUrl": "http://workspaceeb55021d3cff42e0-theia-3100.192.168.64.31.nip.io",
+      "phase": "Running",
+      "workspaceId": "workspaceeb55021d3cff42e0"
+    }
+  }

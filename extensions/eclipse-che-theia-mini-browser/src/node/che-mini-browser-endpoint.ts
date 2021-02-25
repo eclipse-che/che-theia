@@ -8,28 +8,22 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import {
-  SERVER_MINI_BROWSER_ATTR_VALUE,
-  SERVER_TYPE_ATTR,
-} from '@eclipse-che/theia-plugin-ext/lib/common/che-server-common';
-
+import { EndpointService } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
 import { MiniBrowserEndpoint } from '@theia/mini-browser/lib/node/mini-browser-endpoint';
 import { MiniBrowserEndpoint as MiniBrowserEndpointNS } from '@theia/mini-browser/lib/common/mini-browser-endpoint';
-import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
+import { SERVER_MINI_BROWSER_ATTR_VALUE } from '@eclipse-che/theia-plugin-ext/lib/common/che-server-common';
 import { inject } from 'inversify';
 
 export class CheMiniBrowserEndpoint extends MiniBrowserEndpoint {
-  @inject(WorkspaceService)
-  private workspaceService: WorkspaceService;
+  @inject(EndpointService)
+  private endpointService: EndpointService;
 
   protected async getVirtualHostRegExp(): Promise<RegExp> {
-    const miniBrowserCheEndpoint = await this.workspaceService.findUniqueEndpointByAttribute(
-      SERVER_TYPE_ATTR,
-      SERVER_MINI_BROWSER_ATTR_VALUE
-    );
+    const endpoints = await this.endpointService.getEndpointsByType(SERVER_MINI_BROWSER_ATTR_VALUE);
+
     let miniBrowserCheEndpointHostname: string | undefined;
-    if (miniBrowserCheEndpoint && miniBrowserCheEndpoint.url) {
-      const url = new URL(miniBrowserCheEndpoint.url);
+    if (endpoints.length === 1 && endpoints[0].url) {
+      const url = new URL(endpoints[0].url);
       miniBrowserCheEndpointHostname = url.hostname;
     }
     const pattern =

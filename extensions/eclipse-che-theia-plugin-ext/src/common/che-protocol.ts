@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -45,7 +45,10 @@ export interface CheWorkspaceMain {
 export interface CheDevfile {}
 
 export interface CheDevfileMain {
+  $get(): Promise<che.devfile.Devfile>;
+  $getComponentStatuses(): Promise<che.devfile.DevfileComponentStatus[]>;
   $createWorkspace(devfilePath: string): Promise<void>;
+  $update(updatedDevfile: che.devfile.Devfile): Promise<void>;
 }
 
 export interface CheSsh {}
