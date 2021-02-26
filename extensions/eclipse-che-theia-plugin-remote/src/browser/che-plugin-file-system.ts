@@ -23,11 +23,12 @@ import {
 import { FileService, FileServiceContribution } from '@theia/filesystem/lib/browser/file-service';
 
 import { ChePluginUri } from '../common/che-plugin-uri';
+import { Endpoint } from '@theia/core/lib/browser';
 import URI from '@theia/core/lib/common/uri';
+import { injectable } from 'inversify';
 
 /**
- * A very basic file system provider that can read and write
- * via a resource interface.
+ * A very basic file system provider that can read via http
  */
 export class ChePluginFileSystem implements FileSystemProvider {
   private readonly _onDidChange = new Emitter<readonly FileChange[]>();
@@ -39,7 +40,7 @@ export class ChePluginFileSystem implements FileSystemProvider {
   readonly onDidChangeCapabilities: Event<void> = Event.None;
 
   constructor() {
-    this.capabilities = FileSystemProviderCapabilities.Readonly;
+    this.capabilities = FileSystemProviderCapabilities.FileReadWrite + FileSystemProviderCapabilities.Readonly;
   }
 
   delete(resource: URI, opts: FileDeleteOptions): Promise<void> {
@@ -50,7 +51,14 @@ export class ChePluginFileSystem implements FileSystemProvider {
     throw new Error('Not implemented.');
   }
 
+  private static getUri(pluginId: string, relativePath: string): URI {
+    return new Endpoint({
+      path: `hostedPlugin/${pluginId}/${encodeURIComponent(relativePath.normalize().toString())}`,
+    }).getRestUrl();
+  }
+
   readFile(resource: URI): Promise<Uint8Array> {
+    const uri = ChePluginFileSystem.getUri(resource.authority, resource.path.toString().substring(1));
     return new Promise((resolve, reject) => {
       const request = new XMLHttpRequest();
       request.responseType = 'arraybuffer';
@@ -64,7 +72,7 @@ export class ChePluginFileSystem implements FileSystemProvider {
         }
       };
 
-      request.open('GET', resource.toString(), true);
+      request.open('GET', uri.toString(), true);
       request.send();
     });
   }
@@ -78,7 +86,23 @@ export class ChePluginFileSystem implements FileSystemProvider {
   }
 
   stat(resource: URI): Promise<Stat> {
-    throw new Error('Not implemented.');
+    const uri = ChePluginFileSystem.getUri(resource.authority, resource.path.toString().substring(1)) + '?request=stat';
+    return new Promise((resolve, reject) => {
+      const request = new XMLHttpRequest();
+      request.responseType = 'json';
+      request.onreadystatechange = function (): void {
+        if (this.readyState === XMLHttpRequest.DONE) {
+          if (this.status === 200) {
+            return request.response;
+          } else {
+            reject(new Error('Could not fetch plugin resource'));
+          }
+        }
+      };
+
+      request.open('GET', uri.toString(), true);
+      request.send();
+    });
   }
 
   watch(resource: URI, opts: WatchOptions): Disposable {
@@ -90,6 +114,7 @@ export class ChePluginFileSystem implements FileSystemProvider {
   }
 }
 
+@injectable()
 export class ChePluginFileServiceContribution implements FileServiceContribution {
   registerFileSystemProviders(service: FileService): void {
     service.onWillActivateFileSystemProvider(event => {

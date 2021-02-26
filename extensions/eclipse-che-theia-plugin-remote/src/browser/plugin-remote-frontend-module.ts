@@ -9,18 +9,14 @@
  ***********************************************************************/
 
 import { BrowserRemoteHostedPluginSupport } from './browser-remote-hosted-plugin-support';
-import { ChePluginFileServiceContribution } from './resource-file-system';
-import { ChePluginResourceResolver } from './che-plugin-resource';
+import { ChePluginFileServiceContribution } from './che-plugin-file-system';
 import { ContainerModule } from 'inversify';
 import { FileServiceContribution } from '@theia/filesystem/lib/browser/file-service';
 import { HostedPluginSupport } from '@theia/plugin-ext/lib/hosted/browser/hosted-plugin';
-import { ResourceResolver } from '@theia/core/lib/common/resource';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
   bind(BrowserRemoteHostedPluginSupport).toSelf().inSingletonScope();
   rebind(HostedPluginSupport).toService(BrowserRemoteHostedPluginSupport);
-  bind(ChePluginResourceResolver).toSelf().inSingletonScope();
-  bind(ResourceResolver).toService(ChePluginResourceResolver);
   bind(ChePluginFileServiceContribution).toSelf().inSingletonScope();
   bind(FileServiceContribution).toService(ChePluginFileServiceContribution);
 });
