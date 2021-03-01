@@ -9,41 +9,41 @@
  ***********************************************************************/
 
 import * as theia from '@theia/plugin';
-const UPDATE_WORKSPACE_FOLDER_TIMEOUT = 5000;
-
 export class WorkspaceFolderUpdater {
   private pendingFolders: string[] = [];
   private addingWorkspaceFolderPromise: Promise<void> | undefined;
 
+  constructor(protected readonly updateWorkspaceFolderTimeout = 3000) {}
+
   async addWorkspaceFolder(path: string): Promise<void> {
     const workspaceFolderPath = this.toValidWorkspaceFolderPath(path);
     if (this.pendingFolders.includes(workspaceFolderPath)) {
-      return Promise.resolve();
+      return;
     }
 
     if (this.addingWorkspaceFolderPromise) {
       this.pendingFolders.push(workspaceFolderPath);
-    } else {
-      try {
-        this.addingWorkspaceFolderPromise = this.addFolder(workspaceFolderPath);
-        await this.addingWorkspaceFolderPromise;
-      } catch (error) {
-        console.error(error);
-      } finally {
-        this.addingWorkspaceFolderPromise = undefined;
-      }
+      return;
+    }
+
+    try {
+      this.addingWorkspaceFolderPromise = this.addFolder(workspaceFolderPath);
+      await this.addingWorkspaceFolderPromise;
+    } catch (error) {
+      console.error(error);
+    } finally {
+      this.addingWorkspaceFolderPromise = undefined;
 
       const next = this.pendingFolders.shift();
       if (next) {
-        this.addWorkspaceFolder(next);
+        return this.addWorkspaceFolder(next);
       }
     }
-    return Promise.resolve();
   }
 
   protected addFolder(projectPath: string): Promise<void> {
     const isProjectFolder = (folder: theia.WorkspaceFolder) => folder.uri.path === projectPath;
-    const workspaceFolders = theia.workspace.workspaceFolders || [];
+    const workspaceFolders: theia.WorkspaceFolder[] = theia.workspace.workspaceFolders || [];
     if (workspaceFolders.some(isProjectFolder)) {
       return Promise.resolve(undefined);
     }
@@ -65,10 +65,10 @@ export class WorkspaceFolderUpdater {
 
         reject(
           new Error(
-            `Adding workspace folder ${projectPath} was cancelled by timeout ${UPDATE_WORKSPACE_FOLDER_TIMEOUT} ms`
+            `Adding workspace folder ${projectPath} was cancelled by timeout ${this.updateWorkspaceFolderTimeout} ms`
           )
         );
-      }, UPDATE_WORKSPACE_FOLDER_TIMEOUT);
+      }, this.updateWorkspaceFolderTimeout);
 
       theia.workspace.updateWorkspaceFolders(workspaceFolders ? workspaceFolders.length : 0, undefined, {
         uri: theia.Uri.file(projectPath),
