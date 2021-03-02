@@ -14,7 +14,7 @@ IMAGE_TAG="latest"
 THEIA_GITHUB_REPO="eclipse-theia/theia"
 THEIA_VERSION="master"
 THEIA_BRANCH="master"
-THEIA_COMMIT_SHA="c9db9754"
+THEIA_COMMIT_SHA="b4270a3d"
 THEIA_GIT_REFS="refs\\/heads\\/master"
 THEIA_DOCKER_IMAGE_VERSION="7.26.2"
 
