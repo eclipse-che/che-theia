@@ -1,0 +1,87 @@
+{
+  "apiVersion": "2.0.0",
+  "metadata": { "name": "wksp-ncmbb", "attributes": { "metadata-name-field": "name" } },
+  "projects": [],
+  "components": [
+    { "plugin": { "id": "che-incubator/typescript/latest" } },
+    {
+      "name": "nodejs",
+      "container": {
+        "image": "quay.io/eclipse/che-nodejs8-centos:nightly",
+        "memoryLimit": "512Mi",
+        "mountSources": true,
+        "endpoints": [{ "name": "nodejs", "targetPort": 4100 }]
+      }
+    },
+    { "plugin": { "id": "redhat/java8/latest" } },
+    {
+      "name": "tools",
+      "container": {
+        "image": "quay.io/eclipse/che-java8-maven:nightly",
+        "memoryLimit": "1000Mi",
+        "mountSources": true,
+        "env": [
+          { "name": "MAVEN_CONFIG", "value": "" },
+          {
+            "name": "JAVA_OPTS",
+            "value": "-XX:MaxRAMPercentage=50.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xms20m -Djava.security.egd=file:/dev/./urandom -Duser.home=/home/user"
+          },
+          { "name": "MAVEN_OPTS", "value": "$(JAVA_OPTS)" }
+        ],
+        "volumeMounts": [{ "name": "m2", "path": "/home/user/.m2" }],
+        "endpoints": [
+          { "name": "8080-tcp", "targetPort": 8080 },
+          { "name": "debug", "targetPort": 5005, "attributes": { "public": "false" }, "exposure": "internal" }
+        ]
+      }
+    },
+    {
+      "name": "mysql",
+      "container": {
+        "image": "quay.io/eclipse/che--centos--mysql-57-centos7:latest-e08ee4d43b7356607685b69bde6335e27cf20c020f345b6c6c59400183882764",
+        "memoryLimit": "300Mi",
+        "mountSources": true,
+        "env": [
+          { "name": "MYSQL_USER", "value": "petclinic" },
+          { "name": "MYSQL_PASSWORD", "value": "petclinic" },
+          { "name": "MYSQL_DATABASE", "value": "petclinic" },
+          { "name": "PS1", "value": "$(echo ${0})\\$" }
+        ],
+        "endpoints": [
+          {
+            "name": "db",
+            "targetPort": 3306,
+            "attributes": { "discoverable": "true", "public": "false" },
+            "exposure": "internal"
+          }
+        ]
+      }
+    }
+  ],
+  "commands": [
+    {
+      "id": "maven build",
+      "exec": {
+        "commandLine": "mvn clean install",
+        "component": "tools",
+        "workingDir": "${CHE_PROJECTS_ROOT}/web-java-spring-petclinic"
+      }
+    },
+    {
+      "id": "run webapp",
+      "exec": {
+        "commandLine": "SPRING_DATASOURCE_URL=jdbc:mysql://db/petclinic \\nSPRING_DATASOURCE_USERNAME=petclinic \\nSPRING_DATASOURCE_PASSWORD=petclinic \\njava -jar -Dspring.profiles.active=mysql \\n-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 \\ntarget/*.jar\n",
+        "component": "tools",
+        "workingDir": "${CHE_PROJECTS_ROOT}/web-java-spring-petclinic"
+      }
+    },
+    {
+      "id": "prepare database",
+      "exec": {
+        "commandLine": "/opt/rh/rh-mysql57/root/usr/bin/mysql -u root < ${CHE_PROJECTS_ROOT}/web-java-spring-petclinic/src/main/resources/db/mysql/user.sql &&\n/opt/rh/rh-mysql57/root/usr/bin/mysql -u root petclinic < ${CHE_PROJECTS_ROOT}/web-java-spring-petclinic/src/main/resources/db/mysql/schema.sql",
+        "component": "mysql"
+      }
+    },
+    { "id": "Debug remote java application", "vscodeLaunch": { "inline": "inline" } }
+  ]
+}
