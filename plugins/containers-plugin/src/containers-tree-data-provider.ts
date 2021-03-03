@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -129,24 +129,24 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
       }
 
       // routes
-      const serverKeys = container.servers ? Object.keys(container.servers) : [];
-      if (serverKeys.length) {
-        serverKeys.forEach((serverName: string) => {
-          const server = container.servers![serverName];
-          if (!server) {
+      const endpointKeys = container.endpoints ? Object.keys(container.endpoints) : [];
+      if (endpointKeys.length) {
+        endpointKeys.forEach((endpointName: string) => {
+          const endpoint = container.endpoints![endpointName];
+          if (!endpoint) {
             return;
           }
           const treeNodeItem: ITreeNodeItem = {
             id: this.getRandId(),
             parentId: containerNode.id,
-            name: serverName,
+            name: endpointName,
             iconPath: 'fa-info-circle medium-blue',
-            tooltip: server.url ? server.url : 'endpoint',
+            tooltip: endpoint.url ? endpoint.url : 'endpoint',
           };
-          if (server.url && server.url.startsWith('http')) {
-            treeNodeItem.name = serverName;
+          if (endpoint.url && endpoint.url.startsWith('http')) {
+            treeNodeItem.name = endpointName;
             treeNodeItem.iconPath = 'fa-external-link medium-blue';
-            treeNodeItem.command = { id: 'theia.open', arguments: [server.url] };
+            treeNodeItem.command = { id: 'theia.open', arguments: [endpoint.url] };
             treeNodeItem.tooltip = 'open in a new tab  ' + treeNodeItem.tooltip;
           }
           this.treeNodeItems.push(treeNodeItem);
@@ -154,8 +154,8 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
       }
 
       // environment
-      const envKeys = container.env ? Object.keys(container.env) : [];
-      if (envKeys.length) {
+      const envs = container.env || [];
+      if (envs.length > 0) {
         const envsId = this.getRandId();
         this.treeNodeItems.push({
           id: envsId,
@@ -164,20 +164,20 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
           tooltip: 'environment variables',
           isExpanded: false,
         });
-        envKeys.forEach((envName: string) => {
+        envs.forEach(env => {
           this.treeNodeItems.push({
             id: this.getRandId(),
             parentId: envsId,
-            name: `${envName} : ${container.env![envName]}`,
-            tooltip: `environment variable ${envName}`,
+            name: `${env.name} : ${env.value}`,
+            tooltip: `environment variable ${env.name}`,
             iconPath: 'fa-info-circle medium-blue',
           });
         });
       }
 
       // volumes
-      const volumesKeys = container.volumes ? Object.keys(container.volumes) : [];
-      if (volumesKeys.length) {
+      const volumeMounts = container.volumeMounts || [];
+      if (volumeMounts.length > 0) {
         const volumesId = this.getRandId();
         this.treeNodeItems.push({
           id: volumesId,
@@ -186,14 +186,9 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
           tooltip: 'volumes',
           isExpanded: false,
         });
-        volumesKeys.forEach((volumeName: string) => {
-          const volume: {
-            [paramRef: string]: string | undefined;
-          } = container.volumes![volumeName];
-          if (!volume) {
-            return;
-          }
+        volumeMounts.forEach(volumeMount => {
           const volumeId = this.getRandId();
+          const volumeName = volumeMount.name || '';
           this.treeNodeItems.push({
             id: volumeId,
             parentId: volumesId,
@@ -201,14 +196,12 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
             tooltip: 'volume name',
             isExpanded: true,
           });
-          Object.keys(volume).forEach((key: string) => {
-            this.treeNodeItems.push({
-              id: this.getRandId(),
-              parentId: volumeId,
-              name: `${key} : ${volume[key]}`,
-              tooltip: `volume ${volumeName}`,
-              iconPath: 'fa-info-circle medium-blue',
-            });
+          this.treeNodeItems.push({
+            id: this.getRandId(),
+            parentId: volumeId,
+            name: `${volumeName} : ${volumeMount.path}`,
+            tooltip: `volume ${volumeName}`,
+            iconPath: 'fa-info-circle medium-blue',
           });
         });
       }
