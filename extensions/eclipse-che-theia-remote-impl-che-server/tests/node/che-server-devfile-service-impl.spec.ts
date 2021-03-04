@@ -26,9 +26,7 @@ import { Container } from 'inversify';
 import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { che } from '@eclipse-che/api';
 
-describe.only('Test CheServerDevfileServiceImpl', () => {
-  let container: Container;
-
+describe('Test CheServerDevfileServiceImpl', () => {
   let cheServerDevfileServiceImpl: CheServerDevfileServiceImpl;
 
   const workspaceServiceCurrentWorkspaceMethod = jest.fn();
@@ -39,7 +37,7 @@ describe.only('Test CheServerDevfileServiceImpl', () => {
   beforeEach(() => {
     jest.restoreAllMocks();
     jest.resetAllMocks();
-    container = new Container();
+    const container = new Container();
 
     container.bind(CheServerDevfileServiceImpl).toSelf().inSingletonScope();
     container.bind(WorkspaceService).toConstantValue(workspaceService);
