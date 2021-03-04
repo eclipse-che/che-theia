@@ -26,6 +26,7 @@ import { WorkspaceService, cheWorkspaceServicePath } from '@eclipse-che/theia-re
 import { ContainerModule } from 'inversify';
 import { K8SServiceImpl } from './k8s-service-impl';
 import { K8sCertificateServiceImpl } from './k8s-certificate-service-impl';
+import { K8sDevWorkspaceEnvVariables } from './k8s-devworkspace-env-variables';
 import { K8sDevfileServiceImpl } from './k8s-devfile-service-impl';
 import { K8sEndpointServiceImpl } from './k8s-endpoint-service-impl';
 import { K8sFactoryServiceImpl } from './k8s-factory-service-impl';
@@ -52,6 +53,7 @@ export default new ContainerModule(bind => {
   bind(K8SServiceImpl).toSelf().inSingletonScope();
   bind(K8sDevfileServiceImpl).toSelf().inSingletonScope();
   bind(K8sEndpointServiceImpl).toSelf().inSingletonScope();
+  bind(K8sDevWorkspaceEnvVariables).toSelf().inSingletonScope();
 
   bind(CertificateService).to(K8sCertificateServiceImpl).inSingletonScope();
   bind(FactoryService).to(K8sFactoryServiceImpl).inSingletonScope();

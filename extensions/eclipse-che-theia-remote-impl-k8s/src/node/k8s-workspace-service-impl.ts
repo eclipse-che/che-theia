@@ -17,58 +17,29 @@ import {
 import { inject, injectable } from 'inversify';
 
 import { DevfileService } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
+import { K8sDevWorkspaceEnvVariables } from './k8s-devworkspace-env-variables';
 
 @injectable()
 export class K8sWorkspaceServiceImpl implements WorkspaceService {
   @inject(DevfileService)
   private devfileService: DevfileService;
 
-  /**
-   * workspaceId - workspace ID taken from environment variable, always the same at workspace lifecycle
-   */
-  private readonly workspaceId: string;
-
-  /**
-   * workspaceName - workspace name taken from environment variable, always the same at workspace lifecycle
-   */
-  private readonly workspaceName: string;
-
-  /**
-   * workspaceNamespace - workspace namespace taken from environment variable, always the same at workspace lifecycle
-   */
-  private readonly workspaceNamespace: string;
-
-  constructor() {
-    if (process.env.DEVWORKSPACE_ID === undefined) {
-      console.error('Environment variable DEVWORKSPACE_ID is not set');
-    } else {
-      this.workspaceId = process.env.DEVWORKSPACE_ID;
-    }
-    if (process.env.DEVWORKSPACE_NAMESPACE === undefined) {
-      console.error('Environment variable DEVWORKSPACE_NAMESPACE is not set');
-    } else {
-      this.workspaceNamespace = process.env.DEVWORKSPACE_NAMESPACE;
-    }
-    if (process.env.DEVWORKSPACE_NAME === undefined) {
-      console.error('Environment variable DEVWORKSPACE_NAME is not set');
-    } else {
-      this.workspaceName = process.env.DEVWORKSPACE_NAME;
-    }
-  }
+  @inject(K8sDevWorkspaceEnvVariables)
+  private env: K8sDevWorkspaceEnvVariables;
 
   public async getCurrentNamespace(): Promise<string> {
-    return this.workspaceNamespace;
+    return this.env.getWorkspaceNamespace();
   }
 
   public async getCurrentWorkspaceId(): Promise<string> {
-    return this.workspaceId;
+    return this.env.getWorkspaceId();
   }
 
   public async currentWorkspace(): Promise<Workspace> {
     return {
-      id: this.workspaceId,
-      name: this.workspaceName,
-      namespace: this.workspaceNamespace,
+      id: this.env.getWorkspaceId(),
+      name: this.env.getWorkspaceName(),
+      namespace: this.env.getWorkspaceNamespace(),
       // running as we're in the pod
       status: 'RUNNING',
     };
