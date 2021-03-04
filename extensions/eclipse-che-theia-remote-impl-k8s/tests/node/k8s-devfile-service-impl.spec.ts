@@ -19,8 +19,8 @@ import { Devfile, DevfileComponent, DevfileProject } from '@eclipse-che/theia-re
 
 import { Container } from 'inversify';
 import { K8SServiceImpl } from '../..//src/node/k8s-service-impl';
+import { K8sDevWorkspaceEnvVariables } from '../../src/node/k8s-devworkspace-env-variables';
 import { K8sDevfileServiceImpl } from '../../src/node/k8s-devfile-service-impl';
-import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 describe('Test K8sDevfileServiceImpl', () => {
   let container: Container;
@@ -38,31 +38,34 @@ describe('Test K8sDevfileServiceImpl', () => {
     listNamespacedCustomObject: listNamespacedMockCustomObjectMethod,
   };
 
-  const workspaceServiceCurrentWorkspaceMethod = jest.fn();
-  const workspaceService = {
-    currentWorkspace: workspaceServiceCurrentWorkspaceMethod,
+  const workspaceIdEnvVariablesMethod = jest.fn();
+  const workspaceNameEnvVariablesMethod = jest.fn();
+  const workspaceNamespaceEnvVariablesMethod = jest.fn();
+  const k8sDevWorkspaceEnvVariables = {
+    getWorkspaceId: workspaceIdEnvVariablesMethod,
+    getWorkspaceName: workspaceNameEnvVariablesMethod,
+    getWorkspaceNamespace: workspaceNamespaceEnvVariablesMethod,
   } as any;
 
   beforeEach(() => {
     jest.restoreAllMocks();
     jest.resetAllMocks();
     container = new Container();
-    container.bind(WorkspaceService).toConstantValue(workspaceService);
+    container.bind(K8sDevWorkspaceEnvVariables).toConstantValue(k8sDevWorkspaceEnvVariables);
     container.bind(K8sDevfileServiceImpl).toSelf().inSingletonScope();
     container.bind(K8SServiceImpl).toConstantValue(k8sServiceMock);
     k8sServiceMakeApiClientMethod.mockReturnValueOnce(customObjectsApiMock);
     k8sDevfileServiceImpl = container.get(K8sDevfileServiceImpl);
+    workspaceNameEnvVariablesMethod.mockReturnValue('fake-workspace-name');
+    workspaceNamespaceEnvVariablesMethod.mockReturnValue('fake-workspace-namespace');
   });
 
   test('get', async () => {
     const devWorkspaceJsonPath = path.resolve(__dirname, '..', '_data', 'get-devworkspace-response-body.json');
     const devWorkspaceJsonContent = await fs.readFile(devWorkspaceJsonPath, 'utf-8');
     const devWorkspaceJson = JSON.parse(devWorkspaceJsonContent);
-    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue({
-      name: 'fake-workspace-name',
-      namespace: 'fake-workspace-namespace',
-    });
-
+    workspaceNameEnvVariablesMethod.mockReturnValue('fake-workspace-name');
+    workspaceNamespaceEnvVariablesMethod.mockReturnValue('fake-workspace-namespace');
     customObjectsApiMockGetNamespacedCustomObjectMethod.mockReturnValue({ body: devWorkspaceJson });
 
     const devfile = await k8sDevfileServiceImpl.get();
@@ -106,10 +109,6 @@ describe('Test K8sDevfileServiceImpl', () => {
     const devWorkspaceJsonPath = path.resolve(__dirname, '..', '_data', 'get-devworkspace-response-body.json');
     const devWorkspaceJsonContent = await fs.readFile(devWorkspaceJsonPath, 'utf-8');
     const devWorkspaceJson = JSON.parse(devWorkspaceJsonContent);
-    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue({
-      name: 'fake-workspace-name',
-      namespace: 'fake-workspace-namespace',
-    });
 
     customObjectsApiMockGetNamespacedCustomObjectMethod.mockReturnValue({ body: devWorkspaceJson });
 
@@ -133,10 +132,6 @@ describe('Test K8sDevfileServiceImpl', () => {
     );
     const workspaceRoutingJsonContent = await fs.readFile(workspaceRoutingJsonPath, 'utf-8');
     const workspaceRoutingJson = JSON.parse(workspaceRoutingJsonContent);
-    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue({
-      name: 'fake-workspace-name',
-      namespace: 'fake-workspace-namespace',
-    });
 
     listNamespacedMockCustomObjectMethod.mockReturnValue({ body: workspaceRoutingJson });
 
