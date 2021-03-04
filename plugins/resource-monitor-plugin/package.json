@@ -29,7 +29,7 @@
     "compile": "tsc",
     "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia-plugin pack",
     "watch": "tsc -w",
-    "test": "jest",
+    "test": "if-env SKIP_TEST=true && echo 'skip test' || jest --forceExit",
     "test:watch": "jest --watchAll"
   },
   "engines": {
