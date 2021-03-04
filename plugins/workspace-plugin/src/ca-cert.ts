@@ -19,18 +19,10 @@ const CA_BUNDLE_PATH = '/tmp/ca-bundle.crt';
 /**
  * Possible locations of default system certificates.
  */
-const systemCerts = [
-  // Debian, Ubuntu, Gentoo
+const SYSTEM_CERTS = [
   '/etc/ssl/certs/ca-certificates.crt',
-  // Fedora, RHEL 6
   '/etc/pki/tls/certs/ca-bundle.crt',
-  // OpenSUSE
-  '/etc/ssl/ca-bundle.pem',
-  // OpenELEC
-  '/etc/pki/tls/cacert.pem',
-  // CentOS, RHEL 7
   '/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem',
-  // Alpine
   '/etc/ssl/cert.pem',
 ];
 
@@ -39,7 +31,7 @@ export const getCertificate = new Promise<string | undefined>(async resolve => {
 
   // Look for default certificate.
   // Stop iterating when finding one.
-  for (const cert of systemCerts) {
+  for (const cert of SYSTEM_CERTS) {
     if (await fs.pathExists(cert)) {
       // read the certificate
       certificates.push(await fs.readFile(cert));
