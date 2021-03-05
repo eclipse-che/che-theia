@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2020 Red Hat, Inc.
+ * Copyright (c) 2020-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -16,6 +16,7 @@
  * @author Valerii Svydenko
  */
 const che: any = {};
-che.workspace = {};
+che.devfile = {};
+che.devfile.metadata = {};
 che.k8s = {};
 module.exports = che;

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -193,6 +193,6 @@ export class ResMon {
 }
 
 export async function getNamespace(): Promise<string> {
-  const workspace = await che.workspace.getCurrentWorkspace();
-  return workspace.attributes ? workspace.attributes.infrastructureNamespace : '';
+  const devfile = await che.devfile.get();
+  return devfile.metadata?.attributes ? devfile.metadata.attributes.infrastructureNamespace : '';
 }
