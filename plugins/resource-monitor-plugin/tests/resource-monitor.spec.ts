@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2020 Red Hat, Inc.
+ * Copyright (c) 2020-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -20,10 +20,9 @@ import * as theia from '@theia/plugin';
 import { Container } from '../src/objects';
 import { ResMon } from '../src/resource-monitor-plugin';
 import { SHOW_WARNING_MESSAGE_COMMAND } from '../src/constants';
-import { che as cheApi } from '@eclipse-che/api';
 
 describe('Test Resource Monitor Plugin', () => {
-  const getCurrentWorkspace = jest.fn();
+  const devfileMock = jest.fn();
   const sendRawQuery = jest.fn();
   const createStatusBar = jest.fn();
   process.env.HOSTNAME = 'workspace';
@@ -75,12 +74,14 @@ describe('Test Resource Monitor Plugin', () => {
     che.k8s.sendRawQuery = sendRawQuery;
 
     // Prepare Namespace
-    che.workspace.getCurrentWorkspace = getCurrentWorkspace;
+    che.devfile.get = devfileMock;
     const attributes = { infrastructureNamespace: 'che-namespace' };
-    const workspace: cheApi.workspace.Workspace = {
-      attributes,
+    const devfile = {
+      metadata: {
+        attributes,
+      },
     };
-    getCurrentWorkspace.mockReturnValue(workspace);
+    devfileMock.mockReturnValue(devfile);
 
     // Prepare StatusBarItem
     theia.window.createStatusBarItem = createStatusBar;
