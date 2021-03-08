@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2020-2021 Red Hat, Inc.
+ * Copyright (c) 2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,6 +9,5 @@
  ***********************************************************************/
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const theiaPlugin: any = {};
-theiaPlugin.window = {};
-module.exports = theiaPlugin;
+const chePlugin: any = {};
+module.exports = chePlugin;
