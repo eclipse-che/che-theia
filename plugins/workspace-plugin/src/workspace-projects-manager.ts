@@ -19,66 +19,62 @@ import * as theia from '@theia/plugin';
 import { TheiaImportCommand, buildProjectImportCommand } from './theia-commands';
 
 import { WorkspaceFolderUpdater } from './workspace-folder-updater';
-import { che as cheApi } from '@eclipse-che/api';
 
 const onDidCloneSourcesEmitter = new theia.EventEmitter<void>();
 export const onDidCloneSources = onDidCloneSourcesEmitter.event;
 
 export function handleWorkspaceProjects(pluginContext: theia.PluginContext, projectsRoot: string): void {
-  che.workspace.getCurrentWorkspace().then((workspace: cheApi.workspace.Workspace) => {
-    new WorkspaceProjectsManager(pluginContext, projectsRoot).run();
-  });
+  new WorkspaceProjectsManager(pluginContext, projectsRoot).run();
 }
 
 export class WorkspaceProjectsManager {
   protected watchers: theia.FileSystemWatcher[] = [];
   protected workspaceFolderUpdater = new WorkspaceFolderUpdater();
+  private outputChannel: theia.OutputChannel;
 
-  constructor(protected pluginContext: theia.PluginContext, protected projectsRoot: string) {}
-
-  getProjectPath(project: cheApi.workspace.devfile.Project): string {
-    return project.clonePath
-      ? path.join(this.projectsRoot, project.clonePath)
-      : path.join(this.projectsRoot, project.name!);
+  constructor(protected pluginContext: theia.PluginContext, protected projectsRoot: string) {
+    this.outputChannel = theia.window.createOutputChannel('workspace-plugin');
   }
 
-  getProjects(workspace: cheApi.workspace.Workspace): cheApi.workspace.devfile.Project[] {
-    const projects = workspace.devfile!.projects;
-    return projects ? projects : [];
+  getProjectPath(project: che.devfile.DevfileProject): string {
+    return project.clonePath
+      ? path.join(this.projectsRoot, project.clonePath)
+      : path.join(this.projectsRoot, project.name);
   }
 
   async run(): Promise<void> {
-    const workspace = await che.workspace.getCurrentWorkspace();
-    const cloneCommandList = await this.buildCloneCommands(workspace);
-
-    const cloningPromise = this.executeCloneCommands(cloneCommandList, workspace);
+    const devfile = await che.devfile.get();
+    this.outputChannel.appendLine(`Found devfile ${JSON.stringify(devfile, undefined, 2)}`);
+    const cloneCommandList = await this.buildCloneCommands(devfile.projects || []);
+    this.outputChannel.appendLine(`Clone commands are ${JSON.stringify(cloneCommandList, undefined, 2)}`);
+    const isMultiRoot = devfile.metadata?.attributes?.multiRoot === 'on';
+    this.outputChannel.appendLine(`multi root is ${isMultiRoot}`);
+    const cloningPromise = this.executeCloneCommands(cloneCommandList, isMultiRoot);
     theia.window.withProgress({ location: { viewId: 'explorer' } }, () => cloningPromise);
     await cloningPromise;
 
     await this.startSyncWorkspaceProjects();
   }
 
-  async buildCloneCommands(workspace: cheApi.workspace.Workspace): Promise<TheiaImportCommand[]> {
-    const instance = this;
+  notUndefined<T>(x: T | undefined): x is T {
+    return x !== undefined;
+  }
 
-    const projects = this.getProjects(workspace);
+  async buildCloneCommands(projects: che.devfile.DevfileProject[]): Promise<TheiaImportCommand[]> {
+    const instance = this;
 
     return projects
       .filter(project => !fs.existsSync(this.getProjectPath(project)))
-      .map(project => buildProjectImportCommand(project, instance.projectsRoot)!);
+      .map(project => buildProjectImportCommand(project, instance.projectsRoot))
+      .filter(command => this.notUndefined(command)) as TheiaImportCommand[];
   }
 
-  private async executeCloneCommands(
-    cloneCommandList: TheiaImportCommand[],
-    workspace: cheApi.workspace.Workspace
-  ): Promise<void> {
+  private async executeCloneCommands(cloneCommandList: TheiaImportCommand[], isMultiRoot: boolean): Promise<void> {
     if (cloneCommandList.length === 0) {
       return;
     }
 
     theia.window.showInformationMessage('Che Workspace: Starting importing projects.');
-
-    const isMultiRoot = isMultiRootWorkspace(workspace);
 
     const cloningPromises: PromiseLike<string>[] = [];
     for (const cloneCommand of cloneCommandList) {
@@ -90,6 +86,7 @@ export class WorkspaceProjectsManager {
           cloningPromise.then(projectPath => this.workspaceFolderUpdater.addWorkspaceFolder(projectPath));
         }
       } catch (e) {
+        this.outputChannel.appendLine(`Error while cloning: ${e}`);
         // we continue to clone other projects even if a clone process failed for a project
       }
     }
@@ -120,18 +117,30 @@ export class WorkspaceProjectsManager {
       return;
     }
 
-    const currentWorkspace = await che.workspace.getCurrentWorkspace();
-    if (!currentWorkspace || !currentWorkspace.id) {
-      console.error('Unexpected error: current workspace id is not defined');
-      return;
-    }
-
-    await this.updateOrCreateProject(currentWorkspace, projectFolderURI);
-
-    await che.workspace.update(currentWorkspace.id, currentWorkspace);
+    const devfile = await che.devfile.get();
+    await this.updateOrCreateProject(devfile, projectFolderURI);
+    await che.devfile.update(devfile);
   }
 
-  async updateOrCreateProject(workspace: cheApi.workspace.Workspace, projectFolderURI: string): Promise<void> {
+  async selectProjectToCloneCommands(devfile: che.devfile.Devfile): Promise<TheiaImportCommand[]> {
+    const instance = this;
+
+    const projects = devfile.projects;
+    if (!projects) {
+      return [];
+    }
+
+    return projects
+      .filter(project => {
+        const projectPath = project.clonePath
+          ? path.join(instance.projectsRoot, project.clonePath)
+          : path.join(instance.projectsRoot, project.name);
+        return !fs.existsSync(projectPath);
+      })
+      .map(project => buildProjectImportCommand(project, instance.projectsRoot)!);
+  }
+
+  async updateOrCreateProject(devfile: che.devfile.Devfile, projectFolderURI: string): Promise<void> {
     const projectUpstreamBranch: git.GitUpstreamBranch | undefined = await git.getUpstreamBranch(projectFolderURI);
     if (!projectUpstreamBranch || !projectUpstreamBranch.remoteURL) {
       console.error(`Could not detect git project branch for ${projectFolderURI}`);
@@ -139,7 +148,7 @@ export class WorkspaceProjectsManager {
     }
 
     projectsHelper.updateOrCreateGitProjectInDevfile(
-      workspace.devfile!.projects!,
+      devfile.projects,
       fileUri.convertToCheProjectPath(projectFolderURI, this.projectsRoot),
       projectUpstreamBranch.remoteURL,
       projectUpstreamBranch.branch
@@ -150,26 +159,15 @@ export class WorkspaceProjectsManager {
     if (!projectFolderURI) {
       return;
     }
-    const currentWorkspace = await che.workspace.getCurrentWorkspace();
-    if (!currentWorkspace.id) {
-      console.error('Unexpected error: current workspace id is not defined');
-      return;
-    }
-
-    this.deleteProject(currentWorkspace, projectFolderURI);
-
-    await che.workspace.update(currentWorkspace.id, currentWorkspace);
+    const devfile = await che.devfile.get();
+    this.deleteProject(devfile, projectFolderURI);
+    await che.devfile.update(devfile);
   }
 
-  deleteProject(workspace: cheApi.workspace.Workspace, projectFolderURI: string): void {
+  deleteProject(devfile: che.devfile.Devfile, projectFolderURI: string): void {
     projectsHelper.deleteProjectFromDevfile(
-      workspace.devfile!.projects!,
+      devfile.projects,
       fileUri.convertToCheProjectPath(projectFolderURI, this.projectsRoot)
     );
   }
-}
-
-function isMultiRootWorkspace(workspace: cheApi.workspace.Workspace): boolean {
-  const devfile = workspace.devfile;
-  return !!devfile && !!devfile.attributes && !!devfile.attributes.multiRoot && devfile.attributes.multiRoot === 'on';
 }

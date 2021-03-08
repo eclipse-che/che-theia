@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2019-2020 Red Hat, Inc.
+ * Copyright (c) 2019-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -45,7 +45,7 @@ export async function getRemoteURL(remote: string, projectPath: string): Promise
 export async function sparseCheckout(
   projectPath: string,
   repositoryUri: string,
-  sparseCheckoutDirectory: string,
+  sparseCheckoutDirectories: string[],
   commitReference: string
 ): Promise<void> {
   await initRepository(projectPath);
@@ -53,8 +53,8 @@ export async function sparseCheckout(
   await setConfig(projectPath, 'core.sparsecheckout', 'true');
   // Write sparse checkout directory
   const gitInfoFolderPath = path.join(projectPath, '.git/info/');
-  fs.ensureDirSync(gitInfoFolderPath);
-  fs.writeFileSync(path.join(gitInfoFolderPath, 'sparse-checkout'), sparseCheckoutDirectory);
+  await fs.ensureDir(gitInfoFolderPath);
+  await fs.writeFile(path.join(gitInfoFolderPath, 'sparse-checkout'), sparseCheckoutDirectories.join('\n'), 'utf-8');
   // Add remote, pull changes and create the selected directory content
   await execGit(projectPath, 'remote', 'add', '-f', 'origin', repositoryUri);
   await execGit(projectPath, 'pull', 'origin', commitReference);
