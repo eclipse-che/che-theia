@@ -27,8 +27,7 @@ import { injectable } from 'inversify';
 @injectable()
 export class DeleteKey extends Command {
   constructor() {
-    super();
-    this.init('ssh:delete', 'SSH: Delete Key...');
+    super('ssh:delete', 'SSH: Delete Key...');
   }
 
   async run(context?: { gitCloneFlow?: boolean }): Promise<void> {

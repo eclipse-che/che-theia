@@ -25,8 +25,7 @@ import { injectable } from 'inversify';
 @injectable()
 export class CreateKey extends Command {
   constructor() {
-    super();
-    this.init('ssh:create', 'SSH: Create Key...');
+    super('ssh:create', 'SSH: Create Key...');
   }
 
   async run(): Promise<void> {

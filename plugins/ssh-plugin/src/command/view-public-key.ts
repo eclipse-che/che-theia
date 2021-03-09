@@ -27,8 +27,7 @@ const FILE_SCHEME = 'publickey';
 @injectable()
 export class ViewPublicKey extends Command {
   constructor() {
-    super();
-    this.init('ssh:view', 'SSH: View Public Key...');
+    super('ssh:view', 'SSH: View Public Key...');
 
     theia.workspace.registerTextDocumentContentProvider(FILE_SCHEME, {
       async provideTextDocumentContent(uri: theia.Uri, token: theia.CancellationToken): Promise<string | undefined> {

@@ -31,8 +31,7 @@ import { injectable } from 'inversify';
 @injectable()
 export class AddKeyToGitHub extends Command {
   constructor() {
-    super();
-    this.init('ssh:add_key_to_github', 'SSH: Add Existing Key To GitHub...');
+    super('ssh:add_key_to_github', 'SSH: Add Existing Key To GitHub...');
   }
 
   async run(context?: { gitCloneFlow?: boolean; confirmMessage?: string }): Promise<boolean> {

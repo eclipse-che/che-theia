@@ -25,8 +25,7 @@ import { injectable } from 'inversify';
 @injectable()
 export class GenerateKey extends Command {
   constructor() {
-    super();
-    this.init('ssh:generate', 'SSH: Generate Key...');
+    super('ssh:generate', 'SSH: Generate Key...');
   }
 
   async run(context?: { gitCloneFlow?: boolean }): Promise<void> {

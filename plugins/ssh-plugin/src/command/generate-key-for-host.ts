@@ -25,8 +25,7 @@ import { injectable } from 'inversify';
 @injectable()
 export class GenerateKeyForHost extends Command {
   constructor() {
-    super();
-    this.init('ssh:generate_for_host', 'SSH: Generate Key For Particular Host...');
+    super('ssh:generate_for_host', 'SSH: Generate Key For Particular Host...');
   }
 
   async run(): Promise<void> {

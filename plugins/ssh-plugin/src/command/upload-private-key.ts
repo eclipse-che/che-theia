@@ -29,8 +29,7 @@ import { join } from 'path';
 @injectable()
 export class UploadPrivateKey extends Command {
   constructor() {
-    super();
-    this.init('ssh:upload', 'SSH: Upload Private Key...');
+    super('ssh:upload', 'SSH: Upload Private Key...');
   }
 
   async run(): Promise<void> {

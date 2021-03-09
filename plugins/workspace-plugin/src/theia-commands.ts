@@ -143,7 +143,7 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
     }
 
     // clone using SSH URI
-    let latestError: string | undefined;
+    let errorReason: string | undefined;
     while (true) {
       // test secure login
       try {
@@ -157,9 +157,9 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
         }
 
         output.show(true);
-        output.appendLine(error.message);
+        output.appendLine(`$ git clone ${this.locationURI}\r${error.message}`);
 
-        latestError = git.getErrorReason(error.message);
+        errorReason = git.getErrorReason(error.message);
       }
 
       // unable to login
@@ -172,8 +172,8 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
       const CONFIGURE_SSH = 'Configure SSH';
 
       let message = `Failure to clone git project ${this.locationURI}`;
-      if (latestError) {
-        message += ` ${latestError}`;
+      if (errorReason) {
+        message += ` ${errorReason}`;
       }
 
       const isSecureGitHubURI = git.isSecureGitHubURI(this.locationURI);

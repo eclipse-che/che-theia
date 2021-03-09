@@ -10,21 +10,11 @@
 
 import * as theia from '@theia/plugin';
 
-import { injectable } from 'inversify';
+import { injectable, unmanaged } from 'inversify';
 
 @injectable()
 export abstract class Command implements theia.CommandDescription {
-  // constructor(public readonly id: string, public readonly label: string) {}
-  constructor() {}
-
-  public id: string;
-
-  public label: string;
-
-  init(id: string, label: string) {
-    this.id = id;
-    this.label = label;
-  }
+  constructor(@unmanaged() public readonly id: string, @unmanaged() public readonly label: string) {}
 
   abstract run(context?: { gitCloneFlow?: boolean }): Promise<boolean | void>;
 }
