@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2019-2020 Red Hat, Inc.
+ * Copyright (c) 2019-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -8,12 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import {
-  CONTAINER_SOURCE_ATTRIBUTE,
-  CheWorkspaceClient,
-  RECIPE_CONTAINER_SOURCE,
-  WorkspaceContainer,
-} from '../che-workspace-client';
+import { CheWorkspaceClient, WorkspaceContainer } from '../che-workspace-client';
 import { QuickPickItem, window } from '@theia/plugin';
 import { inject, injectable } from 'inversify';
 
@@ -60,7 +55,7 @@ export class MachinesPicker {
   }
 
   private async pickContainerFromClient(): Promise<string> {
-    const containers = await this.cheWorkspaceClient.getContainers();
+    const containers = await this.cheWorkspaceClient.getComponentStatuses();
 
     if (containers.length === 1) {
       return Promise.resolve(containers[0].name);
@@ -74,8 +69,8 @@ export class MachinesPicker {
   private toQuickPickItems(containers: WorkspaceContainer[]): QuickPickItem[] {
     const items: QuickPickItem[] = [];
 
-    const devContainers = containers.filter(container => this.isDevContainer(container));
-    const toolingContainers = containers.filter(container => !this.isDevContainer(container));
+    const devContainers = containers.filter(container => container.isUser);
+    const toolingContainers = containers.filter(container => !container.isUser);
 
     items.push(
       ...devContainers.map(
@@ -108,13 +103,5 @@ export class MachinesPicker {
     );
 
     return items;
-  }
-
-  private isDevContainer(container: WorkspaceContainer): boolean {
-    return (
-      container.attributes !== undefined &&
-      (!container.attributes[CONTAINER_SOURCE_ATTRIBUTE] ||
-        container.attributes[CONTAINER_SOURCE_ATTRIBUTE] === RECIPE_CONTAINER_SOURCE)
-    );
   }
 }

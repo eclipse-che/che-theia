@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2019-2020 Red Hat, Inc.
+ * Copyright (c) 2019-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -15,12 +15,7 @@ import { injectable } from 'inversify';
 
 const TERMINAL_SERVER_TYPE = 'terminal';
 
-export const RECIPE_CONTAINER_SOURCE = 'recipe';
-export const CONTAINER_SOURCE_ATTRIBUTE = 'source';
-
-export interface WorkspaceContainer extends cheApi.workspace.Machine {
-  name: string;
-}
+export interface WorkspaceContainer extends che.devfile.DevfileComponentStatus {}
 
 @injectable()
 export class CheWorkspaceClient {
@@ -30,57 +25,8 @@ export class CheWorkspaceClient {
     return workspace.links;
   }
 
-  /** Returns array of containers' names for the current workspace. */
-  async getContainersNames(): Promise<string[]> {
-    const containerNames: string[] = [];
-
-    try {
-      const containers = await this.getMachines();
-      for (const containerName in containers) {
-        if (containers.hasOwnProperty(containerName)) {
-          containerNames.push(containerName);
-        }
-      }
-    } catch (error) {
-    } finally {
-      return containerNames;
-    }
-  }
-
-  async getMachines(): Promise<{ [attrName: string]: cheApi.workspace.Machine }> {
-    const workspace = await this.getCurrentWorkspace();
-    const runtime = workspace.runtime;
-    if (!runtime) {
-      throw new Error('Workspace is not running.');
-    }
-
-    const machines = runtime.machines;
-    if (!machines) {
-      throw new Error('No machines for current workspace is found.');
-    }
-    return machines;
-  }
-
-  async getContainers(): Promise<WorkspaceContainer[]> {
-    const containers: WorkspaceContainer[] = [];
-    try {
-      const workspace = await this.getCurrentWorkspace();
-
-      if (workspace.runtime && workspace.runtime.machines) {
-        const machines = workspace.runtime.machines;
-        for (const machineName in machines) {
-          if (!machines.hasOwnProperty(machineName)) {
-            continue;
-          }
-          const container: WorkspaceContainer = { name: machineName, ...machines[machineName] };
-          containers.push(container);
-        }
-      }
-    } catch (e) {
-      throw new Error('Unable to get list workspace containers. Cause: ' + e);
-    }
-
-    return containers;
+  async getComponentStatuses(): Promise<che.devfile.DevfileComponentStatus[]> {
+    return che.devfile.getComponentStatuses();
   }
 
   async getCommands(): Promise<cheApi.workspace.Command[]> {
@@ -105,34 +51,16 @@ export class CheWorkspaceClient {
   }
 
   async getMachineExecServerURL(): Promise<string> {
-    const machineExecServer = await this.getMachineExecServer();
-    if (!machineExecServer) {
-      throw new Error(`No server with type ${TERMINAL_SERVER_TYPE} found.`);
-    }
-    if (!machineExecServer.attributes!.port) {
-      throw new Error('No machine-exec-server attributes.port found');
-    }
-    return `ws://127.0.0.1:${machineExecServer.attributes!.port}`;
+    const machineExecEndpoint = await this.getMachineExecEndpoint();
+    const port = machineExecEndpoint.attributes?.port || machineExecEndpoint.attributes?.targetPort;
+    return `ws://127.0.0.1:${port}`;
   }
 
-  protected async getMachineExecServer(): Promise<cheApi.workspace.Server | undefined> {
-    const machines = await this.getMachines();
-    for (const machineName in machines) {
-      if (!machines.hasOwnProperty(machineName)) {
-        continue;
-      }
-      const servers = machines[machineName].servers!;
-      for (const serverName in servers) {
-        if (!servers.hasOwnProperty(serverName)) {
-          continue;
-        }
-
-        const serverAttributes = servers[serverName].attributes;
-        if (serverAttributes && serverAttributes['type'] === TERMINAL_SERVER_TYPE) {
-          return servers[serverName];
-        }
-      }
+  protected async getMachineExecEndpoint(): Promise<che.endpoint.ExposedEndpoint> {
+    const terminalEndpoints = await che.endpoint.getEndpointsByType(TERMINAL_SERVER_TYPE);
+    if (terminalEndpoints.length === 1) {
+      return terminalEndpoints[0];
     }
-    return undefined;
+    throw new Error(`Unable to find terminal with type ${TERMINAL_SERVER_TYPE}: Found: ${terminalEndpoints}`);
   }
 }

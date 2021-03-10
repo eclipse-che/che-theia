@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2019-2020 Red Hat, Inc.
+ * Copyright (c) 2019-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -13,9 +13,7 @@ import * as che from '@eclipse-che/plugin';
 import { inject, injectable } from 'inversify';
 
 import { CHE_TASK_TYPE } from './task-protocol';
-import { COMPONENT_ATTRIBUTE } from '../machine/machines-picker';
 import { CheWorkspaceClient } from '../che-workspace-client';
-import { getAttribute } from '../utils';
 
 /** Contains logic to provide backward compatibility. */
 @injectable()
@@ -61,7 +59,7 @@ export class BackwardCompatibilityResolver {
       return configs;
     }
 
-    const containers = await this.cheWorkspaceClient.getMachines();
+    const containers = await this.cheWorkspaceClient.getComponentStatuses();
     for (const config of configs) {
       if (config.type !== CHE_TASK_TYPE) {
         continue;
@@ -76,14 +74,11 @@ export class BackwardCompatibilityResolver {
       target.containerName = undefined;
       target.component = '';
 
-      if (!containers.hasOwnProperty(containerName)) {
+      const matchingComponent = containers.find(component => component.name === containerName);
+      if (!matchingComponent) {
         continue;
-      }
-
-      const container = containers[containerName];
-      const component = getAttribute(COMPONENT_ATTRIBUTE, container.attributes);
-      if (component) {
-        target.component = component;
+      } else {
+        target.component = matchingComponent.name;
       }
     }
     return configs;
