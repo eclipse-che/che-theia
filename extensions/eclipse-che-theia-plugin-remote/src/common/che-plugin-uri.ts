@@ -18,6 +18,10 @@ export namespace ChePluginUri {
   export const SCHEME = 'chepluginresource';
 
   export function createUri(pluginId: string, relativePath?: string): URI {
-    return new URI(`${SCHEME}://${pluginId}/${relativePath ? relativePath : ''}`);
+    return new URI(
+      `${SCHEME}:///hostedPlugin/${pluginId}/${
+        relativePath ? encodeURIComponent(relativePath.normalize().toString()) : ''
+      }`
+    );
   }
 }

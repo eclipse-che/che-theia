@@ -28,7 +28,7 @@ import URI from '@theia/core/lib/common/uri';
 import { injectable } from 'inversify';
 
 /**
- * A very basic file system provider that can read via http
+ * A very basic file system provider that can read plugin resources via http
  */
 export class ChePluginFileSystem implements FileSystemProvider {
   private readonly _onDidChange = new Emitter<readonly FileChange[]>();
@@ -51,14 +51,14 @@ export class ChePluginFileSystem implements FileSystemProvider {
     throw new Error('Not implemented.');
   }
 
-  private static getUri(pluginId: string, relativePath: string): URI {
+  private static getUri(path: string): URI {
     return new Endpoint({
-      path: `hostedPlugin/${pluginId}/${encodeURIComponent(relativePath.normalize().toString())}`,
+      path: path,
     }).getRestUrl();
   }
 
   readFile(resource: URI): Promise<Uint8Array> {
-    const uri = ChePluginFileSystem.getUri(resource.authority, resource.path.toString().substring(1));
+    const uri = ChePluginFileSystem.getUri(resource.path.toString());
     return new Promise((resolve, reject) => {
       const request = new XMLHttpRequest();
       request.responseType = 'arraybuffer';
@@ -86,14 +86,14 @@ export class ChePluginFileSystem implements FileSystemProvider {
   }
 
   stat(resource: URI): Promise<Stat> {
-    const uri = ChePluginFileSystem.getUri(resource.authority, resource.path.toString().substring(1)) + '?request=stat';
+    const uri = ChePluginFileSystem.getUri(resource.path.toString()) + '?request=stat';
     return new Promise((resolve, reject) => {
       const request = new XMLHttpRequest();
       request.responseType = 'json';
       request.onreadystatechange = function (): void {
         if (this.readyState === XMLHttpRequest.DONE) {
           if (this.status === 200) {
-            return request.response;
+            resolve(request.response);
           } else {
             reject(new Error('Could not fetch plugin resource'));
           }
@@ -106,7 +106,8 @@ export class ChePluginFileSystem implements FileSystemProvider {
   }
 
   watch(resource: URI, opts: WatchOptions): Disposable {
-    throw new Error('Not implemented.');
+    // we treat the FS as read-only
+    return Disposable.NULL;
   }
 
   writeFile(resource: URI, content: Uint8Array, opts: FileWriteOptions): Promise<void> {

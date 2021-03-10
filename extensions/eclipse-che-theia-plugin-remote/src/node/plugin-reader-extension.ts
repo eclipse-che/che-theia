@@ -37,71 +37,79 @@ export class PluginReaderExtension extends HostedPluginReader {
   configure(app: express.Application): void {
     app.get('/hostedPlugin/:pluginId/:path(*)', async (req, res) => {
       const pluginId = req.params.pluginId;
-
       const localPath = this.pluginsIdsFiles.get(pluginId);
       if (localPath) {
-        const filePath = path.resolve(localPath, req.params.path);
-        if (req.params.request === 'stat') {
-          try {
-            const stats = await promisify(fs.lstat)(filePath);
-            const stat: Stat = {
-              type: stats.isFile() ? FileType.File : FileType.Directory,
-              ctime: stats.birthtime.getTime(),
-              mtime: stats.mtime.getTime(),
-              size: stats.size,
-            };
-            res.send(stat);
-          } catch (e) {
-            if (e && e.errno) {
-              if (e.errno === os.constants.errno.ENOENT) {
-                res.status(404).send(`No such file found in '${escape_html(pluginId)}' plugin.`);
-              } else {
-                res.status(500).send(`Failed to transfer a file from '${escape_html(pluginId)}' plugin.`);
-              }
-            }
-          }
-        } else {
-          res.sendFile(filePath, e => {
-            if (!e) {
-              // the file was found and successfully transferred
-              return;
-            }
-            console.error(`Could not transfer '${filePath}' file from '${pluginId}'`, e);
-            if (res.headersSent) {
-              // the request was already closed
-              return;
-            }
-            if ('code' in e && e['code'] === 'ENOENT') {
-              res.status(404).send(`No such file found in '${escape_html(pluginId)}' plugin.`);
-            } else {
-              res.status(500).send(`Failed to transfer a file from '${escape_html(pluginId)}' plugin.`);
-            }
-          });
-        }
+        await this.handleLocalResource(req, res, localPath, pluginId);
       } else {
-        await this.handleMissingResource(req, res);
+        await this.handleRemoteResource(req, res, pluginId);
       }
     });
   }
 
+  async handleLocalResource(req: express.Request, res: express.Response, localPath: string, pluginId: string) {
+    const filePath = path.resolve(localPath, req.params.path);
+    if (req.query.request === 'stat') {
+      try {
+        const stats = await promisify(fs.lstat)(filePath);
+        const stat: Stat = {
+          type: stats.isFile() ? FileType.File : FileType.Directory,
+          ctime: stats.birthtime.getTime(),
+          mtime: stats.mtime.getTime(),
+          size: stats.size,
+        };
+        res.send(stat);
+      } catch (e) {
+        if (e && e.errno) {
+          if (e.errno === os.constants.errno.ENOENT) {
+            res.status(404).send(`No such file found in '${escape_html(pluginId)}' plugin.`);
+          } else {
+            res.status(500).send(`Failed to transfer a file from '${escape_html(pluginId)}' plugin.`);
+          }
+        }
+      }
+    } else {
+      res.sendFile(filePath, {}, e => {
+        if (!e) {
+          // the file was found and successfully transferred
+          return;
+        }
+        console.error(`Could not transfer '${filePath}' file from '${pluginId}'`, e);
+        if (res.headersSent) {
+          // the request was already closed
+          return;
+        }
+        if ('code' in e && e['code'] === 'ENOENT') {
+          res.status(404).send(`No such file found in '${escape_html(pluginId)}' plugin.`);
+        } else {
+          res.status(500).send(`Failed to transfer a file from '${escape_html(pluginId)}' plugin.`);
+        }
+      });
+    }
+  }
+
   // Handles retrieving of remote resource for plugins.
-  async handleMissingResource(req: express.Request, res: express.Response): Promise<void> {
-    const pluginId = req.params.pluginId;
+  async handleRemoteResource(req: express.Request, res: express.Response, pluginId: string): Promise<void> {
     if (this.hostedPluginRemote) {
       const resourcePath = req.params.path;
-      try {
-        const resource = await this.hostedPluginRemote.requestPluginResource(pluginId, resourcePath);
-        if (resource) {
+
+      if (req.query.request === 'stat') {
+        const stat = await this.hostedPluginRemote.requestPluginResourceStat(pluginId, resourcePath);
+        res.type('application/json');
+        res.send(stat);
+        return;
+      } else {
+        try {
+          const resource = await this.hostedPluginRemote.requestPluginResource(pluginId, resourcePath);
           res.type(path.extname(resourcePath));
           res.send(resource);
           return;
+        } catch (e) {
+          console.error('Failed to get plugin resource from sidecar. Error:', e);
         }
-      } catch (e) {
-        console.error('Failed to get plugin resource from sidecar. Error:', e);
       }
     }
 
-    res.status(404).send(`The plugin with id '${escape_html(pluginId)}' does not exist.`);
+    res.status(404).send(`A plugin with id '${escape_html(pluginId)}' does not exist.`);
   }
 
   // Exposes paths of plugin resources for other components.

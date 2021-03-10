@@ -33,8 +33,9 @@ const localModule = ConnectionContainerModule.create(({ bind, unbind, isBound, r
     .toSelf()
     .inSingletonScope()
     .onActivation((ctx: interfaces.Context, hostedPluginRemote: HostedPluginRemote) => {
-      const pluginReaderExtension = ctx.container.parent!.get(PluginReaderExtension);
-      pluginReaderExtension.setRemotePluginConnection(hostedPluginRemote);
+      const pluginReaderExtension = ctx.container.parent!.get(HostedPluginReader);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (pluginReaderExtension as any).setRemotePluginConnection(hostedPluginRemote);
       return hostedPluginRemote;
     });
   bind(ServerPluginRunner).to(ServerPluginProxyRunner).inSingletonScope();
@@ -47,7 +48,6 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
   bind(MetadataProcessor).to(RemoteMetadataProcessor).inSingletonScope();
   bind(PluginReaderExtension).toSelf().inSingletonScope();
   rebind(HostedPluginReader).to(PluginReaderExtension).inSingletonScope();
-
   rebind(HostedPluginProcessConfiguration).toConstantValue({ path: path.resolve(__dirname, 'plugin-host-custom.js') });
   bind(ConnectionContainerModule).toConstantValue(localModule);
   rebind(PluginUriFactory).to(ChePluginUriFactory).inSingletonScope();
