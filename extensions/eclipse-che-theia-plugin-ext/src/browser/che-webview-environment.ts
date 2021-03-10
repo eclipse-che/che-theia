@@ -8,22 +8,22 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE } from '../common/che-server-common';
 import { inject, injectable, postConstruct } from 'inversify';
 
+import { EndpointService } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
+import { SERVER_WEBVIEWS_ATTR_VALUE } from '../common/che-server-common';
 import URI from '@theia/core/lib/common/uri';
 import { WebviewEnvironment } from '@theia/plugin-ext/lib/main/browser/webview/webview-environment';
 import { WebviewExternalEndpoint } from '@theia/plugin-ext/lib/main/common/webview-protocol';
-import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 @injectable()
 export class CheWebviewEnvironment extends WebviewEnvironment {
   @inject(EnvVariablesServer)
   protected readonly environments: EnvVariablesServer;
 
-  @inject(WorkspaceService)
-  private workspaceService: WorkspaceService;
+  @inject(EndpointService)
+  private endpointService: EndpointService;
 
   @postConstruct()
   protected async init(): Promise<void> {
@@ -46,13 +46,10 @@ export class CheWebviewEnvironment extends WebviewEnvironment {
   }
 
   protected async getWebviewCheEndpoint(): Promise<string | undefined> {
-    try {
-      const webviewCheEndpoint = await this.workspaceService.findUniqueEndpointByAttribute(
-        SERVER_TYPE_ATTR,
-        SERVER_WEBVIEWS_ATTR_VALUE
-      );
-      return webviewCheEndpoint.url;
-    } catch (error) {
+    const webviewCheEndpoints = await this.endpointService.getEndpointsByType(SERVER_WEBVIEWS_ATTR_VALUE);
+    if (webviewCheEndpoints.length === 1) {
+      return webviewCheEndpoints[0].url;
+    } else {
       return undefined;
     }
   }

@@ -10,6 +10,7 @@
     "src"
   ],
   "dependencies": {
+    "async-mutex": "^0.2.6",
     "fs-extra": "7.0.1"
   },
   "devDependencies": {
@@ -17,8 +18,12 @@
     "@theia/plugin": "next",
     "@theia/plugin-packager": "latest"
   },
+  "extensionDependencies": [
+    "Eclipse Che.@eclipse-che/theia-ssh-plugin",
+    "@eclipse-che.ext-plugin"
+  ],
   "scripts": {
-    "prepare": "yarn clean && yarn build && yarn lint:fix && yarn test",
+    "prepare": "yarn clean && yarn lint:fix && yarn build && yarn test",
     "clean": "rimraf lib",
     "format": "if-env SKIP_FORMAT=true && echo 'skip format check' || prettier --check '{src,tests}/**/*.ts' package.json",
     "format:fix": "prettier --write '{src,tests}/**/*.ts' package.json",

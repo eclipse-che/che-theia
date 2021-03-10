@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -15,6 +15,7 @@ import { Preferences, User } from '@eclipse-che/theia-remote-api/lib/common/user
 
 import { BinaryBuffer } from '@theia/core/lib/common/buffer';
 import { CheLanguagesTestAPI } from './che-languages-test-protocol';
+import { K8SRawResponse } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
 import { Stat } from '@theia/filesystem/lib/common/files';
 import { che as cheApi } from '@eclipse-che/api';
 import { createProxyIdentifier } from '@theia/plugin-ext/lib/common/rpc-protocol';
@@ -37,14 +38,17 @@ export interface CheWorkspaceMain {
   // start(workspaceId: string, environmentName: string): Promise<any>;
   // startTemporary(config: WorkspaceConfig): Promise<any>;
   // stop(workspaceId: string): Promise<any>;
-  // getSettings(): Promise<WorkspaceSettings>;
+  $getSettings(): Promise<che.KeyValue>;
   $restartWorkspace(machineToken: string, restartWorkspaceOptions?: che.RestartWorkspaceOptions): Promise<boolean>;
 }
 
 export interface CheDevfile {}
 
 export interface CheDevfileMain {
+  $get(): Promise<che.devfile.Devfile>;
+  $getComponentStatuses(): Promise<che.devfile.DevfileComponentStatus[]>;
   $createWorkspace(devfilePath: string): Promise<void>;
+  $update(updatedDevfile: che.devfile.Devfile): Promise<void>;
 }
 
 export interface CheSsh {}
@@ -69,6 +73,16 @@ export interface CheOpenshift {
 
 export interface CheOpenshiftMain {
   $getToken(): Promise<string>;
+}
+
+export interface CheK8S {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse>;
+}
+
+export interface CheK8SMain {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  $sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse>;
 }
 
 export interface CheGithub {
@@ -430,6 +444,9 @@ export const PLUGIN_RPC_CONTEXT = {
 
   CHE_OPENSHIFT: createProxyIdentifier<CheOpenshift>('CheOpenshift'),
   CHE_OPENSHIFT_MAIN: createProxyIdentifier<CheOpenshiftMain>('CheOpenshiftMain'),
+
+  CHE_K8S: createProxyIdentifier<CheK8S>('CheK8S'),
+  CHE_K8S_MAIN: createProxyIdentifier<CheK8SMain>('CheK8SMain'),
 
   CHE_USER: createProxyIdentifier<CheUser>('CheUser'),
   CHE_USER_MAIN: createProxyIdentifier<CheUserMain>('CheUserMain'),

@@ -23,6 +23,20 @@ export async function start(context: theia.PluginContext): Promise<void> {
     onDidChangeSessions: onDidChangeSessions.event,
     getSessions: async () => sessions,
     login: async (scopes: string[]) => {
+      if (!(await che.oAuth.isRegistered('github'))) {
+        if (
+          await theia.window.showWarningMessage(
+            'Che could not authenticate to your Github account. The setup for Github OAuth provider is not complete.',
+            'Setup instructions'
+          )
+        ) {
+          theia.commands.executeCommand(
+            'theia.open',
+            'https://www.eclipse.org/che/docs/che-7/administration-guide/configuring-authorization/#configuring-github-oauth_che'
+          );
+        }
+        return;
+      }
       const githubUser = await che.github.getUser();
       const session = {
         id: v4(),
@@ -49,22 +63,6 @@ export async function start(context: theia.PluginContext): Promise<void> {
       }
     },
   });
-  if (theia.plugins.getPlugin('github.vscode-pull-request-github')) {
-    if (sessions.length > 0) {
-      onDidChangeSessions.fire({ added: sessions.map(s => s.id), removed: [], changed: [] });
-      // TODO Remove the notification when https://github.com/eclipse-theia/theia/issues/7178 is fixed.
-    } else {
-      const signIn = 'Sign in';
-      const result = await theia.window.showInformationMessage(
-        'In order to use the Pull Requests functionality, you must sign in to GitHub',
-        signIn
-      );
-
-      if (result === signIn) {
-        theia.authentication.getSession('github', ['read:user', 'user:email', 'repo'], { createIfNone: true });
-      }
-    }
-  }
 }
 
 export function stop(): void {}

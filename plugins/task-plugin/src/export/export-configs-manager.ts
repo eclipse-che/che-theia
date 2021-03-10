@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2019-2020 Red Hat, Inc.
+ * Copyright (c) 2019-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -11,6 +11,7 @@
 import { inject, injectable, multiInject } from 'inversify';
 
 import { CheWorkspaceClient } from '../che-workspace-client';
+import { LaunchConfigurationsExporter } from './launch-configs-exporter';
 import { che as cheApi } from '@eclipse-che/api';
 
 export const ConfigurationsExporter = Symbol('ConfigurationsExporter');
@@ -42,11 +43,21 @@ export class ExportConfigurationsManager {
   @multiInject(ConfigurationsExporter)
   protected readonly exporters: ConfigurationsExporter[];
 
+  @inject(LaunchConfigurationsExporter)
+  protected readonly launchConfigurationsExporter: LaunchConfigurationsExporter;
+
+  protected cheCommands: cheApi.workspace.Command[] = [];
+
+  async init(): Promise<void> {
+    this.cheCommands = await this.cheWorkspaceClient.getCommands();
+    this.launchConfigurationsExporter.init(this.cheCommands);
+    this.export();
+  }
+
   async export(): Promise<void> {
     const exportPromises = [];
-    const cheCommands = await this.cheWorkspaceClient.getCommands();
     for (const exporter of this.exporters) {
-      exportPromises.push(this.doExport(cheCommands, exporter));
+      exportPromises.push(this.doExport(this.cheCommands, exporter));
     }
 
     await Promise.all(exportPromises);

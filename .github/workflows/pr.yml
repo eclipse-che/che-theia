@@ -30,12 +30,16 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       name: Checkout che-theia source code
+      with:
+        fetch-depth: "0"
     - uses: actions/setup-node@v1
       name: Configuring nodejs 10.x version
       with:
         node-version: '12.x'
     - name: build
       run: yarn
+    - name: Test Coverage
+      uses: codecov/codecov-action@v1
   docker-build:
     strategy:
       matrix:

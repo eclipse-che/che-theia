@@ -8,55 +8,26 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { Endpoint, WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { inject, injectable } from 'inversify';
 
+import { EndpointService } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
 import { HostedPluginUriPostProcessor } from '@theia/plugin-dev';
 import URI from '@theia/core/lib/common/uri';
 
 @injectable()
 export class CheWorkspaceHostedPluginUriPostProcessor implements HostedPluginUriPostProcessor {
-  @inject(WorkspaceService)
-  protected workspaceService: WorkspaceService;
+  @inject(EndpointService)
+  protected endpointService: EndpointService;
 
   constructor() {}
 
   async processUri(uri: URI): Promise<URI> {
-    const hostedPluginTheiaInstanceServer = await this.getHostedPluginTheiaInstanceServer();
-    if (!hostedPluginTheiaInstanceServer) {
-      throw new Error('No server with type "ide-dev" found.');
+    const ideDevEndpoints = await this.endpointService.getEndpointsByType('ide-dev');
+    if (ideDevEndpoints.length !== 1) {
+      throw new Error(`Should have only one ide-dev endpoint but found ${JSON.stringify(ideDevEndpoints)}`);
     }
-
-    return new URI(hostedPluginTheiaInstanceServer.url);
-  }
-
-  /**
-   * Searches for endpoint which exposes hosted Theia instance.
-   * The endpoint label is the attribute "type": "ide-dev".
-   */
-  protected async getHostedPluginTheiaInstanceServer(): Promise<Endpoint | undefined> {
-    const workspace = await this.workspaceService.currentWorkspace();
-    if (!workspace.runtime) {
-      throw new Error('Workspace is not running.');
-    }
-
-    const machines = workspace.runtime.machines!;
-    for (const machineName in machines) {
-      if (!machines.hasOwnProperty(machineName)) {
-        continue;
-      }
-      const servers = machines[machineName].servers!;
-      for (const serverName in servers) {
-        if (!servers.hasOwnProperty(serverName)) {
-          continue;
-        }
-        const serverAttributes = servers[serverName].attributes;
-        if (serverAttributes && serverAttributes['type'] === 'ide-dev') {
-          return servers[serverName];
-        }
-      }
-    }
-    return undefined;
+    const hostedPluginExposedEndpoint = ideDevEndpoints[0];
+    return new URI(hostedPluginExposedEndpoint.url);
   }
 
   async processOptions(options: object): Promise<object> {

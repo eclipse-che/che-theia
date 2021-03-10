@@ -47,7 +47,7 @@
     "@theia/plugin-packager": "latest"
   },
   "scripts": {
-    "prepare": "yarn run clean && yarn run build",
+    "prepare": "yarn clean && yarn build && yarn test",
     "clean": "rimraf lib",
     "format": "if-env SKIP_FORMAT=true && echo 'skip format check' || prettier --check '{src,tests}/**/*.ts' package.json",
     "format:fix": "prettier --write '{src,tests}/**/*.ts' package.json",
@@ -55,7 +55,8 @@
     "lint:fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,tests}/**/*.{ts,tsx}\"",
     "watch": "tsc -watch",
     "compile": "tsc",
-    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia-plugin pack"
+    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia-plugin pack",
+    "test": "if-env SKIP_TEST=true && echo 'skip test' || jest --forceExit"
   },
   "engines": {
     "theiaPlugin": "next"
@@ -70,6 +71,19 @@
     "vscode-uri": "2.1.1",
     "vscode-ws-jsonrpc": "0.2.0",
     "ws": "^5.2.2",
+    "fs-extra": "^8.1.0",
     "jsonc-parser": "^2.0.2"
+  },
+  "jest": {
+    "clearMocks": true,
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}"
+    ],
+    "coverageDirectory": "coverage",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/lib"
+    ],
+    "preset": "ts-jest"
   }
 }

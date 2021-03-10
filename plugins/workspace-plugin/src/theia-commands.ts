@@ -14,6 +14,7 @@ import * as fs from 'fs-extra';
 import * as git from './git';
 import * as os from 'os';
 import * as path from 'path';
+import * as ssh from './ssh';
 import * as theia from '@theia/plugin';
 
 import { che as cheApi } from '@eclipse-che/api';
@@ -43,7 +44,8 @@ function isDevfileProjectConfig(
 }
 
 export interface TheiaImportCommand {
-  execute(): PromiseLike<void>;
+  /** @returns the path to the imported project */
+  execute(): Promise<string>;
 }
 
 export function buildProjectImportCommand(
@@ -67,6 +69,8 @@ export function buildProjectImportCommand(
       return;
   }
 }
+
+let output: theia.OutputChannel;
 
 export class TheiaGitCloneCommand implements TheiaImportCommand {
   private projectName: string | undefined;
@@ -116,33 +120,104 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
     this.projectsRoot = projectsRoot;
   }
 
-  execute(): PromiseLike<void> {
-    let cloneFunc: (
-      progress: theia.Progress<{ message?: string; increment?: number }>,
-      token: theia.CancellationToken
-    ) => Promise<void>;
-    if (this.sparseCheckoutDir) {
-      // Sparse checkout
-      cloneFunc = this.gitSparseCheckout;
-    } else {
-      // Regular clone
-      cloneFunc = this.gitClone;
-    }
-
+  clone(): PromiseLike<string> {
     return theia.window.withProgress(
       {
         location: theia.ProgressLocation.Notification,
         title: `Cloning ${this.locationURI} ...`,
       },
-      (progress, token) => cloneFunc.call(this, progress, token)
+      (progress, token) => {
+        if (this.sparseCheckoutDir) {
+          return this.gitSparseCheckout(progress, token);
+        } else {
+          return this.gitClone(progress, token);
+        }
+      }
     );
+  }
+
+  async execute(): Promise<string> {
+    if (!git.isSecureGitURI(this.locationURI)) {
+      // clone using regular URI
+      return this.clone();
+    }
+
+    // clone using SSH URI
+    let latestError: string | undefined;
+    while (true) {
+      // test secure login
+      try {
+        await git.testSecureLogin(this.locationURI);
+        // exit the loop when successfull login
+        break;
+      } catch (error) {
+        // let out: theia.OutputChannel = theia.window.createOutputChannel('GIT clone');
+        if (!output) {
+          output = theia.window.createOutputChannel('GIT');
+        }
+
+        output.show(true);
+        output.appendLine(error.message);
+
+        latestError = git.getErrorReason(error.message);
+      }
+
+      // unable to login
+      // Give the user possible actions
+      // - retry the login
+      // - show SSH options
+
+      const RETRY = 'Retry';
+      const ADD_KEY_TO_GITHUB = 'Add Key To GitHub';
+      const CONFIGURE_SSH = 'Configure SSH';
+
+      let message = `Failure to clone git project ${this.locationURI}`;
+      if (latestError) {
+        message += ` ${latestError}`;
+      }
+
+      const isSecureGitHubURI = git.isSecureGitHubURI(this.locationURI);
+      const buttons = isSecureGitHubURI ? [RETRY, ADD_KEY_TO_GITHUB, CONFIGURE_SSH] : [RETRY, CONFIGURE_SSH];
+      const action = await theia.window.showWarningMessage(message, ...buttons);
+      if (action === RETRY) {
+        // Retry Secure login
+        // Do nothing, just continue the loop
+        continue;
+      } else if (action === ADD_KEY_TO_GITHUB) {
+        await ssh.addKeyToGitHub();
+        continue;
+      } else if (action === CONFIGURE_SSH) {
+        await ssh.configure(isSecureGitHubURI);
+        continue;
+      } else {
+        // It seems user closed the popup.
+        // Ask the user to retry cloning the project.
+        const SKIP = 'Skip';
+        const TRY_AGAIN = 'Try Again';
+        const tryAgain = await theia.window.showWarningMessage(
+          `Cloning of ${this.locationURI} will be skipped`,
+          SKIP,
+          TRY_AGAIN
+        );
+        if (tryAgain === TRY_AGAIN) {
+          // continue the loop to try again
+          continue;
+        }
+        // skip
+        return Promise.reject(new Error(message));
+      }
+
+      break;
+    }
+
+    return this.clone();
   }
 
   // Clones git repository
   private async gitClone(
     progress: theia.Progress<{ message?: string; increment?: number }>,
     token: theia.CancellationToken
-  ): Promise<void> {
+  ): Promise<string> {
     const args: string[] = ['clone', this.locationURI, this.projectPath];
     if (this.checkoutBranch) {
       args.push('--branch');
@@ -179,9 +254,11 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
       } else {
         theia.window.showInformationMessage(`${messageStart}.`);
       }
+      return this.projectPath;
     } catch (e) {
       theia.window.showErrorMessage(`Couldn't clone ${this.locationURI}: ${e.message}`);
       console.log(`Couldn't clone ${this.locationURI}`, e);
+      throw new Error(e);
     }
   }
 
@@ -189,7 +266,7 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
   private async gitSparseCheckout(
     progress: theia.Progress<{ message?: string; increment?: number }>,
     token: theia.CancellationToken
-  ): Promise<void> {
+  ): Promise<string> {
     if (!this.sparseCheckoutDir) {
       throw new Error('Parameter "sparseCheckoutDir" is not set for "' + this.projectName + '" project.');
     }
@@ -210,6 +287,7 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
     theia.window.showInformationMessage(
       `Sources by template ${this.sparseCheckoutDir} of ${this.locationURI} was cloned to ${this.projectPath}.`
     );
+    return this.projectPath;
   }
 }
 
@@ -235,11 +313,11 @@ export class TheiaImportZipCommand implements TheiaImportCommand {
     }
   }
 
-  execute(): PromiseLike<void> {
+  async execute(): Promise<string> {
     const importZip = async (
       progress: theia.Progress<{ message?: string; increment?: number }>,
       token: theia.CancellationToken
-    ): Promise<void> => {
+    ): Promise<string> => {
       try {
         // download
         const curlArgs = ['-sSL', '--output', this.zipfilePath];
@@ -264,9 +342,11 @@ export class TheiaImportZipCommand implements TheiaImportCommand {
         if (zipfileParentDir.indexOf(os.tmpdir() + path.sep) === 0) {
           fs.rmdirSync(zipfileParentDir);
         }
+        return this.projectDir;
       } catch (e) {
         theia.window.showErrorMessage(`Couldn't import ${this.locationURI}: ${e.message}`);
         console.error(`Couldn't import ${this.locationURI}`, e);
+        throw new Error(e);
       }
     };
 

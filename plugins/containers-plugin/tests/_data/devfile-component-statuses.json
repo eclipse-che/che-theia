@@ -1,0 +1,34 @@
+[
+  { "name": "95m", "isUser": false, "endpoints": {} },
+  { "name": "che-jwtproxy", "isUser": false, "endpoints": {} },
+  {
+    "name": "theia-ide7e5",
+    "isUser": false,
+    "endpoints": {
+      "webviews": { "url": "https://192.168.64.33.nip.io/serverfrlrgyw4-jwtproxy/webviews/" },
+      "mini-browser": { "url": "https://192.168.64.33.nip.io/serverfrlrgyw4-jwtproxy/mini-browser/" },
+      "theia": { "url": "https://192.168.64.33.nip.io/serverfrlrgyw4-jwtproxy/server-4403/" },
+      "theia-dev": { "url": "https://192.168.64.33.nip.io/servernnxrrv8m-theia-ide7e5/server-3130/" },
+      "theia-redirect-3": { "url": "https://192.168.64.33.nip.io/servernnxrrv8m-theia-ide7e5/server-13133/" },
+      "theia-redirect-2": { "url": "https://192.168.64.33.nip.io/servernnxrrv8m-theia-ide7e5/server-13132/" },
+      "theia-redirect-1": { "url": "https://192.168.64.33.nip.io/servernnxrrv8m-theia-ide7e5/server-13131/" }
+    }
+  },
+  { "name": "mysql", "isUser": true, "endpoints": {} },
+  { "name": "vscode-javaj1q", "isUser": false, "endpoints": {} },
+  {
+    "name": "che-machine-execs9w",
+    "isUser": false,
+    "endpoints": { "che-machine-exec": { "url": "wss://192.168.64.33.nip.io/serverfrlrgyw4-jwtproxy/server-4400/" } }
+  },
+  {
+    "name": "nodejs",
+    "isUser": true,
+    "endpoints": { "nodejs": { "url": "https://serverh0gkopxv-nodejs-server-4100.192.168.64.33.nip.io/" } }
+  },
+  {
+    "name": "tools",
+    "isUser": true,
+    "endpoints": { "8080-tcp": { "url": "https://serverq9v89umy-tools-server-8080.192.168.64.33.nip.io/" } }
+  }
+]

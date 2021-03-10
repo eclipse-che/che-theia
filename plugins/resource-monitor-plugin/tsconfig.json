@@ -1,0 +1,9 @@
+{
+  "extends": "../../configs/base.tsconfig",
+  "compilerOptions": {
+    "lib": ["es6", "webworker"],
+    "rootDir": "src",
+    "outDir": "lib"
+  },
+  "include": ["src"]
+}

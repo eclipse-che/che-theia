@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import { DevfileComponentStatus, DevfileService } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 import {
   QuickOpenGroupItem,
   QuickOpenItem,
@@ -18,25 +19,21 @@ import { QuickOpenOptions, QuickOpenService } from '@theia/core/lib/browser/quic
 import { inject, injectable } from 'inversify';
 
 import { QuickOpenHandler } from '@theia/core/lib/browser/quick-open';
-import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
-import { che as cheApi } from '@eclipse-che/api';
 
 const CONTAINERS_PLACE_HOLDER = 'Pick a container to run the task';
-const RECIPE_CONTAINER_SOURCE = 'recipe';
-const CONTAINER_SOURCE_ATTRIBUTE = 'source';
 
 @injectable()
 export class ContainerPicker implements QuickOpenHandler, QuickOpenModel {
   prefix: string = 'container ';
   description: string = 'Pick a container name.';
 
-  @inject(WorkspaceService)
-  protected readonly workspaceService: WorkspaceService;
+  @inject(DevfileService)
+  protected readonly devfileService: DevfileService;
 
   @inject(QuickOpenService)
   protected readonly quickOpenService: QuickOpenService;
 
-  private containers: { name: string; container: cheApi.workspace.Machine }[] = [];
+  private componentStatuses: DevfileComponentStatus[];
   protected items: QuickOpenGroupItem[];
 
   /**
@@ -81,28 +78,26 @@ export class ContainerPicker implements QuickOpenHandler, QuickOpenModel {
 
   protected async pickContainers(): Promise<string> {
     this.items = [];
-
-    const containers = await this.getWorkspaceContainers();
-    if (containers.length === 1) {
-      return containers[0].name;
+    if (!this.componentStatuses) {
+      this.componentStatuses = await this.devfileService.getComponentStatuses();
+    }
+    if (this.componentStatuses.length === 1) {
+      return this.componentStatuses[0].name;
     }
 
     return new Promise<string>(resolve => {
-      this.items = this.toQuickPickItems(containers, container => {
+      this.items = this.toQuickPickItems(container => {
         resolve(container);
       });
       this.quickOpenService.open(this, this.getOptions());
     });
   }
 
-  private toQuickPickItems(
-    containers: { name: string; container: cheApi.workspace.Machine }[],
-    handler: { (containerName: string): void }
-  ): QuickOpenGroupItem[] {
+  private toQuickPickItems(handler: { (containerName: string): void }): QuickOpenGroupItem[] {
     const items: QuickOpenGroupItem[] = [];
 
-    const devContainers = containers.filter(container => this.isDevContainer(container));
-    const toolingContainers = containers.filter(container => !this.isDevContainer(container));
+    const devContainers = this.componentStatuses.filter(component => component.isUser);
+    const toolingContainers = this.componentStatuses.filter(component => !component.isUser);
 
     items.push(
       ...devContainers.map(
@@ -149,37 +144,6 @@ export class ContainerPicker implements QuickOpenHandler, QuickOpenModel {
     );
 
     return items;
-  }
-
-  protected isDevContainer(entity: { name: string; container: cheApi.workspace.Machine }): boolean {
-    const container = entity.container;
-    return (
-      container.attributes !== undefined &&
-      (!container.attributes[CONTAINER_SOURCE_ATTRIBUTE] ||
-        container.attributes[CONTAINER_SOURCE_ATTRIBUTE] === RECIPE_CONTAINER_SOURCE)
-    );
-  }
-
-  protected async getWorkspaceContainers(): Promise<{ name: string; container: cheApi.workspace.Machine }[]> {
-    if (this.containers.length > 0) {
-      return this.containers;
-    }
-
-    this.containers = [];
-    try {
-      const containersList = await this.workspaceService.getCurrentWorkspacesContainers();
-      for (const containerName in containersList) {
-        if (!containersList.hasOwnProperty(containerName)) {
-          continue;
-        }
-        const container = { name: containerName, container: containersList[containerName] };
-        this.containers.push(container);
-      }
-    } catch (e) {
-      throw new Error('Unable to get list workspace containers. Cause: ' + e);
-    }
-
-    return this.containers;
   }
 
   getOptions(): QuickOpenOptions {

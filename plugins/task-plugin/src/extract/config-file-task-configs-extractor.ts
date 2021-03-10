@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { parse, readFileSync } from '../utils';
+import { parse, readFile } from '../utils';
 
 import { Configurations } from '../export/export-configs-manager';
 import { TaskConfiguration } from '@eclipse-che/plugin';
@@ -17,8 +17,8 @@ import { injectable } from 'inversify';
 /** Extracts configurations of tasks from config file by given uri. */
 @injectable()
 export class ConfigFileTasksExtractor {
-  extract(tasksConfigFileUri: string): Configurations<TaskConfiguration> {
-    const tasksContent = readFileSync(tasksConfigFileUri);
+  async extract(tasksConfigFileUri: string): Promise<Configurations<TaskConfiguration>> {
+    const tasksContent = await readFile(tasksConfigFileUri);
     const tasksJson = parse(tasksContent);
     if (!tasksJson || !tasksJson.tasks) {
       return { content: '', configs: [] };

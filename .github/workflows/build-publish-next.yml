@@ -1,0 +1,49 @@
+#
+# Copyright (c) 2021 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+name: Build & Publish `next`
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout che-theia source code
+    - uses: actions/setup-node@v1
+      name: Configuring nodejs 12.x version
+      with:
+        node-version: '12.x'
+    - name: Login to docker.io
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+        registry: docker.io
+    - name: Login to quay.io
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.QUAY_USERNAME }}
+        password: ${{ secrets.QUAY_PASSWORD }}
+        registry: quay.io
+    - name: Build and publish images
+      run: |
+        docker image prune -a -f
+        ./build.sh --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.alpine --push
+      env:
+        CDN_PREFIX: https://static.developers.redhat.com/che/theia_artifacts/
+        MONACO_CDN_PREFIX: https://cdn.jsdelivr.net/npm/
+    - name: Set-up npmjs auth token
+      run: printf "//registry.npmjs.org/:_authToken=${{ secrets.CHE_NPM_AUTH_TOKEN }}\n" >> ~/.npmrc
+    - name: Publish packages to npmjs
+      run: yarn publish:next

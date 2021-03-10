@@ -10,6 +10,7 @@
         "defaultIconTheme": "theia-file-icons",
         "preferences": {
           "editor.autoSave": "on",
+          "editor.semanticHighlighting.enabled": false,
           "git.defaultCloneDirectory": "/projects",
           "application.confirmExit": "always",
           "files.enableTrash": false

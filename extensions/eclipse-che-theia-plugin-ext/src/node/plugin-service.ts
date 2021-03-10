@@ -11,14 +11,14 @@
 import * as express from 'express';
 import * as path from 'path';
 
-import { SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE } from '../common/che-server-common';
 import { inject, injectable } from 'inversify';
 
 import { Deferred } from '@theia/core/lib/common/promise-util';
+import { EndpointService } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
 import { ILogger } from '@theia/core/lib/common/logger';
 import { PluginApiContribution } from '@theia/plugin-ext/lib/main/node/plugin-service';
+import { SERVER_WEBVIEWS_ATTR_VALUE } from '../common/che-server-common';
 import { WebviewExternalEndpoint } from '@theia/plugin-ext/lib/main/common/webview-protocol';
-import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 const vhost = require('vhost');
 
@@ -26,8 +26,8 @@ const pluginPath = (process.env.HOME || process.env.HOMEPATH || process.env.USER
 
 @injectable()
 export class PluginApiContributionIntercepted extends PluginApiContribution {
-  @inject(WorkspaceService)
-  private workspaceService: WorkspaceService;
+  @inject(EndpointService)
+  private endpointService: EndpointService;
 
   @inject(ILogger)
   protected readonly logger: ILogger;
@@ -44,12 +44,12 @@ export class PluginApiContributionIntercepted extends PluginApiContribution {
     const pluginExtModulePath = path.dirname(require.resolve('@theia/plugin-ext/package.json'));
     const webviewStaticResources = path.join(pluginExtModulePath, 'src/main/browser/webview/pre');
 
-    this.workspaceService
-      .findUniqueEndpointByAttribute(SERVER_TYPE_ATTR, SERVER_WEBVIEWS_ATTR_VALUE)
-      .then(webviewCheEndpoint => {
+    this.endpointService
+      .getEndpointsByType(SERVER_WEBVIEWS_ATTR_VALUE)
+      .then(webviewCheEndpoints => {
         let webviewCheEndpointHostname;
-        if (webviewCheEndpoint.url) {
-          webviewCheEndpointHostname = new URL(webviewCheEndpoint.url).hostname;
+        if (webviewCheEndpoints.length === 1 && webviewCheEndpoints[0].url) {
+          webviewCheEndpointHostname = new URL(webviewCheEndpoints[0].url).hostname;
         }
         const webviewHostname = this.handleAliases(
           process.env[WebviewExternalEndpoint.pattern] ||

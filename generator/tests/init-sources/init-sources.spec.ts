@@ -366,7 +366,7 @@ describe('Test Extensions', () => {
             (<any>InitSources)['DEFAULT_EXTENSIONS_URI'] = 'https://foobarfoo.com/foo/bar';
             await initSources.readConfigurationAndGenerate(undefined, false);
         } catch (e) {
-            expect(e.toString()).toMatch('Error: getaddrinfo ENOTFOUND foobarfoo.com');
+            expect(e.toString()).toMatch('Error: Network Error');
         } finally {
             (<any>InitSources)['DEFAULT_EXTENSIONS_URI'] = uri;
         }

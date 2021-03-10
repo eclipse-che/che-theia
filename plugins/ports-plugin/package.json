@@ -107,7 +107,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@eclipse-che/plugin": "latest",
+    "@eclipse-che/plugin": "0.0.1",
     "@theia/plugin": "next",
     "@theia/plugin-packager": "latest"
   },

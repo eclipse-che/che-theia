@@ -17,18 +17,17 @@ import {
   QuickOpenMode,
   QuickOpenModel,
 } from '@theia/core/lib/common/quick-open-model';
+import { Workspace, WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { inject, injectable } from 'inversify';
 
 import { CheWorkspaceUtils } from './che-workspace-utils';
 import { MessageService } from '@theia/core/lib/common/message-service';
 import { OauthUtils } from '@eclipse-che/theia-remote-api/lib/browser/oauth-utils';
-import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
-import { che } from '@eclipse-che/api';
 
 @injectable()
 export class QuickOpenCheWorkspace implements QuickOpenModel {
   protected items: QuickOpenGroupItem[];
-  protected currentWorkspace: che.workspace.Workspace;
+  protected currentWorkspace: Workspace;
 
   @inject(QuickOpenService) protected readonly quickOpenService: QuickOpenService;
   @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService;
@@ -36,10 +35,7 @@ export class QuickOpenCheWorkspace implements QuickOpenModel {
   @inject(LabelProvider) protected readonly labelProvider: LabelProvider;
   @inject(MessageService) protected readonly messageService: MessageService;
 
-  private async open(
-    workspaces: che.workspace.Workspace[],
-    acceptor: (workspace: che.workspace.Workspace) => void
-  ): Promise<void> {
+  private async open(workspaces: Workspace[], acceptor: (workspace: Workspace) => void): Promise<void> {
     this.items = [];
 
     if (!workspaces.length) {
@@ -57,8 +53,7 @@ export class QuickOpenCheWorkspace implements QuickOpenModel {
       const iconClass = icon + ' file-icon';
       this.items.push(
         new QuickOpenGroupItem({
-          label:
-            CheWorkspaceUtils.getWorkspaceName(workspace) + (this.isCurrentWorkspace(workspace) ? ' (Current)' : ''),
+          label: workspace.name + (this.isCurrentWorkspace(workspace) ? ' (Current)' : ''),
           detail: `Stack: ${CheWorkspaceUtils.getWorkspaceStack(workspace)}`,
           groupLabel: `last modified ${moment(CheWorkspaceUtils.getWorkspaceModificationTime(workspace)).fromNow()}`,
           iconClass,
@@ -90,7 +85,7 @@ export class QuickOpenCheWorkspace implements QuickOpenModel {
     acceptor(this.items);
   }
 
-  async select(recent: boolean, acceptor: (workspace: che.workspace.Workspace) => void): Promise<void> {
+  async select(recent: boolean, acceptor: (workspace: Workspace) => void): Promise<void> {
     this.items = [];
 
     const token = await this.oAuthUtils.getUserToken();
@@ -116,7 +111,7 @@ export class QuickOpenCheWorkspace implements QuickOpenModel {
     await this.open(workspaces, acceptor);
   }
 
-  private isCurrentWorkspace(workspace: che.workspace.Workspace): boolean {
+  private isCurrentWorkspace(workspace: Workspace): boolean {
     return this.currentWorkspace.id === workspace.id;
   }
 }

@@ -12,6 +12,8 @@ import * as os from 'os';
 import * as path from 'path';
 import * as theia from '@theia/plugin';
 
+import { PromptManager } from './askpass-prompt-manager';
+
 const randomBytes = denodeify<Buffer>(crypto.randomBytes);
 
 export interface AskpassEnvironment {
@@ -46,8 +48,19 @@ export class Askpass implements theia.Disposable {
   private ipcHandlePath: string | undefined;
   private enabled = true;
 
+  private promptManager: PromptManager;
+
   constructor() {
     this.server = http.createServer((req, res) => this.onRequest(req, res));
+    this.promptManager = new PromptManager((host: string, placeHolder: string) => {
+      const options: theia.InputBoxOptions = {
+        password: /password/i.test(placeHolder),
+        placeHolder: placeHolder,
+        prompt: `Git: ${host}`,
+        ignoreFocusOut: true,
+      };
+      return theia.window.showInputBox(options);
+    });
     this.ipcHandlePathPromise = this.setup().catch(err => {
       console.error(err);
       return '';
@@ -78,7 +91,7 @@ export class Askpass implements theia.Disposable {
     req.on('end', () => {
       const { request, host } = JSON.parse(chunks.join(''));
 
-      this.prompt(host, request).then(
+      this.promptManager.askPass(host, request).then(
         result => {
           res.writeHead(200);
           res.end(JSON.stringify(result));
@@ -89,17 +102,6 @@ export class Askpass implements theia.Disposable {
         }
       );
     });
-  }
-
-  private async prompt(host: string, request: string): Promise<string> {
-    const options: theia.InputBoxOptions = {
-      password: /password/i.test(request),
-      placeHolder: request,
-      prompt: `Git: ${host}`,
-      ignoreFocusOut: true,
-    };
-
-    return (await theia.window.showInputBox(options)) || '';
   }
 
   async getEnv(): Promise<AskpassEnvironment> {

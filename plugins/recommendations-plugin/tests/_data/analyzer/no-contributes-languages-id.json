@@ -1,0 +1,14 @@
+{
+  "name": "no-contributes-languages-id",
+  "publisher": "test",
+  "contributes": {
+    "languages": [
+      {
+        "extensions": [
+          ".class"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ]
+  }
+}

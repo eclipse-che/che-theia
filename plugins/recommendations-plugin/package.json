@@ -1,0 +1,86 @@
+{
+  "name": "@eclipse-che/recommendations-plugin",
+  "publisher": "Eclipse-Che",
+  "keywords": [
+    "theia-plugin"
+  ],
+  "version": "0.0.1",
+  "license": "EPL-2.0",
+  "files": [
+    "src"
+  ],
+  "extensionDependencies": [
+    "Eclipse Che.@eclipse-che/workspace-plugin"
+  ],
+  "dependencies": {
+    "@eclipse-che/plugin": "0.0.1",
+    "@theia/plugin": "next",
+    "axios": "^0.21.0",
+    "globby": "^11.0.1",
+    "inversify": "^5.0.1",
+    "kind-of": "^6.0.3",
+    "reflect-metadata": "^0.1.13"
+  },
+  "devDependencies": {
+    "@types/jest": "^26",
+    "@theia/plugin-packager": "latest",
+    "@types/fs-extra": "^9.0.3",
+    "eslint-plugin-header": "^3.1.0",
+    "ts-jest": "26.4.3",
+    "jest": "^26.6.3",
+    "prettier": "^2.1.2",
+    "prettier-plugin-import-sort": "^0.0.6"
+  },
+  "activationEvents": [
+    "*"
+  ],
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build && yarn test",
+    "clean": "rimraf lib",
+    "watch": "tsc -watch",
+    "format": "if-env SKIP_FORMAT=true && echo 'skip format check' || prettier --check '{src,tests}/**/*.ts' package.json",
+    "format:fix": "prettier --write '{src,tests}/**/*.ts' package.json",
+    "lint": "if-env SKIP_LINT=true && echo 'skip lint check' || eslint --cache=true --no-error-on-unmatched-pattern=true '{src,tests}/**/*.ts'",
+    "lint:fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,tests}/**/*.{ts,tsx}\"",
+    "compile": "tsc",
+    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia-plugin pack",
+    "test": "if-env SKIP_TEST=true && echo 'skip test' || jest --forceExit",
+    "test-watch": "jest --watchAll"
+  },
+  "engines": {
+    "theiaPlugin": "next"
+  },
+  "theiaPlugin": {
+    "backend": "lib/plugin.js"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.ts"
+    ],
+    "testEnvironment": "node",
+    "coverageThreshold": {
+      "global": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      }
+    },
+    "coverageDirectory": "./coverage",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "modulePathIgnorePatterns": [
+      "<rootDir>/lib"
+    ],
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json"
+    ]
+  }
+}

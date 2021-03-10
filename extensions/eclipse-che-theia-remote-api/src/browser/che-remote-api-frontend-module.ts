@@ -9,6 +9,9 @@
  ***********************************************************************/
 
 import { CertificateService, cheCertificateServicePath } from '../common/certificate-service';
+import { CheK8SService, cheK8SServicePath } from '../common/k8s-service';
+import { DevfileService, cheDevfileServicePath } from '../common/devfile-service';
+import { EndpointService, cheEndpointServicePath } from '../common/endpoint-service';
 import { FactoryService, cheFactoryServicePath } from '../common/factory-service';
 import { OAuthService, cheOAuthServicePath } from '../common/oauth-service';
 import { SshKeyService, cheSshKeyServicePath } from '../common/ssh-key-service';
@@ -68,6 +71,27 @@ export default new ContainerModule(bind => {
     .toDynamicValue(ctx => {
       const provider = ctx.container.get(WebSocketConnectionProvider);
       return provider.createProxy<WorkspaceService>(cheWorkspaceServicePath);
+    })
+    .inSingletonScope();
+
+  bind(CheK8SService)
+    .toDynamicValue(ctx => {
+      const provider = ctx.container.get(WebSocketConnectionProvider);
+      return provider.createProxy<CheK8SService>(cheK8SServicePath);
+    })
+    .inSingletonScope();
+
+  bind(DevfileService)
+    .toDynamicValue(ctx => {
+      const provider = ctx.container.get(WebSocketConnectionProvider);
+      return provider.createProxy<DevfileService>(cheDevfileServicePath);
+    })
+    .inSingletonScope();
+
+  bind(EndpointService)
+    .toDynamicValue(ctx => {
+      const provider = ctx.container.get(WebSocketConnectionProvider);
+      return provider.createProxy<EndpointService>(cheEndpointServicePath);
     })
     .inSingletonScope();
 });

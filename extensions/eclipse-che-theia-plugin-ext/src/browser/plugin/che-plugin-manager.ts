@@ -15,17 +15,21 @@ import {
   ChePluginRegistry,
   ChePluginService,
 } from '../../common/che-plugin-protocol';
+import { ConfirmDialog, OpenerService } from '@theia/core/lib/browser';
 import { Emitter, Event, MessageService } from '@theia/core/lib/common';
-import { PreferenceScope, PreferenceService } from '@theia/core/lib/browser/preferences';
-import { inject, injectable } from 'inversify';
+import { PreferenceChange, PreferenceScope, PreferenceService } from '@theia/core/lib/browser/preferences';
+import { inject, injectable, postConstruct } from 'inversify';
 
 import { ChePluginFrontentService } from './che-plugin-frontend-service';
 import { ChePluginPreferences } from './che-plugin-preferences';
-import { ConfirmDialog } from '@theia/core/lib/browser';
+import { ChePluginServiceClientImpl } from './che-plugin-service-client';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { PluginFilter } from '../../common/plugin/plugin-filter';
 import { PluginServer } from '@theia/plugin-ext/lib/common/plugin-protocol';
+import URI from '@theia/core/lib/common/uri';
 import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
+
+import debounce = require('lodash.debounce');
 
 @injectable()
 export class ChePluginManager {
@@ -68,6 +72,51 @@ export class ChePluginManager {
 
   @inject(WorkspaceService)
   protected readonly workspaceService: WorkspaceService;
+
+  @inject(ChePluginServiceClientImpl)
+  protected readonly chePluginServiceClient: ChePluginServiceClientImpl;
+
+  @inject(OpenerService)
+  protected readonly openerService: OpenerService;
+
+  @postConstruct()
+  async onStart() {
+    await this.initDefaults();
+    const fireChanged = debounce(() => this.pluginRegistryListChangedEvent.fire(), 5000);
+    this.preferenceService.onPreferenceChanged(async (event: PreferenceChange) => {
+      if (event.preferenceName !== 'chePlugins.repositories') {
+        return;
+      }
+      const oldPrefs = event.oldValue;
+      if (oldPrefs) {
+        for (const repoName of Object.keys(oldPrefs)) {
+          const registry = this.registryList.find(r => r.name === repoName && r.uri === oldPrefs[repoName]);
+          if (registry) {
+            this.registryList.splice(this.registryList.indexOf(registry), 1);
+          }
+        }
+      }
+      const newPrefs = event.newValue;
+      if (newPrefs) {
+        for (const repoName of Object.keys(newPrefs)) {
+          this.registryList.push({ name: repoName, uri: newPrefs[repoName] });
+        }
+      }
+      // notify that plugin registry list has been changed
+      fireChanged();
+    });
+    this.chePluginServiceClient.onInvalidRegistryFound(async registry => {
+      const result = await this.messageService.warn(
+        `Invalid plugin registry URL: "${registry.uri}" is detected`,
+        'Open settings.json'
+      );
+      if (result) {
+        const homeDir = await this.envVariablesServer.getHomeDirUri();
+        const uri = new URI(homeDir).resolve('.theia/settings.json');
+        this.openerService.getOpener(uri).then(opener => opener.open(uri));
+      }
+    });
+  }
 
   /********************************************************************************
    * Changing the Workspace Configuration

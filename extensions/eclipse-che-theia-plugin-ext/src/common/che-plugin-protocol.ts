@@ -11,8 +11,14 @@
 import { JsonRpcServer } from '@theia/core';
 
 export interface ChePluginRegistry {
+  // Display name
   name: string;
+  // Registry URI
+  // For default registry it's internal URI, taken from workspace settings
   uri: string;
+  // Public URI to access the registry resources from browser
+  // If publicUri is not defined, internal ChePluginRegistry:uri is used
+  publicUri?: string;
 }
 
 export interface ChePlugin {
@@ -132,5 +138,5 @@ export interface ChePluginServiceClient {
   /**
    * Called by Plugin Service when invalid plugin meta.yaml has been found while updating plugin cache.
    */
-  invaligPluginFound(pluginYaml: string): Promise<void>;
+  invalidPluginFound(pluginYaml: string): Promise<void>;
 }

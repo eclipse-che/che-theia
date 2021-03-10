@@ -24,9 +24,11 @@ import {
 import { CHE_PLUGIN_SERVICE_PATH, ChePluginService, ChePluginServiceClient } from '../common/che-plugin-protocol';
 import { CheSideCarContentReaderRegistryImpl, CheSideCarResourceResolver } from './che-sidecar-resource';
 import { CommandContribution, ResourceResolver } from '@theia/core/lib/common';
+import { ContainerModule, interfaces } from 'inversify';
 import { WebSocketConnectionProvider, WidgetFactory } from '@theia/core/lib/browser';
 
 import { CheApiProvider } from './che-api-provider';
+import { CheDebugConfigurationManager } from './che-debug-configuration-manager';
 import { CheLanguagesMainTestImpl } from './che-languages-test-main';
 import { ChePluginCommandContribution } from './plugin/che-plugin-command-contribution';
 import { ChePluginFrontentService } from './plugin/che-plugin-frontend-service';
@@ -40,8 +42,8 @@ import { CheTaskClientImpl } from './che-task-client';
 import { CheTaskResolver } from './che-task-resolver';
 import { CheTaskTerminalWidgetManager } from './che-task-terminal-widget-manager';
 import { CheWebviewEnvironment } from './che-webview-environment';
-import { ContainerModule } from 'inversify';
 import { ContainerPicker } from './container-picker';
+import { DebugConfigurationManager } from '@theia/debug/lib/browser/debug-configuration-manager';
 import { LanguagesMainFactory } from '@theia/plugin-ext';
 import { MainPluginApiProvider } from '@theia/plugin-ext/lib/common/plugin-ext-api-contribution';
 import { PluginFrontendViewContribution } from '@theia/plugin-ext/lib/main/browser/plugin-frontend-view-contribution';
@@ -52,7 +54,6 @@ import { TaskStatusHandler } from './task-status-handler';
 import { TaskTerminalWidgetManager } from '@theia/task/lib/browser/task-terminal-widget-manager';
 import { WebviewEnvironment } from '@theia/plugin-ext/lib/main/browser/webview/webview-environment';
 import { bindChePluginPreferences } from './plugin/che-plugin-preferences';
-import { interfaces } from 'inversify';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
   bind(CheApiProvider).toSelf().inSingletonScope();
@@ -133,4 +134,7 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
     child.bind(RPCProtocol).toConstantValue(rpc);
     return child.get(CheLanguagesMainTestImpl);
   });
+
+  bind(CheDebugConfigurationManager).toSelf().inSingletonScope();
+  rebind(DebugConfigurationManager).to(CheDebugConfigurationManager).inSingletonScope();
 });

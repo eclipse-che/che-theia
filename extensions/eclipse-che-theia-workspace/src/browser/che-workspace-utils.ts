@@ -8,10 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { che } from '@eclipse-che/api';
+import { Workspace } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 export class CheWorkspaceUtils {
-  static getWorkspaceModificationTime(workspace: che.workspace.Workspace): number {
+  static getWorkspaceModificationTime(workspace: Workspace): number {
     if (workspace.attributes) {
       if (workspace.attributes.updated) {
         return parseInt(workspace.attributes.updated);
@@ -23,17 +23,11 @@ export class CheWorkspaceUtils {
     return NaN;
   }
 
-  static getWorkspaceStack(workspace: che.workspace.Workspace): string | undefined {
+  static getWorkspaceStack(workspace: Workspace): string | undefined {
     return workspace.attributes && workspace.attributes.stackName ? workspace.attributes.stackName : 'Custom';
   }
 
-  static getWorkspaceName(workspace: che.workspace.Workspace): string | undefined {
-    if (workspace.devfile && workspace.devfile.metadata) {
-      return workspace.devfile.metadata.name;
-    }
-  }
-
-  static modificationTimeComparator(a: che.workspace.Workspace, b: che.workspace.Workspace): number {
+  static modificationTimeComparator(a: Workspace, b: Workspace): number {
     const updatedA: number = CheWorkspaceUtils.getWorkspaceModificationTime(a);
     const updatedB: number = CheWorkspaceUtils.getWorkspaceModificationTime(b);
 

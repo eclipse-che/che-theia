@@ -11,6 +11,7 @@
         "generator/tests",
         "plugins/*/src",
         "plugins/*/tests",
+        "plugins/*/__mocks__",
         "extensions/*/src",
         "extensions/*/tests",
         "tools/*/src"

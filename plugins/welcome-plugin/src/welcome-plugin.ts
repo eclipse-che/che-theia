@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2020 Red Hat, Inc.
+ * Copyright (c) 2020-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -53,23 +53,33 @@ async function getHtmlForWebview(context: theia.PluginContext): Promise<string> 
 }
 
 // Open Readme file is there is one
-export async function handleReadmeFiles(): Promise<void> {
-  const roots: theia.WorkspaceFolder[] | undefined = theia.workspace.workspaceFolders;
-  // In case of only one workspace
-  if (roots && roots.length === 1) {
-    const children = await theia.workspace.findFiles('README.md', 'node_modules/**', 1);
-    const updatedChildren = children.filter((child: theia.Uri) => {
-      if (child.fsPath.indexOf('node_modules') === -1) {
-        return child;
-      }
-    });
+export async function handleReadmeFiles(
+  readmeHandledCallback?: () => void,
+  roots?: theia.WorkspaceFolder[]
+): Promise<void> {
+  roots = roots ? roots : theia.workspace.workspaceFolders;
+  if (!roots || roots.length < 1) {
+    return;
+  }
 
-    if (updatedChildren.length >= 1) {
-      const openPath = theia.Uri.parse(updatedChildren[0] + '?open-handler=code-editor-preview');
-      const doc: theia.TextDocument | undefined = await theia.workspace.openTextDocument(openPath);
-      if (doc) {
-        theia.window.showTextDocument(doc);
-      }
+  const children = await theia.workspace.findFiles('README.md', 'node_modules/**', 1);
+  const updatedChildren = children.filter((child: theia.Uri) => {
+    if (child.fsPath.indexOf('node_modules') === -1) {
+      return child;
+    }
+  });
+
+  if (updatedChildren.length < 1) {
+    return;
+  }
+
+  const openPath = theia.Uri.parse(updatedChildren[0] + '?open-handler=code-editor-preview');
+  const doc: theia.TextDocument | undefined = await theia.workspace.openTextDocument(openPath);
+  if (doc) {
+    theia.window.showTextDocument(doc);
+
+    if (readmeHandledCallback) {
+      readmeHandledCallback();
     }
   }
 }
@@ -122,18 +132,42 @@ export function start(context: theia.PluginContext): void {
     showWelcomePage = configuration.get(Settings.SHOW_WELCOME_PAGE);
   }
 
-  if (showWelcomePage && theia.window.visibleTextEditors.length === 0) {
-    setTimeout(async () => {
-      addPanel(context);
-
-      const workspacePlugin = theia.plugins.getPlugin('Eclipse Che.@eclipse-che/workspace-plugin');
-      if (workspacePlugin) {
-        workspacePlugin.exports.onDidCloneSources(() => handleReadmeFiles());
-      } else {
-        handleReadmeFiles();
-      }
-    }, 100);
+  if (!showWelcomePage || theia.window.visibleTextEditors.length > 0) {
+    return;
   }
+
+  let cloneSourcesDisposable: theia.Disposable | undefined = undefined;
+  setTimeout(async () => {
+    addPanel(context);
+
+    const workspacePlugin = theia.plugins.getPlugin('Eclipse Che.@eclipse-che/workspace-plugin');
+    if (workspacePlugin && workspacePlugin.exports) {
+      // it handles the case when the multi-root mode is OFF
+      // we should remove this logic when we switch to the multi-root mode is ON by default
+      cloneSourcesDisposable = workspacePlugin.exports.onDidCloneSources(
+        () => handleReadmeFiles(readmeHandledCallback),
+        undefined,
+        context.subscriptions
+      );
+    } else {
+      handleReadmeFiles();
+    }
+  }, 100);
+
+  // handles the case when the multi-root mode is ON
+  const changeWorkspaceFoldersDisposable = theia.workspace.onDidChangeWorkspaceFolders(
+    event => handleReadmeFiles(readmeHandledCallback, event.added),
+    undefined,
+    context.subscriptions
+  );
+
+  const readmeHandledCallback = () => {
+    changeWorkspaceFoldersDisposable.dispose();
+
+    if (cloneSourcesDisposable) {
+      cloneSourcesDisposable.dispose();
+    }
+  };
 }
 
 export function stop(): void {}

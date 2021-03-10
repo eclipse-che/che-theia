@@ -64,15 +64,18 @@ publishImagesOnQuay() {
 
   for image in "${PUBLISH_IMAGES_LIST[@]}"
   do
-    echo "Publishing image ${image}..."
+    echo "Publishing ${image}:${IMAGE_TAG}..."
+    docker tag "${image}:${IMAGE_TAG}" "${REGISTRY}/${image}:${IMAGE_TAG}"
+    echo y | docker push "${REGISTRY}/${image}:${IMAGE_TAG}"
     if [[ -n "${THEIA_DOCKER_IMAGE_VERSION}" ]]; then
+      echo "Publishing ${image}:${THEIA_DOCKER_IMAGE_VERSION}..."
       docker tag "${image}:${IMAGE_TAG}" "${REGISTRY}/${image}:${THEIA_DOCKER_IMAGE_VERSION}"
-      docker tag "${image}:${IMAGE_TAG}" "${REGISTRY}/${image}:${IMAGE_TAG}"
-      echo y | docker push "${REGISTRY}/${image}:${IMAGE_TAG}"
       echo y | docker push "${REGISTRY}/${image}:${THEIA_DOCKER_IMAGE_VERSION}"
     else
-      docker tag "${image}:${IMAGE_TAG}" "${REGISTRY}/${image}:${IMAGE_TAG}"
-      echo y | docker push "${REGISTRY}/${image}:${IMAGE_TAG}"
+      SHORT_SHA=$(git rev-parse --short HEAD)
+      echo "Publishing ${image}:${SHORT_SHA}..."
+      docker tag "${image}:${IMAGE_TAG}" "${REGISTRY}/${image}:${SHORT_SHA}"
+      echo y | docker push "${REGISTRY}/${image}:${SHORT_SHA}"
     fi
   done
 }

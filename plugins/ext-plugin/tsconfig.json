@@ -1,0 +1,19 @@
+{
+    "extends": "../../configs/base.tsconfig",
+    "compilerOptions": {
+        "target": "es5",
+        "lib": [
+            "es6",
+            "webworker"
+        ],
+        "sourceMap": true,
+        "rootDir": "src",
+        "outDir": "lib",
+        "types": [
+            "node", "jest"
+        ]
+    },
+    "include": [
+        "src"
+    ]
+}

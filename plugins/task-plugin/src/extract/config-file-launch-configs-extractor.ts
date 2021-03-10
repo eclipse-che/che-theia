@@ -10,7 +10,7 @@
 
 import * as theia from '@theia/plugin';
 
-import { parse, readFileSync } from '../utils';
+import { parse, readFile } from '../utils';
 
 import { Configurations } from '../export/export-configs-manager';
 import { injectable } from 'inversify';
@@ -18,8 +18,8 @@ import { injectable } from 'inversify';
 /** Extracts launch configurations from config file by given uri. */
 @injectable()
 export class ConfigFileLaunchConfigsExtractor {
-  extract(launchConfigFileUri: string): Configurations<theia.DebugConfiguration> {
-    const configsContent = readFileSync(launchConfigFileUri);
+  async extract(launchConfigFileUri: string): Promise<Configurations<theia.DebugConfiguration>> {
+    const configsContent = await readFile(launchConfigFileUri);
     const configsJson = parse(configsContent);
     if (!configsJson || !configsJson.configurations) {
       return { content: '', configs: [] };
