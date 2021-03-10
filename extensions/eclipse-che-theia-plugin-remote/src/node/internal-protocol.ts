@@ -11,7 +11,7 @@
 import { Stat } from '@theia/filesystem/src/common/files';
 
 /**
- * This file models messages that are exchanged between remote plugin 
+ * This file models messages that are exchanged between remote plugin
  * hosts and remote back ends (i.e. they are not forwarded tunnelled to/from
  * the browser)
  */
