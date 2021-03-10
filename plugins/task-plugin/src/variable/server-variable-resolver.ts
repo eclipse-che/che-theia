@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2019-2020 Red Hat, Inc.
+ * Copyright (c) 2019-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -25,34 +25,42 @@ export class ServerVariableResolver {
   protected readonly cheWorkspaceClient!: CheWorkspaceClient;
 
   async registerVariables(): Promise<void> {
-    const machines = await this.cheWorkspaceClient.getMachines();
-    for (const machineName in machines) {
-      if (!machines.hasOwnProperty(machineName)) {
-        continue;
-      }
-
-      const servers = machines[machineName].servers!;
-
-      for (const serverName in servers) {
-        if (!servers.hasOwnProperty(serverName)) {
-          continue;
+    const componentStatuses = await this.cheWorkspaceClient.getComponentStatuses();
+    await Promise.all(
+      componentStatuses.map(async componentStatus => {
+        if (componentStatus.endpoints) {
+          for (const endpointName in componentStatus.endpoints) {
+            if (!componentStatus.endpoints.hasOwnProperty(endpointName)) {
+              continue;
+            }
+            const url = componentStatus.endpoints[endpointName].url;
+            if (url) {
+              const variables = this.createVariables(endpointName, url);
+              const variableSubscriptions = await Promise.all(
+                variables.map(variable => che.variables.registerVariable(variable))
+              );
+              variableSubscriptions.forEach(subscription => startPoint.getSubscriptions().push(subscription));
+            }
+          }
         }
-
-        const url = servers[serverName].url;
-        if (url) {
-          const variableSubscription = await che.variables.registerVariable(this.createVariable(serverName, url));
-          startPoint.getSubscriptions().push(variableSubscription);
-        }
-      }
-    }
+      })
+    );
   }
 
-  private createVariable(serverName: string, url: string): che.Variable {
-    return {
-      name: `server.${serverName}`,
-      description: url,
-      resolve: async () => url,
-      isResolved: true,
-    };
+  private createVariables(serverName: string, url: string): che.Variable[] {
+    return [
+      {
+        name: `server.${serverName}`,
+        description: url,
+        resolve: async () => url,
+        isResolved: true,
+      },
+      {
+        name: `endpoint.${serverName}`,
+        description: url,
+        resolve: async () => url,
+        isResolved: true,
+      },
+    ];
   }
 }

@@ -8,6 +8,15 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-describe('no-op', function () {
-  it('no-op', function () {});
-});
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const chePlugin: any = {};
+chePlugin.devfile = {
+    get: jest.fn(),
+    getComponentStatuses: jest.fn(),
+};
+
+chePlugin.endpoint = {
+    getEndpointsByType: jest.fn(),
+};
+
+module.exports = chePlugin;
