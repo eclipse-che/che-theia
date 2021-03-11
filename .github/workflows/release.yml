@@ -84,7 +84,7 @@ jobs:
       if: github.event.inputs.pushToNpmJs == true 
       run: yarn publish:next
   notify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - name: Create MM message
       run: |
