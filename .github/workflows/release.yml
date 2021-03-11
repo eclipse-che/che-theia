@@ -85,6 +85,7 @@ jobs:
       run: yarn publish:next
   notify:
     runs-on: ubuntu-20.04
+    needs: build
     steps:
     - name: Create MM message
       run: |
