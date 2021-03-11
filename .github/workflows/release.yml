@@ -70,9 +70,13 @@ jobs:
         export GITHUB_TOKEN=${{ secrets.CHE_BOT_GITHUB_TOKEN }}
         export AKAMAI_CHE_AUTH=${{ secrets.AKAMAI_CHE_AUTH }}
         ./make-release.sh --version ${{ github.event.inputs.version }}
+    - name: Clean image cache
+      run: |
+        for image in eclipse/che-theia-dev eclipse/che-theia eclipse/che-theia-endpoint-runtime-binary; do
+          docker rmi -f "${image}:${{ github.event.inputs.version }}" "quay.io/${image}:${{ github.event.inputs.version }}" || true
+        done
     - name: Build and publish images
       run: |
-        docker image prune -a -f
         ./build.sh --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.alpine --push
       env:
         CDN_PREFIX: https://static.developers.redhat.com/che/theia_artifacts/
