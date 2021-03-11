@@ -216,6 +216,25 @@ declare module '@eclipse-che/plugin' {
         export function createWorkspace(devfilePath: string): Promise<void>;
     }
 
+    export namespace endpoint {
+
+        export interface ExposedEndpoint {
+            attributes?: { [key: string]: string };
+            url?: string;
+            name: string;
+            component: string;
+          }
+
+          export interface ComponentExposedEndpoint {
+            name: string;
+            endpoints: ExposedEndpoint[];
+          }
+
+         export function getEndpoints(): Promise<ComponentExposedEndpoint[]>;
+         export function getEndpointsByName(...names: string[]): Promise<ExposedEndpoint[]>;
+         export function getEndpointsByType(type: string): Promise<ExposedEndpoint[]>;
+    }
+
     export interface GithubUser {
         login: string,
         id: number,

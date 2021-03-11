@@ -14,6 +14,7 @@ import * as theia from '@theia/plugin';
 import { CheTaskImpl, TaskStatus, TaskTerminallKind } from './che-task-impl';
 
 import { CheDevfileImpl } from './che-devfile';
+import { CheEndpointImpl } from './che-endpoint';
 import { CheGithubImpl } from './che-github';
 import { CheK8SImpl } from './che-k8s';
 import { CheOauthImpl } from './che-oauth';
@@ -41,6 +42,7 @@ export interface CheApiFactory {
 export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
   const cheWorkspaceImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_WORKSPACE, new CheWorkspaceImpl(rpc));
   const cheDevfileImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_DEVFILE, new CheDevfileImpl(rpc));
+  const cheEndpointImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_DEVFILE, new CheEndpointImpl(rpc));
   const cheVariablesImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_VARIABLES, new CheVariablesImpl(rpc));
   const cheTaskImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_TASK, new CheTaskImpl(rpc));
   const cheSshImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_SSH, new CheSshImpl(rpc));
@@ -115,6 +117,18 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
       },
       createWorkspace(devfilePath: string): Promise<void> {
         return cheDevfileImpl.createWorkspace(devfilePath);
+      },
+    };
+
+    const endpoint: typeof che.endpoint = {
+      getEndpoints(): Promise<che.endpoint.ComponentExposedEndpoint[]> {
+        return cheEndpointImpl.getEndpoints();
+      },
+      getEndpointsByName(...names: string[]): Promise<che.endpoint.ExposedEndpoint[]> {
+        return cheEndpointImpl.getEndpointsByName(...names);
+      },
+      getEndpointsByType(type: string): Promise<che.endpoint.ExposedEndpoint[]> {
+        return cheEndpointImpl.getEndpointsByType(type);
       },
     };
 
@@ -424,6 +438,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
     return <typeof che>{
       workspace,
       devfile,
+      endpoint,
       variables,
       task,
       ssh,

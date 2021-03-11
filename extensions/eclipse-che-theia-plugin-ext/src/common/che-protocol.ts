@@ -51,6 +51,14 @@ export interface CheDevfileMain {
   $update(updatedDevfile: che.devfile.Devfile): Promise<void>;
 }
 
+export interface CheEndpoint {}
+
+export interface CheEndpointMain {
+  $getEndpoints(): Promise<che.endpoint.ComponentExposedEndpoint[]>;
+  $getEndpointsByName(...names: string[]): Promise<che.endpoint.ExposedEndpoint[]>;
+  $getEndpointsByType(type: string): Promise<che.endpoint.ExposedEndpoint[]>;
+}
+
 export interface CheSsh {}
 
 export interface CheSshMain {
@@ -415,6 +423,9 @@ export const PLUGIN_RPC_CONTEXT = {
 
   CHE_DEVFILE: createProxyIdentifier<CheDevfile>('CheDevfile'),
   CHE_DEVFILE_MAIN: createProxyIdentifier<CheDevfileMain>('CheDevfileMain'),
+
+  CHE_ENDPOINT: createProxyIdentifier<CheEndpoint>('CheEndpoint'),
+  CHE_ENDPOINT_MAIN: createProxyIdentifier<CheEndpointMain>('CheEndpointMain'),
 
   CHE_TELEMETRY: createProxyIdentifier<CheTelemetry>('CheTelemetry'),
   CHE_TELEMETRY_MAIN: createProxyIdentifier<CheTelemetryMain>('CheTelemetryMain'),
