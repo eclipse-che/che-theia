@@ -15,6 +15,7 @@ set -o pipefail
 parse "$@"
 yarn ${YARN_OPTS}
 
+removeImages
 buildImages
 
 if is_publish_images; then

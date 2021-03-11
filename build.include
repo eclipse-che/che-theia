@@ -73,10 +73,18 @@ getImages() {
   echo "${DOCKER_FILES_LOCATIONS[@]}"
 }
 
+# in case we have left over images from previous runs, delete them from local registry
+removeImages() {
+  docker images || true
+  REGISTRY="quay.io"
+  for image in "${PUBLISH_IMAGES_LIST[@]}"; do
+    docker rmi -f "${image}:${IMAGE_TAG}" "${REGISTRY}/${image}:${IMAGE_TAG}" || true
+  done
+}
+
 buildImages() {
   IFS=" " read -r -a IMG_LIST <<< "$(getImages)"
-  for image_dir in "${IMG_LIST[@]}"
-  do
+  for image_dir in "${IMG_LIST[@]}"; do
     GITHUB_TOKEN_ARG="GITHUB_TOKEN=${GITHUB_TOKEN:-}"
     echo "Building image in ${image_dir}"
      if [ "$image_dir" == "dockerfiles/theia" ]; then
@@ -96,8 +104,7 @@ buildImages() {
 
 publishImages() {
   REGISTRY="quay.io"
-  for image in "${PUBLISH_IMAGES_LIST[@]}"
-  do
+  for image in "${PUBLISH_IMAGES_LIST[@]}"; do
     echo "Publishing ${image}:${IMAGE_TAG}..."
     docker tag "${image}:${IMAGE_TAG}" "${REGISTRY}/${image}:${IMAGE_TAG}"
     echo y | docker push "${REGISTRY}/${image}:${IMAGE_TAG}"
