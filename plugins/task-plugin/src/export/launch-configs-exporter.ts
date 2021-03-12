@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import * as che from '@eclipse-che/plugin';
 import * as startPoint from '../task-plugin-backend';
 import * as theia from '@theia/plugin';
 
@@ -17,7 +18,6 @@ import { inject, injectable } from 'inversify';
 import { ConfigFileLaunchConfigsExtractor } from '../extract/config-file-launch-configs-extractor';
 import { ConfigurationsExporter } from './export-configs-manager';
 import { VsCodeLaunchConfigsExtractor } from '../extract/vscode-launch-configs-extractor';
-import { che as cheApi } from '@eclipse-che/api';
 import { resolve } from 'path';
 
 const CONFIG_DIR = '.theia';
@@ -33,7 +33,7 @@ export class LaunchConfigurationsExporter implements ConfigurationsExporter {
   @inject(VsCodeLaunchConfigsExtractor)
   protected readonly vsCodeLaunchConfigsExtractor: VsCodeLaunchConfigsExtractor;
 
-  async init(commands: cheApi.workspace.Command[]): Promise<void> {
+  async init(commands: che.devfile.DevfileCommand[]): Promise<void> {
     theia.workspace.onDidChangeWorkspaceFolders(
       event => {
         const workspaceFolders: theia.WorkspaceFolder[] | undefined = event.added;
@@ -46,7 +46,7 @@ export class LaunchConfigurationsExporter implements ConfigurationsExporter {
     );
   }
 
-  async export(commands: cheApi.workspace.Command[], workspaceFolders?: theia.WorkspaceFolder[]): Promise<void> {
+  async export(commands: che.devfile.DevfileCommand[], workspaceFolders?: theia.WorkspaceFolder[]): Promise<void> {
     workspaceFolders = workspaceFolders ? workspaceFolders : theia.workspace.workspaceFolders;
     if (!workspaceFolders) {
       return;
@@ -60,7 +60,7 @@ export class LaunchConfigurationsExporter implements ConfigurationsExporter {
     await Promise.all(exportConfigsPromises);
   }
 
-  async doExport(workspaceFolder: theia.WorkspaceFolder, commands: cheApi.workspace.Command[]): Promise<void> {
+  async doExport(workspaceFolder: theia.WorkspaceFolder, commands: che.devfile.DevfileCommand[]): Promise<void> {
     const workspaceFolderPath = workspaceFolder.uri.path;
     const launchConfigFilePath = resolve(workspaceFolderPath, CONFIG_DIR, LAUNCH_CONFIG_FILE);
     const configFileConfigs = await this.configFileLaunchConfigsExtractor.extract(launchConfigFilePath);

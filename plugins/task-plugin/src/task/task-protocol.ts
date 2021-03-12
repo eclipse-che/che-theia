@@ -13,8 +13,6 @@ import { TaskDefinition } from '@theia/plugin';
 export const CHE_TASK_TYPE: string = 'che';
 export const MACHINE_NAME_ATTRIBUTE: string = 'machineName';
 export const PREVIEW_URL_ATTRIBUTE: string = 'previewUrl';
-export const WORKING_DIR_ATTRIBUTE: string = 'workingDir';
-export const COMPONENT_ALIAS_ATTRIBUTE: string = 'componentAlias';
 
 export interface CheTaskDefinition extends TaskDefinition {
   readonly target?: Target;
