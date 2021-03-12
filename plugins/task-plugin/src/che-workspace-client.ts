@@ -29,16 +29,9 @@ export class CheWorkspaceClient {
     return che.devfile.getComponentStatuses();
   }
 
-  async getCommands(): Promise<cheApi.workspace.Command[]> {
-    const workspace: cheApi.workspace.Workspace = await this.getCurrentWorkspace();
-
-    const runtime: cheApi.workspace.Runtime | undefined = workspace.runtime;
-    if (!runtime) {
-      return [];
-    }
-
-    const commands = runtime.commands;
-    return commands ? commands : [];
+  async getCommands(): Promise<che.devfile.DevfileCommand[]> {
+    const devfile = await che.devfile.get();
+    return devfile.commands || [];
   }
 
   getCurrentWorkspace(): Promise<cheApi.workspace.Workspace> {

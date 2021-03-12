@@ -8,11 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import * as che from '@eclipse-che/plugin';
+
 import { inject, injectable, multiInject } from 'inversify';
 
 import { CheWorkspaceClient } from '../che-workspace-client';
 import { LaunchConfigurationsExporter } from './launch-configs-exporter';
-import { che as cheApi } from '@eclipse-che/api';
 
 export const ConfigurationsExporter = Symbol('ConfigurationsExporter');
 
@@ -23,7 +24,7 @@ export interface ConfigurationsExporter {
    * @param workspaceFolder workspace folder for exporting configs in the config file
    * @param commands commands with configurations for export
    */
-  export(commands: cheApi.workspace.Command[]): Promise<void>;
+  export(commands: che.devfile.DevfileCommand[]): Promise<void>;
 }
 /** Contains configurations as array of object and as raw content and is used at getting configurations from config file for example */
 export interface Configurations<T> {
@@ -46,7 +47,7 @@ export class ExportConfigurationsManager {
   @inject(LaunchConfigurationsExporter)
   protected readonly launchConfigurationsExporter: LaunchConfigurationsExporter;
 
-  protected cheCommands: cheApi.workspace.Command[] = [];
+  protected cheCommands: che.devfile.DevfileCommand[] = [];
 
   async init(): Promise<void> {
     this.cheCommands = await this.cheWorkspaceClient.getCommands();
@@ -63,7 +64,7 @@ export class ExportConfigurationsManager {
     await Promise.all(exportPromises);
   }
 
-  private async doExport(cheCommands: cheApi.workspace.Command[], exporter: ConfigurationsExporter): Promise<void> {
+  private async doExport(cheCommands: che.devfile.DevfileCommand[], exporter: ConfigurationsExporter): Promise<void> {
     return exporter.export(cheCommands);
   }
 }

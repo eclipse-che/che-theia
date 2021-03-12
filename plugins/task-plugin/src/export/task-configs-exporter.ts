@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2019-2020 Red Hat, Inc.
+ * Copyright (c) 2019-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import * as che from '@eclipse-che/plugin';
 import * as startPoint from '../task-plugin-backend';
 
 import { inject, injectable } from 'inversify';
@@ -19,7 +20,6 @@ import { ConfigFileTasksExtractor } from '../extract/config-file-task-configs-ex
 import { ConfigurationsExporter } from './export-configs-manager';
 import { TaskConfiguration } from '@eclipse-che/plugin';
 import { VsCodeTaskConfigsExtractor } from '../extract/vscode-task-configs-extractor';
-import { che as cheApi } from '@eclipse-che/api';
 import { homedir } from 'os';
 import { resolve } from 'path';
 
@@ -48,7 +48,7 @@ export class TaskConfigurationsExporter implements ConfigurationsExporter {
   @inject(BackwardCompatibilityResolver)
   protected readonly backwardCompatibilityResolver: BackwardCompatibilityResolver;
 
-  async export(commands: cheApi.workspace.Command[]): Promise<void> {
+  async export(commands: che.devfile.DevfileCommand[]): Promise<void> {
     const configFileTasks = await this.configFileTasksExtractor.extract(THEIA_USER_TASKS_PATH);
 
     const cheTasks = this.cheTaskConfigsExtractor.extract(commands);
