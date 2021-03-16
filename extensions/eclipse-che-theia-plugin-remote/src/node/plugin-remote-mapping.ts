@@ -68,17 +68,14 @@ export class HostedPluginMapping {
     return this.pluginsEndpoints.get(pluginID);
   }
 
+  setEndpoint(pluginId: string, endpointName: string) {
+    this.pluginsEndpoints.set(pluginId, endpointName);
+  }
+
   /**
    * Gets the endpoints
    */
   getEndPoints(): string[] {
     return this.endpoints;
-  }
-
-  /**
-   * Gets the pluging endpoints
-   */
-  getPluginsEndPoints(): Map<string, string> {
-    return this.pluginsEndpoints;
   }
 }

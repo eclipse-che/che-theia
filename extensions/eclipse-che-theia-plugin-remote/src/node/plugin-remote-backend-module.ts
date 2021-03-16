@@ -17,11 +17,14 @@ import {
 } from '@theia/plugin-ext/lib/hosted/node/hosted-plugin-process';
 import { MetadataProcessor, ServerPluginRunner } from '@theia/plugin-ext/lib/common';
 
+import { ChePluginUriFactory } from './che-plugin-uri-factory';
 import { ConnectionContainerModule } from '@theia/core/lib/node/messaging/connection-container-module';
 import { HostedPluginMapping } from './plugin-remote-mapping';
+import { HostedPluginReader } from '@theia/plugin-ext/lib/hosted/node/plugin-reader';
 import { HostedPluginRemote } from './hosted-plugin-remote';
 import { LogHostedPluginProcess } from './hosted-plugin-process-log';
 import { PluginReaderExtension } from './plugin-reader-extension';
+import { PluginUriFactory } from '@theia/plugin-ext/lib/hosted/node/scanners/plugin-uri-factory';
 import { RemoteMetadataProcessor } from './remote-metadata-processor';
 import { ServerPluginProxyRunner } from './server-plugin-proxy-runner';
 
@@ -43,7 +46,8 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
   bind(HostedPluginMapping).toSelf().inSingletonScope();
   bind(MetadataProcessor).to(RemoteMetadataProcessor).inSingletonScope();
   bind(PluginReaderExtension).toSelf().inSingletonScope();
-
+  rebind(HostedPluginReader).toService(PluginReaderExtension);
   rebind(HostedPluginProcessConfiguration).toConstantValue({ path: path.resolve(__dirname, 'plugin-host-custom.js') });
   bind(ConnectionContainerModule).toConstantValue(localModule);
+  rebind(PluginUriFactory).to(ChePluginUriFactory).inSingletonScope();
 });
