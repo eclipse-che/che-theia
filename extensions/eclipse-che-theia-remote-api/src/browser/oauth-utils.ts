@@ -58,7 +58,7 @@ export class OauthUtils {
     });
   }
 
-  async getUserToken(): Promise<string | undefined> {
+  private async getUserToken(): Promise<string | undefined> {
     const updateToken: () => Promise<string | undefined> = async () => {
       if (this.machineToken && this.machineToken.length > 0) {
         const timer = setTimeout(() => {
