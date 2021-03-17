@@ -66,7 +66,7 @@ export class K8sDevfileServiceImpl implements DevfileService {
       group,
       version,
       this.env.getWorkspaceNamespace(),
-      'workspaceroutings',
+      'devworkspaceroutings',
       undefined,
       undefined,
       undefined,
