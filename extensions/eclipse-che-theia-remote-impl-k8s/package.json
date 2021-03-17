@@ -24,7 +24,8 @@
     "lint:fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,tests}/**/*.{ts,tsx}\"",
     "compile": "tsc",
     "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "test": "if-env SKIP_TEST=true && echo 'skip test' || jest --forceExit"
   },
   "license": "EPL-2.0",
   "theiaExtensions": [

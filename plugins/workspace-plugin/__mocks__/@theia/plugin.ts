@@ -1,14 +1,14 @@
-/*
- * Copyright (c) 2020 Red Hat, Inc.
- * All rights reserved. This program and the accompanying materials are made
+/**********************************************************************
+ * Copyright (c) 2020-2021 Red Hat, Inc.
+ *
+ * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
- * Contributors:
- *   Red Hat, Inc. - initial API and implementation
- */
+ * SPDX-License-Identifier: EPL-2.0
+ ***********************************************************************/
 
-/**
- * Mock of @theia/plugin module
- * @author Valerii Svydenko
- */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const theiaPlugin: any = {};
+theiaPlugin.window = {};
+module.exports = theiaPlugin;

@@ -28,7 +28,7 @@
   },
   "license": "EPL-2.0",
   "scripts": {
-    "prepare": "yarn run clean && yarn run build",
+    "prepare": "yarn clean && yarn build && yarn test",
     "clean": "rimraf lib",
     "format": "if-env SKIP_FORMAT=true && echo 'skip format check' || prettier --check '{src,tests}/**/*.ts' package.json",
     "format:fix": "prettier --write '{src,tests}/**/*.ts' package.json",
@@ -37,11 +37,24 @@
     "compile": "tsc",
     "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
     "watch": "tsc -w",
-    "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
+    "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\"",
+    "test": "if-env SKIP_TEST=true && echo 'skip test' || jest --forceExit"
   },
   "theiaExtensions": [
     {
       "frontend": "lib/browser/terminal-frontend-module"
     }
-  ]
+  ],
+  "jest": {
+    "clearMocks": true,
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}"
+    ],
+    "coverageDirectory": "coverage",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/lib"
+    ],
+    "preset": "ts-jest"
+  }
 }

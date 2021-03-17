@@ -83,3 +83,16 @@ jobs:
     - name: Publish packages to npmjs
       if: github.event.inputs.pushToNpmJs == true 
       run: yarn publish:next
+  notify:
+    runs-on: ubuntu-20.04
+    needs: build
+    steps:
+    - name: Create MM message
+      run: |
+        echo "{\"text\":\":building_construction: Che Theia ${{ github.event.inputs.version }} has been released: https://quay.io/eclipse/che-theia-dev:${{ github.event.inputs.version }} https://quay.io/eclipse/che-theia:${{ github.event.inputs.version }} https://quay.io/eclipse/che-theia-endpoint-runtime-binary:${{ github.event.inputs.version }}\"}" > mattermost.json
+    - name: Send MM message
+      uses: mattermost/action-mattermost-notify@master
+      env:
+        MATTERMOST_WEBHOOK_URL: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
+        MATTERMOST_CHANNEL: eclipse-che-releases
+        MATTERMOST_USERNAME: che-bot

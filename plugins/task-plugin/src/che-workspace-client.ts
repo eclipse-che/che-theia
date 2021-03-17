@@ -109,7 +109,10 @@ export class CheWorkspaceClient {
     if (!machineExecServer) {
       throw new Error(`No server with type ${TERMINAL_SERVER_TYPE} found.`);
     }
-    return machineExecServer.url!;
+    if (!machineExecServer.attributes!.port) {
+      throw new Error('No machine-exec-server attributes.port found');
+    }
+    return `ws://127.0.0.1:${machineExecServer.attributes!.port}`;
   }
 
   protected async getMachineExecServer(): Promise<cheApi.workspace.Server | undefined> {

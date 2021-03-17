@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import * as che from '@eclipse-che/plugin';
 import * as fileuri from './file-uri';
 import * as fs from 'fs-extra';
 import * as git from './git';
@@ -17,7 +18,6 @@ import * as ssh from './ssh';
 import * as theia from '@theia/plugin';
 
 import { TaskScope } from '@eclipse-che/plugin';
-import { che as cheApi } from '@eclipse-che/api';
 import { execute } from './exec';
 import { getCertificate } from './ca-cert';
 import { output } from './output';
@@ -32,101 +32,72 @@ export enum ActionId {
   RUN_COMMAND = 'runCommand',
 }
 
-function isDevfileProjectConfig(
-  project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project
-): project is cheApi.workspace.devfile.Project {
-  return (
-    !!project.name &&
-    !!project.source &&
-    !!project.source.type &&
-    !!project.source.location &&
-    !(project.source as { [index: string]: string })['parameters']
-  );
-}
-
 export interface TheiaImportCommand {
   /** @returns the path to the imported project */
   execute(): Promise<string>;
 }
 
 export function buildProjectImportCommand(
-  project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project,
+  project: che.devfile.DevfileProject,
   projectsRoot: string
 ): TheiaImportCommand | undefined {
-  if (!project.source) {
+  if (project.git || project.github) {
+    return new TheiaGitCloneCommand(project, projectsRoot);
+  } else if (project.zip) {
+    return new TheiaImportZipCommand(project, projectsRoot);
+  } else {
+    const message = `Project ${JSON.stringify(project, undefined, 2)} is not supported.`;
+    theia.window.showWarningMessage(message);
+    console.warn(message);
     return;
-  }
-
-  switch (project.source.type) {
-    case 'git':
-    case 'github':
-      return new TheiaGitCloneCommand(project, projectsRoot);
-    case 'zip':
-      return new TheiaImportZipCommand(project, projectsRoot);
-    default:
-      const message = `Project type "${project.source.type}" is not supported.`;
-      theia.window.showWarningMessage(message);
-      console.warn(message);
-      return;
   }
 }
 
 export class TheiaGitCloneCommand implements TheiaImportCommand {
   private projectName: string | undefined;
-  private locationURI: string;
   private projectPath: string;
-  private checkoutBranch?: string | undefined;
-  private checkoutTag?: string | undefined;
-  private checkoutStartPoint?: string | undefined;
-  private checkoutCommitId?: string | undefined;
-  private sparseCheckoutDir: string | undefined;
+  private revision: string | undefined;
+  private sparseCheckoutDirs: string[];
   private projectsRoot: string;
+  private remotes: { [remoteName: string]: string };
+  private defaultRemoteLocation: string;
+  private defaultRemoteName: string;
 
-  constructor(project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project, projectsRoot: string) {
-    if (isDevfileProjectConfig(project)) {
-      const source = project.source;
-      if (!source || !source.location) {
-        throw new Error('Source location is not defined for "' + this.projectName + '" project.');
-      }
-
-      this.projectName = project.name;
-      this.locationURI = source.location;
-      this.projectPath = project.clonePath
-        ? path.join(projectsRoot, project.clonePath)
-        : path.join(projectsRoot, project.name!);
-      this.checkoutBranch = source.branch;
-      this.checkoutStartPoint = source.startPoint;
-      this.checkoutTag = source.tag;
-      this.checkoutCommitId = source.commitId;
-      this.sparseCheckoutDir = source.sparseCheckoutDir;
-    } else {
-      // legacy project config
-      if (!project.source || !project.source.parameters) {
-        throw new Error('Project with name "' + this.projectName + '" is not defined correctly.');
-      }
-      const parameters = project.source.parameters;
-
-      this.projectName = project.name;
-      this.locationURI = project.source.location!;
-      this.projectPath = projectsRoot + project.path;
-      this.checkoutBranch = parameters['branch'];
-      this.checkoutStartPoint = parameters['startPoint'];
-      this.checkoutTag = project.source.parameters['tag'];
-      this.checkoutCommitId = project.source.parameters['commitId'];
-      this.sparseCheckoutDir = project.source.parameters['keepDir'];
+  init(devfileProjectInfo: che.devfile.DevfileProjectInfo): void {
+    this.remotes = devfileProjectInfo.remotes;
+    if (devfileProjectInfo.checkoutFrom) {
+      this.revision = devfileProjectInfo.checkoutFrom.revision;
     }
+    if (devfileProjectInfo?.checkoutFrom?.remote) {
+      this.defaultRemoteName = devfileProjectInfo.checkoutFrom.remote;
+    } else {
+      this.defaultRemoteName = Object.keys(this.remotes)[0];
+    }
+    this.defaultRemoteLocation = this.remotes[this.defaultRemoteName];
+  }
 
+  constructor(project: che.devfile.DevfileProject, projectsRoot: string) {
+    if (project.git) {
+      this.init(project.git);
+    } else if (project.github) {
+      this.init(project.github);
+    }
     this.projectsRoot = projectsRoot;
+    this.projectPath = project.clonePath
+      ? path.join(projectsRoot, project.clonePath)
+      : path.join(projectsRoot, project.name);
+
+    this.sparseCheckoutDirs = project.sparseCheckoutDirs || [];
   }
 
   clone(): PromiseLike<string> {
     return theia.window.withProgress(
       {
         location: theia.ProgressLocation.Notification,
-        title: `Cloning ${this.locationURI} ...`,
+        title: `Cloning ${this.defaultRemoteLocation} ...`,
       },
       (progress, token) => {
-        if (this.sparseCheckoutDir) {
+        if (this.sparseCheckoutDirs.length > 0) {
           return this.gitSparseCheckout(progress, token);
         } else {
           return this.gitClone(progress, token);
@@ -136,7 +107,7 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
   }
 
   async execute(): Promise<string> {
-    if (!git.isSecureGitURI(this.locationURI)) {
+    if (!git.isSecureGitURI(this.defaultRemoteLocation)) {
       // clone using regular URI
       return this.clone();
     }
@@ -146,7 +117,7 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
     while (true) {
       // test secure login
       try {
-        await git.testSecureLogin(this.locationURI);
+        await git.testSecureLogin(this.defaultRemoteLocation);
         // exit the loop when successfull login
         break;
       } catch (error) {
@@ -165,12 +136,12 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
       const ADD_KEY_TO_GITHUB = 'Add Key To GitHub';
       const CONFIGURE_SSH = 'Configure SSH';
 
-      let message = `Failure to clone git project ${this.locationURI}`;
+      let message = `Failure to clone git project ${this.defaultRemoteLocation}`;
       if (errorReason) {
         message += ` ${errorReason}`;
       }
 
-      const isSecureGitHubURI = git.isSecureGitHubURI(this.locationURI);
+      const isSecureGitHubURI = git.isSecureGitHubURI(this.defaultRemoteLocation);
       const buttons = isSecureGitHubURI ? [RETRY, ADD_KEY_TO_GITHUB, CONFIGURE_SSH] : [RETRY, CONFIGURE_SSH];
       const action = await theia.window.showWarningMessage(message, ...buttons);
       if (action === RETRY) {
@@ -189,7 +160,7 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
         const SKIP = 'Skip';
         const TRY_AGAIN = 'Try Again';
         const tryAgain = await theia.window.showWarningMessage(
-          `Cloning of ${this.locationURI} will be skipped`,
+          `Cloning of ${this.defaultRemoteLocation} will be skipped`,
           SKIP,
           TRY_AGAIN
         );
@@ -212,35 +183,39 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
     progress: theia.Progress<{ message?: string; increment?: number }>,
     token: theia.CancellationToken
   ): Promise<string> {
-    const args: string[] = ['clone', this.locationURI, this.projectPath];
-    if (this.checkoutBranch) {
-      args.push('--branch');
-      args.push(this.checkoutBranch);
-    }
+    const args: string[] = ['clone', this.defaultRemoteLocation, this.projectPath];
 
     try {
       await git.execGit(this.projectsRoot, ...args);
+
+      // Add extra remotes if defined
+      if (Object.keys(this.remotes).length > 1) {
+        await Promise.all(
+          Object.entries(this.remotes).map(async ([remoteName, remoteValue]) => {
+            if (this.defaultRemoteName !== remoteName) {
+              const remoteArgs = ['remote', 'add', remoteName, remoteValue];
+              await git.execGit(this.projectsRoot, ...remoteArgs);
+            }
+          })
+        );
+      }
+
       // Figure out what to reset to.
       // The priority order is startPoint > tag > commitId
 
-      const treeish = this.checkoutStartPoint
-        ? this.checkoutStartPoint
-        : this.checkoutTag
-        ? this.checkoutTag
-        : this.checkoutCommitId;
+      const messageStart = `Project ${this.defaultRemoteLocation} cloned to ${this.projectPath} using default branch`;
 
-      const branch = this.checkoutBranch ? this.checkoutBranch : 'default branch';
-      const messageStart = `Project ${this.locationURI} cloned to ${this.projectPath} and checked out ${branch}`;
-
-      if (treeish) {
-        git.execGit(this.projectPath, 'reset', '--hard', treeish).then(
+      if (this.revision) {
+        git.execGit(this.projectPath, 'checkout', this.revision).then(
           _ => {
-            theia.window.showInformationMessage(`${messageStart} which has been reset to ${treeish}.`);
+            theia.window.showInformationMessage(`${messageStart} which has been reset to ${this.revision}.`);
           },
           e => {
-            theia.window.showErrorMessage(`${messageStart} but resetting to ${treeish} failed with ${e.message}.`);
+            theia.window.showErrorMessage(
+              `${messageStart} but resetting to ${this.revision} failed with ${e.message}.`
+            );
             console.log(
-              `Couldn't reset to ${treeish} of ${this.projectPath} cloned from ${this.locationURI} and checked out to ${branch}.`,
+              `Couldn't reset to ${this.revision} of ${this.projectPath} cloned from ${this.defaultRemoteLocation} and checked from default branch.`,
               e
             );
           }
@@ -250,8 +225,8 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
       }
       return this.projectPath;
     } catch (e) {
-      theia.window.showErrorMessage(`Couldn't clone ${this.locationURI}: ${e.message}`);
-      console.log(`Couldn't clone ${this.locationURI}`, e);
+      theia.window.showErrorMessage(`Couldn't clone ${this.defaultRemoteLocation}: ${e.message}`);
+      console.log(`Couldn't clone ${this.defaultRemoteLocation}`, e);
       throw new Error(e);
     }
   }
@@ -261,25 +236,22 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
     progress: theia.Progress<{ message?: string; increment?: number }>,
     token: theia.CancellationToken
   ): Promise<string> {
-    if (!this.sparseCheckoutDir) {
+    if (this.sparseCheckoutDirs.length === 0) {
       throw new Error('Parameter "sparseCheckoutDir" is not set for "' + this.projectName + '" project.');
     }
 
-    const commitReference = this.checkoutStartPoint
-      ? this.checkoutStartPoint
-      : this.checkoutTag
-      ? this.checkoutTag
-      : this.checkoutCommitId
-      ? this.checkoutCommitId
-      : this.checkoutBranch
-      ? this.checkoutBranch
-      : 'master';
     await fs.ensureDir(this.projectPath);
 
-    await git.sparseCheckout(this.projectPath, this.locationURI, this.sparseCheckoutDir, commitReference);
+    // if no revision is specified, use the HEAD
+    await git.sparseCheckout(
+      this.projectPath,
+      this.defaultRemoteLocation,
+      this.sparseCheckoutDirs,
+      this.revision || 'HEAD'
+    );
 
     theia.window.showInformationMessage(
-      `Sources by template ${this.sparseCheckoutDir} of ${this.locationURI} was cloned to ${this.projectPath}.`
+      `Sources by template ${this.sparseCheckoutDirs} of ${this.defaultRemoteLocation} was cloned to ${this.projectPath}.`
     );
     return this.projectPath;
   }
@@ -292,19 +264,14 @@ export class TheiaImportZipCommand implements TheiaImportCommand {
   private zipfile: string;
   private zipfilePath: string;
 
-  constructor(project: cheApi.workspace.ProjectConfig | cheApi.workspace.devfile.Project, projectsRoot: string) {
-    if (isDevfileProjectConfig(project)) {
-      const source = project.source;
-
-      this.locationURI = source!.location;
-      this.projectDir = path.join(projectsRoot, project.name!);
-      this.tmpDir = fs.mkdtempSync(path.join(`${os.tmpdir()}${path.sep}`, 'workspace-plugin-'));
-      this.zipfile = `${project.name}.zip`;
-      this.zipfilePath = path.join(this.tmpDir, this.zipfile);
-    } else {
-      // legacy project config
-      theia.window.showErrorMessage('Legacy workspace config is not supported. Please use devfile instead.');
+  constructor(project: che.devfile.DevfileProject, projectsRoot: string) {
+    if (project.zip) {
+      this.locationURI = project.zip.location;
     }
+    this.projectDir = path.join(projectsRoot, project.name);
+    this.tmpDir = fs.mkdtempSync(path.join(`${os.tmpdir()}${path.sep}`, 'workspace-plugin-'));
+    this.zipfile = `${project.name}.zip`;
+    this.zipfilePath = path.join(this.tmpDir, this.zipfile);
   }
 
   async execute(): Promise<string> {

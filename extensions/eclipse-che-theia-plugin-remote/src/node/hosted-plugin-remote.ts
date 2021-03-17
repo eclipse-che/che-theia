@@ -9,15 +9,23 @@
  ***********************************************************************/
 
 import { DeployedPlugin, HostedPluginClient } from '@theia/plugin-ext';
+import {
+  GetResourceResponse,
+  GetResourceStatResponse,
+  InternalMessage,
+  InternalMessagePayload,
+  InternalRequestResponsePayload,
+} from './internal-protocol';
 import { inject, injectable, postConstruct } from 'inversify';
 
 import { HostedPluginMapping } from './plugin-remote-mapping';
 import { ILogger } from '@theia/core/lib/common';
 import { PluginDiscovery } from './plugin-discovery';
+import { Stat } from '@theia/filesystem/lib/common/files';
 import { Websocket } from './websocket';
 import { getPluginId } from '@theia/plugin-ext/lib/common';
 
-type PromiseResolver = (value?: Buffer) => void;
+type PromiseResolver = (value?: unknown) => void;
 
 /**
  * Class handling remote connection for executing plug-ins.
@@ -44,9 +52,13 @@ export class HostedPluginRemote {
   private pluginsDeployedPlugins: Map<string, DeployedPlugin[]> = new Map<string, DeployedPlugin[]>();
 
   /**
+   * Request id's for "internal requests"
+   */
+  private nextMessageId = 0;
+  /**
    * Mapping between resource request id (pluginId_resourcePath) and resource query callback.
    */
-  private resourceRequests: Map<string, PromiseResolver> = new Map<string, PromiseResolver>();
+  private pendingInternalRequests: Map<string, PromiseResolver> = new Map<string, PromiseResolver>();
 
   @postConstruct()
   protected postConstruct(): void {
@@ -103,7 +115,7 @@ export class HostedPluginRemote {
     this.endpointsSockets.set(endpointAdress, websocket);
     websocket.onMessage = (messageRaw: string) => {
       const parsed = JSON.parse(messageRaw);
-      if (parsed.internal) {
+      if (InternalMessage.is(parsed)) {
         this.handleLocalMessage(parsed.internal);
         return;
       }
@@ -140,7 +152,7 @@ export class HostedPluginRemote {
     const pluginId = jsonMessage.pluginID;
 
     // socket ?
-    const endpoint = this.hostedPluginMapping.getPluginsEndPoints().get(pluginId);
+    const endpoint = this.hostedPluginMapping.getEndpoint(pluginId);
     if (!endpoint) {
       this.logger.error('no endpoint configured for the given plugin', pluginId, 'skipping message');
       return;
@@ -161,8 +173,8 @@ export class HostedPluginRemote {
       // add the mapping retreived from external plug-in if not defined
       deployedPlugins.forEach(deployedPlugin => {
         const entryName = getPluginId(deployedPlugin.metadata.model);
-        if (!this.hostedPluginMapping.getPluginsEndPoints().has(entryName)) {
-          this.hostedPluginMapping.getPluginsEndPoints().set(entryName, jsonMessage.endpointName);
+        if (!this.hostedPluginMapping.hasEndpoint(entryName)) {
+          this.hostedPluginMapping.setEndpoint(entryName, jsonMessage.endpointName);
           if (this.client) {
             this.client.onDidDeploy();
           }
@@ -171,12 +183,37 @@ export class HostedPluginRemote {
       return;
     }
 
-    if (jsonMessage.method === 'getResource') {
-      const resourceBase64 = jsonMessage.data;
-      const resource = resourceBase64 ? Buffer.from(resourceBase64, 'base64') : undefined;
-      this.onGetResourceResponse(jsonMessage['pluginId'], jsonMessage['path'], resource);
+    if (InternalRequestResponsePayload.is(jsonMessage)) {
+      this.onInternalRequestResponse(jsonMessage);
       return;
     }
+  }
+
+  requestPluginResourceStat(pluginId: string, resourcePath: string): Promise<Stat> {
+    return this.sendInternalRequest<GetResourceStatResponse>(pluginId, {
+      method: 'getResourceStat',
+      pluginId: pluginId,
+      path: resourcePath,
+    }).then((value: GetResourceStatResponse) => {
+      if (value.stat) {
+        return value.stat;
+      }
+      throw new Error(`No stat found for ${pluginId}, ${resourcePath}`);
+    });
+  }
+
+  requestPluginResource(pluginId: string, resourcePath: string): Promise<Buffer> {
+    return this.sendInternalRequest<GetResourceResponse>(pluginId, {
+      method: 'getResource',
+      pluginId: pluginId,
+      path: resourcePath,
+    }).then((value: GetResourceResponse) => {
+      const resourceBase64 = value.data;
+      if (resourceBase64) {
+        return Buffer.from(resourceBase64, 'base64');
+      }
+      throw new Error(`No resource found for ${pluginId}, ${resourcePath}`);
+    });
   }
 
   /**
@@ -212,48 +249,50 @@ export class HostedPluginRemote {
    * @param pluginId id of the plugin for which resource should be retreived
    * @param resourcePath relative path of the requested resource based on plugin root directory
    */
-  public requestPluginResource(pluginId: string, resourcePath: string): Promise<Buffer | undefined> | undefined {
-    if (this.hasEndpoint(pluginId) && resourcePath) {
-      return new Promise<Buffer>((resolve, reject) => {
-        const endpoint = this.hostedPluginMapping.getPluginsEndPoints().get(pluginId);
+  public sendInternalRequest<T extends InternalMessagePayload>(pluginId: string, message: object): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      if (this.hasEndpoint(pluginId)) {
+        const endpoint = this.hostedPluginMapping.getEndpoint(pluginId);
         if (!endpoint) {
           reject(new Error(`No endpoint for plugin: ${pluginId}`));
         }
         const targetWebsocket = this.endpointsSockets.get(endpoint!);
         if (!targetWebsocket) {
           reject(new Error(`No websocket connection for plugin: ${pluginId}`));
-        }
-
-        this.resourceRequests.set(this.getResourceRequestId(pluginId, resourcePath), resolve);
-        targetWebsocket!.send(
-          JSON.stringify({
+        } else {
+          const requestId = this.getNextMessageId();
+          this.pendingInternalRequests.set(requestId, resolve);
+          const msg = {
             internal: {
-              method: 'getResource',
-              pluginId: pluginId,
-              path: resourcePath,
+              requestId: requestId,
+              ...message,
             },
-          })
-        );
-      });
-    }
-    return undefined;
+          };
+          targetWebsocket.send(JSON.stringify(msg));
+        }
+      } else {
+        reject(new Error('No endpoint found for plugin ' + pluginId));
+      }
+    });
   }
 
   /**
    * Handles all responses from all remote plugins.
    * Resolves promise from getResource method with requested data.
    */
-  onGetResourceResponse(pluginId: string, resourcePath: string, resource: Buffer | undefined): void {
-    const key = this.getResourceRequestId(pluginId, resourcePath);
-    const resourceResponsePromiseResolver = this.resourceRequests.get(key);
+  onInternalRequestResponse(msg: InternalRequestResponsePayload): void {
+    const resourceResponsePromiseResolver = this.pendingInternalRequests.get(msg.requestId);
     if (resourceResponsePromiseResolver) {
       // This response is being waited for
-      this.resourceRequests.delete(key);
-      resourceResponsePromiseResolver(resource);
+      this.pendingInternalRequests.delete(msg.requestId);
+      resourceResponsePromiseResolver(msg);
+    } else {
+      console.error('got response to unknown request: ' + JSON.stringify(msg));
     }
   }
 
-  private getResourceRequestId(pluginId: string, resourcePath: string): string {
-    return pluginId + '_' + resourcePath;
+  private getNextMessageId(): string {
+    this.nextMessageId++;
+    return this.nextMessageId.toString();
   }
 }

@@ -19,16 +19,16 @@ import {
 import { inject, injectable } from 'inversify';
 
 import { K8SServiceImpl } from './k8s-service-impl';
+import { K8sDevWorkspaceEnvVariables } from './k8s-devworkspace-env-variables';
 import { V1Pod } from '@kubernetes/client-node';
-import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 @injectable()
 export class K8sDevfileServiceImpl implements DevfileService {
   @inject(K8SServiceImpl)
   private k8SService: K8SServiceImpl;
 
-  @inject(WorkspaceService)
-  private workspaceService: WorkspaceService;
+  @inject(K8sDevWorkspaceEnvVariables)
+  private env: K8sDevWorkspaceEnvVariables;
 
   async getRaw(): Promise<string> {
     const devfile = await this.get();
@@ -41,10 +41,13 @@ export class K8sDevfileServiceImpl implements DevfileService {
     const customObjectsApi = this.k8SService.makeApiClient(k8s.CustomObjectsApi);
     const group = 'workspace.devfile.io';
     const version = 'v1alpha2';
-    const workspace = await this.workspaceService.currentWorkspace();
-    const namespace = workspace.namespace || '';
-    const name = workspace.name || '';
-    const response = await customObjectsApi.getNamespacedCustomObject(group, version, namespace, 'devworkspaces', name);
+    const response = await customObjectsApi.getNamespacedCustomObject(
+      group,
+      version,
+      this.env.getWorkspaceNamespace(),
+      'devworkspaces',
+      this.env.getWorkspaceName()
+    );
 
     // devfile is stored inside the dev workspace inside spec.template object
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -54,19 +57,15 @@ export class K8sDevfileServiceImpl implements DevfileService {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getWorkspaceRouting(): Promise<any> {
-    // grab current workspace
-    const workspace = await this.workspaceService.currentWorkspace();
-
     // get workspace pod
     const group = 'controller.devfile.io';
     const version = 'v1alpha1';
-    const namespace = workspace.namespace || '';
     const customObjectsApi = this.k8SService.makeApiClient(k8s.CustomObjectsApi);
-    const labelSelector = `controller.devfile.io/workspace_id=${workspace.id}`;
+    const labelSelector = `controller.devfile.io/workspace_id=${this.env.getWorkspaceId()}`;
     const response = await customObjectsApi.listNamespacedCustomObject(
       group,
       version,
-      namespace,
+      this.env.getWorkspaceNamespace(),
       'workspaceroutings',
       undefined,
       undefined,
@@ -95,15 +94,11 @@ export class K8sDevfileServiceImpl implements DevfileService {
   }
 
   async getWorkspacePod(): Promise<V1Pod> {
-    // grab current workspace
-    const workspace = await this.workspaceService.currentWorkspace();
-
     // get workspace pod
-    const namespace = workspace.namespace || '';
     const k8sCoreV1Api = this.k8SService.makeApiClient(k8s.CoreV1Api);
-    const labelSelector = `controller.devfile.io/workspace_id=${workspace.id}`;
+    const labelSelector = `controller.devfile.io/workspace_id=${this.env.getWorkspaceId()}`;
     const { body } = await k8sCoreV1Api.listNamespacedPod(
-      namespace,
+      this.env.getWorkspaceNamespace(),
       undefined,
       undefined,
       undefined,
@@ -186,9 +181,6 @@ export class K8sDevfileServiceImpl implements DevfileService {
     const customObjectsApi = this.k8SService.makeApiClient(k8s.CustomObjectsApi);
     const group = 'workspace.devfile.io';
     const version = 'v1alpha2';
-    const workspace = await this.workspaceService.currentWorkspace();
-    const namespace = workspace.namespace || '';
-    const name = workspace.name || '';
 
     const patch = [
       {
@@ -205,9 +197,9 @@ export class K8sDevfileServiceImpl implements DevfileService {
     await customObjectsApi.patchNamespacedCustomObject(
       group,
       version,
-      namespace,
+      this.env.getWorkspaceNamespace(),
       'devworkspaces',
-      name,
+      this.env.getWorkspaceName(),
       patch,
       undefined,
       undefined,
