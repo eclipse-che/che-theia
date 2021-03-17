@@ -10,7 +10,7 @@ To make another bugfix release of Che-Theia with the upstream Theia patch includ
 - continue the release process as usual
 
 ### To include only the required upstream commit
-- clone the Theia fork https://github.com/redhat-developer/codeready-workspaces-theia
+- clone the Theia fork https://github.com/redhat-developer/eclipse-theia
 - sync the `master` branch of the forked repository with the origin one and push the changes
 - take the Theia commit sha which was used for an interested Che-Theia release, e.g. for 7.27.x it's [`1110f990`](https://github.com/eclipse/che-theia/blob/7.27.x/build.include#L17)
 - create a branch
