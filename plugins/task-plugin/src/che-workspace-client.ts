@@ -54,6 +54,8 @@ export class CheWorkspaceClient {
     if (terminalEndpoints.length === 1) {
       return terminalEndpoints[0];
     }
-    throw new Error(`Unable to find terminal with type ${TERMINAL_SERVER_TYPE}: Found: ${terminalEndpoints}`);
+    throw new Error(
+      `Unable to find a single endpoint with type ${TERMINAL_SERVER_TYPE}: Found ${terminalEndpoints.length} item(s): ${terminalEndpoints}`
+    );
   }
 }
