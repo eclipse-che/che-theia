@@ -23,11 +23,6 @@ import { Command } from './command';
 import { che as cheApi } from '@eclipse-che/api';
 import { injectable } from 'inversify';
 
-// export const SSH_ADD_TO_GITHUB: theia.CommandDescription = {
-//   id: 'ssh:add_key_to_github',
-//   label: 'SSH: Add Existing Key To GitHub...',
-// };
-
 @injectable()
 export class AddKeyToGitHub extends Command {
   constructor() {

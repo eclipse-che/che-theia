@@ -19,11 +19,6 @@ import { injectable } from 'inversify';
 
 const FILE_SCHEME = 'publickey';
 
-// export const SSH_VIEW: theia.CommandDescription = {
-//   id: 'ssh:view',
-//   label: 'SSH: View Public Key...',
-// };
-
 @injectable()
 export class ViewPublicKey extends Command {
   constructor() {

@@ -17,11 +17,6 @@ import { updateConfig, writeKey } from '../util/util';
 import { Command } from './command';
 import { injectable } from 'inversify';
 
-// export const SSH_GENERATE: theia.CommandDescription = {
-//   id: 'ssh:generate',
-//   label: 'SSH: Generate Key...',
-// };
-
 @injectable()
 export class GenerateKey extends Command {
   constructor() {

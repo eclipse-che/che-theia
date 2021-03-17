@@ -20,11 +20,18 @@ import { GenerateKeyForHost } from './command/generate-key-for-host';
 import { GitListener } from './git/git-listener';
 import { UploadPrivateKey } from './command/upload-private-key';
 import { ViewPublicKey } from './command/view-public-key';
+import { bindings } from './inversify-bindings';
 
 export interface PluginModel {
   configureSSH(gitHubActions: boolean): Promise<boolean>;
   addKeyToGitHub(): Promise<boolean>;
 }
+
+export async function start(): Promise<PluginModel> {
+  return bindings().get(SSHPlugin).start();
+}
+
+export function stop(): void {}
 
 @injectable()
 export class SSHPlugin {
@@ -118,7 +125,7 @@ export class SSHPlugin {
         await this.deleteKey.run({ gitCloneFlow: true });
         return true;
       } else if (command.label === this.uploadPrivateKey.label) {
-        await this.uploadPrivateKey.run();
+        await this.uploadPrivateKey.run({ gitCloneFlow: true });
         return true;
       } else if (command.label === this.addKeyToGitHub.label) {
         await this.addKeyToGitHub.run({ gitCloneFlow: true });

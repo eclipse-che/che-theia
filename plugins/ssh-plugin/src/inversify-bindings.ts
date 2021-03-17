@@ -19,20 +19,18 @@ import { SSHPlugin } from './ssh-plugin';
 import { UploadPrivateKey } from './command/upload-private-key';
 import { ViewPublicKey } from './command/view-public-key';
 
-export class InversifyBinding {
-  public init(): Container {
-    const container = new Container();
+export function bindings(): Container {
+  const container = new Container();
 
-    container.bind(SSHPlugin).toSelf().inSingletonScope();
-    container.bind(GitListener).toSelf().inSingletonScope();
-    container.bind(AddKeyToGitHub).toSelf().inSingletonScope();
-    container.bind(CreateKey).toSelf().inSingletonScope();
-    container.bind(DeleteKey).toSelf().inSingletonScope();
-    container.bind(GenerateKey).toSelf().inSingletonScope();
-    container.bind(GenerateKeyForHost).toSelf().inSingletonScope();
-    container.bind(UploadPrivateKey).toSelf().inSingletonScope();
-    container.bind(ViewPublicKey).toSelf().inSingletonScope();
+  container.bind(SSHPlugin).toSelf().inSingletonScope();
+  container.bind(GitListener).toSelf().inSingletonScope();
+  container.bind(AddKeyToGitHub).toSelf().inSingletonScope();
+  container.bind(CreateKey).toSelf().inSingletonScope();
+  container.bind(DeleteKey).toSelf().inSingletonScope();
+  container.bind(GenerateKey).toSelf().inSingletonScope();
+  container.bind(GenerateKeyForHost).toSelf().inSingletonScope();
+  container.bind(UploadPrivateKey).toSelf().inSingletonScope();
+  container.bind(ViewPublicKey).toSelf().inSingletonScope();
 
-    return container;
-  }
+  return container;
 }

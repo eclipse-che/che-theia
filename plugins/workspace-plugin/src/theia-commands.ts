@@ -20,6 +20,7 @@ import { TaskScope } from '@eclipse-che/plugin';
 import { che as cheApi } from '@eclipse-che/api';
 import { execute } from './exec';
 import { getCertificate } from './ca-cert';
+import { output } from './output';
 
 const CHE_TASK_TYPE = 'che';
 
@@ -69,8 +70,6 @@ export function buildProjectImportCommand(
       return;
   }
 }
-
-let output: theia.OutputChannel;
 
 export class TheiaGitCloneCommand implements TheiaImportCommand {
   private projectName: string | undefined;
@@ -151,13 +150,8 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
         // exit the loop when successfull login
         break;
       } catch (error) {
-        // let out: theia.OutputChannel = theia.window.createOutputChannel('GIT clone');
-        if (!output) {
-          output = theia.window.createOutputChannel('GIT');
-        }
-
         output.show(true);
-        output.appendLine(`$ git clone ${this.locationURI}\r${error.message}`);
+        output.appendLine(`> git clone ${this.locationURI}\r${error.message}`);
 
         errorReason = git.getErrorReason(error.message);
       }

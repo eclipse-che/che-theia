@@ -17,11 +17,6 @@ import { Command } from './command';
 import { MESSAGE_NEED_RESTART_WORKSPACE } from '../messages';
 import { injectable } from 'inversify';
 
-// export const SSH_GENERATE_FOR_HOST: theia.CommandDescription = {
-//   id: 'ssh:generate_for_host',
-//   label: 'SSH: Generate Key For Particular Host...',
-// };
-
 @injectable()
 export class GenerateKeyForHost extends Command {
   constructor() {

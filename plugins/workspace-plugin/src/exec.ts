@@ -10,7 +10,7 @@
 
 import { SpawnOptionsWithoutStdio, spawn } from 'child_process';
 
-import { askpassEnv } from './askpass';
+import { askpassEnv } from './askpass/askpass';
 
 export async function execute(
   commandLine: string,
@@ -21,15 +21,19 @@ export async function execute(
     if (options && askpassEnv) {
       options.env = mergeProcessEnv(options.env);
     }
+
     const command = spawn(commandLine, args, options);
+
     let result = '';
     let error = '';
+
     if (command.stdout) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       command.stdout.on('data', (data: any) => {
         result += data.toString();
       });
     }
+
     if (command.stderr) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       command.stderr.on('data', (data: any) => {
@@ -37,6 +41,7 @@ export async function execute(
         console.error(`Child process ${commandLine} stderr: ${data}`);
       });
     }
+
     command.on('close', (code: number | null) => {
       // eslint-disable-next-line no-null/no-null
       code = code === null ? 0 : code;
@@ -56,7 +61,11 @@ function mergeProcessEnv(env: NodeJS.ProcessEnv | undefined): NodeJS.ProcessEnv 
   if (!env) {
     env = {};
   }
+
   env.GIT_ASKPASS = askpassEnv.GIT_ASKPASS;
+  env.SSH_ASKPASS = askpassEnv.SSH_ASKPASS;
+  env.DISPLAY = askpassEnv.DISPLAY;
+
   if (askpassEnv.CHE_THEIA_GIT_ASKPASS_NODE) {
     env.CHE_THEIA_GIT_ASKPASS_NODE = askpassEnv.CHE_THEIA_GIT_ASKPASS_NODE;
   }
@@ -66,5 +75,6 @@ function mergeProcessEnv(env: NodeJS.ProcessEnv | undefined): NodeJS.ProcessEnv 
   if (askpassEnv.CHE_THEIA_GIT_ASKPASS_HANDLE) {
     env.CHE_THEIA_GIT_ASKPASS_HANDLE = askpassEnv.CHE_THEIA_GIT_ASKPASS_HANDLE;
   }
+
   return env;
 }

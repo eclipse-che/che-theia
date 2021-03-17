@@ -17,11 +17,6 @@ import { getHostName, updateConfig, writeKey } from '../util/util';
 import { Command } from './command';
 import { injectable } from 'inversify';
 
-// export const SSH_CREATE: theia.CommandDescription = {
-//   id: 'ssh:create',
-//   label: 'SSH: Create Key...',
-// };
-
 @injectable()
 export class CreateKey extends Command {
   constructor() {
@@ -33,6 +28,7 @@ export class CreateKey extends Command {
     if (!hostName) {
       hostName = `default-${Date.now()}`;
     }
+
     const publicKey = await theia.window.showInputBox({ placeHolder: 'Enter public key' });
     const privateKey = await theia.window.showInputBox({ placeHolder: 'Enter private key' });
 

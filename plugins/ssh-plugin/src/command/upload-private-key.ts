@@ -12,19 +12,14 @@ import * as che from '@eclipse-che/plugin';
 import * as os from 'os';
 import * as theia from '@theia/plugin';
 
-import { MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY, MESSAGE_NEED_RESTART_WORKSPACE } from '../messages';
+import { BTN_CONTINUE, MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY, MESSAGE_NEED_RESTART_WORKSPACE } from '../messages';
 import { access, mkdtemp, readFile, remove, unlink } from 'fs-extra';
-import { getHostName, getKeyFilePath, isEncrypted, registerKey, updateConfig, writeKey } from '../util/util';
+import { getHostName, isEncrypted, registerKey, updateConfig, writeKey } from '../util/util';
 
 import { Command } from './command';
 import { R_OK } from 'constants';
 import { injectable } from 'inversify';
 import { join } from 'path';
-
-// export const SSH_UPLOAD: theia.CommandDescription = {
-//   id: 'ssh:upload',
-//   label: 'SSH: Upload Private Key...',
-// };
 
 @injectable()
 export class UploadPrivateKey extends Command {
@@ -32,7 +27,9 @@ export class UploadPrivateKey extends Command {
     super('ssh:upload', 'SSH: Upload Private Key...');
   }
 
-  async run(): Promise<void> {
+  async run(context?: { gitCloneFlow?: boolean }): Promise<void> {
+    const actions = context && context.gitCloneFlow ? [BTN_CONTINUE] : [];
+
     let hostName = await getHostName(MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY);
     if (!hostName) {
       hostName = `default-${Date.now()}`;
@@ -47,38 +44,61 @@ export class UploadPrivateKey extends Command {
     }
 
     if (!uploadedFilePaths) {
-      await theia.window.showErrorMessage('No private key has been uploaded');
+      await theia.window.showErrorMessage('Failure to upload private key', ...actions);
       return;
     }
 
     const privateKeyPath = uploadedFilePaths[0];
-
     await access(privateKeyPath.path, R_OK);
 
-    const privateKeyContent = (await readFile(privateKeyPath.path)).toString();
-
+    let keyFile: string | undefined;
     try {
-      await che.ssh.create({ name: hostName, service: 'vcs', privateKey: privateKeyContent });
-      await updateConfig(hostName);
-      await writeKey(hostName, privateKeyContent);
-      const keyPath = getKeyFilePath(hostName);
-      let passphrase;
-      if (await isEncrypted(keyPath)) {
-        passphrase = await theia.window.showInputBox({ placeHolder: 'Enter passphrase for key', password: true });
-        if (passphrase) {
-          await registerKey(keyPath, passphrase);
-        } else {
-          await theia.window.showErrorMessage('Passphrase for key was not entered');
-        }
-      }
+      const keyContent = (await readFile(privateKeyPath.path)).toString();
+      await che.ssh.create({ name: hostName, service: 'vcs', privateKey: keyContent });
 
-      await theia.window.showInformationMessage(`Key pair for ${hostName} successfully uploaded`);
-      await theia.window.showWarningMessage(MESSAGE_NEED_RESTART_WORKSPACE);
+      keyFile = await writeKey(hostName, keyContent);
+
+      if (await this.registerKey(keyFile, actions)) {
+        await updateConfig(hostName);
+        await theia.window.showInformationMessage(`Private key ${hostName} has been uploaded successfully`, ...actions);
+
+        if (!(context && context.gitCloneFlow)) {
+          // Dispaly this notification only when it's not a part of git clone flow
+          await theia.window.showWarningMessage(MESSAGE_NEED_RESTART_WORKSPACE, ...actions);
+        }
+
+        return;
+      }
     } catch (error) {
-      theia.window.showErrorMessage(error);
+      await theia.window.showErrorMessage(`Failure to upload SSH key. ${error}`, ...actions);
     }
 
     await unlink(privateKeyPath.path);
     await remove(tempDir);
+
+    if (keyFile) {
+      await remove(keyFile);
+    }
+  }
+
+  private async registerKey(keyFile: string, actions: string[]): Promise<boolean> {
+    if (await isEncrypted(keyFile)) {
+      const passphrase = await theia.window.showInputBox({
+        placeHolder: 'Enter passphrase for key',
+        password: true,
+        ignoreFocusOut: true,
+      });
+
+      if (passphrase) {
+        registerKey(keyFile, passphrase);
+      } else {
+        await theia.window.showErrorMessage('Passphrase for key was not entered', ...actions);
+        return false;
+      }
+    } else {
+      registerKey(keyFile, '');
+    }
+
+    return true;
   }
 }

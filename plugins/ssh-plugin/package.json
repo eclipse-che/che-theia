@@ -53,6 +53,6 @@
     "theiaPlugin": "next"
   },
   "theiaPlugin": {
-    "backend": "lib/ssh-plugin-backend.js"
+    "backend": "lib/ssh-plugin.js"
   }
 }

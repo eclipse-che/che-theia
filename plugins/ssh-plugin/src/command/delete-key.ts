@@ -19,11 +19,6 @@ import { Command } from './command';
 import { che as cheApi } from '@eclipse-che/api';
 import { injectable } from 'inversify';
 
-// export const SSH_DELETE: theia.CommandDescription = {
-//   id: 'ssh:delete',
-//   label: 'SSH: Delete Key...',
-// };
-
 @injectable()
 export class DeleteKey extends Command {
   constructor() {
