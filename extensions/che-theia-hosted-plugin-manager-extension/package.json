@@ -3,7 +3,7 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "7.27.1",
+  "version": "7.27.2",
   "files": [
     "lib",
     "node"
@@ -12,7 +12,7 @@
     "@theia/core": "1.12.0-next.1110f990",
     "@theia/plugin-dev": "1.12.0-next.1110f990",
     "@theia/plugin-ext": "1.12.0-next.1110f990",
-    "@eclipse-che/theia-remote-api": "7.27.1"
+    "@eclipse-che/theia-remote-api": "7.27.2"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build",
