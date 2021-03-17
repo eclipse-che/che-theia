@@ -17,7 +17,7 @@ To make another bugfix release of Che-Theia with the upstream Theia patch includ
 - create a new branch
 - cherry-pick the required commit sha to the created branch and push the changes
 - update the `build.include` file:
-  - `THEIA_GITHUB_REPO="redhat-developer/codeready-workspaces-theia"`
+  - `THEIA_GITHUB_REPO="redhat-developer/eclipse-theia"`
   - `THEIA_BRANCH="<created-branch-name>"`
   - `THEIA_COMMIT_SHA="<commit-sha>"`
 - push the changes
