@@ -5,7 +5,7 @@ See [Release Che-Theia](./.github/workflows/release.yml) workflow.
 To make another bugfix release of Che-Theia with the upstream Theia patch included, there're several options available.
 
 ### To include all the commits made before the required patch
-- update the `build.include` file for an interested Che-Theia tag:
+- update the `build.include` file to match upstream Eclipse Theia revision:
   - `THEIA_COMMIT_SHA="<commit-sha>"`
 - continue the release process as usual
 
