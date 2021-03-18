@@ -12,7 +12,7 @@ import * as che from '@eclipse-che/plugin';
 import * as theia from '@theia/plugin';
 
 import { MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY, MESSAGE_NEED_RESTART_WORKSPACE } from '../messages';
-import { getHostName, updateConfig, writeKey } from '../util/util';
+import { askHostName, updateConfig, writeKey } from '../util/util';
 
 import { Command } from './command';
 import { injectable } from 'inversify';
@@ -24,7 +24,7 @@ export class CreateKey extends Command {
   }
 
   async run(): Promise<void> {
-    let hostName = await getHostName(MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY);
+    let hostName = await askHostName(MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY);
     if (!hostName) {
       hostName = `default-${Date.now()}`;
     }

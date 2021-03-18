@@ -10,6 +10,7 @@
 
 import * as theia from '@theia/plugin';
 
+import { SSHAgent, SSHAgentConfig } from './agent/ssh-agent';
 import { inject, injectable } from 'inversify';
 
 import { AddKeyToGitHub } from './command/add-key-to-github';
@@ -25,6 +26,7 @@ import { bindings } from './inversify-bindings';
 export interface PluginModel {
   configureSSH(gitHubActions: boolean): Promise<boolean>;
   addKeyToGitHub(): Promise<boolean>;
+  sshAgentConfig(): Promise<SSHAgentConfig>;
 }
 
 export async function start(): Promise<PluginModel> {
@@ -35,6 +37,9 @@ export function stop(): void {}
 
 @injectable()
 export class SSHPlugin {
+  @inject(SSHAgent)
+  private sshAgent: SSHAgent;
+
   @inject(GitListener)
   private gitListener: GitListener;
 
@@ -62,6 +67,7 @@ export class SSHPlugin {
   constructor() {}
 
   async start(): Promise<PluginModel> {
+    await this.sshAgent.start();
     await this.gitListener.init();
 
     theia.commands.registerCommand(this.generateKeyForHost, () => {
@@ -89,6 +95,7 @@ export class SSHPlugin {
     return {
       configureSSH: async (gitHubActions: boolean) => this.showCommandPalette(gitHubActions),
       addKeyToGitHub: async () => this.addKeyToGitHub.run({ gitCloneFlow: true }),
+      sshAgentConfig: async () => this.sshAgent.config,
     };
   }
 

@@ -14,7 +14,7 @@ import * as theia from '@theia/plugin';
 
 import { BTN_CONTINUE, MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY, MESSAGE_NEED_RESTART_WORKSPACE } from '../messages';
 import { access, mkdtemp, readFile, remove, unlink } from 'fs-extra';
-import { getHostName, isEncrypted, registerKey, updateConfig, writeKey } from '../util/util';
+import { askHostName, registerKeyAskingPassword, updateConfig, writeKey } from '../util/util';
 
 import { Command } from './command';
 import { R_OK } from 'constants';
@@ -30,7 +30,7 @@ export class UploadPrivateKey extends Command {
   async run(context?: { gitCloneFlow?: boolean }): Promise<void> {
     const actions = context && context.gitCloneFlow ? [BTN_CONTINUE] : [];
 
-    let hostName = await getHostName(MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY);
+    let hostName = await askHostName(MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY);
     if (!hostName) {
       hostName = `default-${Date.now()}`;
     }
@@ -58,7 +58,7 @@ export class UploadPrivateKey extends Command {
 
       keyFile = await writeKey(hostName, keyContent);
 
-      if (await this.registerKey(keyFile, actions)) {
+      if (await registerKeyAskingPassword(keyFile, false, actions)) {
         await updateConfig(hostName);
         await theia.window.showInformationMessage(`Private key ${hostName} has been uploaded successfully`, ...actions);
 
@@ -79,26 +79,5 @@ export class UploadPrivateKey extends Command {
     if (keyFile) {
       await remove(keyFile);
     }
-  }
-
-  private async registerKey(keyFile: string, actions: string[]): Promise<boolean> {
-    if (await isEncrypted(keyFile)) {
-      const passphrase = await theia.window.showInputBox({
-        placeHolder: 'Enter passphrase for key',
-        password: true,
-        ignoreFocusOut: true,
-      });
-
-      if (passphrase) {
-        registerKey(keyFile, passphrase);
-      } else {
-        await theia.window.showErrorMessage('Passphrase for key was not entered', ...actions);
-        return false;
-      }
-    } else {
-      registerKey(keyFile, '');
-    }
-
-    return true;
   }
 }

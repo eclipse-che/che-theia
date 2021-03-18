@@ -8,6 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import * as ssh from './ssh';
+
 import { SpawnOptionsWithoutStdio, spawn } from 'child_process';
 
 import { askpassEnv } from './askpass/askpass';
@@ -18,7 +20,7 @@ export async function execute(
   options?: SpawnOptionsWithoutStdio
 ): Promise<string> {
   return new Promise<string>((resolve, reject) => {
-    if (options && askpassEnv) {
+    if (options) {
       options.env = mergeProcessEnv(options.env);
     }
 
@@ -62,18 +64,28 @@ function mergeProcessEnv(env: NodeJS.ProcessEnv | undefined): NodeJS.ProcessEnv 
     env = {};
   }
 
-  env.GIT_ASKPASS = askpassEnv.GIT_ASKPASS;
-  env.SSH_ASKPASS = askpassEnv.SSH_ASKPASS;
-  env.DISPLAY = askpassEnv.DISPLAY;
+  if (askpassEnv) {
+    env.GIT_ASKPASS = askpassEnv.GIT_ASKPASS;
+    env.SSH_ASKPASS = askpassEnv.SSH_ASKPASS;
+    env.DISPLAY = askpassEnv.DISPLAY;
 
-  if (askpassEnv.CHE_THEIA_GIT_ASKPASS_NODE) {
-    env.CHE_THEIA_GIT_ASKPASS_NODE = askpassEnv.CHE_THEIA_GIT_ASKPASS_NODE;
+    if (askpassEnv.CHE_THEIA_GIT_ASKPASS_NODE) {
+      env.CHE_THEIA_GIT_ASKPASS_NODE = askpassEnv.CHE_THEIA_GIT_ASKPASS_NODE;
+    }
+    if (askpassEnv.CHE_THEIA_GIT_ASKPASS_MAIN) {
+      env.CHE_THEIA_GIT_ASKPASS_MAIN = askpassEnv.CHE_THEIA_GIT_ASKPASS_MAIN;
+    }
+    if (askpassEnv.CHE_THEIA_GIT_ASKPASS_HANDLE) {
+      env.CHE_THEIA_GIT_ASKPASS_HANDLE = askpassEnv.CHE_THEIA_GIT_ASKPASS_HANDLE;
+    }
   }
-  if (askpassEnv.CHE_THEIA_GIT_ASKPASS_MAIN) {
-    env.CHE_THEIA_GIT_ASKPASS_MAIN = askpassEnv.CHE_THEIA_GIT_ASKPASS_MAIN;
+
+  if (ssh.config.sshAgentPid) {
+    env.SSH_AGENT_PID = ssh.config.sshAgentPid;
   }
-  if (askpassEnv.CHE_THEIA_GIT_ASKPASS_HANDLE) {
-    env.CHE_THEIA_GIT_ASKPASS_HANDLE = askpassEnv.CHE_THEIA_GIT_ASKPASS_HANDLE;
+
+  if (ssh.config.sshAuthSock) {
+    env.SSH_AUTH_SOCK = ssh.config.sshAuthSock;
   }
 
   return env;

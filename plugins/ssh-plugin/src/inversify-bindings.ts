@@ -15,6 +15,7 @@ import { DeleteKey } from './command/delete-key';
 import { GenerateKey } from './command/generate-key';
 import { GenerateKeyForHost } from './command/generate-key-for-host';
 import { GitListener } from './git/git-listener';
+import { SSHAgent } from './agent/ssh-agent';
 import { SSHPlugin } from './ssh-plugin';
 import { UploadPrivateKey } from './command/upload-private-key';
 import { ViewPublicKey } from './command/view-public-key';
@@ -23,6 +24,7 @@ export function bindings(): Container {
   const container = new Container();
 
   container.bind(SSHPlugin).toSelf().inSingletonScope();
+  container.bind(SSHAgent).toSelf().inSingletonScope();
   container.bind(GitListener).toSelf().inSingletonScope();
   container.bind(AddKeyToGitHub).toSelf().inSingletonScope();
   container.bind(CreateKey).toSelf().inSingletonScope();

@@ -117,12 +117,13 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
     while (true) {
       // test secure login
       try {
+        await ssh.updateSSHAgentConfig();
         await git.testSecureLogin(this.defaultRemoteLocation);
         // exit the loop when successfull login
         break;
       } catch (error) {
-        output.show(true);
-        output.appendLine(`> git clone ${this.locationURI}\r${error.message}`);
+        output().show(true);
+        output().appendLine(`> git clone ${this.defaultRemoteLocation}\r${error.message}`);
 
         errorReason = git.getErrorReason(error.message);
       }
@@ -152,7 +153,7 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
         await ssh.addKeyToGitHub();
         continue;
       } else if (action === CONFIGURE_SSH) {
-        await ssh.configure(isSecureGitHubURI);
+        await ssh.configureSSH(isSecureGitHubURI);
         continue;
       } else {
         // It seems user closed the popup.

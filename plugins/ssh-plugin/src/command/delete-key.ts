@@ -12,7 +12,7 @@ import * as che from '@eclipse-che/plugin';
 import * as theia from '@theia/plugin';
 
 import { BTN_CONTINUE, MESSAGE_GET_KEYS_FAILED, MESSAGE_NO_SSH_KEYS } from '../messages';
-import { getKeyFilePath, updateConfig } from '../util/util';
+import { findKey, getKeyFilePath, updateConfig } from '../util/util';
 import { pathExists, unlink } from 'fs-extra';
 
 import { Command } from './command';
@@ -41,11 +41,22 @@ export class DeleteKey extends Command {
       return;
     }
 
-    const key = await theia.window.showQuickPick<theia.QuickPickItem>(
-      keys.map(k => ({ label: k.name ? k.name : '' })),
-      {}
-    );
+    const items: theia.QuickPickItem[] = [];
+    for (const key of keys) {
+      if (!key.name) {
+        continue;
+      }
 
+      const filePath = await findKey(key.name);
+      const item: theia.QuickPickItem = {
+        label: key.name,
+        detail: filePath,
+      };
+
+      items.push(item);
+    }
+
+    const key = await theia.window.showQuickPick<theia.QuickPickItem>(items, {});
     if (!key) {
       return;
     }

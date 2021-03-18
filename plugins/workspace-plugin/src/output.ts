@@ -10,4 +10,12 @@
 
 import * as theia from '@theia/plugin';
 
-export const output: theia.OutputChannel = theia.window.createOutputChannel('workspace-plugin');
+let out: theia.OutputChannel | undefined;
+
+export function output(): theia.OutputChannel {
+  if (!out) {
+    out = theia.window.createOutputChannel('workspace-plugin');
+  }
+
+  return out;
+}

@@ -11,7 +11,7 @@
 import * as che from '@eclipse-che/plugin';
 import * as theia from '@theia/plugin';
 
-import { getHostName, updateConfig, writeKey } from '../util/util';
+import { askHostName, updateConfig, writeKey } from '../util/util';
 
 import { Command } from './command';
 import { MESSAGE_NEED_RESTART_WORKSPACE } from '../messages';
@@ -24,7 +24,7 @@ export class GenerateKeyForHost extends Command {
   }
 
   async run(): Promise<void> {
-    const hostName = await getHostName();
+    const hostName = await askHostName();
     if (!hostName) {
       return;
     }

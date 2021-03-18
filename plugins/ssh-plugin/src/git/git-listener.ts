@@ -11,8 +11,8 @@
 import * as che from '@eclipse-che/plugin';
 import * as theia from '@theia/plugin';
 
+import { findKey, registerKeyAskingPassword } from '../util/util';
 import { inject, injectable } from 'inversify';
-import { isEncrypted, output, registerKey } from '../util/util';
 
 import { AddKeyToGitHub } from '../command/add-key-to-github';
 import { GenerateKey } from '../command/generate-key';
@@ -33,15 +33,6 @@ export class GitListener {
 
   constructor() {}
 
-  private keyPath(keyName: string | undefined): string {
-    return keyName ? '/etc/ssh/private/' + keyName : '';
-  }
-
-  // TODO this method needs to be improved
-  private passphrase(privateKey: string | undefined): string {
-    return privateKey ? privateKey.substring(privateKey.indexOf('\npassphrase: ') + 13, privateKey.length - 1) : '';
-  }
-
   private async getKeys(): Promise<cheApi.ssh.SshPair[]> {
     let keys: cheApi.ssh.SshPair[];
     try {
@@ -52,22 +43,13 @@ export class GitListener {
     }
 
     for (const key of keys) {
-      if (await isEncrypted(this.keyPath(key.name))) {
-        await this.safeRegisterKey(this.keyPath(key.name), this.passphrase(key.privateKey));
-      } else {
-        await this.safeRegisterKey(this.keyPath(key.name), '');
+      const keyFile = await findKey(key.name);
+      if (keyFile) {
+        await registerKeyAskingPassword(keyFile, true);
       }
     }
 
     return keys;
-  }
-
-  async safeRegisterKey(keyPath: string, passphrase: string): Promise<void> {
-    try {
-      await registerKey(keyPath, passphrase);
-    } catch (reason) {
-      output.appendLine(reason);
-    }
   }
 
   async init() {
