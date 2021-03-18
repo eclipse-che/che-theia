@@ -42,7 +42,7 @@ describe('Test containers service', () => {
         name: 'che-machine-exec',
         component: 'machine-exec',
         attributes: {
-          type: 'terminal',
+          type: 'collocated-terminal',
           discoverable: 'false',
           cookiesAuthEnabled: 'true',
           port: '4444',

@@ -143,7 +143,7 @@
                 {
                   "attributes": {
                     "cookiesAuthEnabled": "true",
-                    "type": "terminal"
+                    "type": "collocated-terminal"
                   },
                   "exposure": "public",
                   "name": "che-mach-exec",

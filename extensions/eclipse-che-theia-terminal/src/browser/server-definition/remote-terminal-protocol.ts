@@ -13,7 +13,7 @@ import { Emitter, Event } from '@theia/core/lib/common/event';
 import { JsonRpcProxy } from '@theia/core';
 import { injectable } from 'inversify';
 
-export const TERMINAL_SERVER_TYPE = 'terminal';
+export const TERMINAL_SERVER_TYPE = 'collocated-terminal';
 export const CONNECT_TERMINAL_SEGMENT = 'connect';
 export const ATTACH_TERMINAL_SEGMENT = 'attach';
 

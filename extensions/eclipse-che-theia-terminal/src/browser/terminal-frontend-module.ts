@@ -103,7 +103,7 @@ export default new ContainerModule(
 
         const endpointService = context.container.get<EndpointService>(EndpointService);
         const envServer = context.container.get<EnvVariablesServer>(EnvVariablesServer);
-        const terminalComponents = await endpointService.getEndpointsByType('terminal');
+        const terminalComponents = await endpointService.getEndpointsByType('collocated-terminal');
         if (terminalComponents.length !== 1) {
           console.error(
             'Failed to get remote terminal server api end point url. Cause: Found ${terminalComponents} components (should only have one)'
