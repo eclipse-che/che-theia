@@ -30,11 +30,9 @@ export class K8sCertificateServiceImpl implements CertificateService {
     if (existsPublicCrt) {
       const publicCertificates = await fs.readdir(PUBLIC_CRT_PATH);
       for (const publicCertificate of publicCertificates) {
-        if (publicCertificate.endsWith('.crt')) {
-          const certPath = path.join(PUBLIC_CRT_PATH, publicCertificate);
-          const content = await fs.readFile(certPath);
-          certificateAuthority.push(content);
-        }
+        const certPath = path.join(PUBLIC_CRT_PATH, publicCertificate);
+        const content = await fs.readFile(certPath);
+        certificateAuthority.push(content);
       }
     }
 
