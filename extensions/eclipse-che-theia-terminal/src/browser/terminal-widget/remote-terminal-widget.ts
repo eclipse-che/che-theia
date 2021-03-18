@@ -35,7 +35,6 @@ export interface RemoteTerminalWidgetOptions extends Partial<TerminalWidgetOptio
   machineName: string;
   workspaceId: string;
   closeWidgetOnExitOrError: boolean;
-  endpoint: string;
 }
 
 export interface RemoteTerminalWidgetFactoryOptions extends Partial<TerminalWidgetOptions> {
@@ -227,7 +226,9 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
       this.resolveRemoteConnection();
       return Promise.resolve();
     }
-    this.socket = this.createWebSocket(id.toString());
+
+    const termProxyCreator = await this.termProxyCreatorProvider();
+    this.socket = this.createWebSocket(id.toString(), termProxyCreator.getApiEndPointUrl()!);
 
     const sendListener = (data: string) => this.socket.send(data);
 
@@ -252,6 +253,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
       if (onDataDisposeHandler) {
         onDataDisposeHandler.dispose();
       }
+      this.messageService.error(`Terminal failed to connect. ${err.message}`);
       return Promise.resolve();
     };
 
@@ -263,8 +265,8 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     };
   }
 
-  protected createWebSocket(pid: string): ReconnectingWebSocket {
-    const url = new URI(this.options.endpoint).resolve(ATTACH_TERMINAL_SEGMENT).resolve(this.terminalId + '');
+  protected createWebSocket(pid: string, apiEndPoint: URI): ReconnectingWebSocket {
+    const url = apiEndPoint.resolve(ATTACH_TERMINAL_SEGMENT).resolve(this.terminalId + '');
     return new ReconnectingWebSocket(url.toString(true), undefined, {
       maxReconnectionDelay: 10000,
       minReconnectionDelay: 1000,
