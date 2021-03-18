@@ -49,7 +49,7 @@ describe.only('Test K8sEndpointServiceImpl', () => {
     const ideEndpoint = ideEndpoints[0];
 
     expect(ideEndpoint.name).toBe('theia');
-    expect(ideEndpoint.url).toBe('http://workspaceeb55021d3cff42e0-theia-3100.192.168.64.31.nip.io');
+    expect(ideEndpoint.url).toBe('http://workspace79f69b51a4e24714-theia-3100.192.168.64.46.nip.io');
     expect(ideEndpoint.component).toBe('theia-ide');
   });
 
@@ -61,7 +61,7 @@ describe.only('Test K8sEndpointServiceImpl', () => {
     const ideEndpoint = ideEndpoints[0];
 
     expect(ideEndpoint.name).toBe('theia');
-    expect(ideEndpoint.url).toBe('http://workspaceeb55021d3cff42e0-theia-3100.192.168.64.31.nip.io');
+    expect(ideEndpoint.url).toBe('http://workspace79f69b51a4e24714-theia-3100.192.168.64.46.nip.io');
     expect(ideEndpoint.component).toBe('theia-ide');
   });
 });

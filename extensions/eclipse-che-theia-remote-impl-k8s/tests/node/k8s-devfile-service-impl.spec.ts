@@ -154,6 +154,6 @@ describe('Test K8sDevfileServiceImpl', () => {
     const theiaComponent = componentStatuses.find(component => component.name === 'theia-ide');
     expect(theiaComponent).toBeDefined();
     const theiaEndpoints = theiaComponent?.endpoints || {};
-    expect(theiaEndpoints['theia']?.url).toBe('http://workspaceeb55021d3cff42e0-theia-3100.192.168.64.31.nip.io');
+    expect(theiaEndpoints['theia']?.url).toBe('http://workspace79f69b51a4e24714-theia-3100.192.168.64.46.nip.io');
   });
 });

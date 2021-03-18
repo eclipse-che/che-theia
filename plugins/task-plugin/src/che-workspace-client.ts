@@ -13,7 +13,7 @@ import * as che from '@eclipse-che/plugin';
 import { che as cheApi } from '@eclipse-che/api';
 import { injectable } from 'inversify';
 
-const TERMINAL_SERVER_TYPE = 'terminal';
+const TERMINAL_SERVER_TYPE = 'collocated-terminal';
 
 export interface WorkspaceContainer extends che.devfile.DevfileComponentStatus {}
 
