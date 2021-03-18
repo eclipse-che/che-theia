@@ -67,8 +67,7 @@ export async function updateConfig(hostName: string): Promise<void> {
 
   const configContentBuffer = await fs.readFile(configFile);
   if (configContentBuffer.indexOf(keyConfig) >= 0) {
-    // it's confusing!
-    // Do we need to remove the config at all??????
+    // Remove config from the file
     const newConfigContent = configContentBuffer.toString().replace(keyConfig, '');
     await fs.writeFile(configFile, newConfigContent);
   } else {
