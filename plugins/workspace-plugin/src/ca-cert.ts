@@ -46,10 +46,8 @@ export const getCertificate = new Promise<string | undefined>(async resolve => {
   if (await fs.pathExists(PUBLIC_CRT_PATH)) {
     const publicCertificates = await fs.readdir(PUBLIC_CRT_PATH);
     for (const publicCertificate of publicCertificates) {
-      if (publicCertificate.endsWith('.crt')) {
-        const certPath = path.join(PUBLIC_CRT_PATH, publicCertificate);
-        certificates.push(await fs.readFile(certPath));
-      }
+      const certPath = path.join(PUBLIC_CRT_PATH, publicCertificate);
+      certificates.push(await fs.readFile(certPath));
     }
   }
 
