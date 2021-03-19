@@ -425,8 +425,8 @@ declare module '@eclipse-che/plugin' {
     }
 
     export enum TaskScope {
-        Global = 0,
-        Workspace = 1
+        Global = 1,
+        Workspace = 2
     }
 
     export type TaskConfigurationScope = string | TaskScope.Workspace | TaskScope.Global;
