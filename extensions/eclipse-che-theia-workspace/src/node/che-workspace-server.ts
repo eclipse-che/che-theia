@@ -56,6 +56,8 @@ export class CheWorkspaceServer extends DefaultWorkspaceServer {
 }
 
 function isMultiRoot(workspace: Workspace): boolean {
-  const devfile = workspace.devfile;
-  return !!devfile && !!devfile.attributes && !!devfile.attributes.multiRoot && devfile.attributes.multiRoot === 'on';
+  // the multi-root mode is ON by default for DevWorkspace
+  // 'workspace.runtime' is 'undefined' in the case of DevWorkspace
+  // the check for 'workspace.runtime' will be removed soon as we are going to turn on multi-root mode by default
+  return !workspace.runtime || workspace.devfile?.attributes?.multiRoot === 'on';
 }

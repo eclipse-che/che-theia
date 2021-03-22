@@ -44,11 +44,22 @@ export class WorkspaceProjectsManager {
 
   async run(): Promise<void> {
     const devfile = await che.devfile.get();
+
     this.outputChannel.appendLine(`Found devfile ${JSON.stringify(devfile, undefined, 2)}`);
+
     const cloneCommandList = await this.buildCloneCommands(devfile.projects || []);
+
     this.outputChannel.appendLine(`Clone commands are ${JSON.stringify(cloneCommandList, undefined, 2)}`);
-    const isMultiRoot = devfile.metadata?.attributes?.multiRoot === 'on';
+
+    const workspace = await che.workspace.getCurrentWorkspace();
+
+    // the multi-root mode is ON by default for DevWorkspace
+    // 'workspace.runtime' is 'undefined' in the case of DevWorkspace
+    // the check for 'workspace.runtime' will be removed soon as we are going to turn on multi-root mode by default
+    const isMultiRoot = !workspace.runtime || devfile.metadata?.attributes?.multiRoot === 'on';
+
     this.outputChannel.appendLine(`multi root is ${isMultiRoot}`);
+
     const cloningPromise = this.executeCloneCommands(cloneCommandList, isMultiRoot);
     theia.window.withProgress({ location: { viewId: 'explorer' } }, () => cloningPromise);
     await cloningPromise;
