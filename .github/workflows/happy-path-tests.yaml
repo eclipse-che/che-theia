@@ -127,8 +127,10 @@ jobs:
           docker tag eclipse/che-theia:next local-che-theia:latest
           docker tag eclipse/che-theia-endpoint-runtime-binary:next local-che-theia-endpoint-runtime-binary:latest
           docker save -o che-theia-images.tar local-che-theia:latest local-che-theia-endpoint-runtime-binary:latest
+          docker image prune -a -f
           eval $(minikube docker-env)
           docker load --input=che-theia-images.tar
+          rm che-theia-images.tar
       - name: Run Happy Path tests
         id: run-happy-path-tests
         uses: che-incubator/happy-path-tests-action@next
