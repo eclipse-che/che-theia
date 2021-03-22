@@ -30,6 +30,11 @@ export class K8sDevWorkspaceEnvVariables {
    */
   private readonly workspaceNamespace: string;
 
+  /**
+   * devWorkspaceFlattenedDevfilePath - environment variable holding the path to the flattened devworkspace template spec
+   */
+  private readonly devWorkspaceFlattenedDevfilePath: string;
+
   constructor() {
     if (process.env.DEVWORKSPACE_ID === undefined) {
       console.error('Environment variable DEVWORKSPACE_ID is not set');
@@ -46,6 +51,11 @@ export class K8sDevWorkspaceEnvVariables {
     } else {
       this.workspaceName = process.env.DEVWORKSPACE_NAME;
     }
+    if (process.env.DEVWORKSPACE_FLATTENED_DEVFILE === undefined) {
+      console.error('Environment variable DEVWORKSPACE_FLATTENED_DEVFILE is not set');
+    } else {
+      this.devWorkspaceFlattenedDevfilePath = process.env.DEVWORKSPACE_FLATTENED_DEVFILE;
+    }
   }
 
   getWorkspaceId(): string {
@@ -58,5 +68,9 @@ export class K8sDevWorkspaceEnvVariables {
 
   getWorkspaceNamespace(): string {
     return this.workspaceNamespace;
+  }
+
+  getDevWorkspaceFlattenedDevfilePath(): string {
+    return this.devWorkspaceFlattenedDevfilePath;
   }
 }

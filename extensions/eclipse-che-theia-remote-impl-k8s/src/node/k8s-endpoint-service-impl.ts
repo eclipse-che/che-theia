@@ -24,41 +24,26 @@ export class K8sEndpointServiceImpl implements EndpointService {
 
   async getEndpoints(): Promise<ComponentExposedEndpoint[]> {
     const componentExposedEndpoints: ComponentExposedEndpoint[] = [];
-    const workspaceRouting = await this.k8sDevfileService.getWorkspaceRouting();
+    const devfile = await this.k8sDevfileService.get();
 
-    const specComponentEndpoints = workspaceRouting.spec.endpoints;
-    const statusComponentExposedEndpoints = workspaceRouting.status.exposedEndpoints;
+    const containerComponents = (devfile.components || []).filter(
+      component => component.container && component.container.endpoints
+    );
 
-    Object.keys(specComponentEndpoints).forEach(componentName => {
+    containerComponents.forEach(component => {
       const endpoints: ExposedEndpoint[] = [];
-      const specComponentEndpointList = specComponentEndpoints[componentName];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      specComponentEndpointList.forEach((specEndpoint: any) => {
-        // search url from the status/exposedEndpoints part
-        let statusExposedEndpointUrl;
-        const statusComponentExposedEndpoint = statusComponentExposedEndpoints[componentName];
-        let attributes;
-        if (specEndpoint.attributes) {
-          attributes = specEndpoint.attributes;
-        }
-
-        if (statusComponentExposedEndpoint) {
-          const statusExposedEndpoint = statusComponentExposedEndpoint.find(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (sub: any) => sub.name === specEndpoint.name
-          );
-          statusExposedEndpointUrl = statusExposedEndpoint?.url;
-        }
-
-        const componentExposedEndpoint = {
-          attributes,
-          name: specEndpoint.name,
-          component: componentName,
-          url: statusExposedEndpointUrl,
-        };
-        endpoints.push(componentExposedEndpoint);
-      });
-      componentExposedEndpoints.push({ name: componentName, endpoints });
+      if (component.container?.endpoints) {
+        component.container.endpoints.forEach(endpoint => {
+          const componentExposedEndpoint = {
+            attributes: endpoint.attributes,
+            name: endpoint.name,
+            component: component.name || '',
+            url: endpoint.attributes?.['controller.devfile.io/endpoint-url'],
+          };
+          endpoints.push(componentExposedEndpoint);
+        });
+      }
+      componentExposedEndpoints.push({ name: component.name || '', endpoints });
     });
     return componentExposedEndpoints;
   }
