@@ -73,8 +73,8 @@ describe('che-api', () => {
     cheApiFactory = createAPIFactory(rpcClient);
     const apiImpl = cheApiFactory(plugin);
     const getEndpointsByTypeSpy = jest.spyOn(endpointServiceMock, 'getEndpointsByType');
-    const terminalEndpoints = await apiImpl.endpoint.getEndpointsByType('terminal');
-    expect(getEndpointsByTypeSpy).toBeCalledWith('terminal');
+    const terminalEndpoints = await apiImpl.endpoint.getEndpointsByType('collocated-terminal');
+    expect(getEndpointsByTypeSpy).toBeCalledWith('collocated-terminal');
     expect(terminalEndpoints.length).toBe(1);
     expect(terminalEndpoints[0].name).toBe('machine-exec');
   });

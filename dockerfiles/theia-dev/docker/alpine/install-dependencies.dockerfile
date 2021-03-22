@@ -14,4 +14,6 @@ RUN apk add --update --no-cache \
     # some lib to compile 'native-keymap' npm mpdule
     libx11-dev libxkbfile-dev \
     # synchronization tool
-    rsync
+    rsync \
+    # patch (required in che-theia to apply patches)
+    patch

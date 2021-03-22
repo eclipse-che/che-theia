@@ -43,4 +43,8 @@ export class TerminalProxyCreator {
     }
     return this.remoteTermServer;
   }
+
+  getApiEndPointUrl(): URI | undefined {
+    return this.apiEndPoint;
+  }
 }
