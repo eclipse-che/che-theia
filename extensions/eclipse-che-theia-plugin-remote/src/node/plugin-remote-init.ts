@@ -37,6 +37,7 @@ import { DocumentContainerAware } from './document-container-aware';
 import { Emitter } from '@theia/core/lib/common/event';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { ExecuteCommandContainerAware } from './execute-command-container-aware';
+import { FileSystemContentAware } from './filesystem-content-aware';
 import { ILogger } from '@theia/core/lib/common';
 import { LanguagesContainerAware } from './languages-container-aware';
 import { MAIN_REMOTE_RPC_CONTEXT } from '../common/plugin-remote-rpc';
@@ -280,6 +281,10 @@ to pick-up automatically a free port`)
     WebviewsContentAware.makeWebviewsContentAware(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.WEBVIEWS_EXT.id)
+    );
+    FileSystemContentAware.makeFileSystemContentAware(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (webSocketClient.rpc as any).locals.get(MAIN_RPC_CONTEXT.FILE_SYSTEM_EXT.id)
     );
 
     let channelName = '';
