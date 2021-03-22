@@ -11,12 +11,18 @@
 import * as che from '@eclipse-che/plugin';
 
 import { Event, JsonRpcServer } from '@theia/core';
+import {
+  FileDeleteOptions,
+  FileOverwriteOptions,
+  FileType,
+  FileWriteOptions,
+  Stat,
+} from '@theia/filesystem/lib/common/files';
 import { Preferences, User } from '@eclipse-che/theia-remote-api/lib/common/user-service';
 
 import { BinaryBuffer } from '@theia/core/lib/common/buffer';
 import { CheLanguagesTestAPI } from './che-languages-test-protocol';
 import { K8SRawResponse } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
-import { Stat } from '@theia/filesystem/lib/common/files';
 import { che as cheApi } from '@eclipse-che/api';
 import { createProxyIdentifier } from '@theia/plugin-ext/lib/common/rpc-protocol';
 
@@ -165,11 +171,16 @@ export interface CheSideCarContentReaderMain {
 export interface CheSideCarFileSystem {
   $stat(resource: string): Promise<Stat>;
   $readFile(resource: string): Promise<BinaryBuffer>;
+  $writeFile(resource: string, content: BinaryBuffer, opts: FileWriteOptions): Promise<void>;
+  $delete(resource: string, opts: FileDeleteOptions): Promise<void>;
+  $rename(from: string, to: string, opts: FileOverwriteOptions): Promise<void>;
+  $copy(from: string, to: string, opts: FileOverwriteOptions): Promise<void>;
+  $mkdir(resource: string): Promise<void>;
+  $readdir(resource: string): Promise<[string, FileType][]>;
 }
 
 export interface CheSideCarFileSystemMain {
   $registerFileSystemProvider(scheme: string): Promise<void>;
-  $disposeFileSystemProvider(scheme: string): Promise<void>;
 }
 
 export interface Variable {

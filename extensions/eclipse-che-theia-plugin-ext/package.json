@@ -32,7 +32,10 @@
     "clean-webpack-plugin": "^0.1.19",
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.1",
-    "@types/js-yaml": "3.11.2"
+    "@types/js-yaml": "3.11.2",
+    "reflect-metadata": "^0.1.13",
+    "@types/reflect-metadata": "^0.1.0",
+    "rimraf": "^3.0.2"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build && yarn test",
@@ -45,7 +48,7 @@
     "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && yarn run compileWorker",
     "compileWorker": "webpack-cli --config webpack.config.js",
     "watch": "tsc -w",
-    "test": "if-env SKIP_TEST=true && echo 'skip test' || jest --forceExit"
+    "test": "if-env SKIP_TEST=true && echo 'skip test' || jest --forceExit --coverage"
   },
   "theiaExtensions": [
     {
@@ -54,15 +57,42 @@
     }
   ],
   "jest": {
-    "clearMocks": true,
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "src/**/*.{ts,tsx}"
-    ],
-    "coverageDirectory": "coverage",
-    "modulePathIgnorePatterns": [
-      "<rootDir>/lib"
-    ],
-    "preset": "ts-jest"
+    "projects": [
+      {
+        "displayName": "jsdom-env",
+        "clearMocks": true,
+        "collectCoverage": true,
+        "collectCoverageFrom": [
+          "src/browser/**/*.{ts,tsx}"
+        ],
+        "modulePathIgnorePatterns": [
+          "<rootDir>/lib"
+        ],
+        "preset": "ts-jest",
+        "testEnvironment": "jsdom",
+        "testMatch": [
+          "**/?(*.)+(spec|test).[jt]s?(x)"
+        ],
+        "setupFilesAfterEnv": [
+          "<rootDir>/tests/browser/frontend-application-config-provider.ts"
+        ]
+      },
+      {
+        "displayName": "node-env",
+        "clearMocks": true,
+        "collectCoverage": true,
+        "collectCoverageFrom": [
+          "src/{common,node,plugin}/**/*.{ts,tsx}"
+        ],
+        "modulePathIgnorePatterns": [
+          "<rootDir>/lib"
+        ],
+        "preset": "ts-jest",
+        "testEnvironment": "node",
+        "testMatch": [
+          "**/?(*.)+(spec|test).node.[jt]s?(x)"
+        ]
+      }
+    ]
   }
 }

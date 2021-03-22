@@ -15,6 +15,7 @@ import {
   FileDeleteOptions,
   FileOverwriteOptions,
   FileSystemProviderCapabilities,
+  FileSystemProviderWithFileFolderCopyCapability,
   FileSystemProviderWithFileReadWriteCapability,
   FileType,
   FileWriteOptions,
@@ -22,12 +23,14 @@ import {
   WatchOptions,
 } from '@theia/filesystem/lib/common/files';
 
+import { BinaryBuffer } from '@theia/core/lib/common/buffer';
 import { FileService } from '@theia/filesystem/lib/browser/file-service';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import URI from '@theia/core/lib/common/uri';
 import { interfaces } from 'inversify';
 
-export abstract class AbstractSideCarFileSystemProvider implements FileSystemProviderWithFileReadWriteCapability {
+export abstract class AbstractSideCarFileSystemProvider
+  implements FileSystemProviderWithFileReadWriteCapability, FileSystemProviderWithFileFolderCopyCapability {
   private readonly _onDidChange = new Emitter<readonly FileChange[]>();
 
   readonly onDidChangeFile: Event<readonly FileChange[]> = this._onDidChange.event;
@@ -71,10 +74,13 @@ export abstract class AbstractSideCarFileSystemProvider implements FileSystemPro
   writeFile(resource: URI, content: Uint8Array, opts: FileWriteOptions): Promise<void> {
     throw new Error('Not implemented.');
   }
+
+  copy(from: URI, to: URI, opts: FileOverwriteOptions): Promise<void> {
+    throw new Error('Not implemented.');
+  }
 }
 
 export class CheSideCarFileSystemMainImpl implements CheSideCarFileSystemMain {
-  private readonly registrations = new Map<string, Disposable>();
   private readonly delegate: CheSideCarFileSystem;
   private readonly fileService: FileService;
 
@@ -83,19 +89,12 @@ export class CheSideCarFileSystemMainImpl implements CheSideCarFileSystemMain {
     this.fileService = container.get(FileService);
   }
 
-  $disposeFileSystemProvider(scheme: string): Promise<void> {
-    const disposable = this.registrations.get(scheme);
-    if (disposable !== undefined) {
-      disposable.dispose();
-      this.registrations.delete(scheme);
-    }
-    return Promise.resolve(undefined);
-  }
-
   $registerFileSystemProvider(scheme: string): Promise<void> {
-    const provider = new CheSideCarFileSystemProvider(this.delegate, FileSystemProviderCapabilities.FileReadWrite);
-    const disposable = this.fileService.registerProvider(scheme, provider);
-    this.registrations.set(scheme, disposable);
+    const provider = new CheSideCarFileSystemProvider(
+      this.delegate,
+      FileSystemProviderCapabilities.FileReadWrite | FileSystemProviderCapabilities.FileFolderCopy
+    );
+    this.fileService.registerProvider(scheme, provider);
     return Promise.resolve(undefined);
   }
 }
@@ -114,5 +113,29 @@ export class CheSideCarFileSystemProvider extends AbstractSideCarFileSystemProvi
 
   async readFile(resource: URI): Promise<Uint8Array> {
     return (await this.delegate.$readFile(resource.path.toString())).buffer;
+  }
+
+  async writeFile(resource: URI, content: Uint8Array, opts: FileWriteOptions): Promise<void> {
+    return await this.delegate.$writeFile(resource.path.toString(), BinaryBuffer.wrap(content), opts);
+  }
+
+  async delete(resource: URI, opts: FileDeleteOptions): Promise<void> {
+    return await this.delegate.$delete(resource.path.toString(), opts);
+  }
+
+  async rename(from: URI, to: URI, opts: FileOverwriteOptions): Promise<void> {
+    return await this.delegate.$rename(from.path.toString(), to.path.toString(), opts);
+  }
+
+  async copy(from: URI, to: URI, opts: FileOverwriteOptions): Promise<void> {
+    return await this.delegate.$copy(from.path.toString(), to.path.toString(), opts);
+  }
+
+  async mkdir(resource: URI): Promise<void> {
+    return await this.delegate.$mkdir(resource.path.toString());
+  }
+
+  async readdir(resource: URI): Promise<[string, FileType][]> {
+    return await this.delegate.$readdir(resource.path.toString());
   }
 }
