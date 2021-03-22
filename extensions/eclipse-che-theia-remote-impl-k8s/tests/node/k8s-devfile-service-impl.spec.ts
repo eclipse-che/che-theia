@@ -31,53 +31,40 @@ describe('Test K8sDevfileServiceImpl', () => {
   const k8sServiceMock = {
     makeApiClient: k8sServiceMakeApiClientMethod,
   } as any;
-  const customObjectsApiMockGetNamespacedCustomObjectMethod = jest.fn();
-  const listNamespacedMockCustomObjectMethod = jest.fn();
-  const customObjectsApiMock = {
-    getNamespacedCustomObject: customObjectsApiMockGetNamespacedCustomObjectMethod,
-    listNamespacedCustomObject: listNamespacedMockCustomObjectMethod,
-  };
 
   const workspaceIdEnvVariablesMethod = jest.fn();
   const workspaceNameEnvVariablesMethod = jest.fn();
   const workspaceNamespaceEnvVariablesMethod = jest.fn();
+  const devWorkspaceFlattenedDevfilePathEnvVariablesMethod = jest.fn();
   const k8sDevWorkspaceEnvVariables = {
     getWorkspaceId: workspaceIdEnvVariablesMethod,
     getWorkspaceName: workspaceNameEnvVariablesMethod,
     getWorkspaceNamespace: workspaceNamespaceEnvVariablesMethod,
+    getDevWorkspaceFlattenedDevfilePath: devWorkspaceFlattenedDevfilePathEnvVariablesMethod,
   } as any;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.restoreAllMocks();
     jest.resetAllMocks();
     container = new Container();
     container.bind(K8sDevWorkspaceEnvVariables).toConstantValue(k8sDevWorkspaceEnvVariables);
     container.bind(K8sDevfileServiceImpl).toSelf().inSingletonScope();
     container.bind(K8SServiceImpl).toConstantValue(k8sServiceMock);
-    k8sServiceMakeApiClientMethod.mockReturnValueOnce(customObjectsApiMock);
     k8sDevfileServiceImpl = container.get(K8sDevfileServiceImpl);
     workspaceNameEnvVariablesMethod.mockReturnValue('fake-workspace-name');
     workspaceNamespaceEnvVariablesMethod.mockReturnValue('fake-workspace-namespace');
+    workspaceNameEnvVariablesMethod.mockReturnValue('fake-workspace-name');
+    devWorkspaceFlattenedDevfilePathEnvVariablesMethod.mockReturnValue('fake-devworkspace-path');
   });
 
   test('get', async () => {
-    const devWorkspaceJsonPath = path.resolve(__dirname, '..', '_data', 'get-devworkspace-response-body.json');
-    const devWorkspaceJsonContent = await fs.readFile(devWorkspaceJsonPath, 'utf-8');
-    const devWorkspaceJson = JSON.parse(devWorkspaceJsonContent);
-    workspaceNameEnvVariablesMethod.mockReturnValue('fake-workspace-name');
-    workspaceNamespaceEnvVariablesMethod.mockReturnValue('fake-workspace-namespace');
-    customObjectsApiMockGetNamespacedCustomObjectMethod.mockReturnValue({ body: devWorkspaceJson });
+    const flattenedDevfilePath = path.resolve(__dirname, '..', '_data', 'flattened-devfile.yaml');
+    const flattenedDevfileContent = await fs.readFile(flattenedDevfilePath, 'utf-8');
+    const readFileSpy = jest.spyOn(fs, 'readFile') as jest.Mock;
+    readFileSpy.mockReturnValue(flattenedDevfileContent);
 
     const devfile = await k8sDevfileServiceImpl.get();
     expect(devfile).toBeDefined();
-
-    expect(customObjectsApiMockGetNamespacedCustomObjectMethod).toBeCalledWith(
-      'workspace.devfile.io',
-      'v1alpha2',
-      'fake-workspace-namespace',
-      'devworkspaces',
-      'fake-workspace-name'
-    );
 
     // check projects
     expect(devfile.projects?.length).toBe(1);
@@ -93,24 +80,26 @@ describe('Test K8sDevfileServiceImpl', () => {
     });
 
     // check components
-    expect(devfile.components?.length).toBe(6);
-    let devfileComponent: DevfileComponent;
+    expect(devfile.components?.length).toBe(3);
+    let terminalDevfileComponent: DevfileComponent | undefined;
     if (devfile.components && devfile.components.length > 0) {
-      devfileComponent = devfile.components[0];
+      terminalDevfileComponent = devfile.components.find(component => component.name === 'che-theia-terminal');
     } else {
       fail('Did not found a component in the devfile');
     }
-    expect(devfileComponent.name).toBe('terminal');
-    expect(devfileComponent.container).toBeDefined();
-    expect(devfileComponent.container?.image).toBe('quay.io/eclipse/che-machine-exec:nightly');
+    if (!terminalDevfileComponent) {
+      fail('Missing component');
+    }
+    expect(terminalDevfileComponent.attributes?.['app.kubernetes.io/component']).toBe('che-theia-terminal');
+    expect(terminalDevfileComponent.container).toBeDefined();
+    expect(terminalDevfileComponent.container?.image).toBe('quay.io/eclipse/che-machine-exec:nightly');
   });
 
   test('getRaw', async () => {
-    const devWorkspaceJsonPath = path.resolve(__dirname, '..', '_data', 'get-devworkspace-response-body.json');
-    const devWorkspaceJsonContent = await fs.readFile(devWorkspaceJsonPath, 'utf-8');
-    const devWorkspaceJson = JSON.parse(devWorkspaceJsonContent);
-
-    customObjectsApiMockGetNamespacedCustomObjectMethod.mockReturnValue({ body: devWorkspaceJson });
+    const flattenedDevfilePath = path.resolve(__dirname, '..', '_data', 'flattened-devfile.yaml');
+    const flattenedDevfileContent = await fs.readFile(flattenedDevfilePath, 'utf-8');
+    const readFileSpy = jest.spyOn(fs, 'readFile') as jest.Mock;
+    readFileSpy.mockReturnValue(flattenedDevfileContent);
 
     const devfileYaml = await k8sDevfileServiceImpl.getRaw();
     expect(devfileYaml).toBeDefined();
@@ -119,22 +108,10 @@ describe('Test K8sDevfileServiceImpl', () => {
 
     // ensure yaml was correct to be converted to be a devfile
     expect(devfileObject.projects?.length).toBe(1);
-    expect(devfileObject.components?.length).toBe(6);
+    expect(devfileObject.components?.length).toBe(3);
   });
 
   test('getComponentStatus', async () => {
-    // mock workspace routing
-    const workspaceRoutingJsonPath = path.resolve(
-      __dirname,
-      '..',
-      '_data',
-      'get-workspaceroutings-for-a-workspace-id-body.json'
-    );
-    const workspaceRoutingJsonContent = await fs.readFile(workspaceRoutingJsonPath, 'utf-8');
-    const workspaceRoutingJson = JSON.parse(workspaceRoutingJsonContent);
-
-    listNamespacedMockCustomObjectMethod.mockReturnValue({ body: workspaceRoutingJson });
-
     // mock pod
     const listNamespacedPodMockMethod = jest.fn();
     const coreV1ApiMock = {
@@ -145,6 +122,11 @@ describe('Test K8sDevfileServiceImpl', () => {
     const workspacePodJsonContent = await fs.readFile(workspacePodJsonPath, 'utf-8');
     const workspacePodJson = JSON.parse(workspacePodJsonContent);
 
+    const flattenedDevfilePath = path.resolve(__dirname, '..', '_data', 'flattened-devfile.yaml');
+    const flattenedDevfileContent = await fs.readFile(flattenedDevfilePath, 'utf-8');
+    const readFileSpy = jest.spyOn(fs, 'readFile') as jest.Mock;
+    readFileSpy.mockReturnValue(flattenedDevfileContent);
+
     listNamespacedPodMockMethod.mockReturnValueOnce({ body: workspacePodJson });
 
     const componentStatuses = await k8sDevfileServiceImpl.getComponentStatuses();
@@ -154,6 +136,6 @@ describe('Test K8sDevfileServiceImpl', () => {
     const theiaComponent = componentStatuses.find(component => component.name === 'theia-ide');
     expect(theiaComponent).toBeDefined();
     const theiaEndpoints = theiaComponent?.endpoints || {};
-    expect(theiaEndpoints['theia']?.url).toBe('http://workspace79f69b51a4e24714-theia-3100.192.168.64.46.nip.io');
+    expect(theiaEndpoints['theia']?.url).toMatch(new RegExp('http://workspace.*-theia-3100.192.168.*.*.nip.io'));
   });
 });

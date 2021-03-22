@@ -1,0 +1,104 @@
+commands:
+- exec:
+    commandLine: echo "Hello from $(pwd)"
+    component: plugin
+    workingDir: ${PROJECTS_ROOT}/project/app
+  id: say-hello
+components:
+- name: plugins
+  volume: {}
+- attributes:
+    app.kubernetes.io/component: editor
+    app.kubernetes.io/name: che-theia.eclipse.org
+    app.kubernetes.io/part-of: che.eclipse.org
+  container:
+    endpoints:
+    - attributes:
+        controller.devfile.io/endpoint-url: http://workspace1105c7bcbe794da5-theia-3100.192.168.64.53.nip.io
+        type: ide
+      exposure: public
+      name: theia
+      protocol: http
+      secure: true
+      targetPort: 3100
+    - attributes:
+        controller.devfile.io/endpoint-url: http://workspace1105c7bcbe794da5-webviews-3100.192.168.64.53.nip.io
+        type: webview
+        unique: "true"
+      exposure: public
+      name: webviews
+      protocol: http
+      secure: true
+      targetPort: 3100
+    - attributes:
+        controller.devfile.io/endpoint-url: http://workspace1105c7bcbe794da5-theia-dev-3130.192.168.64.53.nip.io
+        type: ide-dev
+      exposure: public
+      name: theia-dev
+      protocol: http
+      targetPort: 3130
+    - attributes:
+        controller.devfile.io/endpoint-url: http://workspace1105c7bcbe794da5-theia-redir-1-13131.192.168.64.53.nip.io
+      exposure: public
+      name: theia-redir-1
+      protocol: http
+      targetPort: 13131
+    - attributes:
+        controller.devfile.io/endpoint-url: http://workspace1105c7bcbe794da5-theia-redir-2-13132.192.168.64.53.nip.io
+      exposure: public
+      name: theia-redir-2
+      protocol: http
+      targetPort: 13132
+    - attributes:
+        controller.devfile.io/endpoint-url: http://workspace1105c7bcbe794da5-theia-redir-3-13133.192.168.64.53.nip.io
+      exposure: public
+      name: theia-redir-3
+      protocol: http
+      targetPort: 13133
+    env:
+    - name: THEIA_PLUGINS
+      value: local-dir:///plugins
+    - name: HOSTED_PLUGIN_HOSTNAME
+      value: 0.0.0.0
+    - name: HOSTED_PLUGIN_PORT
+      value: "3130"
+    - name: THEIA_HOST
+      value: 0.0.0.0
+    image: quay.io/eclipse/che-theia:next
+    memoryLimit: 512M
+    mountSources: true
+    sourceMapping: /projects
+    volumeMounts:
+    - name: plugins
+      path: /plugins
+  name: theia-ide
+- attributes:
+    app.kubernetes.io/component: che-theia-terminal
+    app.kubernetes.io/name: che-theia.eclipse.org
+    app.kubernetes.io/part-of: che.eclipse.org
+  container:
+    args:
+    - --url
+    - 0.0.0.0:3333
+    - --pod-selector
+    - controller.devfile.io/workspace_id=$(DEVWORKSPACE_ID)
+    command:
+    - /go/bin/che-machine-exec
+    endpoints:
+    - attributes:
+        controller.devfile.io/endpoint-url: ws://workspace1105c7bcbe794da5-che-theia-terminal-3333.192.168.64.53.nip.io
+        type: collocated-terminal
+      exposure: public
+      name: che-theia-terminal
+      protocol: ws
+      secure: true
+      targetPort: 3333
+    image: quay.io/eclipse/che-machine-exec:nightly
+    sourceMapping: /projects
+  name: che-theia-terminal
+projects:
+- git:
+    remotes:
+      origin: https://github.com/che-samples/web-nodejs-sample.git
+  name: web-nodejs-sample
+  

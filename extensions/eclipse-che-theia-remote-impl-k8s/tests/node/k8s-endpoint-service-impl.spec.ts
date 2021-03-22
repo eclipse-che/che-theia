@@ -12,6 +12,7 @@
 import 'reflect-metadata';
 
 import * as fs from 'fs-extra';
+import * as jsYaml from 'js-yaml';
 import * as path from 'path';
 
 import { Container } from 'inversify';
@@ -23,9 +24,9 @@ describe.only('Test K8sEndpointServiceImpl', () => {
 
   let k8sEndpointServiceImpl: K8sEndpointServiceImpl;
 
-  const getWorkspaceRoutingMethod = jest.fn();
+  const getDevfileMethod = jest.fn();
   const k8sDevfileServiceImplMock = {
-    getWorkspaceRouting: getWorkspaceRoutingMethod,
+    get: getDevfileMethod,
   } as any;
 
   beforeEach(async () => {
@@ -35,10 +36,10 @@ describe.only('Test K8sEndpointServiceImpl', () => {
     container.bind(K8sEndpointServiceImpl).toSelf().inSingletonScope();
     container.bind(K8sDevfileServiceImpl).toConstantValue(k8sDevfileServiceImplMock);
     k8sEndpointServiceImpl = container.get(K8sEndpointServiceImpl);
-    const workspaceRoutingJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-routing-object.json');
-    const workspaceRoutingJsonContent = await fs.readFile(workspaceRoutingJsonPath, 'utf-8');
-    const workspaceRoutingJson = JSON.parse(workspaceRoutingJsonContent);
-    getWorkspaceRoutingMethod.mockReturnValue(workspaceRoutingJson);
+
+    const flattenedDevfilePath = path.resolve(__dirname, '..', '_data', 'flattened-devfile.yaml');
+    const flattenedDevfileContent = await fs.readFile(flattenedDevfilePath, 'utf-8');
+    getDevfileMethod.mockReturnValue(jsYaml.safeLoad(flattenedDevfileContent));
   });
 
   test('getEndpointsByType', async () => {
@@ -49,7 +50,7 @@ describe.only('Test K8sEndpointServiceImpl', () => {
     const ideEndpoint = ideEndpoints[0];
 
     expect(ideEndpoint.name).toBe('theia');
-    expect(ideEndpoint.url).toBe('http://workspace79f69b51a4e24714-theia-3100.192.168.64.46.nip.io');
+    expect(ideEndpoint.url).toMatch(new RegExp('http://workspace.*-theia-3100.192.168.*.*.nip.io'));
     expect(ideEndpoint.component).toBe('theia-ide');
   });
 
@@ -61,7 +62,7 @@ describe.only('Test K8sEndpointServiceImpl', () => {
     const ideEndpoint = ideEndpoints[0];
 
     expect(ideEndpoint.name).toBe('theia');
-    expect(ideEndpoint.url).toBe('http://workspace79f69b51a4e24714-theia-3100.192.168.64.46.nip.io');
+    expect(ideEndpoint.url).toMatch(new RegExp('http://workspace.*-theia-3100.192.168.*.*.nip.io'));
     expect(ideEndpoint.component).toBe('theia-ide');
   });
 });
