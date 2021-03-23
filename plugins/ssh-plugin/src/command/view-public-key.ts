@@ -12,6 +12,7 @@ import * as che from '@eclipse-che/plugin';
 import * as theia from '@theia/plugin';
 
 import { BTN_CONTINUE, MESSAGE_GET_KEYS_FAILED, MESSAGE_NO_SSH_KEYS } from '../messages';
+import { findKey, output } from '../util/util';
 
 import { Command } from './command';
 import { che as cheApi } from '@eclipse-che/api';
@@ -53,11 +54,22 @@ export class ViewPublicKey extends Command {
       return;
     }
 
-    const key = await theia.window.showQuickPick<theia.QuickPickItem>(
-      keys.map(k => ({ label: k.name ? k.name : '' })),
-      {}
-    );
+    const items: theia.QuickPickItem[] = [];
+    for (const key of keys) {
+      if (!key.name) {
+        continue;
+      }
 
+      const filePath = await findKey(key.name);
+      const item: theia.QuickPickItem = {
+        label: key.name,
+        detail: filePath,
+      };
+
+      items.push(item);
+    }
+
+    const key = await theia.window.showQuickPick<theia.QuickPickItem>(items, {});
     if (!key) {
       return;
     }
@@ -70,10 +82,10 @@ export class ViewPublicKey extends Command {
         return;
       }
     } catch (error) {
-      await theia.window.showErrorMessage(`Unable to open SSH key ${key.label}`, ...actions);
-      console.error(error.message);
+      output.show(true);
+      output.appendLine(error.message);
     }
 
-    await theia.window.showErrorMessage(`Failure to open ${key.label}`, ...actions);
+    await theia.window.showErrorMessage(`Unable to open SSH key ${key.label}`, ...actions);
   }
 }

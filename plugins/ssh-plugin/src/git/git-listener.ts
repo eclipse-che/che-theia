@@ -11,7 +11,6 @@
 import * as che from '@eclipse-che/plugin';
 import * as theia from '@theia/plugin';
 
-import { findKey, registerKeyAskingPassword } from '../util/util';
 import { inject, injectable } from 'inversify';
 
 import { AddKeyToGitHub } from '../command/add-key-to-github';
@@ -38,15 +37,8 @@ export class GitListener {
     try {
       keys = await che.ssh.getAll('vcs');
     } catch (e) {
-      console.error(e.message);
+      console.error(e && e.message ? e.message : e);
       keys = [];
-    }
-
-    for (const key of keys) {
-      const keyFile = await findKey(key.name);
-      if (keyFile) {
-        await registerKeyAskingPassword(keyFile, true);
-      }
     }
 
     return keys;
