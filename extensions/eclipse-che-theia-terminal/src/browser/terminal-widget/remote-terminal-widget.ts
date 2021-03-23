@@ -73,6 +73,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
   protected channel: OutputChannel;
   protected closeOutputConnectionDisposable: Disposable;
   protected processGone: boolean;
+  private terminalApiEndPoint: URI | undefined;
 
   @postConstruct()
   protected init(): void {
@@ -137,6 +138,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
       if (!this.termServer) {
         const termProxyCreator = await this.termProxyCreatorProvider();
         this.termServer = termProxyCreator.create();
+        this.terminalApiEndPoint = termProxyCreator.getApiEndPointUrl();
 
         this.toDispose.push(
           this.termServer.onDidCloseConnection(() => {
@@ -227,8 +229,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
       return Promise.resolve();
     }
 
-    const termProxyCreator = await this.termProxyCreatorProvider();
-    this.socket = this.createWebSocket(id.toString(), termProxyCreator.getApiEndPointUrl()!);
+    this.socket = this.createWebSocket(this.terminalApiEndPoint!);
 
     const sendListener = (data: string) => this.socket.send(data);
 
@@ -250,10 +251,10 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     };
 
     this.socket.onerror = err => {
+      this.messageService.error(`Terminal failed to connect. ${err.message}.`);
       if (onDataDisposeHandler) {
         onDataDisposeHandler.dispose();
       }
-      this.messageService.error(`Terminal failed to connect. ${err.message}`);
       return Promise.resolve();
     };
 
@@ -265,7 +266,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     };
   }
 
-  protected createWebSocket(pid: string, apiEndPoint: URI): ReconnectingWebSocket {
+  protected createWebSocket(apiEndPoint: URI): ReconnectingWebSocket {
     const url = apiEndPoint.resolve(ATTACH_TERMINAL_SEGMENT).resolve(this.terminalId + '');
     return new ReconnectingWebSocket(url.toString(true), undefined, {
       maxReconnectionDelay: 10000,
@@ -334,7 +335,7 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
     const rows = this.term.rows;
 
     if (this.termServer && this.termServer.resize) {
-      this.termServer.resize({ id: this.terminalId, cols, rows });
+      this.termServer.resize({ id: this.terminalId, cols, rows }).catch(() => {});
     }
   }
 
