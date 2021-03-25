@@ -137,5 +137,10 @@ describe('Test K8sDevfileServiceImpl', () => {
     expect(theiaComponent).toBeDefined();
     const theiaEndpoints = theiaComponent?.endpoints || {};
     expect(theiaEndpoints['theia']?.url).toMatch(new RegExp('http://workspace.*-theia-3100.192.168.*.*.nip.io'));
+    expect(theiaComponent?.env).toBeDefined();
+    const theiaEnv = theiaComponent?.env || [];
+    expect(theiaEnv.length).toBe(21);
+    expect(theiaEnv[0].name).toBe('THEIA_PLUGINS');
+    expect(theiaEnv[0].value).toBe('local-dir:///plugins');
   });
 });

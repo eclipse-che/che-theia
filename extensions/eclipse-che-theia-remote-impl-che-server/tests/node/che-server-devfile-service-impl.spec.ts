@@ -21,9 +21,10 @@ import {
   DevfileComponentEnv,
 } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 
+import { CheK8SServiceImpl } from '../../src/node/che-server-k8s-service-impl';
 import { CheServerDevfileServiceImpl } from '../../src/node/che-server-devfile-service-impl';
+import { CheServerWorkspaceServiceImpl } from '../../src/node/che-server-workspace-service-impl';
 import { Container } from 'inversify';
-import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { che } from '@eclipse-che/api';
 
 describe('Test CheServerDevfileServiceImpl', () => {
@@ -34,13 +35,19 @@ describe('Test CheServerDevfileServiceImpl', () => {
     currentWorkspace: workspaceServiceCurrentWorkspaceMethod,
   } as any;
 
+  const k8sServiceMakeApiClientMethod = jest.fn();
+  const k8sServiceMock = {
+    makeApiClient: k8sServiceMakeApiClientMethod,
+  } as any;
+
   beforeEach(() => {
     jest.restoreAllMocks();
     jest.resetAllMocks();
     const container = new Container();
 
     container.bind(CheServerDevfileServiceImpl).toSelf().inSingletonScope();
-    container.bind(WorkspaceService).toConstantValue(workspaceService);
+    container.bind(CheServerWorkspaceServiceImpl).toConstantValue(workspaceService);
+    container.bind(CheK8SServiceImpl).toConstantValue(k8sServiceMock);
     cheServerDevfileServiceImpl = container.get(CheServerDevfileServiceImpl);
   });
 
@@ -175,5 +182,37 @@ describe('Test CheServerDevfileServiceImpl', () => {
     const convertedDevfileV2 = cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
     const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
     expect(convertedDevfileV1).toEqual(devfileV1);
+  });
+
+  test('getComponentStatus', async () => {
+    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-status-runtime.json');
+    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
+    const workspaceJson = JSON.parse(workspaceJsonContent);
+    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
+
+    // mock pod result
+    const listNamespacedPodMockMethod = jest.fn();
+    const coreV1ApiMock = {
+      listNamespacedPod: listNamespacedPodMockMethod,
+    };
+    k8sServiceMakeApiClientMethod.mockReturnValueOnce(coreV1ApiMock);
+    const workspacePodJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-pod-list.json');
+    const workspacePodJsonContent = await fs.readFile(workspacePodJsonPath, 'utf-8');
+    const workspacePodJson = JSON.parse(workspacePodJsonContent);
+    listNamespacedPodMockMethod.mockReturnValueOnce({ body: workspacePodJson });
+
+    const componentStatuses = await cheServerDevfileServiceImpl.getComponentStatuses();
+    expect(componentStatuses).toBeDefined();
+
+    // check projects
+    expect(componentStatuses.length).toBe(4);
+
+    const theiaIdeComponent = componentStatuses.find(component => component.name === 'theia-idecae');
+    expect(theiaIdeComponent).toBeDefined();
+    expect(theiaIdeComponent?.env).toBeDefined();
+
+    const theiaPluginsEnv = theiaIdeComponent?.env?.find(env => env.name === 'THEIA_PLUGINS');
+    // able to see env
+    expect(theiaPluginsEnv?.value).toBe('local-dir:///plugins');
   });
 });
