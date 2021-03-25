@@ -86,6 +86,10 @@ jobs:
     - name: Publish packages to npmjs
       if: github.event.inputs.pushToNpmJs == true 
       run: yarn publish:next
+  notify:
+    runs-on: ubuntu-20.04
+    needs: build
+    steps:
     - name: Create failure MM message
       if: ${{ failure() }}
       run: |
