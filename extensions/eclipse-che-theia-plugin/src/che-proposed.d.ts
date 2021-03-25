@@ -52,6 +52,7 @@ declare module '@eclipse-che/plugin' {
         export interface DevfileComponentStatus {
             name: string;
             isUser: boolean;
+            env?: DevfileComponentEnv[];
             endpoints?: {
                 [endpointName: string]: {
                     url?: string;

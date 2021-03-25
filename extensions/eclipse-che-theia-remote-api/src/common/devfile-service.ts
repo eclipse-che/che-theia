@@ -15,6 +15,7 @@ export const DevfileService = Symbol('DevfileService');
 export interface DevfileComponentStatus {
   name: string;
   isUser: boolean;
+  env?: DevfileComponentEnv[];
   endpoints?: {
     [endpointName: string]: {
       url?: string;

@@ -14,6 +14,7 @@ import * as k8s from '@kubernetes/client-node';
 
 import {
   Devfile,
+  DevfileComponentEnv,
   DevfileComponentStatus,
   DevfileService,
 } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
@@ -117,7 +118,16 @@ export class K8sDevfileServiceImpl implements DevfileService {
           };
         });
       }
-      componentStatuses.push({ isUser, name: componentStatusName, endpoints: componentStatusEndpoints });
+      const env: DevfileComponentEnv[] | undefined = container.env?.map(envItem => ({
+        name: envItem.name,
+        value: envItem.value || '',
+      }));
+      componentStatuses.push({
+        isUser,
+        name: componentStatusName,
+        env,
+        endpoints: componentStatusEndpoints,
+      });
     });
     return componentStatuses;
   }

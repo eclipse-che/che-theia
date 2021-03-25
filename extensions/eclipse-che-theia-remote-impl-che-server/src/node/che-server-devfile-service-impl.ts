@@ -9,6 +9,7 @@
  ***********************************************************************/
 
 import * as jsYaml from 'js-yaml';
+import * as k8s from '@kubernetes/client-node';
 
 import {
   Devfile,
@@ -25,13 +26,18 @@ import {
 } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 import { inject, injectable } from 'inversify';
 
-import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
+import { CheK8SServiceImpl } from './che-server-k8s-service-impl';
+import { CheServerWorkspaceServiceImpl } from './che-server-workspace-service-impl';
+import { V1Pod } from '@kubernetes/client-node';
 import { che as cheApi } from '@eclipse-che/api';
 
 @injectable()
 export class CheServerDevfileServiceImpl implements DevfileService {
-  @inject(WorkspaceService)
-  private workspaceService: WorkspaceService;
+  @inject(CheServerWorkspaceServiceImpl)
+  private workspaceService: CheServerWorkspaceServiceImpl;
+
+  @inject(CheK8SServiceImpl)
+  private k8SService: CheK8SServiceImpl;
 
   componentVolumeV1toComponentVolumeV2(
     componentVolumes?: cheApi.workspace.devfile.DevfileVolume[]
@@ -586,21 +592,29 @@ export class CheServerDevfileServiceImpl implements DevfileService {
     return devfileV1;
   }
 
+  // search any
+  async applyPodInformation(devfileV1: cheApi.workspace.devfile.Devfile, pod: V1Pod) {}
+
   async get(): Promise<Devfile> {
     const workspace = await this.workspaceService.currentWorkspace();
     const devfileV1 = workspace.devfile!;
+
     return this.devfileV1toDevfileV2(devfileV1);
   }
+
   async getComponentStatuses(): Promise<DevfileComponentStatus[]> {
     // grab current workspace
     const workspace = await this.workspaceService.currentWorkspace();
 
     // grab runtime
     const componentStatuses: DevfileComponentStatus[] = [];
-
+    const workspaceNameSpace = workspace.attributes?.['infrastructureNamespace'] || workspace.namespace || '';
     const runtime = workspace.runtime;
 
     const machines = runtime?.machines || {};
+
+    // complete with workspace pod information
+    const workspacePod = await this.getWorkspacePod(workspace.id || '', workspaceNameSpace);
 
     for (const machineName of Object.keys(machines)) {
       const machine = machines[machineName] || {};
@@ -622,6 +636,16 @@ export class CheServerDevfileServiceImpl implements DevfileService {
           url,
         };
       }
+
+      // Get container of component and add environment variables
+      const containerPod = workspacePod.spec?.containers.find(container => container.name === machineName);
+      const env: DevfileComponentEnv[] | undefined = containerPod?.env?.map(envItem => ({
+        name: envItem.name,
+        value: envItem.value || '',
+      }));
+      if (containerPod && containerPod.env) {
+        componentStatus.env = env;
+      }
       componentStatuses.push(componentStatus);
     }
     return componentStatuses;
@@ -638,5 +662,28 @@ export class CheServerDevfileServiceImpl implements DevfileService {
 
     workspace.devfile = devfileV1;
     await this.workspaceService.updateWorkspace(workspace.id!, workspace);
+  }
+
+  async getWorkspacePod(workspaceId: string, workspaceNamespace: string): Promise<V1Pod> {
+    // get workspace pod
+    const k8sCoreV1Api = this.k8SService.makeApiClient(k8s.CoreV1Api);
+    const labelSelector = `che.workspace_id=${workspaceId}`;
+    const { body } = await k8sCoreV1Api.listNamespacedPod(
+      workspaceNamespace,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      labelSelector
+    );
+
+    // ensure there is only one item
+    if (body.items.length !== 1) {
+      throw new Error(
+        `Got invalid items when searching for objects with label selector ${labelSelector}. Expected only one resource`
+      );
+    }
+
+    return body.items[0];
   }
 }

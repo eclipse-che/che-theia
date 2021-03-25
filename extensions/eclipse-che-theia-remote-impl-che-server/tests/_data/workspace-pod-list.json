@@ -1,0 +1,957 @@
+{
+    "apiVersion": "v1",
+    "items": [
+      {
+        "metadata": {
+          "annotations": {
+            "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.128.3.194\"\n    ],\n    \"default\": true,\n    \"dns\": {}\n}]",
+            "k8s.v1.cni.cncf.io/networks-status": "[{\n    \"name\": \"\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.128.3.194\"\n    ],\n    \"default\": true,\n    \"dns\": {}\n}]",
+            "openshift.io/scc": "restricted",
+            "org.eclipse.che.container.display-name/asciidoctor-vscodef07": "asciidoctor-vscodef07",
+            "org.eclipse.che.container.display-name/che-jwtproxyr3tib71r": "che-jwtproxy",
+            "org.eclipse.che.container.display-name/che-machine-exec5ke": "che-machine-exec5ke",
+            "org.eclipse.che.container.display-name/che-plugin-artifacts-broker-v3-4-0": "che-workspace-pod/che-plugin-artifacts-broker-v3-4-0",
+            "org.eclipse.che.container.display-name/remote-runtime-injectort5a": "che-workspace-pod/remote-runtime-injectort5a",
+            "org.eclipse.che.container.display-name/theia-idecae": "theia-idecae"
+          },
+          "creationTimestamp": "2021-03-25T13:21:30.000Z",
+          "generateName": "workspaceg3698frahxwur2cz.che-workspace-pod-678df949cf-",
+          "labels": {
+            "che.deployment_name": "workspaceg3698frahxwur2cz.che-workspace-pod",
+            "che.original_name": "che-workspace-pod",
+            "che.workspace_id": "workspaceg3698frahxwur2cz",
+            "deployment": "workspace",
+            "pod-template-hash": "678df949cf"
+          },
+          "name": "workspaceg3698frahxwur2cz.che-workspace-pod-678df949cf-x2hx7",
+          "namespace": "user1-che",
+          "ownerReferences": [
+            {
+              "apiVersion": "apps/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "ReplicaSet",
+              "name": "workspaceg3698frahxwur2cz.che-workspace-pod-678df949cf",
+              "uid": "a90775d6-1d34-4904-93a2-fbbff66ca844"
+            }
+          ],
+          "resourceVersion": "1559649",
+          "selfLink": "/api/v1/namespaces/user1-che/pods/workspaceg3698frahxwur2cz.che-workspace-pod-678df949cf-x2hx7",
+          "uid": "f2f129b3-4fa6-43db-a99d-456b161cea46"
+        },
+        "spec": {
+          "containers": [
+            {
+              "args": [
+                "-config",
+                "/che-jwtproxy-config/config.yaml"
+              ],
+              "env": [
+                {
+                  "name": "XDG_CONFIG_HOME",
+                  "value": "/che-jwtproxy-config"
+                }
+              ],
+              "image": "quay.io/eclipse/che-jwtproxy:0.10.0",
+              "imagePullPolicy": "Always",
+              "name": "che-jwtproxyr3tib71r",
+              "resources": {
+                "limits": {
+                  "cpu": "500m",
+                  "memory": "134217728"
+                },
+                "requests": {
+                  "cpu": "30m",
+                  "memory": "15728640"
+                }
+              },
+              "securityContext": {
+                "capabilities": {
+                  "drop": [
+                    "KILL",
+                    "MKNOD",
+                    "SETGID",
+                    "SETUID"
+                  ]
+                },
+                "runAsUser": 1000650000
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/che-jwtproxy-config/",
+                  "name": "che-jwtproxy-config-volume"
+                },
+                {
+                  "mountPath": "/tmp/che/secret/",
+                  "name": "che-self-signed-cert",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/etc/ssh/private",
+                  "name": "workspaceg3698frahxwur2cz-sshprivatekeys",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/etc/ssh/ssh_config",
+                  "name": "ssshkeyconfigvolume",
+                  "readOnly": true,
+                  "subPath": "ssh_config"
+                },
+                {
+                  "mountPath": "/etc/gitconfig",
+                  "name": "gitconfigvolume",
+                  "subPath": "gitconfig"
+                },
+                {
+                  "mountPath": "/public-certs",
+                  "name": "che-ca-certs",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                  "name": "che-workspace-token-cbpng",
+                  "readOnly": true
+                }
+              ]
+            },
+            {
+              "env": [
+                {
+                  "name": "THEIA_PLUGINS",
+                  "value": "local-dir:///plugins/sidecars/asciidoctor_asciidoctor_vscode_latest"
+                },
+                {
+                  "name": "CHE_MACHINE_TOKEN",
+                  "value": "eyJhbGciOiJSUzI1NiIsImtpbmQiOiJtYWNoaW5lX3Rva2VuIiwia2lkIjoid29ya3NwYWNlZzM2OThmcmFoeHd1cjJjeiJ9.eyJ3c2lkIjoid29ya3NwYWNlZzM2OThmcmFoeHd1cjJjeiIsInVpZCI6ImExNDgwNjVkLTU3MjMtNDE0Ni1iYzhlLWQ5OTNjNjlkMjJkZCIsImF1ZCI6IndvcmtzcGFjZWczNjk4ZnJhaHh3dXIyY3oiLCJuYmYiOi0xLCJ1bmFtZSI6InVzZXIxIiwiaXNzIjoid3NtYXN0ZXIiLCJleHAiOjE2NDgyMTQ0NzQsImlhdCI6MTYxNjY3ODQ3NCwianRpIjoiYmJiMTk0YjYtMzQxNC00MWE0LWFhZDMtMjA0NWQxZmQ4ZmJlIn0.kF10Y-nH398zbjdpoxVRUTnW6cvbNkSsGloB1EVWliKwH7RD-IvriYYZhgcPilH9eQf5TbwWsTVgYQg38u53ncjKXYusPvLzb_yjauI1Kunp3FqO8VL8lEg1ev_nOxyqfYAfPMlA0xMf6vse-ohZ3_-AGu6CTIqe4JYYAC-est035nhPFgi40L54C_hnvHoDeUOo45UrRGXtRFzDEQPfhr820VidRqII5J1fBJZ2eD67b19u9J4y9ZkVishAqLO9tFMkTJgTXKfijrcs8e9GZrPjh6hSe83RTSjrGyAYd8wy--YTWQRh1PlfgtIu8eyFtxm7fi3iqRPUtKMrggCVdw"
+                },
+                {
+                  "name": "CHE_PROJECTS_ROOT",
+                  "value": "/projects"
+                },
+                {
+                  "name": "CHE_MACHINE_AUTH_SIGNATURE__PUBLIC__KEY",
+                  "value": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAo6VNVF0LjWClVJSc1m66hOF4UegCzaJHy9bZpWcbpmFliw+osaJ3j9lM3OpHxNwQI9Zb0DwYta27Z4+7I7RXVl0WTaxwoUmRUu9jotzJVh1WGwPL9TCwPL/F8p6E1CVxU52qEFdS35/tsXiB7WdceRWxdIBE4mECaJNMd/vqogChu8b0P41GS92za21qSe+J/pZroJ9lfKE6azYlj5IeIse/eQ9MZMOGYq+IM6szCi9FQKgSMSDpSZeyj6x6ZHsjIVwCgBRE20V/vitDNZGZWx7uiDKJA4+f/lyT7BlfVbLTTulpDoUcyCo/xPsLgm2sr9RWA0jk7WKd2oUeT1f3DwIDAQAB"
+                },
+                {
+                  "name": "CHE_API",
+                  "value": "http://che-host.eclipse-che.svc:8080/api"
+                },
+                {
+                  "name": "CHE_WORKSPACE_NAME",
+                  "value": "nodejs-mongo-l7t46"
+                },
+                {
+                  "name": "CHE_WORKSPACE_LOGS_ROOT__DIR",
+                  "value": "/workspace_logs"
+                },
+                {
+                  "name": "PLUGIN_REMOTE_ENDPOINT_EXECUTABLE",
+                  "value": "/remote-endpoint/plugin-remote-endpoint"
+                },
+                {
+                  "name": "CHE_MACHINE_AUTH_SIGNATURE__ALGORITHM",
+                  "value": "RSA"
+                },
+                {
+                  "name": "CHE_WORKSPACE_NAMESPACE",
+                  "value": "user1"
+                },
+                {
+                  "name": "CHE_THEIA_SIDECAR_PREFERENCES",
+                  "value": "{\"asciidoc.use_asciidoctorpdf\":true, \"asciidoc.helloworld\":false}"
+                },
+                {
+                  "name": "CHE_API_INTERNAL",
+                  "value": "http://che-host.eclipse-che.svc:8080/api"
+                },
+                {
+                  "name": "CHE_MACHINE_NAME",
+                  "value": "asciidoctor-vscodef07"
+                },
+                {
+                  "name": "CHE_WORKSPACE_ID",
+                  "value": "workspaceg3698frahxwur2cz"
+                },
+                {
+                  "name": "CHE_API_EXTERNAL",
+                  "value": "https://che-eclipse-che.apps.cluster-f568.gcp.testdrive.openshift.com/api"
+                }
+              ],
+              "image": "quay.io/eclipse/che-plugin-sidecar@sha256:3a5f128b217625c211f69fd2277300ae611fcf7da287c2786e522f13a81ed701",
+              "imagePullPolicy": "Always",
+              "name": "asciidoctor-vscodef07",
+              "resources": {
+                "limits": {
+                  "cpu": "500m",
+                  "memory": "134217728"
+                },
+                "requests": {
+                  "cpu": "30m",
+                  "memory": "67108864"
+                }
+              },
+              "securityContext": {
+                "capabilities": {
+                  "drop": [
+                    "KILL",
+                    "MKNOD",
+                    "SETGID",
+                    "SETUID"
+                  ]
+                },
+                "runAsUser": 1000650000
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/documents",
+                  "name": "claim-che-workspace",
+                  "subPath": "workspaceg3698frahxwur2cz/documents/"
+                },
+                {
+                  "mountPath": "/plugins",
+                  "name": "claim-che-workspace",
+                  "subPath": "workspaceg3698frahxwur2cz/plugins/"
+                },
+                {
+                  "mountPath": "/remote-endpoint",
+                  "name": "remote-endpoint"
+                },
+                {
+                  "mountPath": "/workspace_logs",
+                  "name": "claim-che-workspace",
+                  "subPath": "workspaceg3698frahxwur2cz/che-logs-che-workspace-pod/"
+                },
+                {
+                  "mountPath": "/projects",
+                  "name": "claim-che-workspace",
+                  "subPath": "workspaceg3698frahxwur2cz/projects/"
+                },
+                {
+                  "mountPath": "/tmp/che/secret/",
+                  "name": "che-self-signed-cert",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/etc/ssh/private",
+                  "name": "workspaceg3698frahxwur2cz-sshprivatekeys",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/etc/ssh/ssh_config",
+                  "name": "ssshkeyconfigvolume",
+                  "readOnly": true,
+                  "subPath": "ssh_config"
+                },
+                {
+                  "mountPath": "/etc/gitconfig",
+                  "name": "gitconfigvolume",
+                  "subPath": "gitconfig"
+                },
+                {
+                  "mountPath": "/public-certs",
+                  "name": "che-ca-certs",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                  "name": "che-workspace-token-cbpng",
+                  "readOnly": true
+                }
+              ]
+            },
+            {
+              "env": [
+                {
+                  "name": "THEIA_PLUGINS",
+                  "value": "local-dir:///plugins"
+                },
+                {
+                  "name": "CHE_MACHINE_TOKEN",
+                  "value": "eyJhbGciOiJSUzI1NiIsImtpbmQiOiJtYWNoaW5lX3Rva2VuIiwia2lkIjoid29ya3NwYWNlZzM2OThmcmFoeHd1cjJjeiJ9.eyJ3c2lkIjoid29ya3NwYWNlZzM2OThmcmFoeHd1cjJjeiIsInVpZCI6ImExNDgwNjVkLTU3MjMtNDE0Ni1iYzhlLWQ5OTNjNjlkMjJkZCIsImF1ZCI6IndvcmtzcGFjZWczNjk4ZnJhaHh3dXIyY3oiLCJuYmYiOi0xLCJ1bmFtZSI6InVzZXIxIiwiaXNzIjoid3NtYXN0ZXIiLCJleHAiOjE2NDgyMTQ0NzQsImlhdCI6MTYxNjY3ODQ3NCwianRpIjoiYmJiMTk0YjYtMzQxNC00MWE0LWFhZDMtMjA0NWQxZmQ4ZmJlIn0.kF10Y-nH398zbjdpoxVRUTnW6cvbNkSsGloB1EVWliKwH7RD-IvriYYZhgcPilH9eQf5TbwWsTVgYQg38u53ncjKXYusPvLzb_yjauI1Kunp3FqO8VL8lEg1ev_nOxyqfYAfPMlA0xMf6vse-ohZ3_-AGu6CTIqe4JYYAC-est035nhPFgi40L54C_hnvHoDeUOo45UrRGXtRFzDEQPfhr820VidRqII5J1fBJZ2eD67b19u9J4y9ZkVishAqLO9tFMkTJgTXKfijrcs8e9GZrPjh6hSe83RTSjrGyAYd8wy--YTWQRh1PlfgtIu8eyFtxm7fi3iqRPUtKMrggCVdw"
+                },
+                {
+                  "name": "HOSTED_PLUGIN_PORT",
+                  "value": "3130"
+                },
+                {
+                  "name": "THEIA_HOST",
+                  "value": "127.0.0.1"
+                },
+                {
+                  "name": "CHE_PROJECTS_ROOT",
+                  "value": "/projects"
+                },
+                {
+                  "name": "CHE_MACHINE_AUTH_SIGNATURE__PUBLIC__KEY",
+                  "value": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAo6VNVF0LjWClVJSc1m66hOF4UegCzaJHy9bZpWcbpmFliw+osaJ3j9lM3OpHxNwQI9Zb0DwYta27Z4+7I7RXVl0WTaxwoUmRUu9jotzJVh1WGwPL9TCwPL/F8p6E1CVxU52qEFdS35/tsXiB7WdceRWxdIBE4mECaJNMd/vqogChu8b0P41GS92za21qSe+J/pZroJ9lfKE6azYlj5IeIse/eQ9MZMOGYq+IM6szCi9FQKgSMSDpSZeyj6x6ZHsjIVwCgBRE20V/vitDNZGZWx7uiDKJA4+f/lyT7BlfVbLTTulpDoUcyCo/xPsLgm2sr9RWA0jk7WKd2oUeT1f3DwIDAQAB"
+                },
+                {
+                  "name": "CHE_API",
+                  "value": "http://che-host.eclipse-che.svc:8080/api"
+                },
+                {
+                  "name": "CHE_WORKSPACE_NAME",
+                  "value": "nodejs-mongo-l7t46"
+                },
+                {
+                  "name": "HOSTED_PLUGIN_HOSTNAME",
+                  "value": "0.0.0.0"
+                },
+                {
+                  "name": "CHE_WORKSPACE_LOGS_ROOT__DIR",
+                  "value": "/workspace_logs"
+                },
+                {
+                  "name": "CHE_MACHINE_AUTH_SIGNATURE__ALGORITHM",
+                  "value": "RSA"
+                },
+                {
+                  "name": "CHE_WORKSPACE_NAMESPACE",
+                  "value": "user1"
+                },
+                {
+                  "name": "CHE_API_INTERNAL",
+                  "value": "http://che-host.eclipse-che.svc:8080/api"
+                },
+                {
+                  "name": "CHE_MACHINE_NAME",
+                  "value": "theia-idecae"
+                },
+                {
+                  "name": "CHE_WORKSPACE_ID",
+                  "value": "workspaceg3698frahxwur2cz"
+                },
+                {
+                  "name": "CHE_API_EXTERNAL",
+                  "value": "https://che-eclipse-che.apps.cluster-f568.gcp.testdrive.openshift.com/api"
+                }
+              ],
+              "image": "quay.io/crw_pr/che-theia:1047",
+              "imagePullPolicy": "Always",
+              "name": "theia-idecae",
+              "ports": [
+                {
+                  "containerPort": 3100,
+                  "protocol": "TCP"
+                },
+                {
+                  "containerPort": 3100,
+                  "protocol": "TCP"
+                },
+                {
+                  "containerPort": 3100,
+                  "protocol": "TCP"
+                },
+                {
+                  "containerPort": 3130,
+                  "protocol": "TCP"
+                },
+                {
+                  "containerPort": 13131,
+                  "protocol": "TCP"
+                },
+                {
+                  "containerPort": 13132,
+                  "protocol": "TCP"
+                },
+                {
+                  "containerPort": 13133,
+                  "protocol": "TCP"
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "cpu": "1500m",
+                  "memory": "536870912"
+                },
+                "requests": {
+                  "cpu": "100m",
+                  "memory": "67108864"
+                }
+              },
+              "securityContext": {
+                "capabilities": {
+                  "drop": [
+                    "KILL",
+                    "MKNOD",
+                    "SETGID",
+                    "SETUID"
+                  ]
+                },
+                "runAsUser": 1000650000
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/plugins",
+                  "name": "claim-che-workspace",
+                  "subPath": "workspaceg3698frahxwur2cz/plugins/"
+                },
+                {
+                  "mountPath": "/home/theia/.theia",
+                  "name": "claim-che-workspace",
+                  "subPath": "workspaceg3698frahxwur2cz/theia-local/"
+                },
+                {
+                  "mountPath": "/workspace_logs",
+                  "name": "claim-che-workspace",
+                  "subPath": "workspaceg3698frahxwur2cz/che-logs-che-workspace-pod/"
+                },
+                {
+                  "mountPath": "/projects",
+                  "name": "claim-che-workspace",
+                  "subPath": "workspaceg3698frahxwur2cz/projects/"
+                },
+                {
+                  "mountPath": "/tmp/che/secret/",
+                  "name": "che-self-signed-cert",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/etc/ssh/private",
+                  "name": "workspaceg3698frahxwur2cz-sshprivatekeys",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/etc/ssh/ssh_config",
+                  "name": "ssshkeyconfigvolume",
+                  "readOnly": true,
+                  "subPath": "ssh_config"
+                },
+                {
+                  "mountPath": "/etc/gitconfig",
+                  "name": "gitconfigvolume",
+                  "subPath": "gitconfig"
+                },
+                {
+                  "mountPath": "/public-certs",
+                  "name": "che-ca-certs",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                  "name": "che-workspace-token-cbpng",
+                  "readOnly": true
+                }
+              ]
+            },
+            {
+              "command": [
+                "/go/bin/che-machine-exec",
+                "--url",
+                "127.0.0.1:3333"
+              ],
+              "env": [
+                {
+                  "name": "CHE_WORKSPACE_NAME",
+                  "value": "nodejs-mongo-l7t46"
+                },
+                {
+                  "name": "CHE_WORKSPACE_LOGS_ROOT__DIR",
+                  "value": "/workspace_logs"
+                },
+                {
+                  "name": "CHE_MACHINE_TOKEN",
+                  "value": "eyJhbGciOiJSUzI1NiIsImtpbmQiOiJtYWNoaW5lX3Rva2VuIiwia2lkIjoid29ya3NwYWNlZzM2OThmcmFoeHd1cjJjeiJ9.eyJ3c2lkIjoid29ya3NwYWNlZzM2OThmcmFoeHd1cjJjeiIsInVpZCI6ImExNDgwNjVkLTU3MjMtNDE0Ni1iYzhlLWQ5OTNjNjlkMjJkZCIsImF1ZCI6IndvcmtzcGFjZWczNjk4ZnJhaHh3dXIyY3oiLCJuYmYiOi0xLCJ1bmFtZSI6InVzZXIxIiwiaXNzIjoid3NtYXN0ZXIiLCJleHAiOjE2NDgyMTQ0NzQsImlhdCI6MTYxNjY3ODQ3NCwianRpIjoiYmJiMTk0YjYtMzQxNC00MWE0LWFhZDMtMjA0NWQxZmQ4ZmJlIn0.kF10Y-nH398zbjdpoxVRUTnW6cvbNkSsGloB1EVWliKwH7RD-IvriYYZhgcPilH9eQf5TbwWsTVgYQg38u53ncjKXYusPvLzb_yjauI1Kunp3FqO8VL8lEg1ev_nOxyqfYAfPMlA0xMf6vse-ohZ3_-AGu6CTIqe4JYYAC-est035nhPFgi40L54C_hnvHoDeUOo45UrRGXtRFzDEQPfhr820VidRqII5J1fBJZ2eD67b19u9J4y9ZkVishAqLO9tFMkTJgTXKfijrcs8e9GZrPjh6hSe83RTSjrGyAYd8wy--YTWQRh1PlfgtIu8eyFtxm7fi3iqRPUtKMrggCVdw"
+                },
+                {
+                  "name": "CHE_MACHINE_AUTH_SIGNATURE__ALGORITHM",
+                  "value": "RSA"
+                },
+                {
+                  "name": "CHE_WORKSPACE_NAMESPACE",
+                  "value": "user1"
+                },
+                {
+                  "name": "CHE_API_INTERNAL",
+                  "value": "http://che-host.eclipse-che.svc:8080/api"
+                },
+                {
+                  "name": "CHE_MACHINE_NAME",
+                  "value": "che-machine-exec5ke"
+                },
+                {
+                  "name": "CHE_WORKSPACE_ID",
+                  "value": "workspaceg3698frahxwur2cz"
+                },
+                {
+                  "name": "CHE_PROJECTS_ROOT",
+                  "value": "/projects"
+                },
+                {
+                  "name": "CHE_MACHINE_AUTH_SIGNATURE__PUBLIC__KEY",
+                  "value": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAo6VNVF0LjWClVJSc1m66hOF4UegCzaJHy9bZpWcbpmFliw+osaJ3j9lM3OpHxNwQI9Zb0DwYta27Z4+7I7RXVl0WTaxwoUmRUu9jotzJVh1WGwPL9TCwPL/F8p6E1CVxU52qEFdS35/tsXiB7WdceRWxdIBE4mECaJNMd/vqogChu8b0P41GS92za21qSe+J/pZroJ9lfKE6azYlj5IeIse/eQ9MZMOGYq+IM6szCi9FQKgSMSDpSZeyj6x6ZHsjIVwCgBRE20V/vitDNZGZWx7uiDKJA4+f/lyT7BlfVbLTTulpDoUcyCo/xPsLgm2sr9RWA0jk7WKd2oUeT1f3DwIDAQAB"
+                },
+                {
+                  "name": "CHE_API",
+                  "value": "http://che-host.eclipse-che.svc:8080/api"
+                },
+                {
+                  "name": "CHE_API_EXTERNAL",
+                  "value": "https://che-eclipse-che.apps.cluster-f568.gcp.testdrive.openshift.com/api"
+                }
+              ],
+              "image": "quay.io/eclipse/che-machine-exec:nightly",
+              "imagePullPolicy": "Always",
+              "name": "che-machine-exec5ke",
+              "ports": [
+                {
+                  "containerPort": 3333,
+                  "protocol": "TCP"
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "memory": "536870912"
+                },
+                "requests": {
+                  "memory": "67108864"
+                }
+              },
+              "securityContext": {
+                "capabilities": {
+                  "drop": [
+                    "KILL",
+                    "MKNOD",
+                    "SETGID",
+                    "SETUID"
+                  ]
+                },
+                "runAsUser": 1000650000
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/workspace_logs",
+                  "name": "claim-che-workspace",
+                  "subPath": "workspaceg3698frahxwur2cz/che-logs-che-workspace-pod/"
+                },
+                {
+                  "mountPath": "/tmp/che/secret/",
+                  "name": "che-self-signed-cert",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/etc/ssh/private",
+                  "name": "workspaceg3698frahxwur2cz-sshprivatekeys",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/etc/ssh/ssh_config",
+                  "name": "ssshkeyconfigvolume",
+                  "readOnly": true,
+                  "subPath": "ssh_config"
+                },
+                {
+                  "mountPath": "/etc/gitconfig",
+                  "name": "gitconfigvolume",
+                  "subPath": "gitconfig"
+                },
+                {
+                  "mountPath": "/public-certs",
+                  "name": "che-ca-certs",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                  "name": "che-workspace-token-cbpng",
+                  "readOnly": true
+                }
+              ]
+            }
+          ],
+          "dnsPolicy": "ClusterFirst",
+          "enableServiceLinks": true,
+          "imagePullSecrets": [
+            {
+              "name": "che-workspace-dockercfg-5b9td"
+            }
+          ],
+          "initContainers": [
+            {
+              "env": [
+                {
+                  "name": "PLUGIN_REMOTE_ENDPOINT_EXECUTABLE",
+                  "value": "/remote-endpoint/plugin-remote-endpoint"
+                },
+                {
+                  "name": "REMOTE_ENDPOINT_VOLUME_NAME",
+                  "value": "remote-endpoint"
+                }
+              ],
+              "image": "quay.io/crw_pr/che-theia-endpoint-runtime-binary:1047",
+              "imagePullPolicy": "Always",
+              "name": "remote-runtime-injectort5a",
+              "resources": {},
+              "securityContext": {
+                "capabilities": {
+                  "drop": [
+                    "KILL",
+                    "MKNOD",
+                    "SETGID",
+                    "SETUID"
+                  ]
+                },
+                "runAsUser": 1000650000
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/remote-endpoint",
+                  "name": "remote-endpoint"
+                },
+                {
+                  "mountPath": "/tmp/che/secret/",
+                  "name": "che-self-signed-cert",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/public-certs",
+                  "name": "che-ca-certs",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                  "name": "che-workspace-token-cbpng",
+                  "readOnly": true
+                }
+              ]
+            },
+            {
+              "args": [
+                "--push-endpoint",
+                "ws://che-host.eclipse-che.svc:8080/api/websocket",
+                "--runtime-id",
+                "workspaceg3698frahxwur2cz::a148065d-5723-4146-bc8e-d993c69d22dd",
+                "--cacert",
+                "/tmp/che/secret/ca.crt",
+                "--registry-address",
+                "http://plugin-registry.eclipse-che.svc:8080/v3",
+                "--cadir",
+                "/public-certs",
+                "--metas",
+                "/broker-config/config.json"
+              ],
+              "env": [
+                {
+                  "name": "CHE_AUTH_ENABLED",
+                  "value": "true"
+                },
+                {
+                  "name": "CHE_MACHINE_TOKEN",
+                  "value": "eyJhbGciOiJSUzI1NiIsImtpbmQiOiJtYWNoaW5lX3Rva2VuIiwia2lkIjoid29ya3NwYWNlZzM2OThmcmFoeHd1cjJjeiJ9.eyJ3c2lkIjoid29ya3NwYWNlZzM2OThmcmFoeHd1cjJjeiIsInVpZCI6ImExNDgwNjVkLTU3MjMtNDE0Ni1iYzhlLWQ5OTNjNjlkMjJkZCIsImF1ZCI6IndvcmtzcGFjZWczNjk4ZnJhaHh3dXIyY3oiLCJuYmYiOi0xLCJ1bmFtZSI6InVzZXIxIiwiaXNzIjoid3NtYXN0ZXIiLCJleHAiOjE2NDgyMTQ0NzQsImlhdCI6MTYxNjY3ODQ3NCwianRpIjoiYmJiMTk0YjYtMzQxNC00MWE0LWFhZDMtMjA0NWQxZmQ4ZmJlIn0.kF10Y-nH398zbjdpoxVRUTnW6cvbNkSsGloB1EVWliKwH7RD-IvriYYZhgcPilH9eQf5TbwWsTVgYQg38u53ncjKXYusPvLzb_yjauI1Kunp3FqO8VL8lEg1ev_nOxyqfYAfPMlA0xMf6vse-ohZ3_-AGu6CTIqe4JYYAC-est035nhPFgi40L54C_hnvHoDeUOo45UrRGXtRFzDEQPfhr820VidRqII5J1fBJZ2eD67b19u9J4y9ZkVishAqLO9tFMkTJgTXKfijrcs8e9GZrPjh6hSe83RTSjrGyAYd8wy--YTWQRh1PlfgtIu8eyFtxm7fi3iqRPUtKMrggCVdw"
+                }
+              ],
+              "image": "quay.io/eclipse/che-plugin-artifacts-broker:v3.4.0",
+              "imagePullPolicy": "Always",
+              "name": "che-plugin-artifacts-broker-v3-4-0",
+              "resources": {
+                "limits": {
+                  "memory": "250Mi"
+                },
+                "requests": {
+                  "memory": "250Mi"
+                }
+              },
+              "securityContext": {
+                "capabilities": {
+                  "drop": [
+                    "KILL",
+                    "MKNOD",
+                    "SETGID",
+                    "SETUID"
+                  ]
+                },
+                "runAsUser": 1000650000
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/broker-config/",
+                  "name": "broker-config-volumecwh0m8",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/plugins",
+                  "name": "claim-che-workspace",
+                  "subPath": "workspaceg3698frahxwur2cz/plugins/"
+                },
+                {
+                  "mountPath": "/workspace_logs",
+                  "name": "claim-che-workspace",
+                  "subPath": "workspaceg3698frahxwur2cz/che-logs-che-workspace-pod/"
+                },
+                {
+                  "mountPath": "/tmp/che/secret/",
+                  "name": "che-self-signed-cert",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/public-certs",
+                  "name": "che-ca-certs",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                  "name": "che-workspace-token-cbpng",
+                  "readOnly": true
+                }
+              ]
+            }
+          ],
+          "nodeName": "cluster-f568-9jqt4-worker-b-cvgjm",
+          "preemptionPolicy": "PreemptLowerPriority",
+          "priority": 0,
+          "restartPolicy": "Always",
+          "schedulerName": "default-scheduler",
+          "securityContext": {
+            "fsGroup": 1000650000,
+            "seLinuxOptions": {
+              "level": "s0:c26,c0"
+            }
+          },
+          "serviceAccount": "che-workspace",
+          "serviceAccountName": "che-workspace",
+          "terminationGracePeriodSeconds": 0,
+          "tolerations": [
+            {
+              "effect": "NoExecute",
+              "key": "node.kubernetes.io/not-ready",
+              "operator": "Exists",
+              "tolerationSeconds": 300
+            },
+            {
+              "effect": "NoExecute",
+              "key": "node.kubernetes.io/unreachable",
+              "operator": "Exists",
+              "tolerationSeconds": 300
+            },
+            {
+              "effect": "NoSchedule",
+              "key": "node.kubernetes.io/memory-pressure",
+              "operator": "Exists"
+            }
+          ],
+          "volumes": [
+            {
+              "configMap": {
+                "defaultMode": 420,
+                "name": "workspaceg3698frahxwur2cz.jwtproxy-config"
+              },
+              "name": "che-jwtproxy-config-volume"
+            },
+            {
+              "emptyDir": {},
+              "name": "remote-endpoint"
+            },
+            {
+              "configMap": {
+                "defaultMode": 420,
+                "name": "workspaceg3698frahxwur2cz.broker-config-map3pb3a1"
+              },
+              "name": "broker-config-volumecwh0m8"
+            },
+            {
+              "name": "claim-che-workspace",
+              "persistentVolumeClaim": {
+                "claimName": "claim-che-workspace"
+              }
+            },
+            {
+              "name": "che-self-signed-cert",
+              "secret": {
+                "defaultMode": 420,
+                "secretName": "workspaceg3698frahxwur2cz-che-self-signed-cert"
+              }
+            },
+            {
+              "name": "workspaceg3698frahxwur2cz-sshprivatekeys",
+              "secret": {
+                "defaultMode": 384,
+                "secretName": "workspaceg3698frahxwur2cz-sshprivatekeys"
+              }
+            },
+            {
+              "configMap": {
+                "defaultMode": 420,
+                "name": "workspaceg3698frahxwur2cz.sshconfigmap"
+              },
+              "name": "ssshkeyconfigvolume"
+            },
+            {
+              "configMap": {
+                "defaultMode": 420,
+                "name": "workspaceg3698frahxwur2cz.gitconfig"
+              },
+              "name": "gitconfigvolume"
+            },
+            {
+              "configMap": {
+                "defaultMode": 420,
+                "name": "workspaceg3698frahxwur2cz.ca-certs"
+              },
+              "name": "che-ca-certs"
+            },
+            {
+              "name": "che-workspace-token-cbpng",
+              "secret": {
+                "defaultMode": 420,
+                "secretName": "che-workspace-token-cbpng"
+              }
+            }
+          ]
+        },
+        "status": {
+          "conditions": [
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2021-03-25T13:21:36.000Z",
+              "status": "True",
+              "type": "Initialized"
+            },
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2021-03-25T13:21:43.000Z",
+              "status": "True",
+              "type": "Ready"
+            },
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2021-03-25T13:21:43.000Z",
+              "status": "True",
+              "type": "ContainersReady"
+            },
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2021-03-25T13:21:30.000Z",
+              "status": "True",
+              "type": "PodScheduled"
+            }
+          ],
+          "containerStatuses": [
+            {
+              "containerID": "cri-o://8b86e39986a01eaae64a163b652e984ee2cfce67de647dddb68978eef02a8fe1",
+              "image": "quay.io/eclipse/che-plugin-sidecar@sha256:3a5f128b217625c211f69fd2277300ae611fcf7da287c2786e522f13a81ed701",
+              "imageID": "quay.io/eclipse/che-plugin-sidecar@sha256:3a5f128b217625c211f69fd2277300ae611fcf7da287c2786e522f13a81ed701",
+              "lastState": {},
+              "name": "asciidoctor-vscodef07",
+              "ready": true,
+              "restartCount": 0,
+              "started": true,
+              "state": {
+                "running": {
+                  "startedAt": "2021-03-25T13:21:39.000Z"
+                }
+              }
+            },
+            {
+              "containerID": "cri-o://8b76337e4b90611749bdaf310e948d2145d6828fac5214186d9bc1ae03f3fa19",
+              "image": "quay.io/eclipse/che-jwtproxy:0.10.0",
+              "imageID": "quay.io/eclipse/che-jwtproxy@sha256:5577237b1a0655d2d54a5137203f67a4eb91da73beb88fba32d50ec6e0657dff",
+              "lastState": {},
+              "name": "che-jwtproxyr3tib71r",
+              "ready": true,
+              "restartCount": 0,
+              "started": true,
+              "state": {
+                "running": {
+                  "startedAt": "2021-03-25T13:21:38.000Z"
+                }
+              }
+            },
+            {
+              "containerID": "cri-o://8f2d6d2bb754eebb3cb2b4372f313aaab5b88a1c87ea4f45ddf52ff7341d63d2",
+              "image": "quay.io/eclipse/che-machine-exec:nightly",
+              "imageID": "quay.io/eclipse/che-machine-exec@sha256:2efaad74772970ee63a4d5281a75293c6d94b70400f7f7d5660594c92312d9db",
+              "lastState": {},
+              "name": "che-machine-exec5ke",
+              "ready": true,
+              "restartCount": 0,
+              "started": true,
+              "state": {
+                "running": {
+                  "startedAt": "2021-03-25T13:21:43.000Z"
+                }
+              }
+            },
+            {
+              "containerID": "cri-o://4ee97a200fa0d38fa90b975ddc8910d7ae64fc1ed296ce6585fe92a4bd5d8f6f",
+              "image": "quay.io/crw_pr/che-theia:1047",
+              "imageID": "quay.io/crw_pr/che-theia@sha256:7e54df8ba049b2d99b70317496415972ba89f9767ec82924966c83bdaf895023",
+              "lastState": {},
+              "name": "theia-idecae",
+              "ready": true,
+              "restartCount": 0,
+              "started": true,
+              "state": {
+                "running": {
+                  "startedAt": "2021-03-25T13:21:41.000Z"
+                }
+              }
+            }
+          ],
+          "hostIP": "10.0.32.3",
+          "initContainerStatuses": [
+            {
+              "containerID": "cri-o://124bd9597f4d3560c1d054b34738424bccd13807bef8846019f33d97f195136d",
+              "image": "quay.io/crw_pr/che-theia-endpoint-runtime-binary:1047",
+              "imageID": "quay.io/crw_pr/che-theia-endpoint-runtime-binary@sha256:f2c79a09ab15aeed383aff9c8e8e0043e3c25a41c438f1d8d4c6902402b5cf5e",
+              "lastState": {},
+              "name": "remote-runtime-injectort5a",
+              "ready": true,
+              "restartCount": 0,
+              "state": {
+                "terminated": {
+                  "containerID": "cri-o://124bd9597f4d3560c1d054b34738424bccd13807bef8846019f33d97f195136d",
+                  "exitCode": 0,
+                  "finishedAt": "2021-03-25T13:21:34.000Z",
+                  "reason": "Completed",
+                  "startedAt": "2021-03-25T13:21:34.000Z"
+                }
+              }
+            },
+            {
+              "containerID": "cri-o://f773df026986b32312cd523b3ba52663e56cb96f16358287901889090eb869e6",
+              "image": "quay.io/eclipse/che-plugin-artifacts-broker:v3.4.0",
+              "imageID": "quay.io/eclipse/che-plugin-artifacts-broker@sha256:4891a6e19be9eae59372f4b31144653f9bd1284e0301ecfe896a099ca6a12b58",
+              "lastState": {},
+              "name": "che-plugin-artifacts-broker-v3-4-0",
+              "ready": true,
+              "restartCount": 0,
+              "state": {
+                "terminated": {
+                  "containerID": "cri-o://f773df026986b32312cd523b3ba52663e56cb96f16358287901889090eb869e6",
+                  "exitCode": 0,
+                  "finishedAt": "2021-03-25T13:21:36.000Z",
+                  "reason": "Completed",
+                  "startedAt": "2021-03-25T13:21:36.000Z"
+                }
+              }
+            }
+          ],
+          "phase": "Running",
+          "podIP": "10.128.3.194",
+          "podIPs": [
+            {
+              "ip": "10.128.3.194"
+            }
+          ],
+          "qosClass": "Burstable",
+          "startTime": "2021-03-25T13:21:30.000Z"
+        }
+      }
+    ],
+    "kind": "PodList",
+    "metadata": {
+      "resourceVersion": "1567532",
+      "selfLink": "/api/v1/namespaces/user1-che/pods"
+    }
+  }

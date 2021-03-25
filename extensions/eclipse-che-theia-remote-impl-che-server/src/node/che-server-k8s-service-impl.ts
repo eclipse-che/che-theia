@@ -12,6 +12,7 @@ import * as k8s from '@kubernetes/client-node';
 
 import { CheK8SService, K8SRawResponse } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
 
+import { ApiType } from '@kubernetes/client-node';
 import { injectable } from 'inversify';
 
 const request = require('request');
@@ -48,5 +49,13 @@ export class CheK8SServiceImpl implements CheK8SService {
         });
       });
     });
+  }
+
+  getConfig(): k8s.KubeConfig {
+    return this.kc;
+  }
+
+  makeApiClient<T extends ApiType>(apiClientType: new (server: string) => T): T {
+    return this.kc.makeApiClient(apiClientType);
   }
 }
