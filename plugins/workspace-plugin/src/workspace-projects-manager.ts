@@ -51,12 +51,7 @@ export class WorkspaceProjectsManager {
 
     this.outputChannel.appendLine(`Clone commands are ${JSON.stringify(cloneCommandList, undefined, 2)}`);
 
-    const workspace = await che.workspace.getCurrentWorkspace();
-
-    // the multi-root mode is ON by default for DevWorkspace
-    // 'workspace.runtime' is 'undefined' in the case of DevWorkspace
-    // the check for 'workspace.runtime' will be removed soon as we are going to turn on multi-root mode by default
-    const isMultiRoot = !workspace.runtime || devfile.metadata?.attributes?.multiRoot === 'on';
+    const isMultiRoot = devfile.metadata?.attributes?.multiRoot !== 'off';
 
     this.outputChannel.appendLine(`multi root is ${isMultiRoot}`);
 

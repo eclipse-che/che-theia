@@ -11,11 +11,11 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
-import { Workspace, WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { inject, injectable } from 'inversify';
 
 import { DefaultWorkspaceServer } from '@theia/workspace/lib/node/default-workspace-server';
 import { FileUri } from '@theia/core/lib/node';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 interface TheiaWorkspace {
   folders: TheiaWorkspacePath[];
@@ -34,7 +34,7 @@ export class CheWorkspaceServer extends DefaultWorkspaceServer {
   // if not possible, use default method
   protected async getRoot(): Promise<string | undefined> {
     const workspace = await this.workspaceService.currentWorkspace();
-    if (!isMultiRoot(workspace)) {
+    if (workspace.devfile?.attributes?.multiRoot === 'off') {
       return super.getRoot();
     }
 
@@ -53,11 +53,4 @@ export class CheWorkspaceServer extends DefaultWorkspaceServer {
 
     return cheTheiaWorkspaceFileUri.toString();
   }
-}
-
-function isMultiRoot(workspace: Workspace): boolean {
-  // the multi-root mode is ON by default for DevWorkspace
-  // 'workspace.runtime' is 'undefined' in the case of DevWorkspace
-  // the check for 'workspace.runtime' will be removed soon as we are going to turn on multi-root mode by default
-  return !workspace.runtime || workspace.devfile?.attributes?.multiRoot === 'on';
 }
