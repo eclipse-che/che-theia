@@ -122,7 +122,7 @@ export async function testSecureLogin(uri: string): Promise<string> {
   const args: string[] = ['-T', host];
 
   try {
-    const result = await execute('ssh', args);
+    const result = await execute('ssh', args, {});
     return result;
   } catch (error) {
     const searchString = "You've successfully authenticated";

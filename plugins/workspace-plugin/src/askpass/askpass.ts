@@ -18,6 +18,8 @@ const randomBytes = denodeify<Buffer>(crypto.randomBytes);
 
 export interface AskpassEnvironment {
   GIT_ASKPASS: string;
+  SSH_ASKPASS: string;
+  DISPLAY: string;
   ELECTRON_RUN_AS_NODE?: string;
   CHE_THEIA_GIT_ASKPASS_NODE?: string;
   CHE_THEIA_GIT_ASKPASS_MAIN?: string;
@@ -52,11 +54,11 @@ export class Askpass implements theia.Disposable {
 
   constructor() {
     this.server = http.createServer((req, res) => this.onRequest(req, res));
-    this.promptManager = new PromptManager((host: string, placeHolder: string) => {
+    this.promptManager = new PromptManager((request: string, prompt: string) => {
       const options: theia.InputBoxOptions = {
-        password: /password/i.test(placeHolder),
-        placeHolder: placeHolder,
-        prompt: `Git: ${host}`,
+        password: /password/i.test(request) || /enter passphrase/i.test(request),
+        placeHolder: request,
+        prompt: prompt,
         ignoreFocusOut: true,
       };
       return theia.window.showInputBox(options);
@@ -88,10 +90,10 @@ export class Askpass implements theia.Disposable {
     const chunks: string[] = [];
     req.setEncoding('utf8');
     req.on('data', (d: string) => chunks.push(d));
-    req.on('end', () => {
-      const { request, host } = JSON.parse(chunks.join(''));
+    req.on('end', async () => {
+      const { request, prompt } = JSON.parse(chunks.join(''));
 
-      this.promptManager.askPass(host, request).then(
+      this.promptManager.askPass(request, prompt).then(
         result => {
           res.writeHead(200);
           res.end(JSON.stringify(result));
@@ -105,15 +107,23 @@ export class Askpass implements theia.Disposable {
   }
 
   async getEnv(): Promise<AskpassEnvironment> {
+    const srcDir = path.join(__dirname, '..', '..', 'src', 'askpass');
+
     if (!this.enabled) {
+      const empty = path.join(srcDir, 'askpass-empty.sh');
       return {
-        GIT_ASKPASS: path.join(__dirname, 'askpass-empty.sh'),
+        GIT_ASKPASS: empty,
+        SSH_ASKPASS: empty,
+        DISPLAY: 'localhost:0.0',
       };
     }
 
+    const askpass = path.join(srcDir, 'askpass.sh');
     return {
       ELECTRON_RUN_AS_NODE: '1',
-      GIT_ASKPASS: path.join(__dirname, '../', 'src', 'askpass.sh'),
+      GIT_ASKPASS: askpass,
+      SSH_ASKPASS: askpass,
+      DISPLAY: 'localhost:0.0',
       CHE_THEIA_GIT_ASKPASS_NODE: process.execPath,
       CHE_THEIA_GIT_ASKPASS_MAIN: path.join(__dirname, 'askpass-main.js'),
       CHE_THEIA_GIT_ASKPASS_HANDLE: await this.ipcHandlePathPromise,
