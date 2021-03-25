@@ -46,7 +46,7 @@ describe('Test preparing of CA bundle: ', () => {
 
       readFile: async (file: string | Buffer | number): Promise<Buffer> => {
         if (file === '/etc/ssl/certs/ca-certificates.crt') {
-          return Buffer.from('KEY1', 'utf-8');
+          return Buffer.from('/etc/ssl/certs/ca-certificates.crt', 'utf-8');
         }
 
         return Promise.reject();
@@ -71,7 +71,7 @@ describe('Test preparing of CA bundle: ', () => {
     expect(readFileSpy).toHaveBeenCalledTimes(1);
     expect(appendFileSpy).toHaveBeenCalledTimes(1);
 
-    expect(testContent).toBe('KEY1');
+    expect(testContent).toBe('/etc/ssl/certs/ca-certificates.crt');
   });
 
   test('With the last default certificate and with /tmp/che/secret/ca.crt', async () => {
