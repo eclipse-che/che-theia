@@ -37,15 +37,18 @@ jobs:
       run: |
         set +e
         RECREATE_TAGS=${{ github.event.inputs.forceRecreateTags }}
-        git ls-remote --exit-code origin refs/tags/${{ github.event.inputs.version}}
-        TAG_EXISTS=$?
-        if [[ $TAG_EXISTS -eq 0 ]]; then
-          if [[ $RECREATE_TAGS == "true" ]]; then
-            echo "[INFO] Recreating tags for ${{ github.event.inputs.version}} version"
-            git push origin :${{ github.event.inputs.version}}
+        VERSION=${{ github.event.inputs.version }}
+        EXISTING_TAG=$(git ls-remote --exit-code origin refs/tags/${VERSION})
+        if [[ -n ${EXISTING_TAG} ]]; then
+          if [[ ${RECREATE_TAGS} == "true" ]]; then
+            echo "[INFO] Removing tag for ${VERSION} version. New tag will be recreated during release."
+            git push origin :$VERSION
           else
-            echo "[ERROR] Cannot proceed with release - tag already exists"
+            echo "[ERROR] Cannot proceed with release - tag ${EXISTING_TAG} already exists."
+            exit 1
           fi
+        else
+          echo "[INFO] No existing tags detected for $VERSION"
         fi
     - uses: actions/setup-node@v1
       name: Configuring nodejs 12.x version
@@ -83,14 +86,15 @@ jobs:
     - name: Publish packages to npmjs
       if: github.event.inputs.pushToNpmJs == true 
       run: yarn publish:next
-  notify:
-    runs-on: ubuntu-20.04
-    needs: build
-    steps:
-    - name: Create MM message
+    - name: Create failure MM message
+      if: ${{ failure() }}
+      run: |
+        echo "{\"text\":\":building_construction: Che Theia ${{ github.event.inputs.version }} release has failed: https://github.com/eclipse/che-theia/actions/workflows/release.yml\"}" > mattermost.json
+    - name: Create success MM message
       run: |
         echo "{\"text\":\":building_construction: Che Theia ${{ github.event.inputs.version }} has been released: https://quay.io/eclipse/che-theia-dev:${{ github.event.inputs.version }} https://quay.io/eclipse/che-theia:${{ github.event.inputs.version }} https://quay.io/eclipse/che-theia-endpoint-runtime-binary:${{ github.event.inputs.version }}\"}" > mattermost.json
     - name: Send MM message
+      if: ${{ success() }} || ${{ failure() }}
       uses: mattermost/action-mattermost-notify@master
       env:
         MATTERMOST_WEBHOOK_URL: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
