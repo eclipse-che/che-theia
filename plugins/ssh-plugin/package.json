@@ -29,7 +29,8 @@
   "dependencies": {
     "axios": "0.21.1",
     "fs-extra": "7.0.1",
-    "@eclipse-che/plugin": "0.0.1"
+    "@eclipse-che/plugin": "0.0.1",
+    "inversify": "^5.0.1"
   },
   "devDependencies": {
     "@eclipse-che/api": "latest",
@@ -53,7 +54,7 @@
     "theiaPlugin": "next"
   },
   "theiaPlugin": {
-    "backend": "lib/ssh-plugin-backend.js"
+    "backend": "lib/ssh-plugin.js"
   },
   "jest": {
     "clearMocks": true,

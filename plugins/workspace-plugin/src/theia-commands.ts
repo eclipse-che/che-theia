@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2021 Red Hat, Inc.
+ * Copyright (c) 2018-2020 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -114,23 +114,23 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
     }
 
     // clone using SSH URI
-    let latestError: string | undefined;
+    let errorReason: string | undefined;
     while (true) {
       // test secure login
       try {
+        await ssh.updateSSHAgentConfig();
         await git.testSecureLogin(this.defaultRemoteLocation);
         // exit the loop when successfull login
         break;
       } catch (error) {
-        // let out: theia.OutputChannel = theia.window.createOutputChannel('GIT clone');
         if (!output) {
-          output = theia.window.createOutputChannel('GIT');
+          output = theia.window.createOutputChannel('git clone');
         }
 
         output.show(true);
-        output.appendLine(error.message);
+        output.appendLine(`> git clone ${this.defaultRemoteLocation}\r${error.message}`);
 
-        latestError = git.getErrorReason(error.message);
+        errorReason = git.getErrorReason(error.message);
       }
 
       // unable to login
@@ -143,8 +143,8 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
       const CONFIGURE_SSH = 'Configure SSH';
 
       let message = `Failure to clone git project ${this.defaultRemoteLocation}`;
-      if (latestError) {
-        message += ` ${latestError}`;
+      if (errorReason) {
+        message += ` ${errorReason}`;
       }
 
       const isSecureGitHubURI = git.isSecureGitHubURI(this.defaultRemoteLocation);
@@ -158,7 +158,7 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
         await ssh.addKeyToGitHub();
         continue;
       } else if (action === CONFIGURE_SSH) {
-        await ssh.configure(isSecureGitHubURI);
+        await ssh.configureSSH(isSecureGitHubURI);
         continue;
       } else {
         // It seems user closed the popup.

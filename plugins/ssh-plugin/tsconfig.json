@@ -11,7 +11,8 @@
         "outDir": "lib",
         "types": [
             "node", "jest"
-        ]
+        ],
+        "experimentalDecorators": true
     },
     "include": [
         "src"

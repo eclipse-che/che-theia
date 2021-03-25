@@ -13,28 +13,24 @@ export class PromptManager {
   private askPassResults: Map<Symbol, string> = new Map();
   private mutex: Mutex = new Mutex();
 
-  constructor(promptLauncher: (host: string, placeHolder: string) => PromiseLike<string | undefined>) {
-    this.askPassPromptLauncher = promptLauncher;
-  }
+  constructor(private readonly prompt: (request: string, prompt: string) => PromiseLike<string | undefined>) {}
 
-  async askPass(host: string, placeHolder: string): Promise<string> {
+  async askPass(request: string, prompt: string): Promise<string> {
     const release = await this.mutex.acquire();
     try {
-      const key = getKey(host, placeHolder);
+      const key = getKey(request, prompt);
       if (this.askPassResults.has(key)) {
         return this.askPassResults.get(key) || '';
       }
-      const result = (await this.askPassPromptLauncher(host, placeHolder)) || '';
+      const result = (await this.prompt(request, prompt)) || '';
       this.askPassResults.set(key, result);
       return result;
     } finally {
       release();
     }
   }
-
-  askPassPromptLauncher: (host: string, placeHolder: string) => PromiseLike<string | undefined>;
 }
 
-function getKey(host: string, placeHolder: string) {
-  return Symbol.for(`key[${host}:${placeHolder}]`);
+function getKey(request: string, prompt: string) {
+  return Symbol.for(`key[${request}:${prompt}]`);
 }

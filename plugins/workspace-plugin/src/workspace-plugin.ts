@@ -14,7 +14,7 @@ import { handleWorkspaceProjects, onDidCloneSources } from './workspace-projects
 
 import { Devfile } from './devfile';
 import { EphemeralWorkspaceChecker } from './ephemeral-workspace-checker';
-import { initAskpassEnv } from './askpass';
+import { initAskpassEnv } from './askpass/askpass';
 
 interface API {
   readonly onDidCloneSources: theia.Event<void>;

@@ -10,13 +10,23 @@ import * as http from 'http';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function fatal(err: any): void {
-  console.error('Missing or invalid credentials.');
   console.error(err);
   process.exit(1);
 }
 
 function main(argv: string[]): void {
-  if (argv.length !== 5) {
+  let request;
+  let prompt: string;
+
+  if (argv.length === 5) {
+    // git
+    request = argv[2];
+    prompt = 'Git: ' + argv[4].substring(1, argv[4].length - 2);
+  } else if (argv.length === 7) {
+    // ssh
+    request = argv[2] + ' ' + argv[3];
+    prompt = 'SSH: ' + argv[6].substring(1, argv[6].length - 2);
+  } else {
     return fatal('Wrong number of arguments');
   }
 
@@ -34,8 +44,7 @@ function main(argv: string[]): void {
 
   const output = process.env['CHE_THEIA_GIT_ASKPASS_PIPE'];
   const socketPath = process.env['CHE_THEIA_GIT_ASKPASS_HANDLE'];
-  const request = argv[2];
-  const host = argv[4].substring(1, argv[4].length - 2);
+
   const opts: http.RequestOptions = {
     socketPath,
     path: '/',
@@ -65,7 +74,7 @@ function main(argv: string[]): void {
   });
 
   req.on('error', () => fatal('Error in request'));
-  req.write(JSON.stringify({ request, host }));
+  req.write(JSON.stringify({ request, prompt }));
   req.end();
 }
 
