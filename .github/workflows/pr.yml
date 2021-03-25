@@ -11,8 +11,8 @@
 # matrix jobs with alpine and ubi8
 name: CI
 
-# Trigger the workflow on push or pull request
-on: [push, pull_request]
+# Trigger the workflow on pull request
+on: [pull_request]
 
 jobs:
   # check EOF newline
