@@ -23,14 +23,19 @@ const mockSetProperty: any = jest.fn();
 const mockHasProperty: any = jest.fn();
 let container: Container;
 const devfileServiceGetMethod = jest.fn();
+const devfileServiceGetComponentStatusesMethod = jest.fn();
 const devfileService = {
   get: devfileServiceGetMethod,
+  getComponentStatuses: devfileServiceGetComponentStatusesMethod,
 };
 let prefsProvider: PreferencesProvider;
+const consoleErrorMock = jest.fn();
+const originalConsoleLogError = console.error;
 beforeEach(() => {
   jest.restoreAllMocks();
   jest.resetAllMocks();
   container = new Container();
+  console.error = consoleErrorMock;
 
   const preferenceServiceImpl = {
     has: mockHasProperty,
@@ -48,10 +53,15 @@ beforeEach(() => {
   prefsProvider = container.get(PreferencesProvider);
 });
 
-const prefsExpectation = [
+afterEach(() => {
+  console.error = originalConsoleLogError;
+});
+
+const prefsExpectation: [string, any][] = [
   ['java.jdt.ls.vmargs', '-noverify -Xmx1G -XX:+UseG1GC -XX:+UseStringDeduplication'],
   ['java.home', '/home/user/jdk11'],
 ];
+const allPrefsExpectation = prefsExpectation.concat([['asciidoc.use_asciidoctorpdf', true]]);
 
 describe('PreferenceProvider', () => {
   test('should not overwrite an existing property', async () => {
@@ -77,6 +87,7 @@ describe('PreferenceProvider', () => {
       projects: [],
       components: [
         {
+          name: '',
           plugin: {
             id: 'eclipse/che-machine-exec-plugin/0.0.1',
             endpoints: [],
@@ -96,8 +107,89 @@ describe('PreferenceProvider', () => {
             },
           },
         },
+        {
+          name: 'asciidoctor-vscodef07',
+          container: {
+            image: 'fooimage',
+            env: [
+              {
+                name: 'CHE_THEIA_SIDECAR_PREFERENCES',
+                value: '{"asciidoc.use_asciidoctorpdf":true}',
+              },
+            ],
+          },
+        },
       ],
     };
+    devfileServiceGetMethod.mockReturnValue(devfileV2);
+    const componentStatuses = [
+      {
+        name: 'asciidoctor-vscodef07',
+        isUser: false,
+        endpoints: {},
+        env: [
+          {
+            name: 'CHE_THEIA_SIDECAR_PREFERENCES',
+            value: '{"asciidoc.use_asciidoctorpdf":true}',
+          },
+        ],
+      },
+    ];
+    devfileServiceGetComponentStatusesMethod.mockReturnValue(componentStatuses);
+    const setPluginSpy = jest.spyOn(prefsProvider, 'setPluginProperties');
+    setPluginSpy.mockResolvedValue();
+
+    await prefsProvider.restorePluginProperties();
+
+    expect((<any>prefsProvider).setPluginProperties.mock.calls[0][0]).toEqual(allPrefsExpectation);
+  });
+
+  test('should handle invalid env preferences', async () => {
+    devfileServiceGetComponentStatusesMethod.mockReturnValue([]);
+    const devfileV2: Devfile = {
+      apiVersion: '2.0.0',
+      metadata: {},
+      projects: [],
+      components: [
+        {
+          name: 'asciidoctor-1',
+          container: {
+            image: 'fooimage',
+            env: [
+              {
+                name: 'CHE_THEIA_SIDECAR_PREFERENCES',
+                value: 'NOT A VALID JSON',
+              },
+            ],
+          },
+        },
+      ],
+    };
+    const componentStatuses = [
+      {
+        name: 'asciidoctor-1',
+        isUser: false,
+        endpoints: {},
+        env: [
+          {
+            name: 'CHE_THEIA_SIDECAR_PREFERENCES',
+            value: 'NOT A VALID JSON',
+          },
+        ],
+      },
+      {
+        name: 'asciidoctor-2',
+        isUser: false,
+        endpoints: {},
+        env: [
+          {
+            name: 'CHE_THEIA_SIDECAR_PREFERENCES',
+            value: '{"foo": "bar"}',
+          },
+        ],
+      },
+    ];
+    devfileServiceGetComponentStatusesMethod.mockReturnValue(componentStatuses);
     devfileServiceGetMethod.mockReturnValue(devfileV2);
 
     const setPluginSpy = jest.spyOn(prefsProvider, 'setPluginProperties');
@@ -105,6 +197,9 @@ describe('PreferenceProvider', () => {
 
     await prefsProvider.restorePluginProperties();
 
-    expect((<any>prefsProvider).setPluginProperties.mock.calls[0][0]).toEqual(prefsExpectation);
+    expect((<any>prefsProvider).setPluginProperties.mock.calls[0][0]).toEqual([['foo', 'bar']]);
+    expect(consoleErrorMock.mock.calls[0][0]).toMatch(
+      new RegExp('Ignoring invalid JSON value .* for ENV=CHE_THEIA_SIDECAR_PREFERENCES')
+    );
   });
 });
