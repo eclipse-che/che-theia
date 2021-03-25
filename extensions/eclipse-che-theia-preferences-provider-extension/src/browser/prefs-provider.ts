@@ -32,19 +32,37 @@ export class PreferencesProvider implements FrontendApplicationContribution {
 
   private async getPluginsProperties(): Promise<[string, string][]> {
     const devfile = await this.devfileService.get();
+    const componentStatuses = await this.devfileService.getComponentStatuses();
     const components = devfile.components;
     if (!components) {
       throw new TypeError('Can\'t get "components" of current workspace "devfile" section.');
     }
 
-    return components
-      .map(component => {
-        if (component.plugin) {
-          return component.plugin.preferences || {};
-        } else {
-          return {};
+    const devfilePluginPreferences = components.map(component => {
+      if (component.plugin) {
+        return component.plugin.preferences || {};
+      }
+      return {};
+    });
+
+    const componentStatusPreferences = componentStatuses.map(componentStatus => {
+      // check if env var is matching
+      if (componentStatus?.env) {
+        const preferencesEnv = componentStatus.env.find(env => env.name === 'CHE_THEIA_SIDECAR_PREFERENCES');
+        if (preferencesEnv) {
+          try {
+            return JSON.parse(preferencesEnv.value);
+          } catch (error) {
+            console.error(
+              `Ignoring invalid JSON value '${preferencesEnv.value}' from component ${componentStatus.name} for ENV=CHE_THEIA_SIDECAR_PREFERENCES`
+            );
+          }
         }
-      })
+      }
+      return {};
+    });
+    return devfilePluginPreferences
+      .concat(componentStatusPreferences)
       .reduce((result: [string, string][], preferences: { [key: string]: string }) => {
         Object.keys(preferences).forEach(key => {
           result.push(<[string, string]>[key, preferences[key]]);
