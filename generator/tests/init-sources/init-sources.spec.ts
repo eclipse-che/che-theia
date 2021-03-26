@@ -446,15 +446,15 @@ describe('Test Extensions', () => {
         );
 
         const aliases = [
-            'https://github.com/eclipse/che-theia=../che-theia',
+            'https://github.com/eclipse-che/che-theia=../che-theia',
             'key1=value1',
-            '../test=https://github.com/eclipse/che-theia',
+            '../test=https://github.com/eclipse-che/che-theia',
         ];
 
         initSources.initSourceLocationAliases(aliases);
 
-        expect(initSources.sourceLocationAliases.get('https://github.com/eclipse/che-theia')).toBe('../che-theia');
-        expect(initSources.sourceLocationAliases.get('../test')).toBe('https://github.com/eclipse/che-theia');
+        expect(initSources.sourceLocationAliases.get('https://github.com/eclipse-che/che-theia')).toBe('../che-theia');
+        expect(initSources.sourceLocationAliases.get('../test')).toBe('https://github.com/eclipse-che/che-theia');
         expect(initSources.sourceLocationAliases.get('test')).toBeUndefined();
     });
 

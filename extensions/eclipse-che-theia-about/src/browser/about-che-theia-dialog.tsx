@@ -96,7 +96,7 @@ export class AboutCheTheiaDialog extends AboutDialog {
         return <h4 style={style}>
             Che-Theia@
             <a
-                href={`https://github.com/eclipse/che-theia/commit/${jsonDetails.cheTheiaSha1}`}
+                href={`https://github.com/eclipse-che/che-theia/commit/${jsonDetails.cheTheiaSha1}`}
                 target='_blank'
                 rel='noopener noreferrer'
                 style={linkStyle}>

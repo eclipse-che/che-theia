@@ -16,14 +16,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eclipse/che-theia.git"
+    "url": "git+https://github.com/eclipse-che/che-theia.git"
   },
   "author": "",
   "license": "EPL-2.0",
   "bugs": {
     "url": "https://github.com/eclipse/che/issues"
   },
-  "homepage": "https://github.com/eclipse/che-theia/blob/master/tools/automation/README.md",
+  "homepage": "https://github.com/eclipse-che/che-theia/blob/master/tools/automation/README.md",
   "dependencies": {
     "download": "^8.0.0",
     "fs-extra": "^9.0.1",

@@ -10,7 +10,7 @@ projects:
   - name: che-theia
     source:
       type: git
-      location: 'https://github.com/eclipse/che-theia.git'
+      location: 'https://github.com/eclipse-che/che-theia.git'
 
 components:
 

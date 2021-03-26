@@ -25,4 +25,4 @@ git init .
 git checkout --orphan gh-pages
 git add ./*
 git commit -m "Automated Built-In Extensions Report $DATE_TIME" -s
-git push -f "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/eclipse/che-theia.git" gh-pages
+git push -f "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/eclipse-che/che-theia.git" gh-pages

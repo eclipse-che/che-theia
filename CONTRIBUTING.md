@@ -78,7 +78,7 @@ $ che-theia init --dev
 
 This command will checkout all extensions in `/projects/theia/che` folder and create symbolic link into `/projects/theia/packages` folder.
 
-By default, extensions list is retrieved from https://github.com/eclipse/che-theia/blob/master/che-theia-init-sources.yml
+By default, extensions list is retrieved from https://github.com/eclipse-che/che-theia/blob/master/che-theia-init-sources.yml
 
 ### Step 3: Code che-theia extensions
 At this point you can code on che-theia extensions inside `/projects/theia/che/che-theia/extensions` folder. Extensions changes would be taken into account in the next step.
@@ -143,7 +143,7 @@ and run these plugins with the existing che-theia app:
 
 ## Che-Theia development on che.openshift.io
 
-There is a [devfile](https://github.com/eclipse/che-theia/blob/master/devfiles/hosted-che-dogfooding.devfile.yaml) to develop Che-Theia on [che.openshift.io](https://che.openshift.io)
+There is a [devfile](https://github.com/eclipse-che/che-theia/blob/master/devfiles/hosted-che-dogfooding.devfile.yaml) to develop Che-Theia on [che.openshift.io](https://che.openshift.io)
 
 Projects directory which is a Persistent Volume on [che.openshift.io](https://che.openshift.io) is limited to 1 gigabyte. It's not enough to build Che-Theia.
 The main idea is to use `/tmp/theia` directotry. Amount for this directory is limited to 3 gigabytes, which is enough to build Che-Theia and run.
@@ -165,7 +165,7 @@ $ mkdir -p /tmp/theia/che/che-theia
 $ rsync -rtv /projects/theia/ /tmp/theia/
 $ rsync -rtv /projects/che-theia/ /tmp/theia/che/che-theia/
 $ cd /tmp/theia
-$ che-theia init --alias https://github.com/eclipse/che-theia=/tmp/theia/che/che-theia
+$ che-theia init --alias https://github.com/eclipse-che/che-theia=/tmp/theia/che/che-theia
 
 ```
 
