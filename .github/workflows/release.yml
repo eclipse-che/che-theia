@@ -81,10 +81,10 @@ jobs:
         CDN_PREFIX: https://static.developers.redhat.com/che/theia_artifacts/
         MONACO_CDN_PREFIX: https://cdn.jsdelivr.net/npm/
     - name: Set-up npmjs auth token
-      if: github.event.inputs.pushToNpmJs == true
+      if: github.event.inputs.pushToNpmJs == true 
       run: printf "//registry.npmjs.org/:_authToken=${{ secrets.CHE_NPM_AUTH_TOKEN }}\n" >> ~/.npmrc
     - name: Publish packages to npmjs
-      if: github.event.inputs.pushToNpmJs == true
+      if: github.event.inputs.pushToNpmJs == true 
       run: yarn publish:next
   notify:
     runs-on: ubuntu-20.04
@@ -96,7 +96,7 @@ jobs:
         echo "{\"text\":\":building_construction: Che Theia ${{ github.event.inputs.version }} release has failed: https://github.com/eclipse-che/che-theia/actions/workflows/release.yml\"}" > mattermost.json
     - name: Create success MM message
       run: |
-        echo "{\"text\":\":building_construction: Che Theia ${{ github.event.inputs.version }} has been released: https://quay.io/eclipse-che/che-theia-dev:${{ github.event.inputs.version }} https://quay.io/eclipse/che-theia:${{ github.event.inputs.version }} https://quay.io/eclipse/che-theia-endpoint-runtime-binary:${{ github.event.inputs.version }}\"}" > mattermost.json
+        echo "{\"text\":\":building_construction: Che Theia ${{ github.event.inputs.version }} has been released: https://quay.io/eclipse/che-theia-dev:${{ github.event.inputs.version }} https://quay.io/eclipse/che-theia:${{ github.event.inputs.version }} https://quay.io/eclipse/che-theia-endpoint-runtime-binary:${{ github.event.inputs.version }}\"}" > mattermost.json
     - name: Send MM message
       if: ${{ success() }} || ${{ failure() }}
       uses: mattermost/action-mattermost-notify@master
