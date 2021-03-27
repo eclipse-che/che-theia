@@ -20,7 +20,7 @@ import { MachineExecWatcher } from '../machine/machine-exec-watcher';
 import { ProjectPathVariableResolver } from '../variable/project-path-variable-resolver';
 
 // CHE task gets ID at creating in che task service
-// https://github.com/eclipse/che-theia/blob/c515f75044f9099820c3b18afb8de83f263d671a/extensions/eclipse-che-theia-plugin-ext/src/node/che-task-service.ts#L89
+// https://github.com/eclipse-che/che-theia/blob/c515f75044f9099820c3b18afb8de83f263d671a/extensions/eclipse-che-theia-plugin-ext/src/node/che-task-service.ts#L89
 const STUB_TASK_ID: number = -1;
 
 @injectable()

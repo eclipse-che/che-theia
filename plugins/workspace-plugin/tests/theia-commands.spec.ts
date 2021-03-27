@@ -31,7 +31,7 @@ describe('Test theia-commands', () => {
       name: 'che-theia',
       git: {
         remotes: {
-          origin: 'https://github.com/eclipse/che-theia.git',
+          origin: 'https://github.com/eclipse-che/che-theia.git',
         },
         checkoutFrom: {
           revision: 'che-13112',
@@ -49,7 +49,7 @@ describe('Test theia-commands', () => {
       name: 'che-theia',
       github: {
         remotes: {
-          origin: 'https://github.com/eclipse/che-theia.git',
+          origin: 'https://github.com/eclipse-che/che-theia.git',
         },
         checkoutFrom: {
           revision: 'che-13112',
@@ -99,7 +99,7 @@ describe('Test theia-commands', () => {
       name: 'che-theia',
       git: {
         remotes: {
-          origin: 'https://github.com/eclipse/che-theia.git',
+          origin: 'https://github.com/eclipse-che/che-theia.git',
         },
         checkoutFrom: {
           revision: 'che-13112',
@@ -121,7 +121,7 @@ describe('Test theia-commands', () => {
     expect(execGitSpy).toBeCalledTimes(2);
     const infoMessage = (theia.window.showInformationMessage as jest.Mock).mock.calls[0];
     expect(infoMessage[0]).toContain(
-      'Project https://github.com/eclipse/che-theia.git cloned to /foo/che-theia using default branch which has been reset to che-13112.'
+      'Project https://github.com/eclipse-che/che-theia.git cloned to /foo/che-theia using default branch which has been reset to che-13112.'
     );
   });
 });

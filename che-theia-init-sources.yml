@@ -1,5 +1,5 @@
 sources:
-- source: https://github.com/eclipse/che-theia
+- source: https://github.com/eclipse-che/che-theia
   extensions:
     - extensions/eclipse-che-theia-plugin-remote
     - extensions/eclipse-che-theia-plugin

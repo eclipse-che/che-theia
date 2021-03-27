@@ -12,7 +12,7 @@
 
 <div id="badges" align="center">
 
-  [![Build Status](https://github.com/eclipse/che-theia/workflows/Build%20&%20Publish%20%60next%60/badge.svg)](https://github.com/eclipse/che-theia/actions?query=workflow%3A%22Build+%26+Publish+%60next%60%22)
+  [![Build Status](https://github.com/eclipse-che/che-theia/workflows/Build%20&%20Publish%20%60next%60/badge.svg)](https://github.com/eclipse-che/che-theia/actions?query=workflow%3A%22Build+%26+Publish+%60next%60%22)
   [![Test Coverage](https://img.shields.io/codecov/c/github/eclipse/che-theia)](https://codecov.io/gh/eclipse/che-theia)
   [![mattermost](https://img.shields.io/badge/chat-on%20mattermost-blue.svg)](https://mattermost.eclipse.org/eclipse/channels/eclipse-che)
   [![Open questions](https://img.shields.io/badge/Open-questions-blue.svg?style=flat-curved)](https://github.com/eclipse/che/issues?utf8=%E2%9C%93&q=is%3Aopen+label%3Aarea%2Feditor%2Fche-theia+label%3Akind%2Fquestion+)
@@ -80,15 +80,15 @@ The che-plugin of this editor is defined in the plugin registry https://github.c
 # Contributing
 
 ## Contribute to Che-theia
-Contributing to che-theia section is cover in [CONTRIBUTING.md](https://github.com/eclipse/che-theia/blob/master/CONTRIBUTING.md)
+Contributing to che-theia section is cover in [CONTRIBUTING.md](https://github.com/eclipse-che/che-theia/blob/master/CONTRIBUTING.md)
 
 
 ## Build container images
 
 Building images is required only if you make some changes on `Dockerfile`s inside `dockerfiles` folder.
-If it is about testing che-theia extensions or plugins, please refere to [CONTRIBUTING.md](https://github.com/eclipse/che-theia/blob/master/CONTRIBUTING.md).
+If it is about testing che-theia extensions or plugins, please refere to [CONTRIBUTING.md](https://github.com/eclipse-che/che-theia/blob/master/CONTRIBUTING.md).
 
-To build che-theia docker images, please follow [dockerfiles/theia/README.md](https://github.com/eclipse/che-theia/blob/master/dockerfiles/theia/README.md) instructions.
+To build che-theia docker images, please follow [dockerfiles/theia/README.md](https://github.com/eclipse-che/che-theia/blob/master/dockerfiles/theia/README.md) instructions.
 
 
 # License

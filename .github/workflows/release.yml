@@ -93,7 +93,7 @@ jobs:
     - name: Create failure MM message
       if: ${{ failure() }}
       run: |
-        echo "{\"text\":\":building_construction: Che Theia ${{ github.event.inputs.version }} release has failed: https://github.com/eclipse/che-theia/actions/workflows/release.yml\"}" > mattermost.json
+        echo "{\"text\":\":building_construction: Che Theia ${{ github.event.inputs.version }} release has failed: https://github.com/eclipse-che/che-theia/actions/workflows/release.yml\"}" > mattermost.json
     - name: Create success MM message
       run: |
         echo "{\"text\":\":building_construction: Che Theia ${{ github.event.inputs.version }} has been released: https://quay.io/eclipse/che-theia-dev:${{ github.event.inputs.version }} https://quay.io/eclipse/che-theia:${{ github.event.inputs.version }} https://quay.io/eclipse/che-theia-endpoint-runtime-binary:${{ github.event.inputs.version }}\"}" > mattermost.json

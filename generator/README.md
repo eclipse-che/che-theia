@@ -53,7 +53,7 @@ Also you can provide custom `yaml` with your extension set, by using `-c` or `--
 
 `che-theia init -c ./path/to/custom/che-theia-init-sources.yaml`
 
-The sample of `che-theia-init-sources.yaml` can be found [there](https://github.com/eclipse/che-theia/blob/master/che-theia-init-sources.yml)
+The sample of `che-theia-init-sources.yaml` can be found [there](https://github.com/eclipse-che/che-theia/blob/master/che-theia-init-sources.yml)
 
 ### Dev mode
 

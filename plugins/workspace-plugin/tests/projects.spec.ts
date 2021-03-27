@@ -48,7 +48,7 @@ describe('Devfile: Projects:', () => {
       projecthelper.updateOrCreateGitProjectInDevfile(
         projects,
         'che-theia',
-        'https://github.com/eclipse/che-theia.git',
+        'https://github.com/eclipse-che/che-theia.git',
         'issue-12321'
       );
 
@@ -59,7 +59,7 @@ describe('Devfile: Projects:', () => {
       expect(projects[0].git?.checkoutFrom?.revision).toBe('che-13112');
       expect(projects[1].name).toBe('che-theia');
       expect(projects[1].clonePath).toBe(undefined);
-      expect(projects[1].git?.remotes.origin).toBe('https://github.com/eclipse/che-theia.git');
+      expect(projects[1].git?.remotes.origin).toBe('https://github.com/eclipse-che/che-theia.git');
       expect(projects[1].git?.checkoutFrom?.revision).toBe('issue-12321');
     });
 
@@ -80,7 +80,7 @@ describe('Devfile: Projects:', () => {
           name: 'che-theia',
           git: {
             remotes: {
-              origin: 'https://github.com/eclipse/che-theia.git',
+              origin: 'https://github.com/eclipse-che/che-theia.git',
             },
             checkoutFrom: {
               revision: 'issue-12321',
@@ -115,7 +115,7 @@ describe('Devfile: Projects:', () => {
       projecthelper.updateOrCreateGitProjectInDevfile(
         projects,
         'theia/packages/che-theia',
-        'https://github.com/eclipse/che-theia.git',
+        'https://github.com/eclipse-che/che-theia.git',
         'issue-12321'
       );
 
@@ -126,7 +126,7 @@ describe('Devfile: Projects:', () => {
       expect(projects[0].git?.checkoutFrom?.revision).toBe('che-13112');
       expect(projects[1].name).toBe('che-theia');
       expect(projects[1].clonePath).toBe('theia/packages/che-theia');
-      expect(projects[1].git?.remotes.origin).toBe('https://github.com/eclipse/che-theia.git');
+      expect(projects[1].git?.remotes.origin).toBe('https://github.com/eclipse-che/che-theia.git');
       expect(projects[1].git?.checkoutFrom?.revision).toBe('issue-12321');
     });
 
@@ -148,7 +148,7 @@ describe('Devfile: Projects:', () => {
           clonePath: 'theia/packages/che-theia',
           git: {
             remotes: {
-              origin: 'https://github.com/eclipse/che-theia.git',
+              origin: 'https://github.com/eclipse-che/che-theia.git',
             },
             checkoutFrom: {
               revision: 'issue-12321',
