@@ -1,7 +1,7 @@
 <br/>
 <div id="che-theia-logo" align="center" style="vertical-align: middle">
 
-<img src="https://raw.githubusercontent.com/eclipse/che-theia/master/extensions/eclipse-che-theia-about/src/browser/style/che-logo-light.svg?sanitize=true" alt="Che Logo" width="200" height="60" />
+<img src="https://raw.githubusercontent.com/eclipse-che/che-theia/master/extensions/eclipse-che-theia-about/src/browser/style/che-logo-light.svg?sanitize=true" alt="Che Logo" width="200" height="60" />
 
 <img src="https://raw.githubusercontent.com/eclipse-theia/theia/master/logo/theia-logo.svg?sanitize=true" alt="Theia Logo" width="150" height="60"/>
 
@@ -13,7 +13,7 @@
 <div id="badges" align="center">
 
   [![Build Status](https://github.com/eclipse-che/che-theia/workflows/Build%20&%20Publish%20%60next%60/badge.svg)](https://github.com/eclipse-che/che-theia/actions?query=workflow%3A%22Build+%26+Publish+%60next%60%22)
-  [![Test Coverage](https://img.shields.io/codecov/c/github/eclipse/che-theia)](https://codecov.io/gh/eclipse/che-theia)
+  [![Test Coverage](https://img.shields.io/codecov/c/github/eclipse-che/che-theia)](https://codecov.io/gh/eclipse-che/che-theia)
   [![mattermost](https://img.shields.io/badge/chat-on%20mattermost-blue.svg)](https://mattermost.eclipse.org/eclipse/channels/eclipse-che)
   [![Open questions](https://img.shields.io/badge/Open-questions-blue.svg?style=flat-curved)](https://github.com/eclipse/che/issues?utf8=%E2%9C%93&q=is%3Aopen+label%3Aarea%2Feditor%2Fche-theia+label%3Akind%2Fquestion+)
   [![Open bugs](https://img.shields.io/badge/Open-bugs-red.svg?style=flat-curved)](https://github.com/eclipse/che/issues?utf8=%E2%9C%93&q=is%3Aopen+label%3Aarea%2Feditor%2Fche-theia+label%3Akind%2Fbug+)
@@ -22,7 +22,7 @@
 
 <div style='margin:0 auto;width:80%;'>
 
-![Che-Theia](https://raw.githubusercontent.com/eclipse/che-theia/master/che-theia-screenshot.png)
+![Che-Theia](https://raw.githubusercontent.com/eclipse-che/che-theia/master/che-theia-screenshot.png)
 
 </div>
 
