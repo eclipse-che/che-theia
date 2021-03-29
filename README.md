@@ -98,10 +98,7 @@ To build che-theia docker images, please follow [dockerfiles/theia/README.md](ht
 # Join the community
 
 The Eclipse Che community is globally reachable through public chat rooms, mailing list and weekly calls.
-See https://www.eclipse.org/che/docs/che-7/index.html#joining-the-community
-
-Che-Theia is mainly maintained by the Che IDE2 team a.k.a Selene.
-You are very welcome to join our community chat [here](https://mattermost.eclipse.org/eclipse/channels/eclipse-che-ide2-team) to discuss about improvements, bug fixes and anything else.
+See https://www.eclipse.org/che/docs/che-7/overview/introduction-to-eclipse-che/#_joining_the_community
 
 ## Report issues
 
