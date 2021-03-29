@@ -20,7 +20,7 @@ interface ITreeNodeItem {
   iconPath?: string;
   parentId?: string;
   command?: {
-    id: string;
+    command: string;
     arguments?: string[];
   };
   isExpanded?: boolean;
@@ -102,7 +102,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
         name: 'New terminal',
         iconPath: 'fa-terminal medium-yellow',
         tooltip: `open a new terminal for ${container.name}`,
-        command: { id: 'terminal-in-specific-container:new', arguments: [container.name] },
+        command: { command: 'terminal-in-specific-container:new', arguments: [container.name] },
       });
 
       // commands
@@ -121,7 +121,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
             tooltip: command.commandLine,
             iconPath: 'fa-cogs medium-yellow',
             command: {
-              id: CONTAINERS_PLUGIN_RUN_TASK_COMMAND_ID,
+              command: CONTAINERS_PLUGIN_RUN_TASK_COMMAND_ID,
               arguments: [command.commandName, container.name],
             },
           });
@@ -146,7 +146,7 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
           if (endpoint.url && endpoint.url.startsWith('http')) {
             treeNodeItem.name = endpointName;
             treeNodeItem.iconPath = 'fa-external-link medium-blue';
-            treeNodeItem.command = { id: 'theia.open', arguments: [endpoint.url] };
+            treeNodeItem.command = { command: 'theia.open', arguments: [endpoint.url] };
             treeNodeItem.tooltip = 'open in a new tab  ' + treeNodeItem.tooltip;
           }
           this.treeNodeItems.push(treeNodeItem);
