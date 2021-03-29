@@ -32,7 +32,7 @@ export class InitSources {
     public static readonly PREFIX_PACKAGES_EXTENSIONS = '@che-';
 
     public static readonly DEFAULT_EXTENSIONS_URI =
-        'https://raw.githubusercontent.com/eclipse/che-theia/master/che-theia-init-sources.yml';
+        'https://raw.githubusercontent.com/eclipse-che/che-theia/master/che-theia-init-sources.yml';
     static argBuilder = (theYargs: yargs.Argv) =>
         theYargs
             .option('config', {

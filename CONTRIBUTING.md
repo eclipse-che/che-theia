@@ -61,7 +61,7 @@ In this section we are going to start a new workspace to work on che-theia. The 
 The devfile could be started using `chectl`:
 
 ```
-chectl workspace:start -f https://raw.githubusercontent.com/eclipse/che-theia/master/devfiles/che-theia-all.devfile.yaml
+chectl workspace:start -f https://raw.githubusercontent.com/eclipse-che/che-theia/master/devfiles/che-theia-all.devfile.yaml
 ```
 At workspace start, Che will clone Theia and Che-theia.
 
@@ -123,7 +123,7 @@ $ node /projects/theia/production/src-gen/backend/main.js /tmp/theiadev_projects
 ```
 
 You can then access to your modified Che-theia from the Container view `theia-dev` endpoint
-![Che-Theia-dev-endpoint](https://raw.githubusercontent.com/eclipse/che-theia/assets/theia-dev-endpoint.png)
+![Che-Theia-dev-endpoint](https://raw.githubusercontent.com/eclipse-che/che-theia/assets/theia-dev-endpoint.png)
 
 ### Step 7bis: Run che-theia + plugin in dev mode
 In this section we show how to run the che-theia assembly but in `dev mode`: keeping all the information for debugging.
@@ -134,7 +134,7 @@ You can use the che command `run ... DEV yarn start ... che-theia + workspace-pl
 To start che-theia in `dev-mode` with yarn (not using the production che-theia generated). It would keep things like the ability to source map.
 
 Running dev theia would be located in the che-dev container and `theia-dev-flow` endpoint:
-![Che-Theia-dev-endpoint](https://raw.githubusercontent.com/eclipse/che-theia/assets/theia-dev-flow-endpoint.png)
+![Che-Theia-dev-endpoint](https://raw.githubusercontent.com/eclipse-che/che-theia/assets/theia-dev-flow-endpoint.png)
 
 ### Just want to build the plugin and run with the existing Theia image
 If you do not have any changes on Theia or Che-theia extension, you could just build the plugins with `build ... containers-plugin` or `build ... workspace-plugin`
@@ -153,7 +153,7 @@ In comparing with `/projects`, temporary directory is not persisted and is clear
 
 Use the badge to create a workspace using factory
 
-[![Try it on che.openshift.io](https://img.shields.io/static/v1?label=che&message=openshift.io&color=orange)](https://che.openshift.io/f?url=https://raw.githubusercontent.com/eclipse/che-theia/master/devfiles/hosted-che-dogfooding.devfile.yaml)
+[![Try it on che.openshift.io](https://img.shields.io/static/v1?label=che&message=openshift.io&color=orange)](https://che.openshift.io/f?url=https://raw.githubusercontent.com/eclipse-che/che-theia/master/devfiles/hosted-che-dogfooding.devfile.yaml)
 
 ### Step 1: Initialize Che-Theia in `/tmp/theia` directory
 
