@@ -8,9 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-// eslint-disable-next-line spaced-comment
-/// <reference types='@theia/core/src/typings/nsfw/index'/>
-
 import * as nsfw from 'nsfw';
 
 import { Emitter, Event } from '@theia/core';
@@ -67,7 +64,7 @@ export class CheTheiaUserPreferencesSynchronizer {
       return;
     }
 
-    this.settingsJsonWatcher = await nsfw(THEIA_USER_PREFERENCES_PATH, (events: nsfw.ChangeEvent[]) => {
+    this.settingsJsonWatcher = await nsfw(THEIA_USER_PREFERENCES_PATH, (events: nsfw.FileChangeEvent[]) => {
       for (const event of events) {
         if (event.action === nsfw.actions.MODIFIED) {
           this.updateTheiaUserPreferencesInCheSettings();
