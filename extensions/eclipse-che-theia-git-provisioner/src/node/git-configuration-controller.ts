@@ -9,8 +9,6 @@
  ***********************************************************************/
 
 // eslint-disable-next-line spaced-comment
-/// <reference types='@theia/core/src/typings/nsfw/index'/>
-
 import * as ini from 'ini';
 import * as nsfw from 'nsfw';
 
@@ -52,7 +50,7 @@ export class GitConfigurationController implements CheGitService {
       await createFile(GIT_USER_CONFIG_PATH);
     }
 
-    this.gitConfigWatcher = await nsfw(GIT_USER_CONFIG_PATH, async (events: nsfw.ChangeEvent[]) => {
+    this.gitConfigWatcher = await nsfw(GIT_USER_CONFIG_PATH, async (events: nsfw.FileChangeEvent[]) => {
       for (const event of events) {
         if (event.action === nsfw.actions.MODIFIED) {
           const userConfig = await this.getUserConfigurationFromGitConfig();
