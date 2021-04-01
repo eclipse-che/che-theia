@@ -1,0 +1,18 @@
+{
+    "extends": "../../configs/base.tsconfig",
+    "compilerOptions": {
+        "target": "es6",
+        "lib": [
+            "es6",
+        ],
+        "sourceMap": true,
+        "rootDir": "src",
+        "outDir": "lib",
+        "types": [
+            "node", "jest"
+        ]
+    },
+    "include": [
+        "src"
+    ]
+}
