@@ -86,19 +86,22 @@ jobs:
     - name: Publish packages to npmjs
       if: github.event.inputs.pushToNpmJs == true 
       run: yarn publish:next
+    outputs:
+      job_status: ${{ job.status }}
   notify:
+    if: always() && (needs.build.outputs.job_status=='failure' || needs.build.outputs.job_status=='success')
     runs-on: ubuntu-20.04
     needs: build
     steps:
     - name: Create failure MM message
-      if: ${{ failure() }}
+      if: needs.build.outputs.job_status=='failure'
       run: |
         echo "{\"text\":\":no_entry_sign: Che Theia ${{ github.event.inputs.version }} release has failed: https://github.com/eclipse-che/che-theia/actions/workflows/release.yml\"}" > mattermost.json
     - name: Create success MM message
       run: |
         echo "{\"text\":\":white_check_mark: Che Theia ${{ github.event.inputs.version }} has been released: https://quay.io/eclipse/che-theia-dev:${{ github.event.inputs.version }} https://quay.io/eclipse/che-theia:${{ github.event.inputs.version }} https://quay.io/eclipse/che-theia-endpoint-runtime-binary:${{ github.event.inputs.version }}\"}" > mattermost.json
     - name: Send MM message
-      if: ${{ success() }} || ${{ failure() }}
+      if: needs.build.outputs.job_status=='success'
       uses: mattermost/action-mattermost-notify@master
       env:
         MATTERMOST_WEBHOOK_URL: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
