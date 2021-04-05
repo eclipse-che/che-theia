@@ -128,24 +128,6 @@ export class WorkspaceProjectsManager {
     await che.devfile.update(devfile);
   }
 
-  async selectProjectToCloneCommands(devfile: che.devfile.Devfile): Promise<TheiaImportCommand[]> {
-    const instance = this;
-
-    const projects = devfile.projects;
-    if (!projects) {
-      return [];
-    }
-
-    return projects
-      .filter(project => {
-        const projectPath = project.clonePath
-          ? path.join(instance.projectsRoot, project.clonePath)
-          : path.join(instance.projectsRoot, project.name);
-        return !fs.existsSync(projectPath);
-      })
-      .map(project => buildProjectImportCommand(project, instance.projectsRoot)!);
-  }
-
   async updateOrCreateProject(devfile: che.devfile.Devfile, projectFolderURI: string): Promise<void> {
     const projectUpstreamBranch: git.GitUpstreamBranch | undefined = await git.getUpstreamBranch(projectFolderURI);
     if (!projectUpstreamBranch || !projectUpstreamBranch.remoteURL) {
