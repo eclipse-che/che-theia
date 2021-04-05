@@ -81,7 +81,7 @@ components:
     - --url
     - 0.0.0.0:3333
     - --pod-selector
-    - controller.devfile.io/workspace_id=$(DEVWORKSPACE_ID)
+    - controller.devfile.io/devworkspace_id=$(DEVWORKSPACE_ID)
     command:
     - /go/bin/che-machine-exec
     endpoints:
