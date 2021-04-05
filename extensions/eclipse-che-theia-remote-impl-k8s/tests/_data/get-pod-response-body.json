@@ -6,8 +6,8 @@
           "creationTimestamp": "2021-02-02T16:57:31.000Z",
           "generateName": "workspaceeb55021d3cff42e0-77f7bd767f-",
           "labels": {
-            "controller.devfile.io/workspace_id": "workspaceeb55021d3cff42e0",
-            "controller.devfile.io/workspace_name": "theia",
+            "controller.devfile.io/devworkspace_id": "workspaceeb55021d3cff42e0",
+            "controller.devfile.io/devworkspace_name": "theia",
             "pod-template-hash": "77f7bd767f"
           },
           "managedFields": [
@@ -19,8 +19,8 @@
                   "f:generateName": {},
                   "f:labels": {
                     ".": {},
-                    "f:controller.devfile.io/workspace_id": {},
-                    "f:controller.devfile.io/workspace_name": {},
+                    "f:controller.devfile.io/devworkspace_id": {},
+                    "f:controller.devfile.io/devworkspace_name": {},
                     "f:pod-template-hash": {}
                   },
                   "f:ownerReferences": {
@@ -852,7 +852,7 @@
                 "--url",
                 "0.0.0.0:4444",
                 "--pod-selector",
-                "controller.devfile.io/workspace_id=$(CHE_WORKSPACE_ID)"
+                "controller.devfile.io/devworkspace_id=$(DEVWORKSPACE_ID)"
               ],
               "command": [
                 "/go/bin/che-machine-exec"

@@ -48,7 +48,7 @@ export class K8sDevfileServiceImpl implements DevfileService {
   async getWorkspacePod(): Promise<V1Pod> {
     // get workspace pod
     const k8sCoreV1Api = this.k8SService.makeApiClient(k8s.CoreV1Api);
-    const labelSelector = `controller.devfile.io/workspace_id=${this.env.getWorkspaceId()}`;
+    const labelSelector = `controller.devfile.io/devworkspace_id=${this.env.getWorkspaceId()}`;
     const { body } = await k8sCoreV1Api.listNamespacedPod(
       this.env.getWorkspaceNamespace(),
       undefined,
