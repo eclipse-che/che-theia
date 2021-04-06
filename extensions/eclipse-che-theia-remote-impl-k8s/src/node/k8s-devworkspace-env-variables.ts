@@ -35,6 +35,11 @@ export class K8sDevWorkspaceEnvVariables {
    */
   private readonly devWorkspaceFlattenedDevfilePath: string;
 
+  /**
+   * projectsRoot - Root directory for projects, default being /projects
+   */
+  private readonly projectsRoot: string;
+
   constructor() {
     if (process.env.DEVWORKSPACE_ID === undefined) {
       console.error('Environment variable DEVWORKSPACE_ID is not set');
@@ -56,6 +61,11 @@ export class K8sDevWorkspaceEnvVariables {
     } else {
       this.devWorkspaceFlattenedDevfilePath = process.env.DEVWORKSPACE_FLATTENED_DEVFILE;
     }
+    if (process.env.PROJECTS_ROOT === undefined) {
+      console.error('Environment variable PROJECTS_ROOT is not set');
+    } else {
+      this.projectsRoot = process.env.PROJECTS_ROOT;
+    }
   }
 
   getWorkspaceId(): string {
@@ -72,5 +82,9 @@ export class K8sDevWorkspaceEnvVariables {
 
   getDevWorkspaceFlattenedDevfilePath(): string {
     return this.devWorkspaceFlattenedDevfilePath;
+  }
+
+  getProjectsRoot(): string {
+    return this.projectsRoot;
   }
 }

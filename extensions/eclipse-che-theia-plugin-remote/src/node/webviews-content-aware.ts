@@ -87,7 +87,9 @@ export class WebviewsContentAware {
         return this._html;
       }.bind(this),
       set: function (value: string) {
-        const sideCarScheme = `file-sidecar-${process.env.CHE_MACHINE_NAME}`;
+        // If DEVWORKSPACE_COMPONENT_NAME is defined use it else switch to che-server CHE_MACHINE_NAME env name
+        const componentName = process.env.DEVWORKSPACE_COMPONENT_NAME || process.env.CHE_MACHINE_NAME;
+        const sideCarScheme = `file-sidecar-${componentName}`;
         // @ts-ignore
         this._html = value.replace(
           /(["'])(vscode|theia)-resource:(\/\/([^\s\/'"]+?)(?=\/))?([^\s'"]+?)(["'])/gi,

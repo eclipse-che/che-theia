@@ -91,4 +91,11 @@ export class K8sWorkspaceServiceImpl implements WorkspaceService {
 
     return containers;
   }
+
+  /**
+   * Provides the root directory like /projects
+   */
+  async getProjectsRootDirectory(): Promise<string> {
+    return this.env.getProjectsRoot();
+  }
 }

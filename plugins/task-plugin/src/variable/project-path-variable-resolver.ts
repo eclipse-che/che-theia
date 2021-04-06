@@ -19,7 +19,8 @@ const fs = require('fs');
 
 const VARIABLE_NAME = 'current.project.path';
 const SELECTED_CONTEXT_COMMAND = 'theia.plugin.workspace.selectedContext';
-const PROJECTS_ROOT_VARIABLE = 'CHE_PROJECTS_ROOT';
+const PROJECTS_ROOT_VARIABLE = 'PROJECTS_ROOT';
+const PROJECTS_ROOT_ALTERNATE_VARIABLE = 'CHE_PROJECTS_ROOT';
 const SELECT_PROJECT_MESSAGE =
   'Please select a project before executing a command to make it possible to resolve the current project path.';
 /**
@@ -30,12 +31,13 @@ export class ProjectPathVariableResolver {
   private projectsRoot: string;
 
   async registerVariables(): Promise<void> {
-    const projectsRoot = await theia.env.getEnvVariable(PROJECTS_ROOT_VARIABLE);
-    if (projectsRoot === undefined) {
-      return Promise.reject('Projects root is not provided');
+    const projectsRootEnvVar =
+      (await theia.env.getEnvVariable(PROJECTS_ROOT_VARIABLE)) ||
+      (await theia.env.getEnvVariable(PROJECTS_ROOT_ALTERNATE_VARIABLE));
+    if (!projectsRootEnvVar) {
+      throw new Error('Projects root is not provided');
     }
-
-    this.projectsRoot = projectsRoot;
+    this.projectsRoot = projectsRootEnvVar;
 
     const variableSubscription = await che.variables.registerVariable(this.createVariable());
     startPoint.getSubscriptions().push(variableSubscription);

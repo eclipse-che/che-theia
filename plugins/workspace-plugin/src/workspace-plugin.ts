@@ -22,9 +22,15 @@ interface API {
 
 export async function start(context: theia.PluginContext): Promise<API> {
   let projectsRoot = '/projects';
-  const projectsRootEnvVar = await theia.env.getEnvVariable('CHE_PROJECTS_ROOT');
+  // If PROJECTS_ROOT is defined use it else switch to old env name
+  const projectsRootEnvVar = await theia.env.getEnvVariable('PROJECTS_ROOT');
   if (projectsRootEnvVar) {
     projectsRoot = projectsRootEnvVar;
+  } else {
+    const cheProjectsRootEnvVar = await theia.env.getEnvVariable('CHE_PROJECTS_ROOT');
+    if (cheProjectsRootEnvVar) {
+      projectsRoot = cheProjectsRootEnvVar;
+    }
   }
 
   new Devfile(context).init();

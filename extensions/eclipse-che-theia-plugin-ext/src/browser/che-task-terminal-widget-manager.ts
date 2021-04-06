@@ -38,7 +38,7 @@ export namespace RemoteTerminalOptions {
       return false;
     }
 
-    const containerName = attributes['CHE_MACHINE_NAME'];
+    const containerName = attributes['TERMINAL_COMPONENT_NAME'];
     if (containerName) {
       return true;
     }

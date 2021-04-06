@@ -30,11 +30,21 @@ export class CheServerWorkspaceServiceImpl implements WorkspaceService {
    */
   private readonly workspaceId: string;
 
+  /**
+   * projectsRoot - Root directory for projects, default being /projects
+   */
+  private readonly projectsRoot: string;
+
   constructor() {
     if (process.env.CHE_WORKSPACE_ID === undefined) {
       console.error('Environment variable CHE_WORKSPACE_ID is not set');
     } else {
       this.workspaceId = process.env.CHE_WORKSPACE_ID;
+    }
+    if (process.env.CHE_PROJECTS_ROOT === undefined) {
+      console.error('Environment variable CHE_PROJECTS_ROOT is not set');
+    } else {
+      this.projectsRoot = process.env.CHE_PROJECTS_ROOT;
     }
   }
 
@@ -95,5 +105,12 @@ export class CheServerWorkspaceServiceImpl implements WorkspaceService {
     }
 
     return containers;
+  }
+
+  /**
+   * Provides the root directory like /projects
+   */
+  async getProjectsRootDirectory(): Promise<string> {
+    return this.projectsRoot;
   }
 }
