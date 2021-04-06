@@ -19,7 +19,6 @@ import * as path from 'path';
 
 import { Command } from './command';
 import { CommandBuilder } from 'yargs';
-import { Logger } from './logger';
 
 export const builder: CommandBuilder = {
     theia: {
@@ -37,16 +36,22 @@ export const builder: CommandBuilder = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function handleCommand(args: any) {
+export async function handleCommand(args: any): Promise<void> {
     const theiaDir = args.theia || path.resolve(process.cwd(), '../theia');
-    const cheTheiaDir = args['che-theia '] || process.cwd();
+    const cheTheiaDir = args['che-theia'] || process.cwd();
 
-    const yarnConfig = JSON.parse(
-        await new Command(cheTheiaDir).exec('yarn --silent --non-interactive config current')
-    );
-    const linkDir = yarnConfig['linkFolder'] || path.resolve(os.homedir(), '.yarn/link');
+    const cfg = await new Command(cheTheiaDir).exec('yarn --silent --json --non-interactive config current');
 
-    link(cheTheiaDir, theiaDir, linkDir);
+    try {
+        const yarnConfig = JSON.parse(JSON.parse(cfg).data);
+        const linkDir = yarnConfig['linkFolder'] || path.resolve(os.homedir(), '.yarn/link');
+
+        await link(cheTheiaDir, theiaDir, linkDir);
+    } catch (e) {
+        console.info('first char is ' + cfg.charCodeAt(0));
+        console.error('thsi is the start' + cfg + 'stop');
+        console.error(e);
+    }
 }
 
 export async function link(cheTheiaProjectPath: string, theiaProjectPath: string, yarnLinkFolder: string) {
@@ -59,7 +64,7 @@ async function linkTheia(theiaProjectPath: string) {
         const rootPath = path.resolve(theiaProjectPath, rootName);
         const folderNames = await fsextra.readdir(rootPath);
         for (const folderName of folderNames) {
-            Logger.info(await new Command(path.resolve(rootPath, folderName)).exec('yarn link'));
+            await new Command(path.resolve(rootPath, folderName)).exec('yarn link');
         }
     }
 }
@@ -68,6 +73,6 @@ async function linkChe(yarnLinkFolder: string, cheTheiaProjectPath: string) {
     const packages = await fsextra.readdir(path.resolve(yarnLinkFolder, '@theia'));
     const cmd = new Command(cheTheiaProjectPath);
     for (const pkg of packages) {
-        Logger.info(await cmd.exec(`yarn link @theia/${pkg}`));
+        await cmd.exec(`yarn link @theia/${pkg}`);
     }
 }

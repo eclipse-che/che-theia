@@ -44,4 +44,3 @@ to use that version in che-theia.
 
         rm yarn.lock
         yarn
-

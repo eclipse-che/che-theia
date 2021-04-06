@@ -1,0 +1,8 @@
+{
+    "name": "@theia/zoz",
+    "description": "description",
+    "authors": "author",
+    "version": "1.0.0",
+    "main": "pathToMain",
+    "dependencies": {}
+}
