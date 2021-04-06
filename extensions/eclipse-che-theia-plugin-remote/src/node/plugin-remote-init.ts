@@ -288,7 +288,9 @@ to pick-up automatically a free port`)
     );
 
     let channelName = '';
-    if (process.env.CHE_MACHINE_NAME) {
+    if (process.env.DEVWORKSPACE_COMPONENT_NAME) {
+      channelName = `Extension host (${process.env.DEVWORKSPACE_COMPONENT_NAME}) log`;
+    } else if (process.env.CHE_MACHINE_NAME) {
       channelName = `Extension host (${process.env.CHE_MACHINE_NAME}) log`;
     } else {
       channelName = `Extension host (${this.pluginPort}) log`;
