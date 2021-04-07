@@ -8,106 +8,104 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import * as che from '@eclipse-che/plugin';
 import * as theia from '@theia/plugin';
 
 import { inject, injectable } from 'inversify';
 
-import { AddKeyToGitHub } from '../command/add-key-to-github';
-import { GenerateKey } from '../command/generate-key';
-import { MESSAGE_PERMISSION_DENIED_PUBLICKEY } from '../messages';
-import { ViewPublicKey } from '../command/view-public-key';
-import { che as cheApi } from '@eclipse-che/api';
+import { SSHPlugin } from '../plugin/plugin-model';
+
+const RETRY = 'Retry';
+const ADD_KEY_TO_GITHUB = 'Add Key To GitHub';
+const CONFIGURE_SSH = 'Configure SSH';
 
 @injectable()
 export class GitListener {
-  @inject(AddKeyToGitHub)
-  private addKeyToGitHub: AddKeyToGitHub;
+  @inject(SSHPlugin)
+  private sshPlugin: SSHPlugin;
 
-  @inject(GenerateKey)
-  private generateKey: GenerateKey;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private git: any;
 
-  @inject(ViewPublicKey)
-  private viewPublicKey: ViewPublicKey;
+  private gitCommand: string = '';
 
   constructor() {}
 
-  private async getKeys(): Promise<cheApi.ssh.SshPair[]> {
-    let keys: cheApi.ssh.SshPair[];
-    try {
-      keys = await che.ssh.getAll('vcs');
-    } catch (e) {
-      console.error(e && e.message ? e.message : e);
-      keys = [];
+  private async onGitOutput(data: string): Promise<void> {
+    if (data.startsWith('> git clone') || data.startsWith('> git push')) {
+      this.gitCommand = data;
+      return;
     }
 
-    return keys;
+    if (data.indexOf('Permission denied (publickey).') < 0) {
+      // In this listener we handle only issues with SSH key
+      return;
+    }
+
+    // Parse Git log events.
+    if (this.gitCommand.startsWith('> git clone') || this.gitCommand.startsWith('> git push')) {
+      const split = this.gitCommand.split(' ');
+      const command = split[2];
+      const uri = split[3];
+      const path = split[4];
+
+      if (command === 'clone') {
+        await this.handleGitClone(uri, path);
+      } else if (command === 'push') {
+        await this.handleGitPush(uri, path);
+      }
+    }
+  }
+
+  private isGitHubUri(uri: string): boolean {
+    return uri.startsWith('git@github.com');
+  }
+
+  private async handleGitClone(uri: string, path: string): Promise<void> {
+    const message = `Failure to clone git project ${uri}. A valid SSH key may be required.`;
+
+    const gitHub = this.isGitHubUri(uri);
+    const buttons = gitHub ? [RETRY, ADD_KEY_TO_GITHUB, CONFIGURE_SSH] : [RETRY, CONFIGURE_SSH];
+
+    const action = await theia.window.showWarningMessage(message, ...buttons);
+    if (action === RETRY) {
+      await this.retryClone(uri, path);
+    } else if (action === ADD_KEY_TO_GITHUB) {
+      await this.sshPlugin.addKeyToGitHub();
+      await this.retryClone(uri, path);
+    } else if (action === CONFIGURE_SSH) {
+      await this.sshPlugin.configureSSH(gitHub);
+      await this.retryClone(uri, path);
+    }
+  }
+
+  private async retryClone(uri: string, path: string) {
+    await this.git.clone(uri, path.substring(0, path.lastIndexOf('/')));
+  }
+
+  private async handleGitPush(uri: string, path: string): Promise<void> {
+    const message = `Failure to push git project ${uri}. A valid SSH key may be required.`;
+
+    const gitHub = this.isGitHubUri(uri);
+    const buttons = gitHub ? [ADD_KEY_TO_GITHUB, CONFIGURE_SSH] : [CONFIGURE_SSH];
+
+    const action = await theia.window.showWarningMessage(message, ...buttons);
+    if (action === ADD_KEY_TO_GITHUB) {
+      await this.sshPlugin.addKeyToGitHub();
+    } else if (action === CONFIGURE_SSH) {
+      await this.sshPlugin.configureSSH(gitHub);
+    }
   }
 
   async init() {
-    const keys = await this.getKeys();
-
-    let gitLogHandlerInitialized: boolean;
-    /* Git log handler, listens to Git events, catches the clone and push events.
-          Asks to Upload a public SSH key if needed before these operations.
-          Authenticates to Github if needed. */
+    let initialized: boolean;
     const onChange = () => {
-      // Get the vscode Git plugin if the plugin is started.
-      const gitExtension = theia.plugins.getPlugin('vscode.git');
-      if (!gitLogHandlerInitialized && gitExtension && gitExtension.exports) {
-        // Set the initialized flag to true state, to not to initialize the handler again on plugin change event.
-        gitLogHandlerInitialized = true;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const git: any = gitExtension.exports._model.git;
-        let command: string;
-        let url: string;
-        let path: string;
-        const listener = async (out: string) => {
-          // Parse Git log events.
-          const split = out.split(' ');
-          if (out.startsWith('> git clone') || out.startsWith('> git push')) {
-            command = split[2];
-            url = split[3];
-            path = split[4];
-            // Catch the remote access error.
-          } else if (out.indexOf('Permission denied (publickey).') > -1) {
-            // If the remote repository is a GitHub repository, ask to upload a public SSH key.
-            if ((await che.oAuth.isRegistered('github')) && out.indexOf('git@github.com') > -1) {
-              switch (command) {
-                case 'clone': {
-                  if (await this.addKeyToGitHub.run({ confirmMessage: MESSAGE_PERMISSION_DENIED_PUBLICKEY })) {
-                    await git.clone(url, path.substring(0, path.lastIndexOf('/')));
-                    theia.window.showInformationMessage(`Project ${url} successfully cloned to ${path}`);
-                  }
-                  break;
-                }
-                case 'push': {
-                  if (await this.addKeyToGitHub.run({ confirmMessage: MESSAGE_PERMISSION_DENIED_PUBLICKEY })) {
-                    theia.window.showInformationMessage(
-                      'The public SSH key has been uploaded to Github, please try to push again.'
-                    );
-                  }
-                  break;
-                }
-              }
-              // If the remote repository is not a GitHub repository, show a proposal to manually add a public SSH key to related Git provider.
-            } else {
-              showWarningMessage(keys.length === 0);
-            }
-          }
-        };
-        // Set the git log listener.
-        git.onOutput.addListener('log', listener);
+      const vscodeGit = theia.plugins.getPlugin('vscode.git');
+      if (vscodeGit && vscodeGit.exports && !initialized) {
+        initialized = true;
+        this.git = vscodeGit.exports._model.git;
+        this.git.onOutput.addListener('log', async (data: string) => this.onGitOutput(data));
       }
     };
-
-    const showWarningMessage = (showGenerate: boolean, gitProviderName?: string) =>
-      theia.window.showWarningMessage(`Permission denied, please ${
-        showGenerate ? 'generate (F1 => ' + this.generateKey.label + ') and ' : ''
-      }
-              upload your public SSH key to ${
-                gitProviderName ? gitProviderName : 'the Git provider'
-              } and try again. To get the public key press F1 => ${this.viewPublicKey.label}`);
 
     theia.plugins.onDidChange(onChange);
   }

@@ -19,127 +19,129 @@ import { DeleteKey } from './command/delete-key';
 import { GenerateKey } from './command/generate-key';
 import { GenerateKeyForHost } from './command/generate-key-for-host';
 import { GitListener } from './git/git-listener';
+import { InversifyBinding } from './inversify-bindings';
+import { SSHPlugin } from './plugin/plugin-model';
 import { UploadPrivateKey } from './command/upload-private-key';
 import { ViewPublicKey } from './command/view-public-key';
-import { bindings } from './inversify-bindings';
 
-export interface PluginModel {
-  configureSSH(gitHubActions: boolean): Promise<boolean>;
-  addKeyToGitHub(): Promise<boolean>;
-  sshAgentConfig(): Promise<SSHAgentConfig>;
-}
+export async function start(): Promise<SSHPlugin> {
+  const container = new InversifyBinding().initBindings();
 
-export async function start(): Promise<PluginModel> {
-  return bindings().get(SSHPlugin).start();
+  // start SSH agent
+  await container.get(SSHAgent).start();
+
+  // handle output from vscode.git extension
+  container.get(GitListener).init();
+
+  // start SSH plugin
+  return container.get(SSHPluginImpl).start();
 }
 
 export function stop(): void {}
 
 @injectable()
-export class SSHPlugin {
+export class SSHPluginImpl implements SSHPlugin {
   @inject(SSHAgent)
   private sshAgent: SSHAgent;
 
-  @inject(GitListener)
-  private gitListener: GitListener;
-
   @inject(AddKeyToGitHub)
-  private addKeyToGitHub: AddKeyToGitHub;
+  private cmdAddKeyToGitHub: AddKeyToGitHub;
 
   @inject(GenerateKey)
-  private generateKey: GenerateKey;
+  private cmdGenerateKey: GenerateKey;
 
   @inject(GenerateKeyForHost)
-  private generateKeyForHost: GenerateKeyForHost;
+  private cmdGenerateKeyForHost: GenerateKeyForHost;
 
   @inject(CreateKey)
-  private createKey: CreateKey;
+  private cmdCreateKey: CreateKey;
 
   @inject(DeleteKey)
-  private deleteKey: DeleteKey;
+  private cmdDeleteKey: DeleteKey;
 
   @inject(UploadPrivateKey)
-  private uploadPrivateKey: UploadPrivateKey;
+  private cmdUploadPrivateKey: UploadPrivateKey;
 
   @inject(ViewPublicKey)
-  private viewPublicKey: ViewPublicKey;
+  private cmdViewPublicKey: ViewPublicKey;
 
   constructor() {}
 
-  async start(): Promise<PluginModel> {
-    await this.sshAgent.start();
-    await this.gitListener.init();
-
-    theia.commands.registerCommand(this.generateKeyForHost, () => {
-      this.generateKeyForHost.run();
+  start(): SSHPlugin {
+    theia.commands.registerCommand(this.cmdGenerateKeyForHost, () => {
+      this.cmdGenerateKeyForHost.run();
     });
-    theia.commands.registerCommand(this.generateKey, () => {
-      this.generateKey.run();
+    theia.commands.registerCommand(this.cmdGenerateKey, () => {
+      this.cmdGenerateKey.run();
     });
-    theia.commands.registerCommand(this.createKey, () => {
-      this.createKey.run();
+    theia.commands.registerCommand(this.cmdCreateKey, () => {
+      this.cmdCreateKey.run();
     });
-    theia.commands.registerCommand(this.deleteKey, () => {
-      this.deleteKey.run();
+    theia.commands.registerCommand(this.cmdDeleteKey, () => {
+      this.cmdDeleteKey.run();
     });
-    theia.commands.registerCommand(this.viewPublicKey, () => {
-      this.viewPublicKey.run();
+    theia.commands.registerCommand(this.cmdViewPublicKey, () => {
+      this.cmdViewPublicKey.run();
     });
-    theia.commands.registerCommand(this.uploadPrivateKey, () => {
-      this.uploadPrivateKey.run();
+    theia.commands.registerCommand(this.cmdUploadPrivateKey, () => {
+      this.cmdUploadPrivateKey.run();
     });
-    theia.commands.registerCommand(this.addKeyToGitHub, () => {
-      this.addKeyToGitHub.run();
+    theia.commands.registerCommand(this.cmdAddKeyToGitHub, () => {
+      this.cmdAddKeyToGitHub.run();
     });
 
-    return {
-      configureSSH: async (gitHubActions: boolean) => this.showCommandPalette(gitHubActions),
-      addKeyToGitHub: async () => this.addKeyToGitHub.run({ gitCloneFlow: true }),
-      sshAgentConfig: async () => this.sshAgent.config,
-    };
+    return this;
   }
 
-  async showCommandPalette(gitHubActions: boolean): Promise<boolean> {
+  async configureSSH(gitHubActions: boolean): Promise<boolean> {
     const items: theia.QuickPickItem[] = [
-      { label: this.generateKeyForHost.label },
-      { label: this.generateKey.label },
-      { label: this.viewPublicKey.label },
-      { label: this.createKey.label },
-      { label: this.deleteKey.label },
-      { label: this.uploadPrivateKey.label },
+      { label: this.cmdGenerateKeyForHost.label },
+      { label: this.cmdGenerateKey.label },
+      { label: this.cmdViewPublicKey.label },
+      { label: this.cmdCreateKey.label },
+      { label: this.cmdDeleteKey.label },
+      { label: this.cmdUploadPrivateKey.label },
     ];
 
     if (gitHubActions) {
-      items.push({ label: this.addKeyToGitHub.label, showBorder: true });
+      items.push({ label: this.cmdAddKeyToGitHub.label, showBorder: true });
     }
 
     const command = await theia.window.showQuickPick<theia.QuickPickItem>(items, {});
 
     if (command) {
-      if (command.label === this.generateKeyForHost.label) {
-        await this.generateKeyForHost.run();
+      if (command.label === this.cmdGenerateKeyForHost.label) {
+        await this.cmdGenerateKeyForHost.run();
         return true;
-      } else if (command.label === this.generateKey.label) {
-        await this.generateKey.run({ gitCloneFlow: true });
+      } else if (command.label === this.cmdGenerateKey.label) {
+        await this.cmdGenerateKey.run({ gitCloneFlow: true });
         return true;
-      } else if (command.label === this.viewPublicKey.label) {
-        await this.viewPublicKey.run({ gitCloneFlow: true });
+      } else if (command.label === this.cmdViewPublicKey.label) {
+        await this.cmdViewPublicKey.run({ gitCloneFlow: true });
         return true;
-      } else if (command.label === this.createKey.label) {
-        await this.createKey.run();
+      } else if (command.label === this.cmdCreateKey.label) {
+        await this.cmdCreateKey.run();
         return true;
-      } else if (command.label === this.deleteKey.label) {
-        await this.deleteKey.run({ gitCloneFlow: true });
+      } else if (command.label === this.cmdDeleteKey.label) {
+        await this.cmdDeleteKey.run({ gitCloneFlow: true });
         return true;
-      } else if (command.label === this.uploadPrivateKey.label) {
-        await this.uploadPrivateKey.run({ gitCloneFlow: true });
+      } else if (command.label === this.cmdUploadPrivateKey.label) {
+        await this.cmdUploadPrivateKey.run({ gitCloneFlow: true });
         return true;
-      } else if (command.label === this.addKeyToGitHub.label) {
-        await this.addKeyToGitHub.run({ gitCloneFlow: true });
+      } else if (command.label === this.cmdAddKeyToGitHub.label) {
+        await this.cmdAddKeyToGitHub.run({ gitCloneFlow: true });
         return true;
       }
     }
 
     return false;
+  }
+
+  async addKeyToGitHub(): Promise<boolean> {
+    return this.cmdAddKeyToGitHub.run({ gitCloneFlow: true });
+  }
+
+  async sshAgentConfig(): Promise<SSHAgentConfig> {
+    return this.sshAgent.config;
   }
 }
