@@ -36,13 +36,12 @@ export class Init {
     }
 
     async generate() {
-        await generateAssembly(
-            this.examplesAssemblyFolder,
-            'assembly-package.mst.json',
-            'assembly-compile.tsconfig.json',
-            await this.getCurrentVersion(),
-            await this.getPackageWithVersion(Init.MONACO_CORE_PKG)
-        );
+        await generateAssembly(this.examplesAssemblyFolder, {
+            theiaVersion: '^' + (await this.getCurrentVersion()),
+            monacoVersion: await this.getPackageWithVersion(Init.MONACO_CORE_PKG),
+            configDirPrefix: '../../packages/@che-',
+            packageRefPrefix: '../../config/',
+        });
         // Generate checkout folder is does not exist
         await fs.ensureDir(this.checkoutFolder);
 

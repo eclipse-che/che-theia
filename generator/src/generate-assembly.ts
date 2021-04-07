@@ -43,38 +43,44 @@ export async function handleCommand(args: any) {
         throw new Error(`Package not found: ${Init.MONACO_CORE_PKG}`);
     }
 
-    generateAssembly(
-        path.resolve(cheTheiaDir, 'assembly'),
-        'assembly-package-new.mst.json',
-        'assembly-compile-new.tsconfig.json',
+    const assemblyDir = path.resolve(cheTheiaDir, 'assembly');
+    await generateAssembly(assemblyDir, {
         theiaVersion,
-        monacoVersion
-    );
+        monacoVersion,
+        configDirPrefix: '../../',
+        packageRefPrefix: '../extensions/',
+    });
+
+    const pkgJson = await fs.readJson(path.resolve(assemblyDir, 'package.json'));
+    const theiaPlugins = await fs.readJson(path.resolve(__dirname, '../src/templates/theiaPlugins.json'));
+
+    pkgJson.theiaPluginsDir = '../plugins';
+    pkgJson.theiaPlugin = theiaPlugins;
+    await fs.writeJson(path.resolve(assemblyDir, 'package.json'), pkgJson, { encoding: 'utf-8', spaces: 2 });
 }
 
-export async function generateAssembly(
-    examplesAssemblyFolder: string,
-    templateName: string,
-    compileConfigName: string,
-    theiaVersion: string,
-    monacoVersion: string
-): Promise<void> {
+export interface AssemblyConfiguration {
+    theiaVersion: string;
+    monacoVersion: string;
+    configDirPrefix: string;
+    packageRefPrefix: string;
+}
+
+export async function generateAssembly(examplesAssemblyFolder: string, config: AssemblyConfiguration): Promise<void> {
     const srcDir = path.resolve(__dirname, '../src');
     const distDir = path.resolve(__dirname, '../dist');
     const templateDir = path.join(srcDir, 'templates');
-    const compileTsConfig = path.join(templateDir, compileConfigName);
-    const packageJsonContent = await fs.readFile(path.join(templateDir, templateName));
+    const compileTsConfig = path.join(templateDir, 'assembly-compile.tsconfig.mst.json');
 
     // generate assembly if does not exists
-    const view = {
-        version: theiaVersion,
-        monacopkg: monacoVersion,
-    };
-
-    const rendered = await generateAssemblyPackage(packageJsonContent.toString(), view);
     await fs.ensureDir(examplesAssemblyFolder);
-    await fs.writeFile(path.join(examplesAssemblyFolder, 'package.json'), rendered);
-    await fs.copy(compileTsConfig, path.join(examplesAssemblyFolder, 'compile.tsconfig.json'));
+
+    const template = path.join(templateDir, 'assembly-package.mst.json');
+    const target = path.join(examplesAssemblyFolder, 'package.json');
+
+    await renderTemplate(template, target, config);
+    await renderTemplate(compileTsConfig, path.join(examplesAssemblyFolder, 'compile.tsconfig.mst.json'), config);
+
     Logger.info(`copying ${path.join(templateDir, 'cdn')} to ${path.join(examplesAssemblyFolder, 'cdn')}`);
     await fs.copy(path.join(templateDir, 'cdn'), path.join(examplesAssemblyFolder, 'cdn'));
     Logger.info('distdir=' + distDir);
@@ -82,6 +88,8 @@ export async function generateAssembly(
     await fs.copy(path.join(srcDir, 'scripts'), path.join(examplesAssemblyFolder, 'scripts'));
 }
 
-async function generateAssemblyPackage(template: string, view: Object): Promise<string> {
-    return mustache.render(template, view).replace(/&#x2F;/g, '/');
+async function renderTemplate(template: string, target: string, config: Object): Promise<void> {
+    const content = await fs.readFile(template);
+    const rendered = mustache.render(content.toString(), config).replace(/&#x2F;/g, '/');
+    await fs.writeFile(target, rendered);
 }

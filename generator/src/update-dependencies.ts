@@ -13,9 +13,8 @@
  * @author Thomas Mäder
  */
 
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import * as glob from 'glob';
-import * as os from 'os';
 import * as path from 'path';
 
 import { CommandBuilder } from 'yargs';
@@ -62,25 +61,24 @@ async function updateDependencies(
     packageJSONPath: string,
     replaceVersion: (packageName: string) => string | undefined
 ) {
-    let rawExtensionPackage;
+    let pkgJson;
     try {
         // grab package.json
-        rawExtensionPackage = require(packageJSONPath);
+        pkgJson = fs.readJSONSync(packageJSONPath);
     } catch (e) {
         console.warn('could not find package json: ' + packageJSONPath);
         return;
     }
 
     // we're assuming the package.json is well formed
-    replaceInDeps(rawExtensionPackage.dependencies, replaceVersion);
-    replaceInDeps(rawExtensionPackage.devDependencies, replaceVersion);
+    replaceInSection(pkgJson.dependencies, replaceVersion);
+    replaceInSection(pkgJson.devDependencies, replaceVersion);
 
-    const json = JSON.stringify(rawExtensionPackage, undefined, 2);
-    await promisify(fs.writeFile)(packageJSONPath, json + os.EOL, { encoding: 'utf-8' });
+    await fs.writeJson(packageJSONPath, pkgJson, { encoding: 'utf-8', spaces: 2 });
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function replaceInDeps(section: any, replaceVersion: (packageName: string) => string | undefined) {
+function replaceInSection(section: any, replaceVersion: (packageName: string) => string | undefined) {
     if (section) {
         for (const dep in section) {
             if (section.hasOwnProperty(dep)) {

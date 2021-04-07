@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@eclipse-che/theia-assembly",
-  "version": "{{ version }}",
+  "version": "0.0.1",
   "theia": {
     "frontend": {
       "config": {
@@ -19,33 +19,33 @@
     }
   },
   "dependencies": {
-    "@theia/callhierarchy": "^{{ version }}",
-    "@theia/console": "^{{ version }}",
-    "@theia/core": "^{{ version }}",
-    "@theia/debug": "^{{ version }}",
-    "@theia/editor": "^{{ version }}",
-    "@theia/file-search": "^{{ version }}",
-    "@theia/filesystem": "^{{ version }}",
-    "@theia/keymaps": "^{{ version }}",
-    "@theia/markers": "^{{ version }}",
-    "@theia/messages": "^{{ version }}",
-    "@theia/metrics": "^{{ version }}",
-    "@theia/mini-browser": "^{{ version }}",
-    "@theia/monaco": "^{{ version }}",
-    "@theia/navigator": "^{{ version }}",
-    "@theia/outline-view": "^{{ version }}",
-    "@theia/output": "^{{ version }}",
-    "@theia/plugin-dev": "^{{ version }}",
-    "@theia/plugin-ext": "^{{ version }}",
-    "@theia/plugin-ext-vscode": "^{{ version }}",
-    "@theia/preferences": "^{{ version }}",
-    "@theia/preview": "^{{ version }}",
-    "@theia/process": "^{{ version }}",
-    "@theia/search-in-workspace": "^{{ version }}",
-    "@theia/task": "^{{ version }}",
-    "@theia/userstorage": "^{{ version }}",
-    "@theia/variable-resolver": "^{{ version }}",
-    "@theia/workspace": "^{{ version }}"
+    "@theia/callhierarchy": "{{ theiaVersion }}",
+    "@theia/console": "{{ theiaVersion }}",
+    "@theia/core": "{{ theiaVersion }}",
+    "@theia/debug": "{{ theiaVersion }}",
+    "@theia/editor": "{{ theiaVersion }}",
+    "@theia/file-search": "{{ theiaVersion }}",
+    "@theia/filesystem": "{{ theiaVersion }}",
+    "@theia/keymaps": "{{ theiaVersion }}",
+    "@theia/markers": "{{ theiaVersion }}",
+    "@theia/messages": "{{ theiaVersion }}",
+    "@theia/metrics": "{{ theiaVersion }}",
+    "@theia/mini-browser": "{{ theiaVersion }}",
+    "@theia/monaco": "{{ theiaVersion }}",
+    "@theia/navigator": "{{ theiaVersion }}",
+    "@theia/outline-view": "{{ theiaVersion }}",
+    "@theia/output": "{{ theiaVersion }}",
+    "@theia/plugin-dev": "{{ theiaVersion }}",
+    "@theia/plugin-ext": "{{ theiaVersion }}",
+    "@theia/plugin-ext-vscode": "{{ theiaVersion }}",
+    "@theia/preferences": "{{ theiaVersion }}",
+    "@theia/preview": "{{ theiaVersion }}",
+    "@theia/process": "{{ theiaVersion }}",
+    "@theia/search-in-workspace": "{{ theiaVersion }}",
+    "@theia/task": "{{ theiaVersion }}",
+    "@theia/userstorage": "{{ theiaVersion }}",
+    "@theia/variable-resolver": "{{ theiaVersion }}",
+    "@theia/workspace": "{{ theiaVersion }}"
   },
   "bin": {
     "override-vs-loader": "./scripts/override-vs-loader.js"
@@ -53,7 +53,7 @@
   "scripts": {
     "prepare": "yarn run clean && yarn build",
     "clean": "theia clean && rimraf errorShots",
-    "build": "theia build --mode production --config cdn/webpack.config.js --env.cdn=./cdn.json --env.monacopkg={{ monacopkg }} && yarn run override-vs-loader",
+    "build": "theia build --mode production --config cdn/webpack.config.js --env.cdn=./cdn.json --env.monacopkg={{ monacoVersion }} && yarn run override-vs-loader",
     "override-vs-loader": "override-vs-loader",
     "watch": "concurrently -n compile,bundle \"theiaext watch --preserveWatchOutput\" \"theia build --watch --mode development\"",
     "start": "theia start",
@@ -67,7 +67,7 @@
     "coverage": "yarn coverage:compile && yarn test && yarn coverage:remap && yarn coverage:report:lcov && yarn coverage:report:html"
   },
   "devDependencies": {
-    "@theia/cli": "^{{ version }}",
+    "@theia/cli": "{{ theiaVersion }}",
     "html-webpack-plugin": "^3.2.0",
     "async-limiter": "^2.0.0"
   }
