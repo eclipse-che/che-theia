@@ -29,6 +29,17 @@ describe('Test Resource Monitor Plugin', () => {
 
   let resMonitor: ResMon;
 
+  const uri: theia.Uri = {
+    authority: '',
+    fragment: '',
+    fsPath: '',
+    path: '',
+    query: '',
+    scheme: '',
+    toJSON: jest.fn(),
+    toString: jest.fn(),
+    with: jest.fn(),
+  };
   const context: theia.PluginContext = {
     environmentVariableCollection: {
       persistent: false,
@@ -41,6 +52,9 @@ describe('Test Resource Monitor Plugin', () => {
       replace: jest.fn(),
     },
     extensionPath: '',
+    extensionUri: uri,
+    storageUri: uri,
+    globalStorageUri: uri,
     globalState: {
       get: jest.fn(),
       update: jest.fn(),
