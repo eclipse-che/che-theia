@@ -103,3 +103,4 @@ See https://www.eclipse.org/che/docs/che-7/overview/introduction-to-eclipse-che/
 ## Report issues
 
 Issues are tracked on the main Eclipse Che Repository: https://github.com/eclipse/che/issues
+ 
