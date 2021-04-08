@@ -20,6 +20,7 @@ import { GenerateKey } from './command/generate-key';
 import { GenerateKeyForHost } from './command/generate-key-for-host';
 import { GitListener } from './git/git-listener';
 import { InversifyBinding } from './inversify-bindings';
+import { KeyRegistry } from './agent/key-registry';
 import { SSHPlugin } from './plugin/plugin-model';
 import { UploadPrivateKey } from './command/upload-private-key';
 import { ViewPublicKey } from './command/view-public-key';
@@ -27,8 +28,11 @@ import { ViewPublicKey } from './command/view-public-key';
 export async function start(): Promise<SSHPlugin> {
   const container = new InversifyBinding().initBindings();
 
-  // start SSH agent
+  // start SSH authentication agent
   await container.get(SSHAgent).start();
+
+  // add encrypted SSH keys to authentication agent
+  await container.get(KeyRegistry).init();
 
   // handle output from vscode.git extension
   container.get(GitListener).init();

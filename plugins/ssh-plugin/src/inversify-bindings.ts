@@ -15,6 +15,7 @@ import { DeleteKey } from './command/delete-key';
 import { GenerateKey } from './command/generate-key';
 import { GenerateKeyForHost } from './command/generate-key-for-host';
 import { GitListener } from './git/git-listener';
+import { KeyRegistry } from './agent/key-registry';
 import { SSHAgent } from './agent/ssh-agent';
 import { SSHPlugin } from './plugin/plugin-model';
 import { SSHPluginImpl } from './ssh-plugin';
@@ -29,6 +30,7 @@ export class InversifyBinding {
     container.bind(SSHPlugin).toService(SSHPluginImpl);
 
     container.bind(SSHAgent).toSelf().inSingletonScope();
+    container.bind(KeyRegistry).toSelf().inSingletonScope();
     container.bind(GitListener).toSelf().inSingletonScope();
     container.bind(AddKeyToGitHub).toSelf().inSingletonScope();
     container.bind(CreateKey).toSelf().inSingletonScope();

@@ -96,7 +96,7 @@ export class GitListener {
     }
   }
 
-  async init() {
+  init() {
     let initialized: boolean;
     const onChange = () => {
       const vscodeGit = theia.plugins.getPlugin('vscode.git');
