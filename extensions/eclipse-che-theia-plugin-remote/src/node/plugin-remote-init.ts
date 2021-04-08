@@ -341,16 +341,16 @@ to pick-up automatically a free port`)
             return;
           }
 
-        // asked to send plugin resource
-        if (GetResourceRequest.is(jsonParsed.internal)) {
-          client.send(JSON.stringify(this.handleGetResourceRequest(jsonParsed.internal)));
-          return;
-        }
+          // asked to send plugin resource
+          if (GetResourceRequest.is(jsonParsed.internal)) {
+            client.send(JSON.stringify(this.handleGetResourceRequest(jsonParsed.internal)));
+            return;
+          }
 
-        if (GetResourceStatRequest.is(jsonParsed.internal)) {
-          client.send(JSON.stringify(this.handleGetResourceStatRequest(jsonParsed.internal)));
-          return;
-        }
+          if (GetResourceStatRequest.is(jsonParsed.internal)) {
+            client.send(JSON.stringify(this.handleGetResourceStatRequest(jsonParsed.internal)));
+            return;
+          }
 
           // asked to grab metadata, send them
           if (jsonParsed.internal.metadata && 'request' === jsonParsed.internal.metadata) {
