@@ -10,4 +10,5 @@
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const chePlugin: any = {};
+chePlugin.devfile = {};
 module.exports = chePlugin;

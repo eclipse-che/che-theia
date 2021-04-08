@@ -10,5 +10,26 @@
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const theiaPlugin: any = {};
-theiaPlugin.window = {};
+theiaPlugin.OutputChannel = {};
+theiaPlugin.window = {
+  createOutputChannel: jest.fn(),
+  withProgress: jest.fn(),
+  showWarningMessage: jest.fn(),
+  showInformationMessage: jest.fn(),
+};
+
+export class EventEmitter {
+  constructor() {}
+  fire() {}
+}
+
+theiaPlugin.Disposable = {
+  create: jest.fn(),
+};
+
+theiaPlugin.ProgressLocation = {
+  Notification: 15,
+};
+
+theiaPlugin.EventEmitter = EventEmitter;
 module.exports = theiaPlugin;

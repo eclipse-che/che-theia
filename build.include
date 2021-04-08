@@ -61,12 +61,14 @@ DOCKER_FILES_LOCATIONS=(
   dockerfiles/theia-dev
   dockerfiles/theia
   dockerfiles/theia-endpoint-runtime-binary
+  dockerfiles/theia-vsix-installer
 )
 
 PUBLISH_IMAGES_LIST=(
   eclipse/che-theia-dev
   eclipse/che-theia
   eclipse/che-theia-endpoint-runtime-binary
+  eclipse/che-theia-vsix-installer
 )
 
 getImages() {
