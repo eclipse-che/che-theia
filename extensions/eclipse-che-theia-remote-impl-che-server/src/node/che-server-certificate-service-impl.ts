@@ -31,8 +31,10 @@ export class CheServerCertificateServiceImpl implements CertificateService {
       const publicCertificates = await fs.readdir(PUBLIC_CRT_PATH);
       for (const publicCertificate of publicCertificates) {
         const certPath = path.join(PUBLIC_CRT_PATH, publicCertificate);
-        const content = await fs.readFile(certPath);
-        certificateAuthority.push(content);
+        if ((await fs.pathExists(certPath)) && (await fs.stat(certPath)).isFile()) {
+          const content = await fs.readFile(certPath);
+          certificateAuthority.push(content);
+        }
       }
     }
 
