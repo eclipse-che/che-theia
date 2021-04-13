@@ -132,7 +132,7 @@ export class WorkspaceProjectsManager {
 
   async watchMultiRootProjects(): Promise<void> {
     if (fs.existsSync(this.projectsRoot)) {
-      fs.watch(this.projectsRoot, { encoding: 'utf8', recursive: true }, async (eventType, filename) => {
+      fs.watch(this.projectsRoot, undefined, async (eventType, filename) => {
         const projectPath = path.resolve(this.projectsRoot, filename);
         if (await fs.pathExists(projectPath)) {
           if ((await fs.lstat(projectPath)).isDirectory()) {
