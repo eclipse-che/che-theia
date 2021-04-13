@@ -21,7 +21,10 @@ interface API {
 }
 
 export async function start(context: theia.PluginContext): Promise<API> {
-  const root = process.env['PROJECTS_ROOT'] || process.env['CHE_PROJECTS_ROOT'] || '/projects';
+  const root =
+    (await theia.env.getEnvVariable('PROJECTS_ROOT')) ||
+    (await theia.env.getEnvVariable('CHE_PROJECTS_ROOT')) ||
+    '/projects';
 
   // command to create a workspace from devfile
   new CreateWorkspaceCommand(context).init();

@@ -154,11 +154,10 @@ describe('Test Workspace Projects Manager', () => {
     executeImportCommandMock.mockResolvedValue('');
   });
 
-  test('Should create an instanse of the WorkspaceProjectsManager and run it', async () => {
-    // handleWorkspaceProjects(context, PROJECTS_ROOT);
+  test('Should read the devfie when running', async () => {
     new WorkspaceProjectsManager(context, PROJECTS_ROOT).run();
 
-    expect(getDevfileMock).toBeCalledTimes(1); // workspaceProjectsManager.run() is called
+    expect(getDevfileMock).toBeCalledTimes(1);
   });
 
   test('Should add workspace folder when there are no attributes - multi root mode is ON by default', async () => {
