@@ -43,14 +43,14 @@ export class CheWorkspaceServer extends DefaultWorkspaceServer {
 
     // first, check if we have a che.theia-workspace file
     const cheTheiaWorkspaceFile = path.resolve(projectsRoot, 'che.theia-workspace');
-    const cheTheiaWorkspaceFileUri = FileUri.create(cheTheiaWorkspaceFile);
-    const exists = await fs.pathExists(cheTheiaWorkspaceFile);
-    if (!exists) {
+
+    const workspaceFileExists = await fs.pathExists(cheTheiaWorkspaceFile);
+    if (!workspaceFileExists) {
       // no, then create the file
       const theiaWorkspace: TheiaWorkspace = { folders: [] };
       await fs.writeFile(cheTheiaWorkspaceFile, JSON.stringify(theiaWorkspace), { encoding: 'utf8' });
     }
 
-    return cheTheiaWorkspaceFileUri.toString();
+    return FileUri.create(cheTheiaWorkspaceFile).toString();
   }
 }

@@ -14,9 +14,8 @@ import * as projectsHelper from '../src/projects';
 import * as theia from '@theia/plugin';
 import * as theiaCommands from '../src/theia-commands';
 
-import { WorkspaceProjectsManager, handleWorkspaceProjects } from '../src/workspace-projects-manager';
-
 import { WorkspaceFolderUpdater } from '../src/workspace-folder-updater';
+import { WorkspaceProjectsManager } from '../src/workspace-projects-manager';
 
 jest.mock('../src/workspace-folder-updater');
 jest.mock('../src/projects');
@@ -72,6 +71,7 @@ const context: theia.PluginContext = {
 
 const outputChannelMock = {
   appendLine: jest.fn(),
+  show: jest.fn(),
 };
 
 const getDevfileMock = jest.fn();
@@ -155,7 +155,8 @@ describe('Test Workspace Projects Manager', () => {
   });
 
   test('Should create an instanse of the WorkspaceProjectsManager and run it', async () => {
-    handleWorkspaceProjects(context, PROJECTS_ROOT);
+    // handleWorkspaceProjects(context, PROJECTS_ROOT);
+    new WorkspaceProjectsManager(context, PROJECTS_ROOT).run();
 
     expect(getDevfileMock).toBeCalledTimes(1); // workspaceProjectsManager.run() is called
   });
@@ -304,7 +305,7 @@ describe('Test Workspace Projects Manager', () => {
   test('Should delete a project from Devfile', async () => {
     getDevfileMock.mockReturnValue(devfile_Without_Attributes);
 
-    await workspaceProjectsManager.deleteProjectInWorkspace('/projects/che-theia');
+    await workspaceProjectsManager.deleteProjectFromWorkspace('/projects/che-theia');
 
     expect(getDevfileMock).toBeCalledTimes(1);
     expect(updateDevfileMock).toBeCalledTimes(1);
@@ -312,7 +313,7 @@ describe('Test Workspace Projects Manager', () => {
   });
 
   test('Should NOT delete a project when given Uri is not defined', async () => {
-    await workspaceProjectsManager.deleteProjectInWorkspace('');
+    await workspaceProjectsManager.deleteProjectFromWorkspace('');
 
     expect(getDevfileMock).toBeCalledTimes(0);
     expect(updateDevfileMock).toBeCalledTimes(0);

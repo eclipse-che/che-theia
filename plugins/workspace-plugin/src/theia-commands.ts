@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,7 +9,6 @@
  ***********************************************************************/
 
 import * as che from '@eclipse-che/plugin';
-import * as fileuri from './file-uri';
 import * as fs from 'fs-extra';
 import * as git from './git';
 import * as os from 'os';
@@ -17,19 +16,8 @@ import * as path from 'path';
 import * as ssh from './ssh';
 import * as theia from '@theia/plugin';
 
-import { TaskScope } from '@eclipse-che/plugin';
 import { execute } from './exec';
 import { getCertificate } from './ca-cert';
-
-const CHE_TASK_TYPE = 'che';
-
-/**
- * Enumeration ID's of ide actions.
- */
-export enum ActionId {
-  OPEN_FILE = 'openFile',
-  RUN_COMMAND = 'runCommand',
-}
 
 export interface TheiaImportCommand {
   /** @returns the path to the imported project */
@@ -324,50 +312,5 @@ export class TheiaImportZipCommand implements TheiaImportCommand {
       },
       (progress, token) => importZip(progress, token)
     );
-  }
-}
-
-export class TheiaCommand {
-  constructor(
-    protected readonly id: string,
-    protected readonly properties?: {
-      name?: string;
-      file?: string;
-      greetingTitle?: string;
-      greetingContentUrl?: string;
-    }
-  ) {}
-
-  execute(): PromiseLike<void> {
-    if (this.id === ActionId.OPEN_FILE) {
-      if (this.properties && this.properties.file) {
-        const fileLocation = fileuri.convertToFileURI(this.properties.file);
-        return theia.commands.executeCommand('file-search.openFile', fileLocation).then(
-          () => {},
-          e => {
-            theia.window.showErrorMessage(`Could not open file: ${e.message}`);
-            console.log('Could not open file ', e);
-          }
-        );
-      }
-    }
-
-    if (this.id === ActionId.RUN_COMMAND) {
-      if (this.properties) {
-        return theia.commands.executeCommand('task:run', CHE_TASK_TYPE, this.properties.name, TaskScope.Global).then(
-          () => {
-            theia.window.showInformationMessage('Executed che command succesfully');
-          },
-          e => {
-            theia.window.showErrorMessage(`Could not execute Che command: ${e.message}`);
-            console.log('Could not execute Che command', e);
-          }
-        );
-      }
-    }
-
-    return new Promise(() => {
-      console.error('action nor openfile nor run command');
-    });
   }
 }

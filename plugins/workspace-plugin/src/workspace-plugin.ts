@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -10,9 +10,9 @@
 
 import * as theia from '@theia/plugin';
 
-import { handleWorkspaceProjects, onDidCloneSources } from './workspace-projects-manager';
+import { WorkspaceProjectsManager, onDidCloneSources } from './workspace-projects-manager';
 
-import { Devfile } from './devfile';
+import { CreateWorkspaceCommand } from './create-workspace-command';
 import { EphemeralWorkspaceChecker } from './ephemeral-workspace-checker';
 import { initAskpassEnv } from './askpass/askpass';
 
@@ -21,16 +21,17 @@ interface API {
 }
 
 export async function start(context: theia.PluginContext): Promise<API> {
-  let projectsRoot = '/projects';
-  const projectsRootEnvVar = await theia.env.getEnvVariable('CHE_PROJECTS_ROOT');
-  if (projectsRootEnvVar) {
-    projectsRoot = projectsRootEnvVar;
-  }
+  const root = process.env['PROJECTS_ROOT'] || process.env['CHE_PROJECTS_ROOT'] || '/projects';
 
-  new Devfile(context).init();
+  // command to create a workspace from devfile
+  new CreateWorkspaceCommand(context).init();
+
+  // status bar item indicating that this workpace is ephemeral
   new EphemeralWorkspaceChecker().check();
+
   await initAskpassEnv();
-  handleWorkspaceProjects(context, projectsRoot);
+
+  new WorkspaceProjectsManager(context, root).run();
 
   return {
     get onDidCloneSources(): theia.Event<void> {

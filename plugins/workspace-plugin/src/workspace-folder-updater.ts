@@ -76,6 +76,15 @@ export class WorkspaceFolderUpdater {
     });
   }
 
+  async removeWorkspaceFolder(path: string): Promise<void> {
+    const workspaceFolders: theia.WorkspaceFolder[] = theia.workspace.workspaceFolders || [];
+
+    const index = workspaceFolders.findIndex((folder: theia.WorkspaceFolder) => folder.uri.path === path);
+    if (index >= 0) {
+      theia.workspace.updateWorkspaceFolders(index, 1);
+    }
+  }
+
   protected toValidWorkspaceFolderPath(path: string): string {
     if (path.endsWith('/')) {
       return path.slice(0, -1);
