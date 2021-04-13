@@ -24,12 +24,12 @@ sources:
   plugins:
     - plugins/containers-plugin
     - plugins/ext-plugin
-    # - plugins/workspace-plugin
+    - plugins/workspace-plugin
     - plugins/resource-monitor-plugin
     - plugins/ports-plugin
     - plugins/task-plugin
     - plugins/welcome-plugin
-    # - plugins/ssh-plugin
+    - plugins/ssh-plugin
     - plugins/telemetry-plugin
     - plugins/github-auth-plugin
     - plugins/recommendations-plugin
