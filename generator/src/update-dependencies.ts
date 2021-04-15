@@ -13,12 +13,12 @@
  * @author Thomas Mäder
  */
 
-import * as fs from 'fs-extra';
 import * as glob from 'glob';
 import * as path from 'path';
 
 import { CommandBuilder } from 'yargs';
 import { promisify } from 'util';
+import { rewriteJson } from './json-utils';
 
 export const builder: CommandBuilder = {
     'theia-version': {
@@ -61,20 +61,16 @@ async function updateDependencies(
     packageJSONPath: string,
     replaceVersion: (packageName: string) => string | undefined
 ) {
-    let pkgJson;
     try {
-        // grab package.json
-        pkgJson = fs.readJSONSync(packageJSONPath);
+        await rewriteJson(packageJSONPath, pkgJson => {
+            // we're assuming the package.json is well formed
+            replaceInSection(pkgJson.dependencies, replaceVersion);
+            replaceInSection(pkgJson.devDependencies, replaceVersion);
+        });
     } catch (e) {
         console.warn('could not find package json: ' + packageJSONPath);
         return;
     }
-
-    // we're assuming the package.json is well formed
-    replaceInSection(pkgJson.dependencies, replaceVersion);
-    replaceInSection(pkgJson.devDependencies, replaceVersion);
-
-    await fs.writeJson(packageJSONPath, pkgJson, { encoding: 'utf-8', spaces: 2 });
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

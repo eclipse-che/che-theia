@@ -16,6 +16,7 @@ import { CommandBuilder } from 'yargs';
 import { Init } from './init';
 import { Logger } from './logger';
 import { getFullPackageName } from './yarn';
+import { rewriteJson } from './json-utils';
 
 export const builder: CommandBuilder = {
     'che-theia': {
@@ -71,6 +72,7 @@ export async function generateAssembly(examplesAssemblyFolder: string, config: A
     const distDir = path.resolve(__dirname, '../dist');
     const templateDir = path.join(srcDir, 'templates');
     const compileTsConfig = path.join(templateDir, 'assembly-compile.tsconfig.mst.json');
+    const extensionsDir = path.resolve(__dirname, '../../extensions');
 
     // generate assembly if does not exists
     await fs.ensureDir(examplesAssemblyFolder);
@@ -86,6 +88,22 @@ export async function generateAssembly(examplesAssemblyFolder: string, config: A
     Logger.info('distdir=' + distDir);
     await fs.copy(path.join(distDir, 'cdn'), path.join(examplesAssemblyFolder, 'cdn'));
     await fs.copy(path.join(srcDir, 'scripts'), path.join(examplesAssemblyFolder, 'scripts'));
+
+    const folderNames = await fs.readdir(extensionsDir);
+    const extensions = new Map<string, string>();
+    for (const folderName of folderNames) {
+        const pkgJson = require(path.resolve(extensionsDir, folderName, 'package.json'));
+        extensions.set(pkgJson.name, pkgJson.version);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rewriteJson(target, (json: any) => {
+        const deps = json.dependencies || {};
+        extensions.forEach((version: string, name: string) => {
+            deps[name] = version;
+        });
+        json.dependencies = deps;
+    });
 }
 
 async function renderTemplate(template: string, target: string, config: Object): Promise<void> {
