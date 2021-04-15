@@ -52,12 +52,27 @@ export async function handleCommand(args: any) {
         packageRefPrefix: '../extensions/',
     });
 
-    const pkgJson = await fs.readJson(path.resolve(assemblyDir, 'package.json'));
-    const theiaPlugins = await fs.readJson(path.resolve(__dirname, '../src/templates/theiaPlugins.json'));
+    const extensionsDir = path.resolve(__dirname, '../../extensions');
+    const folderNames = await fs.readdir(extensionsDir);
+    const extensions = new Map<string, string>();
+    for (const folderName of folderNames) {
+        const pkgJson = require(path.resolve(extensionsDir, folderName, 'package.json'));
+        extensions.set(pkgJson.name, pkgJson.version);
+    }
 
-    pkgJson.theiaPluginsDir = '../plugins';
-    pkgJson.theiaPlugin = theiaPlugins;
-    await fs.writeJson(path.resolve(assemblyDir, 'package.json'), pkgJson, { encoding: 'utf-8', spaces: 2 });
+    const theiaPlugins = await fs.readJson(path.resolve(__dirname, '../src/templates/theiaPlugins.json'));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rewriteJson(path.resolve(assemblyDir, 'package.json'), (json: any) => {
+        const deps = json.dependencies || {};
+        extensions.forEach((version: string, name: string) => {
+            deps[name] = version;
+        });
+        json.dependencies = deps;
+        json.scripts['download:plugins'] = 'theia download:plugins';
+        json.scripts.prepare = json.scripts.prepare + ' yarn download:plugins';
+        json.theiaPluginsDir = '../plugins';
+        json.theiaPlugins = theiaPlugins;
+    });
 }
 
 export interface AssemblyConfiguration {
@@ -72,7 +87,6 @@ export async function generateAssembly(examplesAssemblyFolder: string, config: A
     const distDir = path.resolve(__dirname, '../dist');
     const templateDir = path.join(srcDir, 'templates');
     const compileTsConfig = path.join(templateDir, 'assembly-compile.tsconfig.mst.json');
-    const extensionsDir = path.resolve(__dirname, '../../extensions');
 
     // generate assembly if does not exists
     await fs.ensureDir(examplesAssemblyFolder);
@@ -88,22 +102,6 @@ export async function generateAssembly(examplesAssemblyFolder: string, config: A
     Logger.info('distdir=' + distDir);
     await fs.copy(path.join(distDir, 'cdn'), path.join(examplesAssemblyFolder, 'cdn'));
     await fs.copy(path.join(srcDir, 'scripts'), path.join(examplesAssemblyFolder, 'scripts'));
-
-    const folderNames = await fs.readdir(extensionsDir);
-    const extensions = new Map<string, string>();
-    for (const folderName of folderNames) {
-        const pkgJson = require(path.resolve(extensionsDir, folderName, 'package.json'));
-        extensions.set(pkgJson.name, pkgJson.version);
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rewriteJson(target, (json: any) => {
-        const deps = json.dependencies || {};
-        extensions.forEach((version: string, name: string) => {
-            deps[name] = version;
-        });
-        json.dependencies = deps;
-    });
 }
 
 async function renderTemplate(template: string, target: string, config: Object): Promise<void> {
