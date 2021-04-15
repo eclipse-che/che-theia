@@ -171,6 +171,13 @@ export class CheServerDevfileServiceImpl implements DevfileService {
     if (componentV2.plugin) {
       devfileV1Component.type = 'chePlugin';
 
+      // [workaround]
+      // mark devfile V1 component as cheEditor
+      // if component V2 has 'type' === 'cheEditor' attribute
+      if (componentV2.attributes && componentV2.attributes['type'] === 'cheEditor') {
+        devfileV1Component.type = 'cheEditor';
+      }
+
       if (componentV2.plugin.memoryLimit) {
         devfileV1Component.memoryLimit = componentV2.plugin.memoryLimit;
       }
@@ -290,7 +297,14 @@ export class CheServerDevfileServiceImpl implements DevfileService {
       devfileV2Component.container.env = this.componentEnvV1toComponentEnvV2(componentV1.env);
       devfileV2Component.container.volumeMounts = this.componentVolumeV1toComponentVolumeV2(componentV1.volumes);
       devfileV2Component.container.endpoints = this.componentEndpointV1toComponentEndpointV2(componentV1.endpoints);
-    } else if (componentV1.type === 'chePlugin') {
+    } else if (componentV1.type === 'chePlugin' || componentV1.type === 'cheEditor') {
+      // [workaround]
+      // add custom attribute to indicate that this plugin specifies editor
+      if (componentV1.type === 'cheEditor') {
+        devfileV2Component.attributes = {};
+        devfileV2Component.attributes['type'] = 'cheEditor';
+      }
+
       devfileV2Component.plugin = {};
       if (componentV1.id) {
         devfileV2Component.plugin.id = componentV1.id;
@@ -654,11 +668,7 @@ export class CheServerDevfileServiceImpl implements DevfileService {
   async updateDevfile(devfile: Devfile): Promise<void> {
     const workspace = await this.workspaceService.currentWorkspace();
 
-    // convert devfile v2 to devfile v1
-    const devfileV1 = {
-      projects: (devfile.projects || []).map(project => this.projectV2toProjectV1(project)),
-      components: [],
-    };
+    const devfileV1 = this.devfileV2toDevfileV1(devfile);
 
     workspace.devfile = devfileV1;
     await this.workspaceService.updateWorkspace(workspace.id!, workspace);
