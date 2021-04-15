@@ -127,6 +127,9 @@ export class RecommendationsPlugin {
   async afterClone(): Promise<void> {
     // current workspaces
     const workspaceFolders = theia.workspace.workspaceFolders || [];
+    this.outputChannel.appendLine(
+      `Workspace folders after clone: workspaceFolders=${JSON.stringify(workspaceFolders)}`
+    );
 
     // Grab file extensions used in all projects being in the workspace folder (that have been cloned) (with a timeout)
     const extensionsInCheWorkspace = await this.findFileExtensions.find(workspaceFolders);
