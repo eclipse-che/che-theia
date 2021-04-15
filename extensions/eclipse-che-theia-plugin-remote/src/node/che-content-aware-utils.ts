@@ -17,10 +17,12 @@ export function overrideUri(uri: {
   scheme: string;
   with: (change: { scheme?: string }) => URI | theia.Uri;
 }): URI {
-  const cheProjectsRoot = process.env.CHE_PROJECTS_ROOT;
-  const machineName = process.env.CHE_MACHINE_NAME;
-  if (uri.scheme === 'file' && machineName && cheProjectsRoot && !uri.path.startsWith(cheProjectsRoot)) {
-    return uri.with({ scheme: `file-sidecar-${machineName}` });
+  // If PROJECTS_ROOT is defined use it else switch to old CHE_PROJECTS_ROOT env name or use default
+  const projectsRoot = process.env.PROJECTS_ROOT || process.env.CHE_PROJECTS_ROOT || '/projects';
+  // If DEVWORKSPACE_COMPONENT_NAME is defined use it else switch to old CHE_MACHINE_NAME env name
+  const componentName = process.env.DEVWORKSPACE_COMPONENT_NAME || process.env.CHE_MACHINE_NAME;
+  if (uri.scheme === 'file' && componentName && projectsRoot && !uri.path.startsWith(projectsRoot)) {
+    return uri.with({ scheme: `file-sidecar-${componentName}` });
   } else {
     return uri.with({ scheme: uri.scheme });
   }

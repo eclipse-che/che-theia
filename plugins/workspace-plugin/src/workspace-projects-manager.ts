@@ -47,7 +47,8 @@ export class WorkspaceProjectsManager {
 
     this.outputChannel.appendLine(`Found devfile ${JSON.stringify(devfile, undefined, 2)}`);
 
-    const cloneCommandList = await this.buildCloneCommands(devfile.projects || []);
+    const projects = devfile.projects || [];
+    const cloneCommandList = await this.buildCloneCommands(projects);
 
     this.outputChannel.appendLine(`Clone commands are ${JSON.stringify(cloneCommandList, undefined, 2)}`);
 
@@ -58,6 +59,15 @@ export class WorkspaceProjectsManager {
     const cloningPromise = this.executeCloneCommands(cloneCommandList, isMultiRoot);
     theia.window.withProgress({ location: { viewId: 'explorer' } }, () => cloningPromise);
     await cloningPromise;
+
+    if (isMultiRoot) {
+      // Backward compatibility for single-root workspaces
+      // we need it to support workspaces which were created before switching multi-root mode to ON by default
+      projects
+        .map(project => this.getProjectPath(project))
+        .filter(projectPath => fs.existsSync(projectPath))
+        .forEach(projectPath => this.workspaceFolderUpdater.addWorkspaceFolder(projectPath));
+    }
 
     await this.startSyncWorkspaceProjects();
   }

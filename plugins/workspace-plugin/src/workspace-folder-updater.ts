@@ -13,7 +13,7 @@ export class WorkspaceFolderUpdater {
   private pendingFolders: string[] = [];
   private addingWorkspaceFolderPromise: Promise<void> | undefined;
 
-  constructor(protected readonly updateWorkspaceFolderTimeout = 3000) {}
+  constructor(protected readonly updateWorkspaceFolderTimeout = 7000) {}
 
   async addWorkspaceFolder(path: string): Promise<void> {
     const workspaceFolderPath = this.toValidWorkspaceFolderPath(path);

@@ -38,10 +38,11 @@ process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
     if (index >= 0) {
       promise.catch(err => {
         unhandledPromises.splice(index, 1);
-        const containerName = process.env['CHE_MACHINE_NAME'];
-        console.error(`Remote plugin in ${containerName}: promise rejection is not handled in two seconds: ${err}`);
+        // If DEVWORKSPACE_COMPONENT_NAME is defined use it else switch to che server CHE_MACHINE_NAME env name
+        const componentName = process.env.DEVWORKSPACE_COMPONENT_NAME || process.env.CHE_MACHINE_NAME;
+        console.error(`Remote plugin in ${componentName}: promise rejection is not handled in two seconds: ${err}`);
         if (err && err.stack) {
-          console.error(`Remote plugin in ${containerName}: promise rejection stack trace: ${err.stack}`);
+          console.error(`Remote plugin in ${componentName}: promise rejection stack trace: ${err.stack}`);
         }
       });
     }

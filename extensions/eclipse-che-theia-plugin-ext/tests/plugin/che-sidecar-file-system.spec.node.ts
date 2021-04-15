@@ -25,8 +25,8 @@ describe('Test CheSideCarFileSystemImpl', () => {
   let workspace: string;
 
   beforeAll(() => {
-    const machineName = 'test';
-    process.env.CHE_MACHINE_NAME = machineName;
+    const componentName = 'test';
+    process.env.DEVWORKSPACE_COMPONENT_NAME = componentName;
 
     const registerFileSystemMock = jest.fn();
 
@@ -39,7 +39,7 @@ describe('Test CheSideCarFileSystemImpl', () => {
     fs = new CheSideCarFileSystemImpl(rpcProtocol);
 
     expect(registerFileSystemMock).toHaveBeenCalledTimes(1);
-    expect(registerFileSystemMock).toHaveBeenCalledWith(`file-sidecar-${machineName}`);
+    expect(registerFileSystemMock).toHaveBeenCalledWith(`file-sidecar-${componentName}`);
   });
 
   afterAll(() => {
@@ -432,5 +432,29 @@ describe('Test CheSideCarFileSystemImpl', () => {
     await expect(fs.$readdir(nonExistentSourceFolder)).rejects.toThrow(
       `Error: ENOENT: no such file or directory, scandir '${nonExistentSourceFolder}'`
     );
+  });
+});
+
+describe('Test CheSideCarFileSystemImpl with che server', () => {
+  beforeAll(() => {
+    const componentName = 'test';
+    process.env.MACHINE_NAME = componentName;
+
+    const registerFileSystemMock = jest.fn();
+
+    jest.doMock('@theia/plugin-ext/lib/common/rpc-protocol', () => ({
+      getProxy: jest.fn(() => ({
+        $registerFileSystemProvider: registerFileSystemMock,
+      })),
+    }));
+    const rpcProtocol = require('@theia/plugin-ext/lib/common/rpc-protocol') as RPCProtocol;
+    new CheSideCarFileSystemImpl(rpcProtocol);
+
+    expect(registerFileSystemMock).toHaveBeenCalledTimes(1);
+    expect(registerFileSystemMock).toHaveBeenCalledWith(`file-sidecar-${componentName}`);
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
   });
 });

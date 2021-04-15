@@ -72,9 +72,9 @@ export class CheSideCarFileSystemImpl implements CheSideCarFileSystem {
 
   constructor(rpc: RPCProtocol) {
     const delegate = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_SIDECAR_FILE_SYSTEM_MAIN);
-    const machineName = process.env.CHE_MACHINE_NAME;
-    if (machineName) {
-      delegate.$registerFileSystemProvider(`file-sidecar-${machineName}`);
+    const componentName = process.env.DEVWORKSPACE_COMPONENT_NAME || process.env.CHE_MACHINE_NAME;
+    if (componentName) {
+      delegate.$registerFileSystemProvider(`file-sidecar-${componentName}`);
     }
   }
 
