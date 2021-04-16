@@ -9,6 +9,7 @@
  ***********************************************************************/
 
 import * as che from '@eclipse-che/plugin';
+import * as fs from 'fs';
 import * as git from '../src/git';
 import * as projectsHelper from '../src/projects';
 import * as theia from '@theia/plugin';
@@ -19,6 +20,7 @@ import { WorkspaceProjectsManager } from '../src/workspace-projects-manager';
 
 jest.mock('../src/workspace-folder-updater');
 jest.mock('../src/projects');
+jest.mock('fs');
 
 const PROJECTS_ROOT = '/projects';
 const firstProject: che.devfile.DevfileProject = {
@@ -27,6 +29,9 @@ const firstProject: che.devfile.DevfileProject = {
 const secondProject: che.devfile.DevfileProject = {
   name: 'theia',
 };
+
+const existsSyncMock = jest.fn();
+Object.assign(fs, { existsSync: existsSyncMock });
 
 const uri: theia.Uri = {
   authority: '',
@@ -317,5 +322,26 @@ describe('Test Workspace Projects Manager', () => {
     expect(getDevfileMock).toBeCalledTimes(0);
     expect(updateDevfileMock).toBeCalledTimes(0);
     expect(deleteProjectFromDevfileMock).toBeCalledTimes(0);
+  });
+
+  // Backward compatibility for single-root workspaces
+  // we need it to support workspaces which were created before switching multi-root mode to ON by default
+  test('Should add projects as workspace folders when projects already exist on file system', async () => {
+    getDevfileMock.mockReturnValue(devfile_With_Two_Projects);
+    existsSyncMock.mockReturnValue(true);
+
+    await workspaceProjectsManager.run();
+
+    expect(addWorkspaceFolderMock).toBeCalledTimes(2);
+  });
+
+  test('Should not add projects as workspace folders: cloning failed and projects do not exist on file system', async () => {
+    getDevfileMock.mockReturnValue(devfile_With_Two_Projects);
+    existsSyncMock.mockReturnValue(false);
+    executeImportCommandMock.mockReset();
+
+    await workspaceProjectsManager.run();
+
+    expect(addWorkspaceFolderMock).toBeCalledTimes(0);
   });
 });

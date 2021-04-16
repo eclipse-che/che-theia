@@ -67,4 +67,9 @@ export interface WorkspaceService {
   stop(): Promise<void>;
 
   getContainerList(): Promise<Container[]>;
+
+  /**
+   * Provides the root directory like /projects
+   */
+  getProjectsRootDirectory(): Promise<string>;
 }

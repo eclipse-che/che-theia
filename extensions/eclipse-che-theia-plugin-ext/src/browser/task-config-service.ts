@@ -102,7 +102,7 @@ export class TaskConfigurationsService extends TaskService {
         remote: isRemote ? 'true' : 'false',
         closeWidgetExitOrError: 'false',
         interruptProcessOnClose: 'true',
-        CHE_MACHINE_NAME: isRemote ? this.getContainerName(config) || '' : '',
+        TERMINAL_COMPONENT_NAME: isRemote ? this.getContainerName(config) || '' : '',
       },
     };
   }

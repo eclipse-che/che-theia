@@ -239,7 +239,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
         return super.newTerminal(options);
       }
 
-      containerName = attributes['CHE_MACHINE_NAME'];
+      containerName = attributes['TERMINAL_COMPONENT_NAME'];
 
       const closeWidgetOnExitOrErrorValue = attributes['closeWidgetExitOrError'];
       if (closeWidgetOnExitOrErrorValue) {

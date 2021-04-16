@@ -18,8 +18,10 @@ import { TerminalServiceExtImpl } from '@theia/plugin-ext/lib/plugin/terminal-ex
  * Allow to override createTerminal to be container-aware and then create terminal to the sidecar container
  */
 export class TerminalContainerAware {
+  static readonly TERMINAL_COMPONENT_NAME = 'TERMINAL_COMPONENT_NAME';
+
   /**
-   * Intercept the original method by adding the CHE_MACHINE_NAME as attribute (if exists)
+   * Intercept the original method by adding the TERMINAL_COMPONENT_NAME as attribute (if exists)
    */
   overrideTerminal(terminalServiceExt: TerminalServiceExtImpl): void {
     // bind createTerminal to the scope 'this' of the terminalServiceExt.
@@ -42,14 +44,12 @@ export class TerminalContainerAware {
         };
       }
 
-      // add machine name if exists
-      if (process.env.CHE_MACHINE_NAME) {
-        if (!options.attributes) {
-          options.attributes = {};
-        }
-        options.attributes['CHE_MACHINE_NAME'] = process.env.CHE_MACHINE_NAME;
+      if (!options.attributes) {
+        options.attributes = {};
       }
+      this.addTerminalComponentAttribute(options.attributes);
 
+      // add component name if exists
       return originalCreateTerminal(options, shellPath, shellArgs);
     };
 
@@ -58,14 +58,21 @@ export class TerminalContainerAware {
   }
 
   overrideTerminalCreationOptionForDebug(debugExt: DebugExtImpl): void {
+    const attributes = {};
+    this.addTerminalComponentAttribute(attributes);
     debugExt.doGetTerminalCreationOptions = (debugType: string) => {
       const options: TerminalOptionsExt = {
-        attributes: {
-          CHE_MACHINE_NAME: process.env.CHE_MACHINE_NAME!,
-        },
+        attributes,
       };
-
       return Promise.resolve(options);
     };
+  }
+
+  addTerminalComponentAttribute(attributes: { [key: string]: string | null }) {
+    if (process.env.DEVWORKSPACE_COMPONENT_NAME) {
+      attributes[TerminalContainerAware.TERMINAL_COMPONENT_NAME] = process.env.DEVWORKSPACE_COMPONENT_NAME;
+    } else if (process.env.CHE_MACHINE_NAME) {
+      attributes[TerminalContainerAware.TERMINAL_COMPONENT_NAME] = process.env.CHE_MACHINE_NAME;
+    }
   }
 }

@@ -21,6 +21,8 @@ interface API {
 }
 
 export async function start(context: theia.PluginContext): Promise<API> {
+  // If PROJECTS_ROOT is defined use it
+  // else switch to old env name
   const root =
     (await theia.env.getEnvVariable('PROJECTS_ROOT')) ||
     (await theia.env.getEnvVariable('CHE_PROJECTS_ROOT')) ||

@@ -18,9 +18,9 @@ import { URI } from 'vscode-uri';
 export class CheSideCarContentReaderImpl implements CheSideCarContentReader {
   constructor(rpc: RPCProtocol) {
     const delegate = rpc.getProxy(PLUGIN_RPC_CONTEXT.CHE_SIDERCAR_CONTENT_READER_MAIN);
-    const machineName = process.env.CHE_MACHINE_NAME;
-    if (machineName) {
-      delegate.$registerContentReader(`file-sidecar-${machineName}`);
+    const componentName = process.env.DEVWORKSPACE_COMPONENT_NAME || process.env.CHE_MACHINE_NAME;
+    if (componentName) {
+      delegate.$registerContentReader(`file-sidecar-${componentName}`);
     }
   }
 
