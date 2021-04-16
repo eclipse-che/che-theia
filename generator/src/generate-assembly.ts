@@ -69,7 +69,7 @@ export async function handleCommand(args: any) {
         });
         json.dependencies = deps;
         json.scripts['download:plugins'] = 'theia download:plugins';
-        json.scripts.prepare = json.scripts.prepare + ' yarn download:plugins';
+        json.scripts.prepare = json.scripts.prepare + ' && yarn download:plugins';
         json.theiaPluginsDir = '../plugins';
         json.theiaPlugins = theiaPlugins;
     });
