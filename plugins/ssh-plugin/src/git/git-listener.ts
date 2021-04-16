@@ -26,6 +26,8 @@ export class GitListener {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private git: any;
 
+  private vscodeGitVersion: string;
+
   private gitCommand: string = '';
 
   constructor() {}
@@ -78,8 +80,63 @@ export class GitListener {
     }
   }
 
+  /**
+   * Compares versions of vscode.git extension
+   */
+  isVersionNewer(currentVersion: string, newVersion: string): boolean {
+    const curParts: string[] = currentVersion.split('.');
+    const newParts: string[] = newVersion.split('.');
+
+    for (let pos = 0; pos < newParts.length; pos++) {
+      if (curParts.length === pos) {
+        return true;
+      }
+
+      if (newParts[pos] > curParts[pos]) {
+        return true;
+      } else if (newParts[pos] < curParts[pos]) {
+        return false;
+      }
+    }
+
+    return false;
+  }
+
   private async retryClone(uri: string, path: string) {
-    await this.git.clone(uri, path.substring(0, path.lastIndexOf('/')));
+    const parentPath = path.substring(0, path.lastIndexOf('/'));
+
+    return theia.window.withProgress(
+      {
+        location: theia.ProgressLocation.Notification,
+        title: `Cloning ${uri} ...`,
+      },
+      (progress, token) => {
+        if (this.isVersionNewer('1.50.1', this.vscodeGitVersion)) {
+          // since vscode.git 1.51.0
+          //
+          // export interface ICloneOptions {
+          //   readonly parentPath: string;
+          //   readonly progress: Progress<{ increment: number }>;
+          //   readonly recursive?: boolean;
+          // }
+          //
+          // async clone(url: string,
+          //             options: ICloneOptions,
+          //             cancellationToken?: CancellationToken): Promise<string>
+
+          return this.git.clone(uri, { parentPath, progress }, token);
+        } else {
+          // before vscode.git 1.51.0
+          //
+          // async clone(url: string,
+          //             parentPath: string,
+          //             progress: Progress<{ increment: number }>,
+          //             cancellationToken?: CancellationToken): Promise<string>
+
+          return this.git.clone(uri, parentPath, progress, token);
+        }
+      }
+    );
   }
 
   private async handleGitPush(uri: string, path: string): Promise<void> {
@@ -102,7 +159,10 @@ export class GitListener {
       const vscodeGit = theia.plugins.getPlugin('vscode.git');
       if (vscodeGit && vscodeGit.exports && !initialized) {
         initialized = true;
+
+        this.vscodeGitVersion = vscodeGit.packageJSON.version ? vscodeGit.packageJSON.version.toString() : '';
         this.git = vscodeGit.exports._model.git;
+
         this.git.onOutput.addListener('log', async (data: string) => this.onGitOutput(data));
       }
     };
