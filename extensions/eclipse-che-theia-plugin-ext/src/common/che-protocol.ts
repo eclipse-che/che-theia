@@ -91,6 +91,8 @@ export interface CheK8S {
 export interface CheK8SMain {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   $sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  $getWorkspacePod(): Promise<any>;
 }
 
 export interface CheGithub {

@@ -55,16 +55,8 @@ export class ResMon {
   }
 
   async getContainersInfo(): Promise<Container[]> {
-    const requestURL = `/api/v1/namespaces/${this.namespace}/pods/${process.env.HOSTNAME}`;
-    const opts = { url: `${this.METRICS_REQUEST_URL}${this.namespace}/pods` };
-    const response: che.K8SRawResponse = await che.k8s.sendRawQuery(requestURL, opts);
-    if (response.statusCode !== 200) {
-      this.statusBarItem.text = this.MONITOR_BANNED;
-      this.warningMessage = "Resource monitor won't be displayed. Cannot get access to the workspace's pod.";
-      this.statusBarItem.command = SHOW_WARNING_MESSAGE_COMMAND.id;
-      throw new Error(`Cannot read Pod information. Status code: ${response.statusCode}. Error: ${response.data}`);
-    }
-    const pod: Pod = JSON.parse(response.data);
+    const wsPod = await che.k8s.getWorkspacePod();
+    const pod: Pod = JSON.parse(JSON.stringify(wsPod));
     pod.spec.containers.forEach(element => {
       this.containers.push({
         name: element.name,
@@ -88,7 +80,7 @@ export class ResMon {
 
   async getMetrics(): Promise<Container[]> {
     const requestURL = `${this.METRICS_REQUEST_URL}${this.namespace}/pods/${process.env.HOSTNAME}`;
-    const opts = { url: `${this.METRICS_REQUEST_URL}${this.namespace}/pods` };
+    const opts = { url: this.METRICS_SERVER_ENDPOINT };
     const response = await che.k8s.sendRawQuery(requestURL, opts);
     if (response.statusCode !== 200) {
       this.statusBarItem.text = this.MONITOR_BANNED;
@@ -193,6 +185,6 @@ export class ResMon {
 }
 
 export async function getNamespace(): Promise<string> {
-  const devfile = await che.devfile.get();
-  return devfile.metadata?.attributes ? devfile.metadata.attributes.infrastructureNamespace : '';
+  const workspace = await che.workspace.getCurrentWorkspace();
+  return workspace.attributes?.['infrastructureNamespace'] || workspace.namespace || '';
 }

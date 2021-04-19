@@ -17,13 +17,15 @@ import * as path from 'path';
 import * as resourceMonitorPlugin from '../src/resource-monitor-plugin';
 import * as theia from '@theia/plugin';
 
+import { SHOW_RESOURCES_INFORMATION_COMMAND, SHOW_WARNING_MESSAGE_COMMAND } from '../src/constants';
+
 import { Container } from '../src/objects';
 import { ResMon } from '../src/resource-monitor-plugin';
-import { SHOW_WARNING_MESSAGE_COMMAND } from '../src/constants';
 
 describe('Test Resource Monitor Plugin', () => {
-  const devfileMock = jest.fn();
+  const workspaceMock = jest.fn();
   const sendRawQuery = jest.fn();
+  const getWorkspacePod = jest.fn();
   const createStatusBar = jest.fn();
   process.env.HOSTNAME = 'workspace';
 
@@ -86,16 +88,15 @@ describe('Test Resource Monitor Plugin', () => {
     jest.resetAllMocks();
 
     che.k8s.sendRawQuery = sendRawQuery;
+    che.k8s.getWorkspacePod = getWorkspacePod;
 
     // Prepare Namespace
-    che.devfile.get = devfileMock;
+    che.workspace.getCurrentWorkspace = workspaceMock;
     const attributes = { infrastructureNamespace: 'che-namespace' };
-    const devfile = {
-      metadata: {
-        attributes,
-      },
+    const workspace = {
+      attributes,
     };
-    devfileMock.mockReturnValue(devfile);
+    workspaceMock.mockReturnValue(workspace);
 
     // Prepare StatusBarItem
     theia.window.createStatusBarItem = createStatusBar;
@@ -110,66 +111,33 @@ describe('Test Resource Monitor Plugin', () => {
   });
 
   describe('show', () => {
-    test('Get Pod information returns bad status code', async () => {
-      resMonitor = new ResMon(context, 'che-namespace');
-      const response: che.K8SRawResponse = {
-        data: 'internal server error',
-        error: 'internal server error',
-        statusCode: 500,
-      };
-      sendRawQuery.mockReturnValue(response);
-      try {
-        await resMonitor.show();
-      } catch (error) {
-        expect(statusBarItem.text).toBe('$(ban) Resources');
-        expect(statusBarItem.command).toBe(SHOW_WARNING_MESSAGE_COMMAND.id);
-        expect(error).toBeInstanceOf(Error);
-        expect(error).toHaveProperty(
-          'message',
-          'Cannot read Pod information. Status code: 500. Error: internal server error'
-        );
-      }
-      expect(che.k8s.sendRawQuery).toBeCalledTimes(1);
-    });
-
     test('Read Pod and Metrics information', async () => {
       resMonitor = new ResMon(context, 'che-namespace');
       const json = await fs.readFile(path.join(__dirname, '_data', 'podInfo.json'), 'utf8');
-      const pod: che.K8SRawResponse = {
-        data: json,
-        error: '',
-        statusCode: 200,
-      };
       const requestMetricServer: che.K8SRawResponse = {
         data: '',
         error: '',
         statusCode: 200,
       };
-      sendRawQuery.mockReturnValueOnce(pod).mockReturnValueOnce(requestMetricServer);
+      getWorkspacePod.mockReturnValueOnce(JSON.parse(json));
+      sendRawQuery.mockReturnValueOnce(requestMetricServer);
 
       await resMonitor.show();
 
-      expect(che.k8s.sendRawQuery).toBeCalledTimes(2);
+      expect(che.k8s.sendRawQuery).toBeCalledTimes(1);
+      expect(che.k8s.getWorkspacePod).toBeCalledTimes(1);
     });
   });
 
   describe('getContainersInfo', () => {
     test('Read Pod information', async () => {
       const json = await fs.readFile(path.join(__dirname, '_data', 'podInfo.json'), 'utf8');
-      const response: che.K8SRawResponse = {
-        data: json,
-        error: '',
-        statusCode: 200,
-      };
-      sendRawQuery.mockReturnValue(response);
+      getWorkspacePod.mockReturnValueOnce(JSON.parse(json));
       resMonitor = new ResMon(context, 'che-namespace');
 
       const containers: Container[] = await resMonitor.getContainersInfo();
 
-      expect(che.k8s.sendRawQuery).toBeCalledTimes(1);
-      expect(che.k8s.sendRawQuery).toBeCalledWith('/api/v1/namespaces/che-namespace/pods/workspace', {
-        url: '/apis/metrics.k8s.io/v1beta1/namespaces/che-namespace/pods',
-      });
+      expect(che.k8s.getWorkspacePod).toBeCalledTimes(1);
       expect(containers.length).toBe(5);
       expect(containers[0]).toEqual({ name: 'che-jwtproxy7yc7hvrc', cpuLimit: 500, memoryLimit: 2000000000 });
       expect(containers[1]).toEqual({ name: 'maven', cpuLimit: 0, memoryLimit: 1000000000 });
@@ -230,7 +198,7 @@ describe('Test Resource Monitor Plugin', () => {
       expect(che.k8s.sendRawQuery).toHaveBeenLastCalledWith(
         '/apis/metrics.k8s.io/v1beta1/namespaces/che-namespace/pods/workspace',
         {
-          url: '/apis/metrics.k8s.io/v1beta1/namespaces/che-namespace/pods',
+          url: '/apis/metrics.k8s.io/v1beta1/',
         }
       );
     });
@@ -239,11 +207,6 @@ describe('Test Resource Monitor Plugin', () => {
   describe('getMetrics', () => {
     test('Read metrics information', async () => {
       const podJson = await fs.readFile(path.join(__dirname, '_data', 'podInfo.json'), 'utf8');
-      const podInfo: che.K8SRawResponse = {
-        data: podJson,
-        error: '',
-        statusCode: 200,
-      };
       const metricsJson = await fs.readFile(path.join(__dirname, '_data', 'podMetrics.json'), 'utf8');
       const metricsInfo: che.K8SRawResponse = {
         data: metricsJson,
@@ -251,7 +214,8 @@ describe('Test Resource Monitor Plugin', () => {
         statusCode: 200,
       };
 
-      sendRawQuery.mockReturnValueOnce(podInfo).mockReturnValueOnce(metricsInfo);
+      getWorkspacePod.mockReturnValueOnce(JSON.parse(podJson));
+      sendRawQuery.mockReturnValueOnce(metricsInfo);
       resMonitor = new ResMon(context, 'che-namespace');
       await resMonitor.getContainersInfo();
       const containers = await resMonitor.getMetrics();
@@ -300,18 +264,14 @@ describe('Test Resource Monitor Plugin', () => {
 
     test('Cannot read metrics', async () => {
       const podJson = await fs.readFile(path.join(__dirname, '_data', 'podInfo.json'), 'utf8');
-      const podInfo: che.K8SRawResponse = {
-        data: podJson,
-        error: '',
-        statusCode: 200,
-      };
       const metricsInfo: che.K8SRawResponse = {
         data: 'Error from server (Forbidden)',
         error: 'Error from server (Forbidden)',
         statusCode: 403,
       };
 
-      sendRawQuery.mockReturnValueOnce(podInfo).mockReturnValueOnce(metricsInfo);
+      getWorkspacePod.mockReturnValueOnce(JSON.parse(podJson));
+      sendRawQuery.mockReturnValueOnce(metricsInfo);
       resMonitor = new ResMon(context, 'che-namespace');
       await resMonitor.getContainersInfo();
       await resMonitor.getMetrics();
@@ -324,11 +284,6 @@ describe('Test Resource Monitor Plugin', () => {
 
     test('Status bar should be marked as warning with container information', async () => {
       const podJson = await fs.readFile(path.join(__dirname, '_data', 'podInfo.json'), 'utf8');
-      const podInfo: che.K8SRawResponse = {
-        data: podJson,
-        error: '',
-        statusCode: 200,
-      };
       const metricsJson = await fs.readFile(path.join(__dirname, '_data', 'limitedMemoryMetrics.json'), 'utf8');
       const metricsInfo: che.K8SRawResponse = {
         data: metricsJson,
@@ -336,7 +291,8 @@ describe('Test Resource Monitor Plugin', () => {
         statusCode: 200,
       };
 
-      sendRawQuery.mockReturnValueOnce(podInfo).mockReturnValueOnce(metricsInfo);
+      getWorkspacePod.mockReturnValueOnce(JSON.parse(podJson));
+      sendRawQuery.mockReturnValueOnce(metricsInfo);
       resMonitor = new ResMon(context, 'che-namespace');
       await resMonitor.getContainersInfo();
       await resMonitor.getMetrics();
@@ -351,11 +307,6 @@ describe('Test Resource Monitor Plugin', () => {
   describe('showDetailedInfo', () => {
     test('Show detailed infot in quick pick window', async () => {
       const podJson = await fs.readFile(path.join(__dirname, '_data', 'podInfo.json'), 'utf8');
-      const podInfo: che.K8SRawResponse = {
-        data: podJson,
-        error: '',
-        statusCode: 200,
-      };
       const metricsJson = await fs.readFile(path.join(__dirname, '_data', 'podMetrics.json'), 'utf8');
       const metricsInfo: che.K8SRawResponse = {
         data: metricsJson,
@@ -363,7 +314,8 @@ describe('Test Resource Monitor Plugin', () => {
         statusCode: 200,
       };
 
-      sendRawQuery.mockReturnValueOnce(podInfo).mockReturnValueOnce(metricsInfo);
+      getWorkspacePod.mockReturnValueOnce(JSON.parse(podJson));
+      sendRawQuery.mockReturnValueOnce(metricsInfo);
       resMonitor = new ResMon(context, 'che-namespace');
       await resMonitor.getContainersInfo();
       await resMonitor.getMetrics();
@@ -400,12 +352,6 @@ describe('Test Resource Monitor Plugin', () => {
   });
   describe('start', () => {
     test('Resource Monitor initialization', async () => {
-      const response: che.K8SRawResponse = {
-        data: 'internal server error',
-        error: 'internal server error',
-        statusCode: 500,
-      };
-      sendRawQuery.mockReturnValue(response);
       await resourceMonitorPlugin.start(context);
 
       expect(theia.commands.registerCommand).toHaveBeenCalledWith(expect.any(Object), expect.any(Function));
@@ -413,7 +359,7 @@ describe('Test Resource Monitor Plugin', () => {
       expect(statusBarItem.alignment).toBe(1);
       expect(statusBarItem.color).toBe('#FFFFFF');
       expect(statusBarItem.show).toHaveBeenCalledTimes(1);
-      expect(statusBarItem.command).toBe(SHOW_WARNING_MESSAGE_COMMAND.id);
+      expect(statusBarItem.command).toBe(SHOW_RESOURCES_INFORMATION_COMMAND.id);
     });
   });
 

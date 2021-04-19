@@ -20,4 +20,6 @@ export interface K8SRawResponse {
 export interface CheK8SService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getWorkspacePod(): Promise<any>;
 }

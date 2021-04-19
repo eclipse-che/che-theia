@@ -16,7 +16,7 @@
  * @author Valerii Svydenko
  */
 const che: any = {};
-che.devfile = {};
-che.devfile.metadata = {};
+che.workspace = {};
+che.workspace.attributes = {};
 che.k8s = {};
 module.exports = che;
