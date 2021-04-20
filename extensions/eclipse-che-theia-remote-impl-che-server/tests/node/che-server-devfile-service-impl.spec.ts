@@ -184,7 +184,7 @@ describe('Test CheServerDevfileServiceImpl', () => {
     expect(convertedDevfileV1).toEqual(devfileV1);
   });
 
-  test.only('convert v1/v2 custom editor devfile.yaml', async () => {
+  test('convert v1/v2 custom editor devfile.yaml', async () => {
     const cheTheiaDevfileYamlPath = path.resolve(__dirname, '..', '_data', 'devfile-custom-editor.yaml');
     const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
     const devfileV1 = jsYaml.safeLoad(devfileContent);
