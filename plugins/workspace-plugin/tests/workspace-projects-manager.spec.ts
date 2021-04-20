@@ -15,7 +15,7 @@ import * as projectsHelper from '../src/projects';
 import * as theia from '@theia/plugin';
 import * as theiaCommands from '../src/theia-commands';
 
-import { WorkspaceFolderUpdater } from '../src/workspace-folder-updater';
+import { WorkspaceFolderUpdaterImpl } from '../src/workspace-folder-updater';
 import { WorkspaceProjectsManager } from '../src/workspace-projects-manager';
 
 jest.mock('../src/workspace-folder-updater');
@@ -143,7 +143,7 @@ const deleteProjectFromDevfileMock = projectsHelper.deleteProjectFromDevfile as 
 describe('Test Workspace Projects Manager', () => {
   const workspaceProjectsManager: WorkspaceProjectsManager = new WorkspaceProjectsManager(context, PROJECTS_ROOT);
 
-  const workspaceFolderUpdaterInstance = (WorkspaceFolderUpdater as jest.Mock).mock.instances[0];
+  const workspaceFolderUpdaterInstance = (WorkspaceFolderUpdaterImpl as jest.Mock).mock.instances[0];
   const addWorkspaceFolderMock = workspaceFolderUpdaterInstance.addWorkspaceFolder;
 
   beforeEach(() => {

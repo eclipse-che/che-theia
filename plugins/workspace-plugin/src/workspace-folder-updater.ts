@@ -9,83 +9,135 @@
  ***********************************************************************/
 
 import * as theia from '@theia/plugin';
-export class WorkspaceFolderUpdater {
-  private pendingFolders: string[] = [];
-  private addingWorkspaceFolderPromise: Promise<void> | undefined;
 
-  constructor(protected readonly updateWorkspaceFolderTimeout = 7000) {}
+export interface WorkspaceFolderUpdater {
+  addWorkspaceFolder(folderPath: string): Promise<void>;
+  removeWorkspaceFolder(folderPath: string): Promise<void>;
+}
 
-  async addWorkspaceFolder(path: string): Promise<void> {
-    const workspaceFolderPath = this.toValidWorkspaceFolderPath(path);
-    if (this.pendingFolders.includes(workspaceFolderPath)) {
-      return;
-    }
+export class WorkspaceFolderUpdaterImpl {
+  promiseChain: Promise<void> = Promise.resolve();
 
-    if (this.addingWorkspaceFolderPromise) {
-      this.pendingFolders.push(workspaceFolderPath);
-      return;
-    }
+  constructor(protected readonly timeout = 7000) {}
 
-    try {
-      this.addingWorkspaceFolderPromise = this.addFolder(workspaceFolderPath);
-      await this.addingWorkspaceFolderPromise;
-    } catch (error) {
-      console.error(error);
-    } finally {
-      this.addingWorkspaceFolderPromise = undefined;
+  addWorkspaceFolder(folderPath: string): Promise<void> {
+    folderPath = this.normalizePath(folderPath);
 
-      const next = this.pendingFolders.shift();
-      if (next) {
-        return this.addWorkspaceFolder(next);
+    // remember the last promise in promise chain
+    const previousPromise = this.promiseChain;
+
+    // create a promise, that will add a workspace folder
+    this.promiseChain = new Promise<void>((resolve, reject) => {
+      previousPromise
+        .catch(err => {
+          console.log(err && err.message ? err.message : err);
+        })
+        .then(() => {
+          // resolve promise if the folder already exists
+          if (this.workspaceFolderExist(folderPath)) {
+            resolve();
+            return;
+          }
+
+          // timer to reset the operation when timeout
+          const timeout = setTimeout(() => {
+            disposable.dispose();
+            reject(new Error(`Adding of workspace folder ${folderPath} was canceled by timeout`));
+          }, this.timeout);
+
+          // add workspace folder change listener
+          const disposable = theia.workspace.onDidChangeWorkspaceFolders(event => {
+            if (event.added.some(folder => folder.uri.path === folderPath)) {
+              disposable.dispose();
+              clearTimeout(timeout);
+              resolve();
+            }
+          });
+
+          // add the folder
+          const index = theia.workspace.workspaceFolders ? theia.workspace.workspaceFolders.length : 0;
+          const success = theia.workspace.updateWorkspaceFolders(index, undefined, {
+            uri: theia.Uri.file(folderPath),
+          });
+
+          if (!success) {
+            disposable.dispose();
+            clearTimeout(timeout);
+            reject(new Error(`Unable to add workspace folder ${folderPath}`));
+          }
+        });
+    });
+
+    return this.promiseChain;
+  }
+
+  async removeWorkspaceFolder(folderPath: string): Promise<void> {
+    folderPath = this.normalizePath(folderPath);
+
+    // remember the last promise in promise chain
+    const previousPromise = this.promiseChain;
+
+    // create a promise, that will remove a workspace folder
+    this.promiseChain = new Promise<void>(async (resolve, reject) => {
+      previousPromise
+        .catch(err => {
+          console.log(err && err.message ? err.message : err);
+        })
+        .then(() => {
+          if (!theia.workspace.workspaceFolders) {
+            resolve();
+            return;
+          }
+
+          // take the folder index
+          const index = theia.workspace.workspaceFolders.findIndex(folder => folder.uri.path === folderPath);
+          // resolve promise if the folder does not exist
+          if (index < 0) {
+            resolve();
+            return;
+          }
+
+          // timer to reset the operation when timeout
+          const timeout = setTimeout(() => {
+            disposable.dispose();
+            reject(new Error(`Removing of workspace folder ${folderPath} was canceled by timeout`));
+          }, this.timeout);
+
+          // add workspace folder change listener
+          const disposable = theia.workspace.onDidChangeWorkspaceFolders(event => {
+            if (event.removed.some(folder => folder.uri.path === folderPath)) {
+              disposable.dispose();
+              clearTimeout(timeout);
+              resolve();
+            }
+          });
+
+          // remove the folder
+          const success = theia.workspace.updateWorkspaceFolders(index, 1);
+
+          if (!success) {
+            disposable.dispose();
+            clearTimeout(timeout);
+            reject(new Error(`Unable to remove workspace folder ${folderPath}`));
+          }
+        });
+    });
+
+    return this.promiseChain;
+  }
+
+  workspaceFolderExist(folderPath: string): boolean {
+    if (theia.workspace.workspaceFolders) {
+      const found = theia.workspace.workspaceFolders.some(folder => folder.uri.path === folderPath);
+      if (found) {
+        return true;
       }
     }
+
+    return false;
   }
 
-  protected addFolder(projectPath: string): Promise<void> {
-    const isProjectFolder = (folder: theia.WorkspaceFolder) => folder.uri.path === projectPath;
-    const workspaceFolders: theia.WorkspaceFolder[] = theia.workspace.workspaceFolders || [];
-    if (workspaceFolders.some(isProjectFolder)) {
-      return Promise.resolve(undefined);
-    }
-
-    return new Promise<void>((resolve, reject) => {
-      const disposable = theia.workspace.onDidChangeWorkspaceFolders(event => {
-        const existingWorkspaceFolders = theia.workspace.workspaceFolders || [];
-        if (event.added.some(isProjectFolder) || existingWorkspaceFolders.some(isProjectFolder)) {
-          clearTimeout(addFolderTimeout);
-
-          disposable.dispose();
-
-          resolve();
-        }
-      });
-
-      const addFolderTimeout = setTimeout(() => {
-        disposable.dispose();
-
-        reject(
-          new Error(
-            `Adding workspace folder ${projectPath} was cancelled by timeout ${this.updateWorkspaceFolderTimeout} ms`
-          )
-        );
-      }, this.updateWorkspaceFolderTimeout);
-
-      theia.workspace.updateWorkspaceFolders(workspaceFolders ? workspaceFolders.length : 0, undefined, {
-        uri: theia.Uri.file(projectPath),
-      });
-    });
-  }
-
-  async removeWorkspaceFolder(path: string): Promise<void> {
-    const workspaceFolders: theia.WorkspaceFolder[] = theia.workspace.workspaceFolders || [];
-
-    const index = workspaceFolders.findIndex((folder: theia.WorkspaceFolder) => folder.uri.path === path);
-    if (index >= 0) {
-      theia.workspace.updateWorkspaceFolders(index, 1);
-    }
-  }
-
-  protected toValidWorkspaceFolderPath(path: string): string {
+  protected normalizePath(path: string): string {
     if (path.endsWith('/')) {
       return path.slice(0, -1);
     }

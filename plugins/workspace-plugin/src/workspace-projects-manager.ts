@@ -18,7 +18,7 @@ import * as theia from '@theia/plugin';
 
 import { TheiaImportCommand, buildProjectImportCommand } from './theia-commands';
 
-import { WorkspaceFolderUpdater } from './workspace-folder-updater';
+import { WorkspaceFolderUpdaterImpl } from './workspace-folder-updater';
 
 const onDidCloneSourcesEmitter = new theia.EventEmitter<void>();
 
@@ -26,7 +26,7 @@ export const onDidCloneSources = onDidCloneSourcesEmitter.event;
 
 export class WorkspaceProjectsManager {
   protected watchers: theia.FileSystemWatcher[] = [];
-  protected workspaceFolderUpdater = new WorkspaceFolderUpdater();
+  protected workspaceFolderUpdater = new WorkspaceFolderUpdaterImpl();
 
   private output: theia.OutputChannel;
 

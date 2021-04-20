@@ -10,20 +10,21 @@
 
 import * as theia from '@theia/plugin';
 
-import { WorkspaceFolderUpdater } from '../src/workspace-folder-updater';
+import { WorkspaceFolderUpdaterImpl } from '../src/workspace-folder-updater';
 
-interface WorkspaceFolder {
-  readonly uri: theia.Uri;
-}
+const PROJECT_1 = '/projects/theia';
+const PROJECT_2 = '/projects/che-theia';
+const PROJECT_3 = '/projects/test-plugin';
 
-const PROJECT_1_PATH = '/projects/theia';
-const PROJECT_2_PATH = '/projects/che-theia';
-const PROJECT_3_PATH = '/projects/test-plugin';
-const WRONG_PROJECT_PATH = '/projects/theia/';
-const CORRECT_FOLDER_PATH = '/projects/theia';
+const outputChannelMock = {
+  appendLine: jest.fn(),
+  show: jest.fn(),
+};
+(theia.window.createOutputChannel as jest.Mock).mockReturnValue(outputChannelMock);
 
 let actualWorkspaceFolders: string[] = [];
-let addedFoldersForEvent: WorkspaceFolder[] = [];
+let allowedFoldersToAdd: string[] = [];
+let skipWorkspaceFolderUpdate = false;
 
 const onDidChangeWorkspaceFolders = jest.fn();
 onDidChangeWorkspaceFolders.mockImplementation(onDidChangeWorkspaceFoldersTestImpl);
@@ -34,149 +35,283 @@ Object.assign(theia, { workspace });
 Object.assign(theia, { Uri: {} });
 const fileFunc = jest.fn();
 theia.Uri.file = fileFunc;
-fileFunc.mockImplementation(uriStub);
-
-const updateWorkspaceFolders = jest.fn();
+fileFunc.mockImplementation(toUri);
 
 const dispose = jest.fn();
 const disposable = { dispose };
 
-theia.workspace.updateWorkspaceFolders = updateWorkspaceFolders;
+const updateWorkspaceFoldersMock = jest.fn();
+theia.workspace.updateWorkspaceFolders = updateWorkspaceFoldersMock;
 
 describe('Test Workspace Folder Updater', () => {
-  const workspaceFolderUpdater: WorkspaceFolderUpdater = new WorkspaceFolderUpdater(200);
+  const workspaceFolderUpdater: WorkspaceFolderUpdaterImpl = new WorkspaceFolderUpdaterImpl(100);
 
   beforeEach(() => {
     actualWorkspaceFolders = [];
-    addedFoldersForEvent = [];
-    updateWorkspaceFolders.mockReset();
-    updateWorkspaceFolders.mockRestore();
+    allowedFoldersToAdd = [];
+    skipWorkspaceFolderUpdate = false;
+
+    updateWorkspaceFoldersMock.mockReset();
+    updateWorkspaceFoldersMock.mockRestore();
+
     dispose.mockReset();
 
-    updateWorkspaceFolders.mockImplementation(updateWorkspaceFoldersTestImpl);
-    theia.workspace.workspaceFolders = [];
+    updateWorkspaceFoldersMock.mockImplementation(updateWorkspaceFoldersTestImpl);
+    theia.workspace.workspaceFolders = undefined;
   });
 
-  test('request update Workspace Folders using API', async () => {
-    const workspaceFolder = { uri: uriStub(PROJECT_1_PATH) };
-    addedFoldersForEvent = [workspaceFolder];
+  test('Add Workspace Folder should call Plugin API', async () => {
+    allowedFoldersToAdd = [PROJECT_1];
 
-    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1_PATH);
+    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1);
 
-    expect(actualWorkspaceFolders).toStrictEqual([PROJECT_1_PATH]);
-    expect(updateWorkspaceFolders).toBeCalledTimes(1);
+    expect(actualWorkspaceFolders).toStrictEqual([PROJECT_1]);
+    expect(updateWorkspaceFoldersMock).toBeCalledTimes(1);
     expect(dispose).toBeCalledTimes(1);
   });
 
-  test('it shoud skip a request if there is pending request for the same folder', async () => {
-    const workspaceFolder_1 = { uri: uriStub(PROJECT_1_PATH) };
-    const workspaceFolder_2 = { uri: uriStub(PROJECT_2_PATH) };
-    addedFoldersForEvent = [workspaceFolder_1, workspaceFolder_2];
+  test('Adding of Workspace Folder should be rejected', async () => {
+    try {
+      await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1);
+    } catch (error) {
+      expect(error.message).toEqual(`Unable to add workspace folder ${PROJECT_1}`);
+      return;
+    }
 
-    workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1_PATH);
-    workspaceFolderUpdater.addWorkspaceFolder(PROJECT_2_PATH);
-    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_2_PATH);
-    await waitUpdateFolders(500);
+    fail();
+  });
 
-    expect(actualWorkspaceFolders).toStrictEqual([PROJECT_1_PATH, PROJECT_2_PATH]);
-    expect(updateWorkspaceFolders).toBeCalledTimes(2);
+  test('It shoud not add the same folder twice', async () => {
+    allowedFoldersToAdd = [PROJECT_1, PROJECT_2];
+
+    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1);
+    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_2);
+    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_2);
+
+    expect(actualWorkspaceFolders).toStrictEqual([PROJECT_1, PROJECT_2]);
+    expect(updateWorkspaceFoldersMock).toBeCalledTimes(2);
     expect(dispose).toBeCalledTimes(2);
   });
 
-  test('it shoud skip adding Workspace Folders duplicates', async () => {
-    const workspaceFolder = { uri: uriStub(PROJECT_1_PATH) };
-    addedFoldersForEvent = [workspaceFolder];
+  test('Adding of Workspace Folder should be rejected by timeout', async () => {
+    skipWorkspaceFolderUpdate = true;
+    try {
+      await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1);
+    } catch (error) {
+      expect(error.message).toEqual(`Adding of workspace folder ${PROJECT_1} was canceled by timeout`);
+      return;
+    }
 
-    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1_PATH);
-
-    theia.workspace.workspaceFolders = [{ name: '', index: 0, uri: workspaceFolder.uri }];
-
-    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1_PATH);
-    await waitUpdateFolders(150);
-
-    expect(actualWorkspaceFolders).toStrictEqual([PROJECT_1_PATH]);
-    expect(updateWorkspaceFolders).toBeCalledTimes(1);
-    expect(dispose).toBeCalledTimes(1);
+    fail();
   });
 
-  test('it shoud reject adding a Workspace Folder by timeout', async () => {
-    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1_PATH);
-
-    expect(actualWorkspaceFolders).toStrictEqual([]);
-    expect(updateWorkspaceFolders).toBeCalledTimes(1);
-    expect(dispose).toBeCalledTimes(1);
-  });
-
-  test('it shoud add the next folder after rejecting adding a Workspace Folder by timeout', async () => {
+  test('Reject adding the first folder, sucessful adding of the next one', async () => {
     // add PROJECT_1_PATH
     // add PROJECT_2_PATH
-    // case: there is no an event that PROJECT_1_PATH was added ==> the first request should be rejected by timeout
-    // then the second request should be handled
-    // The expected behavior = PROJECT_2_PATH is added as a workspace folder
+    // case:
+    //    adding of PROJECT_1_PATH must be failes
+    //    PROJECT_2_PATH must be added to workspace folders
 
-    const workspaceFolder = { uri: uriStub(PROJECT_2_PATH) };
-    addedFoldersForEvent = [workspaceFolder];
+    allowedFoldersToAdd = [PROJECT_2];
 
-    workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1_PATH);
-    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_2_PATH);
-    await waitUpdateFolders(500);
+    let addingProject1Failed = false;
+    try {
+      await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1);
+    } catch (e) {
+      expect(e.message).toMatch(`Unable to add workspace folder ${PROJECT_1}`);
+      addingProject1Failed = true;
+    }
 
-    expect(actualWorkspaceFolders).toStrictEqual([PROJECT_2_PATH]);
-    expect(updateWorkspaceFolders).toBeCalledTimes(2);
+    expect(addingProject1Failed).toBe(true);
+
+    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_2);
+
+    expect(actualWorkspaceFolders).toStrictEqual([PROJECT_2]);
+    expect(updateWorkspaceFoldersMock).toBeCalledTimes(2);
     expect(dispose).toBeCalledTimes(2);
   });
 
-  test('it shoud add Workspace Folders in turn', async () => {
-    const workspaceFolder_1 = { uri: uriStub(PROJECT_1_PATH) };
-    const workspaceFolder_2 = { uri: uriStub(PROJECT_2_PATH) };
-    const workspaceFolder_3 = { uri: uriStub(PROJECT_3_PATH) };
-    addedFoldersForEvent = [workspaceFolder_1, workspaceFolder_2, workspaceFolder_3];
+  test('Workspace Folders should be added in proper sequence', async () => {
+    allowedFoldersToAdd = [PROJECT_1, PROJECT_2, PROJECT_3];
 
-    workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1_PATH);
-    workspaceFolderUpdater.addWorkspaceFolder(PROJECT_2_PATH);
-    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_3_PATH);
-    await waitUpdateFolders(500);
+    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1);
+    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_2);
+    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_3);
 
-    expect(actualWorkspaceFolders).toStrictEqual([PROJECT_1_PATH, PROJECT_2_PATH, PROJECT_3_PATH]);
-    expect(updateWorkspaceFolders).toBeCalledTimes(3);
+    expect(actualWorkspaceFolders).toStrictEqual([PROJECT_1, PROJECT_2, PROJECT_3]);
+    expect(updateWorkspaceFoldersMock).toBeCalledTimes(3);
     expect(dispose).toBeCalledTimes(3);
   });
 
-  test('it should correct a project path to the valid Workspace Folder path ', async () => {
-    const workspaceFolder = { uri: uriStub(CORRECT_FOLDER_PATH) };
-    addedFoldersForEvent = [workspaceFolder];
+  test('Test adding the Workspace Folder with normalizing path', async () => {
+    allowedFoldersToAdd = [PROJECT_1];
 
-    await workspaceFolderUpdater.addWorkspaceFolder(WRONG_PROJECT_PATH);
+    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1 + '/');
 
-    expect(actualWorkspaceFolders).toStrictEqual([CORRECT_FOLDER_PATH]);
+    expect(actualWorkspaceFolders).toStrictEqual([PROJECT_1]);
+  });
+
+  test('Remove Workspace Folder should call Plugin API', async () => {
+    // prepate workspsce folders
+    theia.workspace.workspaceFolders = [toFolder(PROJECT_1)];
+
+    await workspaceFolderUpdater.removeWorkspaceFolder(PROJECT_1);
+
+    expect(actualWorkspaceFolders).toStrictEqual([]);
+    expect(updateWorkspaceFoldersMock).toBeCalledTimes(1);
+    expect(dispose).toBeCalledTimes(1);
+  });
+
+  test('Remove Workspace Folder should be resolved immediately if no workspace folders opened', async () => {
+    await workspaceFolderUpdater.removeWorkspaceFolder(PROJECT_1);
+
+    expect(updateWorkspaceFoldersMock).toBeCalledTimes(0);
+    expect(dispose).toBeCalledTimes(0);
+  });
+
+  test('Removing of Workspace Folder should be rejected by timeout', async () => {
+    // prepare workspace folders
+    actualWorkspaceFolders = [PROJECT_1];
+    theia.workspace.workspaceFolders = [toFolder(PROJECT_1)];
+
+    skipWorkspaceFolderUpdate = true;
+
+    try {
+      await workspaceFolderUpdater.removeWorkspaceFolder(PROJECT_1);
+    } catch (error) {
+      expect(error.message).toEqual(`Removing of workspace folder ${PROJECT_1} was canceled by timeout`);
+      expect(actualWorkspaceFolders).toStrictEqual([PROJECT_1]);
+      return;
+    }
+
+    fail();
+  });
+
+  test('Remove several Workspace Folders', async () => {
+    // prepare workspace folders
+    actualWorkspaceFolders = [PROJECT_1, PROJECT_2, PROJECT_3];
+    theia.workspace.workspaceFolders = [toFolder(PROJECT_1), toFolder(PROJECT_2), toFolder(PROJECT_3)];
+
+    await workspaceFolderUpdater.removeWorkspaceFolder(PROJECT_1);
+    await workspaceFolderUpdater.removeWorkspaceFolder(PROJECT_3);
+
+    expect(actualWorkspaceFolders).toStrictEqual([PROJECT_2]);
+    expect(updateWorkspaceFoldersMock).toBeCalledTimes(2);
+    expect(dispose).toBeCalledTimes(2);
+  });
+
+  test('Complex adding and removing', async () => {
+    allowedFoldersToAdd = [PROJECT_1, PROJECT_2, PROJECT_3];
+
+    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1);
+    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_2);
+    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_3);
+    await workspaceFolderUpdater.removeWorkspaceFolder(PROJECT_1);
+
+    // check workspace folders
+    expect(actualWorkspaceFolders).toStrictEqual([PROJECT_2, PROJECT_3]);
+
+    await workspaceFolderUpdater.removeWorkspaceFolder(PROJECT_2);
+    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1);
+
+    // check workspace folders
+    expect(actualWorkspaceFolders).toStrictEqual([PROJECT_3, PROJECT_1]);
+
+    expect(updateWorkspaceFoldersMock).toBeCalledTimes(6);
+    expect(dispose).toBeCalledTimes(6);
   });
 });
+
+interface NotifyWorkspaceFolderChangedFunction {
+  (folder: { uri: theia.Uri; name?: string }): void;
+}
+
+let notifyFolderAdded: NotifyWorkspaceFolderChangedFunction;
+let notifyFolderRemoved: NotifyWorkspaceFolderChangedFunction;
+
+function onDidChangeWorkspaceFoldersTestImpl(listener: (event: {}) => {}): { dispose(): void } {
+  notifyFolderAdded = (folder: { uri: theia.Uri; name?: string }) => {
+    setTimeout(() => {
+      const addedEvent = {
+        added: [folder],
+        removed: [],
+      };
+      listener(addedEvent);
+    }, 1);
+  };
+
+  notifyFolderRemoved = (folder: { uri: theia.Uri; name?: string }) => {
+    setTimeout(() => {
+      const removedEvent = {
+        added: [],
+        removed: [folder],
+      };
+      listener(removedEvent);
+    }, 1);
+  };
+
+  return disposable;
+}
+
+function addWorkspaceFolder(folderToAdd: { uri: theia.Uri; name?: string }): boolean {
+  const folderPath = folderToAdd.uri.path;
+
+  if (folderPath && allowedFoldersToAdd.some(folder => folder === folderPath)) {
+    if (!theia.workspace.workspaceFolders) {
+      theia.workspace.workspaceFolders = [];
+    }
+
+    const folder = toFolder(folderPath);
+    theia.workspace.workspaceFolders.push(folder);
+
+    actualWorkspaceFolders.push(folderPath);
+
+    notifyFolderAdded(folderToAdd);
+
+    return true;
+  }
+
+  return false;
+}
+
+function removeWorkspaceFolder(start: number, deleteCount: number): boolean {
+  if (theia.workspace.workspaceFolders) {
+    if (theia.workspace.workspaceFolders.length > start) {
+      const removed = theia.workspace.workspaceFolders[start];
+      theia.workspace.workspaceFolders.splice(start, 1);
+
+      actualWorkspaceFolders = actualWorkspaceFolders.filter(folder => folder !== removed.uri.path);
+
+      notifyFolderRemoved(removed);
+
+      return true;
+    }
+  }
+
+  return false;
+}
 
 function updateWorkspaceFoldersTestImpl(
   start: number,
   deleteCount: number | undefined | null,
-  workspaceFolderToAdd: { uri: theia.Uri; name?: string }
+  folderToAdd: { uri: theia.Uri; name?: string } | undefined
 ): boolean {
-  const projectPath = workspaceFolderToAdd.uri.path;
-  if (projectPath && addedFoldersForEvent.some(folder => folder.uri.path === projectPath)) {
-    actualWorkspaceFolders.push(projectPath);
+  if (skipWorkspaceFolderUpdate) {
     return true;
   }
+
+  if (folderToAdd) {
+    return addWorkspaceFolder(folderToAdd);
+  }
+
+  if (deleteCount) {
+    return removeWorkspaceFolder(start, deleteCount);
+  }
+
   return false;
 }
 
-function onDidChangeWorkspaceFoldersTestImpl(listener: (event: {}) => {}): { dispose(): void } {
-  setTimeout(() => {
-    const addWorkspaceFolderEvent = {
-      added: addedFoldersForEvent,
-      removed: [],
-    };
-    listener(addWorkspaceFolderEvent);
-  }, 100);
-  return disposable;
-}
-
-function uriStub(path: string): theia.Uri {
+function toUri(path: string): theia.Uri {
   return {
     path,
     authority: '',
@@ -189,6 +324,12 @@ function uriStub(path: string): theia.Uri {
   };
 }
 
-function waitUpdateFolders(ms: number): Promise<void> {
-  return new Promise<void>(resolve => setTimeout(() => resolve(), ms));
+function toFolder(path: string): theia.WorkspaceFolder {
+  const name = path.substring(path.lastIndexOf('/') + 1);
+  const uri = toUri(path);
+  return {
+    index: 0,
+    name,
+    uri,
+  };
 }
