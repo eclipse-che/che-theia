@@ -553,13 +553,25 @@ export class CheServerDevfileServiceImpl implements DevfileService {
   }
 
   devfileV1toDevfileV2(devfileV1: cheApi.workspace.devfile.Devfile): Devfile {
+    const components: DevfileComponent[] = [];
+    if (devfileV1.components) {
+      devfileV1.components.forEach(component => {
+        if (component.type === 'cheEditor' || component.type === 'kubernetes') {
+          return;
+        }
+
+        components.push(this.componentV1toComponentV2(component));
+      });
+    }
+
     const devfileV2: Devfile = {
       apiVersion: '2.0.0',
       metadata: this.metadataV1toMetadataV2(devfileV1.metadata),
       projects: (devfileV1.projects || []).map(project => this.projectV1toProjectV2(project)),
-      components: (devfileV1.components || []).map(component => this.componentV1toComponentV2(component)),
+      components,
       commands: (devfileV1.commands || []).map(command => this.commandV1toCommandV2(command)),
     };
+
     if (devfileV1.attributes) {
       devfileV2.metadata.attributes = devfileV2.metadata.attributes || {};
       Object.keys(devfileV1.attributes).forEach(attributeName => {
@@ -654,11 +666,20 @@ export class CheServerDevfileServiceImpl implements DevfileService {
   async updateDevfile(devfile: Devfile): Promise<void> {
     const workspace = await this.workspaceService.currentWorkspace();
 
-    // convert devfile v2 to devfile v1
-    const devfileV1 = {
-      projects: (devfile.projects || []).map(project => this.projectV2toProjectV1(project)),
-      components: [],
-    };
+    // persist all components where type === 'cheEditor' or type === 'kubernetes'
+    const persist = (workspace.devfile!.components || []).filter(
+      component => component.type === 'cheEditor' || component.type === 'kubernetes'
+    );
+
+    const devfileV1 = this.devfileV2toDevfileV1(devfile);
+
+    if (persist.length > 0) {
+      if (!devfileV1.components) {
+        devfileV1.components = [];
+      }
+
+      devfileV1.components.push(...persist);
+    }
 
     workspace.devfile = devfileV1;
     await this.workspaceService.updateWorkspace(workspace.id!, workspace);
