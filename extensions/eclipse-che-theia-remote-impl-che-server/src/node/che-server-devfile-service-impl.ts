@@ -169,7 +169,7 @@ export class CheServerDevfileServiceImpl implements DevfileService {
     const devfileV1Component: cheApi.workspace.devfile.Component = {};
 
     if (componentV2.plugin) {
-      devfileV1Component.type = 'chePlugin';
+      devfileV1Component.type = componentV2.attributes?.['source-origin'] || 'chePlugin';
 
       if (componentV2.plugin.memoryLimit) {
         devfileV1Component.memoryLimit = componentV2.plugin.memoryLimit;
@@ -290,8 +290,13 @@ export class CheServerDevfileServiceImpl implements DevfileService {
       devfileV2Component.container.env = this.componentEnvV1toComponentEnvV2(componentV1.env);
       devfileV2Component.container.volumeMounts = this.componentVolumeV1toComponentVolumeV2(componentV1.volumes);
       devfileV2Component.container.endpoints = this.componentEndpointV1toComponentEndpointV2(componentV1.endpoints);
-    } else if (componentV1.type === 'chePlugin') {
+    } else if (componentV1.type === 'chePlugin' || componentV1.type === 'cheEditor') {
       devfileV2Component.plugin = {};
+      if (!devfileV2Component.attributes) {
+        devfileV2Component.attributes = {};
+      }
+      devfileV2Component.attributes['source-origin'] = componentV1.type;
+
       if (componentV1.id) {
         devfileV2Component.plugin.id = componentV1.id;
       }
