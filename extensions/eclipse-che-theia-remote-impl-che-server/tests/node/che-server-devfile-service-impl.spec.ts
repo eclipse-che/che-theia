@@ -194,8 +194,18 @@ describe('Test CheServerDevfileServiceImpl', () => {
     expect(convertedDevfileV1).toEqual(devfileV1);
   });
 
-  test('convert v1/v2 kubernetes components devfile.yaml', async () => {
-    const cheTheiaDevfileYamlPath = path.resolve(__dirname, '..', '_data', 'devfile-kubernetes-components.yaml');
+  test('convert v1/v2 kubernetes component devfile.yaml', async () => {
+    const cheTheiaDevfileYamlPath = path.resolve(__dirname, '..', '_data', 'devfile-kubernetes-component.yaml');
+    const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
+    const devfileV1 = jsYaml.safeLoad(devfileContent);
+
+    const convertedDevfileV2 = cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
+    const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
+    expect(convertedDevfileV1).toEqual(devfileV1);
+  });
+
+  test('convert v1/v2 openshift component devfile.yaml', async () => {
+    const cheTheiaDevfileYamlPath = path.resolve(__dirname, '..', '_data', 'devfile-openshift-component.yaml');
     const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
     const devfileV1 = jsYaml.safeLoad(devfileContent);
 

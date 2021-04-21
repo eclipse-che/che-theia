@@ -10,13 +10,8 @@ projects:
       branch: myBranch
 components:
   - type: kubernetes
-    alias: petclinic-db
-    reference: https://reference2
-    selector:
-      app.kubernetes.io/component: database
-  - type: kubernetes
     alias: petclinic-web
-    reference: 'https://reference3'
+    reference: 'https://reference'
     selector:
       app.kubernetes.io/component: webapp
     entrypoints:
