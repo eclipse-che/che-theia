@@ -166,6 +166,14 @@ export class CheServerDevfileServiceImpl implements DevfileService {
   }
 
   componentV2toComponentV1(componentV2: DevfileComponent): cheApi.workspace.devfile.Component {
+    if (componentV2.kubernetes) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      return JSON.parse(componentV2.kubernetes!.inlined!) as cheApi.workspace.devfile.Component;
+    } else if (componentV2.openshift) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      return JSON.parse(componentV2.openshift!.inlined!) as cheApi.workspace.devfile.Component;
+    }
+
     const devfileV1Component: cheApi.workspace.devfile.Component = {};
 
     if (componentV2.plugin) {
@@ -321,6 +329,12 @@ export class CheServerDevfileServiceImpl implements DevfileService {
       devfileV2Component.plugin.env = this.componentEnvV1toComponentEnvV2(componentV1.env);
       devfileV2Component.plugin.volumeMounts = this.componentVolumeV1toComponentVolumeV2(componentV1.volumes);
       devfileV2Component.plugin.endpoints = this.componentEndpointV1toComponentEndpointV2(componentV1.endpoints);
+    } else if (componentV1.type === 'kubernetes') {
+      devfileV2Component.kubernetes = {};
+      devfileV2Component.kubernetes.inlined = JSON.stringify(componentV1);
+    } else if (componentV1.type === 'openshift') {
+      devfileV2Component.openshift = {};
+      devfileV2Component.openshift.inlined = JSON.stringify(componentV1);
     }
 
     return devfileV2Component;

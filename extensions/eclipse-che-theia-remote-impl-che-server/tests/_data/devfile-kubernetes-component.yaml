@@ -9,5 +9,12 @@ projects:
       location: 'https://github.com/this-is-a-test'
       branch: myBranch
 components:
-  - type: cheEditor
+  - type: kubernetes
+    alias: petclinic-web
     reference: 'https://reference'
+    selector:
+      app.kubernetes.io/component: webapp
+    entrypoints:
+      - containerName: spring-boot
+        command: ["tail"]
+        args: ["-f", "/dev/null"]
