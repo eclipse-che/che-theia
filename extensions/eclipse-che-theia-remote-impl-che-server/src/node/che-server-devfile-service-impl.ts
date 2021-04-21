@@ -169,7 +169,7 @@ export class CheServerDevfileServiceImpl implements DevfileService {
     const devfileV1Component: cheApi.workspace.devfile.Component = {};
 
     if (componentV2.plugin) {
-      devfileV1Component.type = 'chePlugin';
+      devfileV1Component.type = componentV2.attributes?.['source-origin'] || 'chePlugin';
 
       if (componentV2.plugin.memoryLimit) {
         devfileV1Component.memoryLimit = componentV2.plugin.memoryLimit;
@@ -290,8 +290,13 @@ export class CheServerDevfileServiceImpl implements DevfileService {
       devfileV2Component.container.env = this.componentEnvV1toComponentEnvV2(componentV1.env);
       devfileV2Component.container.volumeMounts = this.componentVolumeV1toComponentVolumeV2(componentV1.volumes);
       devfileV2Component.container.endpoints = this.componentEndpointV1toComponentEndpointV2(componentV1.endpoints);
-    } else if (componentV1.type === 'chePlugin') {
+    } else if (componentV1.type === 'chePlugin' || componentV1.type === 'cheEditor') {
       devfileV2Component.plugin = {};
+      if (!devfileV2Component.attributes) {
+        devfileV2Component.attributes = {};
+      }
+      devfileV2Component.attributes['source-origin'] = componentV1.type;
+
       if (componentV1.id) {
         devfileV2Component.plugin.id = componentV1.id;
       }
@@ -553,25 +558,13 @@ export class CheServerDevfileServiceImpl implements DevfileService {
   }
 
   devfileV1toDevfileV2(devfileV1: cheApi.workspace.devfile.Devfile): Devfile {
-    const components: DevfileComponent[] = [];
-    if (devfileV1.components) {
-      devfileV1.components.forEach(component => {
-        if (component.type === 'cheEditor' || component.type === 'kubernetes') {
-          return;
-        }
-
-        components.push(this.componentV1toComponentV2(component));
-      });
-    }
-
     const devfileV2: Devfile = {
       apiVersion: '2.0.0',
       metadata: this.metadataV1toMetadataV2(devfileV1.metadata),
       projects: (devfileV1.projects || []).map(project => this.projectV1toProjectV2(project)),
-      components,
+      components: (devfileV1.components || []).map(component => this.componentV1toComponentV2(component)),
       commands: (devfileV1.commands || []).map(command => this.commandV1toCommandV2(command)),
     };
-
     if (devfileV1.attributes) {
       devfileV2.metadata.attributes = devfileV2.metadata.attributes || {};
       Object.keys(devfileV1.attributes).forEach(attributeName => {
@@ -666,20 +659,8 @@ export class CheServerDevfileServiceImpl implements DevfileService {
   async updateDevfile(devfile: Devfile): Promise<void> {
     const workspace = await this.workspaceService.currentWorkspace();
 
-    // persist all components where type === 'cheEditor' or type === 'kubernetes'
-    const persist = (workspace.devfile!.components || []).filter(
-      component => component.type === 'cheEditor' || component.type === 'kubernetes'
-    );
-
+    // convert devfile v2 to devfile v1
     const devfileV1 = this.devfileV2toDevfileV1(devfile);
-
-    if (persist.length > 0) {
-      if (!devfileV1.components) {
-        devfileV1.components = [];
-      }
-
-      devfileV1.components.push(...persist);
-    }
 
     workspace.devfile = devfileV1;
     await this.workspaceService.updateWorkspace(workspace.id!, workspace);
