@@ -308,6 +308,7 @@ describe('Test Workspace Projects Manager', () => {
 
   test('Should delete a project from Devfile', async () => {
     getDevfileMock.mockReturnValue(devfile_Without_Attributes);
+    deleteProjectFromDevfileMock.mockReturnValue(true);
 
     await workspaceProjectsManager.deleteProjectFromWorkspace('/projects/che-theia');
 

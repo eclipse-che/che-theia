@@ -14,9 +14,9 @@ import * as path from 'path';
  * Returns path of the given project according projects directory.
  * Given project should be in subtree of root projects directory.
  *
- * @param fileURI root folder of the project
+ * @param projectPath project path
  * @param rootFolder root folder for all projects in workspace
  */
-export function convertToCheProjectPath(fileURI: string, rootFolder: string): string {
-  return path.relative(rootFolder, fileURI);
+export function toRelativePath(projectPath: string, rootFolder: string): string {
+  return path.relative(rootFolder, projectPath);
 }

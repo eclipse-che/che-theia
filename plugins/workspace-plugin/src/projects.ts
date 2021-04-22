@@ -22,25 +22,27 @@ import * as che from '@eclipse-che/plugin';
  * @param projectGitRemoteBranch git branch of the project
  */
 export function updateOrCreateGitProjectInDevfile(
-  projects: che.devfile.DevfileProject[] | undefined,
+  devfile: che.devfile.Devfile,
   projectPath: string | undefined,
   projectGitLocation: string,
   projectGitRemoteBranch: string
-): che.devfile.DevfileProject[] {
-  if (!projects) {
-    projects = [];
+) {
+  if (!devfile.projects) {
+    devfile.projects = [];
   }
 
-  const filteredProject = projects.filter(
+  const filteredProject = devfile.projects.filter(
     project => (project.clonePath ? project.clonePath : project.name) === projectPath
   );
+
   if (filteredProject.length === 0) {
     const projectName = projectPath!.split('/').pop();
     if (projectPath === projectName) {
       projectPath = undefined;
     }
+
     // create a new one
-    projects.push({
+    devfile.projects.push({
       name: projectName ? projectName : 'new-project',
       git: {
         remotes: {
@@ -52,7 +54,8 @@ export function updateOrCreateGitProjectInDevfile(
       },
       clonePath: projectPath,
     });
-    return projects;
+
+    return;
   }
 
   filteredProject.forEach(project => {
@@ -66,6 +69,7 @@ export function updateOrCreateGitProjectInDevfile(
         },
       };
     }
+
     const defaultRemote = project.git.checkoutFrom?.remote || Object.keys(project.git.remotes)[0];
     project.git.remotes[defaultRemote] = projectGitLocation;
     if (!project.git.checkoutFrom) {
@@ -76,8 +80,6 @@ export function updateOrCreateGitProjectInDevfile(
       project.git.checkoutFrom.revision = projectGitRemoteBranch;
     }
   });
-
-  return projects;
 }
 
 /**
@@ -87,22 +89,17 @@ export function updateOrCreateGitProjectInDevfile(
  * @param projects list of projects in workspace
  * @param projectPath relative path of the project to delete according to projets root directory
  */
-export function deleteProjectFromDevfile(
-  projects: che.devfile.DevfileProject[] | undefined,
-  projectPath: string
-): che.devfile.DevfileProject[] {
-  if (!projects) {
-    projects = [];
-  }
-
-  for (let i = 0; i < projects.length; i++) {
-    const project = projects[i];
-    const currentProjectPath = project.clonePath ? project.clonePath : project.name;
-    if (currentProjectPath === projectPath) {
-      projects.splice(i, 1);
-      break;
+export function deleteProjectFromDevfile(devfile: che.devfile.Devfile, relativePath: string): boolean {
+  if (devfile.projects) {
+    for (let i = 0; i < devfile.projects.length; i++) {
+      const project = devfile.projects[i];
+      const currentProjectPath = project.clonePath ? project.clonePath : project.name;
+      if (relativePath === currentProjectPath) {
+        devfile.projects.splice(i, 1);
+        return true;
+      }
     }
   }
 
-  return projects;
+  return false;
 }

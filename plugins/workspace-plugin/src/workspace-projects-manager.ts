@@ -100,8 +100,8 @@ export class WorkspaceProjectsManager {
         let cloningPromise = cloneCommand.execute();
 
         if (isMultiRoot) {
-          cloningPromise = cloningPromise.then(projectPath => {
-            this.workspaceFolderUpdater.addWorkspaceFolder(projectPath);
+          cloningPromise = cloningPromise.then(async projectPath => {
+            await this.workspaceFolderUpdater.addWorkspaceFolder(projectPath);
             return projectPath;
           });
         }
@@ -143,27 +143,28 @@ export class WorkspaceProjectsManager {
           }
         } else {
           await this.workspaceFolderUpdater.removeWorkspaceFolder(projectPath);
+          await this.deleteProjectFromWorkspace(projectPath);
         }
       });
     }
   }
 
-  async updateOrCreateProjectInWorkspace(projectFolderPath: string): Promise<void> {
-    if (!projectFolderPath) {
+  async updateOrCreateProjectInWorkspace(projectPath: string): Promise<void> {
+    if (!projectPath) {
       return;
     }
 
     const devfile = await che.devfile.get();
 
-    const projectUpstreamBranch: git.GitUpstreamBranch | undefined = await git.getUpstreamBranch(projectFolderPath);
+    const projectUpstreamBranch: git.GitUpstreamBranch | undefined = await git.getUpstreamBranch(projectPath);
     if (!projectUpstreamBranch || !projectUpstreamBranch.remoteURL) {
-      this.output.appendLine(`Could not detect git project branch for ${projectFolderPath}`);
+      this.output.appendLine(`Could not detect git project branch for ${projectPath}`);
       return;
     }
 
     projectsHelper.updateOrCreateGitProjectInDevfile(
-      devfile.projects,
-      fileUri.convertToCheProjectPath(projectFolderPath, this.projectsRoot),
+      devfile,
+      fileUri.toRelativePath(projectPath, this.projectsRoot),
       projectUpstreamBranch.remoteURL,
       projectUpstreamBranch.branch
     );
@@ -171,18 +172,17 @@ export class WorkspaceProjectsManager {
     await che.devfile.update(devfile);
   }
 
-  async deleteProjectFromWorkspace(projectFolderPath: string): Promise<void> {
-    if (!projectFolderPath) {
+  async deleteProjectFromWorkspace(projectPath: string): Promise<void> {
+    if (!projectPath) {
       return;
     }
 
     const devfile = await che.devfile.get();
+    const relativePath = fileUri.toRelativePath(projectPath, this.projectsRoot);
 
-    projectsHelper.deleteProjectFromDevfile(
-      devfile.projects,
-      fileUri.convertToCheProjectPath(projectFolderPath, this.projectsRoot)
-    );
-
-    await che.devfile.update(devfile);
+    const devfileChanged = projectsHelper.deleteProjectFromDevfile(devfile, relativePath);
+    if (devfileChanged) {
+      await che.devfile.update(devfile);
+    }
   }
 }
