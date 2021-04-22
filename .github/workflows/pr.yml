@@ -19,6 +19,8 @@ jobs:
   linelint:
     runs-on: ubuntu-20.04
     name: eof-newline
+    env:
+      DOCKER_TARGET_PLATFORM: linux/amd64
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -27,6 +29,8 @@ jobs:
         id: linelint
   node-build:
     runs-on: ubuntu-20.04
+    env:
+      DOCKER_TARGET_PLATFORM: linux/amd64
     steps:
     - uses: actions/checkout@v2
       name: Checkout che-theia source code
@@ -45,6 +49,8 @@ jobs:
       matrix:
         dist: [ 'alpine', 'ubi8' ]
     runs-on: ubuntu-20.04
+    env:
+      DOCKER_TARGET_PLATFORM: linux/amd64
     steps:
     - uses: actions/checkout@v2
       name: Checkout che-theia source code

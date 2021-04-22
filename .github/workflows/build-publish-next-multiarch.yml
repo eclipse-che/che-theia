@@ -1,0 +1,35 @@
+name: Build & Publish `multiarch next image`
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build_mutiarch_image:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout che-theia source code
+    - uses: actions/setup-node@v1
+      name: Configuring nodejs 12.x version
+      with:
+        node-version: '12.x'
+    - name: Set up Docker Buildx
+      uses: crazy-max/ghaction-docker-buildx@v1
+      with:
+        version: latest
+    - name: Login to docker.io
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+        registry: docker.io
+    - name: Build and publish images
+      run: |
+        docker image prune -a -f
+        ./build.sh --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.alpine
+      env:
+        CDN_PREFIX: https://static.developers.redhat.com/che/theia_artifacts/
+        MONACO_CDN_PREFIX: https://cdn.jsdelivr.net/npm/
+        DOCKER_TARGET_PLATFORM: multiarch
