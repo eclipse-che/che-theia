@@ -98,8 +98,8 @@ export class WorkspaceProjectsManager {
         let cloningPromise = cloneCommand.execute();
 
         if (isMultiRoot) {
-          cloningPromise = cloningPromise.then(projectPath => {
-            this.workspaceFolderUpdater.addWorkspaceFolder(projectPath);
+          cloningPromise = cloningPromise.then(async projectPath => {
+            await this.workspaceFolderUpdater.addWorkspaceFolder(projectPath);
             return projectPath;
           });
         }
