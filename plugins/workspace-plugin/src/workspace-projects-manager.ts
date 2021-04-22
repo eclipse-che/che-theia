@@ -103,6 +103,7 @@ export class WorkspaceProjectsManager {
             return projectPath;
           });
         }
+        cloningPromises.push(cloningPromise);
       } catch (e) {
         this.outputChannel.appendLine(`Error while cloning: ${e}`);
         // we continue to clone other projects even if a clone process failed for a project
