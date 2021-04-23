@@ -235,12 +235,12 @@ to pick-up automatically a free port`)
   // create a new client on top of socket
   newClient(id: number, socket: ws): WebSocketClient {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const emitter = new Emitter<any>();
+    const emitter = new Emitter<string>();
     const webSocketClient = new WebSocketClient(id, socket, emitter);
     webSocketClient.rpc = new RPCProtocolImpl({
       onMessage: emitter.event,
       // send messages to this client
-      send: (m: {}) => {
+      send: (m: string) => {
         webSocketClient.send(m);
       },
     });
@@ -319,57 +319,60 @@ to pick-up automatically a free port`)
     });
 
     socket.on('message', async (data: ws.Data) => {
-      const jsonParsed = JSON.parse(data.toString());
+      const message = data.toString();
+      if (message && message.length > 0) {
+        const jsonParsed = JSON.parse(message);
 
-      // handle local call
-      if (jsonParsed.internal) {
-        // asked to stop plug-ins
-        if (jsonParsed.internal.method && jsonParsed.internal.method === 'stop') {
-          try {
-            // wait to stop plug-ins
-            // FIXME: we need to fix this
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            await (<any>client.pluginHostRPC).pluginManager.$stop();
+        // handle local call
+        if (jsonParsed.internal) {
+          // asked to stop plug-ins
+          if (jsonParsed.internal.method && jsonParsed.internal.method === 'stop') {
+            try {
+              // wait to stop plug-ins
+              // FIXME: we need to fix this
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              await (<any>client.pluginHostRPC).pluginManager.$stop();
 
-            // ok now we can dispose the emitter
-            client.disposeEmitter();
-          } catch (e) {
-            console.error(e);
+              // ok now we can dispose the emitter
+              client.disposeEmitter();
+            } catch (e) {
+              console.error(e);
+            }
+            return;
+          }
+
+          // asked to send plugin resource
+          if (GetResourceRequest.is(jsonParsed.internal)) {
+            client.send(JSON.stringify(this.handleGetResourceRequest(jsonParsed.internal)));
+            return;
+          }
+
+          if (GetResourceStatRequest.is(jsonParsed.internal)) {
+            client.send(JSON.stringify(this.handleGetResourceStatRequest(jsonParsed.internal)));
+            return;
+          }
+
+          // asked to grab metadata, send them
+          if (jsonParsed.internal.metadata && 'request' === jsonParsed.internal.metadata) {
+            // apply host on all local metadata
+            currentBackendDeployedPlugins.forEach(
+              deployedPlugin => (deployedPlugin.metadata.host = jsonParsed.internal.endpointName)
+            );
+            const metadataResult = {
+              internal: {
+                endpointName: jsonParsed.internal.endpointName,
+                metadata: {
+                  result: currentBackendDeployedPlugins,
+                },
+              },
+            };
+            client.send(JSON.stringify(metadataResult));
           }
           return;
         }
 
-        // asked to send plugin resource
-        if (GetResourceRequest.is(jsonParsed.internal)) {
-          client.send(this.handleGetResourceRequest(jsonParsed.internal));
-          return;
-        }
-
-        if (GetResourceStatRequest.is(jsonParsed.internal)) {
-          client.send(this.handleGetResourceStatRequest(jsonParsed.internal));
-          return;
-        }
-        // asked to grab metadata, send them
-        if (jsonParsed.internal.metadata && 'request' === jsonParsed.internal.metadata) {
-          // apply host on all local metadata
-          currentBackendDeployedPlugins.forEach(
-            deployedPlugin => (deployedPlugin.metadata.host = jsonParsed.internal.endpointName)
-          );
-          const metadataResult = {
-            internal: {
-              endpointName: jsonParsed.internal.endpointName,
-              metadata: {
-                result: currentBackendDeployedPlugins,
-              },
-            },
-          };
-          client.send(metadataResult);
-        }
-        return;
+        client.fire(message);
       }
-
-      // send what is inside the message (wrapped message)
-      client.fire(jsonParsed);
     });
   }
 
@@ -432,7 +435,7 @@ export class WebSocketClient {
   public pluginHostRPC: PluginHostRPC;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(private readonly id: number, private socket: ws, private readonly emitter: Emitter<any>) {}
+  constructor(private readonly id: number, private socket: ws, private readonly emitter: Emitter<string>) {}
 
   public getIdentifier(): number {
     return this.id;
@@ -440,9 +443,9 @@ export class WebSocketClient {
 
   // message is a JSON entry
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  send(message: any): void {
+  send(message: string): void {
     try {
-      this.socket.send(JSON.stringify(message));
+      this.socket.send(message);
     } catch (error) {
       console.log('error socket while sending', error, message);
     }
@@ -453,7 +456,7 @@ export class WebSocketClient {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fire(message: any): void {
+  fire(message: string): void {
     try {
       this.emitter.fire(message);
     } catch (error) {
