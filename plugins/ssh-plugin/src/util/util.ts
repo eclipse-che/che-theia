@@ -80,8 +80,17 @@ export async function updateConfig(hostName: string): Promise<void> {
  * Returns path to the keyfile.
  */
 export async function writeKey(name: string, key: string): Promise<string> {
+  // ensure ~/.ssh directory exists
+  const sshDir = path.resolve(os.homedir(), '.ssh');
+  await fs.ensureDir(sshDir);
+
+  // get keyfile path
   const keyFile = getKeyFilePath(name);
-  await fs.appendFile(keyFile, key);
+
+  // write file
+  await fs.writeFile(keyFile, key);
+
+  // change permissions
   await fs.chmod(keyFile, '600');
   return keyFile;
 }
