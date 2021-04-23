@@ -108,6 +108,8 @@ describe('Test recommendation Plugin', () => {
   });
 
   test('Check onClone callback is registered', async () => {
+    theia.workspace.workspaceFolders = undefined;
+
     (theia.plugins.getPlugin as jest.Mock).mockReturnValue(workspacePluginMock);
     const recommendationsPlugin = container.get(RecommendationsPlugin);
     const spyAfterClone = jest.spyOn(recommendationsPlugin, 'afterClone');
@@ -228,6 +230,14 @@ describe('Test recommendation Plugin', () => {
   });
 
   test('Check featuredPlugins with plugins in the devfile (user click no on suggestion)', async () => {
+    theia.workspace.workspaceFolders = [
+      {
+        uri: theia.Uri.parse('/projects'),
+        name: 'project',
+        index: 0,
+      },
+    ];
+
     (theia.plugins.getPlugin as jest.Mock).mockReturnValue(workspacePluginMock);
 
     // no devfile plugins

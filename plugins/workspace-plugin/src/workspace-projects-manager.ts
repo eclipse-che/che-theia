@@ -105,7 +105,6 @@ export class WorkspaceProjectsManager {
             return projectPath;
           });
         }
-
         cloningPromises.push(cloningPromise);
       } catch (e) {
         this.output.appendLine(`Error while cloning: ${e}`);

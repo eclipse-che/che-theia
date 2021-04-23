@@ -142,7 +142,7 @@ export interface DevfileV1PluginComponent {
   mountSources?: boolean;
   sourceMapping?: string;
   volumeMounts?: DevfileComponentVolumeMount[];
-  preferences?: { [preferenceName: string]: unknown };
+  preferences?: { [preferenceName: string]: string | number | boolean };
 }
 export interface DevfileComponent {
   name?: string;
