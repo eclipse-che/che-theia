@@ -62,7 +62,6 @@ export class HostedPluginRemote {
 
   @postConstruct()
   protected postConstruct(): void {
-    console.log('hosted plugin remote postconstruct');
     this.setupDiscovery();
     this.setupWebsocket();
   }
