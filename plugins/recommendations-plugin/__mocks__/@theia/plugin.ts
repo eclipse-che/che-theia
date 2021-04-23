@@ -30,5 +30,8 @@ theia.workspace = {
   workspaceFolders: undefined,
   onDidOpenTextDocument: jest.fn(),
 };
+theia.Uri = {
+  parse: jest.fn()
+}
 theia.plugins.getPlugin = jest.fn();
 module.exports = theia;
