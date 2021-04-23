@@ -105,7 +105,7 @@ export class GitListener {
   private async retryClone(uri: string, path: string) {
     const parentPath = path.substring(0, path.lastIndexOf('/'));
 
-    return theia.window.withProgress(
+    await theia.window.withProgress(
       {
         location: theia.ProgressLocation.Notification,
         title: `Cloning ${uri} ...`,
@@ -137,6 +137,8 @@ export class GitListener {
         }
       }
     );
+
+    theia.window.showInformationMessage(`Project ${uri} has been successfully cloned to ${path}`);
   }
 
   private async handleGitPush(uri: string, path: string): Promise<void> {
