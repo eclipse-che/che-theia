@@ -9,6 +9,7 @@
  ***********************************************************************/
 
 import * as che from '@eclipse-che/plugin';
+import * as theia from '@theia/plugin';
 
 import { DevfileServiceImpl } from '../src/devfile-service';
 
@@ -28,6 +29,12 @@ che.devfile.get = getDevfileMock;
 
 const updateDevfileMock = jest.fn();
 che.devfile.update = updateDevfileMock;
+
+const outputChannelMock = {
+  appendLine: jest.fn(),
+  show: jest.fn(),
+};
+(theia.window.createOutputChannel as jest.Mock).mockReturnValue(outputChannelMock);
 
 describe('Devfile Service:', () => {
   const devfileService = new DevfileServiceImpl(PROJECTS_ROOT);

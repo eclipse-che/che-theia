@@ -10,6 +10,7 @@
 
 import * as che from '@eclipse-che/plugin';
 import * as fileUri from './file-uri';
+import * as theia from '@theia/plugin';
 
 export interface DevfileService {
   updateProject(projectPath: string, remoteURL: string, branch: string): Promise<void>;
@@ -19,9 +20,16 @@ export interface DevfileService {
 export class DevfileServiceImpl {
   promiseChain: Promise<void> = Promise.resolve();
 
-  constructor(protected projectsRoot: string) {}
+  private output: theia.OutputChannel;
+
+  constructor(protected projectsRoot: string) {
+    this.output = theia.window.createOutputChannel('workspace-plugin');
+  }
 
   async updateProject(projectPath: string, remoteURL: string, branch: string): Promise<void> {
+    this.output.show();
+    this.output.appendLine(`> update project ${projectPath}`);
+
     if (!projectPath || !remoteURL) {
       return;
     }
@@ -46,8 +54,10 @@ export class DevfileServiceImpl {
               branch
             );
 
+            this.output.appendLine(`> saving the devfile ${projectPath}`);
             await che.devfile.update(devfile);
           } catch (error) {
+            this.output.appendLine(`Devfile: failure to add/update project ${projectPath}`);
             reject(new Error(`Devfile: failure to add/update project ${projectPath}`));
             return;
           }

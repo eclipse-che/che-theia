@@ -141,9 +141,13 @@ export class WorkspaceProjectsManager {
         const projectPath = path.resolve(this.projectsRoot, filename);
         if (await fs.pathExists(projectPath)) {
           if ((await fs.lstat(projectPath)).isDirectory()) {
+            this.output.show(true);
+            this.output.appendLine(`>> add workspace folder ${projectPath}`);
             await this.workspaceFolderUpdater.addWorkspaceFolder(projectPath);
           }
         } else {
+          this.output.show(true);
+          this.output.appendLine(`>> remove workspace folder ${projectPath}`);
           await this.workspaceFolderUpdater.removeWorkspaceFolder(projectPath);
           this.onProjectRemoved(projectPath);
         }
