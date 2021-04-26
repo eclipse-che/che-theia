@@ -9,13 +9,12 @@
  ***********************************************************************/
 
 import * as che from '@eclipse-che/plugin';
-import * as fileUri from './file-uri';
 import * as fs from 'fs-extra';
 import * as git from './git';
 import * as path from 'path';
-import * as projectsHelper from './projects';
 import * as theia from '@theia/plugin';
 
+import { DevfileService, DevfileServiceImpl } from './devfile-service';
 import { TheiaImportCommand, buildProjectImportCommand } from './theia-commands';
 
 import { WorkspaceFolderUpdaterImpl } from './workspace-folder-updater';
@@ -26,12 +25,16 @@ export const onDidCloneSources = onDidCloneSourcesEmitter.event;
 
 export class WorkspaceProjectsManager {
   protected watchers: theia.FileSystemWatcher[] = [];
+
   protected workspaceFolderUpdater = new WorkspaceFolderUpdaterImpl();
+  protected devfileService: DevfileService;
 
   private output: theia.OutputChannel;
 
   constructor(protected pluginContext: theia.PluginContext, protected projectsRoot: string) {
     this.output = theia.window.createOutputChannel('workspace-plugin');
+
+    this.devfileService = new DevfileServiceImpl(projectsRoot);
   }
 
   getProjectPath(project: che.devfile.DevfileProject): string {
@@ -120,9 +123,9 @@ export class WorkspaceProjectsManager {
   async watchWorkspaceProjects(): Promise<void> {
     const gitConfigPattern = '**/.git/{HEAD,config}';
     const gitConfigWatcher = theia.workspace.createFileSystemWatcher(gitConfigPattern);
-    gitConfigWatcher.onDidCreate(uri => this.updateOrCreateProjectInWorkspace(git.getGitRootFolder(uri.path)));
-    gitConfigWatcher.onDidChange(uri => this.updateOrCreateProjectInWorkspace(git.getGitRootFolder(uri.path)));
-    gitConfigWatcher.onDidDelete(uri => this.deleteProjectFromWorkspace(git.getGitRootFolder(uri.path)));
+    gitConfigWatcher.onDidCreate(uri => this.onProjectChanged(git.getGitRootFolder(uri.path)));
+    gitConfigWatcher.onDidChange(uri => this.onProjectChanged(git.getGitRootFolder(uri.path)));
+    gitConfigWatcher.onDidDelete(uri => this.onProjectRemoved(git.getGitRootFolder(uri.path)));
     this.watchers.push(gitConfigWatcher);
 
     this.pluginContext.subscriptions.push(
@@ -142,46 +145,31 @@ export class WorkspaceProjectsManager {
           }
         } else {
           await this.workspaceFolderUpdater.removeWorkspaceFolder(projectPath);
-          await this.deleteProjectFromWorkspace(projectPath);
+          this.onProjectRemoved(projectPath);
         }
       });
     }
   }
 
-  async updateOrCreateProjectInWorkspace(projectPath: string): Promise<void> {
-    if (!projectPath) {
-      return;
-    }
-
-    const devfile = await che.devfile.get();
-
-    const projectUpstreamBranch: git.GitUpstreamBranch | undefined = await git.getUpstreamBranch(projectPath);
-    if (!projectUpstreamBranch || !projectUpstreamBranch.remoteURL) {
+  async onProjectChanged(projectPath: string): Promise<void> {
+    const branch: git.GitUpstreamBranch | undefined = await git.getUpstreamBranch(projectPath);
+    if (!branch || !branch.remoteURL) {
       this.output.appendLine(`Could not detect git project branch for ${projectPath}`);
       return;
     }
 
-    projectsHelper.updateOrCreateGitProjectInDevfile(
-      devfile,
-      fileUri.toRelativePath(projectPath, this.projectsRoot),
-      projectUpstreamBranch.remoteURL,
-      projectUpstreamBranch.branch
-    );
-
-    await che.devfile.update(devfile);
+    try {
+      await this.devfileService.updateProject(projectPath, branch.remoteURL, branch.branch);
+    } catch (error) {
+      this.output.appendLine(error.message ? error.message : error);
+    }
   }
 
-  async deleteProjectFromWorkspace(projectPath: string): Promise<void> {
-    if (!projectPath) {
-      return;
-    }
-
-    const devfile = await che.devfile.get();
-    const relativePath = fileUri.toRelativePath(projectPath, this.projectsRoot);
-
-    const devfileChanged = projectsHelper.deleteProjectFromDevfile(devfile, relativePath);
-    if (devfileChanged) {
-      await che.devfile.update(devfile);
+  async onProjectRemoved(projectPath: string): Promise<void> {
+    try {
+      this.devfileService.deleteProject(projectPath);
+    } catch (error) {
+      this.output.appendLine(error.message ? error.message : error);
     }
   }
 }

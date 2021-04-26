@@ -11,7 +11,6 @@
 import * as che from '@eclipse-che/plugin';
 import * as fs from 'fs';
 import * as git from '../src/git';
-import * as projectsHelper from '../src/projects';
 import * as theia from '@theia/plugin';
 import * as theiaCommands from '../src/theia-commands';
 
@@ -19,19 +18,23 @@ import { WorkspaceFolderUpdaterImpl } from '../src/workspace-folder-updater';
 import { WorkspaceProjectsManager } from '../src/workspace-projects-manager';
 
 jest.mock('../src/workspace-folder-updater');
-jest.mock('../src/projects');
+jest.mock('../src/devfile-service');
 jest.mock('fs');
 
 const PROJECTS_ROOT = '/projects';
+
 const firstProject: che.devfile.DevfileProject = {
   name: 'che-theia',
 };
+
 const secondProject: che.devfile.DevfileProject = {
   name: 'theia',
 };
 
 const existsSyncMock = jest.fn();
 Object.assign(fs, { existsSync: existsSyncMock });
+
+const getUpstreamGitBranchSpy = jest.spyOn(git, 'getUpstreamBranch');
 
 const uri: theia.Uri = {
   authority: '',
@@ -137,9 +140,6 @@ const theiaImportCommand: theiaCommands.TheiaImportCommand = new theiaCommands.T
 const executeImportCommandMock = jest.fn();
 theiaImportCommand.execute = executeImportCommandMock;
 
-const updateOrCreateGitProjectInDevfileMock = projectsHelper.updateOrCreateGitProjectInDevfile as jest.Mock;
-const deleteProjectFromDevfileMock = projectsHelper.deleteProjectFromDevfile as jest.Mock;
-
 describe('Test Workspace Projects Manager', () => {
   const workspaceProjectsManager: WorkspaceProjectsManager = new WorkspaceProjectsManager(context, PROJECTS_ROOT);
 
@@ -152,8 +152,7 @@ describe('Test Workspace Projects Manager', () => {
     addWorkspaceFolderMock.mockClear();
     getDevfileMock.mockClear();
     updateDevfileMock.mockClear();
-    updateOrCreateGitProjectInDevfileMock.mockClear();
-    deleteProjectFromDevfileMock.mockClear();
+    getUpstreamGitBranchSpy.mockClear();
 
     buildProjectImportCommandMock.mockReturnValue(theiaImportCommand);
     executeImportCommandMock.mockResolvedValue('');
@@ -255,74 +254,6 @@ describe('Test Workspace Projects Manager', () => {
     expect(addWorkspaceFolderMock).toBeCalledTimes(0);
     expect(executeImportCommandMock).toBeCalledTimes(0);
     expect(showInfoMessageMock).toBeCalledTimes(0);
-  });
-
-  test('Should create a git project in a Devfile', async () => {
-    getDevfileMock.mockReturnValue(devfile_Without_Attributes);
-
-    const getUpstreamBranchSpy = jest.spyOn(git, 'getUpstreamBranch');
-    getUpstreamBranchSpy.mockResolvedValueOnce({
-      branch: 'branch',
-      remote: 'remote',
-      remoteURL: 'someRemoteUrl',
-    });
-
-    await workspaceProjectsManager.updateOrCreateProjectInWorkspace('/projects/che-theia');
-
-    expect(updateOrCreateGitProjectInDevfileMock).toBeCalledTimes(1);
-  });
-
-  test('Should NOT create a project when given Uri is not defined', async () => {
-    await workspaceProjectsManager.updateOrCreateProjectInWorkspace('');
-
-    expect(getDevfileMock).toBeCalledTimes(0);
-    expect(updateDevfileMock).toBeCalledTimes(0);
-    expect(updateOrCreateGitProjectInDevfileMock).toBeCalledTimes(0);
-  });
-
-  test('Should NOT create a git project in a Devfile when `remoteURL` is not defined', async () => {
-    getDevfileMock.mockReturnValue(devfile_Without_Attributes);
-
-    const getUpstreamBranchSpy = jest.spyOn(git, 'getUpstreamBranch');
-    getUpstreamBranchSpy.mockResolvedValueOnce({
-      branch: 'branch',
-      remote: 'remote',
-      remoteURL: '', // not defined
-    });
-
-    await workspaceProjectsManager.updateOrCreateProjectInWorkspace('/projects/che-theia');
-
-    expect(updateOrCreateGitProjectInDevfileMock).toBeCalledTimes(0);
-  });
-
-  test('Should NOT create a git project in a Devfile when upstream branch is `undefined`', async () => {
-    getDevfileMock.mockReturnValue(devfile_Without_Attributes);
-
-    const getUpstreamBranchSpy = jest.spyOn(git, 'getUpstreamBranch');
-    getUpstreamBranchSpy.mockResolvedValueOnce(undefined);
-
-    await workspaceProjectsManager.updateOrCreateProjectInWorkspace('/projects/che-theia');
-
-    expect(updateOrCreateGitProjectInDevfileMock).toBeCalledTimes(0);
-  });
-
-  test('Should delete a project from Devfile', async () => {
-    getDevfileMock.mockReturnValue(devfile_Without_Attributes);
-    deleteProjectFromDevfileMock.mockReturnValue(true);
-
-    await workspaceProjectsManager.deleteProjectFromWorkspace('/projects/che-theia');
-
-    expect(getDevfileMock).toBeCalledTimes(1);
-    expect(updateDevfileMock).toBeCalledTimes(1);
-    expect(deleteProjectFromDevfileMock).toBeCalledTimes(1);
-  });
-
-  test('Should NOT delete a project when given Uri is not defined', async () => {
-    await workspaceProjectsManager.deleteProjectFromWorkspace('');
-
-    expect(getDevfileMock).toBeCalledTimes(0);
-    expect(updateDevfileMock).toBeCalledTimes(0);
-    expect(deleteProjectFromDevfileMock).toBeCalledTimes(0);
   });
 
   // Backward compatibility for single-root workspaces
