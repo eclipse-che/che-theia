@@ -92,21 +92,23 @@ export class WorkspaceProjectsManager {
 
     theia.window.showInformationMessage('Che Workspace: Starting importing projects.');
 
-    const cloningPromises: PromiseLike<string>[] = [];
+    const cloningPromises: Promise<string>[] = [];
     for (const cloneCommand of cloneCommandList) {
       try {
-        const cloningPromise = cloneCommand.execute();
-        cloningPromises.push(cloningPromise);
+        let cloningPromise = cloneCommand.execute();
 
         if (isMultiRoot) {
-          cloningPromise.then(projectPath => this.workspaceFolderUpdater.addWorkspaceFolder(projectPath));
+          cloningPromise = cloningPromise.then(async projectPath => {
+            await this.workspaceFolderUpdater.addWorkspaceFolder(projectPath);
+            return projectPath;
+          });
         }
+        cloningPromises.push(cloningPromise);
       } catch (e) {
         this.outputChannel.appendLine(`Error while cloning: ${e}`);
         // we continue to clone other projects even if a clone process failed for a project
       }
     }
-
     await Promise.all(cloningPromises);
 
     theia.window.showInformationMessage('Che Workspace: Finished importing projects.');

@@ -166,10 +166,18 @@ export class CheServerDevfileServiceImpl implements DevfileService {
   }
 
   componentV2toComponentV1(componentV2: DevfileComponent): cheApi.workspace.devfile.Component {
+    if (componentV2.kubernetes) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      return JSON.parse(componentV2.kubernetes!.inlined!) as cheApi.workspace.devfile.Component;
+    } else if (componentV2.openshift) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      return JSON.parse(componentV2.openshift!.inlined!) as cheApi.workspace.devfile.Component;
+    }
+
     const devfileV1Component: cheApi.workspace.devfile.Component = {};
 
     if (componentV2.plugin) {
-      devfileV1Component.type = 'chePlugin';
+      devfileV1Component.type = componentV2.attributes?.['source-origin'] || 'chePlugin';
 
       if (componentV2.plugin.memoryLimit) {
         devfileV1Component.memoryLimit = componentV2.plugin.memoryLimit;
@@ -290,8 +298,13 @@ export class CheServerDevfileServiceImpl implements DevfileService {
       devfileV2Component.container.env = this.componentEnvV1toComponentEnvV2(componentV1.env);
       devfileV2Component.container.volumeMounts = this.componentVolumeV1toComponentVolumeV2(componentV1.volumes);
       devfileV2Component.container.endpoints = this.componentEndpointV1toComponentEndpointV2(componentV1.endpoints);
-    } else if (componentV1.type === 'chePlugin') {
+    } else if (componentV1.type === 'chePlugin' || componentV1.type === 'cheEditor') {
       devfileV2Component.plugin = {};
+      if (!devfileV2Component.attributes) {
+        devfileV2Component.attributes = {};
+      }
+      devfileV2Component.attributes['source-origin'] = componentV1.type;
+
       if (componentV1.id) {
         devfileV2Component.plugin.id = componentV1.id;
       }
@@ -316,6 +329,12 @@ export class CheServerDevfileServiceImpl implements DevfileService {
       devfileV2Component.plugin.env = this.componentEnvV1toComponentEnvV2(componentV1.env);
       devfileV2Component.plugin.volumeMounts = this.componentVolumeV1toComponentVolumeV2(componentV1.volumes);
       devfileV2Component.plugin.endpoints = this.componentEndpointV1toComponentEndpointV2(componentV1.endpoints);
+    } else if (componentV1.type === 'kubernetes') {
+      devfileV2Component.kubernetes = {};
+      devfileV2Component.kubernetes.inlined = JSON.stringify(componentV1);
+    } else if (componentV1.type === 'openshift') {
+      devfileV2Component.openshift = {};
+      devfileV2Component.openshift.inlined = JSON.stringify(componentV1);
     }
 
     return devfileV2Component;
@@ -655,10 +674,7 @@ export class CheServerDevfileServiceImpl implements DevfileService {
     const workspace = await this.workspaceService.currentWorkspace();
 
     // convert devfile v2 to devfile v1
-    const devfileV1 = {
-      projects: (devfile.projects || []).map(project => this.projectV2toProjectV1(project)),
-      components: [],
-    };
+    const devfileV1 = this.devfileV2toDevfileV1(devfile);
 
     workspace.devfile = devfileV1;
     await this.workspaceService.updateWorkspace(workspace.id!, workspace);

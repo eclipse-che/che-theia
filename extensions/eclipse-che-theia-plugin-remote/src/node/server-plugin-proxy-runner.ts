@@ -8,7 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { HostedPluginClient, ServerPluginRunner } from '@theia/plugin-ext/lib/common/plugin-protocol';
+import {
+  HostedPluginClient,
+  PLUGIN_HOST_BACKEND,
+  ServerPluginRunner,
+} from '@theia/plugin-ext/lib/common/plugin-protocol';
 import { inject, injectable } from 'inversify';
 
 import { DeployedPlugin } from '@theia/plugin-ext';
@@ -37,17 +41,17 @@ export class ServerPluginProxyRunner implements ServerPluginRunner {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public acceptMessage(jsonMessage: any): boolean {
-    return jsonMessage.pluginID !== undefined;
+  public acceptMessage(pluginHostId: string, jsonMessage: string): boolean {
+    return true;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public onMessage(jsonMessage: any): void {
+  public onMessage(pluginHostId: string, jsonMessage: string): void {
     // do routing on the message
-    if (this.hostedPluginRemote.hasEndpoint(jsonMessage.pluginID)) {
-      this.hostedPluginRemote.onMessage(jsonMessage);
+    if (pluginHostId !== PLUGIN_HOST_BACKEND) {
+      this.hostedPluginRemote.onMessage(pluginHostId, jsonMessage);
     } else {
-      this.defaultRunner.onMessage(jsonMessage.content);
+      this.defaultRunner.onMessage(pluginHostId, jsonMessage);
     }
   }
 
