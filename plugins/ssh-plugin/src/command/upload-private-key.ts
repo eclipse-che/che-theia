@@ -12,7 +12,7 @@ import * as che from '@eclipse-che/plugin';
 import * as os from 'os';
 import * as theia from '@theia/plugin';
 
-import { BTN_CONTINUE, MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY, MESSAGE_NEED_RESTART_WORKSPACE } from '../messages';
+import { BTN_CONTINUE, MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY } from '../messages';
 import { access, mkdtemp, readFile, remove, unlink } from 'fs-extra';
 import { askHostName, registerKeyAskingPassword, updateConfig, writeKey } from '../util/util';
 
@@ -60,11 +60,13 @@ export class UploadPrivateKey extends Command {
 
       if (await registerKeyAskingPassword(keyFile, false, actions)) {
         await updateConfig(hostName);
-        await theia.window.showInformationMessage(`Private key ${hostName} has been uploaded successfully`, ...actions);
 
-        if (!(context && context.gitCloneFlow)) {
-          // Dispaly this notification only when it's not a part of git clone flow
-          await theia.window.showWarningMessage(MESSAGE_NEED_RESTART_WORKSPACE, ...actions);
+        if (context && context.gitCloneFlow) {
+          theia.window.showInformationMessage(`Private key ${hostName} has been uploaded successfully`);
+        } else {
+          theia.window.showInformationMessage(
+            `Private key ${hostName} has been uploaded successfully. To make it available in all workspace containers please restart your workspace.`
+          );
         }
 
         return;

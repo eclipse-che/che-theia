@@ -119,7 +119,7 @@ export class HostedPluginRemote {
         this.handleLocalMessage(parsed.internal);
         return;
       }
-      this.sendToClient(messageRaw);
+      this.sendToClient(endpointAdress, messageRaw);
     };
 
     // when websocket is opened, send the order
@@ -147,18 +147,16 @@ export class HostedPluginRemote {
    * @param jsonMessage the given message
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onMessage(jsonMessage: any): void {
+  onMessage(pluginHostId: string, jsonMessage: string): void {
     // do the routing depending on the plugin's endpoint
-    const pluginId = jsonMessage.pluginID;
 
+    const websocket = this.endpointsSockets.get(pluginHostId);
     // socket ?
-    const endpoint = this.hostedPluginMapping.getEndpoint(pluginId);
-    if (!endpoint) {
-      this.logger.error('no endpoint configured for the given plugin', pluginId, 'skipping message');
+    if (!websocket) {
+      this.logger.error('no websocket configured for the given plugin host', pluginHostId, 'skipping message');
       return;
     }
-    const websocket = this.endpointsSockets.get(endpoint);
-    websocket!.send(JSON.stringify(jsonMessage.content));
+    websocket.send(jsonMessage);
   }
 
   /**
@@ -221,9 +219,9 @@ export class HostedPluginRemote {
    * @param message the message to send
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sendToClient(message: any): void {
+  sendToClient(pluginHostId: string, message: any): void {
     if (this.client) {
-      this.client.postMessage(message);
+      this.client.postMessage(pluginHostId, message);
     }
   }
 
