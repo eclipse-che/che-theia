@@ -144,6 +144,7 @@ export class WorkspaceProjectsManager {
             this.output.show(true);
             this.output.appendLine(`>> add workspace folder ${projectPath}`);
             await this.workspaceFolderUpdater.addWorkspaceFolder(projectPath);
+            this.onProjectChanged(projectPath);
           }
         } else {
           this.output.show(true);
