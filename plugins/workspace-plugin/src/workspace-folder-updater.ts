@@ -128,10 +128,7 @@ export class WorkspaceFolderUpdaterImpl {
 
   workspaceFolderExist(folderPath: string): boolean {
     if (theia.workspace.workspaceFolders) {
-      const found = theia.workspace.workspaceFolders.some(folder => folder.uri.path === folderPath);
-      if (found) {
-        return true;
-      }
+      return theia.workspace.workspaceFolders.some(folder => folder.uri.path === folderPath);
     }
 
     return false;
