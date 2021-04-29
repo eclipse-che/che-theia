@@ -64,10 +64,12 @@ export class WorkspaceProjectsManager {
     if (isMultiRoot) {
       // Backward compatibility for single-root workspaces
       // we need it to support workspaces which were created before switching multi-root mode to ON by default
-      projects
-        .map(project => this.getProjectPath(project))
-        .filter(projectPath => fs.existsSync(projectPath))
-        .forEach(projectPath => this.workspaceFolderUpdater.addWorkspaceFolder(projectPath));
+      for (const project of projects) {
+        const projectPath = this.getProjectPath(project);
+        if (await fs.pathExists(projectPath)) {
+          await this.workspaceFolderUpdater.addWorkspaceFolder(projectPath);
+        }
+      }
     }
 
     await this.watchWorkspaceProjects();
@@ -77,17 +79,22 @@ export class WorkspaceProjectsManager {
     }
   }
 
-  notUndefined<T>(x: T | undefined): x is T {
-    return x !== undefined;
-  }
-
   async buildCloneCommands(projects: che.devfile.DevfileProject[]): Promise<TheiaImportCommand[]> {
     const instance = this;
 
-    return projects
-      .filter(project => !fs.existsSync(this.getProjectPath(project)))
-      .map(project => buildProjectImportCommand(project, instance.projectsRoot))
-      .filter(command => this.notUndefined(command)) as TheiaImportCommand[];
+    const commands: TheiaImportCommand[] = [];
+
+    for (const project of projects) {
+      const projectPath = this.getProjectPath(project);
+      if (!(await fs.pathExists(projectPath))) {
+        const command = buildProjectImportCommand(project, instance.projectsRoot);
+        if (command) {
+          commands.push(command);
+        }
+      }
+    }
+
+    return commands;
   }
 
   private async executeCloneCommands(cloneCommandList: TheiaImportCommand[], isMultiRoot: boolean): Promise<void> {
@@ -136,17 +143,17 @@ export class WorkspaceProjectsManager {
   }
 
   async watchMultiRootProjects(): Promise<void> {
-    if (fs.existsSync(this.projectsRoot)) {
+    if (await fs.pathExists(this.projectsRoot)) {
       fs.watch(this.projectsRoot, undefined, async (eventType, filename) => {
         const projectPath = path.resolve(this.projectsRoot, filename);
         if (await fs.pathExists(projectPath)) {
           if ((await fs.lstat(projectPath)).isDirectory()) {
             await this.workspaceFolderUpdater.addWorkspaceFolder(projectPath);
-            this.onProjectChanged(projectPath);
+            await this.onProjectChanged(projectPath);
           }
         } else {
           await this.workspaceFolderUpdater.removeWorkspaceFolder(projectPath);
-          this.onProjectRemoved(projectPath);
+          await this.onProjectRemoved(projectPath);
         }
       });
     }
@@ -168,7 +175,7 @@ export class WorkspaceProjectsManager {
 
   async onProjectRemoved(projectPath: string): Promise<void> {
     try {
-      this.devfileService.deleteProject(projectPath);
+      await this.devfileService.deleteProject(projectPath);
     } catch (error) {
       this.output.appendLine(error.message ? error.message : error);
     }

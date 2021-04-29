@@ -24,7 +24,9 @@ const outputChannelMock = {
 
 let actualWorkspaceFolders: string[] = [];
 let allowedFoldersToAdd: string[] = [];
+
 let skipWorkspaceFolderUpdate = false;
+let failWorkspaceFolderUpdate = false;
 
 const onDidChangeWorkspaceFolders = jest.fn();
 onDidChangeWorkspaceFolders.mockImplementation(onDidChangeWorkspaceFoldersTestImpl);
@@ -50,6 +52,7 @@ describe('Test Workspace Folder Updater', () => {
     actualWorkspaceFolders = [];
     allowedFoldersToAdd = [];
     skipWorkspaceFolderUpdate = false;
+    failWorkspaceFolderUpdate = false;
 
     updateWorkspaceFoldersMock.mockReset();
     updateWorkspaceFoldersMock.mockRestore();
@@ -84,8 +87,8 @@ describe('Test Workspace Folder Updater', () => {
   test('It shoud not add the same folder twice', async () => {
     allowedFoldersToAdd = [PROJECT_1, PROJECT_2];
 
-    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1);
-    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_2);
+    workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1);
+    workspaceFolderUpdater.addWorkspaceFolder(PROJECT_2);
     await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_2);
 
     expect(actualWorkspaceFolders).toStrictEqual([PROJECT_1, PROJECT_2]);
@@ -134,8 +137,8 @@ describe('Test Workspace Folder Updater', () => {
   test('Workspace Folders should be added in proper sequence', async () => {
     allowedFoldersToAdd = [PROJECT_1, PROJECT_2, PROJECT_3];
 
-    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1);
-    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_2);
+    workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1);
+    workspaceFolderUpdater.addWorkspaceFolder(PROJECT_2);
     await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_3);
 
     expect(actualWorkspaceFolders).toStrictEqual([PROJECT_1, PROJECT_2, PROJECT_3]);
@@ -162,11 +165,38 @@ describe('Test Workspace Folder Updater', () => {
     expect(dispose).toBeCalledTimes(1);
   });
 
-  test('Remove Workspace Folder should be resolved immediately if no workspace folders opened', async () => {
+  test('Remove Workspace Folder should be resolved immediately if workspace folders are undefined', async () => {
     await workspaceFolderUpdater.removeWorkspaceFolder(PROJECT_1);
 
     expect(updateWorkspaceFoldersMock).toBeCalledTimes(0);
     expect(dispose).toBeCalledTimes(0);
+  });
+
+  test('Remove Workspace Folder should be resolved immediately if workspace folders are empty', async () => {
+    theia.workspace.workspaceFolders = [];
+
+    await workspaceFolderUpdater.removeWorkspaceFolder(PROJECT_1);
+
+    expect(updateWorkspaceFoldersMock).toBeCalledTimes(0);
+    expect(dispose).toBeCalledTimes(0);
+  });
+
+  test('Removing of Workpsace folder should be rejected by theia API', async () => {
+    // prepare workspace folders
+    actualWorkspaceFolders = [PROJECT_1];
+    theia.workspace.workspaceFolders = [toFolder(PROJECT_1)];
+
+    failWorkspaceFolderUpdate = true;
+
+    try {
+      await workspaceFolderUpdater.removeWorkspaceFolder(PROJECT_1);
+    } catch (error) {
+      expect(error.message).toEqual(`Unable to remove workspace folder ${PROJECT_1}`);
+      expect(actualWorkspaceFolders).toStrictEqual([PROJECT_1]);
+      return;
+    }
+
+    fail();
   });
 
   test('Removing of Workspace Folder should be rejected by timeout', async () => {
@@ -192,7 +222,7 @@ describe('Test Workspace Folder Updater', () => {
     actualWorkspaceFolders = [PROJECT_1, PROJECT_2, PROJECT_3];
     theia.workspace.workspaceFolders = [toFolder(PROJECT_1), toFolder(PROJECT_2), toFolder(PROJECT_3)];
 
-    await workspaceFolderUpdater.removeWorkspaceFolder(PROJECT_1);
+    workspaceFolderUpdater.removeWorkspaceFolder(PROJECT_1);
     await workspaceFolderUpdater.removeWorkspaceFolder(PROJECT_3);
 
     expect(actualWorkspaceFolders).toStrictEqual([PROJECT_2]);
@@ -203,15 +233,15 @@ describe('Test Workspace Folder Updater', () => {
   test('Complex adding and removing', async () => {
     allowedFoldersToAdd = [PROJECT_1, PROJECT_2, PROJECT_3];
 
-    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1);
-    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_2);
-    await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_3);
+    workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1);
+    workspaceFolderUpdater.addWorkspaceFolder(PROJECT_2);
+    workspaceFolderUpdater.addWorkspaceFolder(PROJECT_3);
     await workspaceFolderUpdater.removeWorkspaceFolder(PROJECT_1);
 
     // check workspace folders
     expect(actualWorkspaceFolders).toStrictEqual([PROJECT_2, PROJECT_3]);
 
-    await workspaceFolderUpdater.removeWorkspaceFolder(PROJECT_2);
+    workspaceFolderUpdater.removeWorkspaceFolder(PROJECT_2);
     await workspaceFolderUpdater.addWorkspaceFolder(PROJECT_1);
 
     // check workspace folders
@@ -298,6 +328,10 @@ function updateWorkspaceFoldersTestImpl(
 ): boolean {
   if (skipWorkspaceFolderUpdate) {
     return true;
+  }
+
+  if (failWorkspaceFolderUpdate) {
+    return false;
   }
 
   if (folderToAdd) {
