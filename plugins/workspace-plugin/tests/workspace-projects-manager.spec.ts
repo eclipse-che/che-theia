@@ -131,8 +131,10 @@ const context: theia.PluginContext = {
   asAbsolutePath: jest.fn(),
 };
 
+const appendLineMock = jest.fn();
+
 const outputChannelMock = {
-  appendLine: jest.fn(),
+  appendLine: appendLineMock,
   show: jest.fn(),
 };
 
@@ -198,15 +200,15 @@ describe('Test Workspace Projects Manager', () => {
   const workspaceProjectsManager: WorkspaceProjectsManager = new WorkspaceProjectsManager(context, PROJECTS_ROOT);
 
   const workspaceFolderUpdaterInstance = (WorkspaceFolderUpdaterImpl as jest.Mock).mock.instances[0];
-  const addWorkspaceFolderMock = workspaceFolderUpdaterInstance.addWorkspaceFolder;
-  const removeWorkspaceFolderMock = workspaceFolderUpdaterInstance.removeWorkspaceFolder;
+  const addWorkspaceFolderMock: jest.Mock = workspaceFolderUpdaterInstance.addWorkspaceFolder;
+  const removeWorkspaceFolderMock: jest.Mock = workspaceFolderUpdaterInstance.removeWorkspaceFolder;
 
   const devfileServiceInstance = (DevfileServiceImpl as jest.Mock).mock.instances[0];
-  const updateProjectMock = devfileServiceInstance.updateProject;
-  const deleteProjectMock = devfileServiceInstance.deleteProject;
+  const updateProjectMock: jest.Mock = devfileServiceInstance.updateProject;
+  const deleteProjectMock: jest.Mock = devfileServiceInstance.deleteProject;
 
-  const onProjectChangedSpy = jest.spyOn(workspaceProjectsManager, 'onProjectChanged');
-  const onProjectRemovedSpy = jest.spyOn(workspaceProjectsManager, 'onProjectRemoved');
+  const onProjectChangedSpy: jest.SpyInstance = jest.spyOn(workspaceProjectsManager, 'onProjectChanged');
+  const onProjectRemovedSpy: jest.SpyInstance = jest.spyOn(workspaceProjectsManager, 'onProjectRemoved');
 
   beforeEach(() => {
     showInfoMessageMock.mockClear();
@@ -214,8 +216,8 @@ describe('Test Workspace Projects Manager', () => {
     addWorkspaceFolderMock.mockClear();
     removeWorkspaceFolderMock.mockClear();
 
-    updateProjectMock.mockClear();
-    deleteProjectMock.mockClear();
+    updateProjectMock.mockReset();
+    deleteProjectMock.mockReset();
 
     onProjectChangedSpy.mockClear();
     onProjectRemovedSpy.mockClear();
@@ -238,6 +240,8 @@ describe('Test Workspace Projects Manager', () => {
 
     executeImportCommandMock.mockClear();
     executeImportCommandMock.mockResolvedValue('');
+
+    appendLineMock.mockReset();
   });
 
   test('Should read the devfie when running', async () => {
@@ -471,5 +475,49 @@ describe('Test Workspace Projects Manager', () => {
 
     expect(updateProjectMock).toBeCalledTimes(0);
     expect(deleteProjectMock).toBeCalledTimes(1);
+  });
+
+  test('test rejecting in workspaceProjectsManager.onProjectChanged for non-git project', async () => {
+    const project = PROJECTS_ROOT + '/test-project';
+    await workspaceProjectsManager.onProjectChanged(project);
+
+    expect(updateProjectMock).toBeCalledTimes(0);
+
+    expect(appendLineMock).toBeCalledTimes(1);
+    expect(appendLineMock).toBeCalledWith(`Could not detect git project branch for ${project}`);
+  });
+
+  test('test rejecting in workspaceProjectsManager.onProjectChanged', async () => {
+    getUpstreamGitBranchSpy.mockResolvedValue({
+      remote: '',
+      branch: 'main',
+      remoteURL: 'remote url',
+    });
+
+    updateProjectMock.mockRejectedValue(new Error('failure to update project'));
+
+    await workspaceProjectsManager.onProjectChanged(PROJECTS_ROOT + '/test-project');
+
+    expect(updateProjectMock).toBeCalledTimes(1);
+
+    expect(appendLineMock).toBeCalledTimes(1);
+    expect(appendLineMock).toBeCalledWith('failure to update project');
+  });
+
+  test('test rejecting in workspaceProjectsManager.onProjectRemoved', async () => {
+    getUpstreamGitBranchSpy.mockResolvedValue({
+      remote: '',
+      branch: 'main',
+      remoteURL: 'remote url',
+    });
+
+    deleteProjectMock.mockRejectedValue(new Error('failure to delete project'));
+
+    await workspaceProjectsManager.onProjectRemoved(PROJECTS_ROOT + '/test-project');
+
+    expect(deleteProjectMock).toBeCalledTimes(1);
+
+    expect(appendLineMock).toBeCalledTimes(1);
+    expect(appendLineMock).toBeCalledWith('failure to delete project');
   });
 });
