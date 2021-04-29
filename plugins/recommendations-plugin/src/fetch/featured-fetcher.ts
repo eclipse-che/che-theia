@@ -30,7 +30,7 @@ export class FeaturedFetcher {
       featuredList = response.data.featured;
     } catch (error) {
       featuredList = [];
-      theia.window.showInformationMessage(`Error while fetching featured recommendation ${error}`);
+      theia.window.showErrorMessage(`Error while fetching featured recommendation ${error}`);
     }
     return featuredList;
   }

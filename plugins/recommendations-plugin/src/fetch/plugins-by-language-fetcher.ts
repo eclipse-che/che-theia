@@ -32,7 +32,7 @@ export class PluginsByLanguageFetcher {
       languagePlugins = response.data;
     } catch (error) {
       if (error.response.status !== 404) {
-        theia.window.showInformationMessage(`Error while fetching featured recommendations ${error}`);
+        theia.window.showErrorMessage(`Error while fetching featured recommendations ${error}`);
       }
     }
     return languagePlugins;

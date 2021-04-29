@@ -80,6 +80,6 @@ describe('Test PluginsByLanguageFetcher', () => {
     expect(languageByPlugins).toBeDefined();
     expect(languageByPlugins.length).toBe(0);
     // notify the user
-    expect(theia.window.showInformationMessage as jest.Mock).toBeCalled();
+    expect(theia.window.showErrorMessage as jest.Mock).toBeCalled();
   });
 });

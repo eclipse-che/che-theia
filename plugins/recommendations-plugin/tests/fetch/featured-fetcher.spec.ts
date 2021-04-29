@@ -13,6 +13,7 @@ import 'reflect-metadata';
 
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import * as theia from '@theia/plugin';
 
 import { ChePluginRegistry } from '../../src/registry/che-plugin-registry';
 import { Container } from 'inversify';
@@ -58,5 +59,22 @@ describe('Test FeaturedFetcher', () => {
     expect(featuredList).toBeDefined();
     expect(featuredList.length).toBe(0);
     expect((axios as any).get).toBeCalledWith(`${fakeUrl}/che-theia/featured.json`);
+  });
+
+  test('unexpected error', async () => {
+    const error = {
+      response: {
+        status: 500,
+      },
+    };
+    (axios as any).__setError('https://my.registry/v3/che-theia/recommendations/language/java.json', error);
+
+    const featuredFetcher = container.get(FeaturedFetcher);
+    const featuredList = await featuredFetcher.fetch();
+    // no content
+    expect(featuredList).toBeDefined();
+    expect(featuredList.length).toBe(0);
+    // notify the user
+    expect(theia.window.showErrorMessage as jest.Mock).toBeCalled();
   });
 });
