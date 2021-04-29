@@ -26,6 +26,7 @@ theia.window.createOutputChannel.mockReturnValue(outputChannel);
 theia.plugins = {};
 theia.plugins.all = [];
 theia.window.showInformationMessage = jest.fn();
+theia.window.showErrorMessage = jest.fn();
 theia.workspace = {
   workspaceFolders: undefined,
   onDidOpenTextDocument: jest.fn(),
