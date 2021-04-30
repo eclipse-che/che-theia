@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2019-2020 Red Hat, Inc.
+ * Copyright (c) 2019-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -17,7 +17,7 @@ const CREATE_WORKSPACE_COMMAND = {
   tooltip: 'Create workspace from this DevFile',
 };
 
-export class Devfile {
+export class CreateWorkspaceCommand {
   constructor(private context: theia.PluginContext) {}
 
   init(): void {

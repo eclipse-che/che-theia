@@ -9,31 +9,32 @@
  ***********************************************************************/
 
 import * as che from '@eclipse-che/plugin';
-import * as fileUri from './file-uri';
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import * as git from './git';
 import * as path from 'path';
-import * as projectsHelper from './projects';
 import * as theia from '@theia/plugin';
 
+import { DevfileService, DevfileServiceImpl } from './devfile-service';
 import { TheiaImportCommand, buildProjectImportCommand } from './theia-commands';
 
-import { WorkspaceFolderUpdater } from './workspace-folder-updater';
+import { WorkspaceFolderUpdaterImpl } from './workspace-folder-updater';
 
 const onDidCloneSourcesEmitter = new theia.EventEmitter<void>();
-export const onDidCloneSources = onDidCloneSourcesEmitter.event;
 
-export function handleWorkspaceProjects(pluginContext: theia.PluginContext, projectsRoot: string): void {
-  new WorkspaceProjectsManager(pluginContext, projectsRoot).run();
-}
+export const onDidCloneSources = onDidCloneSourcesEmitter.event;
 
 export class WorkspaceProjectsManager {
   protected watchers: theia.FileSystemWatcher[] = [];
-  protected workspaceFolderUpdater = new WorkspaceFolderUpdater();
-  private outputChannel: theia.OutputChannel;
+
+  protected workspaceFolderUpdater = new WorkspaceFolderUpdaterImpl();
+  protected devfileService: DevfileService;
+
+  private output: theia.OutputChannel;
 
   constructor(protected pluginContext: theia.PluginContext, protected projectsRoot: string) {
-    this.outputChannel = theia.window.createOutputChannel('workspace-plugin');
+    this.output = theia.window.createOutputChannel('workspace-plugin');
+
+    this.devfileService = new DevfileServiceImpl(projectsRoot);
   }
 
   getProjectPath(project: che.devfile.DevfileProject): string {
@@ -45,16 +46,16 @@ export class WorkspaceProjectsManager {
   async run(): Promise<void> {
     const devfile = await che.devfile.get();
 
-    this.outputChannel.appendLine(`Found devfile ${JSON.stringify(devfile, undefined, 2)}`);
+    this.output.appendLine(`Found devfile ${JSON.stringify(devfile, undefined, 2)}`);
 
     const projects = devfile.projects || [];
     const cloneCommandList = await this.buildCloneCommands(projects);
 
-    this.outputChannel.appendLine(`Clone commands are ${JSON.stringify(cloneCommandList, undefined, 2)}`);
+    this.output.appendLine(`Clone commands are ${JSON.stringify(cloneCommandList, undefined, 2)}`);
 
     const isMultiRoot = devfile.metadata?.attributes?.multiRoot !== 'off';
 
-    this.outputChannel.appendLine(`multi root is ${isMultiRoot}`);
+    this.output.appendLine(`multi root is ${isMultiRoot}`);
 
     const cloningPromise = this.executeCloneCommands(cloneCommandList, isMultiRoot);
     theia.window.withProgress({ location: { viewId: 'explorer' } }, () => cloningPromise);
@@ -63,26 +64,37 @@ export class WorkspaceProjectsManager {
     if (isMultiRoot) {
       // Backward compatibility for single-root workspaces
       // we need it to support workspaces which were created before switching multi-root mode to ON by default
-      projects
-        .map(project => this.getProjectPath(project))
-        .filter(projectPath => fs.existsSync(projectPath))
-        .forEach(projectPath => this.workspaceFolderUpdater.addWorkspaceFolder(projectPath));
+      for (const project of projects) {
+        const projectPath = this.getProjectPath(project);
+        if (await fs.pathExists(projectPath)) {
+          await this.workspaceFolderUpdater.addWorkspaceFolder(projectPath);
+        }
+      }
     }
 
-    await this.startSyncWorkspaceProjects();
-  }
+    await this.watchWorkspaceProjects();
 
-  notUndefined<T>(x: T | undefined): x is T {
-    return x !== undefined;
+    if (isMultiRoot) {
+      await this.watchMultiRootProjects();
+    }
   }
 
   async buildCloneCommands(projects: che.devfile.DevfileProject[]): Promise<TheiaImportCommand[]> {
     const instance = this;
 
-    return projects
-      .filter(project => !fs.existsSync(this.getProjectPath(project)))
-      .map(project => buildProjectImportCommand(project, instance.projectsRoot))
-      .filter(command => this.notUndefined(command)) as TheiaImportCommand[];
+    const commands: TheiaImportCommand[] = [];
+
+    for (const project of projects) {
+      const projectPath = this.getProjectPath(project);
+      if (!(await fs.pathExists(projectPath))) {
+        const command = buildProjectImportCommand(project, instance.projectsRoot);
+        if (command) {
+          commands.push(command);
+        }
+      }
+    }
+
+    return commands;
   }
 
   private async executeCloneCommands(cloneCommandList: TheiaImportCommand[], isMultiRoot: boolean): Promise<void> {
@@ -105,7 +117,7 @@ export class WorkspaceProjectsManager {
         }
         cloningPromises.push(cloningPromise);
       } catch (e) {
-        this.outputChannel.appendLine(`Error while cloning: ${e}`);
+        this.output.appendLine(`Error while cloning: ${e}`);
         // we continue to clone other projects even if a clone process failed for a project
       }
     }
@@ -115,12 +127,12 @@ export class WorkspaceProjectsManager {
     onDidCloneSourcesEmitter.fire();
   }
 
-  async startSyncWorkspaceProjects(): Promise<void> {
+  async watchWorkspaceProjects(): Promise<void> {
     const gitConfigPattern = '**/.git/{HEAD,config}';
     const gitConfigWatcher = theia.workspace.createFileSystemWatcher(gitConfigPattern);
-    gitConfigWatcher.onDidCreate(uri => this.updateOrCreateProjectInWorkspace(git.getGitRootFolder(uri.path)));
-    gitConfigWatcher.onDidChange(uri => this.updateOrCreateProjectInWorkspace(git.getGitRootFolder(uri.path)));
-    gitConfigWatcher.onDidDelete(uri => this.deleteProjectInWorkspace(git.getGitRootFolder(uri.path)));
+    gitConfigWatcher.onDidCreate(uri => this.onProjectChanged(git.getGitRootFolder(uri.path)));
+    gitConfigWatcher.onDidChange(uri => this.onProjectChanged(git.getGitRootFolder(uri.path)));
+    gitConfigWatcher.onDidDelete(uri => this.onProjectRemoved(git.getGitRootFolder(uri.path)));
     this.watchers.push(gitConfigWatcher);
 
     this.pluginContext.subscriptions.push(
@@ -130,44 +142,42 @@ export class WorkspaceProjectsManager {
     );
   }
 
-  async updateOrCreateProjectInWorkspace(projectFolderURI: string | undefined): Promise<void> {
-    if (!projectFolderURI) {
+  async watchMultiRootProjects(): Promise<void> {
+    if (await fs.pathExists(this.projectsRoot)) {
+      fs.watch(this.projectsRoot, undefined, async (eventType, filename) => {
+        const projectPath = path.resolve(this.projectsRoot, filename);
+        if (await fs.pathExists(projectPath)) {
+          if ((await fs.lstat(projectPath)).isDirectory()) {
+            await this.workspaceFolderUpdater.addWorkspaceFolder(projectPath);
+            await this.onProjectChanged(projectPath);
+          }
+        } else {
+          await this.workspaceFolderUpdater.removeWorkspaceFolder(projectPath);
+          await this.onProjectRemoved(projectPath);
+        }
+      });
+    }
+  }
+
+  async onProjectChanged(projectPath: string): Promise<void> {
+    const branch: git.GitUpstreamBranch | undefined = await git.getUpstreamBranch(projectPath);
+    if (!branch || !branch.remoteURL) {
+      this.output.appendLine(`Could not detect git project branch for ${projectPath}`);
       return;
     }
 
-    const devfile = await che.devfile.get();
-    await this.updateOrCreateProject(devfile, projectFolderURI);
-    await che.devfile.update(devfile);
-  }
-
-  async updateOrCreateProject(devfile: che.devfile.Devfile, projectFolderURI: string): Promise<void> {
-    const projectUpstreamBranch: git.GitUpstreamBranch | undefined = await git.getUpstreamBranch(projectFolderURI);
-    if (!projectUpstreamBranch || !projectUpstreamBranch.remoteURL) {
-      console.error(`Could not detect git project branch for ${projectFolderURI}`);
-      return;
+    try {
+      await this.devfileService.updateProject(projectPath, branch.remoteURL, branch.branch);
+    } catch (error) {
+      this.output.appendLine(error.message ? error.message : error);
     }
-
-    projectsHelper.updateOrCreateGitProjectInDevfile(
-      devfile.projects,
-      fileUri.convertToCheProjectPath(projectFolderURI, this.projectsRoot),
-      projectUpstreamBranch.remoteURL,
-      projectUpstreamBranch.branch
-    );
   }
 
-  async deleteProjectInWorkspace(projectFolderURI: string | undefined): Promise<void> {
-    if (!projectFolderURI) {
-      return;
+  async onProjectRemoved(projectPath: string): Promise<void> {
+    try {
+      await this.devfileService.deleteProject(projectPath);
+    } catch (error) {
+      this.output.appendLine(error.message ? error.message : error);
     }
-    const devfile = await che.devfile.get();
-    this.deleteProject(devfile, projectFolderURI);
-    await che.devfile.update(devfile);
-  }
-
-  deleteProject(devfile: che.devfile.Devfile, projectFolderURI: string): void {
-    projectsHelper.deleteProjectFromDevfile(
-      devfile.projects,
-      fileUri.convertToCheProjectPath(projectFolderURI, this.projectsRoot)
-    );
   }
 }
