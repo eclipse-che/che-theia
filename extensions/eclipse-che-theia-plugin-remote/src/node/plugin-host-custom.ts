@@ -23,6 +23,7 @@ import { MAIN_REMOTE_RPC_CONTEXT } from '../common/plugin-remote-rpc';
 import { PluginHostRPC } from '@theia/plugin-ext/lib/hosted/node/plugin-host-rpc';
 import { PluginRemoteNodeImpl } from './plugin-remote-node-impl';
 import { RPCProtocolImpl } from '@theia/plugin-ext/lib/common/rpc-protocol';
+import { reviver } from '@theia/plugin-ext/lib/plugin/types-impl';
 console.log('PLUGIN_HOST_CHE_THEIA(' + process.pid + ') starting instance');
 
 // override exit() function, to do not allow plugin kill this node
@@ -74,14 +75,19 @@ process.on('rejectionHandled', (promise: Promise<any>) => {
 });
 
 const emitter = new Emitter<string>();
-const rpc = new RPCProtocolImpl({
-  onMessage: emitter.event,
-  send: (m: string) => {
-    if (process.send) {
-      process.send(m);
-    }
+const rpc = new RPCProtocolImpl(
+  {
+    onMessage: emitter.event,
+    send: (m: string) => {
+      if (process.send) {
+        process.send(m);
+      }
+    },
   },
-});
+  {
+    reviver: reviver,
+  }
+);
 
 process.on('message', (message: string) => {
   try {
