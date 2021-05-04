@@ -31,7 +31,7 @@
     "typescript": "~4.0.5"
   },
   "scripts": {
-    "prepare": "lerna --concurrency=2 run prepare",
+    "prepare": "lerna run prepare",
     "lint": "lerna run lint",
     "lint:fix": "lerna run lint:fix",
     "format": "lerna run format",
