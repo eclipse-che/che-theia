@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -13,7 +13,7 @@
  * @author Thomas Mäder
  */
 
-import * as fsextra from 'fs-extra';
+import * as fs from 'fs-extra';
 import * as os from 'os';
 import * as path from 'path';
 
@@ -48,8 +48,6 @@ export async function handleCommand(args: any): Promise<void> {
 
         await link(cheTheiaDir, theiaDir, linkDir);
     } catch (e) {
-        console.info('first char is ' + cfg.charCodeAt(0));
-        console.error('thsi is the start' + cfg + 'stop');
         console.error(e);
     }
 }
@@ -62,7 +60,7 @@ export async function link(cheTheiaProjectPath: string, theiaProjectPath: string
 async function linkTheia(theiaProjectPath: string) {
     for (const rootName of ['packages', 'dev-packages', 'examples']) {
         const rootPath = path.resolve(theiaProjectPath, rootName);
-        const folderNames = await fsextra.readdir(rootPath);
+        const folderNames = await fs.readdir(rootPath);
         for (const folderName of folderNames) {
             await new Command(path.resolve(rootPath, folderName)).exec('yarn link');
         }
@@ -70,7 +68,7 @@ async function linkTheia(theiaProjectPath: string) {
 }
 
 async function linkChe(yarnLinkFolder: string, cheTheiaProjectPath: string) {
-    const packages = await fsextra.readdir(path.resolve(yarnLinkFolder, '@theia'));
+    const packages = await fs.readdir(path.resolve(yarnLinkFolder, '@theia'));
     const cmd = new Command(cheTheiaProjectPath);
     for (const pkg of packages) {
         await cmd.exec(`yarn link @theia/${pkg}`);
