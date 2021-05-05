@@ -210,6 +210,51 @@ describe('Test CheServerDevfileServiceImpl', () => {
     expect(convertedDevfileV1).toEqual(devfileV1);
   });
 
+  test('convert v1/v2 custom editor devfile.yaml', async () => {
+    const cheTheiaDevfileYamlPath = path.resolve(__dirname, '..', '_data', 'devfile-custom-editor.yaml');
+    const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
+    const devfileV1 = jsYaml.safeLoad(devfileContent);
+
+    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
+    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
+    const workspaceJson = JSON.parse(workspaceJsonContent);
+    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
+
+    const convertedDevfileV2 = await cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
+    const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
+    expect(convertedDevfileV1).toEqual(devfileV1);
+  });
+
+  test('convert v1/v2 kubernetes component devfile.yaml', async () => {
+    const cheTheiaDevfileYamlPath = path.resolve(__dirname, '..', '_data', 'devfile-kubernetes-component.yaml');
+    const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
+    const devfileV1 = jsYaml.safeLoad(devfileContent);
+
+    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
+    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
+    const workspaceJson = JSON.parse(workspaceJsonContent);
+    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
+
+    const convertedDevfileV2 = await cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
+    const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
+    expect(convertedDevfileV1).toEqual(devfileV1);
+  });
+
+  test('convert v1/v2 openshift component devfile.yaml', async () => {
+    const cheTheiaDevfileYamlPath = path.resolve(__dirname, '..', '_data', 'devfile-openshift-component.yaml');
+    const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
+    const devfileV1 = jsYaml.safeLoad(devfileContent);
+
+    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
+    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
+    const workspaceJson = JSON.parse(workspaceJsonContent);
+    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
+
+    const convertedDevfileV2 = await cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
+    const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
+    expect(convertedDevfileV1).toEqual(devfileV1);
+  });
+
   test('getComponentStatus', async () => {
     const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-status-runtime.json');
     const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');

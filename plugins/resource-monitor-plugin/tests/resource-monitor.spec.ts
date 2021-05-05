@@ -28,7 +28,6 @@ import { ResourceMonitor } from '../src/resource-monitor';
 
 describe('Test Resource Monitor Plugin', () => {
   let container: Container;
-  const workspaceMock = jest.fn();
   const sendRawQuery = jest.fn();
   const createStatusBar = jest.fn();
   process.env.HOSTNAME = 'workspace';
@@ -108,14 +107,6 @@ describe('Test Resource Monitor Plugin', () => {
     container.bind(K8sHelper).toConstantValue(k8sHelper);
 
     che.k8s.sendRawQuery = sendRawQuery;
-
-    // Prepare Namespace
-    che.workspace.getCurrentWorkspace = workspaceMock;
-    const attributes = { infrastructureNamespace: 'che-namespace' };
-    const workspace = {
-      attributes,
-    };
-    workspaceMock.mockReturnValue(workspace);
 
     // Prepare StatusBarItem
     theia.window.createStatusBarItem = createStatusBar;

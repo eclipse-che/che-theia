@@ -63,20 +63,14 @@ const context: theia.PluginContext = {
 
 describe('Test Plugin', () => {
   jest.mock('../src/inversify-binding');
-  const workspaceMock = jest.fn();
   const devfileMock = jest.fn();
   let oldBindings: any;
   let initBindings: jest.Mock;
 
   beforeEach(() => {
     // Prepare Namespace
-    che.workspace.getCurrentWorkspace = workspaceMock;
     che.devfile.get = devfileMock;
     const attributes = { infrastructureNamespace: 'che-namespace' };
-    const workspace = {
-      attributes,
-    };
-    workspaceMock.mockReturnValue(workspace);
     const devfile = {
       metadata: {
         attributes,
