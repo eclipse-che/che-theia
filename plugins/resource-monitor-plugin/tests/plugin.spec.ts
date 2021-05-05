@@ -113,25 +113,6 @@ describe('Test Plugin', () => {
       };
       devfileMock.mockReturnValue(devfile);
       const namespace = await plugin.getNamespace();
-      expect(che.workspace.getCurrentWorkspace).toBeCalled();
-      expect(namespace).toBe('che-namespace');
-    });
-    test('read che namespace from workspace service if no metadata in devile', async () => {
-      const devfile = {};
-      devfileMock.mockReturnValue(devfile);
-      const namespace = await plugin.getNamespace();
-      expect(che.workspace.getCurrentWorkspace).toBeCalled();
-      expect(namespace).toBe('che-namespace');
-    });
-    test('namespace should be empty if no infrastructureNamespace attribute', async () => {
-      const devfile = {
-        metadata: {},
-      };
-      devfileMock.mockReturnValue(devfile);
-      const workspace = {};
-      workspaceMock.mockReturnValue(workspace);
-      const namespace = await plugin.getNamespace();
-      expect(che.workspace.getCurrentWorkspace).toBeCalled();
       expect(namespace).toBe('');
     });
   });

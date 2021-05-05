@@ -27,14 +27,7 @@ export async function start(context: theia.PluginContext): Promise<void> {
 }
 
 export async function getNamespace(): Promise<string> {
-  // try to get namespace from devfile service
+  // get namespace from devfile service
   const devfile = await che.devfile.get();
-  const namespace = devfile.metadata?.attributes ? devfile.metadata.attributes.infrastructureNamespace : undefined;
-  if (!namespace) {
-    // try to get namespace from workspace service
-    const workspace = await che.workspace.getCurrentWorkspace();
-    return workspace.attributes?.['infrastructureNamespace'] || workspace.namespace || '';
-  } else {
-    return namespace;
-  }
+  return devfile.metadata?.attributes ? devfile.metadata.attributes.infrastructureNamespace : '';
 }

@@ -500,7 +500,7 @@ export class CheServerDevfileServiceImpl implements DevfileService {
     return gitSource;
   }
 
-  metadataV1toMetadataV2(metadataV1?: cheApi.workspace.devfile.Metadata): DevfileMetadata {
+  async metadataV1toMetadataV2(metadataV1?: cheApi.workspace.devfile.Metadata): Promise<DevfileMetadata> {
     const devfileMetadataV2: DevfileMetadata = {};
     if (metadataV1) {
       if (metadataV1.generateName) {
@@ -518,6 +518,12 @@ export class CheServerDevfileServiceImpl implements DevfileService {
         devfileMetadataV2.attributes['metadata-name-field'] = 'name';
       }
     }
+    if (!devfileMetadataV2.attributes) {
+      devfileMetadataV2.attributes = {};
+    }
+    const workspace = await this.workspaceService.currentWorkspace();
+    const workspaceNameSpace = workspace.attributes?.['infrastructureNamespace'] || workspace.namespace || '';
+    devfileMetadataV2.attributes['infrastructureNamespace'] = workspaceNameSpace;
     return devfileMetadataV2;
   }
 
@@ -571,10 +577,10 @@ export class CheServerDevfileServiceImpl implements DevfileService {
     return devfileContent;
   }
 
-  devfileV1toDevfileV2(devfileV1: cheApi.workspace.devfile.Devfile): Devfile {
+  async devfileV1toDevfileV2(devfileV1: cheApi.workspace.devfile.Devfile): Promise<Devfile> {
     const devfileV2: Devfile = {
       apiVersion: '2.0.0',
-      metadata: this.metadataV1toMetadataV2(devfileV1.metadata),
+      metadata: await this.metadataV1toMetadataV2(devfileV1.metadata),
       projects: (devfileV1.projects || []).map(project => this.projectV1toProjectV2(project)),
       components: (devfileV1.components || []).map(component => this.componentV1toComponentV2(component)),
       commands: (devfileV1.commands || []).map(command => this.commandV1toCommandV2(command)),

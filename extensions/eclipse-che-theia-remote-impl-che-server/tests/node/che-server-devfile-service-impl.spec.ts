@@ -119,6 +119,11 @@ describe('Test CheServerDevfileServiceImpl', () => {
   });
 
   test('convert v1/v2', async () => {
+    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
+    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
+    const workspaceJson = JSON.parse(workspaceJsonContent);
+    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
+
     // convert devfile1 to devfile2 to devfile1 and see if it's the same object
 
     const devfileV1: che.workspace.devfile.Devfile = {
@@ -139,7 +144,8 @@ describe('Test CheServerDevfileServiceImpl', () => {
         },
       ],
     };
-    const convertedToDevfileV2 = cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
+    const convertedToDevfileV2 = await cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
+    expect(convertedToDevfileV2.metadata.attributes?.infrastructureNamespace).toEqual('foo');
     const convertedToDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedToDevfileV2);
     expect(convertedToDevfileV1).toEqual(devfileV1);
   });
@@ -149,7 +155,12 @@ describe('Test CheServerDevfileServiceImpl', () => {
     const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
     const devfileV1 = jsYaml.safeLoad(devfileContent);
 
-    const convertedDevfileV2 = cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
+    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
+    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
+    const workspaceJson = JSON.parse(workspaceJsonContent);
+    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
+
+    const convertedDevfileV2 = await cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
     const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
     expect(convertedDevfileV1).toEqual(devfileV1);
   });
@@ -159,7 +170,12 @@ describe('Test CheServerDevfileServiceImpl', () => {
     const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
     const devfileV1 = jsYaml.safeLoad(devfileContent);
 
-    const convertedDevfileV2 = cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
+    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
+    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
+    const workspaceJson = JSON.parse(workspaceJsonContent);
+    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
+
+    const convertedDevfileV2 = await cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
     const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
     expect(convertedDevfileV1).toEqual(devfileV1);
   });
@@ -169,7 +185,12 @@ describe('Test CheServerDevfileServiceImpl', () => {
     const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
     const devfileV1 = jsYaml.safeLoad(devfileContent);
 
-    const convertedDevfileV2 = cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
+    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
+    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
+    const workspaceJson = JSON.parse(workspaceJsonContent);
+    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
+
+    const convertedDevfileV2 = await cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
     const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
     expect(convertedDevfileV1).toEqual(devfileV1);
   });
@@ -179,37 +200,12 @@ describe('Test CheServerDevfileServiceImpl', () => {
     const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
     const devfileV1 = jsYaml.safeLoad(devfileContent);
 
-    const convertedDevfileV2 = cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
-    const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
-    expect(convertedDevfileV1).toEqual(devfileV1);
-  });
+    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
+    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
+    const workspaceJson = JSON.parse(workspaceJsonContent);
+    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
 
-  test('convert v1/v2 custom editor devfile.yaml', async () => {
-    const cheTheiaDevfileYamlPath = path.resolve(__dirname, '..', '_data', 'devfile-custom-editor.yaml');
-    const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
-    const devfileV1 = jsYaml.safeLoad(devfileContent);
-
-    const convertedDevfileV2 = cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
-    const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
-    expect(convertedDevfileV1).toEqual(devfileV1);
-  });
-
-  test('convert v1/v2 kubernetes component devfile.yaml', async () => {
-    const cheTheiaDevfileYamlPath = path.resolve(__dirname, '..', '_data', 'devfile-kubernetes-component.yaml');
-    const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
-    const devfileV1 = jsYaml.safeLoad(devfileContent);
-
-    const convertedDevfileV2 = cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
-    const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
-    expect(convertedDevfileV1).toEqual(devfileV1);
-  });
-
-  test('convert v1/v2 openshift component devfile.yaml', async () => {
-    const cheTheiaDevfileYamlPath = path.resolve(__dirname, '..', '_data', 'devfile-openshift-component.yaml');
-    const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
-    const devfileV1 = jsYaml.safeLoad(devfileContent);
-
-    const convertedDevfileV2 = cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
+    const convertedDevfileV2 = await cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
     const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
     expect(convertedDevfileV1).toEqual(devfileV1);
   });
