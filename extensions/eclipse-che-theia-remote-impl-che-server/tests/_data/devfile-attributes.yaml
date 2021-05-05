@@ -2,5 +2,6 @@
 apiVersion: 1.0.0
 attributes:
   multiRoot: 'off'
+  attributeName: 'attributeValue' 
 metadata:
   name: test

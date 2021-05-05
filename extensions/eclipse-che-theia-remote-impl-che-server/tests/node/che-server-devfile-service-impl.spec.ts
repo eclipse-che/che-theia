@@ -40,10 +40,15 @@ describe('Test CheServerDevfileServiceImpl', () => {
     makeApiClient: k8sServiceMakeApiClientMethod,
   } as any;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.restoreAllMocks();
     jest.resetAllMocks();
     const container = new Container();
+
+    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
+    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
+    const workspaceJson = JSON.parse(workspaceJsonContent);
+    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
 
     container.bind(CheServerDevfileServiceImpl).toSelf().inSingletonScope();
     container.bind(CheServerWorkspaceServiceImpl).toConstantValue(workspaceService);
@@ -52,11 +57,6 @@ describe('Test CheServerDevfileServiceImpl', () => {
   });
 
   test('get', async () => {
-    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
-    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
-    const workspaceJson = JSON.parse(workspaceJsonContent);
-    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
-
     const devfile = await cheServerDevfileServiceImpl.get();
     expect(devfile).toBeDefined();
 
@@ -119,13 +119,7 @@ describe('Test CheServerDevfileServiceImpl', () => {
   });
 
   test('convert v1/v2', async () => {
-    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
-    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
-    const workspaceJson = JSON.parse(workspaceJsonContent);
-    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
-
     // convert devfile1 to devfile2 to devfile1 and see if it's the same object
-
     const devfileV1: che.workspace.devfile.Devfile = {
       apiVersion: '1.0.0',
       metadata: {
@@ -155,11 +149,6 @@ describe('Test CheServerDevfileServiceImpl', () => {
     const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
     const devfileV1 = jsYaml.safeLoad(devfileContent);
 
-    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
-    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
-    const workspaceJson = JSON.parse(workspaceJsonContent);
-    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
-
     const convertedDevfileV2 = await cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
     const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
     expect(convertedDevfileV1).toEqual(devfileV1);
@@ -169,11 +158,6 @@ describe('Test CheServerDevfileServiceImpl', () => {
     const cheTheiaDevfileYamlPath = path.resolve(__dirname, '..', '_data', 'devfile-go-v1.yaml');
     const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
     const devfileV1 = jsYaml.safeLoad(devfileContent);
-
-    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
-    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
-    const workspaceJson = JSON.parse(workspaceJsonContent);
-    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
 
     const convertedDevfileV2 = await cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
     const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
@@ -185,11 +169,6 @@ describe('Test CheServerDevfileServiceImpl', () => {
     const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
     const devfileV1 = jsYaml.safeLoad(devfileContent);
 
-    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
-    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
-    const workspaceJson = JSON.parse(workspaceJsonContent);
-    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
-
     const convertedDevfileV2 = await cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
     const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
     expect(convertedDevfileV1).toEqual(devfileV1);
@@ -199,11 +178,6 @@ describe('Test CheServerDevfileServiceImpl', () => {
     const cheTheiaDevfileYamlPath = path.resolve(__dirname, '..', '_data', 'devfile-dummy-v1.yaml');
     const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
     const devfileV1 = jsYaml.safeLoad(devfileContent);
-
-    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
-    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
-    const workspaceJson = JSON.parse(workspaceJsonContent);
-    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
 
     const convertedDevfileV2 = await cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
     const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
@@ -215,11 +189,6 @@ describe('Test CheServerDevfileServiceImpl', () => {
     const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
     const devfileV1 = jsYaml.safeLoad(devfileContent);
 
-    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
-    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
-    const workspaceJson = JSON.parse(workspaceJsonContent);
-    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
-
     const convertedDevfileV2 = await cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
     const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
     expect(convertedDevfileV1).toEqual(devfileV1);
@@ -229,11 +198,6 @@ describe('Test CheServerDevfileServiceImpl', () => {
     const cheTheiaDevfileYamlPath = path.resolve(__dirname, '..', '_data', 'devfile-kubernetes-component.yaml');
     const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
     const devfileV1 = jsYaml.safeLoad(devfileContent);
-
-    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
-    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
-    const workspaceJson = JSON.parse(workspaceJsonContent);
-    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
 
     const convertedDevfileV2 = await cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
     const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
@@ -245,11 +209,6 @@ describe('Test CheServerDevfileServiceImpl', () => {
     const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
     const devfileV1 = jsYaml.safeLoad(devfileContent);
 
-    const workspaceJsonPath = path.resolve(__dirname, '..', '_data', 'workspace-runtime.json');
-    const workspaceJsonContent = await fs.readFile(workspaceJsonPath, 'utf-8');
-    const workspaceJson = JSON.parse(workspaceJsonContent);
-    workspaceServiceCurrentWorkspaceMethod.mockResolvedValue(workspaceJson);
-
     const convertedDevfileV2 = await cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
     const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
     expect(convertedDevfileV1).toEqual(devfileV1);
@@ -260,7 +219,9 @@ describe('Test CheServerDevfileServiceImpl', () => {
     const devfileContent = await fs.readFile(cheTheiaDevfileYamlPath, 'utf-8');
     const devfileV1 = jsYaml.safeLoad(devfileContent);
 
-    const convertedDevfileV2 = cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
+    const convertedDevfileV2 = await cheServerDevfileServiceImpl.devfileV1toDevfileV2(devfileV1);
+    expect(convertedDevfileV2.metadata.attributes?.['infrastructureNamespace']).toEqual('foo');
+
     const convertedDevfileV1 = cheServerDevfileServiceImpl.devfileV2toDevfileV1(convertedDevfileV2);
     expect(convertedDevfileV1).toEqual(devfileV1);
   });
