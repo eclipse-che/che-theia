@@ -27,9 +27,5 @@ theiaPlugin.Disposable = {
   create: jest.fn(),
 };
 
-theiaPlugin.ProgressLocation = {
-  Notification: 15,
-};
-
 theiaPlugin.EventEmitter = EventEmitter;
 module.exports = theiaPlugin;

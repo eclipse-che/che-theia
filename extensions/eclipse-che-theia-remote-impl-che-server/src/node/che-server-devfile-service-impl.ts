@@ -585,35 +585,51 @@ export class CheServerDevfileServiceImpl implements DevfileService {
       components: (devfileV1.components || []).map(component => this.componentV1toComponentV2(component)),
       commands: (devfileV1.commands || []).map(command => this.commandV1toCommandV2(command)),
     };
+
     if (devfileV1.attributes) {
       devfileV2.metadata.attributes = devfileV2.metadata.attributes || {};
       Object.keys(devfileV1.attributes).forEach(attributeName => {
         devfileV2.metadata.attributes![attributeName] = devfileV1.attributes![attributeName];
       });
     }
+
     return devfileV2;
   }
 
   devfileV2toDevfileV1(devfileV2: Devfile): cheApi.workspace.devfile.Devfile {
-    const devfileV1 = {
+    const devfileV1: cheApi.workspace.devfile.Devfile = {
       apiVersion: '1.0.0',
       metadata: this.metadataV2toMetadataV1(devfileV2.metadata),
       projects: (devfileV2.projects || []).map(project => this.projectV2toProjectV1(project)),
       components: (devfileV2.components || []).map(component => this.componentV2toComponentV1(component)),
       commands: (devfileV2.commands || []).map(command => this.commandV2toCommandV1(command)),
     };
+
+    if (devfileV2.metadata.attributes) {
+      const attributeKeys = Object.keys(devfileV2.metadata.attributes);
+      if (attributeKeys.length > 0) {
+        devfileV1.attributes = devfileV1.attributes || {};
+        attributeKeys.forEach(attributeName => {
+          devfileV1.attributes![attributeName] = devfileV2.metadata.attributes![attributeName];
+        });
+      }
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const devfileV1Any = devfileV1 as any;
 
-    if (devfileV1.components.length === 0) {
+    if (devfileV1.components && devfileV1.components.length === 0) {
       delete devfileV1Any.components;
     }
-    if (devfileV1.projects.length === 0) {
+
+    if (devfileV1.projects && devfileV1.projects.length === 0) {
       delete devfileV1Any.projects;
     }
-    if (devfileV1.commands.length === 0) {
+
+    if (devfileV1.commands && devfileV1.commands.length === 0) {
       delete devfileV1Any.commands;
     }
+
     return devfileV1;
   }
 
