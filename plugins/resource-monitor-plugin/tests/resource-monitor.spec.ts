@@ -10,26 +10,30 @@
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import 'reflect-metadata';
 
 import * as che from '@eclipse-che/plugin';
 import * as fs from 'fs-extra';
+import * as objects from '../src/objects';
 import * as path from 'path';
-import * as resourceMonitorPlugin from '../src/resource-monitor-plugin';
 import * as theia from '@theia/plugin';
 
 import { SHOW_RESOURCES_INFORMATION_COMMAND, SHOW_WARNING_MESSAGE_COMMAND } from '../src/constants';
 
-import { Container } from '../src/objects';
-import { ResMon } from '../src/resource-monitor-plugin';
+import { Container } from 'inversify';
+import { K8sHelper } from '../src/k8s-helper';
+import { ResourceMonitor } from '../src/resource-monitor';
+
+// import { ResMon } from '../src/resource-monitor-plugin';
 
 describe('Test Resource Monitor Plugin', () => {
+  let container: Container;
   const workspaceMock = jest.fn();
   const sendRawQuery = jest.fn();
-  const getWorkspacePod = jest.fn();
   const createStatusBar = jest.fn();
   process.env.HOSTNAME = 'workspace';
 
-  let resMonitor: ResMon;
+  const namespace = 'che-namespace';
 
   const uri: theia.Uri = {
     authority: '',
@@ -83,12 +87,27 @@ describe('Test Resource Monitor Plugin', () => {
     show: jest.fn(),
   };
 
+  let coreApiMock;
+  const mockListNamespacedPodMethod = jest.fn();
+
   beforeEach(() => {
+    container = new Container();
     jest.restoreAllMocks();
     jest.resetAllMocks();
 
+    coreApiMock = {
+      listNamespacedPod: mockListNamespacedPodMethod,
+    };
+    const getCoreApiMethod = jest.fn();
+    const k8sHelper = {
+      getCoreApi: getCoreApiMethod,
+    } as any;
+    getCoreApiMethod.mockReturnValue(coreApiMock);
+
+    container.bind(ResourceMonitor).toSelf().inSingletonScope();
+    container.bind(K8sHelper).toConstantValue(k8sHelper);
+
     che.k8s.sendRawQuery = sendRawQuery;
-    che.k8s.getWorkspacePod = getWorkspacePod;
 
     // Prepare Namespace
     che.workspace.getCurrentWorkspace = workspaceMock;
@@ -103,104 +122,45 @@ describe('Test Resource Monitor Plugin', () => {
     createStatusBar.mockReturnValue(statusBarItem);
   });
 
-  describe('getNamespace', () => {
-    test('read che namespace', async () => {
-      const namespace = await resourceMonitorPlugin.getNamespace();
-      expect(namespace).toBe('che-namespace');
-    });
-  });
-
   describe('show', () => {
     test('Read Pod and Metrics information', async () => {
-      resMonitor = new ResMon(context, 'che-namespace');
-      const json = await fs.readFile(path.join(__dirname, '_data', 'podInfo.json'), 'utf8');
+      const resMonitor = container.get(ResourceMonitor);
       const requestMetricServer: che.K8SRawResponse = {
         data: '',
         error: '',
         statusCode: 200,
       };
-      getWorkspacePod.mockReturnValueOnce(JSON.parse(json));
       sendRawQuery.mockReturnValueOnce(requestMetricServer);
+      mockListNamespacedPodMethod.mockResolvedValue({
+        body: {
+          items: [''],
+        },
+      });
 
       await resMonitor.show();
 
       expect(che.k8s.sendRawQuery).toBeCalledTimes(1);
-      expect(che.k8s.getWorkspacePod).toBeCalledTimes(1);
     });
   });
 
   describe('getContainersInfo', () => {
     test('Read Pod information', async () => {
       const json = await fs.readFile(path.join(__dirname, '_data', 'podInfo.json'), 'utf8');
-      getWorkspacePod.mockReturnValueOnce(JSON.parse(json));
-      resMonitor = new ResMon(context, 'che-namespace');
+      const resMonitor = container.get(ResourceMonitor);
+      mockListNamespacedPodMethod.mockResolvedValue({
+        body: {
+          items: [JSON.parse(json)],
+        },
+      });
 
-      const containers: Container[] = await resMonitor.getContainersInfo();
+      const containers: objects.Container[] = await resMonitor.getContainersInfo();
 
-      expect(che.k8s.getWorkspacePod).toBeCalledTimes(1);
       expect(containers.length).toBe(5);
       expect(containers[0]).toEqual({ name: 'che-jwtproxy7yc7hvrc', cpuLimit: 500, memoryLimit: 2000000000 });
       expect(containers[1]).toEqual({ name: 'maven', cpuLimit: 0, memoryLimit: 1000000000 });
       expect(containers[2]).toEqual({ name: 'vscode-javauil', cpuLimit: 0, memoryLimit: 200000 });
       expect(containers[3]).toEqual({ name: 'che-machine-exec122', cpuLimit: 5000, memoryLimit: 20000 });
       expect(containers[4]).toEqual({ name: 'theia-idewf0', cpuLimit: 0, memoryLimit: 536870912 });
-    });
-  });
-
-  describe('requestMetricsServer', () => {
-    test('Throw an exception if Metrics server is not available', async () => {
-      const response: che.K8SRawResponse = {
-        data: 'service unavailable',
-        error: 'service unavailable',
-        statusCode: 503,
-      };
-
-      sendRawQuery.mockReturnValue(response);
-      resMonitor = new ResMon(context, 'che-namespace');
-      try {
-        await resMonitor.requestMetricsServer();
-      } catch (error) {
-        expect(statusBarItem.text).toBe('$(ban) Resources');
-        expect(statusBarItem.command).toBe(SHOW_WARNING_MESSAGE_COMMAND.id);
-        expect(error).toBeInstanceOf(Error);
-        expect(error).toHaveProperty(
-          'message',
-          'Cannot connect to Metrics Server. Status code: 503. Error: service unavailable'
-        );
-      }
-      expect(che.k8s.sendRawQuery).toBeCalledTimes(1);
-      expect(che.k8s.sendRawQuery).toBeCalledWith('/apis/metrics.k8s.io/v1beta1/', {
-        url: '/apis/metrics.k8s.io/v1beta1/',
-      });
-    });
-
-    test('Use interval to read metrics information', async () => {
-      const success: che.K8SRawResponse = {
-        data: '',
-        error: '',
-        statusCode: 200,
-      };
-
-      const error: che.K8SRawResponse = {
-        data: '',
-        error: '',
-        statusCode: 500,
-      };
-
-      sendRawQuery.mockReturnValueOnce(success).mockReturnValue(error);
-      resMonitor = new ResMon(context, 'che-namespace');
-      jest.useFakeTimers();
-      await resMonitor.requestMetricsServer();
-      jest.runOnlyPendingTimers();
-      expect(setInterval).toHaveBeenLastCalledWith(expect.any(Function), 5000);
-      jest.useRealTimers();
-      expect(che.k8s.sendRawQuery).toBeCalledTimes(2);
-      expect(che.k8s.sendRawQuery).toHaveBeenLastCalledWith(
-        '/apis/metrics.k8s.io/v1beta1/namespaces/che-namespace/pods/workspace',
-        {
-          url: '/apis/metrics.k8s.io/v1beta1/',
-        }
-      );
     });
   });
 
@@ -213,10 +173,13 @@ describe('Test Resource Monitor Plugin', () => {
         error: '',
         statusCode: 200,
       };
-
-      getWorkspacePod.mockReturnValueOnce(JSON.parse(podJson));
-      sendRawQuery.mockReturnValueOnce(metricsInfo);
-      resMonitor = new ResMon(context, 'che-namespace');
+      mockListNamespacedPodMethod.mockResolvedValue({
+        body: {
+          items: [JSON.parse(podJson)],
+        },
+      });
+      sendRawQuery.mockReturnValue(metricsInfo);
+      const resMonitor = container.get(ResourceMonitor);
       await resMonitor.getContainersInfo();
       const containers = await resMonitor.getMetrics();
       expect(containers.length).toBe(5);
@@ -255,7 +218,6 @@ describe('Test Resource Monitor Plugin', () => {
         cpuUsed: 10,
         memoryUsed: 5242880,
       });
-
       // Check status bar
       expect(statusBarItem.text).toBe('$(ellipsis) Mem: 0.26/3.54 GB 7% $(pulse) CPU: 395 m');
       expect(statusBarItem.color).toBe('#FFFFFF');
@@ -270,9 +232,13 @@ describe('Test Resource Monitor Plugin', () => {
         statusCode: 403,
       };
 
-      getWorkspacePod.mockReturnValueOnce(JSON.parse(podJson));
+      mockListNamespacedPodMethod.mockResolvedValue({
+        body: {
+          items: [JSON.parse(podJson)],
+        },
+      });
       sendRawQuery.mockReturnValueOnce(metricsInfo);
-      resMonitor = new ResMon(context, 'che-namespace');
+      const resMonitor = container.get(ResourceMonitor);
       await resMonitor.getContainersInfo();
       await resMonitor.getMetrics();
 
@@ -291,9 +257,13 @@ describe('Test Resource Monitor Plugin', () => {
         statusCode: 200,
       };
 
-      getWorkspacePod.mockReturnValueOnce(JSON.parse(podJson));
+      mockListNamespacedPodMethod.mockResolvedValue({
+        body: {
+          items: [JSON.parse(podJson)],
+        },
+      });
       sendRawQuery.mockReturnValueOnce(metricsInfo);
-      resMonitor = new ResMon(context, 'che-namespace');
+      const resMonitor = container.get(ResourceMonitor);
       await resMonitor.getContainersInfo();
       await resMonitor.getMetrics();
 
@@ -314,9 +284,13 @@ describe('Test Resource Monitor Plugin', () => {
         statusCode: 200,
       };
 
-      getWorkspacePod.mockReturnValueOnce(JSON.parse(podJson));
+      mockListNamespacedPodMethod.mockResolvedValue({
+        body: {
+          items: [JSON.parse(podJson)],
+        },
+      });
       sendRawQuery.mockReturnValueOnce(metricsInfo);
-      resMonitor = new ResMon(context, 'che-namespace');
+      const resMonitor = container.get(ResourceMonitor);
       await resMonitor.getContainersInfo();
       await resMonitor.getMetrics();
 
@@ -352,7 +326,9 @@ describe('Test Resource Monitor Plugin', () => {
   });
   describe('start', () => {
     test('Resource Monitor initialization', async () => {
-      await resourceMonitorPlugin.start(context);
+      const resMonitor = container.get(ResourceMonitor);
+
+      resMonitor.start(context, namespace);
 
       expect(theia.commands.registerCommand).toHaveBeenCalledWith(expect.any(Object), expect.any(Function));
       expect(theia.window.createStatusBarItem).toHaveBeenCalledWith(1);
@@ -365,11 +341,74 @@ describe('Test Resource Monitor Plugin', () => {
 
   describe('showWarningMessage', () => {
     test('Show warning notification with a message', async () => {
-      resMonitor = new ResMon(context, 'che-namespace');
+      const resMonitor = container.get(ResourceMonitor);
 
       resMonitor.showWarningMessage();
 
       expect(theia.window.showWarningMessage).toBeCalledWith(expect.any(String));
+    });
+  });
+
+  describe('requestMetricsServer', () => {
+    test('Throw an exception if Metrics server is not available', async () => {
+      const response: che.K8SRawResponse = {
+        data: 'service unavailable',
+        error: 'service unavailable',
+        statusCode: 503,
+      };
+
+      sendRawQuery.mockReturnValue(response);
+      const resMonitor = container.get(ResourceMonitor);
+      try {
+        await resMonitor.requestMetricsServer();
+      } catch (error) {
+        expect(statusBarItem.text).toBe('$(ban) Resources');
+        expect(statusBarItem.command).toBe(SHOW_WARNING_MESSAGE_COMMAND.id);
+        expect(error).toBeInstanceOf(Error);
+        expect(error).toHaveProperty(
+          'message',
+          'Cannot connect to Metrics Server. Status code: 503. Error: service unavailable'
+        );
+      }
+      expect(che.k8s.sendRawQuery).toBeCalledTimes(1);
+      expect(che.k8s.sendRawQuery).toBeCalledWith('/apis/metrics.k8s.io/v1beta1/', {
+        url: '/apis/metrics.k8s.io/v1beta1/',
+      });
+    });
+
+    test('Use interval to read metrics information', async () => {
+      const success: che.K8SRawResponse = {
+        data: '',
+        error: '',
+        statusCode: 200,
+      };
+
+      const error: che.K8SRawResponse = {
+        data: '',
+        error: '',
+        statusCode: 500,
+      };
+      mockListNamespacedPodMethod.mockResolvedValue({
+        body: {
+          items: [''],
+        },
+      });
+
+      const resMonitor = container.get(ResourceMonitor);
+      sendRawQuery.mockReturnValueOnce(success).mockReturnValue(error);
+      jest.useFakeTimers();
+      await resMonitor.start(context, namespace);
+      await resMonitor.requestMetricsServer();
+      jest.runOnlyPendingTimers();
+      expect(setInterval).toHaveBeenLastCalledWith(expect.any(Function), 5000);
+      jest.useRealTimers();
+      expect(che.k8s.sendRawQuery).toBeCalledTimes(2);
+      expect(che.k8s.sendRawQuery).toHaveBeenLastCalledWith(
+        '/apis/metrics.k8s.io/v1beta1/namespaces/che-namespace/pods/workspace',
+        {
+          url: '/apis/metrics.k8s.io/v1beta1/',
+        }
+      );
     });
   });
 });

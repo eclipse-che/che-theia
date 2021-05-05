@@ -24,8 +24,4 @@ export class CheK8SMainImpl implements CheK8SMain {
   $sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse> {
     return this.cheK8SService.sendRawQuery(requestURL, opts);
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  $getWorkspacePod(): Promise<any> {
-    return this.cheK8SService.getWorkspacePod();
-  }
 }

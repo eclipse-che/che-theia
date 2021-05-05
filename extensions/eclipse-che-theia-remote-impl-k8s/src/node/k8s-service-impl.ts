@@ -10,11 +10,10 @@
 
 import * as k8s from '@kubernetes/client-node';
 
-import { ApiType, V1Pod } from '@kubernetes/client-node';
 import { CheK8SService, K8SRawResponse } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
-import { inject, injectable } from 'inversify';
 
-import { K8sDevWorkspaceEnvVariables } from './k8s-devworkspace-env-variables';
+import { ApiType } from '@kubernetes/client-node';
+import { injectable } from 'inversify';
 
 const request = require('request');
 
@@ -22,34 +21,9 @@ const request = require('request');
 export class K8SServiceImpl implements CheK8SService {
   private kc: k8s.KubeConfig;
 
-  @inject(K8sDevWorkspaceEnvVariables)
-  private env: K8sDevWorkspaceEnvVariables;
-
   constructor() {
     this.kc = new k8s.KubeConfig();
     this.kc.loadFromCluster();
-  }
-  async getWorkspacePod(): Promise<V1Pod> {
-    // get workspace pod
-    const k8sCoreV1Api = this.makeApiClient(k8s.CoreV1Api);
-    const labelSelector = `controller.devfile.io/workspace_id=${this.env.getWorkspaceId()}`;
-    const { body } = await k8sCoreV1Api.listNamespacedPod(
-      this.env.getWorkspaceNamespace(),
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      labelSelector
-    );
-
-    // ensure there is only one item
-    if (body.items.length !== 1) {
-      throw new Error(
-        `Got invalid items when searching for objects with label selector ${labelSelector}. Expected only one resource`
-      );
-    }
-
-    return body.items[0];
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

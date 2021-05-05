@@ -433,10 +433,6 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
       sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse> {
         return cheK8SImpl.sendRawQuery(requestURL, opts);
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      getWorkspacePod(): Promise<any> {
-        return cheK8SImpl.getWorkspacePod();
-      },
     };
 
     return <typeof che>{

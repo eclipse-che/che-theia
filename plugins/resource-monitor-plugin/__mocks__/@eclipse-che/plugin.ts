@@ -18,5 +18,7 @@
 const che: any = {};
 che.workspace = {};
 che.workspace.attributes = {};
+che.devfile = {};
+che.devfile.metadata = {};
 che.k8s = {};
 module.exports = che;

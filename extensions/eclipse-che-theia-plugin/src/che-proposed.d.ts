@@ -635,8 +635,6 @@ declare module '@eclipse-che/plugin' {
     /** Sends a raw query to the cluster. */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export function sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse>;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    export function getWorkspacePod(): Promise<any>;
   }
 
   export interface K8SRawResponse {
