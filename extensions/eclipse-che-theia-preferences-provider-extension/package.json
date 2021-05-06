@@ -3,18 +3,18 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "0.0.1",
+  "version": "7.30.0",
   "license": "EPL-2.0",
   "files": [
     "lib",
     "src"
   ],
   "dependencies": {
-    "@eclipse-che/api": "latest",
-    "@eclipse-che/theia-plugin-ext": "^0.0.1",
-    "@theia/core": "next",
-    "@theia/preferences": "next",
-    "@theia/workspace": "next"
+    "@eclipse-che/api": "7.30.0",
+    "@eclipse-che/theia-plugin-ext": "7.30.0",
+    "@theia/core": "1.14.0-next.6a8af03f",
+    "@theia/preferences": "1.14.0-next.6a8af03f",
+    "@theia/workspace": "1.14.0-next.6a8af03f"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build && yarn test",
