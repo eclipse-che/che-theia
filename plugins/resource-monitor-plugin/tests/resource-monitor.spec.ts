@@ -239,6 +239,28 @@ describe('Test Resource Monitor Plugin', () => {
       expect(statusBarItem.tooltip).toBe('Resources Monitor');
     });
 
+    test('Pod metrics are not ready (Metrics server returns 404)', async () => {
+      const podJson = await fs.readFile(path.join(__dirname, '_data', 'podInfo.json'), 'utf8');
+      const metricsInfo: che.K8SRawResponse = {
+        data: 'No resource available',
+        error: 'No resource available',
+        statusCode: 404,
+      };
+
+      mockListNamespacedPodMethod.mockResolvedValue({
+        body: {
+          items: [JSON.parse(podJson)],
+        },
+      });
+      sendRawQuery.mockReturnValueOnce(metricsInfo);
+      const resMonitor = container.get(ResourceMonitor);
+      await resMonitor.getContainersInfo();
+      await resMonitor.getMetrics();
+
+      // Check status bar
+      expect(statusBarItem.text).toBe('');
+    });
+
     test('Status bar should be marked as warning with container information', async () => {
       const podJson = await fs.readFile(path.join(__dirname, '_data', 'podInfo.json'), 'utf8');
       const metricsJson = await fs.readFile(path.join(__dirname, '_data', 'limitedMemoryMetrics.json'), 'utf8');
