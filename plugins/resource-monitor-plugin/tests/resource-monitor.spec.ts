@@ -258,7 +258,7 @@ describe('Test Resource Monitor Plugin', () => {
       await resMonitor.getMetrics();
 
       // Check status bar
-      expect(statusBarItem.text).toBe('');
+      expect(statusBarItem.text).toBe('Waiting metrics...');
     });
 
     test('Status bar should be marked as warning with container information', async () => {

@@ -30,6 +30,7 @@ export class ResourceMonitor {
   private DEFAULT_COLOR = '#FFFFFF';
   private DEFAULT_TOOLTIP = 'Workspace resources';
   private MONITOR_BANNED = '$(ban) Resources';
+  private MONITOR_WAIT_METRICS = 'Waiting metrics...';
 
   private warningMessage = '';
 
@@ -107,7 +108,7 @@ export class ResourceMonitor {
     if (response.statusCode !== 200) {
       // wait when workspace pod's metrics will be available
       if (response.statusCode === 404) {
-        this.statusBarItem.text = '';
+        this.statusBarItem.text = this.MONITOR_WAIT_METRICS;
       } else {
         this.statusBarItem.text = this.MONITOR_BANNED;
         this.warningMessage = `Resource monitor won't be displayed. Cannot read metrics: ${response.data}.`;
