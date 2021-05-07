@@ -2,7 +2,7 @@
     "kind":"Pod",
     "apiVersion":"v1",
     "metadata":{
-       "name":"workspacetrexsb6pgoiwcb9z.maven-bc7645f5c-dqzml",
+       "name":"workspace",
        "generateName":"workspacetrexsb6pgoiwcb9z.maven-bc7645f5c-",
        "namespace":"che",
        "selfLink":"/api/v1/namespaces/che/pods/workspacetrexsb6pgoiwcb9z.maven-bc7645f5c-dqzml",
