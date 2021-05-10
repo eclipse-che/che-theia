@@ -16,7 +16,7 @@ WORKSPACE=$(curl -fsS --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.
 IFS=$'\n'
 for container in $(echo "$WORKSPACE" | sed -e 's|[[,]\({"attributes":{"app.kubernetes.io\)|\n\1|g' | grep '"che-theia.eclipse.org/vscode-extensions":' | grep -e '^{"attributes".*'); do
     dest=$(echo "$container" | sed 's|.*{"name":"THEIA_PLUGINS","value":"local-dir://\([^"][^"]*\)"}.*|\1|' - )
-    urls=$(echo "$container" | sed 's|.*"che-theia.eclipse.org/vscode-extensions":\[\([^]][^]]*\)\]}.*|\1|' - )
+    urls=$(echo "$container" | sed 's|.*"che-theia.eclipse.org/vscode-extensions":\[\([^]][^]]*\)\].*|\1|' - )
     mkdir -p "$dest"
     unset IFS
     for url in $(echo "$urls" | sed 's/[",]/ /g' - ); do
