@@ -123,6 +123,11 @@ export class RecommendationsPlugin {
     });
   }
 
+  // remove the digits on a given string so it will return for example redhat/java if we give redhat/java11
+  removeDigits(content: string): string {
+    return content.replace(/[0-9]/g, '');
+  }
+
   // called after projects are cloned (like the first import)
   async afterClone(): Promise<void> {
     // current workspaces
@@ -148,7 +153,11 @@ export class RecommendationsPlugin {
     const inDevfilePlugins = await this.devfileHandler.getPlugins();
     this.outputChannel.appendLine(`inDevfilePlugins=${inDevfilePlugins}`);
 
-    featuredPlugins = featuredPlugins.filter(plugin => !inDevfilePlugins.includes(plugin));
+    // here we need to compare without digits (for example if java8 plug-in is installed but we suggest java11 it should match the same plug-in)
+    featuredPlugins = featuredPlugins.filter(
+      plugin =>
+        !inDevfilePlugins.some(inDevVilePlugin => this.removeDigits(inDevVilePlugin) === this.removeDigits(plugin))
+    );
     this.outputChannel.appendLine(`filteredFeaturedPlugins=${featuredPlugins}`);
 
     // do we have plugins in the devfile ?

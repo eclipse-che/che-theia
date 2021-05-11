@@ -229,6 +229,37 @@ describe('Test recommendation Plugin', () => {
     expect(spyInstallPlugins).toBeCalledTimes(0);
   });
 
+  test('Check featuredPlugins with suggested plugins is in the devfile but with another version', async () => {
+    (theia.plugins.getPlugin as jest.Mock).mockReturnValue(workspacePluginMock);
+    // no devfile plugins
+    devfileHandlerHasPluginsMock.mockReturnValue(true);
+
+    const recommendationsPlugin = container.get(RecommendationsPlugin);
+    const spyInstallPlugins = jest.spyOn(recommendationsPlugin, 'installPlugins');
+    expect(spyInstallPlugins).toBeCalledTimes(0);
+
+    const inDevfilePlugin = 'redhat/java8';
+    devfileHandlerGetPluginsMock.mockReset();
+    devfileHandlerGetPluginsMock.mockResolvedValue([inDevfilePlugin]);
+    await recommendationsPlugin.start();
+
+    // user click on yes, I want to install recommendations
+    const showInformationMessageMock = theia.window.showInformationMessage as jest.Mock;
+    showInformationMessageMock.mockResolvedValue({ title: 'Yes' });
+
+    // we suggest java11
+    const suggestedPlugin = 'redhat/java11';
+    getFeaturedPluginsMock.mockReset();
+    getFeaturedPluginsMock.mockResolvedValue([suggestedPlugin]);
+
+    // call the clone callback
+    await workspacePluginMock.exports.onDidCloneSources.mock.calls[0][0]();
+
+    // nothing should be suggested as we already have this plug-in in a different version
+    expect(showInformationMessageMock).toBeCalledTimes(0);
+    expect(spyInstallPlugins).toBeCalledTimes(0);
+  });
+
   test('Check featuredPlugins with plugins in the devfile (user click no on suggestion)', async () => {
     theia.workspace.workspaceFolders = [
       {
