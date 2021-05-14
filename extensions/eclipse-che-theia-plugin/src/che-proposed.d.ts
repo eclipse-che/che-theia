@@ -223,6 +223,7 @@ declare module '@eclipse-che/plugin' {
             attributes?: { [key: string]: string };
             url?: string;
             name: string;
+            targetPort: string;
             component: string;
           }
 

@@ -16,6 +16,7 @@ export interface ExposedEndpoint {
   attributes?: { [key: string]: string };
   url?: string;
   name: string;
+  targetPort: string;
   component: string;
 }
 
