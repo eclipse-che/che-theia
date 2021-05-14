@@ -167,6 +167,14 @@ export class PluginRemoteInit {
       return originalStart.call(this, params);
     };
 
+    const originalUpdateStoragePath = PluginManagerExtImpl.prototype.$updateStoragePath;
+    PluginManagerExtImpl.prototype.$updateStoragePath = async function (
+      storagePath: string | undefined
+    ): Promise<void> {
+      const overriddenStoragePath = storagePath ? modifyPathToLocal(storagePath) : undefined;
+      return originalUpdateStoragePath.call(this, overriddenStoragePath);
+    };
+
     // display message about process being started
     console.log(`Theia Endpoint ${process.pid}/pid listening on port`, this.pluginPort);
   }
