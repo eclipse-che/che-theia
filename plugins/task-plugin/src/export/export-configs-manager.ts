@@ -50,6 +50,7 @@ export class ExportConfigurationsManager {
   protected cheCommands: che.devfile.DevfileCommand[] = [];
 
   async init(): Promise<void> {
+    console.error('============================== ExportConfigurationsManager === INIT ');
     this.cheCommands = await this.cheWorkspaceClient.getCommands();
     this.launchConfigurationsExporter.init(this.cheCommands);
     this.export();

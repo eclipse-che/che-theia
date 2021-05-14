@@ -34,11 +34,20 @@ export class LaunchConfigurationsExporter implements ConfigurationsExporter {
   protected readonly vsCodeLaunchConfigsExtractor: VsCodeLaunchConfigsExtractor;
 
   async init(commands: che.devfile.DevfileCommand[]): Promise<void> {
+    console.error('+++++++++++++++++++++++++++++ LaunchConfigurationsExporter ++++ INIT ');
     theia.workspace.onDidChangeWorkspaceFolders(
       event => {
+        console.error('+++ LaunchConfigurationsExporter ++++ onDidChangeWorkspaceFolders ');
         const workspaceFolders: theia.WorkspaceFolder[] | undefined = event.added;
         if (workspaceFolders && workspaceFolders.length > 0) {
+          console.error(
+            '+++ LaunchConfigurationsExporter ++++ onDidChangeWorkspaceFolders +++ workspaceFolders.length > 0 '
+          );
           this.export(commands, workspaceFolders);
+        } else {
+          console.error(
+            '+++ LaunchConfigurationsExporter ++++ onDidChangeWorkspaceFolders +++ NOT workspaceFolders.length > 0 '
+          );
         }
       },
       undefined,
@@ -47,24 +56,33 @@ export class LaunchConfigurationsExporter implements ConfigurationsExporter {
   }
 
   async export(commands: che.devfile.DevfileCommand[], workspaceFolders?: theia.WorkspaceFolder[]): Promise<void> {
+    console.error('+++ LaunchConfigurationsExporter ++++ EXPORT ');
     workspaceFolders = workspaceFolders ? workspaceFolders : theia.workspace.workspaceFolders;
     if (!workspaceFolders) {
+      console.error('+++ LaunchConfigurationsExporter ++++ EXPORT +++ RETURN ');
       return;
     }
+
+    console.error('+++ LaunchConfigurationsExporter ++++ EXPORT +++ NOT RETURN ', workspaceFolders);
 
     const exportConfigsPromises: Promise<void>[] = [];
 
     for (const workspaceFolder of workspaceFolders) {
+      console.error('+++ LaunchConfigurationsExporter ++++ EXPORT +++ workspace folder ', workspaceFolder.name);
       exportConfigsPromises.push(this.doExport(workspaceFolder, commands));
     }
     await Promise.all(exportConfigsPromises);
   }
 
   async doExport(workspaceFolder: theia.WorkspaceFolder, commands: che.devfile.DevfileCommand[]): Promise<void> {
+    console.error('+++ LaunchConfigurationsExporter ++++ DO EXPORT ', workspaceFolder.name);
     const workspaceFolderPath = workspaceFolder.uri.path;
     const launchConfigFilePath = resolve(workspaceFolderPath, CONFIG_DIR, LAUNCH_CONFIG_FILE);
+    console.error('+++ LaunchConfigurationsExporter ++++ DO EXPORT +++ before extract ', workspaceFolder.name);
     const configFileConfigs = await this.configFileLaunchConfigsExtractor.extract(launchConfigFilePath);
+    console.error('+++ LaunchConfigurationsExporter ++++ DO EXPORT +++ after extract ', workspaceFolder.name);
     const vsCodeConfigs = this.vsCodeLaunchConfigsExtractor.extract(commands);
+    console.error('+++ LaunchConfigurationsExporter ++++ DO EXPORT +++ after extract 2', workspaceFolder.name);
 
     const configFileContent = configFileConfigs.content;
     if (configFileContent) {
@@ -133,14 +151,30 @@ export class LaunchConfigurationsExporter implements ConfigurationsExporter {
         We had to use the workaround to avoid the issue: first we create the directory and then - config file
     */
 
+    console.error('+++ LaunchConfigurationsExporter ++++ SAVE CONFIGS +++ workspaceFolderPath ', workspaceFolderPath);
     const configDirPath = resolve(workspaceFolderPath, CONFIG_DIR);
+    console.error('+++ LaunchConfigurationsExporter ++++ SAVE CONFIGS +++ configDirPath ', configDirPath);
     await ensureDirExists(configDirPath);
+    console.error('+++ LaunchConfigurationsExporter ++++ SAVE CONFIGS +++ AFTER +++ ensureDirExists(configDirPath)');
 
     const launchConfigFilePath = resolve(configDirPath, LAUNCH_CONFIG_FILE);
+    console.error(
+      '+++ LaunchConfigurationsExporter ++++ SAVE CONFIGS +++ LAUNCH_config_FILE_Path ',
+      launchConfigFilePath
+    );
     await ensureDirExists(launchConfigFilePath);
+    console.error(
+      '+++ LaunchConfigurationsExporter ++++ SAVE CONFIGS +++ AFTER +++ ensureDirExists(launchConfigFilePath)'
+    );
 
     const result = modify(content, ['configurations'], configurations, formattingOptions);
-    return writeFile(launchConfigFilePath, result);
+    console.error('+++ LaunchConfigurationsExporter ++++ SAVE CONFIGS +++ AFTER modify ');
+    try {
+      await writeFile(launchConfigFilePath, result);
+      console.error('+++ LaunchConfigurationsExporter ++++ SAVE CONFIGS +++ AFTER write file ');
+    } catch (error) {
+      console.error('+++ LaunchConfigurationsExporter ++++ SAVE CONFIGS +++ ERROR  ', error);
+    }
   }
 
   private getConsoleConflictLogger(): (config1: theia.DebugConfiguration, config2: theia.DebugConfiguration) => void {

@@ -29,6 +29,7 @@ let pluginContext: theia.PluginContext;
 let outputChannel: theia.OutputChannel | undefined;
 
 export async function start(context: theia.PluginContext): Promise<void> {
+  console.error('+++++++++++++++++++++++++++++ TASK PLUGIN ++++ INIT ');
   pluginContext = context;
 
   const сheTaskEventsHandler = container.get<CheTaskEventsHandler>(CheTaskEventsHandler);
