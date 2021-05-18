@@ -12,8 +12,8 @@ import * as che from '@eclipse-che/plugin';
 import * as startPoint from '../task-plugin-backend';
 import * as theia from '@theia/plugin';
 
-import { ensureDirExists, modify, writeFile } from '../utils';
 import { inject, injectable } from 'inversify';
+import { modify, writeFile } from '../utils';
 
 import { ConfigFileLaunchConfigsExtractor } from '../extract/config-file-launch-configs-extractor';
 import { ConfigurationsExporter } from './export-configs-manager';
@@ -120,26 +120,8 @@ export class LaunchConfigurationsExporter implements ConfigurationsExporter {
     content: string,
     configurations: theia.DebugConfiguration[]
   ): Promise<void> {
-    /*
-        There is an issue related to file watchers: the watcher only reports the first directory when creating recursively directories.
-        For example:
-            - we would like to create /projects/someProject/.theia/launch.json recursively
-            - /projects/someProject directory already exists
-            - .theia directory and launch.json file should be created
-            - as result file watcher fires an event that .theia directory was created, there is no an event about launch.json file
-
-        The issue is reproduced not permanently.
-
-        We had to use the workaround to avoid the issue: first we create the directory and then - config file
-    */
-
-    const configDirPath = resolve(workspaceFolderPath, CONFIG_DIR);
-    await ensureDirExists(configDirPath);
-
-    const launchConfigFilePath = resolve(configDirPath, LAUNCH_CONFIG_FILE);
-    await ensureDirExists(launchConfigFilePath);
-
     const result = modify(content, ['configurations'], configurations, formattingOptions);
+    const launchConfigFilePath = resolve(workspaceFolderPath, CONFIG_DIR, LAUNCH_CONFIG_FILE);
     return writeFile(launchConfigFilePath, result);
   }
 
