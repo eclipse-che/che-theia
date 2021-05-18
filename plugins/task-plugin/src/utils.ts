@@ -138,8 +138,5 @@ export function ensureDirExistence(filePath: string): void {
 /** Creates a directory containing the file if they don't exist */
 export async function ensureDirExists(filePath: string): Promise<void> {
   const dirName = path.dirname(filePath);
-  if (await fs.pathExists(dirName)) {
-    return;
-  }
   return fs.mkdirp(dirName);
 }
