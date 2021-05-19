@@ -5,19 +5,19 @@
     "che",
     "preferences"
   ],
-  "version": "7.30.1",
+  "version": "7.30.2",
   "license": "EPL-2.0",
   "files": [
     "lib",
     "src"
   ],
   "dependencies": {
-    "@eclipse-che/theia-plugin-ext": "7.30.1",
+    "@eclipse-che/theia-plugin-ext": "7.30.2",
     "@theia/core": "1.14.0-next.6a8af03f",
     "@theia/preferences": "1.14.0-next.6a8af03f",
     "ini": "^1.3.5",
     "nsfw": "^2.1.2",
-    "@eclipse-che/theia-user-preferences-synchronizer": "7.30.1"
+    "@eclipse-che/theia-user-preferences-synchronizer": "7.30.2"
   },
   "devDependencies": {
     "@types/ini": "^1.3.5"
