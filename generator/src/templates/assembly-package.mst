@@ -53,7 +53,7 @@
   "scripts": {
     "prepare": "yarn run clean && yarn build",
     "clean": "theia clean && rimraf errorShots",
-    "build": "theia build --mode production --config cdn/webpack.config.js --env.cdn=./cdn.json --env.monacopkg={{ monacopkg }} && yarn run override-vs-loader",
+    "build": "theia build --mode production --config cdn/webpack.config.js --env cdn=./cdn.json --env monacopkg={{ monacopkg }} && yarn run override-vs-loader",
     "override-vs-loader": "override-vs-loader",
     "watch": "concurrently -n compile,bundle \"theiaext watch --preserveWatchOutput\" \"theia build --watch --mode development\"",
     "start": "theia start",
