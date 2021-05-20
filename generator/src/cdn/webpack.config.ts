@@ -36,4 +36,7 @@ const baseConfig = require('../webpack.config');
 customizeWebpackConfig(cdn, monacopkg, baseConfig);
 
 // Export the customized webpack configuration object
-module.exports = baseConfig;
+module.exports = function(env) {
+    customizeWebpackConfig(env.cdn, env.monacopkg, baseConfig);
+    return baseConfig;
+};
