@@ -95,7 +95,7 @@ export class CheServerDevfileServiceImpl implements DevfileService {
         if (endpointV1.attributes) {
           endpoint.attributes = endpointV1.attributes;
 
-          if (endpoint.attributes['type'] == 'ide') {
+          if (endpoint.attributes['type'] === 'ide') {
             endpoint.attributes['type'] = 'main';
           }
 

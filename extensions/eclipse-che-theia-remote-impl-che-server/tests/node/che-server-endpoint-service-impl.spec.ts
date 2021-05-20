@@ -66,7 +66,7 @@ describe('Test CheServerEndpointServiceImpl', () => {
     const theiaEndpoint = endpoints[0];
     expect(theiaEndpoint.url).toBe('https://route4if6ve1d-che.8a09.starter-us-east-2.openshiftapps.com');
     expect(theiaEndpoint.attributes).toBeDefined();
-    expect(theiaEndpoint.attributes!['type']).toBe('main');
+    expect(theiaEndpoint.attributes!['type']).toBe('ide');
     expect(theiaEndpoint.name).toBe('theia');
     expect(theiaEndpoint.component).toBe('theia-ide9fa');
 
