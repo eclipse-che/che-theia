@@ -52,7 +52,7 @@ export class SyncProcessTracker implements FrontendApplicationContribution {
     });
     websocket.onerror = err => {
       console.log(err);
-      this.messageService.info("Can't establish connetion to rsync server. Cause:" + err);
+      this.messageService.info("Can't establish connetion to rsync server. Cause:" + err.message);
     };
     websocket.onmessage = ev => {
       this.updateStatusBar(ev.data, websocket);
