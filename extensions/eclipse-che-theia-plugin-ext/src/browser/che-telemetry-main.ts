@@ -16,7 +16,7 @@ import { ClientAddressInfo } from '@eclipse-che/plugin';
 import { CommandRegistry } from '@theia/core';
 import { EndpointService } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
 import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
-import { SERVER_IDE_ATTR_VALUE } from '../common/che-server-common';
+import { SERVER_MAIN_ATTR_VALUE } from '../common/che-server-common';
 import { TelemetryService } from '@eclipse-che/theia-remote-api/lib/common/telemetry-service';
 import URI from '@theia/core/lib/common/uri';
 import { interfaces } from 'inversify';
@@ -64,7 +64,7 @@ export class CheTelemetryMainImpl implements CheTelemetryMain {
   }
 
   async getClientAddressInfo(): Promise<ClientAddressInfo> {
-    const ideEndpoints = await this.endpointService.getEndpointsByType(SERVER_IDE_ATTR_VALUE);
+    const ideEndpoints = await this.endpointService.getEndpointsByType(SERVER_MAIN_ATTR_VALUE);
 
     if (ideEndpoints.length === 1) {
       const ipServiceURL = new URI(ideEndpoints[0].url).resolve('che/client-ip').toString();

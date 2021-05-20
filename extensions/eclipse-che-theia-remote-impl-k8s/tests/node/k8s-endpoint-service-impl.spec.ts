@@ -43,7 +43,7 @@ describe.only('Test K8sEndpointServiceImpl', () => {
   });
 
   test('getEndpointsByType', async () => {
-    const ideEndpoints = await k8sEndpointServiceImpl.getEndpointsByType('ide');
+    const ideEndpoints = await k8sEndpointServiceImpl.getEndpointsByType('main');
 
     expect(ideEndpoints).toBeDefined();
     expect(ideEndpoints.length).toBe(1);

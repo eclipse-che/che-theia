@@ -94,6 +94,11 @@ export class CheServerDevfileServiceImpl implements DevfileService {
         }
         if (endpointV1.attributes) {
           endpoint.attributes = endpointV1.attributes;
+
+          if (endpoint.attributes['type'] == 'ide') {
+            endpoint.attributes['type'] = 'main';
+          }
+
           if (endpointV1.attributes['public'] !== undefined && endpointV1.attributes['public'] === 'false') {
             endpoint.exposure = 'internal';
           }
