@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,7 @@ import { customizeWebpackConfig } from './webpack-customizer';
 const baseConfig = require('../webpack.config');
 
 // Export the customized webpack configuration object
-module.exports = function(env) {
+module.exports = function (env: { cdn: string; monacopkg: string }) {
     customizeWebpackConfig(env.cdn, env.monacopkg, baseConfig);
     return baseConfig;
 };
