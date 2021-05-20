@@ -185,14 +185,13 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
     const proxyExports: any = {};
     activatedPlugin.exports = proxyExports;
     const remoteBrowser = this.pluginRemoteBrowser;
-    const deasyncPromise = this.deasyncPromise;
     // add proxy
     const callId = this.callId++;
     proxyDefinitions.forEach(proxyDefinition => {
       if (proxyDefinition.type === 'func') {
         console.log(`Proxyfing exports ${hostId} ${pluginId}/${proxyDefinition.name}`);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        proxyExports[proxyDefinition.name] = (...args: any[]) => {
+        proxyExports[proxyDefinition.name] = async (...args: any[]) => {
           // need to keep arguments only if arguments have functions as functions can't be propagated remotely
           const hasFunctions = args.some(arg => typeof arg === 'function');
           if (hasFunctions) {
@@ -208,7 +207,7 @@ export class PluginRemoteNodeImpl implements PluginRemoteNode {
           }
 
           // remote call for this method
-          return deasyncPromise(remoteBrowser.$callMethod(hostId, pluginId, callId, proxyDefinition.name, ...args));
+          return remoteBrowser.$callMethod(hostId, pluginId, callId, proxyDefinition.name, ...args);
         };
       } else if (proxyDefinition.type === 'string') {
         console.log(`Proxyfing exports ${hostId} ${pluginId}/${proxyDefinition.name} to ${proxyDefinition.value}`);
