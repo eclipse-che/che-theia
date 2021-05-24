@@ -45,7 +45,7 @@ export class CheWorkspaceClient {
 
   async getMachineExecServerURL(): Promise<string> {
     const machineExecEndpoint = await this.getMachineExecEndpoint();
-    const port = machineExecEndpoint.attributes?.port || machineExecEndpoint.attributes?.targetPort;
+    const port = machineExecEndpoint.targetPort;
     return `ws://127.0.0.1:${port}`;
   }
 
