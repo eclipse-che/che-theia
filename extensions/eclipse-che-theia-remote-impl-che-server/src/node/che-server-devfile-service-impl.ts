@@ -314,6 +314,10 @@ export class CheServerDevfileServiceImpl implements DevfileService {
       if (componentV1.reference) {
         devfileV2Component.plugin.url = componentV1.reference;
       }
+      if (componentV1.registryUrl) {
+        devfileV2Component.plugin.registryUrl = componentV1.registryUrl;
+      }
+
       if (componentV1.cpuLimit) {
         devfileV2Component.plugin.cpuLimit = componentV1.cpuLimit;
       }
