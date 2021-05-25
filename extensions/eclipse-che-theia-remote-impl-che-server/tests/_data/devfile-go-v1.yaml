@@ -17,6 +17,7 @@ projects:
 components:
   - type: chePlugin
     id: golang/go/latest
+    registryUrl: https://my-registry.fake
     alias: go-plugin
     memoryLimit: 512Mi
     env:
