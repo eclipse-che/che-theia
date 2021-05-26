@@ -21,6 +21,7 @@ import { WidgetOpenMode } from '@theia/core/lib/browser';
 
 @injectable()
 export class TaskConfigurationsService extends TaskService {
+  private executedTasks: TaskConfiguration[] = [];
   protected readonly onDidStartTaskFailureEmitter = new Emitter<TaskInfo>();
   readonly onDidStartTaskFailure: Event<TaskInfo> = this.onDidStartTaskFailureEmitter.event;
 
@@ -31,6 +32,15 @@ export class TaskConfigurationsService extends TaskService {
     resolvedTask: TaskConfiguration,
     option?: RunTaskOption
   ): Promise<TaskInfo | undefined> {
+    // Check if the task was already started running
+    const executedTask = this.executedTasks.find(task => this.compareTasks(task, resolvedTask));
+    if (!executedTask) {
+      // Remember the task, it was started running for the first time
+      this.executedTasks.push(resolvedTask);
+    } else {
+      // Don't run resolved task as it was alredy strted but not registered in task-manager
+      return undefined;
+    }
     const source = resolvedTask._source;
     const taskLabel = resolvedTask.label;
 
@@ -38,15 +48,16 @@ export class TaskConfigurationsService extends TaskService {
       this.getFactoryOptions(resolvedTask),
       this.getOpenerOptions(resolvedTask)
     );
-
     try {
       const taskInfo = await this.taskServer.run(resolvedTask, this.getContext(), option);
-      terminal.start(taskInfo.terminalId);
+      await terminal.start(taskInfo.terminalId);
 
       this.lastTask = { source, taskLabel, scope: resolvedTask._scope };
 
       this.logger.debug(`Task created. Task id: ${taskInfo.taskId}`);
 
+      // Task is running, we can remove it form the list of tasks which are preparing to be run
+      this.updateExecutedTasksList(resolvedTask);
       return taskInfo;
     } catch (error) {
       this.onDidStartTaskFailureEmitter.fire({
@@ -62,6 +73,7 @@ export class TaskConfigurationsService extends TaskService {
       console.error(errorMessage, error);
       this.messageService.error(errorMessage);
 
+      this.updateExecutedTasksList(resolvedTask);
       return undefined;
     }
   }
@@ -136,5 +148,17 @@ export class TaskConfigurationsService extends TaskService {
   protected isRemoteTask(task: TaskConfiguration): boolean {
     const target = task.target;
     return (target && target.containerName) || (target && target.component) || task.type === CHE_TASK_TYPE; // unresolved task doesn't have 'containerName'
+  }
+
+  private compareTasks(one: TaskConfiguration, other: TaskConfiguration): boolean {
+    return one.type === other.type && one.label === other.label && one._source === other._source;
+  }
+
+  private updateExecutedTasksList(resolvedTask: TaskConfiguration): void {
+    this.executedTasks.forEach((element, index) => {
+      if (this.compareTasks(element, resolvedTask)) {
+        this.executedTasks.splice(index, 1);
+      }
+    });
   }
 }
