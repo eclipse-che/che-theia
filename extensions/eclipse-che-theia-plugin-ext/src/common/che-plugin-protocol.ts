@@ -17,8 +17,7 @@ export interface ChePluginRegistry {
   // For default registry it's internal URI, taken from workspace settings
   uri: string;
   // Public URI to access the registry resources from browser
-  // If publicUri is not defined, internal ChePluginRegistry:uri is used
-  publicUri?: string;
+  publicUri: string;
 }
 
 export interface ChePlugin {
