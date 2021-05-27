@@ -10,7 +10,6 @@
 
 const path = require('path');
 
-import * as webpack from 'webpack';
 const fs = require('fs');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
@@ -105,7 +104,6 @@ export function customizeWebpackConfig(
         // Use hashed module IDs to ease caching support
         // and avoid the hash-based chunk names being changed
         // unexpectedly
-        baseConfig.plugins.push(new webpack.HashedModuleIdsPlugin());
 
         // Insert a custom loader to override file and url loaders,
         // in order to insert CDN-related logic
