@@ -4,7 +4,7 @@
   "keywords": [
     "theia-plugin"
   ],
-  "version": "0.0.1",
+  "version": "7.31.0",
   "license": "EPL-2.0",
   "contributors": [
     {
@@ -29,13 +29,13 @@
   "dependencies": {
     "axios": "0.21.1",
     "fs-extra": "7.0.1",
-    "@eclipse-che/plugin": "0.0.1",
+    "@eclipse-che/plugin": "7.31.0",
     "inversify": "^5.0.1",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
-    "@eclipse-che/plugin": "0.0.1",
-    "@theia/plugin": "next",
+    "@eclipse-che/plugin": "7.31.0",
+    "@theia/plugin": "1.14.0-next.bb87e69d",
     "@theia/plugin-packager": "latest",
     "ts-jest": "26.4.3",
     "jest": "^26.6.3"
