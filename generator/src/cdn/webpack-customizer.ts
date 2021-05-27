@@ -101,10 +101,6 @@ export function customizeWebpackConfig(
             })
         );
 
-        // Use hashed module IDs to ease caching support
-        // and avoid the hash-based chunk names being changed
-        // unexpectedly
-
         // Insert a custom loader to override file and url loaders,
         // in order to insert CDN-related logic
         baseConfig.module.rules
