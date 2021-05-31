@@ -44,8 +44,9 @@ export async function handleCommand(args: any): Promise<void> {
 
     try {
         const yarnConfig = JSON.parse(JSON.parse(cfg).data);
-        const linkDir = yarnConfig['linkFolder'] || path.resolve(os.homedir(), '.yarn/link');
-
+        let linkDir = yarnConfig['linkFolder'] || path.resolve(os.homedir(), '.yarn/link');
+        await fs.ensureDir(linkDir);
+        linkDir = await fs.realpath(linkDir);
         await link(cheTheiaDir, theiaDir, linkDir);
     } catch (e) {
         console.error(e);
@@ -53,16 +54,16 @@ export async function handleCommand(args: any): Promise<void> {
 }
 
 export async function link(cheTheiaProjectPath: string, theiaProjectPath: string, yarnLinkFolder: string) {
-    await linkTheia(theiaProjectPath);
+    await linkTheia(yarnLinkFolder, theiaProjectPath);
     await linkChe(yarnLinkFolder, cheTheiaProjectPath);
 }
 
-async function linkTheia(theiaProjectPath: string) {
+async function linkTheia(yarnLinkFolder: string, theiaProjectPath: string) {
     for (const rootName of ['packages', 'dev-packages', 'examples']) {
         const rootPath = path.resolve(theiaProjectPath, rootName);
         const folderNames = await fs.readdir(rootPath);
         for (const folderName of folderNames) {
-            await new Command(path.resolve(rootPath, folderName)).exec('yarn link');
+            await new Command(path.resolve(rootPath, folderName)).exec(`yarn link --link-folder=${yarnLinkFolder}`);
         }
     }
 }
