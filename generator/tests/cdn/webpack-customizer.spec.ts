@@ -77,7 +77,9 @@ describe('Test webpack customizer', () => {
         } catch (err) {
             error = err;
         }
-        expect(error).toEqual(new Error("Please check that you specified the parameter '--env.monacopkg'"));
+        expect(error).toEqual(
+            new Error("Please check that you specified the parameter '--env monacopkg' for 'theia build' command.")
+        );
     });
 
     test('test basic changes', async () => {

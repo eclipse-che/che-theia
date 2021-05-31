@@ -32,7 +32,7 @@ export function customizeWebpackConfig(
     }
 
     if (monacoCDN && !monacopkg) {
-        throw new Error("Please check that you specified the parameter '--env.monacopkg'");
+        throw new Error("Please check that you specified the parameter '--env monacopkg' for 'theia build' command.");
     }
 
     if (theiaCDN || monacoCDN) {
@@ -54,7 +54,7 @@ export function customizeWebpackConfig(
         baseConfig.output.filename = '[name].[chunkhash].js';
 
         // Separate the webpack runtime module, theia modules, external vendor modules
-        // in 3 distinct chhunks to optimize caching management
+        // in 3 distinct chunks to optimize caching management
         baseConfig.optimization = {
             runtimeChunk: 'single',
             splitChunks: {
@@ -74,7 +74,7 @@ export function customizeWebpackConfig(
                         enforce: true,
                         priority: 1,
                     },
-                    vendors: {
+                    defaultVendors: {
                         test: /[\/]node_modules[\/](?!@theia[\/])/,
                         name: 'vendors',
                         chunks: 'all',
