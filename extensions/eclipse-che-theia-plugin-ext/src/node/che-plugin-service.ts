@@ -88,15 +88,9 @@ export class ChePluginServiceImpl implements ChePluginService {
 
   dispose(): void {}
 
-  ensurePluginsURI(uri: string): string {
-    if (!uri.endsWith('/plugins/')) {
-      if (uri.endsWith('/')) {
-        uri = uri.substring(0, uri.length - 1);
-      }
-
-      if (!uri.endsWith('/plugins')) {
-        uri += '/plugins/';
-      }
+  normalizeEnding(uri: string): string {
+    if (uri.endsWith('/')) {
+      return uri.substring(0, uri.length - 1);
     }
 
     return uri;
@@ -111,16 +105,12 @@ export class ChePluginServiceImpl implements ChePluginService {
       const workspaceSettings: WorkspaceSettings = await this.workspaceService.getWorkspaceSettings();
       if (workspaceSettings && workspaceSettings[PLUGIN_REGISTRY_INTERNAL_URL]) {
         const uri = workspaceSettings[PLUGIN_REGISTRY_INTERNAL_URL];
-
-        let publicUri: string | undefined;
-        if (workspaceSettings[PLUGIN_REGISTRY_URL]) {
-          publicUri = workspaceSettings[PLUGIN_REGISTRY_URL];
-        }
+        const publicUri = workspaceSettings[PLUGIN_REGISTRY_URL] || uri;
 
         this.defaultRegistry = {
           name: 'Eclipse Che plugins',
-          uri: this.ensurePluginsURI(uri),
-          publicUri: publicUri ? this.ensurePluginsURI(publicUri) : undefined,
+          uri: this.normalizeEnding(uri),
+          publicUri: this.normalizeEnding(publicUri),
         };
 
         return this.defaultRegistry;
@@ -290,11 +280,7 @@ export class ChePluginServiceImpl implements ChePluginService {
           const pluginYamlURI = this.getPluginYampURI(registry, metadataInternal);
 
           try {
-            const pluginMetadata = await this.loadPluginMetadata(
-              pluginYamlURI,
-              longKeyFormat,
-              registry.publicUri || registry.uri
-            );
+            const pluginMetadata = await this.loadPluginMetadata(pluginYamlURI, longKeyFormat, registry.publicUri);
             this.cachedPlugins.push(pluginMetadata);
             await this.client.notifyPluginCached(this.cachedPlugins.length);
           } catch (error) {
@@ -337,8 +323,9 @@ export class ChePluginServiceImpl implements ChePluginService {
    * @return list of available plugins
    */
   private async loadPluginList(registry: ChePluginRegistry): Promise<ChePluginMetadataInternal[]> {
-    const axiosInstance = await this.getAxiosInstance(registry.uri);
-    return (await axiosInstance.get<ChePluginMetadataInternal[]>(registry.uri)).data;
+    const registryURI = registry.uri + '/plugins';
+    const axiosInstance = await this.getAxiosInstance(registryURI);
+    return (await axiosInstance.get<ChePluginMetadataInternal[]>(registryURI)).data;
   }
 
   /**
@@ -359,11 +346,7 @@ export class ChePluginServiceImpl implements ChePluginService {
           // ends with `v3/plugins`, but ${plugin.links.self} starts with `/v3/plugins/${plugin.id}.
           // See https://github.com/eclipse/che-plugin-registry/blob/master/build/scripts/index.sh#L27
           // So the correct plugin url for both cases will be plugin registry url + plugin id.
-          if (registry.uri.endsWith('/')) {
-            return `${registry.uri}${plugin.id}/`;
-          } else {
-            return `${registry.uri}/${plugin.id}/`;
-          }
+          return `${registry.uri}/plugins/${plugin.id}/`;
         }
         const uri = new URI(registry.uri);
         return `${uri.scheme}://${uri.authority}${self}`;
@@ -419,7 +402,7 @@ export class ChePluginServiceImpl implements ChePluginService {
   private async loadPluginMetadata(
     yamlURI: string,
     longKeyFormat: boolean,
-    pluginRegistryURI?: string
+    pluginRegistryURI: string
   ): Promise<ChePluginMetadata> {
     try {
       const props: ChePluginMetadata = await this.loadPluginYaml(yamlURI);
@@ -435,10 +418,13 @@ export class ChePluginServiceImpl implements ChePluginService {
         }
       }
 
-      let icon = props.icon;
-      if (pluginRegistryURI && props.icon && props.icon.startsWith('/')) {
-        const uri = new URI(pluginRegistryURI);
-        icon = `${uri.scheme}://${uri.authority}${icon}`;
+      let icon;
+      if (props.icon.startsWith('http://') || props.icon.startsWith('https://')) {
+        // icon refers on external resource
+        icon = props.icon;
+      } else {
+        // icon must be relative to plugin registry ROOT
+        icon = props.icon.startsWith('/') ? pluginRegistryURI + props.icon : pluginRegistryURI + '/' + props.icon;
       }
 
       return {
