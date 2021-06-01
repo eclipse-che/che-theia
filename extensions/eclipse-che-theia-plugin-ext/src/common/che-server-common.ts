@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-export const SERVER_IDE_ATTR_VALUE = 'ide';
+export const SERVER_MAIN_ATTR_VALUE = 'main';
 export const SERVER_WEBVIEWS_ATTR_VALUE = 'webview';
 export const SERVER_MINI_BROWSER_ATTR_VALUE = 'mini-browser';
 export const SERVER_IDE_DEV_ATTR_VALUE = 'ide-dev';

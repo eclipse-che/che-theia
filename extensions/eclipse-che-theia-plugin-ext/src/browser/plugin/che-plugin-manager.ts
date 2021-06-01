@@ -99,7 +99,7 @@ export class ChePluginManager {
       const newPrefs = event.newValue;
       if (newPrefs) {
         for (const repoName of Object.keys(newPrefs)) {
-          this.registryList.push({ name: repoName, uri: newPrefs[repoName] });
+          this.registryList.push({ name: repoName, uri: newPrefs[repoName], publicUri: newPrefs[repoName] });
         }
       }
       // notify that plugin registry list has been changed
@@ -155,6 +155,7 @@ export class ChePluginManager {
           this.registryList.push({
             name: repoName,
             uri: uri,
+            publicUri: uri,
           });
         }
       });

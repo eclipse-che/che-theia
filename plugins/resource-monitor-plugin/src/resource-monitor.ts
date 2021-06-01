@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2021 Red Hat, Inc.
+ * Copyright (c) 2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -11,23 +11,26 @@
 import * as che from '@eclipse-che/plugin';
 import * as theia from '@theia/plugin';
 
-import { Container, MetricContainer, Metrics, Pod } from './objects';
+import { Container, MetricContainer, Metrics } from './objects';
 import { SHOW_RESOURCES_INFORMATION_COMMAND, SHOW_WARNING_MESSAGE_COMMAND, Units } from './constants';
 import { convertToBytes, convertToMilliCPU } from './units-converter';
+import { inject, injectable } from 'inversify';
 
-export async function start(context: theia.PluginContext): Promise<void> {
-  const namespace = await getNamespace();
-  const resourceMonitor = new ResMon(context, namespace);
-  resourceMonitor.show();
-}
+import { K8sHelper } from './k8s-helper';
+import { V1Pod } from '@kubernetes/client-node';
 
-export class ResMon {
+@injectable()
+export class ResourceMonitor {
+  @inject(K8sHelper)
+  private k8sHelper: K8sHelper;
+
   private METRICS_SERVER_ENDPOINT = '/apis/metrics.k8s.io/v1beta1/';
   private METRICS_REQUEST_URL = `${this.METRICS_SERVER_ENDPOINT}namespaces/`;
   private WARNING_COLOR = '#FFCC00';
   private DEFAULT_COLOR = '#FFFFFF';
   private DEFAULT_TOOLTIP = 'Workspace resources';
   private MONITOR_BANNED = '$(ban) Resources';
+  private MONITOR_WAIT_METRICS = 'Waiting metrics...';
 
   private warningMessage = '';
 
@@ -35,13 +38,7 @@ export class ResMon {
   private containers: Container[] = [];
   private namespace: string;
 
-  constructor(context: theia.PluginContext, namespace: string) {
-    context.subscriptions.push(
-      theia.commands.registerCommand(SHOW_RESOURCES_INFORMATION_COMMAND, () => this.showDetailedInfo()),
-      theia.commands.registerCommand(SHOW_WARNING_MESSAGE_COMMAND, () => this.showWarningMessage())
-    );
-
-    this.namespace = namespace;
+  constructor() {
     this.statusBarItem = theia.window.createStatusBarItem(theia.StatusBarAlignment.Left);
     this.statusBarItem.color = this.DEFAULT_COLOR;
     this.statusBarItem.show();
@@ -49,27 +46,44 @@ export class ResMon {
     this.statusBarItem.tooltip = 'Resources Monitor';
   }
 
+  async start(context: theia.PluginContext, namespace: string): Promise<void> {
+    context.subscriptions.push(
+      theia.commands.registerCommand(SHOW_RESOURCES_INFORMATION_COMMAND, () => this.showDetailedInfo()),
+      theia.commands.registerCommand(SHOW_WARNING_MESSAGE_COMMAND, () => this.showWarningMessage())
+    );
+
+    this.namespace = namespace;
+    this.show();
+  }
+
   async show(): Promise<void> {
     await this.getContainersInfo();
     await this.requestMetricsServer();
   }
 
-  async getContainersInfo(): Promise<Container[]> {
-    const requestURL = `/api/v1/namespaces/${this.namespace}/pods/${process.env.HOSTNAME}`;
-    const opts = { url: `${this.METRICS_REQUEST_URL}${this.namespace}/pods` };
-    const response: che.K8SRawResponse = await che.k8s.sendRawQuery(requestURL, opts);
-    if (response.statusCode !== 200) {
-      this.statusBarItem.text = this.MONITOR_BANNED;
-      this.warningMessage = "Resource monitor won't be displayed. Cannot get access to the workspace's pod.";
-      this.statusBarItem.command = SHOW_WARNING_MESSAGE_COMMAND.id;
-      throw new Error(`Cannot read Pod information. Status code: ${response.statusCode}. Error: ${response.data}`);
+  async getWorkspacePod(): Promise<V1Pod | undefined> {
+    try {
+      const { body } = await this.k8sHelper
+        .getCoreApi()
+        .listNamespacedPod(this.namespace, undefined, undefined, undefined, undefined, undefined);
+      for (const item of body.items) {
+        if (item.metadata?.name === process.env.HOSTNAME) {
+          return item;
+        }
+      }
+    } catch (e) {
+      throw new Error('Cannot get workspace pod. ' + e);
     }
-    const pod: Pod = JSON.parse(response.data);
-    pod.spec.containers.forEach(element => {
+  }
+
+  async getContainersInfo(): Promise<Container[]> {
+    const wsPod = await this.getWorkspacePod();
+
+    wsPod?.spec?.containers.forEach(element => {
       this.containers.push({
         name: element.name,
-        cpuLimit: convertToMilliCPU(element.resources.limits.cpu),
-        memoryLimit: convertToBytes(element.resources.limits.memory),
+        cpuLimit: convertToMilliCPU(element.resources?.limits?.cpu),
+        memoryLimit: convertToBytes(element.resources?.limits?.memory),
       });
     });
     return this.containers;
@@ -88,14 +102,21 @@ export class ResMon {
 
   async getMetrics(): Promise<Container[]> {
     const requestURL = `${this.METRICS_REQUEST_URL}${this.namespace}/pods/${process.env.HOSTNAME}`;
-    const opts = { url: `${this.METRICS_REQUEST_URL}${this.namespace}/pods` };
+    const opts = { url: this.METRICS_SERVER_ENDPOINT };
     const response = await che.k8s.sendRawQuery(requestURL, opts);
+
     if (response.statusCode !== 200) {
-      this.statusBarItem.text = this.MONITOR_BANNED;
-      this.warningMessage = `Resource monitor won't be displayed. Cannot read metrics: ${response.data}.`;
-      this.statusBarItem.command = SHOW_WARNING_MESSAGE_COMMAND.id;
+      // wait when workspace pod's metrics will be available
+      if (response.statusCode === 404) {
+        this.statusBarItem.text = this.MONITOR_WAIT_METRICS;
+      } else {
+        this.statusBarItem.text = this.MONITOR_BANNED;
+        this.warningMessage = `Resource monitor won't be displayed. Cannot read metrics: ${response.data}.`;
+        this.statusBarItem.command = SHOW_WARNING_MESSAGE_COMMAND.id;
+      }
       return this.containers;
     }
+    this.statusBarItem.command = SHOW_RESOURCES_INFORMATION_COMMAND.id;
     const metrics: Metrics = JSON.parse(response.data);
     metrics.containers.forEach(element => {
       this.setUsedResources(element);
@@ -190,9 +211,4 @@ export class ResMon {
   showWarningMessage(): void {
     theia.window.showWarningMessage(this.warningMessage);
   }
-}
-
-export async function getNamespace(): Promise<string> {
-  const devfile = await che.devfile.get();
-  return devfile.metadata?.attributes ? devfile.metadata.attributes.infrastructureNamespace : '';
 }

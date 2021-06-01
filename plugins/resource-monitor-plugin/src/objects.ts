@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -19,24 +19,6 @@ export interface Container {
 export interface Resource {
   cpu: string;
   memory: string;
-}
-
-export interface Resources {
-  limits: Resource;
-  requests: Resource;
-}
-
-export interface PodContainer {
-  name: string;
-  resources: Resources;
-}
-
-export interface Spec {
-  containers: PodContainer[];
-}
-
-export interface Pod {
-  spec: Spec;
 }
 
 export interface Metrics {

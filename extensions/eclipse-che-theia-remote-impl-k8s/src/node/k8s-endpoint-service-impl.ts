@@ -34,10 +34,11 @@ export class K8sEndpointServiceImpl implements EndpointService {
       const endpoints: ExposedEndpoint[] = [];
       if (component.container?.endpoints) {
         component.container.endpoints.forEach(endpoint => {
-          const componentExposedEndpoint = {
+          const componentExposedEndpoint: ExposedEndpoint = {
             attributes: endpoint.attributes,
             name: endpoint.name,
             component: component.name || '',
+            targetPort: endpoint.targetPort.toString(),
             url: endpoint.attributes?.['controller.devfile.io/endpoint-url'],
           };
           endpoints.push(componentExposedEndpoint);

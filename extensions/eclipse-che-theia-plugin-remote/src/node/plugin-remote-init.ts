@@ -53,6 +53,7 @@ import { logger } from '@theia/core';
 import pluginExtBackendModule from '@theia/plugin-ext/lib/plugin-ext-backend-module';
 import pluginRemoteBackendModule from './plugin-remote-backend-module';
 import pluginVscodeBackendModule from '@theia/plugin-ext-vscode/lib/node/plugin-vscode-backend-module';
+import { reviver } from '@theia/plugin-ext/lib/plugin/types-impl';
 
 const DEFAULT_THEIA_HOME_DIR = '/home/theia/';
 const DEFAULT_THEIA_DEV_HOME_DIR = '/home/theia-dev';
@@ -166,6 +167,14 @@ export class PluginRemoteInit {
       return originalStart.call(this, params);
     };
 
+    const originalUpdateStoragePath = PluginManagerExtImpl.prototype.$updateStoragePath;
+    PluginManagerExtImpl.prototype.$updateStoragePath = async function (
+      storagePath: string | undefined
+    ): Promise<void> {
+      const overriddenStoragePath = storagePath ? modifyPathToLocal(storagePath) : undefined;
+      return originalUpdateStoragePath.call(this, overriddenStoragePath);
+    };
+
     // display message about process being started
     console.log(`Theia Endpoint ${process.pid}/pid listening on port`, this.pluginPort);
   }
@@ -237,13 +246,18 @@ to pick-up automatically a free port`)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const emitter = new Emitter<string>();
     const webSocketClient = new WebSocketClient(id, socket, emitter);
-    webSocketClient.rpc = new RPCProtocolImpl({
-      onMessage: emitter.event,
-      // send messages to this client
-      send: (m: string) => {
-        webSocketClient.send(m);
+    webSocketClient.rpc = new RPCProtocolImpl(
+      {
+        onMessage: emitter.event,
+        // send messages to this client
+        send: (m: string) => {
+          webSocketClient.send(m);
+        },
       },
-    });
+      {
+        reviver: reviver,
+      }
+    );
 
     const pluginRemoteBrowser = webSocketClient.rpc.getProxy(MAIN_REMOTE_RPC_CONTEXT.PLUGIN_REMOTE_BROWSER);
     const pluginRemoteNodeImplt = new PluginRemoteNodeImpl(pluginRemoteBrowser);

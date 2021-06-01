@@ -39,6 +39,8 @@ export class CheServerDevfileServiceImpl implements DevfileService {
   @inject(CheK8SServiceImpl)
   private k8SService: CheK8SServiceImpl;
 
+  private INFRASTRUCTURE_NAMESPACE = 'infrastructureNamespace';
+
   componentVolumeV1toComponentVolumeV2(
     componentVolumes?: cheApi.workspace.devfile.DevfileVolume[]
   ): DevfileComponentVolumeMount[] | undefined {
@@ -92,6 +94,11 @@ export class CheServerDevfileServiceImpl implements DevfileService {
         }
         if (endpointV1.attributes) {
           endpoint.attributes = endpointV1.attributes;
+
+          if (endpoint.attributes['type'] === 'ide') {
+            endpoint.attributes['type'] = 'main';
+          }
+
           if (endpointV1.attributes['public'] !== undefined && endpointV1.attributes['public'] === 'false') {
             endpoint.exposure = 'internal';
           }
@@ -314,6 +321,10 @@ export class CheServerDevfileServiceImpl implements DevfileService {
       if (componentV1.reference) {
         devfileV2Component.plugin.url = componentV1.reference;
       }
+      if (componentV1.registryUrl) {
+        devfileV2Component.plugin.registryUrl = componentV1.registryUrl;
+      }
+
       if (componentV1.cpuLimit) {
         devfileV2Component.plugin.cpuLimit = componentV1.cpuLimit;
       }
@@ -500,7 +511,7 @@ export class CheServerDevfileServiceImpl implements DevfileService {
     return gitSource;
   }
 
-  metadataV1toMetadataV2(metadataV1?: cheApi.workspace.devfile.Metadata): DevfileMetadata {
+  async metadataV1toMetadataV2(metadataV1?: cheApi.workspace.devfile.Metadata): Promise<DevfileMetadata> {
     const devfileMetadataV2: DevfileMetadata = {};
     if (metadataV1) {
       if (metadataV1.generateName) {
@@ -518,6 +529,12 @@ export class CheServerDevfileServiceImpl implements DevfileService {
         devfileMetadataV2.attributes['metadata-name-field'] = 'name';
       }
     }
+    if (!devfileMetadataV2.attributes) {
+      devfileMetadataV2.attributes = {};
+    }
+    const workspace = await this.workspaceService.currentWorkspace();
+    const workspaceNameSpace = workspace.attributes?.[this.INFRASTRUCTURE_NAMESPACE] || workspace.namespace || '';
+    devfileMetadataV2.attributes[this.INFRASTRUCTURE_NAMESPACE] = workspaceNameSpace;
     return devfileMetadataV2;
   }
 
@@ -571,10 +588,10 @@ export class CheServerDevfileServiceImpl implements DevfileService {
     return devfileContent;
   }
 
-  devfileV1toDevfileV2(devfileV1: cheApi.workspace.devfile.Devfile): Devfile {
+  async devfileV1toDevfileV2(devfileV1: cheApi.workspace.devfile.Devfile): Promise<Devfile> {
     const devfileV2: Devfile = {
       apiVersion: '2.0.0',
-      metadata: this.metadataV1toMetadataV2(devfileV1.metadata),
+      metadata: await this.metadataV1toMetadataV2(devfileV1.metadata),
       projects: (devfileV1.projects || []).map(project => this.projectV1toProjectV2(project)),
       components: (devfileV1.components || []).map(component => this.componentV1toComponentV2(component)),
       commands: (devfileV1.commands || []).map(command => this.commandV1toCommandV2(command)),
@@ -602,10 +619,15 @@ export class CheServerDevfileServiceImpl implements DevfileService {
     if (devfileV2.metadata.attributes) {
       const attributeKeys = Object.keys(devfileV2.metadata.attributes);
       if (attributeKeys.length > 0) {
-        devfileV1.attributes = devfileV1.attributes || {};
+        const attributes = devfileV1.attributes || {};
         attributeKeys.forEach(attributeName => {
-          devfileV1.attributes![attributeName] = devfileV2.metadata.attributes![attributeName];
+          if (attributeName !== this.INFRASTRUCTURE_NAMESPACE) {
+            attributes[attributeName] = devfileV2.metadata.attributes![attributeName];
+          }
         });
+        if (Object.keys(attributes).length > 0) {
+          devfileV1.attributes = attributes;
+        }
       }
     }
 
@@ -643,7 +665,7 @@ export class CheServerDevfileServiceImpl implements DevfileService {
 
     // grab runtime
     const componentStatuses: DevfileComponentStatus[] = [];
-    const workspaceNameSpace = workspace.attributes?.['infrastructureNamespace'] || workspace.namespace || '';
+    const workspaceNameSpace = workspace.attributes?.[this.INFRASTRUCTURE_NAMESPACE] || workspace.namespace || '';
     const runtime = workspace.runtime;
 
     const machines = runtime?.machines || {};

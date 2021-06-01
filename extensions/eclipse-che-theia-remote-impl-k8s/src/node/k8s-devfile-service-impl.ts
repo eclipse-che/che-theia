@@ -106,7 +106,7 @@ export class K8sDevfileServiceImpl implements DevfileService {
         // endpoint contains something like:
         // - attributes:
         //     controller.devfile.io/endpoint-url: http://workspace1105c7bcbe794da5-theia-3100.192.168.64.53.nip.io
-        //     type: ide
+        //     type: main
         //   exposure: public
         //   name: theia
         //   protocol: http

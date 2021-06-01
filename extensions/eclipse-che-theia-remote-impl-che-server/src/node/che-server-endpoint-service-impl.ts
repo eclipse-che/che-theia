@@ -49,6 +49,7 @@ export class CheServerEndpointServiceImpl implements EndpointService {
             url: server.url,
             attributes: server.attributes,
             name: serverName,
+            targetPort: server.attributes?.port || '',
             component: machineName,
           });
         }
@@ -80,6 +81,7 @@ export class CheServerEndpointServiceImpl implements EndpointService {
             url: server.url,
             attributes: server.attributes,
             name: serverName,
+            targetPort: server.attributes.port,
             component: machineName,
           });
         }

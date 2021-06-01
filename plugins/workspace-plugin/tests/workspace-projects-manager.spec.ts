@@ -9,30 +9,86 @@
  ***********************************************************************/
 
 import * as che from '@eclipse-che/plugin';
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import * as git from '../src/git';
-import * as projectsHelper from '../src/projects';
 import * as theia from '@theia/plugin';
 import * as theiaCommands from '../src/theia-commands';
 
-import { WorkspaceProjectsManager, handleWorkspaceProjects } from '../src/workspace-projects-manager';
-
-import { WorkspaceFolderUpdater } from '../src/workspace-folder-updater';
+import { DevfileServiceImpl } from '../src/devfile-service';
+import { WorkspaceFolderUpdaterImpl } from '../src/workspace-folder-updater';
+import { WorkspaceProjectsManager } from '../src/workspace-projects-manager';
 
 jest.mock('../src/workspace-folder-updater');
-jest.mock('../src/projects');
-jest.mock('fs');
+jest.mock('../src/devfile-service');
+jest.mock('fs-extra');
+jest.mock('../src/git');
 
 const PROJECTS_ROOT = '/projects';
+
 const firstProject: che.devfile.DevfileProject = {
   name: 'che-theia',
 };
+
 const secondProject: che.devfile.DevfileProject = {
   name: 'theia',
 };
 
-const existsSyncMock = jest.fn();
-Object.assign(fs, { existsSync: existsSyncMock });
+let pathExistsItems: string[] = [];
+
+async function pathExistsMockImpl(path: string): Promise<boolean> {
+  return pathExistsItems.some(item => path === item);
+}
+
+interface WatchListener {
+  path: string;
+  listener: (event: string, filename: string) => Promise<void>;
+}
+
+let watchListeners: WatchListener[] = [];
+
+function watchMockImpl(
+  path: string,
+  options: {} | undefined,
+  listener: (event: string, filename: string) => Promise<void>
+) {
+  watchListeners.push({
+    path,
+    listener,
+  });
+}
+
+async function fireFileSystemChangedEvent(path: string, event: string, filename: string): Promise<void> {
+  for (const watchListener of watchListeners) {
+    if (watchListener.path === path) {
+      await watchListener.listener(event, filename);
+    }
+  }
+}
+
+let lstatItems: string[] = [];
+
+async function lstatMockImpl(path: string): Promise<fs.Stats> {
+  return {
+    isDirectory: () => lstatItems.some(p => p === path),
+  } as fs.Stats;
+}
+
+const pathExistsMock = jest.fn();
+pathExistsMock.mockImplementation(pathExistsMockImpl);
+
+const watchMock = jest.fn();
+watchMock.mockImplementation(watchMockImpl);
+
+const lstatMock = jest.fn();
+lstatMock.mockImplementation(lstatMockImpl);
+
+Object.assign(fs, {
+  pathExists: pathExistsMock,
+  watch: watchMock,
+  lstat: lstatMock,
+});
+
+const getUpstreamGitBranchSpy = jest.spyOn(git, 'getUpstreamBranch');
 
 const uri: theia.Uri = {
   authority: '',
@@ -75,8 +131,11 @@ const context: theia.PluginContext = {
   asAbsolutePath: jest.fn(),
 };
 
+const appendLineMock = jest.fn();
+
 const outputChannelMock = {
-  appendLine: jest.fn(),
+  appendLine: appendLineMock,
+  show: jest.fn(),
 };
 
 const getDevfileMock = jest.fn();
@@ -137,32 +196,60 @@ const theiaImportCommand: theiaCommands.TheiaImportCommand = new theiaCommands.T
 const executeImportCommandMock = jest.fn();
 theiaImportCommand.execute = executeImportCommandMock;
 
-const updateOrCreateGitProjectInDevfileMock = projectsHelper.updateOrCreateGitProjectInDevfile as jest.Mock;
-const deleteProjectFromDevfileMock = projectsHelper.deleteProjectFromDevfile as jest.Mock;
-
 describe('Test Workspace Projects Manager', () => {
   const workspaceProjectsManager: WorkspaceProjectsManager = new WorkspaceProjectsManager(context, PROJECTS_ROOT);
 
-  const workspaceFolderUpdaterInstance = (WorkspaceFolderUpdater as jest.Mock).mock.instances[0];
-  const addWorkspaceFolderMock = workspaceFolderUpdaterInstance.addWorkspaceFolder;
+  const workspaceFolderUpdaterInstance = (WorkspaceFolderUpdaterImpl as jest.Mock).mock.instances[0];
+  const addWorkspaceFolderMock: jest.Mock = workspaceFolderUpdaterInstance.addWorkspaceFolder;
+  const removeWorkspaceFolderMock: jest.Mock = workspaceFolderUpdaterInstance.removeWorkspaceFolder;
+
+  const devfileServiceInstance = (DevfileServiceImpl as jest.Mock).mock.instances[0];
+  const updateProjectMock: jest.Mock = devfileServiceInstance.updateProject;
+  const deleteProjectMock: jest.Mock = devfileServiceInstance.deleteProject;
+
+  const onProjectChangedSpy: jest.SpyInstance = jest.spyOn(workspaceProjectsManager, 'onProjectChanged');
+  const onProjectRemovedSpy: jest.SpyInstance = jest.spyOn(workspaceProjectsManager, 'onProjectRemoved');
 
   beforeEach(() => {
-    executeImportCommandMock.mockClear();
     showInfoMessageMock.mockClear();
+
     addWorkspaceFolderMock.mockClear();
+    removeWorkspaceFolderMock.mockClear();
+
+    updateProjectMock.mockReset();
+    deleteProjectMock.mockReset();
+
+    onProjectChangedSpy.mockClear();
+    onProjectRemovedSpy.mockClear();
+
     getDevfileMock.mockClear();
     updateDevfileMock.mockClear();
-    updateOrCreateGitProjectInDevfileMock.mockClear();
-    deleteProjectFromDevfileMock.mockClear();
+
+    getUpstreamGitBranchSpy.mockReset();
 
     buildProjectImportCommandMock.mockReturnValue(theiaImportCommand);
+
+    pathExistsItems = [];
+    pathExistsMock.mockClear();
+
+    watchListeners = [];
+    watchMock.mockClear();
+
+    lstatItems = [];
+    lstatMock.mockClear();
+
+    executeImportCommandMock.mockClear();
     executeImportCommandMock.mockResolvedValue('');
+
+    appendLineMock.mockReset();
   });
 
-  test('Should create an instanse of the WorkspaceProjectsManager and run it', async () => {
-    handleWorkspaceProjects(context, PROJECTS_ROOT);
+  test('Should read the devfie when running', async () => {
+    getDevfileMock.mockReturnValue({});
 
-    expect(getDevfileMock).toBeCalledTimes(1); // workspaceProjectsManager.run() is called
+    new WorkspaceProjectsManager(context, PROJECTS_ROOT).run();
+
+    expect(getDevfileMock).toBeCalledTimes(1);
   });
 
   test('Should add workspace folder when there are no attributes - multi root mode is ON by default', async () => {
@@ -257,91 +344,180 @@ describe('Test Workspace Projects Manager', () => {
     expect(showInfoMessageMock).toBeCalledTimes(0);
   });
 
-  test('Should create a git project in a Devfile', async () => {
-    getDevfileMock.mockReturnValue(devfile_Without_Attributes);
-
-    const getUpstreamBranchSpy = jest.spyOn(git, 'getUpstreamBranch');
-    getUpstreamBranchSpy.mockResolvedValueOnce({
-      branch: 'branch',
-      remote: 'remote',
-      remoteURL: 'someRemoteUrl',
-    });
-
-    await workspaceProjectsManager.updateOrCreateProjectInWorkspace('/projects/che-theia');
-
-    expect(updateOrCreateGitProjectInDevfileMock).toBeCalledTimes(1);
-  });
-
-  test('Should NOT create a project when given Uri is not defined', async () => {
-    await workspaceProjectsManager.updateOrCreateProjectInWorkspace('');
-
-    expect(getDevfileMock).toBeCalledTimes(0);
-    expect(updateDevfileMock).toBeCalledTimes(0);
-    expect(updateOrCreateGitProjectInDevfileMock).toBeCalledTimes(0);
-  });
-
-  test('Should NOT create a git project in a Devfile when `remoteURL` is not defined', async () => {
-    getDevfileMock.mockReturnValue(devfile_Without_Attributes);
-
-    const getUpstreamBranchSpy = jest.spyOn(git, 'getUpstreamBranch');
-    getUpstreamBranchSpy.mockResolvedValueOnce({
-      branch: 'branch',
-      remote: 'remote',
-      remoteURL: '', // not defined
-    });
-
-    await workspaceProjectsManager.updateOrCreateProjectInWorkspace('/projects/che-theia');
-
-    expect(updateOrCreateGitProjectInDevfileMock).toBeCalledTimes(0);
-  });
-
-  test('Should NOT create a git project in a Devfile when upstream branch is `undefined`', async () => {
-    getDevfileMock.mockReturnValue(devfile_Without_Attributes);
-
-    const getUpstreamBranchSpy = jest.spyOn(git, 'getUpstreamBranch');
-    getUpstreamBranchSpy.mockResolvedValueOnce(undefined);
-
-    await workspaceProjectsManager.updateOrCreateProjectInWorkspace('/projects/che-theia');
-
-    expect(updateOrCreateGitProjectInDevfileMock).toBeCalledTimes(0);
-  });
-
-  test('Should delete a project from Devfile', async () => {
-    getDevfileMock.mockReturnValue(devfile_Without_Attributes);
-
-    await workspaceProjectsManager.deleteProjectInWorkspace('/projects/che-theia');
-
-    expect(getDevfileMock).toBeCalledTimes(1);
-    expect(updateDevfileMock).toBeCalledTimes(1);
-    expect(deleteProjectFromDevfileMock).toBeCalledTimes(1);
-  });
-
-  test('Should NOT delete a project when given Uri is not defined', async () => {
-    await workspaceProjectsManager.deleteProjectInWorkspace('');
-
-    expect(getDevfileMock).toBeCalledTimes(0);
-    expect(updateDevfileMock).toBeCalledTimes(0);
-    expect(deleteProjectFromDevfileMock).toBeCalledTimes(0);
-  });
-
   // Backward compatibility for single-root workspaces
   // we need it to support workspaces which were created before switching multi-root mode to ON by default
   test('Should add projects as workspace folders when projects already exist on file system', async () => {
     getDevfileMock.mockReturnValue(devfile_With_Two_Projects);
-    existsSyncMock.mockReturnValue(true);
+
+    pathExistsItems = ['/projects/che-theia', '/projects/theia'];
 
     await workspaceProjectsManager.run();
 
     expect(addWorkspaceFolderMock).toBeCalledTimes(2);
+
+    expect(addWorkspaceFolderMock).toBeCalledWith('/projects/che-theia');
+    expect(addWorkspaceFolderMock).toBeCalledWith('/projects/theia');
   });
 
   test('Should not add projects as workspace folders: cloning failed and projects do not exist on file system', async () => {
     getDevfileMock.mockReturnValue(devfile_With_Two_Projects);
-    existsSyncMock.mockReturnValue(false);
+
     executeImportCommandMock.mockReset();
 
     await workspaceProjectsManager.run();
 
     expect(addWorkspaceFolderMock).toBeCalledTimes(0);
+  });
+
+  /**
+   * Test
+   * - run workspace project manager in mutiroot mode with one project
+   * - fire change event for /projects/test-project-to-add
+   *
+   * Expect:
+   * - onProjectChanged must be called
+   * - onProjectRemoved must NOT be called
+   */
+  test('onProjectChanged must be called on change event', async () => {
+    getDevfileMock.mockReturnValue(devfileWith_MultiRoot_On_Attribute);
+
+    pathExistsItems = [PROJECTS_ROOT];
+    await workspaceProjectsManager.run();
+
+    // clear mocks
+    addWorkspaceFolderMock.mockClear();
+    removeWorkspaceFolderMock.mockClear();
+
+    pathExistsItems = [PROJECTS_ROOT + '/test-project-to-add'];
+    lstatItems = [PROJECTS_ROOT + '/test-project-to-add'];
+
+    getUpstreamGitBranchSpy.mockResolvedValue({
+      remote: '',
+      branch: 'main',
+      remoteURL: 'remote url',
+    });
+
+    await fireFileSystemChangedEvent(PROJECTS_ROOT, 'create', 'test-project-to-add');
+
+    expect(addWorkspaceFolderMock).toBeCalledTimes(1);
+    expect(removeWorkspaceFolderMock).toBeCalledTimes(0);
+
+    expect(onProjectChangedSpy).toBeCalledTimes(1);
+    expect(onProjectRemovedSpy).toBeCalledTimes(0);
+
+    expect(updateProjectMock).toBeCalledTimes(1);
+    expect(deleteProjectMock).toBeCalledTimes(0);
+  });
+
+  /**
+   * Test
+   * - run workspace project manager in mutiroot mode with one project
+   * - fire change event for /projects/test-project-to-add
+   * - do NOT provide branch for the project
+   *
+   * Expect:
+   * - project must be added as workspace folder
+   * - project is not a Git repository, do not add it to the devfile
+   *     ( devfileService.updateProject must NOT be called )
+   */
+  test('devfileService.updateProject must NOT be called for not Git repository', async () => {
+    getDevfileMock.mockReturnValue(devfileWith_MultiRoot_On_Attribute);
+
+    pathExistsItems = [PROJECTS_ROOT];
+    await workspaceProjectsManager.run();
+
+    // clear mocks
+    addWorkspaceFolderMock.mockClear();
+    removeWorkspaceFolderMock.mockClear();
+
+    pathExistsItems = lstatItems = [PROJECTS_ROOT + '/test-project-to-add'];
+
+    await fireFileSystemChangedEvent(PROJECTS_ROOT, 'create', 'test-project-to-add');
+
+    expect(addWorkspaceFolderMock).toBeCalledTimes(1);
+    expect(removeWorkspaceFolderMock).toBeCalledTimes(0);
+
+    expect(onProjectChangedSpy).toBeCalledTimes(1);
+    expect(onProjectRemovedSpy).toBeCalledTimes(0);
+
+    expect(updateProjectMock).toBeCalledTimes(0);
+    expect(deleteProjectMock).toBeCalledTimes(0);
+  });
+
+  /**
+   * Test
+   * - run workspace project manager in mutiroot mode with one project
+   * - fire change event for /projects/test-project-to-add
+   *     (fs.pathExists('/projects/test-project-to-add') must return false)
+   *
+   * Expect:
+   * - onProjectChanged must be NOT called
+   * - onProjectRemoved must be called
+   */
+  test('onProjectRemoved must be called on change event for non existent item', async () => {
+    getDevfileMock.mockReturnValue(devfileWith_MultiRoot_On_Attribute);
+
+    pathExistsItems = [PROJECTS_ROOT];
+    await workspaceProjectsManager.run();
+
+    // clear mocks
+    addWorkspaceFolderMock.mockClear();
+    removeWorkspaceFolderMock.mockClear();
+
+    pathExistsItems = lstatItems = [];
+    await fireFileSystemChangedEvent(PROJECTS_ROOT, 'create', 'test-project-to-add');
+
+    expect(addWorkspaceFolderMock).toBeCalledTimes(0);
+    expect(removeWorkspaceFolderMock).toBeCalledTimes(1);
+
+    expect(onProjectChangedSpy).toBeCalledTimes(0);
+    expect(onProjectRemovedSpy).toBeCalledTimes(1);
+
+    expect(updateProjectMock).toBeCalledTimes(0);
+    expect(deleteProjectMock).toBeCalledTimes(1);
+  });
+
+  test('test rejecting in workspaceProjectsManager.onProjectChanged for non-git project', async () => {
+    const project = PROJECTS_ROOT + '/test-project';
+    await workspaceProjectsManager.onProjectChanged(project);
+
+    expect(updateProjectMock).toBeCalledTimes(0);
+
+    expect(appendLineMock).toBeCalledTimes(1);
+    expect(appendLineMock).toBeCalledWith(`Could not detect git project branch for ${project}`);
+  });
+
+  test('test rejecting in workspaceProjectsManager.onProjectChanged', async () => {
+    getUpstreamGitBranchSpy.mockResolvedValue({
+      remote: '',
+      branch: 'main',
+      remoteURL: 'remote url',
+    });
+
+    updateProjectMock.mockRejectedValue(new Error('failure to update project'));
+
+    await workspaceProjectsManager.onProjectChanged(PROJECTS_ROOT + '/test-project');
+
+    expect(updateProjectMock).toBeCalledTimes(1);
+
+    expect(appendLineMock).toBeCalledTimes(1);
+    expect(appendLineMock).toBeCalledWith('failure to update project');
+  });
+
+  test('test rejecting in workspaceProjectsManager.onProjectRemoved', async () => {
+    getUpstreamGitBranchSpy.mockResolvedValue({
+      remote: '',
+      branch: 'main',
+      remoteURL: 'remote url',
+    });
+
+    deleteProjectMock.mockRejectedValue(new Error('failure to delete project'));
+
+    await workspaceProjectsManager.onProjectRemoved(PROJECTS_ROOT + '/test-project');
+
+    expect(deleteProjectMock).toBeCalledTimes(1);
+
+    expect(appendLineMock).toBeCalledTimes(1);
+    expect(appendLineMock).toBeCalledWith('failure to delete project');
   });
 });

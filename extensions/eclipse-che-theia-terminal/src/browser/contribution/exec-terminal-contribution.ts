@@ -218,7 +218,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
 
   async getEditorContainerName(): Promise<string | undefined> {
     if (!this.editorContainerName) {
-      const ideComponents = await this.endpointService.getEndpointsByType('ide');
+      const ideComponents = await this.endpointService.getEndpointsByType('main');
       if (ideComponents.length !== 1) {
         throw new Error('Only one endpoint should be of ide type.');
       }

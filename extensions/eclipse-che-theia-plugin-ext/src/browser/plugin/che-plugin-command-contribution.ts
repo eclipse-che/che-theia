@@ -13,6 +13,7 @@ import { CommandContribution, CommandRegistry } from '@theia/core/lib/common';
 import { inject, injectable } from 'inversify';
 
 import { ChePluginManager } from './che-plugin-manager';
+import { ChePluginRegistry } from '../../common/che-plugin-protocol';
 import { MonacoQuickOpenService } from '@theia/monaco/lib/browser/monaco-quick-open-service';
 import { QuickInputService } from '@theia/core/lib/browser';
 
@@ -77,9 +78,10 @@ export class ChePluginCommandContribution implements CommandContribution {
       return;
     }
 
-    const registry = {
+    const registry: ChePluginRegistry = {
       name,
       uri,
+      publicUri: uri,
     };
 
     this.chePluginManager.addRegistry(registry);

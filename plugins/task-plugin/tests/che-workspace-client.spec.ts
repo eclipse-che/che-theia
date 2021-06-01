@@ -40,6 +40,7 @@ describe('Test containers service', () => {
     const exposedEndpoints: che.endpoint.ExposedEndpoint[] = [
       {
         name: 'che-machine-exec',
+        targetPort: '4444',
         component: 'machine-exec',
         attributes: {
           type: 'collocated-terminal',
