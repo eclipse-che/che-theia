@@ -90,6 +90,20 @@ export function customizeWebpackConfig(
             new HtmlWebpackPlugin({
                 filename: 'index.html',
                 template: 'cdn/custom-html.html',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                templateParameters(compilation: any, assets: any, options: any) {
+                    return {
+                        compilation: compilation,
+                        webpack: compilation.getStats().toJson(),
+                        webpackConfig: compilation.options,
+                        htmlWebpackPlugin: {
+                            files: assets,
+                            options: options,
+                        },
+                        process,
+                    };
+                },
+                nodeModules: false,
                 inject: false,
                 customparams: {
                     cdnPrefix: theiaCDN,
