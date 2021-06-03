@@ -1,0 +1,255 @@
+# Che-Theia workflow
+
+dist: focal
+os: linux
+cache: false
+git:
+  depth: false 
+
+language: node_js
+node_js: "12"
+
+install:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker login quay.io -u="$QUAY_USERNAME " -p="$QUAY_PASSWORD"
+
+env: 
+  global:
+  - TAG=next
+  - CDN_PREFIX=https://static.developers.redhat.com/che/theia_artifacts/
+  - MONACO_CDN_PREFIX=https://cdn.jsdelivr.net/npm/
+  - RECREATE_TAGS=false
+  - PUSH_TO_NPMJS=true 
+
+before_script:
+  - |
+    if [[ "${TRAVIS_CPU_ARCH}" == "ppc64le" || "${TRAVIS_CPU_ARCH}" == "arm64" ]]
+    then
+      # fix cpu count to avoid OOM failure
+      cat /proc/stat > /tmp/stat
+      sed -i '/^cpu[4-9]/d' /tmp/stat
+      sed -i '/^cpu[0-9][0-9]/d' /tmp/stat
+      sudo mount --bind /tmp/stat /proc/stat
+    fi
+
+jobs:
+  include: 
+    - stage: PR Check
+      if: type = pull_request 
+      # check EOF newline
+      name: Linelint (eof-newline)
+      arch: amd64
+      install: skip
+      script:
+      - docker run -it -v $(pwd):/data fernandrone/linelint:0.0.5
+    - &node-build
+      name: Node Build on amd64
+      if: type = pull_request 
+      arch: amd64
+      install: skip
+      script: yarn
+      #Test Coverage Report
+      after_success:
+        - if [[ "${TRAVIS_CPU_ARCH}" = "amd64" ]] ; then bash <(curl -s https://codecov.io/bash); fi
+    - <<: *node-build
+      name: Node Build on arm64
+      arch: arm64
+    - <<: *node-build
+      name: Node Build on ppc64le
+      arch: ppc64le
+    - <<: *node-build
+      name: Node Build on s390x
+      arch: s390x
+    - &docker-build
+      if: type = pull_request 
+      name: Docker build (Alpine) on amd64
+      arch: amd64
+      env: DIST=alpine
+      install: skip
+      script:
+      - |
+        set -e
+        docker image prune -a -f
+        docker pull quay.io/eclipse/che-theia-dev:next
+        docker tag quay.io/eclipse/che-theia-dev:next eclipse/che-theia-dev:next
+        ./build.sh --arch:${TRAVIS_CPU_ARCH} --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.$DIST
+    - <<: *docker-build
+      name: Docker build (Alpine) on arm64
+      arch: arm64
+    - <<: *docker-build
+      name: Docker build (Alpine) on ppc64le
+      arch: ppc64le
+    - <<: *docker-build
+      name: Docker build (Alpine) on s390x
+      arch: s390x
+    - <<: *docker-build
+      name: Docker build (ubi8) on amd64
+      arch: amd64
+      env: DIST=ubi8
+    - <<: *docker-build
+      name: Docker build (ubi8) on arm64
+      arch: arm64
+      env: DIST=ubi8
+    - <<: *docker-build
+      name: Docker build (ubi8) on ppc64le
+      arch: ppc64le
+      env: DIST=ubi8
+    - <<: *docker-build
+      name: Docker build (ubi8) on s390x
+      arch: s390x
+      env: DIST=ubi8
+
+    #happy-path
+    - &happy-path
+      name: happy-path (alpine, next)
+      if: type = pull_request 
+      install: skip
+      env: DIST=alpine CHECTL_CHANNEL=next MINIKUBE_VERSION=v1.20.0
+      arch: amd64
+      script: ./.travis/happy-path-tests.sh
+    - <<: *happy-path
+      name: happy-path (alpine, stable)
+      env: DIST=alpine CHECTL_CHANNEL=stable MINIKUBE_VERSION=v1.20.0
+    - <<: *happy-path
+      name: happy-path (ubi8, next)
+      env: DIST=ubi8 CHECTL_CHANNEL=next MINIKUBE_VERSION=v1.20.0
+    - <<: *happy-path
+      name: happy-path (ubi8, stable)
+      env: DIST=ubi8 CHECTL_CHANNEL=stable MINIKUBE_VERSION=v1.20.0
+
+    - &build-and-push-next
+      stage: Build & Publish 'next'
+      name: Build & Publish image on amd64 
+      if: type = push AND branch = master
+      arch: amd64
+      script: 
+      - |
+        set -e
+        docker image prune -a -f
+        ./build.sh --arch:${TRAVIS_CPU_ARCH} --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.alpine --push 
+        if [[ "${TRAVIS_CPU_ARCH}" = "amd64" ]] ; then 
+           #Set-up npmjs auth token
+           printf "//registry.npmjs.org/:_authToken=${CHE_NPM_AUTH_TOKEN}\n" >> ~/.npmrc; 
+           #Publish packages to npmjs
+           yarn publish:next
+        fi
+    - <<: *build-and-push-next
+      name: Build & Publish image on arm64
+      arch: arm64
+    - <<: *build-and-push-next
+      arch: ppc64le
+      name: Build & Publish image on ppc64le
+    - <<: *build-and-push-next
+      arch: s390x
+      name: Build & Publish image on s390x
+
+    - stage: Publish multiarch image with 'next' tag
+      if: type = push AND branch = master
+      name: Publish multiarch image with next tag
+      script: .travis/publish_multiarch.sh
+
+    # publish-built-in-extension-report
+    - name: Publish Built In Extension Report
+      if: (type = push AND branch=master) OR (type = cron AND branch=master)
+      arch: amd64
+      script: 
+        - export DATE_TIME=$(date +"%Y-%m-%d")
+        - .ci/publish-report.sh
+
+    - &check-a-theia-branch
+      stage: Check a Theia branch
+      name: Build an image against Theia branch on amd64
+      arch: amd64
+      if: env(THEIA_GITHUB_REPO) AND env(THEIA_BRANCH)
+      script:
+      - |
+        set -e
+        docker image prune -a -f
+        docker pull quay.io/eclipse/che-theia-dev:next
+        docker tag quay.io/eclipse/che-theia-dev:next eclipse/che-theia-dev:next
+        ./build.sh --arch:${TRAVIS_CPU_ARCH} --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.alpine --build-args:THEIA_GITHUB_REPO=${THEIA_GITHUB_REPO} --branch:${THEIA_BRANCH}
+    - <<: *check-a-theia-branch
+      arch: arm64
+      name: Build an image against Theia branch on arm64
+    - <<: *check-a-theia-branch
+      arch: ppc64le
+      name: Build an image against Theia branch on ppc64le
+    - <<: *check-a-theia-branch
+      arch: s390x
+      name: Build an image against Theia branch on s390x
+    
+    #Release Workflow
+    - stage: Check existing tags
+      if: type = api AND env(TAG) IS present AND env(TAG) != "next"
+      arch: amd64
+      script:
+      - |  
+        set +e
+        git remote remove origin
+        git remote add origin https://${CHE_BOT_GITHUB_TOKEN}@github.com/eclipse-che/che-theia.git
+        VERSION=${TAG}
+        EXISTING_TAG=$(git ls-remote --exit-code origin refs/tags/${VERSION})
+        if [[ -n ${EXISTING_TAG} ]]; then
+          if [[ ${RECREATE_TAGS} == "true" ]]; then
+            echo "[INFO] Removing tag for ${VERSION} version. New tag will be recreated during release."
+            git push origin :$VERSION
+          else
+            echo "[ERROR] Cannot proceed with release - tag ${EXISTING_TAG} already exists."
+            exit 1
+          fi
+        else
+          echo "[INFO] No existing tags detected for $VERSION"
+        fi
+    - stage: Tag release
+      if: type = api AND env(TAG) IS present AND env(TAG) != "next"
+      arch: amd64
+      os: linux
+      script:
+      - |  
+        git config --global user.name "Mykhailo Kuznietsov"
+        git config --global user.email "mkuznets@redhat.com"
+        export GITHUB_TOKEN=${CHE_BOT_GITHUB_TOKEN}
+        export AKAMAI_CHE_AUTH=${AKAMAI_CHE_AUTH}
+        git remote remove origin
+        git remote add origin https://${CHE_BOT_GITHUB_TOKEN}@github.com/eclipse-che/che-theia.git
+        ./make-release.sh --version ${TAG}
+    - &prepare-release
+      stage: Release che-theia
+      name: Build and publish image on amd64
+      if: type = api AND env(TAG) IS present AND env(TAG) != "next"
+      arch: amd64
+      script:
+      - |  
+        BRANCH=${TAG%.*}.x
+        git checkout "${BRANCH}"
+        docker image prune -a -f
+        ./build.sh --arch:${TRAVIS_CPU_ARCH} --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.alpine --push 
+        if [[ ${TRAVIS_CPU_ARCH} == "amd64" ]] && [[ ${PUSH_TO_NPMJS} == "true" ]]; then
+            #Set-up npmjs auth token
+            printf "//registry.npmjs.org/:_authToken=${CHE_NPM_AUTH_TOKEN}\n" >> ~/.npmrc
+            #Publish packages to npmjs
+            yarn publish:next 
+        fi
+    - <<: *prepare-release
+      arch: arm64
+      name: Build and publish image on arm64
+    - <<: *prepare-release
+      arch: ppc64le 
+      name: Build and publish image on ppc64le
+    - <<: *prepare-release
+      arch: s390x
+      name: Build and publish image on s390x
+
+    - stage: Publish multiarch image 
+      if: type = api AND env(TAG) IS present AND env(TAG) != "next"
+      script: .travis/publish_multiarch.sh
+      after_success:
+       - |
+         set -e
+         echo "{\"username\":\"che-bot\",\"channel\":\"eclipse-che-releases\",\"text\":\":white_check_mark: Che Theia ${TAG} has been released: https://quay.io/eclipse/che-theia-dev:${TAG} https://quay.io/eclipse/che-theia:${TAG} https://quay.io/eclipse/che-theia-endpoint-runtime-binary:${TAG} https://quay.io/eclipse/che-theia-vsix-installer:${TAG}\"}" > mattermost.json
+         curl -i -X POST -H 'Content-Type: application/json' -d @mattermost.json $MATTERMOST_WEBHOOK_URL
+      after_failure:
+       - |
+         set -e
+         echo "{\"username\":\"che-bot\",\"channel\":\"eclipse-che-releases\",\"text\":\":no_entry_sign: Che Theia ${TAG} release has failed: https://github.com/eclipse-che/che-theia/actions/workflows/release.yml\"}" > mattermost.json
+         curl -i -X POST -H 'Content-Type: application/json' -d @mattermost.json $MATTERMOST_WEBHOOK_URL
