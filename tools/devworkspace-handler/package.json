@@ -6,6 +6,10 @@
   "publishConfig": {
     "access": "public"
   },
+  "files": [
+    "lib",
+    "src"
+  ],
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",
