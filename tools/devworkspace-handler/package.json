@@ -16,7 +16,8 @@
     "lint": "if-env SKIP_LINT=true && echo 'skip lint check' || eslint --cache=true --no-error-on-unmatched-pattern=true '{src,tests}/(!model|**)/*.ts'",
     "lint:fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,tests}/(!model|**)/*.{ts,tsx}\"",
     "test": "if-env SKIP_TEST=true && echo 'skip test' || jest --forceExit",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
   },
   "repository": {
     "type": "git",
