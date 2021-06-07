@@ -10,6 +10,7 @@
 
 const path = require('path');
 
+import * as webpack from 'webpack';
 const fs = require('fs');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
@@ -84,26 +85,19 @@ export function customizeWebpackConfig(
             },
         };
 
+        // fix "process is not defined" error
+        baseConfig.plugins.push(
+            new webpack.ProvidePlugin({
+                process: 'process/browser',
+            })
+        );
+
         // Use our own HTML template to trigger the CDN-supporting
         // logic, with the CDN prefixes passed as env parameters
         baseConfig.plugins.push(
             new HtmlWebpackPlugin({
                 filename: 'index.html',
                 template: 'cdn/custom-html.html',
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                templateParameters(compilation: any, assets: any, options: any) {
-                    return {
-                        compilation: compilation,
-                        webpack: compilation.getStats().toJson(),
-                        webpackConfig: compilation.options,
-                        htmlWebpackPlugin: {
-                            files: assets,
-                            options: options,
-                        },
-                        process,
-                    };
-                },
-                nodeModules: false,
                 inject: false,
                 customparams: {
                     cdnPrefix: theiaCDN,
