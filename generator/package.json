@@ -30,6 +30,9 @@
     "@types/yargs": "12.0.1",
     "json2yaml": "^1.1.0"
   },
+  "resolutions": {
+    "temp": "0.8.4"
+  },
   "files": [
     "dist",
     "src"
