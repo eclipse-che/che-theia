@@ -14,15 +14,25 @@
  */
 const che: any = {};
 let currentWorkspace: any = undefined;
+let currentDevfile: any = undefined;
 
 che.setWorkspaceOutput = (result: string) => {
   currentWorkspace = JSON.parse(result);
 };
 
+che.setDevfile = (result: any) => {
+  currentDevfile = result;
+};
+
 che.workspace = {};
+che.devfile = {};
 
 che.workspace.getCurrentWorkspace = () => {
   return currentWorkspace;
+};
+
+che.devfile.get = () => {
+  return currentDevfile;
 };
 
 module.exports = che;

@@ -1,0 +1,231 @@
+commands:
+- apply:
+    component: vsix-installer
+  attributes:
+    controller.devfile.io/imported-by: che-theia-vsix-installer-workspace4bdbaf7a58884128
+  id: copy-vsix
+- apply:
+    component: remote-runtime-injector
+  attributes:
+    controller.devfile.io/imported-by: theia-ide-workspace4bdbaf7a58884128
+  id: init-container-command
+- apply:
+    component: project-clone
+  id: clone-projects
+components:
+- attributes:
+    app.kubernetes.io/component: vsix-installer
+    app.kubernetes.io/part-of: che-theia.eclipse.org
+    controller.devfile.io/imported-by: che-theia-vsix-installer-workspace4bdbaf7a58884128
+  container:
+    image: quay.io/eclipse/che-theia-vsix-installer:next
+    sourceMapping: /projects
+    volumeMounts:
+    - name: plugins
+      path: /plugins
+  name: vsix-installer
+- attributes:
+    controller.devfile.io/imported-by: theia-ide-workspace4bdbaf7a58884128
+    app.kubernetes.io/part-of: che-theia.eclipse.org
+  container:
+    cpuLimit: 1500m
+    cpuRequest: 100m
+    endpoints:
+    - attributes:
+        controller.devfile.io/endpoint-url: https://workspace4bdbaf7a58884128-1.apps.cluster-c1dd.c1dd.sandbox85.opentlc.com/
+        cookiesAuthEnabled: true
+        discoverable: false
+        type: main
+      exposure: public
+      name: theia
+      protocol: https
+      targetPort: 3100
+    - attributes:
+        controller.devfile.io/endpoint-url: https://workspace4bdbaf7a58884128-2.apps.cluster-c1dd.c1dd.sandbox85.opentlc.com/
+        cookiesAuthEnabled: true
+        discoverable: false
+        type: webview
+        unique: true
+      exposure: public
+      name: webviews
+      protocol: https
+      targetPort: 3100
+    - attributes:
+        controller.devfile.io/endpoint-url: https://workspace4bdbaf7a58884128-3.apps.cluster-c1dd.c1dd.sandbox85.opentlc.com/
+        cookiesAuthEnabled: true
+        discoverable: false
+        type: mini-browser
+        unique: true
+      exposure: public
+      name: mini-browser
+      protocol: https
+      targetPort: 3100
+    - attributes:
+        controller.devfile.io/endpoint-url: http://workspace4bdbaf7a58884128-4.apps.cluster-c1dd.c1dd.sandbox85.opentlc.com/
+        discoverable: false
+        type: ide-dev
+      exposure: public
+      name: theia-dev
+      protocol: http
+      targetPort: 3130
+    - attributes:
+        controller.devfile.io/endpoint-url: http://workspace4bdbaf7a58884128-5.apps.cluster-c1dd.c1dd.sandbox85.opentlc.com/
+        discoverable: false
+      exposure: public
+      name: theia-redirect-1
+      protocol: http
+      targetPort: 13131
+    - attributes:
+        controller.devfile.io/endpoint-url: http://workspace4bdbaf7a58884128-6.apps.cluster-c1dd.c1dd.sandbox85.opentlc.com/
+        discoverable: false
+      exposure: public
+      name: theia-redirect-2
+      protocol: http
+      targetPort: 13132
+    - attributes:
+        controller.devfile.io/endpoint-url: http://workspace4bdbaf7a58884128-7.apps.cluster-c1dd.c1dd.sandbox85.opentlc.com/
+        discoverable: false
+      exposure: public
+      name: theia-redirect-3
+      protocol: http
+      targetPort: 13133
+    - attributes:
+        controller.devfile.io/endpoint-url: wss://workspace4bdbaf7a58884128-8.apps.cluster-c1dd.c1dd.sandbox85.opentlc.com/
+        cookiesAuthEnabled: true
+        discoverable: false
+        type: collocated-terminal
+      exposure: public
+      name: terminal
+      protocol: wss
+      targetPort: 3333
+    env:
+    - name: THEIA_PLUGINS
+      value: local-dir:///plugins
+    - name: HOSTED_PLUGIN_HOSTNAME
+      value: 0.0.0.0
+    - name: HOSTED_PLUGIN_PORT
+      value: "3130"
+    - name: THEIA_HOST
+      value: 0.0.0.0
+    image: quay.io/crw_pr/che-theia:1129
+    memoryLimit: 512M
+    mountSources: true
+    sourceMapping: /projects
+    volumeMounts:
+    - name: plugins
+      path: /plugins
+    - name: theia-local
+      path: /home/theia/.theia
+  name: theia-ide
+- attributes:
+    controller.devfile.io/imported-by: theia-ide-workspace4bdbaf7a58884128
+  name: plugins
+  volume: {}
+- attributes:
+    controller.devfile.io/imported-by: theia-ide-workspace4bdbaf7a58884128
+  name: theia-local
+  volume: {}
+- attributes:
+    controller.devfile.io/imported-by: theia-ide-workspace4bdbaf7a58884128
+  container:
+    command:
+    - /go/bin/che-machine-exec
+    - --url
+    - 0.0.0.0:3333
+    cpuLimit: 500m
+    cpuRequest: 30m
+    image: quay.io/eclipse/che-machine-exec:next
+    memoryLimit: 128Mi
+    memoryRequest: 32Mi
+    sourceMapping: /projects
+  name: che-machine-exec
+- attributes:
+    controller.devfile.io/imported-by: theia-ide-workspace4bdbaf7a58884128
+  container:
+    cpuLimit: 500m
+    cpuRequest: 30m
+    env:
+    - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+      value: /remote-endpoint/plugin-remote-endpoint
+    - name: REMOTE_ENDPOINT_VOLUME_NAME
+      value: remote-endpoint
+    image: quay.io/eclipse/che-theia-endpoint-runtime-binary:next
+    memoryLimit: 128Mi
+    memoryRequest: 32Mi
+    sourceMapping: /projects
+    volumeMounts:
+    - name: remote-endpoint
+      path: /remote-endpoint
+  name: remote-runtime-injector
+- attributes:
+    controller.devfile.io/imported-by: theia-ide-workspace4bdbaf7a58884128
+  name: remote-endpoint
+  volume:
+    ephemeral: true
+- attributes:
+    app.kubernetes.io/name: tools
+    che-theia.eclipse.org/vscode-extensions:
+    - https://download.jboss.org/jbosstools/static/jdt.ls/stable/java-0.75.0-60.vsix
+    - https://download.jboss.org/jbosstools/vscode/3rdparty/vscode-java-debug/vscode-java-debug-0.26.0.vsix
+    - https://open-vsx.org/api/vscjava/vscode-java-test/0.28.1/file/vscjava.vscode-java-test-0.28.1.vsix
+    che-theia.eclipse.org/vscode-preferences:
+      java.server.launchMode: Standard
+  container:
+    args:
+    - sh
+    - -c
+    - ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+    env:
+    - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+      value: /remote-endpoint/plugin-remote-endpoint
+    - name: THEIA_PLUGINS
+      value: local-dir:///plugins/sidecars/tools
+    image: quay.io/eclipse/che-java11-maven:nightly
+    memoryLimit: 1536M
+    sourceMapping: /projects
+    endpoints:
+      - attributes:
+          controller.devfile.io/endpoint-url: https://workspace4bdbaf7a58884128-1.apps.cluster-c1dd.c1dd.sandbox85.opentlc.com/debug
+          cookiesAuthEnabled: true
+          discoverable: false
+        exposure: none
+        name: debug
+        protocol: tcp
+        targetPort: 5005
+      - attributes:
+          controller.devfile.io/endpoint-url: https://workspace4bdbaf7a58884128-1.apps.cluster-c1dd.c1dd.sandbox85.opentlc.com/8080
+        exposure: public
+        name: 8080-tcp
+        protocol: tcp
+        targetPort: 8080
+    volumeMounts:
+    - name: m2
+      path: /home/user/.m2
+    - name: remote-endpoint
+      path: /remote-endpoint
+    - name: plugins
+      path: /plugins
+  name: tools
+- name: m2
+  volume:
+    size: 1G
+- container:
+    cpuLimit: 50m
+    cpuRequest: 5m
+    image: quay.io/devfile/project-clone:next
+    memoryLimit: 300Mi
+    memoryRequest: 64Mi
+    mountSources: true
+  name: project-clone
+events:
+  preStart:
+  - copy-vsix
+  - init-container-command
+  - clone-projects
+projects:
+- git:
+    checkoutFrom:
+      revision: devfilev2
+    remotes:
+      origin: https://github.com/che-samples/spring-petclinic
+  name: spring-petclinic
