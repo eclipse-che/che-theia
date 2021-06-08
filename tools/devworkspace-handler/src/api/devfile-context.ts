@@ -18,9 +18,6 @@ export enum SidecarPolicy {
  * Context used on every call to this service to resolve VSIX components to add with their optional sidecar and the vsix installer
  */
 export interface DevfileContext {
-  // link to the devfile
-  devfileUrl: string;
-
   // devfile Content
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   devfile: any;
