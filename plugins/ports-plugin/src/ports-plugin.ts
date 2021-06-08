@@ -11,6 +11,7 @@
 import * as theia from '@theia/plugin';
 
 import { CheServerDevfileHandlerImpl } from './devfile-handler-che-server-impl';
+import { DevWorkspaceDevfileHandlerImpl } from './devfile-handler-devworkspace-impl';
 import { DevfileHandler } from './devfile-handler';
 import { Endpoint } from './endpoint';
 import { EndpointCategory } from './endpoint-category';
@@ -52,7 +53,11 @@ export class PortsPlugin {
   constructor(private context: theia.PluginContext) {
     this.devfileEndpoints = [];
     this.redirectPorts = [];
-    this.devfileHandler = new CheServerDevfileHandlerImpl();
+    if (process.env.DEVWORKSPACE_COMPONENT_NAME) {
+      this.devfileHandler = new DevWorkspaceDevfileHandlerImpl();
+    } else {
+      this.devfileHandler = new CheServerDevfileHandlerImpl();
+    }
     this.portForwards = new Map();
     this.excludedPorts = [];
     this.endpointsTreeDataProvider = new EndpointsTreeDataProvider();
@@ -257,7 +262,6 @@ export class PortsPlugin {
     });
 
     // first, grab ports of workspace
-    this.devfileHandler = new CheServerDevfileHandlerImpl();
     this.devfileEndpoints = await this.devfileHandler.getEndpoints();
 
     this.redirectPorts = this.devfileEndpoints.filter(endpoint =>
