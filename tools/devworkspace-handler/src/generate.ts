@@ -93,7 +93,6 @@ export class Generate {
     const devWorkspaceTemplates = [editorDevWorkspaceTemplate];
 
     await this.cheTheiaPluginsDevfileResolver.handle({
-      devfileUrl,
       devfile: userDevfileContent,
       vscodeExtensionsJsonContent,
       cheTheiaPluginsContent,
