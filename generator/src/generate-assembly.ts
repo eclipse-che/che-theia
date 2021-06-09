@@ -52,7 +52,7 @@ export async function handleCommand(args: any) {
         packageRefPrefix: '../extensions/',
     });
 
-    const extensionsDir = path.resolve(__dirname, '../../extensions');
+    const extensionsDir = path.resolve(cheTheiaDir, 'extensions');
     const folderNames = await fs.readdir(extensionsDir);
     const extensions = new Map<string, string>();
     for (const folderName of folderNames) {
