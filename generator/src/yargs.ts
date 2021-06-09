@@ -114,7 +114,7 @@ const commandArgs = yargs
     })
     .command({
         command: 'generate',
-        describe: 'Yarn link to a given theia source tree',
+        describe: 'Generate the che-theia assembly folder',
         handler: handleGenerateCommand,
         builder: generateArgsBuilder,
     })
