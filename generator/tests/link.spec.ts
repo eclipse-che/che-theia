@@ -15,6 +15,8 @@ import * as tmp from 'tmp';
 
 import { handleCommand } from '../src/link';
 
+jest.setTimeout(30000);
+
 describe('Test link command', () => {
     let rootFolderTmp: string;
     let srcFolder: string;
