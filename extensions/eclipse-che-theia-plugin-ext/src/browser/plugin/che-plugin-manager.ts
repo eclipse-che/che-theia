@@ -28,6 +28,7 @@ import { PluginFilter } from '../../common/plugin/plugin-filter';
 import { PluginServer } from '@theia/plugin-ext/lib/common/plugin-protocol';
 import URI from '@theia/core/lib/common/uri';
 import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
+import { DevfileService } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 
 import debounce = require('lodash.debounce');
 
@@ -78,6 +79,9 @@ export class ChePluginManager {
 
   @inject(OpenerService)
   protected readonly openerService: OpenerService;
+
+  @inject(DevfileService)
+  protected readonly devfileService: DevfileService;
 
   @postConstruct()
   async onStart() {
@@ -220,6 +224,17 @@ export class ChePluginManager {
     for (let i = 0; i < this.registryList.length; i++) {
       const registry = this.registryList[i];
       registries[registry.name] = registry;
+    }
+
+    const devfile = await this.devfileService.get();
+    if (devfile.components) {
+      const components = devfile.components.filter(component => component.plugin && component.plugin.id && component.plugin.registryUrl);
+      for (let i = 0; i < components.length; i++) {
+        const component = components[i];
+        const registryUrl = component.plugin?.registryUrl!;
+        const name = component.plugin?.id!
+        registries[name] = { name, uri: registryUrl, publicUri: registryUrl };
+      }
     }
 
     await this.chePluginService.updateCache(registries);
