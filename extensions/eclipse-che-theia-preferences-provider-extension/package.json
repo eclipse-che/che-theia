@@ -3,7 +3,7 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "7.31.1",
+  "version": "7.31.2",
   "license": "EPL-2.0",
   "files": [
     "lib",
@@ -11,7 +11,7 @@
   ],
   "dependencies": {
     "@eclipse-che/api": "7.31.0",
-    "@eclipse-che/theia-plugin-ext": "7.31.1",
+    "@eclipse-che/theia-plugin-ext": "7.31.2",
     "@theia/core": "1.14.0-next.bb87e69d",
     "@theia/preferences": "1.14.0-next.bb87e69d",
     "@theia/workspace": "1.14.0-next.bb87e69d"
