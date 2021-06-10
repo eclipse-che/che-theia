@@ -44,7 +44,7 @@ describe('Test CdnHtmlTemplate', () => {
                 },
             },
             files: {
-                chunks: chunks,
+                js: chunks,
             },
         };
 
