@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -10,30 +10,11 @@
 
 import { customizeWebpackConfig } from './webpack-customizer';
 
-const yargs = require('yargs');
-const {
-    env: { cdn, monacopkg },
-} = yargs
-    .option('env.cdn', {
-        description: `The path of a JSON file that contains CDN settings.
-    The file syntax is the following:
-    {
-      theia: 'Base URL of the CDN that will host Theia files',
-      monaco: 'Base URL of the CDN that will host Monaco Editor files'
-    }`,
-        type: 'string',
-        default: '',
-    })
-    .option('env.monacopkg', {
-        description: 'The NPM identifier (with version) of Monaco editor core package',
-        type: 'string',
-        default: '',
-    }).argv;
-
 // Retrieve the default, generated, Theia Webpack configuration
 const baseConfig = require('../webpack.config');
 
-customizeWebpackConfig(cdn, monacopkg, baseConfig);
-
 // Export the customized webpack configuration object
-module.exports = baseConfig;
+module.exports = function (env: { cdn: string; monacopkg: string }) {
+    customizeWebpackConfig(env.cdn, env.monacopkg, baseConfig);
+    return baseConfig;
+};

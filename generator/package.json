@@ -15,10 +15,11 @@
     "js-yaml": "3.13.1",
     "read-pkg": "3.0.0",
     "yargs": "12.0.5",
-    "webpack": "^4.0.0",
-    "html-webpack-plugin": "^3.2.0",
+    "webpack": "^5.36.2",
+    "html-webpack-plugin": "^5.3.1",
     "axios": "0.21.1",
-    "tmp": "^0.0.33"
+    "tmp": "^0.0.33",
+    "process": "^0.11.10"
   },
   "devDependencies": {
     "@types/fs-extra": "5.0.4",
