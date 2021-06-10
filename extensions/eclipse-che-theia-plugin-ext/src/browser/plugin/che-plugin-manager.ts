@@ -468,9 +468,10 @@ export class ChePluginManager {
 
     try {
       // remove the plugin from workspace configuration
-      await this.chePluginService.removePlugin(metadata.key);
+      const key = `${metadata.publisher}/${metadata.name}/${metadata.version}`;
+      await this.chePluginService.removePlugin(key);
       this.messageService.info(
-        `Plugin '${metadata.publisher}/${metadata.name}/${metadata.version}' has been successfully removed`
+        `Plugin '${key}' has been successfully removed`
       );
 
       // remove the plugin from the list of workspace plugins
