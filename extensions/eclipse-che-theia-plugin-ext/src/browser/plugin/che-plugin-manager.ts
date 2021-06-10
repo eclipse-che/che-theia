@@ -226,15 +226,18 @@ export class ChePluginManager {
       registries[registry.name] = registry;
     }
 
+    /**
+     * Scan devfile plugins for custom registry, add the registry to cache if detected.
+     */
     const devfile = await this.devfileService.get();
     if (devfile.components) {
-      const components = devfile.components.filter(component => component.plugin && component.plugin.id && component.plugin.registryUrl);
-      for (let i = 0; i < components.length; i++) {
-        const component = components[i];
-        const registryUrl = component.plugin?.registryUrl!;
-        const name = component.plugin?.id!
-        registries[name] = { name, uri: registryUrl, publicUri: registryUrl };
-      }
+      devfile.components
+        .filter(component => component.plugin && component.plugin.id && component.plugin.registryUrl)
+        .forEach(component => {
+          const registryUrl = component.plugin?.registryUrl!;
+          const name = component.plugin?.id!;
+          registries[name] = { name, uri: registryUrl, publicUri: registryUrl };
+        });
     }
 
     await this.chePluginService.updateCache(registries);
