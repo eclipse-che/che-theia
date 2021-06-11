@@ -23,6 +23,7 @@ import { inject, injectable, postConstruct } from 'inversify';
 import { ChePluginFrontentService } from './che-plugin-frontend-service';
 import { ChePluginPreferences } from './che-plugin-preferences';
 import { ChePluginServiceClientImpl } from './che-plugin-service-client';
+import { DevfileService } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { PluginFilter } from '../../common/plugin/plugin-filter';
 import { PluginServer } from '@theia/plugin-ext/lib/common/plugin-protocol';
@@ -78,6 +79,9 @@ export class ChePluginManager {
 
   @inject(OpenerService)
   protected readonly openerService: OpenerService;
+
+  @inject(DevfileService)
+  protected readonly devfileService: DevfileService;
 
   @postConstruct()
   async onStart() {
@@ -220,6 +224,20 @@ export class ChePluginManager {
     for (let i = 0; i < this.registryList.length; i++) {
       const registry = this.registryList[i];
       registries[registry.name] = registry;
+    }
+
+    /**
+     * Scan devfile plugins for custom registry, add the registry to cache if detected.
+     */
+    const devfile = await this.devfileService.get();
+    if (devfile.components) {
+      devfile.components
+        .filter(component => component.plugin && component.plugin.id && component.plugin.registryUrl)
+        .forEach(component => {
+          const registryUrl = component.plugin?.registryUrl!;
+          const name = component.plugin?.id!;
+          registries[name] = { name, uri: registryUrl, publicUri: registryUrl };
+        });
     }
 
     await this.chePluginService.updateCache(registries);
@@ -450,10 +468,9 @@ export class ChePluginManager {
 
     try {
       // remove the plugin from workspace configuration
-      await this.chePluginService.removePlugin(metadata.key);
-      this.messageService.info(
-        `Plugin '${metadata.publisher}/${metadata.name}/${metadata.version}' has been successfully removed`
-      );
+      const key = `${metadata.publisher}/${metadata.name}/${metadata.version}`;
+      await this.chePluginService.removePlugin(key);
+      this.messageService.info(`Plugin '${key}' has been successfully removed`);
 
       // remove the plugin from the list of workspace plugins
       this.installedPlugins = this.installedPlugins.filter(p => p !== metadata.key);
