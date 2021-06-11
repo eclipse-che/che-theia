@@ -23,12 +23,12 @@ import { inject, injectable, postConstruct } from 'inversify';
 import { ChePluginFrontentService } from './che-plugin-frontend-service';
 import { ChePluginPreferences } from './che-plugin-preferences';
 import { ChePluginServiceClientImpl } from './che-plugin-service-client';
+import { DevfileService } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { PluginFilter } from '../../common/plugin/plugin-filter';
 import { PluginServer } from '@theia/plugin-ext/lib/common/plugin-protocol';
 import URI from '@theia/core/lib/common/uri';
 import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
-import { DevfileService } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 
 import debounce = require('lodash.debounce');
 
@@ -470,9 +470,7 @@ export class ChePluginManager {
       // remove the plugin from workspace configuration
       const key = `${metadata.publisher}/${metadata.name}/${metadata.version}`;
       await this.chePluginService.removePlugin(key);
-      this.messageService.info(
-        `Plugin '${key}' has been successfully removed`
-      );
+      this.messageService.info(`Plugin '${key}' has been successfully removed`);
 
       // remove the plugin from the list of workspace plugins
       this.installedPlugins = this.installedPlugins.filter(p => p !== metadata.key);
