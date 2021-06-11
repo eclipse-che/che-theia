@@ -24,7 +24,7 @@ export async function execute(
       options.env = mergeProcessEnv(options.env);
     }
 
-    const command = spawn(commandLine, args, options);
+    const command = spawn(commandLine, args, withProxySettings(options));
 
     let result = '';
     let error = '';
@@ -89,4 +89,32 @@ function mergeProcessEnv(env: NodeJS.ProcessEnv | undefined): NodeJS.ProcessEnv 
   }
 
   return env;
+}
+
+function withProxySettings(options?: SpawnOptionsWithoutStdio): SpawnOptionsWithoutStdio {
+  const HTTP_PROXY = 'http_proxy';
+  const HTTPS_PROXY = 'https_proxy';
+  const NO_PROXY = 'no_proxy';
+
+  if (!options) {
+    options = {};
+  }
+
+  if (!options.env) {
+    options.env = {};
+  }
+
+  if (process.env[HTTP_PROXY]) {
+    options.env.HTTP_PROXY = process.env[HTTP_PROXY];
+  }
+
+  if (process.env[HTTPS_PROXY]) {
+    options.env.HTTPS_PROXY = process.env[HTTPS_PROXY];
+  }
+
+  if (process.env[NO_PROXY]) {
+    options.env.NO_PROXY = process.env[NO_PROXY];
+  }
+
+  return options;
 }

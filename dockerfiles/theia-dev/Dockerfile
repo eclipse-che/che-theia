@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019 Red Hat, Inc.
+# Copyright (c) 2018-2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -46,7 +46,7 @@ RUN npm config set prefix "${HOME}/.npm-global" && \
     echo "--global-folder \"${HOME}/.yarn-global\"" > ${HOME}/.yarnrc && \
     yarn config set network-timeout 600000 -g && \
     # add eclipse che-theia generator
-    yarn ${YARN_FLAGS} global add yo generator-code vsce @theia/generator-plugin@0.0.1-1562578105 file:${HOME}/eclipse-che-theia-generator && \
+    yarn ${YARN_FLAGS} global add yo generator-code vsce @theia/generator-plugin@0.0.1-1622834185 file:${HOME}/eclipse-che-theia-generator && \
     rm -rf ${HOME}/eclipse-che-theia-generator && \
     # Generate .passwd.template \
     cat /etc/passwd | \

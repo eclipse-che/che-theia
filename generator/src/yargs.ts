@@ -11,6 +11,10 @@
 import * as path from 'path';
 import * as yargs from 'yargs';
 
+import { builder as generateArgsBuilder, handleCommand as handleGenerateCommand } from './generate-assembly';
+import { handleCommand as handleLinkCommand, builder as linkArgsBuilder } from './link';
+import { handleCommand as handleUpdateDepsCommand, builder as updateDepsBuilder } from './update-dependencies';
+
 import { Cdn } from './cdn';
 import { Clean } from './clean';
 import { CliError } from './cli-error';
@@ -29,7 +33,7 @@ const commandArgs = yargs
     .usage('$0 <cmd> [args]')
     .command({
         command: 'init',
-        describe: 'Initialize current theia to beahve like a Che/Theia',
+        describe: 'Initialize current theia to behave like a Che/Theia',
         builder: InitSources.argBuilder,
         handler: async args => {
             try {
@@ -40,7 +44,7 @@ const commandArgs = yargs
                 const init = new Init(process.cwd(), assemblyFolder, cheFolder, pluginsFolder);
                 const version = await init.getCurrentVersion();
                 await init.generate();
-                await init.updatePluginsConfigurtion();
+                await init.updatePluginsConfiguration();
                 const initSources = new InitSources(
                     process.cwd(),
                     packagesFolder,
@@ -100,6 +104,25 @@ const commandArgs = yargs
                 handleError(err);
             }
         },
+    })
+    // commands related to the "linkless" mode of building che-theia
+    .command({
+        command: 'link',
+        describe: 'Yarn link to a given theia source tree',
+        handler: handleLinkCommand,
+        builder: linkArgsBuilder,
+    })
+    .command({
+        command: 'generate',
+        describe: 'Generate the che-theia assembly folder',
+        handler: handleGenerateCommand,
+        builder: generateArgsBuilder,
+    })
+    .command({
+        command: 'update-dependencies',
+        describe: 'Update the theia version in all package.json files',
+        handler: handleUpdateDepsCommand,
+        builder: updateDepsBuilder,
     })
     .help()
     .strict()

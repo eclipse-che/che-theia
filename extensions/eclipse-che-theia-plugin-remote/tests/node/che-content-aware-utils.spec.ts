@@ -13,6 +13,8 @@ import { overrideUri } from '../../src/node/che-content-aware-utils';
 
 describe('Test overrideUri', () => {
   test('Should return the same uri if machine name is not defined', () => {
+    process.env.CHE_MACHINE_NAME = '';
+
     const uri = URI.from({
       scheme: 'file',
       path: '/path',

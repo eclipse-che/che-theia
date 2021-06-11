@@ -1,0 +1,59 @@
+{
+  "name": "@eclipse-che/che-theia-devworkspace-handler",
+  "version": "0.0.1",
+  "private": false,
+  "description": "Handle management of che-theia-plugins and devWorkspace templates",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "lib",
+    "src"
+  ],
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "build": "yarn run format && yarn run compile && yarn run lint",
+    "compile": "tsc --project .",
+    "format": "if-env SKIP_FORMAT=true && echo 'skip format check' || prettier --check '{src,tests}/**/*.ts' package.json",
+    "format:fix": "prettier --write '{src,tests}/**/*.ts' package.json",
+    "lint": "if-env SKIP_LINT=true && echo 'skip lint check' || eslint --cache=true --no-error-on-unmatched-pattern=true '{src,tests}/(!model|**)/*.ts'",
+    "lint:fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,tests}/(!model|**)/*.{ts,tsx}\"",
+    "test": "if-env SKIP_TEST=true && echo 'skip test' || jest --forceExit",
+    "watch": "tsc -w",
+    "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eclipse-che/che-theia.git"
+  },
+  "author": "",
+  "license": "EPL-2.0",
+  "bugs": {
+    "url": "https://github.com/eclipse/che/issues"
+  },
+  "homepage": "https://github.com/eclipse/che-theia/blob/master/tools/devworkspace-handler/README.md",
+  "dependencies": {
+    "@devfile/api": "latest",
+    "axios": "0.21.1",
+    "inversify": "^5.0.1",
+    "js-yaml": "^4.0.0",
+    "jsonc-parser": "^3.0.0",
+    "reflect-metadata": "^0.1.13"
+  },
+  "devDependencies": {
+    "rollup": "^2.44.0"
+  },
+  "jest": {
+    "clearMocks": true,
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}"
+    ],
+    "coverageDirectory": "coverage",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/lib"
+    ],
+    "preset": "ts-jest"
+  }
+}

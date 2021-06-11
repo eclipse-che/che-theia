@@ -48,10 +48,11 @@
   },
   "workspaces": {
     "packages": [
-      "extensions/*",
-      "plugins/*",
       "generator",
-      "tools/automation"
+      "tools/*",
+      "extensions/*",
+      "assembly",
+      "plugins/*"
     ]
   },
   "prettier": {
