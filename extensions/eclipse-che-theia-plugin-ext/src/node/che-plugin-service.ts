@@ -277,7 +277,7 @@ export class ChePluginServiceImpl implements ChePluginService {
 
         for (let pIndex = 0; pIndex < registryPlugins.length; pIndex++) {
           const metadataInternal: ChePluginMetadataInternal = registryPlugins[pIndex];
-          const pluginYamlURI = this.getPluginYampURI(registry, metadataInternal);
+          const pluginYamlURI = this.getPluginYamlURI(registry, metadataInternal);
 
           try {
             const pluginMetadata = await this.loadPluginMetadata(pluginYamlURI, longKeyFormat, registry.publicUri);
@@ -335,7 +335,7 @@ export class ChePluginServiceImpl implements ChePluginService {
    * @param plugin plugin metadata
    * @return uri to plugin yaml file
    */
-  private getPluginYampURI(registry: ChePluginRegistry, plugin: ChePluginMetadataInternal): string {
+  private getPluginYamlURI(registry: ChePluginRegistry, plugin: ChePluginMetadataInternal): string {
     if (plugin.links && plugin.links.self) {
       const self: string = plugin.links.self;
       if (self.startsWith('/')) {
