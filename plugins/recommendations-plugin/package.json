@@ -19,7 +19,8 @@
     "globby": "^11.0.1",
     "inversify": "^5.0.1",
     "kind-of": "^6.0.3",
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.1.13",
+    "to-regex": "^3.0.1"
   },
   "devDependencies": {
     "@types/jest": "^26",
