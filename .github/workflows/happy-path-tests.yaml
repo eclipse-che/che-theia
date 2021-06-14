@@ -23,6 +23,7 @@ jobs:
         chectlchannel: [ 'next', 'stable' ]
     env:
       JOB_NAME_SUFFIX: ${{matrix.dist}} ${{matrix.chectlchannel}}
+      DOCKER_TARGET_PLATFORM: linux/amd64
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
