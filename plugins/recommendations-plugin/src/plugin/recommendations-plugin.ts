@@ -137,7 +137,7 @@ export class RecommendationsPlugin {
     );
 
     // Grab file extensions used in all projects being in the workspace folder (that have been cloned) (with a timeout)
-    const extensionsInCheWorkspace = await this.findFileExtensions.find(workspaceFolders);
+    const extensionsInCheWorkspace = await this.findFileExtensions.find();
     this.outputChannel.appendLine(`extensionsInCheWorkspace=${extensionsInCheWorkspace}`);
 
     // need to wait all required tasks done when starting the plug-in are finished
