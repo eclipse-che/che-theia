@@ -12,7 +12,13 @@
 name: Happy Path
 
 # Trigger the workflow on pull request
-on: [pull_request]
+on:
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - devfile.yaml
+      - 'devfiles/*'
+      - 'tools/*'
 
 jobs:
   happy-path:
