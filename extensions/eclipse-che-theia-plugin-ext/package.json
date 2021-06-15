@@ -25,7 +25,8 @@
     "js-yaml": "3.13.1",
     "drivelist": "9.0.2",
     "@eclipse-che/theia-remote-api": "^0.0.1",
-    "@eclipse-che/workspace-telemetry-client": "latest"
+    "@eclipse-che/workspace-telemetry-client": "latest",
+    "mime": "2.5.2"
   },
   "devDependencies": {
     "@types/tunnel": "0.0.1",

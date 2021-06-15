@@ -77,7 +77,9 @@ describe('Test webpack customizer', () => {
         } catch (err) {
             error = err;
         }
-        expect(error).toEqual(new Error("Please check that you specified the parameter '--env.monacopkg'"));
+        expect(error).toEqual(
+            new Error("Please check that you specified the parameter '--env monacopkg' for 'theia build' command.")
+        );
     });
 
     test('test basic changes', async () => {
@@ -87,7 +89,7 @@ describe('Test webpack customizer', () => {
         expect(baseConfig.entry['cdn-support']).toEqual(path.resolve(__dirname, '../../src/cdn/bootstrap.js'));
         expect(baseConfig.output.filename).toBe('[name].[chunkhash].js');
         expect(baseConfig.optimization.runtimeChunk).toBe('single');
-        expect(baseConfig.optimization.splitChunks.cacheGroups.vendors).toEqual({
+        expect(baseConfig.optimization.splitChunks.cacheGroups.defaultVendors).toEqual({
             test: /[\/]node_modules[\/](?!@theia[\/])/,
             name: 'vendors',
             chunks: 'all',

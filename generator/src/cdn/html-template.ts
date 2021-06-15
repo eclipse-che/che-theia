@@ -31,8 +31,8 @@ export class CdnHtmlTemplate {
             : '';
 
         // eslint-disable-next-line guard-for-in
-        for (const key in htmlWebpackPlugin.files.chunks) {
-            const url: string = htmlWebpackPlugin.files.chunks[key].entry;
+        for (const index in htmlWebpackPlugin.files.js) {
+            const url: string = htmlWebpackPlugin.files.js[index];
             const chunk: decls.CdnChunk = {
                 chunk: url,
                 cdn: undefined,
