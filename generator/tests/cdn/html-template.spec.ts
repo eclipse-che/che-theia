@@ -19,7 +19,7 @@ describe('Test CdnHtmlTemplate', () => {
     let cdnPrefix: string | undefined;
     let monacoCdnPrefix: string | undefined;
     let monacoEditorCorePackage: string | undefined;
-    let chunks: any;
+    let chunks: string[];
     let assets: any;
 
     beforeEach(() => {
@@ -28,7 +28,7 @@ describe('Test CdnHtmlTemplate', () => {
         cdnPrefix = undefined;
         monacoCdnPrefix = undefined;
         monacoEditorCorePackage = undefined;
-        chunks = {};
+        chunks = [];
         assets = {};
     });
 
@@ -44,7 +44,7 @@ describe('Test CdnHtmlTemplate', () => {
                 },
             },
             files: {
-                chunks: chunks,
+                js: chunks,
             },
         };
 
@@ -57,14 +57,7 @@ describe('Test CdnHtmlTemplate', () => {
 
     test('test chunks without CDN prefix', async () => {
         cachedChunkRegexp = 'cachedChunk.*';
-        chunks = {
-            chunk1: {
-                entry: 'cachedChunk1',
-            },
-            chunk2: {
-                entry: 'chunk2',
-            },
-        };
+        chunks = ['cachedChunk1', 'chunk2'];
 
         const htmlTemplate = buildTemplate();
 
@@ -85,14 +78,7 @@ describe('Test CdnHtmlTemplate', () => {
     test('test chunks with CDN prefix', async () => {
         cachedChunkRegexp = 'cachedChunk.*';
         cdnPrefix = 'http://cdnPrefix/';
-        chunks = {
-            chunk1: {
-                entry: 'cachedChunk1',
-            },
-            chunk2: {
-                entry: 'chunk2',
-            },
-        };
+        chunks = ['cachedChunk1', 'chunk2'];
 
         const htmlTemplate = buildTemplate();
 
@@ -178,14 +164,7 @@ describe('Test CdnHtmlTemplate', () => {
     test('test cdn.json file', async () => {
         cachedChunkRegexp = 'cachedChunk.*';
         cdnPrefix = 'http://cdnPrefix/';
-        chunks = {
-            chunk1: {
-                entry: 'cachedChunk1',
-            },
-            chunk2: {
-                entry: 'chunk2',
-            },
-        };
+        chunks = ['cachedChunk1', 'chunk2'];
 
         cachedResourceRegexp = 'cachedResource.*';
         cdnPrefix = 'http://cdnPrefix/';
@@ -229,14 +208,7 @@ describe('Test CdnHtmlTemplate', () => {
     test('test generateCdnScript', async () => {
         cachedChunkRegexp = 'cachedChunk.*';
         cdnPrefix = 'http://cdnPrefix/';
-        chunks = {
-            chunk1: {
-                entry: 'cachedChunk1',
-            },
-            chunk2: {
-                entry: 'chunk2',
-            },
-        };
+        chunks = ['cachedChunk1', 'chunk2'];
 
         cachedResourceRegexp = 'cachedResource.*';
         cdnPrefix = 'http://cdnPrefix/';

@@ -33,7 +33,7 @@ export function customizeWebpackConfig(
     }
 
     if (monacoCDN && !monacopkg) {
-        throw new Error("Please check that you specified the parameter '--env.monacopkg'");
+        throw new Error("Please check that you specified the parameter '--env monacopkg' for 'theia build' command.");
     }
 
     if (theiaCDN || monacoCDN) {
@@ -55,7 +55,7 @@ export function customizeWebpackConfig(
         baseConfig.output.filename = '[name].[chunkhash].js';
 
         // Separate the webpack runtime module, theia modules, external vendor modules
-        // in 3 distinct chhunks to optimize caching management
+        // in 3 distinct chunks to optimize caching management
         baseConfig.optimization = {
             runtimeChunk: 'single',
             splitChunks: {
@@ -75,7 +75,7 @@ export function customizeWebpackConfig(
                         enforce: true,
                         priority: 1,
                     },
-                    vendors: {
+                    defaultVendors: {
                         test: /[\/]node_modules[\/](?!@theia[\/])/,
                         name: 'vendors',
                         chunks: 'all',
@@ -84,6 +84,13 @@ export function customizeWebpackConfig(
                 },
             },
         };
+
+        // fix "process is not defined" error
+        baseConfig.plugins.push(
+            new webpack.ProvidePlugin({
+                process: 'process/browser',
+            })
+        );
 
         // Use our own HTML template to trigger the CDN-supporting
         // logic, with the CDN prefixes passed as env parameters
@@ -101,11 +108,6 @@ export function customizeWebpackConfig(
                 },
             })
         );
-
-        // Use hashed module IDs to ease caching support
-        // and avoid the hash-based chunk names being changed
-        // unexpectedly
-        baseConfig.plugins.push(new webpack.HashedModuleIdsPlugin());
 
         // Insert a custom loader to override file and url loaders,
         // in order to insert CDN-related logic

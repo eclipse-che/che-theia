@@ -72,8 +72,8 @@ describe('Test Init', () => {
         expect(packageJson.name).toBe('@eclipse-che/theia-assembly');
         expect(packageJson['dependencies']['@theia/core']).toBe('^' + (await init.getCurrentVersion()));
         expect(packageJson['scripts']['build']).toBe(
-            'theia build --mode production --config cdn/webpack.config.js --env.cdn=./cdn.json' +
-                ' --env.monacopkg=' +
+            'theia build --mode production --config cdn/webpack.config.js --env cdn=./cdn.json' +
+                ' --env monacopkg=' +
                 Init.MONACO_CORE_PKG +
                 '@' +
                 coreVersion +
