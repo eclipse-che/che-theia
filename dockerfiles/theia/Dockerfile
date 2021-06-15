@@ -97,13 +97,13 @@ RUN che-theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
     yarn ${YARN_FLAGS}
 
-# Compile plugins
-RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
-    cd plugins && ./foreach_yarn
-
 # Run into production mode
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-before-production.dockerfile}
 RUN che-theia production
+
+# Compile plugins
+RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
+    cd plugins && ./foreach_yarn
 
 # Add yeoman generator & vscode git plug-ins
 COPY asset-untagged-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/production/plugins/theia_yeoman_plugin.theia
