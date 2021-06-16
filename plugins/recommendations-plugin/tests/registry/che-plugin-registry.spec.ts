@@ -23,14 +23,14 @@ describe('Test ChePluginRegistry', () => {
   beforeEach(() => {
     container = new Container();
     che.workspace.getSettings = getSettingsMock;
-    jest.resetAllMocks();
     container.bind(ChePluginRegistry).toSelf().inSingletonScope();
   });
 
   test('check internal', async () => {
-    const dummyUrl = 'https://foo.registry';
+    const fakeInternalRegistryUrl = 'https://internal.registry';
     const fakeSettings = {
-      cheWorkspacePluginRegistryInternalUrl: dummyUrl,
+      cheWorkspacePluginRegistryInternalUrl: fakeInternalRegistryUrl,
+      cheWorkspacePluginRegistryUrl: 'https://external.registry',
     };
     getSettingsMock.mockResolvedValue(fakeSettings);
     const chePluginRegistry = container.get(ChePluginRegistry);
@@ -42,16 +42,37 @@ describe('Test ChePluginRegistry', () => {
 
     // API is called only once
     expect(getSettingsMock).toBeCalledTimes(1);
+
+    const isInternal = await chePluginRegistry.isInternalService();
+    expect(isInternal).toBeTruthy();
   });
 
-  test('check external', async () => {
-    const dummyUrl = 'https://foo.registry';
+  test('check external no internal', async () => {
+    const fakeExternallRegistryUrl = 'https://external.registry';
     const fakeSettings = {
-      cheWorkspacePluginRegistryUrl: dummyUrl,
+      cheWorkspacePluginRegistryUrl: fakeExternallRegistryUrl,
     };
     getSettingsMock.mockResolvedValue(fakeSettings);
     const chePluginRegistry = container.get(ChePluginRegistry);
     const registryUrl = await chePluginRegistry.getUrl();
     expect(registryUrl).toBe(fakeSettings.cheWorkspacePluginRegistryUrl);
+
+    const isInternal = await chePluginRegistry.isInternalService();
+    expect(isInternal).toBeFalsy();
+  });
+
+  test('check external and internal identical', async () => {
+    const fakeExternallRegistryUrl = 'https://external.registry';
+    const fakeSettings = {
+      cheWorkspacePluginRegistryInternalUrl: fakeExternallRegistryUrl,
+      cheWorkspacePluginRegistryUrl: fakeExternallRegistryUrl,
+    };
+    getSettingsMock.mockResolvedValue(fakeSettings);
+    const chePluginRegistry = container.get(ChePluginRegistry);
+    const registryUrl = await chePluginRegistry.getUrl();
+    expect(registryUrl).toBe(fakeSettings.cheWorkspacePluginRegistryUrl);
+
+    const isInternal = await chePluginRegistry.isInternalService();
+    expect(isInternal).toBeFalsy();
   });
 });

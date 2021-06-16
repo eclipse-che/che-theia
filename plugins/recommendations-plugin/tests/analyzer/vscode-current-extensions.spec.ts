@@ -24,7 +24,6 @@ describe('Test VSCodeCurrentExtensions', () => {
 
   beforeEach(() => {
     container = new Container();
-    jest.mock('axios');
     container.bind(VSCodeCurrentExtensions).toSelf().inSingletonScope();
   });
 

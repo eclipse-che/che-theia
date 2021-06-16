@@ -11,6 +11,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
 
+import * as che from '@eclipse-che/plugin';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as theia from '@theia/plugin';
@@ -18,7 +19,6 @@ import * as theia from '@theia/plugin';
 import { ChePluginRegistry } from '../../src/registry/che-plugin-registry';
 import { Container } from 'inversify';
 import { PluginsByLanguageFetcher } from '../../src/fetch/plugins-by-language-fetcher';
-import axios from 'axios';
 
 describe('Test PluginsByLanguageFetcher', () => {
   let container: Container;
@@ -31,16 +31,15 @@ describe('Test PluginsByLanguageFetcher', () => {
 
   beforeEach(() => {
     container = new Container();
-    jest.mock('axios');
     container.bind(ChePluginRegistry).toConstantValue(chePluginRegistry);
-    (axios as any).__clearMock();
+    (che as any).__clearHttpMocks();
     container.bind(PluginsByLanguageFetcher).toSelf().inSingletonScope();
     chePluginRegistryGetUrlMock.mockResolvedValue(fakeUrl);
   });
 
   test('check with language being there', async () => {
     const json = await fs.readFile(path.join(__dirname, '..', '_data', 'fetch', 'language-go.json'), 'utf8');
-    (axios as any).__setContent('https://my.registry/v3/che-theia/recommendations/language/go.json', JSON.parse(json));
+    (che as any).__setHttpContent('https://my.registry/v3/che-theia/recommendations/language/go.json', json);
 
     const pluginsByLanguageFetcher = container.get(PluginsByLanguageFetcher);
     const languagesByPlugins = await pluginsByLanguageFetcher.fetch('go');
@@ -52,12 +51,7 @@ describe('Test PluginsByLanguageFetcher', () => {
   });
 
   test('check with language not being there', async () => {
-    const error = {
-      response: {
-        status: 404,
-      },
-    };
-    (axios as any).__setError('https://my.registry/v3/che-theia/recommendations/language/foo.json', error);
+    (che as any).__setHttpContent('https://my.registry/v3/che-theia/recommendations/language/foo.json', undefined);
 
     const pluginsByLanguageFetcher = container.get(PluginsByLanguageFetcher);
     const languagesByPlugins = await pluginsByLanguageFetcher.fetch('foo');
@@ -72,7 +66,7 @@ describe('Test PluginsByLanguageFetcher', () => {
         status: 500,
       },
     };
-    (axios as any).__setError('https://my.registry/v3/che-theia/recommendations/language/java.json', error);
+    (che as any).__setHttpContentError('https://my.registry/v3/che-theia/recommendations/language/java.json', error);
 
     const pluginsByLanguageFetcher = container.get(PluginsByLanguageFetcher);
     const languageByPlugins = await pluginsByLanguageFetcher.fetch('java');
