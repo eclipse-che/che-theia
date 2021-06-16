@@ -13,6 +13,7 @@ import { CheK8SService, cheK8SServicePath } from '../common/k8s-service';
 import { DevfileService, cheDevfileServicePath } from '../common/devfile-service';
 import { EndpointService, cheEndpointServicePath } from '../common/endpoint-service';
 import { FactoryService, cheFactoryServicePath } from '../common/factory-service';
+import { HttpService, cheHttpServicePath } from '../common/http-service';
 import { OAuthService, cheOAuthServicePath } from '../common/oauth-service';
 import { SshKeyService, cheSshKeyServicePath } from '../common/ssh-key-service';
 import { TelemetryService, cheTelemetryServicePath } from '../common/telemetry-service';
@@ -92,6 +93,13 @@ export default new ContainerModule(bind => {
     .toDynamicValue(ctx => {
       const provider = ctx.container.get(WebSocketConnectionProvider);
       return provider.createProxy<EndpointService>(cheEndpointServicePath);
+    })
+    .inSingletonScope();
+
+  bind(HttpService)
+    .toDynamicValue(ctx => {
+      const provider = ctx.container.get(WebSocketConnectionProvider);
+      return provider.createProxy<EndpointService>(cheHttpServicePath);
     })
     .inSingletonScope();
 });
