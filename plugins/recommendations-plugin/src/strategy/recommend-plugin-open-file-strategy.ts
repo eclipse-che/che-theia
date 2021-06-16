@@ -54,9 +54,8 @@ export class RecommendPluginOpenFileStrategy {
       return;
     }
 
-    const installedPlugins = workspaceAnalysis.vsCodeExtensionsInstalledLanguages.vscodeExtensionByLanguageId.get(
-      languageId
-    );
+    const installedPlugins =
+      workspaceAnalysis.vsCodeExtensionsInstalledLanguages.vscodeExtensionByLanguageId.get(languageId);
 
     // if we don't have plug-ins installed locally for this languageId, ask remotely
     if (!installedPlugins) {

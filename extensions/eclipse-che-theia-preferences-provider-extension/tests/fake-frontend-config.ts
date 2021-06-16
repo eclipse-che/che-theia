@@ -13,7 +13,7 @@ import { FrontendApplicationConfigProvider } from '@theia/core/lib/browser/front
 /**
  * Fake app contrib
  */
-const frontendAppConfig: FrontendApplicationConfig = {
+const frontendAppConfig: FrontendApplicationConfig.Partial = {
   defaultTheme: 'dark',
   defaultIconTheme: 'dark',
   applicationName: 'tests',

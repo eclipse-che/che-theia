@@ -47,9 +47,8 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
   public static OUTPUT_CHANNEL_NAME = 'remote-terminal';
 
   protected termServer: RemoteTerminalServerProxy | undefined;
-  protected waitForRemoteConnection:
-    | Deferred<ReconnectingWebSocket>
-    | undefined = new Deferred<ReconnectingWebSocket>();
+  protected waitForRemoteConnection: Deferred<ReconnectingWebSocket> | undefined =
+    new Deferred<ReconnectingWebSocket>();
 
   @inject('TerminalProxyCreatorProvider')
   protected readonly termProxyCreatorProvider: TerminalProxyCreatorProvider;

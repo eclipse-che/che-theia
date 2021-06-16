@@ -19,6 +19,7 @@
     "@theia/task": "next",
     "@theia/mini-browser": "next",
     "@theia/plugin-ext": "next",
+    "@theia/application-package": "next",
     "axios": "0.21.1",
     "tunnel": "0.0.6",
     "vscode-uri": "2.1.1",

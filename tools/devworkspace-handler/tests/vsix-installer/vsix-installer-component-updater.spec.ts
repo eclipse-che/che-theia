@@ -38,7 +38,7 @@ describe('Test VsixInstallerComponentUpdater', () => {
       },
     };
     const suffix = 'my-suffix';
-    const devfileContext = ({ devWorkspace, devWorkspaceTemplates, suffix } as any) as DevfileContext;
+    const devfileContext = { devWorkspace, devWorkspaceTemplates, suffix } as any as DevfileContext;
     await vsixInstallerComponentUpdater.add(devfileContext);
     // a new template added
     expect(devWorkspaceTemplates.length).toBe(1);

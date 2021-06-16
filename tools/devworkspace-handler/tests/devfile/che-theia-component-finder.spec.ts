@@ -48,7 +48,7 @@ describe('Test CheTheiaComponentFinder', () => {
   });
 
   test('in the main devWorkspace', async () => {
-    const devfileContext = ({
+    const devfileContext = {
       devWorkspaceTemplates: [],
       devWorkspace: {
         spec: {
@@ -62,16 +62,16 @@ describe('Test CheTheiaComponentFinder', () => {
           },
         },
       },
-    } as any) as DevfileContext;
+    } as any as DevfileContext;
     const devWorkspaceSpectTemplateComponents = await cheTheiaComponentFinder.find(devfileContext);
     expect(devWorkspaceSpectTemplateComponents.name).toBe('theia-ide');
   });
 
   test('missing', async () => {
-    const devfileContext = ({
+    const devfileContext = {
       devWorkspaceTemplates: [],
       devWorkspace: {},
-    } as any) as DevfileContext;
+    } as any as DevfileContext;
     await expect(cheTheiaComponentFinder.find(devfileContext)).rejects.toThrow(
       'Not able to find theia-ide component in DevWorkspace and its templates'
     );

@@ -30,7 +30,8 @@ import URI from '@theia/core/lib/common/uri';
 import { interfaces } from 'inversify';
 
 export abstract class AbstractSideCarFileSystemProvider
-  implements FileSystemProviderWithFileReadWriteCapability, FileSystemProviderWithFileFolderCopyCapability {
+  implements FileSystemProviderWithFileReadWriteCapability, FileSystemProviderWithFileFolderCopyCapability
+{
   private readonly _onDidChange = new Emitter<readonly FileChange[]>();
 
   readonly onDidChangeFile: Event<readonly FileChange[]> = this._onDidChange.event;
