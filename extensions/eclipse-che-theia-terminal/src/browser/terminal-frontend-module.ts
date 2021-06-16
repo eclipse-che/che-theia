@@ -126,22 +126,23 @@ export default new ContainerModule(
       }
     );
 
-    bind<TerminalProxyCreatorProvider>('TerminalProxyCreatorProvider').toProvider<TerminalProxyCreator>(context => () =>
-      new Promise<TerminalProxyCreator>((resolve, reject) => {
-        const provider = context.container.get<TerminalApiEndPointProvider>('TerminalApiEndPointProvider');
-        provider()
-          .then(url => {
-            if (url) {
-              context.container.bind('term-api-end-point').toConstantValue(url);
-              return resolve(context.container.get(TerminalProxyCreator));
-            }
-            return reject('Unabel to find che-machine-exec server.');
-          })
-          .catch(err => {
-            console.log('Failed to get terminal proxy. Cause: ', err);
-            return reject(err);
-          });
-      })
+    bind<TerminalProxyCreatorProvider>('TerminalProxyCreatorProvider').toProvider<TerminalProxyCreator>(
+      context => () =>
+        new Promise<TerminalProxyCreator>((resolve, reject) => {
+          const provider = context.container.get<TerminalApiEndPointProvider>('TerminalApiEndPointProvider');
+          provider()
+            .then(url => {
+              if (url) {
+                context.container.bind('term-api-end-point').toConstantValue(url);
+                return resolve(context.container.get(TerminalProxyCreator));
+              }
+              return reject('Unabel to find che-machine-exec server.');
+            })
+            .catch(err => {
+              console.log('Failed to get terminal proxy. Cause: ', err);
+              return reject(err);
+            });
+        })
     );
   }
 );

@@ -41,10 +41,10 @@ beforeEach(() => {
     has: mockHasProperty,
     set: mockSetProperty,
   } as PreferenceServiceImpl;
-  const workspaceService = ({
+  const workspaceService = {
     roots: jest.fn().mockResolvedValue({}),
     workspace: jest.fn().mockReturnValue({ uri: 'workspace-uri' }),
-  } as unknown) as WorkspaceService;
+  } as unknown as WorkspaceService;
 
   container.bind(PreferencesProvider).toSelf().inSingletonScope();
   container.bind(WorkspaceService).toConstantValue(workspaceService);

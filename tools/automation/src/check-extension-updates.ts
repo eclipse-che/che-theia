@@ -61,62 +61,60 @@ export class Report {
 
     // grab result in parallel
     const entries: Entry[] = await Promise.all(
-      Object.entries(cheTheiaExtensions).map(
-        async ([name, location]): Promise<Entry> => {
-          const entry: Entry = {
-            extensionName: name,
-            errors: [],
-          };
+      Object.entries(cheTheiaExtensions).map(async ([name, location]): Promise<Entry> => {
+        const entry: Entry = {
+          extensionName: name,
+          errors: [],
+        };
 
-          const extensionFile = `/tmp/${name}`;
+        const extensionFile = `/tmp/${name}`;
 
+        try {
+          await fs.writeFile(extensionFile, await download(location));
+        } catch (err) {
+          return this.handleError(entry, `Error downloading/writing vsix file ${err}`);
+        }
+
+        try {
+          entry.cheTheiaVersion = (await vsixInfo.getInfo(extensionFile)).version;
+        } catch (err) {
+          return this.handleError(entry, `Error scraping vsix data ${err}`);
+        }
+        // Remove che-theia vsix
+        await fs.remove(extensionFile);
+
+        // if the built-in exists in both package.json's, download the vsix and check it
+        if (theiaExtensions[name]) {
           try {
-            await fs.writeFile(extensionFile, await download(location));
+            await fs.writeFile(extensionFile, await download(theiaExtensions[name]));
           } catch (err) {
             return this.handleError(entry, `Error downloading/writing vsix file ${err}`);
           }
 
+          // get version information from theia vsix
           try {
-            entry.cheTheiaVersion = (await vsixInfo.getInfo(extensionFile)).version;
+            entry.theiaVersion = (await vsixInfo.getInfo(extensionFile)).version;
           } catch (err) {
             return this.handleError(entry, `Error scraping vsix data ${err}`);
           }
-          // Remove che-theia vsix
+          // Remove theia vsix
           await fs.remove(extensionFile);
 
-          // if the built-in exists in both package.json's, download the vsix and check it
-          if (theiaExtensions[name]) {
-            try {
-              await fs.writeFile(extensionFile, await download(theiaExtensions[name]));
-            } catch (err) {
-              return this.handleError(entry, `Error downloading/writing vsix file ${err}`);
-            }
-
-            // get version information from theia vsix
-            try {
-              entry.theiaVersion = (await vsixInfo.getInfo(extensionFile)).version;
-            } catch (err) {
-              return this.handleError(entry, `Error scraping vsix data ${err}`);
-            }
-            // Remove theia vsix
-            await fs.remove(extensionFile);
-
-            if (!entry.theiaVersion) {
-              entry.needsUpdating = false;
-              return this.handleError(entry, 'Failure: there is no theia version');
-            } else if (!entry.cheTheiaVersion) {
-              entry.needsUpdating = false;
-              return this.handleError(entry, 'Failure: there is no che-theia version');
-            } else {
-              entry.needsUpdating = semver.gt(entry.theiaVersion, entry.cheTheiaVersion);
-            }
-            entry.needsUpdating = semver.gt(entry.theiaVersion, entry.cheTheiaVersion);
+          if (!entry.theiaVersion) {
+            entry.needsUpdating = false;
+            return this.handleError(entry, 'Failure: there is no theia version');
+          } else if (!entry.cheTheiaVersion) {
+            entry.needsUpdating = false;
+            return this.handleError(entry, 'Failure: there is no che-theia version');
           } else {
-            return this.handleError(entry, `Failure: there is no theia built-in named *${name}*`);
+            entry.needsUpdating = semver.gt(entry.theiaVersion, entry.cheTheiaVersion);
           }
-          return entry;
+          entry.needsUpdating = semver.gt(entry.theiaVersion, entry.cheTheiaVersion);
+        } else {
+          return this.handleError(entry, `Failure: there is no theia built-in named *${name}*`);
         }
-      )
+        return entry;
+      })
     );
 
     // sort entries by extension name if present (and not by repository name)
