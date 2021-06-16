@@ -6,14 +6,14 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.0.1",
+  "version": "7.32.0",
   "files": [
     "lib",
     "src"
   ],
   "dependencies": {
     "@kubernetes/client-node": "^0.12.1",
-    "@eclipse-che/theia-remote-api": "^0.0.1"
+    "@eclipse-che/theia-remote-api": "7.32.0"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build && yarn test",
