@@ -39,8 +39,9 @@ export class TaskConfigurationsService extends TaskService {
       this.getOpenerOptions(resolvedTask)
     );
 
+    let taskInfo: TaskInfo | undefined;
     try {
-      const taskInfo = await this.taskServer.run(resolvedTask, this.getContext(), option);
+      taskInfo = await this.taskServer.run(resolvedTask, this.getContext(), option);
       terminal.start(taskInfo.terminalId);
 
       this.lastTask = { source, taskLabel, scope: resolvedTask._scope };
@@ -62,14 +63,14 @@ export class TaskConfigurationsService extends TaskService {
       console.error(errorMessage, error);
       this.messageService.error(errorMessage);
 
+      if (taskInfo && !this.isRemoteTask(taskInfo.config) && typeof taskInfo.terminalId === 'number') {
+        this.shellTerminalServer.onAttachAttempted(taskInfo.terminalId);
+      }
       return undefined;
     }
   }
 
-  async attach(terminalId: number, taskId: number): Promise<void> {
-    const runningTasks = await this.getRunningTasks();
-
-    const taskInfo = runningTasks.find((t: TaskInfo) => t.taskId === taskId);
+  async attach(terminalId: number, taskInfo: TaskInfo): Promise<number | void> {
     if (taskInfo) {
       const kind = this.isRemoteTask(taskInfo.config) ? REMOTE_TASK_KIND : TASK_KIND;
       const terminalWidget = this.terminalService.all.find(
@@ -87,7 +88,7 @@ export class TaskConfigurationsService extends TaskService {
       this.getOpenerOptions(taskConfig)
     );
 
-    widget.start(terminalId);
+    return widget.start(terminalId);
   }
 
   protected getFactoryOptions(config?: TaskConfiguration): TerminalWidgetFactoryOptions {
