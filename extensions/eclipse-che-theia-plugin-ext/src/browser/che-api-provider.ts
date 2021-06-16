@@ -13,6 +13,7 @@ import { injectable, interfaces } from 'inversify';
 import { CheDevfileMainImpl } from './che-devfile-main';
 import { CheEndpointMainImpl } from './che-endpoint-main';
 import { CheGithubMainImpl } from './che-github-main';
+import { CheHttpMainImpl } from './che-http-main';
 import { CheK8SMainImpl } from './che-k8s-main';
 import { CheLanguagesTestAPIImpl } from './che-languages-test-api';
 import { CheOauthMainImpl } from './che-oauth-main';
@@ -49,5 +50,6 @@ export class CheApiProvider implements MainPluginApiProvider {
     rpc.set(PLUGIN_RPC_CONTEXT.CHE_SIDERCAR_CONTENT_READER_MAIN, new CheSideCarContentReaderMainImpl(container, rpc));
     rpc.set(PLUGIN_RPC_CONTEXT.CHE_LANGUAGES_TEST_API_MAIN, new CheLanguagesTestAPIImpl(container));
     rpc.set(PLUGIN_RPC_CONTEXT.CHE_SIDECAR_FILE_SYSTEM_MAIN, new CheSideCarFileSystemMainImpl(container, rpc));
+    rpc.set(PLUGIN_RPC_CONTEXT.CHE_HTTP_MAIN, new CheHttpMainImpl(container));
   }
 }
