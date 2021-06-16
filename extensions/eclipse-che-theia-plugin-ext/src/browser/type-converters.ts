@@ -62,16 +62,20 @@ export function toCompletionItem(completionDTO: model.CompletionDto): theia.Comp
     range = undefined;
   } else if (itemRange.hasOwnProperty('insert') && itemRange.hasOwnProperty('replace')) {
     const inserting = Converter.toRange(
-      ((itemRange as unknown) as {
-        insert: model.Range;
-        replace: model.Range;
-      }).insert
+      (
+        itemRange as unknown as {
+          insert: model.Range;
+          replace: model.Range;
+        }
+      ).insert
     );
     const replacing = Converter.toRange(
-      ((itemRange as unknown) as {
-        insert: model.Range;
-        replace: model.Range;
-      }).replace
+      (
+        itemRange as unknown as {
+          insert: model.Range;
+          replace: model.Range;
+        }
+      ).replace
     );
     range = {
       inserting: inserting,

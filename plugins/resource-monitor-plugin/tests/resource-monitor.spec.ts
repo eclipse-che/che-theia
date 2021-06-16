@@ -56,6 +56,12 @@ describe('Test Resource Monitor Plugin', () => {
       prepend: jest.fn(),
       replace: jest.fn(),
     },
+    secrets: {
+      get: jest.fn(),
+      delete: jest.fn(),
+      store: jest.fn(),
+      onDidChange: jest.fn(),
+    },
     extensionPath: '',
     extensionUri: uri,
     storageUri: uri,

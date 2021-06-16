@@ -17,7 +17,8 @@ import { injectable } from 'inversify';
 @injectable()
 export class GithubResolver {
   // eslint-disable-next-line max-len
-  static readonly GITHUB_URL_PATTERN = /^(?:http)(?:s)?(?:\:\/\/)github\.com\/(?<repoUser>[^\/]+)\/(?<repoName>[^\/]+)((\/)|(?:\/(blob|tree)\/(?<branchName>[^\/]+)(?:\/(?<subFolder>.*))?))?$/;
+  static readonly GITHUB_URL_PATTERN =
+    /^(?:http)(?:s)?(?:\:\/\/)github\.com\/(?<repoUser>[^\/]+)\/(?<repoName>[^\/]+)((\/)|(?:\/(blob|tree)\/(?<branchName>[^\/]+)(?:\/(?<subFolder>.*))?))?$/;
 
   resolve(link: string): GithubUrl {
     const match = GithubResolver.GITHUB_URL_PATTERN.exec(link);
