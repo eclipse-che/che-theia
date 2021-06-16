@@ -16,6 +16,7 @@ import { CheTaskImpl, TaskStatus, TaskTerminallKind } from './che-task-impl';
 import { CheDevfileImpl } from './che-devfile';
 import { CheEndpointImpl } from './che-endpoint';
 import { CheGithubImpl } from './che-github';
+import { CheHttpImpl } from './che-http';
 import { CheK8SImpl } from './che-k8s';
 import { CheOauthImpl } from './che-oauth';
 import { CheOpenshiftImpl } from './che-openshift';
@@ -51,6 +52,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
   const cheOauthImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_OAUTH, new CheOauthImpl(rpc));
   const cheK8SImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_K8S, new CheK8SImpl(rpc));
   const cheUserImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_USER, new CheUserImpl(rpc));
+  const cheHttpImpl = rpc.set(PLUGIN_RPC_CONTEXT.CHE_HTTP, new CheHttpImpl(rpc));
   rpc.set(PLUGIN_RPC_CONTEXT.CHE_SIDERCAR_CONTENT_READER, new CheSideCarContentReaderImpl(rpc));
   rpc.set(PLUGIN_RPC_CONTEXT.CHE_SIDECAR_FILE_SYSTEM, new CheSideCarFileSystemImpl(rpc));
 
@@ -435,6 +437,12 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
       },
     };
 
+    const http: typeof che.http = {
+      async get(url: string): Promise<string | undefined> {
+        return cheHttpImpl.get(url);
+      },
+    };
+
     return <typeof che>{
       workspace,
       devfile,
@@ -452,6 +460,7 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
       TaskTerminallKind,
       languages,
       k8s,
+      http,
     };
   };
 }

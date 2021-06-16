@@ -634,6 +634,7 @@ declare module '@eclipse-che/plugin' {
    */
   export namespace k8s {
     /** Sends a raw query to the cluster. */
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export function sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse>;
   }
@@ -643,4 +644,15 @@ declare module '@eclipse-che/plugin' {
     data: string;
     error: string;
   }
+
+    /**
+    * Namespace to get http resources with proper certificate authority, proxy setting, etc..
+    */
+    export namespace http {
+        // Get request
+        // returns undefined if the requested url resource is not there
+        export function get(url: string): Promise<string | undefined>;
+
+    }
+
 }
