@@ -11,6 +11,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
 
+import * as che from '@eclipse-che/plugin';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as theia from '@theia/plugin';
@@ -18,9 +19,7 @@ import * as theia from '@theia/plugin';
 import { ChePluginRegistry } from '../../src/registry/che-plugin-registry';
 import { Container } from 'inversify';
 import { FeaturedFetcher } from '../../src/fetch/featured-fetcher';
-import axios from 'axios';
 
-// import AxiosInstance from 'axios';
 describe('Test FeaturedFetcher', () => {
   let container: Container;
 
@@ -33,32 +32,32 @@ describe('Test FeaturedFetcher', () => {
 
   beforeEach(() => {
     container = new Container();
-    jest.mock('axios');
+    (che as any).__clearHttpMocks();
     container.bind(ChePluginRegistry).toConstantValue(chePluginRegistry);
     container.bind(FeaturedFetcher).toSelf().inSingletonScope();
   });
 
   test('get featured', async () => {
     const json = await fs.readFile(path.join(__dirname, '..', '_data', 'fetch', 'featured.json'), 'utf8');
-    (axios as any).__setContent('https://my.registry/v3/che-theia/featured.json', JSON.parse(json));
+    (che as any).__setHttpContent('https://my.registry/v3/che-theia/featured.json', json);
 
     const featuredFetcher = container.get(FeaturedFetcher);
     const featuredList = await featuredFetcher.fetch();
     expect(featuredList).toBeDefined();
     expect(featuredList.length).toBe(3);
 
-    expect((axios as any).get).toBeCalledWith(`${fakeUrl}/che-theia/featured.json`);
+    expect(che.http.get).toBeCalledWith(`${fakeUrl}/che-theia/featured.json`);
   });
 
   test('failure', async () => {
-    (axios as any).__setError('https://my.registry/v3/che-theia/featured.json', 'invalid json');
+    (che as any).__setHttpContentError('https://my.registry/v3/che-theia/featured.json', 'invalid json');
 
     const featuredFetcher = container.get(FeaturedFetcher);
     const featuredList = await featuredFetcher.fetch();
     // no content
     expect(featuredList).toBeDefined();
     expect(featuredList.length).toBe(0);
-    expect((axios as any).get).toBeCalledWith(`${fakeUrl}/che-theia/featured.json`);
+    expect(che.http.get).toBeCalledWith(`${fakeUrl}/che-theia/featured.json`);
   });
 
   test('unexpected error', async () => {
@@ -67,7 +66,7 @@ describe('Test FeaturedFetcher', () => {
         status: 500,
       },
     };
-    (axios as any).__setError('https://my.registry/v3/che-theia/recommendations/language/java.json', error);
+    (che as any).__setHttpContentError('https://my.registry/v3/che-theia/recommendations/language/java.json', error);
 
     const featuredFetcher = container.get(FeaturedFetcher);
     const featuredList = await featuredFetcher.fetch();
