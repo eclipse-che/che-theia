@@ -93,6 +93,14 @@ export interface CheK8SMain {
   $sendRawQuery(requestURL: string, opts: any): Promise<K8SRawResponse>;
 }
 
+export interface CheHttp {
+  get(url: string): Promise<string | undefined>;
+}
+
+export interface CheHttpMain {
+  $get(url: string): Promise<string | undefined>;
+}
+
 export interface CheGithub {
   uploadPublicSshKey(publicKey: string): Promise<void>;
   getToken(): Promise<string>;
@@ -460,6 +468,9 @@ export const PLUGIN_RPC_CONTEXT = {
 
   CHE_K8S: createProxyIdentifier<CheK8S>('CheK8S'),
   CHE_K8S_MAIN: createProxyIdentifier<CheK8SMain>('CheK8SMain'),
+
+  CHE_HTTP: createProxyIdentifier<CheHttp>('CheHttp'),
+  CHE_HTTP_MAIN: createProxyIdentifier<CheHttpMain>('CheHttpMain'),
 
   CHE_USER: createProxyIdentifier<CheUser>('CheUser'),
   CHE_USER_MAIN: createProxyIdentifier<CheUserMain>('CheUserMain'),

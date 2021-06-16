@@ -17,6 +17,7 @@ import { ConnectionHandler, JsonRpcConnectionHandler } from '@theia/core';
 import { DevfileService, cheDevfileServicePath } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 import { EndpointService, cheEndpointServicePath } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
 import { FactoryService, cheFactoryServicePath } from '@eclipse-che/theia-remote-api/lib/common/factory-service';
+import { HttpService, cheHttpServicePath } from '@eclipse-che/theia-remote-api/lib/common/http-service';
 import { OAuthService, cheOAuthServicePath } from '@eclipse-che/theia-remote-api/lib/common/oauth-service';
 import { SshKeyService, cheSshKeyServicePath } from '@eclipse-che/theia-remote-api/lib/common/ssh-key-service';
 import { TelemetryService, cheTelemetryServicePath } from '@eclipse-che/theia-remote-api/lib/common/telemetry-service';
@@ -28,6 +29,7 @@ import { CheServerCertificateServiceImpl } from './che-server-certificate-servic
 import { CheServerDevfileServiceImpl } from './che-server-devfile-service-impl';
 import { CheServerEndpointServiceImpl } from './che-server-endpoint-service-impl';
 import { CheServerFactoryServiceImpl } from './che-server-factory-service-impl';
+import { CheServerHttpServiceImpl } from './che-server-http-service-impl';
 import { CheServerOAuthServiceImpl } from './che-server-oauth-service-impl';
 import { CheServerRemoteApiImpl } from './che-server-remote-api-impl';
 import { CheServerSshKeyServiceImpl } from './che-server-ssh-key-service-impl';
@@ -56,6 +58,7 @@ export default new ContainerModule(bind => {
   bind(CheServerDevfileServiceImpl).toSelf().inSingletonScope();
   bind(CheServerEndpointServiceImpl).toSelf().inSingletonScope();
   bind(CheK8SServiceImpl).toSelf().inSingletonScope();
+  bind(CheServerHttpServiceImpl).toSelf().inSingletonScope();
 
   bind(CertificateService).to(CheServerCertificateServiceImpl).inSingletonScope();
   bind(FactoryService).to(CheServerFactoryServiceImpl).inSingletonScope();
@@ -67,6 +70,7 @@ export default new ContainerModule(bind => {
   bind(CheK8SService).to(CheK8SServiceImpl).inSingletonScope();
   bind(DevfileService).to(CheServerDevfileServiceImpl).inSingletonScope();
   bind(EndpointService).to(CheServerEndpointServiceImpl).inSingletonScope();
+  bind(HttpService).to(CheServerHttpServiceImpl).inSingletonScope();
 
   bind(ConnectionHandler)
     .toDynamicValue(
@@ -114,5 +118,9 @@ export default new ContainerModule(bind => {
     .toDynamicValue(
       ctx => new JsonRpcConnectionHandler(cheEndpointServicePath, () => ctx.container.get(EndpointService))
     )
+    .inSingletonScope();
+
+  bind(ConnectionHandler)
+    .toDynamicValue(ctx => new JsonRpcConnectionHandler(cheHttpServicePath, () => ctx.container.get(HttpService)))
     .inSingletonScope();
 });
