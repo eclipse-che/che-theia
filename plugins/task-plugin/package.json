@@ -70,7 +70,7 @@
     "reflect-metadata": "0.1.8",
     "vscode-uri": "2.1.1",
     "vscode-ws-jsonrpc": "0.2.0",
-    "ws": "^5.2.2",
+    "ws": "^7.4.6",
     "fs-extra": "^8.1.0",
     "jsonc-parser": "^2.0.2"
   },
