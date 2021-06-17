@@ -27,7 +27,7 @@ projects:
     source:
       location: 'https://github.com/eclipse-che/che-theia.git'
       type: git
-      branch: master
+      branch: main
 
 components:
   - id: eclipse/che-theia/latest

@@ -32,7 +32,7 @@ export class InitSources {
     public static readonly PREFIX_PACKAGES_EXTENSIONS = '@che-';
 
     public static readonly DEFAULT_EXTENSIONS_URI =
-        'https://raw.githubusercontent.com/eclipse-che/che-theia/master/che-theia-init-sources.yml';
+        'https://raw.githubusercontent.com/eclipse-che/che-theia/main/che-theia-init-sources.yml';
     static argBuilder = (theYargs: yargs.Argv) =>
         theYargs
             .option('config', {
@@ -41,7 +41,7 @@ export class InitSources {
             })
             .option('dev', {
                 description:
-                    'Initialize current Theia with Che/Theia extensions from "master" branch instead of provided branches',
+                    'Initialize current Theia with Che/Theia extensions from "main" branch instead of provided branches',
                 alias: 'd',
                 type: 'boolean',
                 default: false,
@@ -105,7 +105,7 @@ export class InitSources {
         await Promise.all(
             extensionsYaml.sources.map(async (extension: ISource) => {
                 if (isDevMode) {
-                    extension.checkoutTo = 'master';
+                    extension.checkoutTo = 'main';
                 }
                 await this.addExtension(extension);
                 this.extensions.push(extension);
