@@ -11,7 +11,11 @@
     "lib",
     "src"
   ],
+  "devDependencies": {
+    "@types/tunnel": "0.0.1"
+  },
   "dependencies": {
+    "tunnel": "0.0.6",
     "@kubernetes/client-node": "^0.12.1",
     "@eclipse-che/theia-remote-api": "^0.0.1"
   },
