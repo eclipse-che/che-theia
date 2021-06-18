@@ -1,7 +1,7 @@
 <br/>
 <div id="che-theia-logo" align="center" style="vertical-align: middle">
 
-<img src="https://raw.githubusercontent.com/eclipse-che/che-theia/master/extensions/eclipse-che-theia-about/src/browser/style/che-logo-light.svg?sanitize=true" alt="Che Logo" width="200" height="60" />
+<img src="https://raw.githubusercontent.com/eclipse-che/che-theia/main/extensions/eclipse-che-theia-about/src/browser/style/che-logo-light.svg?sanitize=true" alt="Che Logo" width="200" height="60" />
 
 <img src="https://raw.githubusercontent.com/eclipse-theia/theia/master/logo/theia-logo.svg?sanitize=true" alt="Theia Logo" width="150" height="60"/>
 
@@ -22,7 +22,7 @@
 
 <div style='margin:0 auto;width:80%;'>
 
-![Che-Theia](https://raw.githubusercontent.com/eclipse-che/che-theia/master/che-theia-screenshot.png)
+![Che-Theia](https://raw.githubusercontent.com/eclipse-che/che-theia/main/che-theia-screenshot.png)
 
 </div>
 
@@ -80,15 +80,15 @@ The che-plugin of this editor is defined in the plugin registry https://github.c
 # Contributing
 
 ## Contribute to Che-theia
-Contributing to che-theia section is cover in [CONTRIBUTING.md](https://github.com/eclipse-che/che-theia/blob/master/CONTRIBUTING.md)
+Contributing to che-theia section is cover in [CONTRIBUTING.md](https://github.com/eclipse-che/che-theia/blob/main/CONTRIBUTING.md)
 
 
 ## Build container images
 
 Building images is required only if you make some changes on `Dockerfile`s inside `dockerfiles` folder.
-If it is about testing che-theia extensions or plugins, please refere to [CONTRIBUTING.md](https://github.com/eclipse-che/che-theia/blob/master/CONTRIBUTING.md).
+If it is about testing che-theia extensions or plugins, please refere to [CONTRIBUTING.md](https://github.com/eclipse-che/che-theia/blob/main/CONTRIBUTING.md).
 
-To build che-theia docker images, please follow [dockerfiles/theia/README.md](https://github.com/eclipse-che/che-theia/blob/master/dockerfiles/theia/README.md) instructions.
+To build che-theia docker images, please follow [dockerfiles/theia/README.md](https://github.com/eclipse-che/che-theia/blob/main/dockerfiles/theia/README.md) instructions.
 
 
 # License

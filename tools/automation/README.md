@@ -1,6 +1,6 @@
 # Automation
 
-Che-theia makes use of theia built-in extensions, located [here](https://github.com/eclipse-theia/theia/blob/master/package.json). The corresponding che-theia list of extensions is located [here](https://github.com/eclipse-che/che-theia/blob/master/generator/src/templates/theiaPlugins.json).
+Che-theia makes use of theia built-in extensions, located [here](https://github.com/eclipse-theia/theia/blob/master/package.json). The corresponding che-theia list of extensions is located [here](https://github.com/eclipse-che/che-theia/blob/main/generator/src/templates/theiaPlugins.json).
 
 This directory contains various scripts which automate various maintenance steps of the registry.
 

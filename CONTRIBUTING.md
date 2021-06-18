@@ -61,7 +61,7 @@ In this section we are going to start a new workspace to work on che-theia. The 
 The devfile could be started using `chectl`:
 
 ```
-chectl workspace:start -f https://raw.githubusercontent.com/eclipse-che/che-theia/master/devfiles/che-theia-all.devfile.yaml
+chectl workspace:start -f https://raw.githubusercontent.com/eclipse-che/che-theia/main/devfiles/che-theia-all.devfile.yaml
 ```
 At workspace start, Che will clone Theia and Che-theia.
 
@@ -78,7 +78,7 @@ $ che-theia init --dev
 
 This command will checkout all extensions in `/projects/theia/che` folder and create symbolic link into `/projects/theia/packages` folder.
 
-By default, extensions list is retrieved from https://github.com/eclipse-che/che-theia/blob/master/che-theia-init-sources.yml
+By default, extensions list is retrieved from https://github.com/eclipse-che/che-theia/blob/main/che-theia-init-sources.yml
 
 ### Step 3: Code che-theia extensions
 At this point you can code on che-theia extensions inside `/projects/theia/che/che-theia/extensions` folder. Extensions changes would be taken into account in the next step.
@@ -143,7 +143,7 @@ and run these plugins with the existing che-theia app:
 
 ## Che-Theia development on che.openshift.io
 
-There is a [devfile](https://github.com/eclipse-che/che-theia/blob/master/devfiles/hosted-che-dogfooding.devfile.yaml) to develop Che-Theia on [che.openshift.io](https://che.openshift.io)
+There is a [devfile](https://github.com/eclipse-che/che-theia/blob/main/devfiles/hosted-che-dogfooding.devfile.yaml) to develop Che-Theia on [che.openshift.io](https://che.openshift.io)
 
 Projects directory which is a Persistent Volume on [che.openshift.io](https://che.openshift.io) is limited to 1 gigabyte. It's not enough to build Che-Theia.
 The main idea is to use `/tmp/theia` directotry. Amount for this directory is limited to 3 gigabytes, which is enough to build Che-Theia and run.
@@ -153,7 +153,7 @@ In comparing with `/projects`, temporary directory is not persisted and is clear
 
 Use the badge to create a workspace using factory
 
-[![Try it on che.openshift.io](https://img.shields.io/static/v1?label=che&message=openshift.io&color=orange)](https://che.openshift.io/f?url=https://raw.githubusercontent.com/eclipse-che/che-theia/master/devfiles/hosted-che-dogfooding.devfile.yaml)
+[![Try it on che.openshift.io](https://img.shields.io/static/v1?label=che&message=openshift.io&color=orange)](https://che.openshift.io/f?url=https://raw.githubusercontent.com/eclipse-che/che-theia/main/devfiles/hosted-che-dogfooding.devfile.yaml)
 
 ### Step 1: Initialize Che-Theia in `/tmp/theia` directory
 

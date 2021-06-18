@@ -26,5 +26,5 @@ To make another bugfix release of Che-Theia with the upstream Theia patch includ
 ### Include a diff file
 It's also possible to use a diff file to patch the Theia while releasing Che-Theia:
 - prepare a `*.patch` file
-- put it into the [`patches`](https://github.com/eclipse-che/che-theia/tree/master/dockerfiles/theia/src/patches) folder and a sub-folder which name corresponds to the [`THEIA_VERSION`](https://github.com/eclipse-che/che-theia/blob/7.27.x/build.include#L15) value, e.g. `master`
+- put it into the [`patches`](https://github.com/eclipse-che/che-theia/tree/main/dockerfiles/theia/src/patches) folder and a sub-folder which name corresponds to the [`THEIA_VERSION`](https://github.com/eclipse-che/che-theia/blob/7.27.x/build.include#L15) value, e.g. `master`
 - continue the release process as usual

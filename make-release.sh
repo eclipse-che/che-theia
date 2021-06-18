@@ -43,9 +43,9 @@ sed_in_place() {
 # derive branch from version
 BRANCH=${VERSION%.*}.x
 
-# if doing a .0 release, use master; if doing a .z release, use $BRANCH
+# if doing a .0 release, use main; if doing a .z release, use $BRANCH
 if [[ ${VERSION} == *".0" ]]; then
-  BASEBRANCH="master"
+  BASEBRANCH="main"
 else
   BASEBRANCH="${BRANCH}"
 fi
@@ -87,8 +87,8 @@ apply_files_edits () {
   fi
 
   # update config for Che-Theia generator
-  sed_in_place -e "/checkoutTo:/s/master/${BRANCH}/" che-theia-init-sources.yml
-  sed_in_place -e "/checkoutTo:/s/master/${BRANCH}/" che-theia-init-sources.yml
+  sed_in_place -e "/checkoutTo:/s/main/${BRANCH}/" che-theia-init-sources.yml
+  sed_in_place -e "/checkoutTo:/s/main/${BRANCH}/" che-theia-init-sources.yml
 
   # set the variables for building the images
   sed_in_place -e "s/IMAGE_TAG=\"..*\"/IMAGE_TAG=\"latest\"/" build.include
