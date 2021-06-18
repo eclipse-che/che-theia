@@ -105,7 +105,7 @@ describe('Test Extensions', () => {
                 },
                 {
                     source: 'file://' + sourceExtension2Tmp,
-                    checkoutTo: 'main',
+                    checkoutTo: 'master',
                 },
             ],
         };
@@ -234,7 +234,7 @@ describe('Test Extensions', () => {
                 },
                 {
                     source: 'file://' + sourceExtension2Tmp,
-                    checkoutTo: 'main',
+                    checkoutTo: 'master',
                 },
             ],
         };
@@ -289,7 +289,7 @@ describe('Test Extensions', () => {
                 },
                 {
                     source: 'file://' + sourceExtension2Tmp,
-                    checkoutTo: 'main',
+                    checkoutTo: 'master',
                 },
             ],
         };
@@ -409,7 +409,7 @@ describe('Test Extensions', () => {
                 },
                 {
                     source: 'file://' + sourceExtension2Tmp,
-                    checkoutTo: 'main',
+                    checkoutTo: 'master',
                 },
             ],
         };
