@@ -38,11 +38,13 @@ export class FeaturedPluginStrategy {
     this.outputChannel.appendLine(`getFeaturedPlugins.foundLanguageIds=${foundLanguageIds}`);
 
     // Now compare with what we have as plugin-registry recommendations
-    const value = foundLanguageIds
+    const plugins = foundLanguageIds
       .map(languageId => this.matchingPlugins(languageId, featurePluginStrategyRequest.featuredList))
       .reduce((acc, e) => acc.concat(e), []);
-    this.outputChannel.appendLine(`getFeaturedPlugins.value=${value}`);
-    return value;
+
+    const uniquePlugins = [...new Set(plugins)];
+    this.outputChannel.appendLine(`getFeaturedPlugins.value=${uniquePlugins}`);
+    return uniquePlugins;
   }
 
   protected matchingPlugins(languageId: string, featuredList: FeaturedPlugin[]): string[] {
