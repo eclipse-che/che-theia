@@ -128,4 +128,46 @@ describe('Test FeaturedPluginStrategy', () => {
     expect(featuredPlugins).toBeDefined();
     expect(featuredPlugins.length).toBe(0);
   });
+
+  test('basic xml with duplicated plug-ins', async () => {
+    const featuredPluginStrategy = container.get(FeaturedPluginStrategy);
+
+    // xml language is associated to multiple file extensions
+    languagesByFileExtensions.set('.xml', ['xml']);
+    languagesByFileExtensions.set('.jmx', ['xml']);
+    languagesByFileExtensions.set('.svg', ['xml']);
+    vscodeExtensionByLanguageId.set('xml', ['redhat/xml']);
+
+    const featured: FeaturedPlugin = {
+      id: 'redhat/xml',
+      onLanguages: ['xml'],
+      workspaceContains: [],
+      contributes: {
+        languages: [
+          {
+            id: 'xml',
+            aliases: [],
+            extensions: ['.xml'],
+            filenames: [],
+          },
+        ],
+      },
+    };
+    const featuredList = [featured];
+    const extensionsInCheWorkspace = ['.xml', '.unknown', '.jmx', '.svg'];
+    const devfileHasPlugins = true;
+
+    const request: FeaturedPluginStrategyRequest = {
+      featuredList,
+      vsCodeExtensionsInstalledLanguages,
+      devfileHasPlugins,
+      extensionsInCheWorkspace,
+    };
+
+    const featuredPlugins = await featuredPluginStrategy.getFeaturedPlugins(request);
+    expect(featuredPlugins).toBeDefined();
+    // only one instance of the plug-in even if there are multiple matches
+    expect(featuredPlugins.length).toBe(1);
+    expect(featuredPlugins[0]).toBe('redhat/xml');
+  });
 });
