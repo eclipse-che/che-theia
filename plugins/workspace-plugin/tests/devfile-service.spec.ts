@@ -331,7 +331,7 @@ describe('Devfile Service:', () => {
       ],
     });
 
-    await devfileService.updateProject('/projects/che-theia', 'https://github.com/eclipse-che/che-theia.git', 'master');
+    await devfileService.updateProject('/projects/che-theia', 'https://github.com/eclipse-che/che-theia.git', 'main');
 
     expect(getDevfileMock).toBeCalledTimes(1);
     expect(updateDevfileMock).toBeCalledTimes(1);

@@ -53,15 +53,15 @@ Also you can provide custom `yaml` with your extension set, by using `-c` or `--
 
 `che-theia init -c ./path/to/custom/che-theia-init-sources.yaml`
 
-The sample of `che-theia-init-sources.yaml` can be found [there](https://github.com/eclipse-che/che-theia/blob/master/che-theia-init-sources.yml)
+The sample of `che-theia-init-sources.yaml` can be found [there](https://github.com/eclipse-che/che-theia/blob/main/che-theia-init-sources.yml)
 
 ### Dev mode
 
-Dev mode is the way to use all new extensions from `master` branch:
+Dev mode is the way to use all new extensions from `main` branch:
 
 `che-theia init -d`
 
-And `che-theia` will use `master` branch for all extensions and plugins, regardless of provided configuration
+And `che-theia` will use `main` branch for all extensions and plugins, regardless of provided configuration
 
 ### Development life-cycle
 Che-Theia should be built from root directory only (Root directory of Che-Theia is the directory into which Theia was clonned and `che-theia init` was executed there). In case of building from subdirectories it will mess up dependencies, don't do it.
