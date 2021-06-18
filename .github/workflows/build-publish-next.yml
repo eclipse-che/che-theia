@@ -12,7 +12,7 @@ name: Build & Publish `next`
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:

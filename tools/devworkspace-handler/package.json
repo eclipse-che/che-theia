@@ -32,7 +32,7 @@
   "bugs": {
     "url": "https://github.com/eclipse/che/issues"
   },
-  "homepage": "https://github.com/eclipse/che-theia/blob/master/tools/devworkspace-handler/README.md",
+  "homepage": "https://github.com/eclipse/che-theia/blob/main/tools/devworkspace-handler/README.md",
   "dependencies": {
     "@devfile/api": "latest",
     "axios": "0.21.1",

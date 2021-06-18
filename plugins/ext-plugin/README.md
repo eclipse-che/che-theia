@@ -12,4 +12,4 @@ if (eclipseCheExtPlugin) {
 }
 ```
 
-Exported code is coming from https://github.com/eclipse-che/che-theia/blob/master/extensions/eclipse-che-theia-plugin/src/che-proposed.d.ts
+Exported code is coming from https://github.com/eclipse-che/che-theia/blob/main/extensions/eclipse-che-theia-plugin/src/che-proposed.d.ts
