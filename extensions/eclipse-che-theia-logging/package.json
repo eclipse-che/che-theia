@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "moment": "^2.21.0",
-    "@theia/core": "1.15.0-next.af9b883d"
+    "@theia/core": "1.14.0-next.d734315e"
   },
   "license": "EPL-2.0",
   "theiaExtensions": [
