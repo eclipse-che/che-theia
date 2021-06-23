@@ -225,7 +225,7 @@ export class ChePluginServiceImpl implements ChePluginService {
    * @return list of available plugins
    */
   private async loadPluginList(registry: ChePluginRegistry): Promise<ChePluginMetadataInternal[]> {
-    const registryURI = registry.uri + '/plugins';
+    const registryURI = registry.uri + '/plugins/';
     const registryContent = (await this.httpService.get(registryURI)) || '{}';
     return JSON.parse(registryContent) as ChePluginMetadataInternal[];
   }
