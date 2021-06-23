@@ -7,6 +7,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
+
+import '../../src/browser/style/index.css';
+
 import { CommandContribution, MenuContribution } from '@theia/core/lib/common';
 import { Container, ContainerModule, interfaces } from 'inversify';
 import { FileTree, FileTreeModel, FileTreeWidget, createFileTreeContainer } from '@theia/filesystem/lib/browser';
