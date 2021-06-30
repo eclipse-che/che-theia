@@ -4,7 +4,7 @@
   "keywords": [
     "theia-plugin"
   ],
-  "version": "7.32.1",
+  "version": "7.32.2",
   "description": "Resource Monitor Plugin",
   "license": "EPL-2.0",
   "files": [
@@ -17,7 +17,7 @@
     "@types/jest": "^26",
     "ts-jest": "26.4.3",
     "jest": "^26.6.3",
-    "@eclipse-che/plugin": "7.32.1",
+    "@eclipse-che/plugin": "7.32.2",
     "@theia/plugin-packager": "latest",
     "@theia/plugin": "1.14.0-next.d734315e"
   },
