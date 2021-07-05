@@ -16,4 +16,6 @@ RUN apk add --update --no-cache \
     # synchronization tool
     rsync \
     # patch (required in che-theia to apply patches)
-    patch
+    patch \
+    # requirements to run theia with yarn start
+    libsecret
