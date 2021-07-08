@@ -70,10 +70,9 @@ CI generates several tags of [docker images](https://quay.io/repository/eclipse/
 - `eclipse/che-theia:next`
   - theia branch: [master](https://github.com/theia-ide/theia/)
   - che-theia branch: [main](https://github.com/eclipse-che/che-theia)
-  - CI [build job](https://ci.centos.org/view/Devtools/job/devtools-che-theia-che-build-master/)
-  - CI [nightly build job](https://ci.centos.org/view/Devtools/job/devtools-che-theia-che-nightly/)
+  - CI [next build job](https://github.com/eclipse-che/che-theia/actions/workflows/build-publish-next.yml)
 
-- `eclipse/che-theia:latest` the latest stable Che-Theia 7.x release, updates on each release by CI [release job](https://ci.centos.org/view/Devtools/job/devtools-che-theia-che-release/)
+- `eclipse/che-theia:latest` the latest stable Che-Theia 7.x release, updates on each release by CI [release job](https://github.com/eclipse-che/che-theia/actions/workflows/release.yml)
 
 ## Theia version
 
