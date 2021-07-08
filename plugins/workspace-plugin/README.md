@@ -31,16 +31,16 @@ From the factory definition:
         },
     ```
 
-3. Build the needed "mydockerorg/che-theia:nightly" image with using build script
+3. Build the needed "mydockerorg/che-theia:next" image with using build script
     ```
    $ ./build.sh --organization:mydockerorg
     ```
-4. Push "mydockerorg/che-theia:nightly" image into your repo or use it locally.
+4. Push "mydockerorg/che-theia:next" image into your repo or use it locally.
 
 5. The following mount should be set in the che.env file: CHE_WORKSPACE_VOLUME=/var/run/docker.sock:/var/run/docker.sock;
 Change and restart CHE if it wasn't.
 
-7. Create a new factory from this factory.json file as a working example.  Change  "mydockerorg/che-theia:nightly"  image to your own from steps 3 and 4.
+7. Create a new factory from this factory.json file as a working example.  Change  "mydockerorg/che-theia:next"  image to your own from steps 3 and 4.
     ```
     {
         "v":"4.0",
@@ -115,7 +115,7 @@ Change and restart CHE if it wasn't.
                     },
                     "recipe":{
                         "type":"compose",
-                        "content":"services:\n machine-exec:\n  image: eclipse/che-machine-exec:latest\n theia:\n  image: mydockerorg/che-theia:nightly\n  mem_limit: 1073741824\n dev-machine:\n  image: eclipse/che-dev:nightly\n  mem_limit: 2147483648\n  depends_on:\n    - theia",
+                        "content":"services:\n machine-exec:\n  image: eclipse/che-machine-exec:latest\n theia:\n  image: mydockerorg/che-theia:next\n  mem_limit: 1073741824\n dev-machine:\n  image: eclipse/che-dev:next\n  mem_limit: 2147483648\n  depends_on:\n    - theia",
                         "contentType":"application/x-yaml"
                     }
                 }
