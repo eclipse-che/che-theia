@@ -1,7 +1,7 @@
 # need root user
 USER root
 
-ARG SSHPASS_VERSION="1.06"
+ARG SSHPASS_VERSION="1.08"
 
 # Install sudo
 # Install git
@@ -19,6 +19,6 @@ RUN yum install -y sudo git bzip2 which bash curl openssh less \
           https://rpmfind.net/linux/fedora-secondary/development/rawhide/Everything/s390x/os/Packages/l/libsecret-devel-0.20.4-2.fc34.s390x.rpm || true; } \
     && { [ $(uname -m) == "ppc64le" ] && yum install -y libsecret https://rpmfind.net/linux/centos/8-stream/BaseOS/ppc64le/os/Packages/libsecret-devel-0.18.6-1.el8.ppc64le.rpm || true; } \
     && { [ $(uname -m) == "x86_64" ] && yum install libsecret || true; } \
-    && curl -ssl https://netcologne.dl.sourceforge.net/project/sshpass/sshpass/"${SSHPASS_VERSION}"/sshpass-"${SSHPASS_VERSION}".tar.gz -o sshpass.tar.gz \
+    && curl -sSLo sshpass.tar.gz https://downloads.sourceforge.net/project/sshpass/sshpass/"${SSHPASS_VERSION}"/sshpass-"${SSHPASS_VERSION}".tar.gz \
     && tar -xvf sshpass.tar.gz && cd sshpass-"${SSHPASS_VERSION}" && ./configure && make install && cd .. && rm -rf sshpass-"${SSHPASS_VERSION}" \
     && yum -y clean all && rm -rf /var/cache/yum
