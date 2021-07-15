@@ -45,6 +45,12 @@ export class CheWebviewEnvironment extends WebviewEnvironment {
     return new URI(host).resolve('webview');
   }
 
+  get hostPatternPromise(): Promise<string> {
+    return this.environments
+      .getValue(WebviewExternalEndpoint.pattern)
+      .then(variable => variable?.value || WebviewExternalEndpoint.defaultPattern);
+  }
+
   protected async getWebviewCheEndpoint(): Promise<string | undefined> {
     const webviewCheEndpoints = await this.endpointService.getEndpointsByType(SERVER_WEBVIEWS_ATTR_VALUE);
     if (webviewCheEndpoints.length === 1) {
