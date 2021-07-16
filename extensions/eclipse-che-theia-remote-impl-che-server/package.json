@@ -6,7 +6,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "7.33.0",
+  "version": "7.33.1",
   "files": [
     "lib",
     "src"
@@ -15,7 +15,7 @@
     "axios": "0.21.1",
     "@eclipse-che/api": "7.33.0",
     "@kubernetes/client-node": "^0.12.1",
-    "@eclipse-che/theia-remote-api": "7.33.0",
+    "@eclipse-che/theia-remote-api": "7.33.1",
     "@eclipse-che/workspace-client": "0.0.1-1625140858"
   },
   "scripts": {
