@@ -13,8 +13,14 @@ import { Repository } from '../src/repository';
 
 describe('Test Repository', () => {
     test('test valid repository', async () => {
-        const repository = new Repository('https://github.com/eclipse/che');
+        let repository = new Repository('https://github.com/eclipse/che');
         expect(repository.getRepositoryName()).toBe('che');
+        repository = new Repository('https://github.com/eclipse/che.git');
+        expect(repository.getRepositoryName()).toBe('che');
+        repository = new Repository('git@github.com:eclipse-che/che-theia.git');
+        expect(repository.getRepositoryName()).toBe('che-theia');
+        repository = new Repository('file:///var/folders/path/source-code1');
+        expect(repository.getRepositoryName()).toBe('source-code1');
     });
 
     test('test invalid repository', async () => {
