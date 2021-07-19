@@ -315,32 +315,37 @@ describe('Test Resource Monitor Plugin', () => {
 
       resMonitor.showDetailedInfo();
 
+      const separator = { type: 'separator', label: '' };
+
       const item1: theia.QuickPickItem = {
+        type: 'item',
         label: 'che-jwtproxy7yc7hvrc',
         detail: 'Mem (MB): 100 (Used) / 2000 (Limited) | CPU : 250m (Used) / 500m (Limited)',
-        showBorder: true,
       };
       const item2: theia.QuickPickItem = {
+        type: 'item',
         label: 'maven',
         detail: 'Mem (MB): 153 (Used) / 1000 (Limited) | CPU : 100m (Used) / not set (Limited)',
-        showBorder: true,
       };
       const item3: theia.QuickPickItem = {
+        type: 'item',
         label: 'vscode-javauil',
         detail: 'Mem (MB): 0 (Used) / 0 (Limited) | CPU : 20m (Used) / not set (Limited)',
-        showBorder: true,
       };
       const item4: theia.QuickPickItem = {
+        type: 'item',
         label: 'che-machine-exec122',
         detail: 'Mem (MB): 0 (Used) / 0 (Limited) | CPU : 15m (Used) / 5000m (Limited)',
-        showBorder: true,
       };
       const item5: theia.QuickPickItem = {
+        type: 'item',
         label: 'theia-idewf0',
         detail: 'Mem (MB): 5 (Used) / 536 (Limited) | CPU : 10m (Used) / not set (Limited)',
-        showBorder: true,
       };
-      expect(theia.window.showQuickPick).toHaveBeenCalledWith([item1, item2, item3, item4, item5], {});
+      expect(theia.window.showQuickPick).toHaveBeenCalledWith(
+        [item1, separator, item2, separator, item3, separator, item4, separator, item5, separator],
+        {}
+      );
     });
   });
   describe('start', () => {

@@ -14,7 +14,6 @@ import { inject, injectable } from 'inversify';
 
 import { ChePluginManager } from './che-plugin-manager';
 import { ChePluginRegistry } from '../../common/che-plugin-protocol';
-import { MonacoQuickOpenService } from '@theia/monaco/lib/browser/monaco-quick-open-service';
 import { QuickInputService } from '@theia/core/lib/browser';
 
 function cmd(id: string, label: string): Command {
@@ -45,9 +44,6 @@ export class ChePluginCommandContribution implements CommandContribution {
   @inject(QuickInputService)
   protected readonly quickInputService: QuickInputService;
 
-  @inject(MonacoQuickOpenService)
-  protected readonly monacoQuickOpenService: MonacoQuickOpenService;
-
   @inject(ChePluginManager)
   protected readonly chePluginManager: ChePluginManager;
 
@@ -62,7 +58,7 @@ export class ChePluginCommandContribution implements CommandContribution {
    * Makes new plugin registry active and displays a list of plugins from this registry.
    */
   async addPluginRegistry(): Promise<void> {
-    const name = await this.quickInputService.open({
+    const name = await this.quickInputService.input({
       prompt: 'Name of your registry',
     });
 
@@ -70,7 +66,7 @@ export class ChePluginCommandContribution implements CommandContribution {
       return;
     }
 
-    const uri = await this.quickInputService.open({
+    const uri = await this.quickInputService.input({
       prompt: 'Registry URI',
     });
 

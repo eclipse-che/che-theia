@@ -113,7 +113,8 @@ export class SSHPluginImpl implements SSHPlugin {
     ];
 
     if (gitHubActions) {
-      items.push({ label: this.cmdAddKeyToGitHub.label, showBorder: true });
+      items.push({ label: this.cmdAddKeyToGitHub.label });
+      items.push({ type: 'separator', label: '' });
     }
 
     const command = await theia.window.showQuickPick<theia.QuickPickItem>(items, {});
