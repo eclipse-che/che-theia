@@ -200,11 +200,9 @@ export class ResourceMonitor {
       const cpuLimited = element.cpuLimit ? `${element.cpuLimit}m` : 'not set';
 
       items.push(<theia.QuickPickItem>{
-        type: 'item',
         label: element.name,
         detail: `Mem (MB): ${memUsed} (Used) / ${memLimited} (Limited) | CPU : ${cpuUsed}m (Used) / ${cpuLimited} (Limited)`,
       });
-      items.push({ type: 'separator', label: '' });
     });
     theia.window.showQuickPick(items, {});
   }
