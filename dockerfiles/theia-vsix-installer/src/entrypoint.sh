@@ -20,6 +20,12 @@ for container in $(echo "$WORKSPACE" | sed -e 's|[[,]\({"attributes":{"app.kuber
     mkdir -p "$dest"
     unset IFS
     for url in $(echo "$urls" | sed 's/[",]/ /g' - ); do
+        # check if URL starts with relative:extension/
+        # example of url: "relative:extension/resources/download_jboss_org/jbosstools/static/jdt_ls/stable/java-0.75.0-60.vsix
+        if [[ "$url" =~ ^relative:extension/.* ]]; then
+            # update URL by using the Plugin Registry URL as prefix
+            url=${CHE_PLUGIN_REGISTRY_URL}/${url#relative:extension/}
+        fi
         echo; echo "downloading $urls to $dest"
         curl -L "$url" > "$dest/$(basename "$url")"
     done
