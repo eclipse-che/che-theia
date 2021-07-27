@@ -47,6 +47,14 @@ components:
         value: "0"
 commands:
 
+  - name: set theia to the pinned revision
+    actions:
+      - workdir: /projects/theia
+        type: exec
+        command: |
+          bash -c 'source /projects/che-theia/build.include && echo "Setting theia to revision ${THEIA_COMMIT_SHA}" && git reset --hard "${THEIA_COMMIT_SHA}"'
+        component: che-dev
+
   - name: init ... DEV che-theia
     actions:
       - type: exec
