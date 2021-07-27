@@ -36,7 +36,7 @@ components:
   - id: redhat/vscode-yaml/latest
     type: chePlugin
 
-  - id: che-incubator/typescript/latest
+  - id: vscode/typescript-language-features/latest
     type: chePlugin
     memoryLimit: 2048M
 

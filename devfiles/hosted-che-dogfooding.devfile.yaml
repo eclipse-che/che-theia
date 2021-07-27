@@ -14,7 +14,7 @@
 apiVersion: 1.0.0
 
 metadata:
-  name: theia-dogfooding
+  generateName: che-theia-dev-hostedche-
 
 projects:
   - name: theia
@@ -39,7 +39,7 @@ components:
         value: "0"
 
   - type: chePlugin
-    id: che-incubator/typescript/latest
+    id: vscode/typescript-language-features/latest
     memoryLimit: 2048M
 
   - type: chePlugin
@@ -58,7 +58,7 @@ components:
         attributes:
           protocol: http
           public: 'true'
-    memoryLimit: 3Gi
+    memoryLimit: 4Gi
     env:
       - name: BUILD_PATH
         value: /tmp
@@ -103,6 +103,8 @@ commands:
       - workdir: /projects
         type: exec
         command: |
+          export SKIP_LINT=true; \
+          export SKIP_TEST=true; \
           if [ -d "$BUILD_PATH/theia/examples/assembly" ]; then \
             echo -e '\e[32mBuilding che-theia...\e[0m'; \
             cd $BUILD_PATH/theia; \
