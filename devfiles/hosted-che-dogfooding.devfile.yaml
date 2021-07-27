@@ -105,6 +105,7 @@ commands:
         command: |
           export SKIP_LINT=true; \
           export SKIP_TEST=true; \
+          export SKIP_FORMAT=true; \
           if [ -d "$BUILD_PATH/theia/examples/assembly" ]; then \
             echo -e '\e[32mBuilding che-theia...\e[0m'; \
             cd $BUILD_PATH/theia; \
