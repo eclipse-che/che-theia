@@ -19,6 +19,12 @@ import { TheiaImportCommand, buildProjectImportCommand } from './theia-commands'
 
 import { WorkspaceFolderUpdaterImpl } from './workspace-folder-updater';
 
+/**
+ * che default workspaces name
+ * see extensions/eclipse-che-theia-workspace/src/node/che-workspace-server.ts
+ */
+const CHE_DEFAULT_WORKSPACE_ROOT_NAME = 'che.theia-workspace';
+
 const onDidCloneSourcesEmitter = new theia.EventEmitter<void>();
 
 export const onDidCloneSources = onDidCloneSourcesEmitter.event;
@@ -60,12 +66,22 @@ export class WorkspaceProjectsManager {
     const cloningPromise = this.executeCloneCommands(cloneCommandList, isMultiRoot);
     theia.window.withProgress({ location: { viewId: 'explorer' } }, () => cloningPromise);
     await cloningPromise;
-
+    const { workspaceFile, workspaceFolders = [] } = theia.workspace;
+    const isCustomWorkspaceRoot =
+      workspaceFile && path.basename(workspaceFile.path) !== CHE_DEFAULT_WORKSPACE_ROOT_NAME;
     if (isMultiRoot) {
       // Backward compatibility for single-root workspaces
       // we need it to support workspaces which were created before switching multi-root mode to ON by default
       for (const project of projects) {
         const projectPath = this.getProjectPath(project);
+        // All projects should be added to the default workspace
+        // But only the project which defined on workspace config should be added to current workspace
+        // see issues https://github.com/eclipse/che/issues/20196
+        const shouldAddedToWorkspaced =
+          !isCustomWorkspaceRoot || workspaceFolders.some(each => each.uri.path === projectPath);
+        if (!shouldAddedToWorkspaced) {
+          return;
+        }
         if (await fs.pathExists(projectPath)) {
           await this.workspaceFolderUpdater.addWorkspaceFolder(projectPath);
         }
