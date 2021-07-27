@@ -45,9 +45,6 @@ components:
   - type: chePlugin
     id: redhat/vscode-yaml/latest
 
-  - type: chePlugin
-    id: eclipse/che-machine-exec-plugin/latest
-
   - type: dockerimage
     image: 'quay.io/eclipse/che-theia-dev:next'
     alias: che-dev
