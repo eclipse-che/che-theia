@@ -72,6 +72,7 @@ commands:
         command: >
                  export SKIP_LINT=true &&
                  export SKIP_TEST=true &&
+                 export SKIP_FORMAT=true &&
                  yarn &&
                  che-theia production &&
                  echo -e "\e[32mDone.\e[0m build ... che-theia"
