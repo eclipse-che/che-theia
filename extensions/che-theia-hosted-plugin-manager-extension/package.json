@@ -3,16 +3,16 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "0.0.1",
+  "version": "7.34.0",
   "files": [
     "lib",
     "node"
   ],
   "dependencies": {
-    "@theia/core": "next",
-    "@theia/plugin-dev": "next",
-    "@theia/plugin-ext": "next",
-    "@eclipse-che/theia-remote-api": "^0.0.1"
+    "@theia/core": "1.16.0-next.3716c071",
+    "@theia/plugin-dev": "1.16.0-next.3716c071",
+    "@theia/plugin-ext": "1.16.0-next.3716c071",
+    "@eclipse-che/theia-remote-api": "7.34.0"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build && yarn test",
