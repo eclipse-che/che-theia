@@ -29,7 +29,7 @@ export class CheServerRemoteApiImpl {
 
   constructor() {
     this.baseAPIUrl = process.env.CHE_API_INTERNAL || process.env.CHE_API_EXTERNAL;
-    if (this.baseAPIUrl === undefined || this.baseAPIUrl === '') {
+    if (!this.baseAPIUrl) {
       console.error('Unable to create Che API REST client: "CHE_API" is not set');
     }
 
