@@ -74,12 +74,9 @@ export class WorkspaceProjectsManager {
       // we need it to support workspaces which were created before switching multi-root mode to ON by default
       for (const project of projects) {
         const projectPath = this.getProjectPath(project);
-        // All projects should be added to the default workspace
-        // But only the project which defined on workspace config should be added to current workspace
-        // see issues https://github.com/eclipse/che/issues/20196
-        const shouldAddedToWorkspaced =
+        const shouldAddedToWorkspace =
           !isCustomWorkspaceRoot || workspaceFolders.some(each => each.uri.path === projectPath);
-        if (!shouldAddedToWorkspaced) {
+        if (!shouldAddedToWorkspace) {
           return;
         }
         if (await fs.pathExists(projectPath)) {
