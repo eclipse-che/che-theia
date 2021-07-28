@@ -1,2 +1,2 @@
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM registry.access.redhat.com/ubi8/nodejs-12:1-87 as runtime
+FROM registry.access.redhat.com/ubi8/nodejs-12:1-90 as runtime
