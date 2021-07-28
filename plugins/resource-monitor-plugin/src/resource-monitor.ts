@@ -202,7 +202,6 @@ export class ResourceMonitor {
       items.push(<theia.QuickPickItem>{
         label: element.name,
         detail: `Mem (MB): ${memUsed} (Used) / ${memLimited} (Limited) | CPU : ${cpuUsed}m (Used) / ${cpuLimited} (Limited)`,
-        showBorder: true,
       });
     });
     theia.window.showQuickPick(items, {});

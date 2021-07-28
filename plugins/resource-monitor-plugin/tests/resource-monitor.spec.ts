@@ -318,27 +318,22 @@ describe('Test Resource Monitor Plugin', () => {
       const item1: theia.QuickPickItem = {
         label: 'che-jwtproxy7yc7hvrc',
         detail: 'Mem (MB): 100 (Used) / 2000 (Limited) | CPU : 250m (Used) / 500m (Limited)',
-        showBorder: true,
       };
       const item2: theia.QuickPickItem = {
         label: 'maven',
         detail: 'Mem (MB): 153 (Used) / 1000 (Limited) | CPU : 100m (Used) / not set (Limited)',
-        showBorder: true,
       };
       const item3: theia.QuickPickItem = {
         label: 'vscode-javauil',
         detail: 'Mem (MB): 0 (Used) / 0 (Limited) | CPU : 20m (Used) / not set (Limited)',
-        showBorder: true,
       };
       const item4: theia.QuickPickItem = {
         label: 'che-machine-exec122',
         detail: 'Mem (MB): 0 (Used) / 0 (Limited) | CPU : 15m (Used) / 5000m (Limited)',
-        showBorder: true,
       };
       const item5: theia.QuickPickItem = {
         label: 'theia-idewf0',
         detail: 'Mem (MB): 5 (Used) / 536 (Limited) | CPU : 10m (Used) / not set (Limited)',
-        showBorder: true,
       };
       expect(theia.window.showQuickPick).toHaveBeenCalledWith([item1, item2, item3, item4, item5], {});
     });

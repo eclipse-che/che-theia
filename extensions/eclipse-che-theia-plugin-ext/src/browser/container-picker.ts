@@ -9,32 +9,21 @@
  ***********************************************************************/
 
 import { DevfileComponentStatus, DevfileService } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
-import {
-  QuickOpenGroupItem,
-  QuickOpenItem,
-  QuickOpenMode,
-  QuickOpenModel,
-} from '@theia/core/lib/common/quick-open-model';
-import { QuickOpenOptions, QuickOpenService } from '@theia/core/lib/browser/quick-open/quick-open-service';
+import { QuickInputService, QuickPickItem } from '@theia/core/lib/browser';
 import { inject, injectable } from 'inversify';
-
-import { QuickOpenHandler } from '@theia/core/lib/browser/quick-open';
 
 const CONTAINERS_PLACE_HOLDER = 'Pick a container to run the task';
 
 @injectable()
-export class ContainerPicker implements QuickOpenHandler, QuickOpenModel {
-  prefix: string = 'container ';
-  description: string = 'Pick a container name.';
-
+export class ContainerPicker {
   @inject(DevfileService)
   protected readonly devfileService: DevfileService;
 
-  @inject(QuickOpenService)
-  protected readonly quickOpenService: QuickOpenService;
+  @inject(QuickInputService)
+  private readonly quickInputService: QuickInputService;
 
   private componentStatuses: DevfileComponentStatus[];
-  protected items: QuickOpenGroupItem[];
+  protected items: QuickPickItem[];
 
   /**
    * Returns a container name if there's just one container in the current workspace.
@@ -58,21 +47,17 @@ export class ContainerPicker implements QuickOpenHandler, QuickOpenModel {
       this.items.push(
         ...containerNames.map(
           containerName =>
-            new QuickOpenGroupItem({
+            ({
               label: containerName,
-              showBorder: false,
-              run(mode: QuickOpenMode): boolean {
-                if (mode !== QuickOpenMode.OPEN) {
-                  return false;
-                }
+              execute: (item: QuickPickItem) => {
                 resolve(containerName);
                 return true;
               },
-            })
+            } as QuickPickItem)
         )
       );
 
-      this.quickOpenService.open(this, this.getOptions());
+      this.quickInputService.showQuickPick(this.items, { placeholder: CONTAINERS_PLACE_HOLDER });
     });
   }
 
@@ -89,77 +74,50 @@ export class ContainerPicker implements QuickOpenHandler, QuickOpenModel {
       this.items = this.toQuickPickItems(container => {
         resolve(container);
       });
-      this.quickOpenService.open(this, this.getOptions());
+      this.quickInputService.showQuickPick(this.items, { placeholder: CONTAINERS_PLACE_HOLDER });
     });
   }
 
-  private toQuickPickItems(handler: { (containerName: string): void }): QuickOpenGroupItem[] {
-    const items: QuickOpenGroupItem[] = [];
+  private toQuickPickItems(handler: { (containerName: string): void }): QuickPickItem[] {
+    const items: QuickPickItem[] = [];
 
     const devContainers = this.componentStatuses.filter(component => component.isUser);
     const toolingContainers = this.componentStatuses.filter(component => !component.isUser);
 
-    items.push(
-      ...devContainers.map(
-        (container, index) =>
-          new QuickOpenGroupItem({
-            label: container.name,
-            groupLabel:
-              index === 0 ? (devContainers.length === 1 ? 'Developer Container' : 'Developer Containers') : '',
-            showBorder: false,
-            run(mode: QuickOpenMode): boolean {
-              if (mode !== QuickOpenMode.OPEN) {
-                return false;
-              }
-              handler(container.name);
-              return true;
-            },
-          })
-      )
+    const devContainerItems = devContainers.map(
+      container =>
+        ({
+          label: container.name,
+          execute: (item: QuickPickItem) => {
+            handler(container.name);
+            return true;
+          },
+        } as QuickPickItem)
     );
 
-    items.push(
-      ...toolingContainers.map(
-        (container, index) =>
-          new QuickOpenGroupItem({
-            label: container.name,
-            groupLabel:
-              devContainers.length <= 0
-                ? ''
-                : index === 0
-                ? toolingContainers.length === 1
-                  ? 'Tooling Container'
-                  : 'Tooling Containers'
-                : '',
-            showBorder: devContainers.length <= 0 ? false : index === 0 ? true : false,
-            run(mode: QuickOpenMode): boolean {
-              if (mode !== QuickOpenMode.OPEN) {
-                return false;
-              }
-              handler(container.name);
-              return true;
-            },
-          })
-      )
+    if (devContainerItems.length > 0) {
+      const groupLabel = devContainers.length === 1 ? 'Developer Container' : 'Developer Containers';
+      devContainerItems.unshift({ type: 'separator', label: groupLabel });
+    }
+
+    const toolingContainerItems = toolingContainers.map(
+      container =>
+        ({
+          label: container.name,
+          execute: (item: QuickPickItem) => {
+            handler(container.name);
+            return true;
+          },
+        } as QuickPickItem)
     );
+
+    if (toolingContainerItems.length > 0) {
+      const groupLabel = toolingContainers.length === 1 ? 'Tooling Container' : 'Tooling Containers';
+      toolingContainerItems.unshift({ type: 'separator', label: groupLabel });
+    }
+
+    items.push(...devContainerItems, ...toolingContainerItems);
 
     return items;
-  }
-
-  getOptions(): QuickOpenOptions {
-    return {
-      placeholder: CONTAINERS_PLACE_HOLDER,
-      fuzzyMatchLabel: true,
-      fuzzyMatchDescription: true,
-      fuzzySort: false,
-    };
-  }
-
-  onType(lookFor: string, acceptor: (items: QuickOpenItem[]) => void): void {
-    acceptor(this.items);
-  }
-
-  getModel(): QuickOpenModel {
-    return this;
   }
 }
