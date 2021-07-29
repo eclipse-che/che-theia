@@ -9,9 +9,9 @@
     "node"
   ],
   "dependencies": {
-    "@theia/core": "1.16.0-next.3716c071",
-    "@theia/plugin-dev": "1.16.0-next.3716c071",
-    "@theia/plugin-ext": "1.16.0-next.3716c071",
+    "@theia/core": "1.15.0",
+    "@theia/plugin-dev": "1.15.0",
+    "@theia/plugin-ext": "1.15.0",
     "@eclipse-che/theia-remote-api": "7.34.0"
   },
   "scripts": {
