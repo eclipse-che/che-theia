@@ -62,9 +62,14 @@ if [[ "${BASEBRANCH}" != "${BRANCH}" ]]; then
 fi
 
 apply_files_edits () {
-  THEIA_VERSION=$(curl --silent http://registry.npmjs.org/-/package/@theia/core/dist-tags | sed 's/.*"next":"\(.*\)".*/\1/')
+  BUILD_INCLUDE_THEIA_COMMIT_SHA=$(grep -e "^THEIA_COMMIT_SHA=" build.include | cut -d '=' -f2 | tr -d '"')
+  if [ -z "${BUILD_INCLUDE_THEIA_COMMIT_SHA}"]; then
+    THEIA_VERSION=${BUILD_INCLUDE_THEIA_COMMIT_SHA}
+  else
+    THEIA_VERSION=$(curl --silent http://registry.npmjs.org/-/package/@theia/core/dist-tags | sed 's/.*"next":"\(.*\)".*/\1/')
+  fi
   if [[ ! ${THEIA_VERSION} ]] || [[ ${THEIA_VERSION} == \"Unauthorized\" ]]; then
-    echo "Failed to get Theia next version from npmjs.org. Try again."; echo
+    echo "Failed to get Theia next version from npmjs.org or from .build-include. Try again."; echo
     exit 1
   fi
 
