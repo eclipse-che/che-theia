@@ -175,8 +175,8 @@ After changing sources of Theia or Che-Theia use `'2. Rsync sources'` to synchro
 
 ```
 [che-dev]
-$ rsync -rtv --exclude='node_mobules' --exclude='package.json' --exclude='root-compilation.tsconfig.json' /projects/theia/ /tmp/theia/; \
-$ rsync -rtv --exclude='node_mobules' --exclude='package.json' /projects/che-theia/ /tmp/theia/che/che-theia/; \
+$ rsync -rtv --exclude='node_modules' --exclude='package.json' --exclude='root-compilation.tsconfig.json' /projects/theia/ /tmp/theia/; \
+$ rsync -rtv --exclude='node_modules' --exclude='package.json' /projects/che-theia/ /tmp/theia/che/che-theia/; \
 
 ```
 
