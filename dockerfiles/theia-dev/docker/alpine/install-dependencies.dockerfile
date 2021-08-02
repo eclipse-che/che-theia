@@ -17,5 +17,7 @@ RUN apk add --update --no-cache \
     rsync \
     # patch (required in che-theia to apply patches)
     patch \
+    # requirements to build keytar
+    libsecret-dev \
     # requirements to run theia with yarn start
     libsecret
