@@ -12,7 +12,7 @@ import * as React from 'react';
 import { AboutDialog, AboutDialogProps, ABOUT_CONTENT_CLASS } from '@theia/core/lib/browser/about-dialog';
 import { injectable, inject, postConstruct } from 'inversify';
 import { CheProductService, Product } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
-import { ThemeService, Theme } from '@theia/core/lib/browser/theming';
+import { ThemeService, Theme, ThemeChangeEvent } from '@theia/core/lib/browser/theming';
 import { Logo } from '@eclipse-che/plugin';
 
 import '../../src/browser/style/che-theia-about.css';
@@ -67,7 +67,7 @@ export class AboutCheTheiaDialog extends AboutDialog {
             const productLogo: Logo = productInfo.logo;
             src = this.isDark(this.themeService.getCurrentTheme()) ? productLogo.dark : productLogo.light;
 
-            this.themeService.onThemeChange(e => {
+            this.themeService.onDidColorThemeChange((e: ThemeChangeEvent) => {
                 src = this.isDark(e.newTheme) ? productLogo.dark : productLogo.light;
             });
         } else {

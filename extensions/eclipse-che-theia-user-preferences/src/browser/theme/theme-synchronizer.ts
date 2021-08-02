@@ -9,11 +9,11 @@
  ***********************************************************************/
 
 import { FrontendApplicationContribution, PreferenceScope, PreferenceServiceImpl } from '@theia/core/lib/browser';
+import { ThemeChangeEvent, ThemeService } from '@theia/core/lib/browser/theming';
 import { inject, injectable } from 'inversify';
 
 import { MaybePromise } from '@theia/core';
 import { TheiaThemePreferences } from './theme-preferences';
-import { ThemeService } from '@theia/core/lib/browser/theming';
 
 @injectable()
 export class TheiaThemePreferenceSynchronizer implements FrontendApplicationContribution {
@@ -38,7 +38,7 @@ export class TheiaThemePreferenceSynchronizer implements FrontendApplicationCont
       }
     });
 
-    ThemeService.get().onThemeChange(e => {
+    ThemeService.get().onDidColorThemeChange((e: ThemeChangeEvent) => {
       if (this.preferenceChange) {
         this.preferenceChange = false;
         return;

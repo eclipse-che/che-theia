@@ -8,37 +8,19 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import {
-  ApplicationShell,
-  KeybindingRegistry,
-  QuickOpenGroupItem,
-  QuickOpenGroupItemOptions,
-  QuickOpenHandler,
-  QuickOpenItem,
-  QuickOpenItemOptions,
-  QuickOpenMode,
-  QuickOpenModel,
-  QuickOpenOptions,
-  QuickOpenService,
-} from '@theia/core/lib/browser';
+import { ApplicationShell, KeybindingRegistry, QuickInputService, QuickPickItem } from '@theia/core/lib/browser';
 import { inject, injectable } from 'inversify';
 
 import { OpenTerminalHandler } from './exec-terminal-contribution';
-import { TerminalApiEndPointProvider } from '../server-definition/terminal-proxy-creator';
 import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { isDevContainer } from './terminal-command-filter';
 
 @injectable()
-export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenModel {
-  prefix: string = 'term ';
-  description: string = 'Create new terminal for specific container.';
-  private items: QuickOpenItem[] = [];
+export class TerminalQuickOpenService {
+  private items: QuickPickItem[] = [];
 
-  @inject(QuickOpenService)
-  private readonly quickOpenService: QuickOpenService;
-
-  @inject('TerminalApiEndPointProvider')
-  protected readonly termApiEndPointProvider: TerminalApiEndPointProvider;
+  @inject(QuickInputService)
+  private readonly quickInputService: QuickInputService;
 
   @inject(WorkspaceService)
   protected readonly workspaceService: WorkspaceService;
@@ -60,57 +42,41 @@ export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenMode
     const devContainers = containers.filter(container => isDevContainer(container));
     const toolingContainers = containers.filter(container => !isDevContainer(container));
 
-    this.items.push(
-      ...devContainers.map((container, index) => {
-        const options: QuickOpenItemOptions = {
+    const devContainerItems = devContainers.map(
+      container =>
+        ({
           label: container.name,
-          run(mode: QuickOpenMode): boolean {
-            if (mode !== QuickOpenMode.OPEN) {
-              return false;
-            }
+          execute: (item: QuickPickItem) => {
             setTimeout(() => doOpen(container.name), 0);
-
             return true;
           },
-        };
-
-        const group: QuickOpenGroupItemOptions = {
-          groupLabel: index === 0 ? (devContainers.length === 1 ? 'Developer Container' : 'Developer Containers') : '',
-          showBorder: false,
-        };
-
-        return new QuickOpenGroupItem<QuickOpenGroupItemOptions>({ ...options, ...group });
-      }),
-      ...toolingContainers.map((container, index) => {
-        const options: QuickOpenItemOptions = {
-          label: container.name,
-          run(mode: QuickOpenMode): boolean {
-            if (mode !== QuickOpenMode.OPEN) {
-              return false;
-            }
-            setTimeout(() => doOpen(container.name), 0);
-
-            return true;
-          },
-        };
-
-        const group: QuickOpenGroupItemOptions = {
-          groupLabel:
-            devContainers.length <= 0
-              ? ''
-              : index === 0
-              ? toolingContainers.length === 1
-                ? 'Tooling Container'
-                : 'Tooling Containers'
-              : '',
-          showBorder: devContainers.length <= 0 ? false : index === 0 ? true : false,
-        };
-
-        return new QuickOpenGroupItem<QuickOpenGroupItemOptions>({ ...options, ...group });
-      })
+        } as QuickPickItem)
     );
 
-    this.showTerminalItems();
+    if (devContainerItems.length > 0) {
+      const groupLabel = devContainers.length === 1 ? 'Developer Container' : 'Developer Containers';
+      devContainerItems.unshift({ type: 'separator', label: groupLabel });
+    }
+
+    const toolingContainerItems = toolingContainers.map(
+      container =>
+        ({
+          label: container.name,
+          execute: (item: QuickPickItem) => {
+            setTimeout(() => doOpen(container.name), 0);
+            return true;
+          },
+        } as QuickPickItem)
+    );
+
+    if (toolingContainerItems.length > 0) {
+      const groupLabel = toolingContainers.length === 1 ? 'Tooling Container' : 'Tooling Containers';
+      toolingContainerItems.unshift({ type: 'separator', label: groupLabel });
+    }
+
+    this.items.push(...devContainerItems, ...toolingContainerItems);
+
+    this.quickInputService.showQuickPick(this.items, { placeholder: 'Select container to create new terminal' });
   }
 
   protected getShortCutCommand(): string | undefined {
@@ -121,48 +87,5 @@ export class TerminalQuickOpenService implements QuickOpenHandler, QuickOpenMode
     }
 
     return undefined;
-  }
-
-  getOptions(): QuickOpenOptions {
-    const placeholder = 'Select container to create new terminal';
-    return {
-      placeholder: placeholder,
-      fuzzyMatchLabel: true,
-      fuzzyMatchDescription: true,
-      fuzzySort: false,
-    };
-  }
-
-  private showTerminalItems(): void {
-    this.quickOpenService.open(this, this.getOptions());
-  }
-
-  onType(lookFor: string, acceptor: (items: QuickOpenItem[]) => void): void {
-    acceptor(this.items);
-  }
-
-  getModel(): QuickOpenModel {
-    return this;
-  }
-}
-
-export class NewTerminalItem extends QuickOpenItem {
-  constructor(protected readonly _machineName: string, private readonly execute: (item: NewTerminalItem) => void) {
-    super({
-      label: _machineName,
-    });
-  }
-
-  get machineName(): string {
-    return this._machineName;
-  }
-
-  run(mode: QuickOpenMode): boolean {
-    if (mode !== QuickOpenMode.OPEN) {
-      return false;
-    }
-    this.execute(this);
-
-    return true;
   }
 }
