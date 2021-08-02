@@ -14,7 +14,7 @@
 apiVersion: 1.0.0
 
 metadata:
-  name: theia-dogfooding
+  generateName: che-theia-dev-devsandbox-
 
 projects:
   - name: theia
@@ -31,7 +31,6 @@ projects:
 
 components:
   - id: eclipse/che-theia/latest
-    memoryLimit: 1500M
     type: cheEditor
     alias: theia-editor
     env:
@@ -39,14 +38,11 @@ components:
         value: "0"
 
   - type: chePlugin
-    id: che-incubator/typescript/latest
-    memoryLimit: 2048M
+    id: vscode/typescript-language-features/latest
+    memoryLimit: 768M
 
   - type: chePlugin
     id: redhat/vscode-yaml/latest
-
-  - type: chePlugin
-    id: eclipse/che-machine-exec-plugin/latest
 
   - type: dockerimage
     image: 'quay.io/eclipse/che-theia-dev:next'
@@ -58,13 +54,22 @@ components:
         attributes:
           protocol: http
           public: 'true'
-    memoryLimit: 3Gi
+    memoryLimit: 4Gi
     env:
       - name: BUILD_PATH
         value: /tmp
 
 commands:
-  - name: '1. Init che-theia'
+
+  - name: '1. Set theia to the pinned revision'
+    actions:
+      - workdir: /projects/theia
+        type: exec
+        command: |
+          bash -c 'source /projects/che-theia/build.include && echo "Setting theia to revision ${THEIA_COMMIT_SHA}" && git reset --hard "${THEIA_COMMIT_SHA}"'
+        component: che-dev
+
+  - name: '2. Init che-theia'
     actions:
       - workdir: /projects
         type: exec
@@ -82,7 +87,7 @@ commands:
           fi
         component: che-dev
 
-  - name: '2. Rsync sources'
+  - name: '3. Rsync sources'
     actions:
       - workdir: /projects
         type: exec
@@ -98,11 +103,14 @@ commands:
           fi
         component: che-dev
 
-  - name: '3. Build che-theia'
+  - name: '4. Build che-theia'
     actions:
       - workdir: /projects
         type: exec
         command: |
+          export SKIP_LINT=true; \
+          export SKIP_TEST=true; \
+          export SKIP_FORMAT=true; \
           if [ -d "$BUILD_PATH/theia/examples/assembly" ]; then \
             echo -e '\e[32mBuilding che-theia...\e[0m'; \
             cd $BUILD_PATH/theia; \
@@ -114,7 +122,7 @@ commands:
           fi
         component: che-dev
 
-  - name: '4.1. Prepare theia-* dirs'
+  - name: '5.1. Prepare theia-* dirs'
     actions:
       - workdir: /projects
         type: exec
@@ -127,7 +135,7 @@ commands:
           echo -e '\e[32mDone\e[0m'
         component: theia-editor
 
-  - name: '4.2. Launch'
+  - name: '5.2. Launch'
     actions:
       - workdir: /projects
         type: exec

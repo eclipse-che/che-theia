@@ -12,13 +12,7 @@
 name: CI
 
 # Trigger the workflow on pull request
-on:
-  pull_request:
-    paths-ignore:
-      - '**/*.md'
-      - devfile.yaml
-      - 'devfiles/*'
-      - 'tools/*'
+on: [pull_request]
 
 jobs:
   node-build:
