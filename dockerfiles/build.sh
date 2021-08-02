@@ -43,7 +43,7 @@ build_directory() {
 
 build_all() {
   # loop on all directories and call build.sh script if present
-  for directory in */ ; do
+  for directory in 'theia-dev/' 'theia/' 'theia-endpoint-runtime-binary/' 'theia-vsix-installer/' ; do
     if [ -e ${directory}/build.sh ] ; then
       build_directory ${directory}
     else
