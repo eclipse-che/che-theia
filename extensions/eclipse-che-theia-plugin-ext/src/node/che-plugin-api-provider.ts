@@ -21,7 +21,7 @@ export class ChePluginApiProvider implements ExtPluginApiProvider {
         initFunction: 'initializeApi',
         initVariable: 'che_api_provider',
       },
-      backendInitPath: require.resolve('@eclipse-che/theia-plugin-ext/lib/plugin/node/che-api-node-provider'),
+      backendInitPath: '@eclipse-che/theia-plugin-ext/lib/plugin/node/che-api-node-provider',
     };
   }
 }
