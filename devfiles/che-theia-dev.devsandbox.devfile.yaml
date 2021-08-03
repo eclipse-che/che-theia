@@ -94,8 +94,8 @@ commands:
         command: |
           if [ -d "$BUILD_PATH/theia/che/che-theia" ]; then \
             echo -e '\e[32mRsyncing sources...\e[0m'; \
-            rsync -rtv --exclude='node_mobules' --exclude='package.json' --exclude='root-compilation.tsconfig.json' /projects/theia/ $BUILD_PATH/theia/; \
-            rsync -rtv --exclude='node_mobules' --exclude='package.json' /projects/che-theia/ $BUILD_PATH/theia/che/che-theia/; \
+            rsync -rtv --exclude='node_modules' --exclude='package.json' --exclude='root-compilation.tsconfig.json' /projects/theia/ $BUILD_PATH/theia/; \
+            rsync -rtv --exclude='node_modules' --exclude='package.json' /projects/che-theia/ $BUILD_PATH/theia/che/che-theia/; \
             echo -e '\e[32mDone\e[0m'; \
           else \
             echo 'Che-Theia is not initialized.'; \
