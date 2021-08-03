@@ -13,7 +13,7 @@ import {
   ExecTerminalFrontendContribution,
   NewTerminalInSpecificContainer,
 } from './contribution/exec-terminal-contribution';
-import { KeybindingContext, QuickOpenContribution, WidgetFactory } from '@theia/core/lib/browser';
+import { KeybindingContext, QuickAccessContribution, WidgetFactory } from '@theia/core/lib/browser';
 import {
   REMOTE_TERMINAL_TARGET_SCOPE,
   REMOTE_TERMINAL_WIDGET_FACTORY_ID,
@@ -58,7 +58,7 @@ export default new ContainerModule(
     bind(ExecTerminalFrontendContribution).toSelf().inSingletonScope();
 
     rebind(TerminalFrontendContribution).toService(ExecTerminalFrontendContribution);
-    bind(QuickOpenContribution).toService(ExecTerminalFrontendContribution);
+    bind(QuickAccessContribution).toService(ExecTerminalFrontendContribution);
 
     bind(RemoteWebSocketConnectionProvider).toSelf();
     bind(TerminalProxyCreator).toSelf().inSingletonScope();

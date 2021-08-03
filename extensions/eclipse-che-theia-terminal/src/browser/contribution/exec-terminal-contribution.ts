@@ -8,15 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import {
-  ApplicationShell,
-  Key,
-  KeyCode,
-  KeyModifier,
-  KeybindingRegistry,
-  QuickOpenContribution,
-  QuickOpenHandlerRegistry,
-} from '@theia/core/lib/browser';
+import { ApplicationShell, Key, KeyCode, KeyModifier, KeybindingRegistry } from '@theia/core/lib/browser';
 import { Command, CommandRegistry, MenuModelRegistry } from '@theia/core/lib/common';
 import {
   REMOTE_TERMINAL_WIDGET_FACTORY_ID,
@@ -53,7 +45,7 @@ export interface OpenTerminalHandler {
 }
 
 @injectable()
-export class ExecTerminalFrontendContribution extends TerminalFrontendContribution implements QuickOpenContribution {
+export class ExecTerminalFrontendContribution extends TerminalFrontendContribution {
   @inject(TerminalQuickOpenService)
   private readonly terminalQuickOpen: TerminalQuickOpenService;
 
@@ -391,9 +383,5 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
       keybinding: 'shift+pageDown',
       context: TerminalKeybindingContexts.terminalActive,
     });
-  }
-
-  registerQuickOpenHandlers(handlers: QuickOpenHandlerRegistry): void {
-    handlers.registerHandler(this.terminalQuickOpen, false);
   }
 }

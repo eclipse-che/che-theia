@@ -24,7 +24,7 @@ export async function askHostName(message?: string): Promise<string | undefined>
     placeHolder: message ? message : 'Please provide a hostname e.g. github.com',
     validateInput: (text: string) => {
       if (!hostNamePattern.test(text)) {
-        return 'Invalid hostname';
+        return Promise.resolve('Invalid hostname');
       }
     },
   });
