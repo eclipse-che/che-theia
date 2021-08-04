@@ -24,13 +24,20 @@ export class CheCredentialsServer implements CredentialsServer {
   @inject(CheServerWorkspaceServiceImpl)
   private readonly workspaceService: CheServerWorkspaceServiceImpl;
 
-  private INFRASTRUCTURE_NAMESPACE = 'infrastructureNamespace';
+  private readonly CREDENTIALS_SECRET_NAME = 'workspace-credentials-secret';
+  private readonly INFRASTRUCTURE_NAMESPACE = 'infrastructureNamespace';
 
   async deletePassword(service: string, account: string): Promise<boolean> {
     try {
-      await this.cheK8SService
-        .makeApiClient(k8s.CoreV1Api)
-        .deleteNamespacedSecret(this.getSecretName(service), await this.getWorkspaceNamespace());
+      const patch = [
+        {
+          op: 'remove',
+          path: `/data/${this.getSecretDataItemName(service, account)}`,
+        },
+      ];
+      const client = this.cheK8SService.makeApiClient(k8s.CoreV1Api);
+      client.defaultHeaders = { Accept: 'application/json', 'Content-Type': k8s.PatchUtils.PATCH_FORMAT_JSON_PATCH };
+      await client.patchNamespacedSecret(this.CREDENTIALS_SECRET_NAME, await this.getWorkspaceNamespace(), patch);
       return true;
     } catch (e) {
       console.error(e);
@@ -39,54 +46,61 @@ export class CheCredentialsServer implements CredentialsServer {
   }
 
   async findCredentials(service: string): Promise<Array<{ account: string; password: string }>> {
-    const secrets = await this.listNamespacedSecrets();
-    return secrets
-      .filter(secret => secret.metadata && secret.metadata.name && secret.metadata.name === this.getSecretName(service))
-      .map(secret => ({
-        account: secret.metadata!.name!.substring(service.length + 1),
-        password: secret.data!.password,
-      }));
+    const secret = await this.cheK8SService
+      .makeApiClient(k8s.CoreV1Api)
+      .readNamespacedSecret(this.CREDENTIALS_SECRET_NAME, await this.getWorkspaceNamespace());
+    const data = secret.body.data;
+    return data
+      ? Object.keys(data)
+          .filter(key => key.startsWith(service))
+          .map(key => ({
+            account: key.substring(key.indexOf('_') + 1),
+            password: Buffer.from(data[key], 'base64').toString('ascii'),
+          }))
+      : [];
   }
 
   async findPassword(service: string): Promise<string | undefined> {
-    const secrets = await this.listNamespacedSecrets();
-    const item = secrets.find(
-      secret => secret.metadata && secret.metadata.name && secret.metadata.name === this.getSecretName(service)
-    );
-    if (item) {
-      return item.data!.password;
+    const secret = await this.cheK8SService
+      .makeApiClient(k8s.CoreV1Api)
+      .readNamespacedSecret(this.CREDENTIALS_SECRET_NAME, await this.getWorkspaceNamespace());
+    const data = secret.body.data;
+    if (data) {
+      const result = Object.keys(data).find(key => key.startsWith(service));
+      if (result) {
+        return Buffer.from(data[result], 'base64').toString('ascii');
+      }
     }
   }
 
   async getPassword(service: string, account: string): Promise<PasswordContent | undefined> {
-    const secrets = await this.listNamespacedSecrets();
-    const item = secrets.find(
-      secret => secret.metadata && secret.metadata.name && secret.metadata.name === this.getSecretName(service)
-    );
-    if (item) {
-      return { extensionId: service, content: Buffer.from(item.data![account], 'base64').toString('ascii') };
+    const secret = await this.cheK8SService
+      .makeApiClient(k8s.CoreV1Api)
+      .readNamespacedSecret(this.CREDENTIALS_SECRET_NAME, await this.getWorkspaceNamespace());
+    const data = secret.body.data;
+    if (data && data[this.getSecretDataItemName(service, account)]) {
+      return {
+        extensionId: service,
+        content: Buffer.from(secret.body.data![this.getSecretDataItemName(service, account)], 'base64').toString(
+          'ascii'
+        ),
+      };
     }
   }
 
   async setPassword(service: string, account: string, password: PasswordContent): Promise<void> {
-    const secret: k8s.V1Secret = {
-      metadata: { name: this.getSecretName(service) },
-      data: { [account]: Buffer.from(password.content).toString('base64') },
+    const client = this.cheK8SService.makeApiClient(k8s.CoreV1Api);
+    client.defaultHeaders = {
+      Accept: 'application/json',
+      'Content-Type': k8s.PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH,
     };
-    await this.cheK8SService
-      .makeApiClient(k8s.CoreV1Api)
-      .createNamespacedSecret(await this.getWorkspaceNamespace(), secret);
+    await client.patchNamespacedSecret(this.CREDENTIALS_SECRET_NAME, await this.getWorkspaceNamespace(), {
+      data: { [this.getSecretDataItemName(service, account)]: Buffer.from(password.content).toString('base64') },
+    });
   }
 
-  private getSecretName(service: string): string {
-    return service.substring(service.indexOf('/') + 1) + '-credentials';
-  }
-
-  private async listNamespacedSecrets(): Promise<k8s.V1Secret[]> {
-    const secrets = await this.cheK8SService
-      .makeApiClient(k8s.CoreV1Api)
-      .listNamespacedSecret(await this.getWorkspaceNamespace());
-    return secrets.body.items;
+  private getSecretDataItemName(service: string, account: string): string {
+    return `${service}_${account}`;
   }
 
   private async getWorkspaceNamespace(): Promise<string> {
