@@ -14,7 +14,6 @@ import * as path from 'path';
 import { inject, injectable } from 'inversify';
 
 import { DefaultWorkspaceServer } from '@theia/workspace/lib/node/default-workspace-server';
-import { DevfileService } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 import { FileUri } from '@theia/core/lib/node';
 import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
@@ -28,20 +27,12 @@ interface TheiaWorkspacePath {
 
 @injectable()
 export class CheWorkspaceServer extends DefaultWorkspaceServer {
-  @inject(DevfileService)
-  protected devfileService: DevfileService;
-
   @inject(WorkspaceService)
   protected workspaceService: WorkspaceService;
 
   // override any workspace that could have been defined through CLI and use entries from the devfile
   // if not possible, use default method
   protected async getRoot(): Promise<string | undefined> {
-    const devfile = await this.devfileService.get();
-    if (devfile?.metadata?.attributes?.multiRoot === 'off') {
-      return super.getRoot();
-    }
-
     const projectsRoot = await this.workspaceService.getProjectsRootDirectory();
 
     // first, check if we have a che.theia-workspace file

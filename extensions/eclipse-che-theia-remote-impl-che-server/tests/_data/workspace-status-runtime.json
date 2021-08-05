@@ -168,9 +168,6 @@
         "metadata": {
             "name": "nodejs-mongo-l7t46"
         },
-        "attributes": {
-            "multiRoot": "on"
-        },
         "components": [
             {
                 "memoryLimit": "512Mi",
