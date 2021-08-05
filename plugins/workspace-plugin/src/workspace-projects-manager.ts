@@ -59,37 +59,29 @@ export class WorkspaceProjectsManager {
 
     this.output.appendLine(`Clone commands are ${JSON.stringify(cloneCommandList, undefined, 2)}`);
 
-    const isMultiRoot = devfile.metadata?.attributes?.multiRoot !== 'off';
-
-    this.output.appendLine(`multi root is ${isMultiRoot}`);
-
-    const cloningPromise = this.executeCloneCommands(cloneCommandList, isMultiRoot);
+    const cloningPromise = this.executeCloneCommands(cloneCommandList);
     theia.window.withProgress({ location: { viewId: 'explorer' } }, () => cloningPromise);
     await cloningPromise;
     const { workspaceFile, workspaceFolders = [] } = theia.workspace;
     const isCustomWorkspaceRoot =
       workspaceFile && path.basename(workspaceFile.path) !== CHE_DEFAULT_WORKSPACE_ROOT_NAME;
-    if (isMultiRoot) {
-      // Backward compatibility for single-root workspaces
-      // we need it to support workspaces which were created before switching multi-root mode to ON by default
-      for (const project of projects) {
-        const projectPath = this.getProjectPath(project);
-        const shouldAddedToWorkspace =
-          !isCustomWorkspaceRoot || workspaceFolders.some(each => each.uri.path === projectPath);
-        if (!shouldAddedToWorkspace) {
-          return;
-        }
-        if (await fs.pathExists(projectPath)) {
-          await this.workspaceFolderUpdater.addWorkspaceFolder(projectPath);
-        }
+
+    // Backward compatibility for single-root workspaces
+    // we need it to support workspaces which were created before switching multi-root mode to ON by default
+    for (const project of projects) {
+      const projectPath = this.getProjectPath(project);
+      const shouldAddedToWorkspace =
+        !isCustomWorkspaceRoot || workspaceFolders.some(each => each.uri.path === projectPath);
+      if (!shouldAddedToWorkspace) {
+        return;
+      }
+      if (await fs.pathExists(projectPath)) {
+        await this.workspaceFolderUpdater.addWorkspaceFolder(projectPath);
       }
     }
 
     await this.watchWorkspaceProjects();
-
-    if (isMultiRoot) {
-      await this.watchMultiRootProjects();
-    }
+    await this.watchMultiRootProjects();
   }
 
   async buildCloneCommands(projects: che.devfile.DevfileProject[]): Promise<TheiaImportCommand[]> {
@@ -110,7 +102,7 @@ export class WorkspaceProjectsManager {
     return commands;
   }
 
-  private async executeCloneCommands(cloneCommandList: TheiaImportCommand[], isMultiRoot: boolean): Promise<void> {
+  private async executeCloneCommands(cloneCommandList: TheiaImportCommand[]): Promise<void> {
     if (cloneCommandList.length === 0) {
       return;
     }
@@ -122,12 +114,11 @@ export class WorkspaceProjectsManager {
       try {
         let cloningPromise = cloneCommand.execute();
 
-        if (isMultiRoot) {
-          cloningPromise = cloningPromise.then(async projectPath => {
-            await this.workspaceFolderUpdater.addWorkspaceFolder(projectPath);
-            return projectPath;
-          });
-        }
+        cloningPromise = cloningPromise.then(async projectPath => {
+          await this.workspaceFolderUpdater.addWorkspaceFolder(projectPath);
+          return projectPath;
+        });
+
         cloningPromises.push(cloningPromise);
       } catch (e) {
         this.output.appendLine(`Error while cloning: ${e}`);

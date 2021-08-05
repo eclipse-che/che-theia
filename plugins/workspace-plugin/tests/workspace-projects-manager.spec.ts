@@ -150,7 +150,7 @@ che.devfile.get = getDevfileMock;
 const updateDevfileMock = jest.fn();
 che.devfile.update = updateDevfileMock;
 
-const devfile_Without_Attributes = {
+const devfile = {
   metadata: {},
   projects: [firstProject],
 };
@@ -158,24 +158,6 @@ const devfile_Without_Attributes = {
 const devfile_With_Two_Projects = {
   metadata: {},
   projects: [firstProject, secondProject],
-};
-
-const devfileWith_MultiRoot_On_Attribute = {
-  metadata: {
-    attributes: {
-      multiRoot: 'on',
-    },
-  },
-  projects: [firstProject],
-};
-
-const devfileWith_MultiRoot_Off_Attribute = {
-  metadata: {
-    attributes: {
-      multiRoot: 'off',
-    },
-  },
-  projects: [firstProject],
 };
 
 const fileSystemWatcherMock = {
@@ -259,28 +241,11 @@ describe('Test Workspace Projects Manager', () => {
   });
 
   test('Should add workspace folder when there are no attributes - multi root mode is ON by default', async () => {
-    getDevfileMock.mockReturnValue(devfile_Without_Attributes);
+    getDevfileMock.mockReturnValue(devfile);
 
     await workspaceProjectsManager.run();
 
     expect(addWorkspaceFolderMock).toBeCalledTimes(1);
-  });
-
-  test('Should add workspace folder when there is the `multiRoot` attribute with `on` value', async () => {
-    getDevfileMock.mockReturnValue(devfileWith_MultiRoot_On_Attribute);
-
-    await workspaceProjectsManager.run();
-
-    expect(addWorkspaceFolderMock).toBeCalledTimes(1);
-  });
-
-  test('Should NOT add workspace folder when there is the `multiRoot` attribute with `off` value', async () => {
-    getDevfileMock.mockReturnValue(devfileWith_MultiRoot_Off_Attribute);
-
-    await workspaceProjectsManager.run();
-
-    expect(addWorkspaceFolderMock).toBeCalledTimes(0);
-    expect(showInfoMessageMock).toBeCalledTimes(2);
   });
 
   test('Should clone the second project and add it as workspace folder when cloning of the first project was failed', async () => {
@@ -308,7 +273,7 @@ describe('Test Workspace Projects Manager', () => {
   });
 
   test('Should check steps of successful cloning process execution', async () => {
-    getDevfileMock.mockReturnValue(devfile_Without_Attributes);
+    getDevfileMock.mockReturnValue(devfile);
 
     await workspaceProjectsManager.run();
 
@@ -341,7 +306,7 @@ describe('Test Workspace Projects Manager', () => {
 
   test('Commands were NOT found for execution cloning process', async () => {
     buildProjectImportCommandMock.mockReturnValue(undefined);
-    getDevfileMock.mockReturnValue(devfile_Without_Attributes);
+    getDevfileMock.mockReturnValue(devfile);
 
     await workspaceProjectsManager.run();
 
@@ -385,7 +350,7 @@ describe('Test Workspace Projects Manager', () => {
    * - onProjectRemoved must NOT be called
    */
   test('onProjectChanged must be called on change event', async () => {
-    getDevfileMock.mockReturnValue(devfileWith_MultiRoot_On_Attribute);
+    getDevfileMock.mockReturnValue(devfile);
 
     pathExistsItems = [PROJECTS_ROOT];
     await workspaceProjectsManager.run();
@@ -427,7 +392,7 @@ describe('Test Workspace Projects Manager', () => {
    *     ( devfileService.updateProject must NOT be called )
    */
   test('devfileService.updateProject must NOT be called for not Git repository', async () => {
-    getDevfileMock.mockReturnValue(devfileWith_MultiRoot_On_Attribute);
+    getDevfileMock.mockReturnValue(devfile);
 
     pathExistsItems = [PROJECTS_ROOT];
     await workspaceProjectsManager.run();
@@ -461,7 +426,7 @@ describe('Test Workspace Projects Manager', () => {
    * - onProjectRemoved must be called
    */
   test('onProjectRemoved must be called on change event for non existent item', async () => {
-    getDevfileMock.mockReturnValue(devfileWith_MultiRoot_On_Attribute);
+    getDevfileMock.mockReturnValue(devfile);
 
     pathExistsItems = [PROJECTS_ROOT];
     await workspaceProjectsManager.run();
@@ -528,7 +493,7 @@ describe('Test Workspace Projects Manager', () => {
   });
   test('Projects must be added to the default workspace', async () => {
     getDevfileMock.mockReturnValue({
-      ...devfileWith_MultiRoot_On_Attribute,
+      ...devfile,
       projects: [firstProject, secondProject],
     });
     const mockWorkspace = {
@@ -546,7 +511,7 @@ describe('Test Workspace Projects Manager', () => {
   });
   test('Project should be added to custom workspace only if it is declared on the *.theia-workspace config', async () => {
     getDevfileMock.mockReturnValue({
-      ...devfileWith_MultiRoot_On_Attribute,
+      ...devfile,
       projects: [firstProject, secondProject],
     });
     pathExistsItems = ['/projects/che-theia', '/projects/theia', '/projects/a'];
