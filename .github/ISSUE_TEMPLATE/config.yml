@@ -1,0 +1,8 @@
+# Disable the blank issue
+blank_issues_enabled: false
+
+# Make redirect to eclipse che issue tracker
+contact_links:
+  - name: Create Issue
+    url: https://github.com/eclipse/che/issues/new/choose
+    about: File issues on the main Eclipse Che repository
