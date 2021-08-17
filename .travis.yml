@@ -34,6 +34,8 @@ install:
 env: 
   global:
   - TAG=next-travis
+  - REGISTRY=quay.io
+  - ORGANIZATION=eclipse
   - PR_NUMBER=
 
 jobs:
