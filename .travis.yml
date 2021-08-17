@@ -27,8 +27,9 @@ before_install:
     fi
 
 install:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - echo "$QUAY_PASSWORD" | docker login quay.io -u "$QUAY_USERNAME" --password-stdin
+  - export GITHUB_TOKEN="$CHE_BOT_GITHUB_TOKEN"
+  - echo "$RH_CHE_AUTOMATION_DOCKERHUB_PASSWORD" | docker login -u "$RH_CHE_AUTOMATION_DOCKERHUB_USERNAME" --password-stdin
+  - echo "$QUAY_ECLIPSE_CHE_PASSWORD" | docker login quay.io -u "$QUAY_ECLIPSE_CHE_USERNAME" --password-stdin
 
 env: 
   global:
