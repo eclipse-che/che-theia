@@ -5,8 +5,10 @@
 # which is available at https://www.eclipse.org/legal/epl-2.0/
 #
 # SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
 
-# Che-Theia workflow
 dist: focal
 os: linux
 cache: false
@@ -27,6 +29,8 @@ before_install:
     fi
 
 install:
+  # TODO when we're confident that sha-tagged travis-built images won't collide with GHA built ones, we can remove the -travis suffix here
+  - export SHORT_SHA=$(git rev-parse --short HEAD)-travis
   - export GITHUB_TOKEN="$CHE_BOT_GITHUB_TOKEN"
   - echo "$RH_CHE_AUTOMATION_DOCKERHUB_PASSWORD" | docker login -u "$RH_CHE_AUTOMATION_DOCKERHUB_USERNAME" --password-stdin
   - echo "$QUAY_ECLIPSE_CHE_PASSWORD" | docker login quay.io -u "$QUAY_ECLIPSE_CHE_USERNAME" --password-stdin
@@ -123,7 +127,7 @@ jobs:
       - |
         set -e
         docker image prune -a -f
-        SUFFIX=travis-${TRAVIS_CPU_ARCH} TAG=$TAG-${TRAVIS_CPU_ARCH} ./build.sh --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.alpine --push
+        TAG=$TAG-${TRAVIS_CPU_ARCH} ./build.sh --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.alpine --push
     - <<: *build-and-push-next
       arch: arm64-graviton2
       group: edge
@@ -139,7 +143,7 @@ jobs:
     - stage: Publish multiarch image with 'next-travis' tag
       if: type = api AND branch = main AND env(TAG) = "next-travis" AND env(THEIA_GITHUB_REPO) IS blank AND env(PR_NUMBER) IS blank
       name: Publish multiarch image with next-travis tag
-      script: SUFFIX=travis .ci/travis/publish_multiarch.sh
+      script: .ci/travis/publish_multiarch.sh
 
     - &check-a-theia-branch
       stage: Check a Theia branch
@@ -177,7 +181,7 @@ jobs:
         git checkout "${BRANCH}"
         TAG=$TAG-travis
         docker image prune -a -f
-        SUFFIX=travis-${TRAVIS_CPU_ARCH} TAG=$TAG-${TRAVIS_CPU_ARCH} ./build.sh --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.alpine --push
+        TAG=$TAG-${TRAVIS_CPU_ARCH} ./build.sh --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.alpine --push
     - <<: *release-che-theia
       arch: arm64-graviton2
       group: edge

@@ -20,7 +20,6 @@ PUBLISH_IMAGES_LIST=(
   che-theia-endpoint-runtime-binary
   che-theia-vsix-installer
 )
-SHORT_SHA=$(git rev-parse --short HEAD)-${SUFFIX}
 for image in "${PUBLISH_IMAGES_LIST[@]}"; do
     the_image="${REGISTRY}/${ORGANIZATION}/${image}"
     AMEND=""
@@ -36,7 +35,7 @@ for image in "${PUBLISH_IMAGES_LIST[@]}"; do
     if [[ "${TAG}" == "next-travis" ]]; then
        docker manifest create "${the_image}:${SHORT_SHA}" "$AMEND"
        docker manifest push "${the_image}:${SHORT_SHA}"
-	else 
+    else 
        docker manifest create "${the_image}:latest" "$AMEND"
        docker manifest push "${the_image}:latest"
     fi
