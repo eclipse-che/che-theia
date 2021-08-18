@@ -48,14 +48,10 @@ export class QuickOpenCheWorkspace {
         label: workspace.name + (this.isCurrentWorkspace(workspace) ? ' (Current)' : ''),
         detail: `Stack: ${CheWorkspaceUtils.getWorkspaceStack(workspace)}`,
         iconClasses: [iconClass],
-        execute: (item: QuickPickItem) => {
-          if (this.isCurrentWorkspace(workspace)) {
-            return true;
+        execute: () => {
+          if (!this.isCurrentWorkspace(workspace)) {
+            acceptor(workspace);
           }
-
-          acceptor(workspace);
-
-          return true;
         },
       });
       this.items.push({ type: 'separator', label: groupLabel });
