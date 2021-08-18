@@ -44,7 +44,10 @@ module.exports = {
             'os': false,
             'path': false,
             'constants': false,
-            'stream': false
+            'stream': false,
+            'assert': false,
+            'util': false
+
         },
         extensions: ['.ts', '.js']
     },
