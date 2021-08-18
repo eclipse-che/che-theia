@@ -46,9 +46,8 @@ export class TerminalQuickOpenService {
       container =>
         ({
           label: container.name,
-          execute: (item: QuickPickItem) => {
+          execute: () => {
             setTimeout(() => doOpen(container.name), 0);
-            return true;
           },
         } as QuickPickItem)
     );
@@ -62,9 +61,8 @@ export class TerminalQuickOpenService {
       container =>
         ({
           label: container.name,
-          execute: (item: QuickPickItem) => {
+          execute: () => {
             setTimeout(() => doOpen(container.name), 0);
-            return true;
           },
         } as QuickPickItem)
     );

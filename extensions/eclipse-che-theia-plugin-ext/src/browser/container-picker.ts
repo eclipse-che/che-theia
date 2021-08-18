@@ -49,9 +49,8 @@ export class ContainerPicker {
           containerName =>
             ({
               label: containerName,
-              execute: (item: QuickPickItem) => {
+              execute: () => {
                 resolve(containerName);
-                return true;
               },
             } as QuickPickItem)
         )
@@ -88,9 +87,8 @@ export class ContainerPicker {
       container =>
         ({
           label: container.name,
-          execute: (item: QuickPickItem) => {
+          execute: () => {
             handler(container.name);
-            return true;
           },
         } as QuickPickItem)
     );
@@ -104,9 +102,8 @@ export class ContainerPicker {
       container =>
         ({
           label: container.name,
-          execute: (item: QuickPickItem) => {
+          execute: () => {
             handler(container.name);
-            return true;
           },
         } as QuickPickItem)
     );
