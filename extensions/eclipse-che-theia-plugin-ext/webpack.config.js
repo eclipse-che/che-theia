@@ -9,18 +9,13 @@
  **********************************************************************/
 
 const path = require('path');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     entry: './lib/plugin/webworker/che-api-worker-provider.js',
     devtool: 'source-map',
     mode: 'production',
-    node:{
-        fs: 'empty',
-        child_process: 'empty',
-        net: 'empty',
-        crypto: 'empty'
-    },
+
     module: {
         rules: [
             {
@@ -38,9 +33,22 @@ module.exports = {
         ]
     },
     plugins: [
-        new CleanWebpackPlugin(['lib/webworker'])
+        new CleanWebpackPlugin({ cleanOnceBeforeBuildPatterns: ['lib/webworker']})
     ],
     resolve: {
+        fallback: {
+            'child_process': false,
+            'crypto': false,
+            'net': false,
+            'fs': false,
+            'os': false,
+            'path': false,
+            'constants': false,
+            'stream': false,
+            'assert': false,
+            'util': false
+
+        },
         extensions: ['.ts', '.js']
     },
     output: {
