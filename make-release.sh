@@ -66,7 +66,7 @@ apply_files_edits () {
   if [ -z "${BUILD_INCLUDE_THEIA_COMMIT_SHA}"]; then
     THEIA_VERSION=$(curl -sSL -H "Accept: application/vnd.npm.install-v1+json" https://registry.npmjs.org/@theia/core | jq -r '.versions | keys[]' | grep "${BUILD_INCLUDE_THEIA_COMMIT_SHA:0:8}")
   else
-    THEIA_VERSION=$(curl --silent http://registry.npmjs.org/-/package/@theia/core/dist-tags | sed 's/.*"next":"\(.*\)".*/\1/')
+    THEIA_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@theia/core/dist-tags | jq -r '.next')
   fi
   if [[ ! ${THEIA_VERSION} ]] || [[ ${THEIA_VERSION} == \"Unauthorized\" ]]; then
     echo "Failed to get Theia next version from npmjs.org or from build.include. Try again."; echo
