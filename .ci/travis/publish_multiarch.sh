@@ -9,34 +9,31 @@
 #
 # See: https://sipb.mit.edu/doc/safe-shell/
 set -e
-REGISTRY="quay.io"
 
 PUBLISH_IMAGES_LIST=(
-  eclipse/che-theia-dev
-  eclipse/che-theia
-  eclipse/che-theia-endpoint-runtime-binary
-  eclipse/che-theia-vsix-installer
+  che-theia-dev
+  che-theia
+  che-theia-endpoint-runtime-binary
+  che-theia-vsix-installer
 )
-SHORT_SHA=$(git rev-parse --short HEAD)-${SUFFIX}
 
-for image in "${PUBLISH_IMAGES_LIST[@]}"
-  do
+for image in "${PUBLISH_IMAGES_LIST[@]}"; do
+    the_image="${REGISTRY}/${ORGANIZATION}/${image}"
     AMEND=""
-    AMEND+=" --amend ${REGISTRY}/${image}:${TAG}-amd64";
-    AMEND+=" --amend ${REGISTRY}/${image}:${TAG}-arm64";
-    AMEND+=" --amend ${REGISTRY}/${image}:${TAG}-ppc64le";
-    AMEND+=" --amend ${REGISTRY}/${image}:${TAG}-s390x";
+    AMEND+=" --amend ${the_image}:${TAG}-amd64";
+    AMEND+=" --amend ${the_image}:${TAG}-arm64";
+    AMEND+=" --amend ${the_image}:${TAG}-ppc64le";
+    AMEND+=" --amend ${the_image}:${TAG}-s390x";
 
-    eval docker manifest create "${REGISTRY}/${image}:${TAG}" "$AMEND"
-    docker manifest push "${REGISTRY}/${image}:${TAG}"
+    # Create manifest and push multiarch image
+    eval docker manifest create "${the_image}:${TAG}" "$AMEND"
+    docker manifest push "${the_image}:${TAG}"
     
-    if [[ "${TAG}" != "next-travis" ]]; then
-       eval docker manifest create "${REGISTRY}/${image}:latest" "$AMEND"
-       docker manifest push "${REGISTRY}/${image}:latest"
-    fi
-
     if [[ "${TAG}" == "next-travis" ]]; then
-       eval docker manifest create "${REGISTRY}/${image}:${SHORT_SHA}" "$AMEND"
-       docker manifest push "${REGISTRY}/${image}:${SHORT_SHA}"
+       eval docker manifest create "${the_image}:${SHORT_SHA}" "$AMEND"
+       docker manifest push "${the_image}:${SHORT_SHA}"
+    else 
+       eval docker manifest create "${the_image}:latest-travis" "$AMEND"
+       docker manifest push "${the_image}:latest-travis"
     fi
 done
