@@ -64,22 +64,23 @@ jobs:
         MATTERMOST_WEBHOOK_URL: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
         MATTERMOST_CHANNEL: eclipse-che-releases
         MATTERMOST_USERNAME: che-bot
+      
+  # TODO: uncomment this when we're happy that travis is working for PRs
+  # travis-build:
+  #   runs-on: ubuntu-latest
+  #   continue-on-error: true
+  #   steps:
+  #   - name: Trigger build on Travis CI
+  #     run: |
+  #       body="{
+  #       \"request\":{
+  #       \"branch\":\"main\"
+  #       }}"
 
-  travis-build:
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-    - name: Trigger build on Travis CI
-      run: |
-        body="{
-        \"request\":{
-        \"branch\":\"main\"
-        }}"
-
-        curl -s -X POST \
-        -H "Content-Type: application/json" \
-        -H "Accept: application/json" \
-        -H "Travis-API-Version: 3" \
-        -H "Authorization: token ${{ secrets.TRAVIS_TOKEN }}" \
-        -d "$body" \
-        https://api.travis-ci.com/repo/eclipse-che%2Fche-theia/requests
+  #       curl -s -X POST \
+  #       -H "Content-Type: application/json" \
+  #       -H "Accept: application/json" \
+  #       -H "Travis-API-Version: 3" \
+  #       -H "Authorization: token ${{ secrets.TRAVIS_TOKEN }}" \
+  #       -d "$body" \
+  #       https://api.travis-ci.com/repo/eclipse-che%2Fche-theia/requests
