@@ -37,24 +37,17 @@ module.exports = {
     ],
     resolve: {
         fallback: {
-            'child_process': false,
-            'crypto': false,
             'net': false,
-            'fs': false,
+            'crypto': false,
             'os': false,
-            'path': false,
-            'constants': false,
-            'stream': false,
-            'assert': false,
-            'util': false
-
+            'path': false
         },
         extensions: ['.ts', '.js']
     },
     output: {
         filename: 'che-api-worker-provider.js',
-        libraryTarget: "var",
-        library: "che_api_provider",
+        libraryTarget: 'var',
+        library: 'che_api_provider',
         path: path.resolve(__dirname, 'lib/webworker')
     }
 };
