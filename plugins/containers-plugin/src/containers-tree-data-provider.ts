@@ -292,9 +292,7 @@ export async function containersTreeTaskLauncherCommandHandler(label: string, co
       }
       task.definition.target.containerName = containerName;
 
-      // temporary executing generic command to fix https://github.com/eclipse/che/issues/19805
-      // theia.tasks.executeTask(task);
-      theia.commands.executeCommand('workbench.action.tasks.runTask', label);
+      theia.tasks.executeTask(task);
       return;
     }
   }
