@@ -230,7 +230,16 @@ export class RemoteTerminalWidget extends TerminalWidgetImpl {
 
     this.socket = this.createWebSocket(this.terminalApiEndPoint!);
 
-    const sendListener = (data: string) => this.socket.send(data);
+    const sendListener = (data: string) => {
+      this.socket.send(data);
+
+      // To use ctrl-p on terminal.
+      // On k8s with docker, ctrl-p ctrl-q is default detach keys and currently there's no way to customize.
+      // https://github.com/kubernetes/kubectl/issues/1011
+      if (data === '\u0010') {
+        this.socket.send('\u0000');
+      }
+    };
 
     let onDataDisposeHandler: IDisposable;
     this.socket.onopen = () => {
