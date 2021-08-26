@@ -136,9 +136,21 @@ describe('Test theia-commands', () => {
     theia.window.withProgress = progressFunction;
     theia.window.showErrorMessage = jest.fn();
     theia.window.showInformationMessage = jest.fn();
-    theia.window.showWarningMessage = jest
-      .fn()
-      .mockImplementation((message: string, ...actions: string[]) => actions[1]);
+    theia.window.showWarningMessage = jest.fn().mockImplementation((message: string, ...actions: string[]) => {
+      // the answer on the first prompt
+      const NO = "No, I don't trust";
+      if (actions.includes(NO)) {
+        return NO;
+      }
+
+      // confirm skipping the cloning
+      const SKIP = 'Skip';
+      if (actions.includes(SKIP)) {
+        return SKIP;
+      }
+
+      return undefined;
+    });
 
     const project: che.devfile.DevfileProject = {
       name: 'che-theia',
