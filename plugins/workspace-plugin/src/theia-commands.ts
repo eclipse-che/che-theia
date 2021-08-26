@@ -95,7 +95,19 @@ export class TheiaGitCloneCommand implements TheiaImportCommand {
     );
   }
 
+  async isTrustedSource(source: string): Promise<boolean> {
+    const YES = 'Yes, I trust the autors';
+    const NO = "No, I don't trust the autors";
+    const action = await theia.window.showWarningMessage(`Do you trust the authors of ${source} ?`, YES, NO);
+
+    return action === YES;
+  }
+
   async execute(): Promise<string> {
+    if (!(await this.isTrustedSource(this.defaultRemoteLocation))) {
+      return Promise.reject(new Error(`Cloning of ${this.defaultRemoteLocation} was skipped`));
+    }
+
     if (!git.isSecureGitURI(this.defaultRemoteLocation)) {
       // clone using regular URI
       return this.clone();
