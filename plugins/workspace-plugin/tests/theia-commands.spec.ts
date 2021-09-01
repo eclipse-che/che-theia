@@ -94,6 +94,9 @@ describe('Test theia-commands', () => {
     theia.window.withProgress = progressFunction;
     theia.window.showErrorMessage = jest.fn();
     theia.window.showInformationMessage = jest.fn();
+    theia.window.showWarningMessage = jest
+      .fn()
+      .mockImplementation((message: string, ...actions: string[]) => actions[0]);
 
     const project: che.devfile.DevfileProject = {
       name: 'che-theia',
@@ -123,5 +126,50 @@ describe('Test theia-commands', () => {
     expect(infoMessage[0]).toContain(
       'Project https://github.com/eclipse-che/che-theia.git cloned to /foo/che-theia using default branch which has been reset to che-13112.'
     );
+  });
+
+  test('clone should be skipped', async () => {
+    (theia as any).ProgressLocation = {
+      Notification: '',
+    };
+    const progressFunction = jest.fn();
+    theia.window.withProgress = progressFunction;
+    theia.window.showErrorMessage = jest.fn();
+    theia.window.showInformationMessage = jest.fn();
+    theia.window.showWarningMessage = jest.fn().mockImplementation((message: string, ...actions: string[]) => {
+      // the answer on the first prompt
+      const NO = "No, I don't trust";
+      if (actions.includes(NO)) {
+        return NO;
+      }
+
+      // confirm skipping the cloning
+      const SKIP = 'Skip';
+      if (actions.includes(SKIP)) {
+        return SKIP;
+      }
+
+      return undefined;
+    });
+
+    const project: che.devfile.DevfileProject = {
+      name: 'che-theia',
+      git: {
+        remotes: {
+          origin: 'https://github.com/eclipse-che/che-theia.git',
+        },
+      },
+    };
+    const cloneCommand = new TheiaGitCloneCommand(project, '/foo');
+
+    try {
+      await cloneCommand.execute();
+    } catch (error) {
+      expect(error.message).toEqual(`Cloning of ${project.git!.remotes.origin} was skipped`);
+      expect(progressFunction).not.toBeCalled();
+      return;
+    }
+
+    fail();
   });
 });

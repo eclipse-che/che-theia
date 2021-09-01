@@ -100,9 +100,7 @@ export class CheFileNavigatorWidget extends FileNavigatorWidget {
     });
   };
 
-  protected cloneRepo = () => {
-    return this.commandService.executeCommand('git.clone');
-  };
+  protected cloneRepo = () => this.commandService.executeCommand('git.clone');
 
   protected async initialize(): Promise<void> {
     if (!this.devfile) {
