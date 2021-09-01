@@ -9,10 +9,12 @@
 
 name: Build & Publish `next`
 
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
+
+on: [pull_request]
 
 jobs:
   build:
@@ -20,22 +22,26 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       name: Checkout che-theia source code
+
     - uses: actions/setup-node@v1
       name: Configuring nodejs 12.x version
       with:
         node-version: '12.x'
+
     - name: Login to docker.io
       uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
         registry: docker.io
+
     - name: Login to quay.io
       uses: docker/login-action@v1
       with:
         username: ${{ secrets.QUAY_USERNAME }}
         password: ${{ secrets.QUAY_PASSWORD }}
         registry: quay.io
+
     - name: Build and publish images
       run: |
         docker image prune -a -f
@@ -43,6 +49,7 @@ jobs:
       env:
         CDN_PREFIX: https://static.developers.redhat.com/che/theia_artifacts/
         MONACO_CDN_PREFIX: https://cdn.jsdelivr.net/npm/
+
     - name: Set-up npmjs auth token
       run: printf "//registry.npmjs.org/:_authToken=${{ secrets.CHE_NPM_AUTH_TOKEN }}\n" >> ~/.npmrc
     - name: Publish packages to npmjs
