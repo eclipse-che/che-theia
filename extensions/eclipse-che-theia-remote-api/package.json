@@ -6,7 +6,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "7.35.1",
+  "version": "7.35.2",
   "files": [
     "lib",
     "src"
