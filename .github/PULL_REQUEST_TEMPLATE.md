@@ -37,7 +37,7 @@ Pull Request Policy: https://github.com/eclipse/che/wiki/Development-Workflow#pu
 - [ ] [Relevant user documentation updated](https://github.com/eclipse/che/blob/master/CONTRIBUTING.md#relevant-contributing-documentation-updated)
 - [ ] [Relevant contributing documentation updated](https://github.com/eclipse/che/blob/master/CONTRIBUTING.md#relevant-contributing-documentation-updated)
 - [ ] [CI/CD changes implemented, documented and communicated](https://github.com/eclipse/che/blob/master/CONTRIBUTING.md#cicd-changes-implemented-documented-and-communicated)
-- [ ] Optional Companion PR for updating the HappyPath tests approved and ready to be merged```
+- [ ] Optional Companion PR for updating the HappyPath tests is approved and ready to be merged
 
 
 ### Reviewers
