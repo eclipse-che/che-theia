@@ -47,14 +47,20 @@ jobs:
       run: printf "//registry.npmjs.org/:_authToken=${{ secrets.CHE_NPM_AUTH_TOKEN }}\n" >> ~/.npmrc
     - name: Publish packages to npmjs
       run: yarn publish:next
-    - name: Create failure MM message
-      if: ${{ failure() }}
-      run: |
-        echo "{\"text\":\":no_entry_sign: Next Che Theia build has failed: https://github.com/eclipse-che/che-theia/actions/workflows/next-build.yml\"}" > mattermost.json
-    - name: Send MM message
-      if: ${{ failure() }}
-      uses: mattermost/action-mattermost-notify@1.1.0
-      env:
-        MATTERMOST_WEBHOOK_URL: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
-        MATTERMOST_CHANNEL: eclipse-che-ci
-        MATTERMOST_USERNAME: che-bot
+
+notify:
+  runs-on: ubuntu-20.04
+  needs: build
+  if: always() && (needs.build.result == 'failure')
+  steps:
+  - name: Create failure MM message
+    if: ${{ failure() }}
+    run: |
+      echo "{\"text\":\":no_entry_sign: Next Che Theia build has failed: https://github.com/eclipse-che/che-theia/actions/workflows/next-build.yml\"}" > mattermost.json
+  - name: Send MM message
+    if: ${{ success() }} || ${{ failure() }}
+    uses: mattermost/action-mattermost-notify@1.1.0
+    env:
+      MATTERMOST_WEBHOOK_URL: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
+      MATTERMOST_CHANNEL: eclipse-che-releases
+      MATTERMOST_USERNAME: che-bot
