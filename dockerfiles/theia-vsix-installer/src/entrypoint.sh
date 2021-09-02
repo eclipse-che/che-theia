@@ -20,18 +20,26 @@ for container in $(echo "$WORKSPACE" | sed -e 's|[[,]\({"attributes":{"app.kuber
     mkdir -p "$dest"
     unset IFS
     for url in $(echo "$urls" | sed 's/[",]/ /g' - ); do
+        CURL_OPTIONS=""
         # check if URL starts with relative:extension/
         # example of url: "relative:extension/resources/download_jboss_org/jbosstools/static/jdt_ls/stable/java-0.75.0-60.vsix
         if [[ "$url" =~ ^relative:extension/.* ]]; then
-            # if there is no CHE_PLUGIN_REGISTRY_URL env var, skip
-            if [ -z "${CHE_PLUGIN_REGISTRY_URL}" ]; then
-                echo "CHE_PLUGIN_REGISTRY_URL env var is not set, skipping relative url ${url}"
+            # if there is CHE_PLUGIN_REGISTRY_INTERNAL_URL env var, use it
+            if [ -n "$CHE_PLUGIN_REGISTRY_INTERNAL_URL" ]; then
+                # update URL by using the Plugin Registry internal URL as prefix
+                url=${CHE_PLUGIN_REGISTRY_INTERNAL_URL}/${url#relative:extension/}
+            elif [ -n "$CHE_PLUGIN_REGISTRY_URL" ]; then
+                # if there is CHE_PLUGIN_REGISTRY_URL env var, use it but also use insecure
+                # options as we don't have all certificates in a devWorkspace for now
+                CURL_OPTIONS="--insecure"
+                # update URL by using the Plugin Registry internal URL as prefix
+                url=${CHE_PLUGIN_REGISTRY_URL}/${url#relative:extension/}
+            else
+                echo "no plugin registry URL env var is set (CHE_PLUGIN_REGISTRY_INTERNAL_URL or CHE_PLUGIN_REGISTRY_URL), skipping relative url ${url}"
                 continue
             fi
-            # update URL by using the Plugin Registry URL as prefix
-            url=${CHE_PLUGIN_REGISTRY_URL}/${url#relative:extension/}
         fi
         echo; echo "downloading $urls to $dest"
-        curl -L "$url" > "$dest/$(basename "$url")"
+        curl ${CURL_OPTIONS} -L "$url" > "$dest/$(basename "$url")"
     done
 done
