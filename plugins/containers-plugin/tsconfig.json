@@ -1,9 +1,8 @@
 {
     "extends": "../../configs/base.tsconfig",
     "compilerOptions": {
-        "target": "es5",
         "lib": [
-            "es6",
+            "ES2017",
             "webworker"
         ],
         "sourceMap": true,

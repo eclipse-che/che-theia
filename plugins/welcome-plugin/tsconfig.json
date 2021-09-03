@@ -2,7 +2,7 @@
     "extends": "../../configs/base.tsconfig",
     "compilerOptions": {
         "lib": [
-            "es6",
+            "ES2017",
             "webworker"
         ],
         "rootDir": "src",
