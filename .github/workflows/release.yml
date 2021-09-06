@@ -89,6 +89,7 @@ jobs:
   notify:
     runs-on: ubuntu-20.04
     needs: build
+    if: always() && ((needs.build.result == 'failure') || (needs.build.result == 'success'))
     steps:
     - name: Create failure MM message
       if: ${{ failure() }}
