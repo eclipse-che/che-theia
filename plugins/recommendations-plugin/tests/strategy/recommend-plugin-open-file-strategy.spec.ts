@@ -32,7 +32,6 @@ describe('Test RecommendPluginOpenFileStrategy', () => {
     vscodeExtensionByLanguageId,
   };
 
-  const installPluginsMock = jest.fn();
   const fetchMethodMock = jest.fn();
   const pluginsByLanguageFetcher = {
     fetch: fetchMethodMock,

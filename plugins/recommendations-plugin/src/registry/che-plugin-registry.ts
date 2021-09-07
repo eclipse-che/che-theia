@@ -9,7 +9,6 @@
  ***********************************************************************/
 
 import * as che from '@eclipse-che/plugin';
-import * as theia from '@theia/plugin';
 
 import { injectable, postConstruct } from 'inversify';
 
