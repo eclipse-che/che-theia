@@ -1,33 +1,18 @@
 {
+    "extends": "../../configs/base.tsconfig",
     "compilerOptions": {
-      "target": "es6",
-      "module": "commonjs",
-      "moduleResolution": "node",
-      "outDir": "./lib",
-      "sourceMap": true,
-      "noEmitOnError": true,
-      "noImplicitReturns" : true,
-      "noImplicitThis": true,
-      "noUnusedLocals": false,
-      "removeComments": true,
-      "noFallthroughCasesInSwitch": true,
-      "strict": true,
-      "strictPropertyInitialization": false,
-      "skipLibCheck": true,
-      "skipDefaultLibCheck": true,
-      "types": ["node", "reflect-metadata", "jest"],
-      "experimentalDecorators": true,
-      "emitDecoratorMetadata": true,
-      "lib": [
-        "es6"
-    ],
-    }
-  ,
+        "lib": [
+            "es6",
+            "webworker"
+        ],
+        "sourceMap": true,
+        "rootDir": "src",
+        "outDir": "lib",
+        "types": [
+            "node", "jest"
+        ]
+    },
     "include": [
-      "src/**/*"
+        "src"
     ]
-  ,
-    "exclude": [
-      "node_modules",
-    ]
-  }
+}
