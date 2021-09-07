@@ -11,8 +11,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
 
-import * as globby from 'globby';
-import * as path from 'path';
 import * as theia from '@theia/plugin';
 
 import { Container } from 'inversify';
@@ -30,7 +28,6 @@ describe('Test FindFile implementation', () => {
     findFilesSpy = jest.spyOn(theia.workspace, 'findFiles');
     cancelMethod = jest.fn();
 
-    const spy = jest.spyOn(theia.workspace, 'findFiles');
     (theia as any).CancellationTokenSource = jest.fn().mockImplementation(() => ({
       cancel: cancelMethod,
     }));

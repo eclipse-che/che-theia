@@ -8,7 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 import * as che from '@eclipse-che/plugin';
-import * as theia from '@theia/plugin';
 
 import { che as cheApi } from '@eclipse-che/api';
 import { injectable } from 'inversify';
