@@ -52,3 +52,27 @@ jobs:
       env:
         CDN_PREFIX: https://static.developers.redhat.com/che/theia_artifacts/
         MONACO_CDN_PREFIX: https://cdn.jsdelivr.net/npm/
+
+  travis-build:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+    - name: Trigger build on Travis CI
+      run: |
+        body="{
+        \"request\":{
+        \"config\": {
+          \"env\": {
+            \"global\": [
+              \"PR_NUMBER=${{ github.event.pull_request.number }}\"
+             ]
+           }
+        }
+        }}"
+        curl -s -X POST \
+        -H "Content-Type: application/json" \
+        -H "Accept: application/json" \
+        -H "Travis-API-Version: 3" \
+        -H "Authorization: token ${{ secrets.TRAVIS_TOKEN }}" \
+        -d "$body" \
+        https://api.travis-ci.com/repo/eclipse-che%2Fche-theia/requests

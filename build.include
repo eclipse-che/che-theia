@@ -17,6 +17,7 @@ THEIA_BRANCH="master"
 THEIA_COMMIT_SHA="9f4f56e388109178dbfed244522bbe49ba474c31"
 THEIA_GIT_REFS="refs\\/heads\\/master"
 THEIA_DOCKER_IMAGE_VERSION=
+SHA1_SUFFIX=
 
 prepare_yarn_root_args() {
     IFS=',' read -r -a YARN_ARGS_ARRAY <<< "$@"
@@ -109,6 +110,9 @@ publishImages() {
       echo y | docker push "${REGISTRY}/${image}:${THEIA_DOCKER_IMAGE_VERSION}"
     else
       SHORT_SHA=$(git rev-parse --short HEAD)
+      if [[ -n "${SHA1_SUFFIX}" ]]; then
+           SHORT_SHA=${SHORT_SHA}-${SHA1_SUFFIX}
+      fi
       echo "Publishing ${image}:${SHORT_SHA}..."
       docker tag "${image}:${IMAGE_TAG}" "${REGISTRY}/${image}:${SHORT_SHA}"
       echo y | docker push "${REGISTRY}/${image}:${SHORT_SHA}"
