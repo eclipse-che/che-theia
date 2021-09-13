@@ -82,8 +82,8 @@ jobs:
       - |
         set -e
         docker image prune -a -f
-        docker pull quay.io/eclipse/che-theia-dev:next-travis
-        docker tag quay.io/eclipse/che-theia-dev:next-travis eclipse/che-theia-dev:next-travis
+        docker pull quay.io/eclipse/che-theia-dev:next-travis && \
+        docker tag quay.io/eclipse/che-theia-dev:next-travis eclipse/che-theia-dev:next-travis || true
         TAG=$TAG-${TRAVIS_CPU_ARCH} ./build.sh --root-yarn-opts:--ignore-scripts --dockerfile:Dockerfile.$DIST
     - <<: *docker-build
       name: Docker build (Alpine) on arm64
