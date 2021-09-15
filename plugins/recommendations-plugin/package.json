@@ -4,7 +4,7 @@
   "keywords": [
     "theia-plugin"
   ],
-  "version": "7.36.0",
+  "version": "7.36.1",
   "license": "EPL-2.0",
   "files": [
     "src"
@@ -13,7 +13,7 @@
     "Eclipse Che.@eclipse-che/workspace-plugin"
   ],
   "dependencies": {
-    "@eclipse-che/plugin": "7.36.0",
+    "@eclipse-che/plugin": "7.36.1",
     "@theia/plugin": "1.18.0-next.d3501165",
     "inversify": "^5.0.1",
     "reflect-metadata": "^0.1.13"
