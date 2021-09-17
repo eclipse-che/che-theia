@@ -11,10 +11,10 @@ set -e
 set -u
 
 IMAGE_TAG="next"
-THEIA_GITHUB_REPO="eclipse-theia/theia"
+THEIA_GITHUB_REPO="apupier/theia"
 THEIA_VERSION="master"
-THEIA_BRANCH="master"
-THEIA_COMMIT_SHA="9f4f56e388109178dbfed244522bbe49ba474c31"
+THEIA_BRANCH="BackportAtlasMapModif"
+THEIA_COMMIT_SHA="7b1da69e00416eee6de22b870ea473a54b863e1d"
 THEIA_GIT_REFS="refs\\/heads\\/master"
 THEIA_DOCKER_IMAGE_VERSION=
 SHA1_SUFFIX=
