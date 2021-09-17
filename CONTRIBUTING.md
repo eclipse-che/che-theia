@@ -69,7 +69,7 @@ At workspace start, Che will clone Theia and Che-theia.
 
 In this section we are going to adapt Theia build so it creates an assembly with che-theia specific extensions.
 
-You can use the che command `init ... DEV che-theia` (command pallette > Run task > … or containers view)
+You can use the che command `init ... DEV che-theia` (command palette > Run task > … or containers view)
 Basically, this command will perform:
 ```
 [che-dev]
@@ -84,7 +84,7 @@ By default, extensions list is retrieved from https://github.com/eclipse-che/che
 At this point you can code on che-theia extensions inside `/projects/theia/che/che-theia/extensions` folder. Extensions changes would be taken into account in the next step.
 
 ### Step 4: Compile Che-Theia
-You can use the che command `build ... DEV che-theia` (command pallette > Run task > … or containers view)
+You can use the che command `build ... DEV che-theia` (command palette > Run task > … or containers view)
 Basically, this command will perform:
 ```
 [che-dev]
@@ -92,7 +92,7 @@ $ yarn
 $ che-theia production
 ```
 
-- `yarn` will compile theia + additional Che-theia extensions that have been setted up by `che-theia init`
+- `yarn` will compile theia + additional Che-theia extensions that have been set up by `che-theia init`
 - `che-theia production` will generate a production like package.
 
 ### Step 5: Code che-theia plugins
@@ -100,7 +100,7 @@ At this stage, you can code on Che-theia plugins. In this devfile, containers an
 Che-theia plugins are located in `/projects/che-theia/plugins/` folder.
 
 ### Step 6: Compile your plugin
-You can use the che command `build ... containers-plugin` or `build ... workspace-plugin` (command pallette > Run task > … or containers view)
+You can use the che command `build ... containers-plugin` or `build ... workspace-plugin` (command palette > Run task > … or containers view)
 Basically, this command will perform in the right plugin folder:
 
 ```
@@ -113,7 +113,7 @@ $ yarn
 ### Step 7: Run che-theia + plugin
 In this section, we are going to run the che-theia assembly built previously and run that with one of the plugins built previously. We will be able to test our changes with a dedicated che-theia instance.
 
-You can use the che command `run ... DEV che-theia + workspace-plugin` or `run ... DEV che-theia + containers-plugin` (command pallette > Run task > … or containers view)
+You can use the che command `run ... DEV che-theia + workspace-plugin` or `run ... DEV che-theia + containers-plugin` (command palette > Run task > … or containers view)
 Basically, this command will start the DEV che-theia with the plugin:
 
 ```
@@ -130,7 +130,7 @@ In this section we show how to run the che-theia assembly but in `dev mode`: kee
 
 You can use the che command `run ... DEV yarn start ... che-theia + workspace-plugin` or
 `run ... DEV yarn start... che-theia + containers-plugin`
-(command pallette > Run task > … or containers view).
+(command palette > Run task > … or containers view).
 To start che-theia in `dev-mode` with yarn (not using the production che-theia generated). It would keep things like the ability to source map.
 
 Running dev theia would be located in the che-dev container and `theia-dev-flow` endpoint:
@@ -146,7 +146,7 @@ and run these plugins with the existing che-theia app:
 There is a [devfile](https://github.com/eclipse-che/che-theia/blob/main/devfiles/hosted-che-dogfooding.devfile.yaml) to develop Che-Theia on [che.openshift.io](https://che.openshift.io)
 
 Projects directory which is a Persistent Volume on [che.openshift.io](https://che.openshift.io) is limited to 1 gigabyte. It's not enough to build Che-Theia.
-The main idea is to use `/tmp/theia` directotry. Amount for this directory is limited to 3 gigabytes, which is enough to build Che-Theia and run.
+The main idea is to use `/tmp/theia` directory. Amount for this directory is limited to 3 gigabytes, which is enough to build Che-Theia and run.
 In comparing with `/projects`, temporary directory is not persisted and is cleared on workspace stop.
 
 ### Create workspace
@@ -280,7 +280,7 @@ Note that some earlier versions of the plugin did not work in a self-hosting set
 
 ## Setting up plugins to run
 
-We can now add plugins to run in the sidecar container by adding them to the folder `/projects/plugins-1` (or whaterver we define as `THEIA_PLUGINS` env variable). If we're just interested in debugging the theia plugins host process, we can download a *.vsix file to the folder: it will be unpacked to a subfolder of `/tmp`. If we need to debug the plugin, we can checkout the source code and build it according the the instructions for the plugin:
+We can now add plugins to run in the sidecar container by adding them to the folder `/projects/plugins-1` (or whatever we define as `THEIA_PLUGINS` env variable). If we're just interested in debugging the theia plugins host process, we can download a *.vsix file to the folder: it will be unpacked to a subfolder of `/tmp`. If we need to debug the plugin, we can checkout the source code and build it according the the instructions for the plugin:
 
 ```bash
 $ cd /projects/plugins-1/
@@ -313,7 +313,7 @@ Now we can run the IDE:
 
 ## Debugging
 
-In order to debug the remote plugin host proces, we can just add a parameter to step 2 above: `node --inspect-brk=8888 plugin-remote.js`
+In order to debug the remote plugin host process, we can just add a parameter to step 2 above: `node --inspect-brk=8888 plugin-remote.js`
 The node process will wait upon startup until we connect the debugger using an `attach` debug configuration like this one:
 
 ```json

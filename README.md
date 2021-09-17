@@ -32,8 +32,8 @@
 So, Che-Theia is the default `Che editor` provided with developer workspaces created in [Eclipse Che 7](https://eclipse.org/che/)([Github](https://github.com/eclipse/che)).
 
 Che-Theia contains additional extensions and plugins which have been added based on the nature of Eclipse Che workspaces and to provide the best IDE experience of Theia within Che.
- - A VSCode-like IDE experience. Che-Theia is based on the monaco
-   editor and includes features like the command pallete.
+ - A VSCode-like IDE experience. Che-Theia is based on the Monaco
+   editor and includes features like the command palette.
  - VSCode extension compatibility. Che-Theia supports VSCode
    extensions. In Che-theia, these extensions could come with a side-car
    containers with all the dependencies required by the extension.
@@ -86,7 +86,7 @@ Contributing to che-theia section is cover in [CONTRIBUTING.md](https://github.c
 ## Build container images
 
 Building images is required only if you make some changes on `Dockerfile`s inside `dockerfiles` folder.
-If it is about testing che-theia extensions or plugins, please refere to [CONTRIBUTING.md](https://github.com/eclipse-che/che-theia/blob/main/CONTRIBUTING.md).
+If it is about testing che-theia extensions or plugins, please refer to [CONTRIBUTING.md](https://github.com/eclipse-che/che-theia/blob/main/CONTRIBUTING.md).
 
 To build che-theia docker images, please follow [dockerfiles/theia/README.md](https://github.com/eclipse-che/che-theia/blob/main/dockerfiles/theia/README.md) instructions.
 
