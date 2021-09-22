@@ -55,8 +55,8 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
 
   rebind(FileNavigatorWidget).toDynamicValue(ctx => createFileNavigatorWidget(ctx.container));
 
-  const devWorkspaceName = process.env['DEVWORKSPACE_NAME'];
-  if (devWorkspaceName) {
+  // const devWorkspaceName = process.env['DEVWORKSPACE_NAME'];
+  // if (devWorkspaceName) {
     bind(DevfileWatcher).toSelf().inSingletonScope();
     bind(ExtensionsJsonWatcher).toSelf().inSingletonScope();
     bind(PluginsYamlWatcher).toSelf().inSingletonScope();
@@ -64,7 +64,7 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
     [DevfileWatcher, ExtensionsJsonWatcher, PluginsYamlWatcher, TasksJsonWatcher].forEach(component => {
       bind(FrontendApplicationContribution).to(component);
     });
-  }
+  // }
 });
 
 export function createFileNavigatorContainer(parent: interfaces.Container): Container {
