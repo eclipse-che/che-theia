@@ -3,14 +3,14 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "7.36.1",
+  "version": "7.36.2",
   "description": "Customizations of Theia mini-browser for Eclipse Che",
   "dependencies": {
     "inversify": "^5.0.1",
     "@theia/core": "1.18.0-next.d3501165",
     "@theia/mini-browser": "1.18.0-next.d3501165",
-    "@eclipse-che/theia-remote-api": "7.36.1",
-    "@eclipse-che/theia-plugin-ext": "7.36.1"
+    "@eclipse-che/theia-remote-api": "7.36.2",
+    "@eclipse-che/theia-plugin-ext": "7.36.2"
   },
   "publishConfig": {
     "access": "public"
