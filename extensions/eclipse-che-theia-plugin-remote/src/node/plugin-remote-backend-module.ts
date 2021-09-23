@@ -12,10 +12,16 @@ import * as path from 'path';
 
 import { ContainerModule, interfaces } from 'inversify';
 import {
+  HostedPluginClient,
+  HostedPluginServer,
+  hostedServicePath,
+} from '@theia/plugin-ext/lib/common/plugin-protocol';
+import {
   HostedPluginProcess,
   HostedPluginProcessConfiguration,
 } from '@theia/plugin-ext/lib/hosted/node/hosted-plugin-process';
 
+import { CheHostedPluginServerImpl } from './hosted-plugin-service';
 import { ChePluginUriFactory } from './che-plugin-uri-factory';
 import { ConnectionContainerModule } from '@theia/core/lib/node/messaging/connection-container-module';
 import { HostedPluginMapping } from './plugin-remote-mapping';
@@ -27,7 +33,7 @@ import { PluginUriFactory } from '@theia/plugin-ext/lib/hosted/node/scanners/plu
 import { ServerPluginProxyRunner } from './server-plugin-proxy-runner';
 import { ServerPluginRunner } from '@theia/plugin-ext/lib/common';
 
-const localModule = ConnectionContainerModule.create(({ bind, unbind, isBound, rebind }) => {
+const localModule = ConnectionContainerModule.create(({ bind, unbind, isBound, rebind, bindBackendService }) => {
   bind(HostedPluginRemote)
     .toSelf()
     .inSingletonScope()
@@ -39,6 +45,18 @@ const localModule = ConnectionContainerModule.create(({ bind, unbind, isBound, r
   bind(ServerPluginRunner).to(ServerPluginProxyRunner).inSingletonScope();
   bind(LogHostedPluginProcess).toSelf().inSingletonScope();
   rebind(HostedPluginProcess).toService(LogHostedPluginProcess);
+
+  bind(CheHostedPluginServerImpl).toSelf().inSingletonScope();
+  rebind(HostedPluginServer).toService(CheHostedPluginServerImpl);
+  bindBackendService<HostedPluginServer, HostedPluginClient>(
+    hostedServicePath,
+    HostedPluginServer,
+    (server, client) => {
+      server.setClient(client);
+      client.onDidCloseConnection(() => server.dispose());
+      return server;
+    }
+  );
 });
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
