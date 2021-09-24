@@ -124,6 +124,9 @@ export class PluginRemoteInit {
     // Bind VsCode system
     inversifyContainer.load(pluginVscodeBackendModule);
 
+    // include plugin-vscode-init inside node_modules for initializations of vscode extensions
+    require('@theia/plugin-ext-vscode/lib/node/plugin-vscode-init');
+
     inversifyContainer.bind(EnvVariablesServer).to(CheEnvVariablesServerImpl).inSingletonScope();
 
     // override handler to our own class
