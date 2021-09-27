@@ -30,6 +30,10 @@ RUN /tmp/nexe/index.js -v && \
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/runtime-from.dockerfile}
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/runtime-post-env.dockerfile}
 
+# Setup extra stuff
+#{INCLUDE:docker/${BUILD_IMAGE_TARGET}/runtime-setup.dockerfile}
+
 COPY --from=builder /home/theia/plugin-remote-endpoint /plugin-remote-endpoint
 
-ENTRYPOINT cp -rf /plugin-remote-endpoint /remote-endpoint/plugin-remote-endpoint
+COPY src/entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]

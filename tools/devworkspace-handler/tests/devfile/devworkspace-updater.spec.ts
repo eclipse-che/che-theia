@@ -20,7 +20,6 @@ import { DevfileContext } from '../../src/api/devfile-context';
 import { SidecarComponentsCreator } from '../../src/devfile/sidecar-components-creator';
 import { V1alpha2DevWorkspaceSpecTemplateComponents } from '@devfile/api';
 import { VSCodeExtensionDevContainer } from '../../src/devfile/vscode-extension-dev-container';
-import { VsixInstallerComponentUpdater } from '../../src/vsix-installer/vsix-installer-component-updater';
 
 describe('Test DevWorkspaceUpdater', () => {
   let container: Container;
@@ -42,11 +41,6 @@ describe('Test DevWorkspaceUpdater', () => {
     insert: devContainerComponentUpdaterInsertMethod,
   } as any;
 
-  const vsixInstallerComponentUpdaterAddMethod = jest.fn();
-  const vsixInstallerComponentUpdater = {
-    add: vsixInstallerComponentUpdaterAddMethod,
-  } as any;
-
   beforeEach(() => {
     jest.restoreAllMocks();
     jest.resetAllMocks();
@@ -55,7 +49,6 @@ describe('Test DevWorkspaceUpdater', () => {
     container.bind(SidecarComponentsCreator).toConstantValue(sidecarComponentsCreator);
     container.bind(CheTheiaComponentUpdater).toConstantValue(cheTheiaComponentUpdater);
     container.bind(DevContainerComponentUpdater).toConstantValue(devContainerComponentUpdater);
-    container.bind(VsixInstallerComponentUpdater).toConstantValue(vsixInstallerComponentUpdater);
   });
 
   test('basics', async () => {

@@ -15,7 +15,6 @@ import { devfileModule } from '../devfile/devfile-module';
 import { fetchModule } from '../fetch/fetch-module';
 import { githubModule } from '../github/github-module';
 import { pluginRegistryModule } from '../plugin-registry/plugin-registry-module';
-import { vsixInstallerModule } from '../vsix-installer/vsix-installer-module';
 
 export interface InversifyBindingOptions {
   pluginRegistryUrl: string;
@@ -34,7 +33,6 @@ export class InversifyBinding {
     this.container.load(fetchModule);
     this.container.load(githubModule);
     this.container.load(pluginRegistryModule);
-    this.container.load(vsixInstallerModule);
 
     this.container.bind(Symbol.for('AxiosInstance')).toConstantValue(options.axiosInstance);
     this.container.bind('string').toConstantValue(options.pluginRegistryUrl).whenTargetNamed('PLUGIN_REGISTRY_URL');

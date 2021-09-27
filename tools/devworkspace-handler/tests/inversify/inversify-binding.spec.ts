@@ -32,7 +32,6 @@ import { PluginRegistryResolver } from '../../src/plugin-registry/plugin-registr
 import { SidecarComponentsCreator } from '../../src/devfile/sidecar-components-creator';
 import { UrlFetcher } from '../../src/fetch/url-fetcher';
 import { VscodeExtensionJsonAnalyzer } from '../../src/devfile/vscode-extension-json-analyzer';
-import { VsixInstallerComponentUpdater } from '../../src/vsix-installer/vsix-installer-component-updater';
 
 describe('Test InversifyBinding', () => {
   const mockedArgv: string[] = ['dummy', 'dummy'];
@@ -83,9 +82,6 @@ describe('Test InversifyBinding', () => {
 
     // check plugin-registry module
     expect(container.get(PluginRegistryResolver)).toBeDefined();
-
-    // check vsix-installer module
-    expect(container.get(VsixInstallerComponentUpdater)).toBeDefined();
 
     // check main module
     expect(container.get(Generate)).toBeDefined();
