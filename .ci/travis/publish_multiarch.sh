@@ -14,7 +14,6 @@ PUBLISH_IMAGES_LIST=(
   che-theia-dev
   che-theia
   che-theia-endpoint-runtime-binary
-  che-theia-vsix-installer
 )
 
 for image in "${PUBLISH_IMAGES_LIST[@]}"; do

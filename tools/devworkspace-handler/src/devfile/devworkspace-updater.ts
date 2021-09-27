@@ -16,7 +16,6 @@ import { DevContainerComponentUpdater } from './dev-container-component-updater'
 import { DevfileContext } from '../api/devfile-context';
 import { SidecarComponentsCreator } from './sidecar-components-creator';
 import { VSCodeExtensionDevContainer } from './vscode-extension-dev-container';
-import { VsixInstallerComponentUpdater } from '../vsix-installer/vsix-installer-component-updater';
 
 /**
  * This class is responsible to:
@@ -34,9 +33,6 @@ export class DevWorkspaceUpdater {
 
   @inject(DevContainerComponentUpdater)
   private devContainerComponentUpdater: DevContainerComponentUpdater;
-
-  @inject(VsixInstallerComponentUpdater)
-  private vsixInstallerComponentUpdater: VsixInstallerComponentUpdater;
 
   @inject('boolean')
   @named('INSERT_TEMPLATES')
@@ -56,9 +52,6 @@ export class DevWorkspaceUpdater {
     if (!devfileContext.devWorkspace.spec.template.components) {
       devfileContext.devWorkspace.spec.template.components = components;
     }
-
-    // add the vsix installer
-    await this.vsixInstallerComponentUpdater.add(devfileContext);
 
     // need to add the kubernetes plug-in in the devWorkspace object
     if (this.insertTemplates) {
