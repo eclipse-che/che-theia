@@ -34,4 +34,4 @@ sources:
     - plugins/telemetry-plugin
     - plugins/github-auth-plugin
     - plugins/recommendations-plugin
-  checkoutTo: main
+  checkoutTo: 7.37.x
