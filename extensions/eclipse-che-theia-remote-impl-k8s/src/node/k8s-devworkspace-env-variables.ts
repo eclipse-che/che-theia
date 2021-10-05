@@ -15,6 +15,7 @@ import { injectable } from 'inversify';
  */
 @injectable()
 export class K8sDevWorkspaceEnvVariables {
+
   /**
    * workspaceId - workspace ID taken from environment variable, always the same at workspace lifecycle
    */
@@ -40,31 +41,57 @@ export class K8sDevWorkspaceEnvVariables {
    */
   private readonly projectsRoot: string;
 
+  /**
+   * pluginRegistryURL - Plugin registry public URL
+   */
+  private readonly pluginRegistryURL: string;
+
+  /**
+   * pluginRegistryInternalURL - Plugin registry internal URL
+   */
+  private readonly pluginRegistryInternalURL: string;
+
   constructor() {
     if (process.env.DEVWORKSPACE_ID === undefined) {
       console.error('Environment variable DEVWORKSPACE_ID is not set');
     } else {
       this.workspaceId = process.env.DEVWORKSPACE_ID;
     }
+
     if (process.env.DEVWORKSPACE_NAMESPACE === undefined) {
       console.error('Environment variable DEVWORKSPACE_NAMESPACE is not set');
     } else {
       this.workspaceNamespace = process.env.DEVWORKSPACE_NAMESPACE;
     }
+
     if (process.env.DEVWORKSPACE_NAME === undefined) {
       console.error('Environment variable DEVWORKSPACE_NAME is not set');
     } else {
       this.workspaceName = process.env.DEVWORKSPACE_NAME;
     }
+
     if (process.env.DEVWORKSPACE_FLATTENED_DEVFILE === undefined) {
       console.error('Environment variable DEVWORKSPACE_FLATTENED_DEVFILE is not set');
     } else {
       this.devWorkspaceFlattenedDevfilePath = process.env.DEVWORKSPACE_FLATTENED_DEVFILE;
     }
+
     if (process.env.PROJECTS_ROOT === undefined) {
       console.error('Environment variable PROJECTS_ROOT is not set');
     } else {
       this.projectsRoot = process.env.PROJECTS_ROOT;
+    }
+
+    if (process.env.CHE_PLUGIN_REGISTRY_URL === undefined) {
+      console.error('Environment variable CHE_PLUGIN_REGISTRY is not set');
+    } else {
+      this.pluginRegistryURL = process.env.CHE_PLUGIN_REGISTRY_URL;
+    }
+
+    if (process.env.CHE_PLUGIN_REGISTRY_INTERNAL_URL === undefined) {
+      console.error('Environment variable CHE_PLUGIN_REGISTRY_INTERNAL_URL is not set');
+    } else {
+      this.pluginRegistryInternalURL = process.env.CHE_PLUGIN_REGISTRY_INTERNAL_URL;
     }
   }
 
@@ -86,5 +113,13 @@ export class K8sDevWorkspaceEnvVariables {
 
   getProjectsRoot(): string {
     return this.projectsRoot;
+  }
+
+  getPluginRegistryURL(): string {
+    return this.pluginRegistryURL;
+  }
+
+  getPluginRegistryInternalURL(): string {
+    return this.pluginRegistryInternalURL;
   }
 }
