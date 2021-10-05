@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import { DevfileContext, SidecarPolicy } from '../api/devfile-context';
 import { VSCodeExtensionEntry, VSCodeExtensionEntryWithSidecar } from '../api/vscode-extension-entry';
 import { inject, injectable } from 'inversify';
 
@@ -15,7 +16,6 @@ import { CheTheiaPluginDevContainerMerger } from './che-theia-plugin-devcontaine
 import { CheTheiaPluginSidecarMerger } from './che-theia-plugin-sidecar-merger';
 import { CheTheiaPluginsAnalyzer } from './che-theia-plugins-analyzer';
 import { DevWorkspaceUpdater } from './devworkspace-updater';
-import { DevfileContext } from '../api/devfile-context';
 import { DevfileResolver } from '../api/devfile-che-theia-plugins-resolver';
 import { PluginRegistryResolver } from '../plugin-registry/plugin-registry-resolver';
 import { VSCodeExtensionDevContainer } from './vscode-extension-dev-container';
@@ -103,11 +103,22 @@ export class CheTheiaPluginsDevfileResolver implements DevfileResolver {
 
     // do we need to change the sidecar and use a dev container instead ?
     // if need to use user container, we'll need to update an existing component with the following data
-
     let extensionsWithSidecars: VSCodeExtensionEntryWithSidecar[] = [];
 
     // for dev container merge, we unify all extensions into a single sidecar and then we'll apply all settings except the image
     let extensionsForDevContainer: VSCodeExtensionDevContainer | undefined;
+
+    if (!devfileContext.sidecarPolicy) {
+      const sidecarAttribute = devfileContext.devfile.attributes?.['che-theia.eclipse.org/sidecar-policy'];
+      if (sidecarAttribute === SidecarPolicy.USE_DEV_CONTAINER) {
+        devfileContext.sidecarPolicy = SidecarPolicy.USE_DEV_CONTAINER;
+      } else if (sidecarAttribute === SidecarPolicy.MERGE_IMAGE) {
+        devfileContext.sidecarPolicy = SidecarPolicy.MERGE_IMAGE;
+      } else {
+        // default is to use dev container
+        devfileContext.sidecarPolicy = SidecarPolicy.USE_DEV_CONTAINER;
+      }
+    }
 
     switch (devfileContext.sidecarPolicy) {
       case 'mergeImage':
