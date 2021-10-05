@@ -10,13 +10,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
 
+import { DevfileContext, SidecarPolicy } from '../../src/api/devfile-context';
+
 import { CheTheiaPluginDevContainerMerger } from '../../src/devfile/che-theia-plugin-devcontainer-merger';
 import { CheTheiaPluginSidecarMerger } from '../../src/devfile/che-theia-plugin-sidecar-merger';
 import { CheTheiaPluginsAnalyzer } from '../../src/devfile/che-theia-plugins-analyzer';
 import { CheTheiaPluginsDevfileResolver } from '../../src/devfile/che-theia-plugins-devfile-resolver';
 import { Container } from 'inversify';
 import { DevWorkspaceUpdater } from '../../src/devfile/devworkspace-updater';
-import { DevfileContext } from '../../src/api/devfile-context';
 import { PluginRegistryResolver } from '../../src/plugin-registry/plugin-registry-resolver';
 import { UrlFetcher } from '../../src/fetch/url-fetcher';
 import { VscodeExtensionJsonAnalyzer } from '../../src/devfile/vscode-extension-json-analyzer';
@@ -249,6 +250,57 @@ describe('Test CheTheiaPluginsDevfileResolver', () => {
     expect(updateCall[3]).toBeUndefined();
   });
 
+  test('basics mergeImage in attributes only cheTheiaPlugins attribute', async () => {
+    const cheTheiaPluginsAnalyzerExtractPluginsSpy = jest.spyOn(cheTheiaPluginsAnalyzer, 'extractPlugins');
+    const vscodeExtensionJsonAnalyzerExtractPluginsSpy = jest.spyOn(vscodeExtensionJsonAnalyzer, 'extractPlugins');
+    const cheTheiaPluginSidecarMergerMergeSpy = jest.spyOn(cheTheiaPluginSidecarMerger, 'merge');
+    const cheTheiaPluginDevContainerMergerMergeSpy = jest.spyOn(cheTheiaPluginDevContainerMerger, 'merge');
+
+    const devfileContext = {
+      devfile: {
+        attributes: {
+          '.che/che-theia-plugins.yaml': '- id: my/first-plugin/latest',
+          'che-theia.eclipse.org/sidecar-policy': SidecarPolicy.MERGE_IMAGE,
+        },
+      },
+    } as DevfileContext;
+
+    pluginRegistryResolverResolveMethod.mockImplementation(array => {
+      array[0].resolved = true;
+      array[0].extensions = ['http://first-plugin.vsix'];
+    });
+
+    await cheTheiaPluginsDevfileResolver.handle(devfileContext);
+
+    // no extension.json
+    expect(vscodeExtensionJsonAnalyzerExtractPluginsSpy).toBeCalledTimes(0);
+    // but yaml
+    expect(cheTheiaPluginsAnalyzerExtractPluginsSpy).toBeCalled();
+
+    // plug-ins will be fetched on the registry
+    expect(pluginRegistryResolverResolveMethod).toBeCalled();
+
+    // mergeImage
+    expect(cheTheiaPluginSidecarMergerMergeSpy).toBeCalled();
+    // but not useDevContainer
+    expect(cheTheiaPluginDevContainerMergerMergeSpy).toBeCalledTimes(0);
+
+    // devWorkspace updated
+    expect(devWorkspaceUpdaterUpdateMethod).toBeCalled();
+    const updateCall = devWorkspaceUpdaterUpdateMethod.mock.calls[0];
+    expect(updateCall[0].sidecarPolicy).toBe('mergeImage');
+
+    // extensions without sidecar:
+    expect(updateCall[1].length).toBe(1);
+    expect(updateCall[1][0].extensions).toStrictEqual(['http://first-plugin.vsix']);
+
+    // extensions with same sidecar should have been merged
+    expect(updateCall[2].length).toBe(0);
+
+    // nothing for dev container
+    expect(updateCall[3]).toBeUndefined();
+  });
+
   test('basics with useDevContainer', async () => {
     const cheTheiaPluginsAnalyzerExtractPluginsSpy = jest.spyOn(cheTheiaPluginsAnalyzer, 'extractPlugins');
     const vscodeExtensionJsonAnalyzerExtractPluginsSpy = jest.spyOn(vscodeExtensionJsonAnalyzer, 'extractPlugins');
@@ -256,7 +308,7 @@ describe('Test CheTheiaPluginsDevfileResolver', () => {
     const cheTheiaPluginDevContainerMergerMergeSpy = jest.spyOn(cheTheiaPluginDevContainerMerger, 'merge');
 
     const devfileContext = {
-      sidecarPolicy: 'useDevContainer',
+      sidecarPolicy: SidecarPolicy.USE_DEV_CONTAINER,
       devfile: {},
       cheTheiaPluginsContent: '- id: my/first-plugin/latest',
       vscodeExtensionsJsonContent: JSON.stringify({
@@ -292,7 +344,121 @@ describe('Test CheTheiaPluginsDevfileResolver', () => {
     // devWorkspace updated
     expect(devWorkspaceUpdaterUpdateMethod).toBeCalled();
     const updateCall = devWorkspaceUpdaterUpdateMethod.mock.calls[0];
-    expect(updateCall[0].sidecarPolicy).toBe('useDevContainer');
+    expect(updateCall[0].sidecarPolicy).toBe(SidecarPolicy.USE_DEV_CONTAINER);
+
+    // extensions without sidecar:
+    expect(updateCall[1].length).toBe(1);
+    expect(updateCall[1][0].extensions).toStrictEqual(['http://first-plugin.vsix']);
+
+    // no extensions with sidecar
+    expect(updateCall[2].length).toBe(0);
+
+    // dev container will deploy redhat-java.vsix
+    expect(updateCall[3].extensions).toStrictEqual(['http://redhat-java.vsix']);
+  });
+
+  test('basics with useDevContainer in attributes', async () => {
+    const cheTheiaPluginsAnalyzerExtractPluginsSpy = jest.spyOn(cheTheiaPluginsAnalyzer, 'extractPlugins');
+    const vscodeExtensionJsonAnalyzerExtractPluginsSpy = jest.spyOn(vscodeExtensionJsonAnalyzer, 'extractPlugins');
+    const cheTheiaPluginSidecarMergerMergeSpy = jest.spyOn(cheTheiaPluginSidecarMerger, 'merge');
+    const cheTheiaPluginDevContainerMergerMergeSpy = jest.spyOn(cheTheiaPluginDevContainerMerger, 'merge');
+
+    const devfileContext = {
+      devfile: {
+        attributes: {
+          'che-theia.eclipse.org/sidecar-policy': 'useDevContainer',
+        },
+      },
+      cheTheiaPluginsContent: '- id: my/first-plugin/latest',
+      vscodeExtensionsJsonContent: JSON.stringify({
+        recommendations: ['redhat.java'],
+      }),
+    } as DevfileContext;
+
+    pluginRegistryResolverResolveMethod.mockImplementation(array => {
+      array[0].resolved = true;
+      array[0].extensions = ['http://first-plugin.vsix'];
+
+      array[1].resolved = true;
+      (array[1].sidecar = {
+        image: 'foo-image',
+      }),
+        (array[1].extensions = ['http://redhat-java.vsix']);
+    });
+
+    await cheTheiaPluginsDevfileResolver.handle(devfileContext);
+
+    // analyze yaml or extension.json
+    expect(vscodeExtensionJsonAnalyzerExtractPluginsSpy).toBeCalled();
+    expect(cheTheiaPluginsAnalyzerExtractPluginsSpy).toBeCalled();
+
+    // plug-ins will be fetched on the registry
+    expect(pluginRegistryResolverResolveMethod).toBeCalled();
+
+    // useDevContainer
+    expect(cheTheiaPluginDevContainerMergerMergeSpy).toBeCalled();
+    // but not mergeImage
+    expect(cheTheiaPluginSidecarMergerMergeSpy).toBeCalledTimes(0);
+
+    // devWorkspace updated
+    expect(devWorkspaceUpdaterUpdateMethod).toBeCalled();
+    const updateCall = devWorkspaceUpdaterUpdateMethod.mock.calls[0];
+    expect(updateCall[0].sidecarPolicy).toBe(SidecarPolicy.USE_DEV_CONTAINER);
+
+    // extensions without sidecar:
+    expect(updateCall[1].length).toBe(1);
+    expect(updateCall[1][0].extensions).toStrictEqual(['http://first-plugin.vsix']);
+
+    // no extensions with sidecar
+    expect(updateCall[2].length).toBe(0);
+
+    // dev container will deploy redhat-java.vsix
+    expect(updateCall[3].extensions).toStrictEqual(['http://redhat-java.vsix']);
+  });
+
+  test('basics with useDevContainer with default sidecar policy (use dev container)', async () => {
+    const cheTheiaPluginsAnalyzerExtractPluginsSpy = jest.spyOn(cheTheiaPluginsAnalyzer, 'extractPlugins');
+    const vscodeExtensionJsonAnalyzerExtractPluginsSpy = jest.spyOn(vscodeExtensionJsonAnalyzer, 'extractPlugins');
+    const cheTheiaPluginSidecarMergerMergeSpy = jest.spyOn(cheTheiaPluginSidecarMerger, 'merge');
+    const cheTheiaPluginDevContainerMergerMergeSpy = jest.spyOn(cheTheiaPluginDevContainerMerger, 'merge');
+
+    const devfileContext = {
+      devfile: {},
+      cheTheiaPluginsContent: '- id: my/first-plugin/latest',
+      vscodeExtensionsJsonContent: JSON.stringify({
+        recommendations: ['redhat.java'],
+      }),
+    } as DevfileContext;
+
+    pluginRegistryResolverResolveMethod.mockImplementation(array => {
+      array[0].resolved = true;
+      array[0].extensions = ['http://first-plugin.vsix'];
+
+      array[1].resolved = true;
+      (array[1].sidecar = {
+        image: 'foo-image',
+      }),
+        (array[1].extensions = ['http://redhat-java.vsix']);
+    });
+
+    await cheTheiaPluginsDevfileResolver.handle(devfileContext);
+
+    // analyze yaml or extension.json
+    expect(vscodeExtensionJsonAnalyzerExtractPluginsSpy).toBeCalled();
+    expect(cheTheiaPluginsAnalyzerExtractPluginsSpy).toBeCalled();
+
+    // plug-ins will be fetched on the registry
+    expect(pluginRegistryResolverResolveMethod).toBeCalled();
+
+    // useDevContainer
+    expect(cheTheiaPluginDevContainerMergerMergeSpy).toBeCalled();
+    // but not mergeImage
+    expect(cheTheiaPluginSidecarMergerMergeSpy).toBeCalledTimes(0);
+
+    // devWorkspace updated
+    expect(devWorkspaceUpdaterUpdateMethod).toBeCalled();
+    const updateCall = devWorkspaceUpdaterUpdateMethod.mock.calls[0];
+    expect(updateCall[0].sidecarPolicy).toBe(SidecarPolicy.USE_DEV_CONTAINER);
 
     // extensions without sidecar:
     expect(updateCall[1].length).toBe(1);
