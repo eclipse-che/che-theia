@@ -92,7 +92,7 @@ jobs:
     if: always() && ((needs.build.result == 'failure') || (needs.build.result == 'success'))
     steps:
     - name: Create failure MM message
-      if: ${{ failure() }}
+      if: ${{ needs.build.result == 'failure') }}
       run: |
         echo "{\"text\":\":no_entry_sign: Che Theia ${{ github.event.inputs.version }} release has failed: https://github.com/eclipse-che/che-theia/actions/workflows/release.yml\"}" > mattermost.json
     - name: Create success MM message
