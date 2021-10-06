@@ -73,19 +73,19 @@ apply_files_edits () {
     exit 1
   fi
 
-  WS_CLIENT_VERSION=$(curl --silent http://registry.npmjs.org/-/package/@eclipse-che/workspace-client/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
+  WS_CLIENT_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@eclipse-che/workspace-client/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
   if [[ ! ${WS_CLIENT_VERSION} ]] || [[ ${WS_CLIENT_VERSION} == \"Unauthorized\" ]]; then
     echo "Failed to get @eclipse-che/workspace-client latest version from npmjs.org. Try again."; echo
     exit 1
   fi
 
-  WS_TELEMETRY_CLIENT_VERSION=$(curl --silent http://registry.npmjs.org/-/package/@eclipse-che/workspace-telemetry-client/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
+  WS_TELEMETRY_CLIENT_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@eclipse-che/workspace-telemetry-client/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
   if [[ ! ${WS_TELEMETRY_CLIENT_VERSION} ]] || [[ ${WS_TELEMETRY_CLIENT_VERSION} == \"Unauthorized\" ]]; then
     echo "Failed to get @eclipse-che/workspace-telemetry-client latest version from npmjs.org. Try again."; echo
     exit 1
   fi
 
-  API_DTO_VERSION=$(curl --silent http://registry.npmjs.org/-/package/@eclipse-che/api/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
+  API_DTO_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@eclipse-che/api/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
   if [[ ! ${API_DTO_VERSION} ]] || [[ ${API_DTO_VERSION} == \"Unauthorized\" ]]; then
     echo "Failed to get @eclipse-che/api latest version from npmjs.org. Try again."; echo
     exit 1

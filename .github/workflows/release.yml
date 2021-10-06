@@ -96,6 +96,7 @@ jobs:
       run: |
         echo "{\"text\":\":no_entry_sign: Che Theia ${{ github.event.inputs.version }} release has failed: https://github.com/eclipse-che/che-theia/actions/workflows/release.yml\"}" > mattermost.json
     - name: Create success MM message
+      if: ${{ needs.build.result == 'success' }}
       run: |
         echo "{\"text\":\":white_check_mark: Che Theia ${{ github.event.inputs.version }} has been released: https://quay.io/eclipse/che-theia-dev:${{ github.event.inputs.version }} https://quay.io/eclipse/che-theia:${{ github.event.inputs.version }} https://quay.io/eclipse/che-theia-endpoint-runtime-binary:${{ github.event.inputs.version }}\"}" > mattermost.json
     - name: Send MM message
