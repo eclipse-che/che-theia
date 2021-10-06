@@ -63,7 +63,7 @@ fi
 
 apply_files_edits () {
   BUILD_INCLUDE_THEIA_COMMIT_SHA=$(grep -e "^THEIA_COMMIT_SHA=" build.include | cut -d '=' -f2 | tr -d '"')
-  if [ -z "${BUILD_INCLUDE_THEIA_COMMIT_SHA}"]; then
+  if [ -z "${BUILD_INCLUDE_THEIA_COMMIT_SHA}" ]; then
     THEIA_VERSION=$(curl -sSL -H "Accept: application/vnd.npm.install-v1+json" https://registry.npmjs.org/@theia/core | jq -r '.versions | keys[]' | grep "${BUILD_INCLUDE_THEIA_COMMIT_SHA:0:8}")
   else
     THEIA_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@theia/core/dist-tags | jq -r '.next')
@@ -73,19 +73,19 @@ apply_files_edits () {
     exit 1
   fi
 
-  WS_CLIENT_VERSION=$(curl --silent http://registry.npmjs.org/-/package/@eclipse-che/workspace-client/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
+  WS_CLIENT_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@eclipse-che/workspace-client/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
   if [[ ! ${WS_CLIENT_VERSION} ]] || [[ ${WS_CLIENT_VERSION} == \"Unauthorized\" ]]; then
     echo "Failed to get @eclipse-che/workspace-client latest version from npmjs.org. Try again."; echo
     exit 1
   fi
 
-  WS_TELEMETRY_CLIENT_VERSION=$(curl --silent http://registry.npmjs.org/-/package/@eclipse-che/workspace-telemetry-client/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
+  WS_TELEMETRY_CLIENT_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@eclipse-che/workspace-telemetry-client/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
   if [[ ! ${WS_TELEMETRY_CLIENT_VERSION} ]] || [[ ${WS_TELEMETRY_CLIENT_VERSION} == \"Unauthorized\" ]]; then
     echo "Failed to get @eclipse-che/workspace-telemetry-client latest version from npmjs.org. Try again."; echo
     exit 1
   fi
 
-  API_DTO_VERSION=$(curl --silent http://registry.npmjs.org/-/package/@eclipse-che/api/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
+  API_DTO_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@eclipse-che/api/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
   if [[ ! ${API_DTO_VERSION} ]] || [[ ${API_DTO_VERSION} == \"Unauthorized\" ]]; then
     echo "Failed to get @eclipse-che/api latest version from npmjs.org. Try again."; echo
     exit 1
