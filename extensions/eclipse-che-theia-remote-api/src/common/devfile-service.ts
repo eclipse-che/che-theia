@@ -150,7 +150,8 @@ export interface DevfileComponent {
   kubernetes?: DevfileKubernetesComponent;
   openshift?: DevfileKubernetesComponent;
   plugin?: DevfileV1PluginComponent;
-  attributes?: { [attributeName: string]: string };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  attributes?: { [attributeName: string]: any };
   volume?: {
     size?: string;
   };
