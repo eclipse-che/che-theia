@@ -20,6 +20,10 @@ processDevWorkspacePlugins() {
       dest=$(echo "$container" | sed 's|.*{"name":"THEIA_PLUGINS","value":"local-dir://\([^"][^"]*\)"}.*|\1|' - )
       urls=$(echo "$container" | sed 's|.*"che-theia.eclipse.org/vscode-extensions":\[\([^]][^]]*\)\].*|\1|' - )
       mkdir -p "$dest"
+      if ls -A "${dest}"/*.vsix 2> /dev/null ; then
+        echo "VSIX files are already in folder ${dest}, skipping the download"
+        return 0
+      fi
       unset IFS
       for url in $(echo "$urls" | sed 's/[",]/ /g' - ); do
           CURL_OPTIONS=""
