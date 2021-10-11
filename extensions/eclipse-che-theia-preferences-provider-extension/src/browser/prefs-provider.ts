@@ -45,6 +45,23 @@ export class PreferencesProvider implements FrontendApplicationContribution {
       return {};
     });
 
+    // check v2 preferences using annotations format
+    const preferencesAttributes = components
+      .map(component => component.attributes || {})
+      .map(attributes => attributes['che-theia.eclipse.org/vscode-preferences'] || {});
+    const mergedPreferences = {};
+    Object.assign(mergedPreferences, ...preferencesAttributes);
+    // there were preferences, so use that definition
+    if (Object.keys(mergedPreferences).length > 0) {
+      return preferencesAttributes.reduce((result: [string, string][], preferences: { [key: string]: string }) => {
+        Object.keys(preferences).forEach(key => {
+          result.push(<[string, string]>[key, preferences[key]]);
+        });
+        return result;
+      }, []);
+    }
+
+    // V1 workspaces with env variable with CHE_THEIA_SIDECAR_PREFERENCES
     const componentStatusPreferences = componentStatuses.map(componentStatus => {
       // check if env var is matching
       if (componentStatus?.env) {

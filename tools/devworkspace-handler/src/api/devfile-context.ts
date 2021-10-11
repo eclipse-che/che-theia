@@ -35,7 +35,7 @@ export interface DevfileContext {
   devWorkspaceTemplates: V1alpha2DevWorkspaceTemplate[];
 
   // merge into dev Container
-  sidecarPolicy: SidecarPolicy;
+  sidecarPolicy?: SidecarPolicy;
 
   // suffix to append on generated names
   suffix: string;
