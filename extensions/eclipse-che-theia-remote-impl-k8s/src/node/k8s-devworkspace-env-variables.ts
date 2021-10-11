@@ -15,7 +15,6 @@ import { injectable } from 'inversify';
  */
 @injectable()
 export class K8sDevWorkspaceEnvVariables {
-
   /**
    * workspaceId - workspace ID taken from environment variable, always the same at workspace lifecycle
    */

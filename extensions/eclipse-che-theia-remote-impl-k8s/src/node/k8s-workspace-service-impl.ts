@@ -73,9 +73,14 @@ export class K8sWorkspaceServiceImpl implements WorkspaceService {
   public async getWorkspaceSettings(): Promise<WorkspaceSettings> {
     console.log('workspaceService.getWorkspaceSettings() is implemented partially');
 
+    const GH_REGISTRY = 'https://eclipse-che.github.io/che-devfile-registry/7.37.1/';
+
+    const publicURI = this.env.getPluginRegistryURL() || GH_REGISTRY;
+    const privateURI = this.env.getPluginRegistryInternalURL() || publicURI;
+
     return {
-      CHE_PLUGIN_REGISTRY_URL: this.env.getPluginRegistryURL(),
-      CHE_PLUGIN_REGISTRY_INTERNAL_URL: this.env.getPluginRegistryInternalURL(),
+      CHE_PLUGIN_REGISTRY_URL: publicURI,
+      CHE_PLUGIN_REGISTRY_INTERNAL_URL: privateURI,
     };
   }
 
