@@ -8,8 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import * as theia from '@theia/plugin';
 import * as cheTheia from '@eclipse-che/plugin';
+import * as theia from '@theia/plugin';
 
 import {
   CONTAINERS_PLUGIN_RUN_TASK_COMMAND_ID,
