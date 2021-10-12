@@ -35,7 +35,7 @@
   "homepage": "https://github.com/eclipse/che-theia/blob/main/tools/devworkspace-handler/README.md",
   "dependencies": {
     "@devfile/api": "latest",
-    "axios": "0.21.1",
+    "axios": "0.21.2",
     "inversify": "^5.0.1",
     "js-yaml": "^4.0.0",
     "jsonc-parser": "^3.0.0",

@@ -27,7 +27,7 @@
     "*"
   ],
   "dependencies": {
-    "axios": "0.21.1",
+    "axios": "0.21.2",
     "fs-extra": "7.0.1",
     "@eclipse-che/plugin": "0.0.1",
     "inversify": "^5.0.1",
