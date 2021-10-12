@@ -13,4 +13,14 @@
  * @author Florent Benoit
  */
 const theia: any = {};
+theia.window = {
+    createTreeView: jest.fn()
+};
+theia.EventEmitter = class EventEmitter {}
+theia.Disposable = {
+    create: jest.fn()
+}
+theia.commands = {
+    registerCommand: jest.fn()
+}
 module.exports = theia;

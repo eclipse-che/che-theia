@@ -14,7 +14,9 @@
  */
 const che: any = {};
 
-che.workspace = {};
+che.workspace = {
+    getCurrentWorkspace: jest.fn()
+};
 che.devfile = {
   get: jest.fn(),
   getComponentStatuses: jest.fn(),
