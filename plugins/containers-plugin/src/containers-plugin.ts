@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import * as cheTheia from '@eclipse-che/plugin';
 import * as theia from '@theia/plugin';
 
 import {
@@ -18,14 +19,18 @@ import {
 
 import { ContainersService } from './containers-service';
 
-export function start(context: theia.PluginContext): void {
+export async function start(context: theia.PluginContext): Promise<void> {
   const treeDataProvider = new ContainersTreeDataProvider();
   const treeDataDisposableFn = theia.Disposable.create(() => {
     treeDataProvider.dispose();
   });
   context.subscriptions.push(treeDataDisposableFn);
 
-  theia.window.createTreeView('workspace', { treeDataProvider });
+  const view = theia.window.createTreeView('workspace-view', { treeDataProvider });
+  const workspace = await cheTheia.workspace.getCurrentWorkspace();
+  if (workspace.devfile && workspace.devfile.metadata && workspace.devfile.metadata.name) {
+    view.title = workspace.devfile.metadata.name;
+  }
 
   const containersService = new ContainersService();
   containersService.updateContainers().then(
