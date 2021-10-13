@@ -82,7 +82,7 @@ export class K8sDevWorkspaceEnvVariables {
     }
 
     if (process.env.CHE_PLUGIN_REGISTRY_URL === undefined) {
-      console.error('Environment variable CHE_PLUGIN_REGISTRY is not set');
+      console.error('Environment variable CHE_PLUGIN_REGISTRY_URL is not set');
     } else {
       this.pluginRegistryURL = process.env.CHE_PLUGIN_REGISTRY_URL;
     }

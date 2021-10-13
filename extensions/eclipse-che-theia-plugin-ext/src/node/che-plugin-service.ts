@@ -46,24 +46,14 @@ export interface ChePluginMetadataInternal {
 /**
  * Workspace Settings :: Plugin Registry URI.
  * Public URI to load registry resources, e.g. icons.
- *
- * For some Che deployments the Plugin Registry URL could be set as CHE_PLUGIN_REGISTRY_URL environment variable.
- * We expect the WorkspaceService will set the property with original name.
  */
 const PLUGIN_REGISTRY_URL = 'cheWorkspacePluginRegistryUrl';
-
-const CHE_PLUGIN_REGISTRY_URL = 'CHE_PLUGIN_REGISTRY_URL';
 
 /**
  * Workspace Settings :: Plugin Registry internal URI.
  * Is used for cross-container communication and mostly for getting plugins metadata.
- *
- * For some Che deployments the Plugin Registry internal URL could be set as CHE_PLUGIN_REGISTRY_INTERNAL_URL environment variable.
- * We expect the WorkspaceService will set the property with original name.
  */
 const PLUGIN_REGISTRY_INTERNAL_URL = 'cheWorkspacePluginRegistryInternalUrl';
-
-const CHE_PLUGIN_REGISTRY_INTERNAL_URL = 'CHE_PLUGIN_REGISTRY_INTERNAL_URL';
 
 @injectable()
 export class ChePluginServiceImpl implements ChePluginService {
@@ -109,12 +99,8 @@ export class ChePluginServiceImpl implements ChePluginService {
     try {
       const workspaceSettings: WorkspaceSettings = await this.workspaceService.getWorkspaceSettings();
       if (workspaceSettings) {
-        const publicUri = workspaceSettings[PLUGIN_REGISTRY_URL] || workspaceSettings[CHE_PLUGIN_REGISTRY_URL];
-
-        const uri =
-          workspaceSettings[PLUGIN_REGISTRY_INTERNAL_URL] ||
-          workspaceSettings[CHE_PLUGIN_REGISTRY_INTERNAL_URL] ||
-          publicUri;
+        const publicUri = workspaceSettings[PLUGIN_REGISTRY_URL];
+        const uri = workspaceSettings[PLUGIN_REGISTRY_INTERNAL_URL] || publicUri;
 
         this.defaultRegistry = {
           name: 'Eclipse Che plugins',

@@ -76,8 +76,8 @@ export class K8sWorkspaceServiceImpl implements WorkspaceService {
 
     if (publicURI && privateURI) {
       return {
-        CHE_PLUGIN_REGISTRY_URL: publicURI,
-        CHE_PLUGIN_REGISTRY_INTERNAL_URL: privateURI,
+        cheWorkspacePluginRegistryUrl: publicURI,
+        cheWorkspacePluginRegistryInternalUrl: privateURI,
       };
     } else {
       return {};
