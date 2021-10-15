@@ -5,6 +5,7 @@ ARG SSHPASS_VERSION="1.08"
 
 # Install sudo
 # Install git
+# Install git-lfs for Large File Storage
 # Install bzip2 to unpack files
 # Install which tool in order to search git
 # Install curl and bash
@@ -23,7 +24,7 @@ RUN { if [[ $(uname -m) == "s390x" ]]; then LIBSECRET="\
     else \
       LIBSECRET=""; echo "Warning: arch $(uname -m) not supported"; \
     fi; } \
-    && yum install -y $LIBSECRET sudo git bzip2 which bash curl openssh less \
+    && yum install -y $LIBSECRET sudo git git-lfs bzip2 which bash curl openssh less \
     && curl -sSLo sshpass.tar.gz https://downloads.sourceforge.net/project/sshpass/sshpass/"${SSHPASS_VERSION}"/sshpass-"${SSHPASS_VERSION}".tar.gz \
     && tar -xvf sshpass.tar.gz && cd sshpass-"${SSHPASS_VERSION}" && ./configure && make install && cd .. && rm -rf sshpass-"${SSHPASS_VERSION}" \
     && yum -y clean all && rm -rf /var/cache/yum
