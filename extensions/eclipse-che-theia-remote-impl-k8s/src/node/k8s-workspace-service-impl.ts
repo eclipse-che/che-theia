@@ -71,8 +71,10 @@ export class K8sWorkspaceServiceImpl implements WorkspaceService {
   }
 
   public async getWorkspaceSettings(): Promise<WorkspaceSettings> {
-    console.log('workspaceService.getWorkspaceSettings() not supported');
-    return {};
+    return {
+      cheWorkspacePluginRegistryUrl: this.env.getPluginRegistryURL(),
+      cheWorkspacePluginRegistryInternalUrl: this.env.getPluginRegistryInternalURL(),
+    };
   }
 
   public async getContainerList(): Promise<Container[]> {
