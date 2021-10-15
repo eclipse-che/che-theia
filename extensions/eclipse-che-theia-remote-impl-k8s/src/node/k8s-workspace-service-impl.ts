@@ -71,17 +71,10 @@ export class K8sWorkspaceServiceImpl implements WorkspaceService {
   }
 
   public async getWorkspaceSettings(): Promise<WorkspaceSettings> {
-    const publicURI = this.env.getPluginRegistryURL();
-    const privateURI = this.env.getPluginRegistryInternalURL() || publicURI;
-
-    if (publicURI && privateURI) {
-      return {
-        cheWorkspacePluginRegistryUrl: publicURI,
-        cheWorkspacePluginRegistryInternalUrl: privateURI,
-      };
-    } else {
-      return {};
-    }
+    return {
+      cheWorkspacePluginRegistryUrl: this.env.getPluginRegistryURL(),
+      cheWorkspacePluginRegistryInternalUrl: this.env.getPluginRegistryInternalURL(),
+    };
   }
 
   public async getContainerList(): Promise<Container[]> {

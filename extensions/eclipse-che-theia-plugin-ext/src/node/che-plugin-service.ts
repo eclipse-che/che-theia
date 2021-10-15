@@ -102,16 +102,18 @@ export class ChePluginServiceImpl implements ChePluginService {
         const publicUri = workspaceSettings[PLUGIN_REGISTRY_URL];
         const uri = workspaceSettings[PLUGIN_REGISTRY_INTERNAL_URL] || publicUri;
 
-        this.defaultRegistry = {
-          name: 'Eclipse Che plugins',
-          uri: this.normalizeEnding(uri),
-          publicUri: this.normalizeEnding(publicUri),
-        };
+        if (publicUri) {
+          this.defaultRegistry = {
+            name: 'Eclipse Che plugins',
+            uri: this.normalizeEnding(uri),
+            publicUri: this.normalizeEnding(publicUri),
+          };
 
-        return this.defaultRegistry;
+          return this.defaultRegistry;
+        }
       }
 
-      return Promise.reject('Plugin registry URI is not set.');
+      return Promise.reject('Plugin registry is not configured');
     } catch (error) {
       console.error(error);
       return Promise.reject(`Unable to get default plugin registry URI. ${error.message}`);
