@@ -40,6 +40,24 @@ export class K8SHttpServiceImpl implements HttpService {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async post(uri: string, data?: any): Promise<string | undefined> {
+    const axiosInstance = await this.getAxiosInstance(uri);
+    try {
+      const response = await axiosInstance.post(uri, data, {
+        transformResponse: [responseData => responseData],
+        responseType: 'text',
+      });
+      return response.data;
+    } catch (error) {
+      // not found then we return undefined
+      if (error.response && error.response.status === 404) {
+        return undefined;
+      }
+      throw error;
+    }
+  }
+
   /**
    * Use proxy and/or certificates.
    */
