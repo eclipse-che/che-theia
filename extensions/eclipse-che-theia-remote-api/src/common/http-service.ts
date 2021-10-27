@@ -14,4 +14,6 @@ export const HttpService = Symbol('HttpService');
 
 export interface HttpService {
   get(url: string): Promise<string | undefined>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  post(url: string, data?: any): Promise<string | undefined>;
 }

@@ -40,6 +40,11 @@ export class CheServerHttpServiceImpl implements HttpService {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async post(uri: string, data?: any): Promise<string | undefined> {
+    throw new Error('httpsService.post() not supported');
+  }
+
   /**
    * Use proxy and/or certificates.
    */

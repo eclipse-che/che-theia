@@ -17,6 +17,8 @@ import {
 import { inject, injectable } from 'inversify';
 
 import { DevfileService } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
+import { EndpointService } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
+import { HttpService } from '@eclipse-che/theia-remote-api/lib/common/http-service';
 import { K8sDevWorkspaceEnvVariables } from './k8s-devworkspace-env-variables';
 
 @injectable()
@@ -26,6 +28,12 @@ export class K8sWorkspaceServiceImpl implements WorkspaceService {
 
   @inject(K8sDevWorkspaceEnvVariables)
   private env: K8sDevWorkspaceEnvVariables;
+
+  @inject(EndpointService)
+  private endpointService: EndpointService;
+
+  @inject(HttpService)
+  private httpService: HttpService;
 
   public async getCurrentNamespace(): Promise<string> {
     return this.env.getWorkspaceNamespace();
@@ -62,7 +70,15 @@ export class K8sWorkspaceServiceImpl implements WorkspaceService {
   }
 
   public async updateWorkspaceActivity(): Promise<void> {
-    throw new Error('workspaceService.updateWorkspaceActivity() not supported');
+    const endpoints = await this.endpointService.getEndpointsByType('collocated-terminal');
+    const machineExecEndpoint = endpoints.find(endpoint => endpoint.name === 'terminal');
+
+    if (machineExecEndpoint === undefined || machineExecEndpoint.targetPort === undefined) {
+      throw new Error('Endpoint for machine-exec did not found.');
+    }
+
+    const requestUrl = `http://127.0.0.1:${machineExecEndpoint.targetPort}/activity/tick`;
+    await this.httpService.post(requestUrl);
   }
 
   public async stop(): Promise<void> {
