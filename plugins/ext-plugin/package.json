@@ -1,7 +1,7 @@
 {
   "name": "ext-plugin",
   "publisher": "@eclipse-che",
-  "version": "7.38.0",
+  "version": "7.38.1",
   "keywords": [
     "theia-plugin"
   ],
@@ -15,7 +15,7 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "@eclipse-che/plugin": "7.38.0",
+    "@eclipse-che/plugin": "7.38.1",
     "@theia/plugin": "1.18.0-next.108",
     "@theia/plugin-packager": "latest"
   },
