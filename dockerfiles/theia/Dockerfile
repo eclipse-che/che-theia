@@ -166,7 +166,7 @@ COPY --from=build-result /che-theia-build/plugins /default-theia-plugins
     && yarn global add ${YARN_FLAGS} yo @theia/generator-plugin@0.0.1-1622834185 generator-code typescript@3.5.3 \
     && mkdir -p ${HOME}/.config/insight-nodejs/ \
     # Copy the global git configuration to user config as global config is overwritten by a mounted file at runtime
-    && cp /etc/gitconfig ${HOME}/.gitconfig \
+    && if [[ -r /etc/gitconfig ]]; then cp /etc/gitconfig ${HOME}/.gitconfig; fi \
     && chmod -R 777 ${HOME}/.config/ \
     # Disable the statistics for yeoman
     && echo '{"optOut": true}' > $HOME/.config/insight-nodejs/insight-yo.json \
