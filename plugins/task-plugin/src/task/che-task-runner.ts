@@ -67,7 +67,7 @@ export class CheTaskRunner {
           machineName: containerName,
           workspaceId: target.workspaceId || '',
         },
-        cmd: ['sh', '-c', taskConfig.command],
+        cmd: ['', '-c', taskConfig.command],
         tty: true,
         cwd: target.workingDir,
       };
