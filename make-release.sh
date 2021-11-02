@@ -62,41 +62,44 @@ if [[ "${BASEBRANCH}" != "${BRANCH}" ]]; then
 fi
 
 apply_files_edits () {
-  BUILD_INCLUDE_THEIA_COMMIT_SHA=$(grep -e "^THEIA_COMMIT_SHA=" build.include | cut -d '=' -f2 | tr -d '"')
-  if [ -z "${BUILD_INCLUDE_THEIA_COMMIT_SHA}" ]; then
-    THEIA_VERSION=$(curl -sSL -H "Accept: application/vnd.npm.install-v1+json" https://registry.npmjs.org/@theia/core | jq -r '.versions | keys[]' | grep "${BUILD_INCLUDE_THEIA_COMMIT_SHA:0:8}")
-  else
-    THEIA_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@theia/core/dist-tags | jq -r '.next')
-  fi
-  if [[ ! ${THEIA_VERSION} ]] || [[ ${THEIA_VERSION} == \"Unauthorized\" ]]; then
-    echo "Failed to get Theia next version from npmjs.org or from build.include. Try again."; echo
-    exit 1
+  if [[ ${VERSION} == *".0" ]]; then
+    BUILD_INCLUDE_THEIA_COMMIT_SHA=$(grep -e "^THEIA_COMMIT_SHA=" build.include | cut -d '=' -f2 | tr -d '"')
+    if [ -z "${BUILD_INCLUDE_THEIA_COMMIT_SHA}" ]; then
+      THEIA_VERSION=$(curl -sSL -H "Accept: application/vnd.npm.install-v1+json" https://registry.npmjs.org/@theia/core | jq -r '.versions | keys[]' | grep "${BUILD_INCLUDE_THEIA_COMMIT_SHA:0:8}")
+    else
+      THEIA_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@theia/core/dist-tags | jq -r '.next')
+    fi
+    if [[ ! ${THEIA_VERSION} ]] || [[ ${THEIA_VERSION} == \"Unauthorized\" ]]; then
+      echo "Failed to get Theia next version from npmjs.org or from build.include. Try again."; echo
+      exit 1
+    fi
+
+    WS_CLIENT_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@eclipse-che/workspace-client/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
+    if [[ ! ${WS_CLIENT_VERSION} ]] || [[ ${WS_CLIENT_VERSION} == \"Unauthorized\" ]]; then
+      echo "Failed to get @eclipse-che/workspace-client latest version from npmjs.org. Try again."; echo
+      exit 1
+    fi
+
+    WS_TELEMETRY_CLIENT_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@eclipse-che/workspace-telemetry-client/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
+    if [[ ! ${WS_TELEMETRY_CLIENT_VERSION} ]] || [[ ${WS_TELEMETRY_CLIENT_VERSION} == \"Unauthorized\" ]]; then
+      echo "Failed to get @eclipse-che/workspace-telemetry-client latest version from npmjs.org. Try again."; echo
+      exit 1
+    fi
+
+    API_DTO_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@eclipse-che/api/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
+    if [[ ! ${API_DTO_VERSION} ]] || [[ ${API_DTO_VERSION} == \"Unauthorized\" ]]; then
+      echo "Failed to get @eclipse-che/api latest version from npmjs.org. Try again."; echo
+      exit 1
+    fi
+
+    # update config for Che-Theia generator
+    sed_in_place -e "/checkoutTo:/s/main/${BRANCH}/" che-theia-init-sources.yml
+
+    # set the variables for building the images
+    sed_in_place -e "s/IMAGE_TAG=\"..*\"/IMAGE_TAG=\"latest\"/" build.include
+    sed_in_place -e "s/^THEIA_COMMIT_SHA=$/THEIA_COMMIT_SHA=\"${THEIA_VERSION##*.}\"/" build.include
   fi
 
-  WS_CLIENT_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@eclipse-che/workspace-client/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
-  if [[ ! ${WS_CLIENT_VERSION} ]] || [[ ${WS_CLIENT_VERSION} == \"Unauthorized\" ]]; then
-    echo "Failed to get @eclipse-che/workspace-client latest version from npmjs.org. Try again."; echo
-    exit 1
-  fi
-
-  WS_TELEMETRY_CLIENT_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@eclipse-che/workspace-telemetry-client/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
-  if [[ ! ${WS_TELEMETRY_CLIENT_VERSION} ]] || [[ ${WS_TELEMETRY_CLIENT_VERSION} == \"Unauthorized\" ]]; then
-    echo "Failed to get @eclipse-che/workspace-telemetry-client latest version from npmjs.org. Try again."; echo
-    exit 1
-  fi
-
-  API_DTO_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@eclipse-che/api/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
-  if [[ ! ${API_DTO_VERSION} ]] || [[ ${API_DTO_VERSION} == \"Unauthorized\" ]]; then
-    echo "Failed to get @eclipse-che/api latest version from npmjs.org. Try again."; echo
-    exit 1
-  fi
-
-  # update config for Che-Theia generator
-  sed_in_place -e "/checkoutTo:/s/main/${BRANCH}/" che-theia-init-sources.yml
-
-  # set the variables for building the images
-  sed_in_place -e "s/IMAGE_TAG=\"..*\"/IMAGE_TAG=\"latest\"/" build.include
-  sed_in_place -e "s/^THEIA_COMMIT_SHA=$/THEIA_COMMIT_SHA=\"${THEIA_VERSION##*.}\"/" build.include
   sed_in_place -e "s/THEIA_DOCKER_IMAGE_VERSION=.*/THEIA_DOCKER_IMAGE_VERSION=\"${VERSION}\"/" build.include
 
   for m in "extensions/*" "plugins/*"; do
