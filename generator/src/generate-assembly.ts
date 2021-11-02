@@ -86,42 +86,40 @@ export async function generateAssembly(examplesAssemblyFolder: string, config: A
     const srcDir = path.resolve(__dirname, '../src');
     const distDir = path.resolve(__dirname, '../dist');
     const templateDir = path.join(srcDir, 'templates');
-    const tsConfigTemplatePath = path.join(templateDir, 'assembly-compile.tsconfig.mst.json');
 
     // generate assembly if does not exists
     await fs.ensureDir(examplesAssemblyFolder);
 
-    const packageTemplatePath = path.join(templateDir, 'assembly-package.mst.json');
-    const target = path.join(examplesAssemblyFolder, 'package.json');
-
-    await renderTemplate(packageTemplatePath, target, config);
-    await renderAssemblyTsConfig(tsConfigTemplatePath, examplesAssemblyFolder);
-
-    // await renderTemplate(tsConfigTemplatePath, path.join(examplesAssemblyFolder, 'tsconfig.json'), config);
-    await renderTemplate(
-        path.join(examplesAssemblyFolder, 'tsconfig.json'),
-        path.join(examplesAssemblyFolder, 'tsconfig.mst.json'),
-        config
-    );
+    await preparePackageJsonFile(templateDir, examplesAssemblyFolder, config);
+    await prepareTsConfigFile(templateDir, examplesAssemblyFolder, config);
 
     Logger.info(`copying ${path.join(templateDir, 'cdn')} to ${path.join(examplesAssemblyFolder, 'cdn')}`);
     await fs.copy(path.join(templateDir, 'cdn'), path.join(examplesAssemblyFolder, 'cdn'));
     Logger.info('distdir=' + distDir);
+
     await fs.copy(path.join(distDir, 'cdn'), path.join(examplesAssemblyFolder, 'cdn'));
     await fs.copy(path.join(srcDir, 'scripts'), path.join(examplesAssemblyFolder, 'scripts'));
 }
 
-async function renderTemplate(template: string, target: string, config: Object): Promise<void> {
-    const content = await fs.readFile(template);
+async function preparePackageJsonFile(
+    templateDir: string,
+    examplesAssemblyFolder: string,
+    config: Object
+): Promise<void> {
+    const packageTemplatePath = path.join(templateDir, 'assembly-package.mst.json');
+    const content = await fs.readFile(packageTemplatePath);
+
     const rendered = mustache.render(content.toString(), config).replace(/&#x2F;/g, '/');
-    await fs.writeFile(target, rendered);
+
+    await fs.writeFile(path.join(examplesAssemblyFolder, 'package.json'), rendered);
 }
 
-async function renderAssemblyTsConfig(tsConfigTemplatePath: string, examplesAssemblyFolder: string) {
+async function prepareTsConfigFile(templateDir: string, examplesAssemblyFolder: string, config: Object) {
     const browserTsConfigPath = path.join(examplesAssemblyFolder, '../browser/tsconfig.json');
     const browserRawData = await fs.readFile(browserTsConfigPath);
     const browserParsedData = JSON.parse(browserRawData.toString());
 
+    const tsConfigTemplatePath = path.join(templateDir, 'assembly-compile.tsconfig.mst.json');
     const assemblyTemplateRawData = await fs.readFile(tsConfigTemplatePath);
     const assemblyTemplateParsedData = JSON.parse(assemblyTemplateRawData.toString());
 
@@ -132,6 +130,8 @@ async function renderAssemblyTsConfig(tsConfigTemplatePath: string, examplesAsse
     assemblyTemplateParsedData['references'] = newData;
 
     // write it back
-    const json = JSON.stringify(assemblyTemplateParsedData, undefined, 2);
-    await fs.writeFile(path.join(examplesAssemblyFolder, 'tsconfig.json'), `${json}\n`);
+    const newContent = JSON.stringify(assemblyTemplateParsedData, undefined, 2);
+    const rendered = mustache.render(newContent, config).replace(/&#x2F;/g, '/');
+
+    await fs.writeFile(path.join(examplesAssemblyFolder, 'tsconfig.json'), rendered);
 }

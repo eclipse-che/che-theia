@@ -39,8 +39,8 @@ export class Init {
         await generateAssembly(this.examplesAssemblyFolder, {
             theiaVersion: '^' + (await this.getCurrentVersion()),
             monacoVersion: await this.getPackageWithVersion(Init.MONACO_CORE_PKG),
-            configDirPrefix: '../../packages/@che-',
-            packageRefPrefix: '../../config/',
+            configDirPrefix: '../../configs/',
+            packageRefPrefix: '../../packages/@che-',
         });
         // Generate checkout folder is does not exist
         await fs.ensureDir(this.checkoutFolder);
