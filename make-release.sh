@@ -98,7 +98,8 @@ apply_files_edits () {
     # set the variables for building the images
     sed_in_place -e "s/IMAGE_TAG=\"..*\"/IMAGE_TAG=\"latest\"/" build.include
     if [ -z "${BUILD_INCLUDE_THEIA_COMMIT_SHA}"]; then
-      sed_in_place -e "s/^THEIA_COMMIT_SHA=$/THEIA_COMMIT_SHA=\"${THEIA_VERSION##*.}\"/" build.include
+      BUILD_INCLUDE_THEIA_COMMIT_SHA=$(curl -sSL https://registry.npmjs.org/@theia/core/"${THEIA_VERSION}" | jq -r '.gitHead')
+      sed_in_place -e "s/^THEIA_COMMIT_SHA=$/THEIA_COMMIT_SHA=\"${BUILD_INCLUDE_THEIA_COMMIT_SHA}\"/" build.include
     fi
   fi
 
