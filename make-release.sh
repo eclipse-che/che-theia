@@ -93,7 +93,6 @@ apply_files_edits () {
 
   # update config for Che-Theia generator
   sed_in_place -e "/checkoutTo:/s/main/${BRANCH}/" che-theia-init-sources.yml
-  sed_in_place -e "/checkoutTo:/s/main/${BRANCH}/" che-theia-init-sources.yml
 
   # set the variables for building the images
   sed_in_place -e "s/IMAGE_TAG=\"..*\"/IMAGE_TAG=\"latest\"/" build.include
