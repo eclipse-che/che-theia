@@ -953,10 +953,15 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.3.tgz#90420f9f9c6d3987f176a19a7d8e764271a2f55d"
   integrity sha512-Fxt+AfXgjMoin2maPIYzFZnQjAXjAL0PHscM5pRTtatFqB+vZxAM9tLp2Optnuw3QOQC40jTNeGYFOMvyf7v9g==
 
-"@eclipse-che/api@^7.0.0-beta-4.0", "@eclipse-che/api@^7.3.2", "@eclipse-che/api@latest":
+"@eclipse-che/api@^7.0.0-beta-4.0", "@eclipse-che/api@latest":
   version "7.34.2"
   resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.34.2.tgz#e047aece3627268231d7e677da87596bcf2f8adb"
   integrity sha512-YxQhYPgOb+KU+po3ghQHfPEfwYMPVIO8/LkFgZM+Jr83K0F0cN72PNb4HVaPgyNHInjEQFmwYSculn4oFtaTbQ==
+
+"@eclipse-che/api@^7.38.1":
+  version "7.38.2"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.38.2.tgz#4a06ab38b50fca4fabe921952efe3b98270ee317"
+  integrity sha512-AXETX0B2f+qaLTlg9BDw6XrVwaIFrl1ZE+vaFLqxMqdbbBo76v6yegCuYwxFFxXAeVJ47+yqeYtOKU02dn/lgA==
 
 "@eclipse-che/plugin@latest":
   version "0.0.1-1629115197"
@@ -977,13 +982,12 @@
     websocket "1.0.23"
 
 "@eclipse-che/workspace-telemetry-client@latest":
-  version "0.0.1-1624632839"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-telemetry-client/-/workspace-telemetry-client-0.0.1-1624632839.tgz#b878a6b8f3c64ce5048feeae06c600d255452612"
-  integrity sha512-unu0K4UxthbHVgygRKHsjPLzWleDaf08xZ1FSE/b/U2PwKo6Ns0GTM4BO+PmG81oMs5H9T8yCQJguJxc+lEqXQ==
+  version "0.0.1-1635937496"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-telemetry-client/-/workspace-telemetry-client-0.0.1-1635937496.tgz#63b185f73a9491d0a74ed7362ce105c323329191"
+  integrity sha512-5t5ERPL0simxHkQljtPIwyVf5W8kvub7RTnonOeLI8ktfaVzJT2/AX3ARqEKflBtdxlIC3v1tZg7zg++243vRw==
   dependencies:
-    "@eclipse-che/api" "^7.3.2"
-    axios "0.21.1"
-    moxios "git://github.com/stoplightio/moxios#v1.3.0"
+    "@eclipse-che/api" "^7.38.1"
+    axios "^0.24.0"
 
 "@eslint/eslintrc@^0.4.3":
   version "0.4.3"
@@ -4658,19 +4662,26 @@ aws4@^1.8.0:
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.11.0.tgz#d61f46d83b2519250e2784daf5b09479a8b41c59"
   integrity sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==
 
-axios@0.21.1, axios@^0.21.1:
-  version "0.21.1"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
-  integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
-  dependencies:
-    follow-redirects "^1.10.0"
-
 axios@0.21.2:
   version "0.21.2"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.2.tgz#21297d5084b2aeeb422f5d38e7be4fbb82239017"
   integrity sha512-87otirqUw3e8CzHTMO+/9kh/FSgXt/eVDvipijwDtEuwbkySWZ9SBm6VEubmJ/kLKEoLQV/POhxXFb66bfekfg==
   dependencies:
     follow-redirects "^1.14.0"
+
+axios@^0.21.1:
+  version "0.21.1"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
+  integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
+  dependencies:
+    follow-redirects "^1.10.0"
+
+axios@^0.24.0:
+  version "0.24.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.24.0.tgz#804e6fa1e4b9c5288501dd9dff56a7a0940d20d6"
+  integrity sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==
+  dependencies:
+    follow-redirects "^1.14.4"
 
 babel-code-frame@^6.26.0:
   version "6.26.0"
@@ -5685,11 +5696,6 @@ cjs-module-lexer@^0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/cjs-module-lexer/-/cjs-module-lexer-0.6.0.tgz#4186fcca0eae175970aee870b9fe2d6cf8d5655f"
   integrity sha512-uc2Vix1frTfnuzxxu1Hp4ktSvM3QaI4oXl4ZUqL1wjTu/BGki9TrCWoqLTg/drR1KwAEarXuRFCG2Svr1GxPFw==
-
-class-autobind@^0.1.4:
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/class-autobind/-/class-autobind-0.1.4.tgz#34516c49167cf8d3f639ddc186bcfa2268afff34"
-  integrity sha1-NFFsSRZ8+NP2Od3Bhrz6Imiv/zQ=
 
 class-utils@^0.3.5:
   version "0.3.6"
@@ -8326,6 +8332,11 @@ follow-redirects@^1.14.0:
   version "1.14.4"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.4.tgz#838fdf48a8bbdd79e52ee51fb1c94e3ed98b9379"
   integrity sha512-zwGkiSXC1MUJG/qmeIFH2HBJx9u0V46QGUe3YR1fXG8bXQxq7fLj0RjLZQ5nubr9qNJUZrH+xUcwXEoXNpfS+g==
+
+follow-redirects@^1.14.4:
+  version "1.14.5"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.5.tgz#f09a5848981d3c772b5392309778523f8d85c381"
+  integrity sha512-wtphSXy7d4/OR+MvIFbCVBDzZ5520qV8XfPklSN5QtxuMUJZ+b0Wnst1e1lCDocfzuCkHqj8k0FpZqO+UIaKNA==
 
 font-awesome@^4.7.0:
   version "4.7.0"
@@ -11832,12 +11843,6 @@ move-file@^1.1.0:
     cp-file "^6.1.0"
     make-dir "^3.0.0"
     path-exists "^3.0.0"
-
-"moxios@git://github.com/stoplightio/moxios#v1.3.0":
-  version "1.3.0"
-  resolved "git://github.com/stoplightio/moxios#9d702c8eafee4b02917d6bc400ae15f1e835cf51"
-  dependencies:
-    class-autobind "^0.1.4"
 
 ms@2.0.0:
   version "2.0.0"
