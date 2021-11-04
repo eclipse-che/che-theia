@@ -31,7 +31,7 @@ extract_dest_from_item() {
   jq -n "$1" | jq -r '.[].env[] | select(.name == "THEIA_PLUGINS") | .value' | sed 's|local-dir://\([^"][^"]*\)|\1|'
 }
 
-# extract the destination folder from one item of the analyze
+# extract the urls from one item of the analyze
 # parameter: $1 is the component data item
 extract_urls_from_item() {
   # URLs are wrapped into extensions custom field
