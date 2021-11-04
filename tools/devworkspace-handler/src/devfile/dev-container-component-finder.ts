@@ -17,24 +17,48 @@ import { injectable } from 'inversify';
  */
 @injectable()
 export class DevContainerComponentFinder {
+  public static readonly DEV_CONTAINER_ATTRIBUTE = 'che-theia.eclipse.org/dev-container';
+
   async find(devfileContext: DevfileContext): Promise<V1alpha2DevWorkspaceSpecTemplateComponents> {
     // need to find definition
 
-    // search in main devWorkspace (exclude theia as component name)
-    const devComponents = devfileContext.devWorkspace.spec?.template?.components?.filter(
-      component => component.container && component.name !== 'theia-ide'
+    // first search if we have an optional annotated container
+    const annotatedContainers = devfileContext.devWorkspace.spec?.template?.components?.filter(
+      component =>
+        component.attributes &&
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (component.attributes as any)[DevContainerComponentFinder.DEV_CONTAINER_ATTRIBUTE] === true
     );
+    if (annotatedContainers) {
+      if (annotatedContainers.length === 1) {
+        return annotatedContainers[0];
+      } else if (annotatedContainers.length > 1) {
+        throw new Error(
+          `Only one container can be annotated with ${DevContainerComponentFinder.DEV_CONTAINER_ATTRIBUTE}: true`
+        );
+      }
+    }
+
+    // search in main devWorkspace (exclude theia as component name)
+    const devComponents = devfileContext.devWorkspace.spec?.template?.components
+      ?.filter(component => component.container && component.name !== 'theia-ide')
+      .filter(
+        // we should ignore component that do not mount the sources
+        component => component.container && component.container.mountSources !== false
+      );
+
     // only one, fine, else error
     if (!devComponents || devComponents.length === 0) {
       throw new Error('Not able to find any dev container component in DevWorkspace');
     } else if (devComponents.length === 1) {
       return devComponents[0];
     } else {
-      throw new Error(
-        `Too many components have been found that could be considered as dev container. There should be only one to merge sidecars. Found component names: ${devComponents.map(
+      console.warn(
+        `More than one dev container component has been potentially found, taking the first one of ${devComponents.map(
           component => component.name
         )}`
       );
+      return devComponents[0];
     }
   }
 }

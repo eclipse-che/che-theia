@@ -19,12 +19,19 @@ describe('Test DevContainerComponentFinder', () => {
 
   let devContainerComponentFinder: DevContainerComponentFinder;
 
+  let originalConsoleWarn = console.warn;
+
   beforeEach(() => {
     jest.restoreAllMocks();
     jest.resetAllMocks();
     container = new Container();
     container.bind(DevContainerComponentFinder).toSelf().inSingletonScope();
     devContainerComponentFinder = container.get(DevContainerComponentFinder);
+    console.warn = jest.fn();
+  });
+
+  afterEach(() => {
+    console.warn = originalConsoleWarn;
   });
 
   test('basics', async () => {
@@ -36,6 +43,34 @@ describe('Test DevContainerComponentFinder', () => {
               { name: 'foo' },
               {
                 name: 'theia-ide',
+              },
+              {
+                name: 'my-container',
+                container: {
+                  image: 'user-image:123',
+                },
+              },
+            ],
+          },
+        },
+      },
+    } as DevfileContext;
+    const devWorkspaceSpecTemplateComponents = await devContainerComponentFinder.find(devfileContext);
+    expect(devWorkspaceSpecTemplateComponents.name).toBe('my-container');
+  });
+
+  test('only one container without mountSources:false', async () => {
+    const devfileContext = {
+      devWorkspace: {
+        spec: {
+          template: {
+            components: [
+              {
+                name: 'container-with-mount-sources-false',
+                container: {
+                  mountSources: false,
+                  image: 'user-image:123',
+                },
               },
               {
                 name: 'my-container',
@@ -81,7 +116,7 @@ describe('Test DevContainerComponentFinder', () => {
     );
   });
 
-  test('too many dev container', async () => {
+  test('take first one when many dev container', async () => {
     const devfileContext = {
       devWorkspace: {
         spec: {
@@ -108,8 +143,86 @@ describe('Test DevContainerComponentFinder', () => {
         },
       },
     } as DevfileContext;
+    const devWorkspaceSpecTemplateComponents = await devContainerComponentFinder.find(devfileContext);
+    expect(devWorkspaceSpecTemplateComponents.name).toBe('my-container-1');
+    expect(console.warn).toBeCalledWith(
+      'More than one dev container component has been potentially found, taking the first one of my-container-1,my-container-2'
+    );
+  });
+
+  test('annotated', async () => {
+    const devfileContext = {
+      devWorkspace: {
+        spec: {
+          template: {
+            components: [
+              {
+                name: 'foo',
+                container: {
+                  image: 'user-image:123',
+                },
+              },
+              {
+                name: 'my-container',
+                attributes: {
+                  'che-theia.eclipse.org/dev-container': true,
+                },
+                container: {
+                  image: 'user-image:123',
+                },
+              },
+              {
+                name: 'bar',
+                container: {
+                  image: 'user-image:123',
+                },
+              },
+            ],
+          },
+        },
+      },
+    } as DevfileContext;
+    const devWorkspaceSpecTemplateComponents = await devContainerComponentFinder.find(devfileContext);
+    expect(devWorkspaceSpecTemplateComponents.name).toBe('my-container');
+  });
+
+  test('too many annotated container', async () => {
+    const devfileContext = {
+      devWorkspace: {
+        spec: {
+          template: {
+            components: [
+              {
+                name: 'foo',
+                attributes: {
+                  'che-theia.eclipse.org/dev-container': true,
+                },
+                container: {
+                  image: 'user-image:123',
+                },
+              },
+              {
+                name: 'my-container',
+                attributes: {
+                  'che-theia.eclipse.org/dev-container': true,
+                },
+                container: {
+                  image: 'user-image:123',
+                },
+              },
+              {
+                name: 'bar',
+                container: {
+                  image: 'user-image:123',
+                },
+              },
+            ],
+          },
+        },
+      },
+    } as DevfileContext;
     await expect(devContainerComponentFinder.find(devfileContext)).rejects.toThrow(
-      'Too many components have been found that could be considered as dev container'
+      'Only one container can be annotated with che-theia.eclipse.org/dev-container: true'
     );
   });
 });
