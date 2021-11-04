@@ -13,3 +13,8 @@ base_dir=$(cd "$(dirname "$0")"; pwd)
 
 init --name:theia-endpoint-runtime-binary "$@"
 build
+
+# Run unit tests
+UNIT_TEST_CHECK_IMAGE_NAME="${IMAGE_NAME}-test"
+docker build -t "${UNIT_TEST_CHECK_IMAGE_NAME}" -f test.Dockerfile .
+printf "${GREEN}Tests run successfully: ${BLUE}${UNIT_TEST_CHECK_IMAGE_NAME}${NC}\n"
