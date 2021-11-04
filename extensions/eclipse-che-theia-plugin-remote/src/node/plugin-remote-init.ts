@@ -18,7 +18,16 @@ import * as theia from '@theia/plugin';
 import * as ws from 'ws';
 
 import { Container, inject, injectable } from 'inversify';
-import { DeployedPlugin, PluginEntryPoint, PluginInfo, PluginManagerStartParams } from '@theia/plugin-ext';
+import {
+  DeployedPlugin,
+  MAIN_RPC_CONTEXT,
+  PluginDependencies,
+  PluginDeployer,
+  PluginDeployerEntry,
+  PluginEntryPoint,
+  PluginInfo,
+  PluginManagerStartParams,
+} from '@theia/plugin-ext';
 import { FileType, Stat } from '@theia/filesystem/lib/common/files';
 import {
   GetResourceRequest,
@@ -28,7 +37,6 @@ import {
   InternalMessage,
 } from './internal-protocol';
 import { LogCallback, RemoteHostTraceLogger } from './remote-trace-logger';
-import { MAIN_RPC_CONTEXT, PluginDependencies, PluginDeployer, PluginDeployerEntry } from '@theia/plugin-ext';
 import { OutputChannelRegistryExt, PluginDeployerHandler } from '@theia/plugin-ext/lib/common';
 
 import { CheEnvVariablesServerImpl } from '@eclipse-che/theia-plugin-ext/lib/node/che-env-variables-server';

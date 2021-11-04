@@ -650,7 +650,7 @@ export class CheServerDevfileServiceImpl implements DevfileService {
   }
 
   // search any
-  async applyPodInformation(devfileV1: cheApi.workspace.devfile.Devfile, pod: V1Pod) {}
+  async applyPodInformation(devfileV1: cheApi.workspace.devfile.Devfile, pod: V1Pod): Promise<void> {}
 
   async get(): Promise<Devfile> {
     const workspace = await this.workspaceService.currentWorkspace();

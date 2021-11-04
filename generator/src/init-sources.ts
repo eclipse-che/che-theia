@@ -118,7 +118,7 @@ export class InitSources {
     /**
      * Update configs/root-compilation.tsconfig.json
      */
-    async initRootCompilationUnits() {
+    async initRootCompilationUnits(): Promise<void> {
         const browserCompilationUnitPath = path.join(this.rootFolder, 'examples/browser/tsconfig.json');
         const browserRawData = await fs.readFile(browserCompilationUnitPath);
         const browserParsedData = JSON.parse(browserRawData.toString());
@@ -232,7 +232,7 @@ export class InitSources {
      * @param dependencyKey the key of dependency
      * @param dependencyValue its original value
      */
-    updateDependency(dependencyKey: string, dependencyValue: string) {
+    updateDependency(dependencyKey: string, dependencyValue: string): string {
         // is it already defined as a Theia dev dependency ? if yes then return this value
         const rest = this.globalDevDependencies.get(dependencyKey);
         if (rest) {
@@ -252,7 +252,7 @@ export class InitSources {
      * Insert the given extension into the package.json of the assembly.
      * @param extension the given extension
      */
-    async insertExtensionIntoAssembly(extension: ISource) {
+    async insertExtensionIntoAssembly(extension: ISource): Promise<void> {
         // first, read the assembly json file
         const assemblyPackageJsonPath = path.join(this.assemblyFolder, 'package.json');
         const assemblyJsonRawContent = require(assemblyPackageJsonPath);
@@ -348,7 +348,7 @@ export class InitSources {
         }
     }
 
-    async initSourceLocationAliases(alias: string[] | undefined) {
+    async initSourceLocationAliases(alias: string[] | undefined): Promise<void> {
         if (alias) {
             alias.forEach(element => {
                 if (element.indexOf('=')) {

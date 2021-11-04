@@ -29,6 +29,7 @@ import { RPCProtocol } from '@theia/plugin-ext/lib/common/rpc-protocol';
 import URI from '@theia/core/lib/common/uri';
 import { interfaces } from 'inversify';
 
+// tslint:disable:one-line
 export abstract class AbstractSideCarFileSystemProvider
   implements FileSystemProviderWithFileReadWriteCapability, FileSystemProviderWithFileFolderCopyCapability
 {

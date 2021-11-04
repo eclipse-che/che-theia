@@ -8,10 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { ComponentExposedEndpoint, ExposedEndpoint } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
+import {
+  ComponentExposedEndpoint,
+  EndpointService,
+  ExposedEndpoint,
+} from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
 
 import { CheEndpointMain } from '../common/che-protocol';
-import { EndpointService } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
 import { interfaces } from 'inversify';
 
 export class CheEndpointMainImpl implements CheEndpointMain {

@@ -21,10 +21,10 @@ class DummyInternalScanner extends AbstractInternalScanner {
     this.path_ = path_;
   }
 
-  async getListeningPortV4() {
+  async getListeningPortV4(): Promise<string> {
     return super.readFilePromise(this.path_);
   }
-  async getListeningPortV6() {
+  async getListeningPortV6(): Promise<string> {
     return super.readFilePromise('/dev/null');
   }
 }

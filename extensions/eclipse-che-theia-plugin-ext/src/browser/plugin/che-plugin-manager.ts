@@ -84,7 +84,7 @@ export class ChePluginManager {
   protected readonly devfileService: DevfileService;
 
   @postConstruct()
-  async onStart() {
+  async onStart(): Promise<void> {
     await this.initDefaults();
     const fireChanged = debounce(() => this.pluginRegistryListChangedEvent.fire(), 5000);
     this.preferenceService.onPreferenceChanged(async (event: PreferenceChange) => {

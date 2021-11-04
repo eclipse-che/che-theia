@@ -19,9 +19,13 @@
     "src"
   ],
   "dependencies": {
-    "@theia/core": "next",
+    "inversify": "^5.0.1",
     "@theia/output": "next",
+    "@theia/core": "next",
+    "vscode-jsonrpc": "^5.0.0",
     "@theia/terminal": "next",
+    "xterm": "^4.11.0",
+    "@phosphor/widgets": "1",
     "reconnecting-websocket": "^4.2.0",
     "@eclipse-che/api": "latest",
     "@eclipse-che/theia-remote-api": "^0.0.1",

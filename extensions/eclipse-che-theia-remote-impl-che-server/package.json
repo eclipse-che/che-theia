@@ -13,6 +13,13 @@
   ],
   "dependencies": {
     "axios": "0.21.2",
+    "inversify": "^5.0.1",
+    "request": "2.82.0",
+    "tunnel": "0.0.6",
+    "@theia/core": "next",
+    "fs-extra": "^8.1.0",
+    "js-yaml": "3.13.1",
+    "@eclipse-che/workspace-telemetry-client": "latest",
     "@eclipse-che/api": "latest",
     "@kubernetes/client-node": "^0.12.1",
     "@eclipse-che/theia-remote-api": "^0.0.1",

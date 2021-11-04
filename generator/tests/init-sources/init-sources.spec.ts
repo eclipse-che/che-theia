@@ -74,7 +74,7 @@ describe('Test Extensions', () => {
         initGit(sourceExtension2Tmp);
     });
 
-    function initGit(cwd: string) {
+    function initGit(cwd: string): void {
         cp.execSync('git init', { cwd });
         cp.execSync('git checkout -b main', { cwd });
         cp.execSync('git config --local user.name "test user"', { cwd });

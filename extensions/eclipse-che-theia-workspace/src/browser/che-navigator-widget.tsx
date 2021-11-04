@@ -19,6 +19,7 @@ import { WorkspaceInputDialog } from '@theia/workspace/lib/browser/workspace-inp
 import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { inject } from '@theia/core/shared/inversify';
 import { injectable } from 'inversify';
+import { LabelProvider } from '@theia/core/lib/browser';
 
 @injectable()
 export class CheFileNavigatorWidget extends FileNavigatorWidget {
@@ -90,7 +91,8 @@ export class CheFileNavigatorWidget extends FileNavigatorWidget {
         parentUri: new URI(this.projectsRootDirectory),
         initialValue: 'Untitled',
       },
-      this.labelProvider
+      // TODO revisit
+      this.labelProvider as unknown as LabelProvider
     );
     dialog.open().then(async name => {
       if (name) {

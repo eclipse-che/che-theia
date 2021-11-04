@@ -6,6 +6,7 @@
   "version": "0.0.1",
   "description": "Eclipse Che - Theia About menu",
   "dependencies": {
+    "inversify": "^5.0.1",
     "@theia/core": "next",
     "@theia/mini-browser": "next",
     "@eclipse-che/theia-plugin-ext": "^0.0.1"

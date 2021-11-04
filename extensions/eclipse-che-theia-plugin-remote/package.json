@@ -8,6 +8,13 @@
     "src"
   ],
   "dependencies": {
+    "inversify": "^5.0.1",
+    "escape-html": "^1.0.3",
+    "express": "^4.16.3",
+    "fs-extra": "^8.1.0",
+    "reflect-metadata": "^0.1.13",
+    "ws": "^5.1.2",
+    "@theia/filesystem": "next",
     "@theia/core": "next",
     "@theia/plugin-ext": "next",
     "@theia/plugin-ext-vscode": "next",

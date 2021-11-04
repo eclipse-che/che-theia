@@ -35,7 +35,7 @@ export const builder: CommandBuilder = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function handleCommand(args: any) {
+export async function handleCommand(args: any): Promise<void> {
     const cheTheiaDir = args['che-theia '] || process.cwd();
     const theiaVersion = args['theia-version']!;
     const monacoVersion = await getFullPackageName(cheTheiaDir, Init.MONACO_CORE_PKG);
@@ -114,7 +114,7 @@ async function preparePackageJsonFile(
     await fs.writeFile(path.join(examplesAssemblyFolder, 'package.json'), rendered);
 }
 
-async function prepareTsConfigFile(templateDir: string, examplesAssemblyFolder: string, config: Object) {
+async function prepareTsConfigFile(templateDir: string, examplesAssemblyFolder: string, config: Object): Promise<void> {
     const browserTsConfigPath = path.join(examplesAssemblyFolder, '../browser/tsconfig.json');
     const browserRawData = await fs.readFile(browserTsConfigPath);
     const browserParsedData = JSON.parse(browserRawData.toString());
