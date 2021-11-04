@@ -1,0 +1,269 @@
+commands:
+- apply:
+    component: remote-runtime-injector
+  attributes:
+    controller.devfile.io/imported-by: theia-ide-workspace42b53fb0416c4bb3
+  id: init-container-command
+- exec:
+    commandLine: npm install
+    component: nodejs
+    group:
+      isDefault: true
+      kind: build
+    label: Download dependencies
+    workingDir: ${PROJECTS_ROOT}/web-nodejs-sample/app
+  id: dependencies
+- exec:
+    commandLine: nodemon app.js
+    component: nodejs
+    group:
+      kind: run
+    label: Run the web app 
+    workingDir: ${PROJECTS_ROOT}/web-nodejs-sample/app
+  id: runapp
+- exec:
+    commandLine: nodemon --inspect app.js
+    component: nodejs
+    group:
+      isDefault: true
+      kind: debug
+    label: Run the web app (debugging enabled)
+    workingDir: ${PROJECTS_ROOT}/web-nodejs-sample/app
+  id: debug
+- exec:
+    commandLine: 'node_server_pids=$(pgrep -fx ''.*nodemon (--inspect )?app.js'' | tr "\\n" " ") && echo "Stopping node server with PIDs: ${node_server_pids}" &&  kill -15 ${node_server_pids} &>/dev/null && echo ''Done.'''
+    component: nodejs
+    group:
+      kind: run
+    label: Stop the web app
+  id: stopapp
+- apply:
+    component: project-clone
+  id: clone-projects
+components:
+- attributes:
+    app.kubernetes.io/component: che-theia
+    app.kubernetes.io/part-of: che-theia.eclipse.org
+    che-theia.eclipse.org/vscode-extensions:
+    - https://download.jboss.org/jbosstools/vscode/3rdparty/vscode-eslint/vscode-eslint-2.1.1-1e15d3.vsix
+    - https://download.jboss.org/jbosstools/vscode/3rdparty/vscode-eslint/vscode-2.vsix
+    controller.devfile.io/imported-by: theia-ide-workspace42b53fb0416c4bb3
+  container:
+    cpuLimit: 1500m
+    cpuRequest: 100m
+    endpoints:
+    - attributes:
+        controller.devfile.io/endpoint-url: https://che-eclipse-che.apps.cluster-fce1.fce1.sandbox1073.opentlc.com/workspace42b53fb0416c4bb3/theia-ide/3100/
+        cookiesAuthEnabled: true
+        discoverable: false
+        type: main
+        urlRewriteSupported: true
+      exposure: public
+      name: theia
+      protocol: https
+      targetPort: 3100
+    - attributes:
+        controller.devfile.io/endpoint-url: https://che-eclipse-che.apps.cluster-fce1.fce1.sandbox1073.opentlc.com/workspace42b53fb0416c4bb3/theia-ide/webviews/
+        cookiesAuthEnabled: true
+        discoverable: false
+        type: webview
+        unique: true
+        urlRewriteSupported: true
+      exposure: public
+      name: webviews
+      protocol: https
+      targetPort: 3100
+    - attributes:
+        controller.devfile.io/endpoint-url: https://che-eclipse-che.apps.cluster-fce1.fce1.sandbox1073.opentlc.com/workspace42b53fb0416c4bb3/theia-ide/mini-browser/
+        cookiesAuthEnabled: true
+        discoverable: false
+        type: mini-browser
+        unique: true
+        urlRewriteSupported: true
+      exposure: public
+      name: mini-browser
+      protocol: https
+      targetPort: 3100
+    - attributes:
+        controller.devfile.io/endpoint-url: https://che-eclipse-che.apps.cluster-fce1.fce1.sandbox1073.opentlc.com/workspace42b53fb0416c4bb3/theia-ide/3130/
+        discoverable: false
+        type: ide-dev
+        urlRewriteSupported: true
+      exposure: public
+      name: theia-dev
+      protocol: http
+      targetPort: 3130
+    - attributes:
+        controller.devfile.io/endpoint-url: https://che-eclipse-che.apps.cluster-fce1.fce1.sandbox1073.opentlc.com/workspace42b53fb0416c4bb3/theia-ide/13131/
+        discoverable: false
+        urlRewriteSupported: true
+      exposure: public
+      name: theia-redirect-1
+      protocol: http
+      targetPort: 13131
+    - attributes:
+        controller.devfile.io/endpoint-url: https://che-eclipse-che.apps.cluster-fce1.fce1.sandbox1073.opentlc.com/workspace42b53fb0416c4bb3/theia-ide/13132/
+        discoverable: false
+        urlRewriteSupported: true
+      exposure: public
+      name: theia-redirect-2
+      protocol: http
+      targetPort: 13132     
+    - attributes:
+        controller.devfile.io/endpoint-url: https://che-eclipse-che.apps.cluster-fce1.fce1.sandbox1073.opentlc.com/workspace42b53fb0416c4bb3/theia-ide/13133/
+        discoverable: false
+        urlRewriteSupported: true
+      exposure: public
+      name: theia-redirect-3
+      protocol: http
+      targetPort: 13133
+    - attributes:
+        controller.devfile.io/endpoint-url: wss://che-eclipse-che.apps.cluster-fce1.fce1.sandbox1073.opentlc.com/workspace42b53fb0416c4bb3/theia-ide/3333/
+        cookiesAuthEnabled: true
+        discoverable: false
+        type: collocated-terminal
+        urlRewriteSupported: true
+      exposure: public
+      name: terminal
+      protocol: wss
+      targetPort: 3333
+    env:
+    - name: THEIA_PLUGINS
+      value: local-dir:///plugins
+    - name: HOSTED_PLUGIN_HOSTNAME
+      value: 0.0.0.0
+    - name: HOSTED_PLUGIN_PORT
+      value: "3130"
+    - name: THEIA_HOST
+      value: 127.0.0.1
+    - name: CHE_DASHBOARD_URL
+      value: https://che-eclipse-che.apps.cluster-fce1.fce1.sandbox1073.opentlc.com
+    - name: CHE_PLUGIN_REGISTRY_URL
+      value: https://che-eclipse-che.apps.cluster-fce1.fce1.sandbox1073.opentlc.com/plugin-registry/v3
+    - name: CHE_PLUGIN_REGISTRY_INTERNAL_URL
+      value: http://plugin-registry.eclipse-che.svc:8080/v3
+    image: quay.io/eclipse/che-theia:next
+    memoryLimit: 512M
+    mountSources: true
+    sourceMapping: /projects
+    volumeMounts:
+    - name: plugins
+      path: /plugins
+    - name: theia-local
+      path: /home/theia/.theia
+  name: theia-ide
+- attributes:
+    controller.devfile.io/imported-by: theia-ide-workspace42b53fb0416c4bb3
+  name: plugins             
+  volume: {}
+- attributes:
+    controller.devfile.io/imported-by: theia-ide-workspace42b53fb0416c4bb3
+  name: theia-local
+  volume: {}
+- attributes:
+    app.kubernetes.io/component: machine-exec
+    app.kubernetes.io/part-of: che-theia.eclipse.org
+    controller.devfile.io/imported-by: theia-ide-workspace42b53fb0416c4bb3
+  container:
+    command:
+    - /go/bin/che-machine-exec
+    - --url
+    - 127.0.0.1:3333
+    - --idle-timeout
+    - 15m
+    cpuLimit: 500m
+    cpuRequest: 30m
+    env:
+    - name: CHE_DASHBOARD_URL
+      value: https://che-eclipse-che.apps.cluster-fce1.fce1.sandbox1073.opentlc.com
+    - name: CHE_PLUGIN_REGISTRY_URL
+      value: https://che-eclipse-che.apps.cluster-fce1.fce1.sandbox1073.opentlc.com/plugin-registry/v3
+    - name: CHE_PLUGIN_REGISTRY_INTERNAL_URL
+      value: http://plugin-registry.eclipse-che.svc:8080/v3
+    image: quay.io/eclipse/che-machine-exec:next
+    memoryLimit: 128Mi
+    memoryRequest: 32Mi
+    sourceMapping: /projects
+  name: che-machine-exec
+- attributes:
+    app.kubernetes.io/component: remote-runtime-injector
+    app.kubernetes.io/part-of: che-theia.eclipse.org
+    controller.devfile.io/imported-by: theia-ide-workspace42b53fb0416c4bb3
+  container:
+    cpuLimit: 500m
+    cpuRequest: 30m
+    env:
+    - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+      value: /remote-endpoint/plugin-remote-endpoint
+    - name: REMOTE_ENDPOINT_VOLUME_NAME
+      value: remote-endpoint
+    - name: CHE_DASHBOARD_URL
+      value: https://che-eclipse-che.apps.cluster-fce1.fce1.sandbox1073.opentlc.com
+    - name: CHE_PLUGIN_REGISTRY_URL
+      value: https://che-eclipse-che.apps.cluster-fce1.fce1.sandbox1073.opentlc.com/plugin-registry/v3
+    - name: CHE_PLUGIN_REGISTRY_INTERNAL_URL
+      value: http://plugin-registry.eclipse-che.svc:8080/v3
+    image: quay.io/eclipse/che-theia-endpoint-runtime-binary:next
+    memoryLimit: 128Mi
+    memoryRequest: 32Mi
+    sourceMapping: /projects
+    volumeMounts:
+    - name: plugins
+      path: /plugins
+    - name: remote-endpoint
+      path: /remote-endpoint
+  name: remote-runtime-injector
+- attributes:
+    controller.devfile.io/imported-by: theia-ide-workspace42b53fb0416c4bb3
+  name: remote-endpoint
+  volume:
+    ephemeral: true
+- attributes:
+    app.kubernetes.io/name: nodejs
+    che-theia.eclipse.org/vscode-extensions: []
+  container:
+    args:
+    - sh
+    - -c
+    - ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+    endpoints:
+    - attributes:
+        controller.devfile.io/endpoint-url: http://workspace42b53fb0416c4bb3-1.apps.cluster-fce1.fce1.sandbox1073.opentlc.com/
+      exposure: public
+      name: nodejs
+      protocol: http
+      targetPort: 3000
+    env:
+    - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+      value: /remote-endpoint/plugin-remote-endpoint
+    - name: THEIA_PLUGINS
+      value: local-dir:///plugins/sidecars/nodejs
+    image: quay.io/devfile/universal-developer-image:ubi8-b452131
+    memoryLimit: 1G
+    mountSources: true
+    sourceMapping: /projects
+    volumeMounts:
+    - name: remote-endpoint
+      path: /remote-endpoint
+    - name: plugins
+      path: /plugins
+  name: nodejs
+- container:
+    cpuLimit: 1000m
+    cpuRequest: 100m        
+    image: quay.io/devfile/project-clone:v0.9.0
+    memoryLimit: 1Gi
+    memoryRequest: 128Mi
+    mountSources: true
+  name: project-clone
+events:
+  preStart:
+  - init-container-command
+  - clone-projects
+projects:
+- git:
+    checkoutFrom:
+      revision: noplugins
+    remotes:
+      origin: https://github.com/svor/web-nodejs-sample.git
+  name: web-nodejs-sample
