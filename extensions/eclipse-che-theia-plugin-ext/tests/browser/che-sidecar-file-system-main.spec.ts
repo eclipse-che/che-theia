@@ -11,11 +11,11 @@
 import {
   AbstractSideCarFileSystemProvider,
   CheSideCarFileSystemMainImpl,
+  CheSideCarFileSystemProvider,
 } from '../../src/browser/che-sidecar-file-system-main';
 
 import { BinaryBuffer } from '@theia/core/lib/common/buffer';
 import { CheSideCarFileSystem } from '../../src/common/che-protocol';
-import { CheSideCarFileSystemProvider } from '../../src/browser/che-sidecar-file-system-main';
 import { Container } from 'inversify';
 import { FileService } from '@theia/filesystem/lib/browser/file-service';
 import { FileSystemProviderCapabilities } from '@theia/filesystem/lib/common/files';

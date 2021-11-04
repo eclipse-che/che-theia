@@ -9,6 +9,8 @@
     "src"
   ],
   "dependencies": {
+    "inversify": "^5.0.1",
+    "reconnecting-websocket": "^4.4.0",
     "@theia/core": "next",
     "@eclipse-che/theia-remote-api": "^0.0.1"
   },

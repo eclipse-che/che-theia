@@ -35,7 +35,7 @@ export class Init {
         return (await readPkg(path.join(this.rootFolder, 'packages/core/package.json'))).version;
     }
 
-    async generate() {
+    async generate(): Promise<void> {
         await generateAssembly(this.examplesAssemblyFolder, {
             theiaVersion: '^' + (await this.getCurrentVersion()),
             monacoVersion: await this.getPackageWithVersion(Init.MONACO_CORE_PKG),

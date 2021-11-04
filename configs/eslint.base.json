@@ -9,6 +9,7 @@
   },
   "plugins": [
     "@typescript-eslint",
+    "@typescript-eslint/tslint",
     "import",
     "no-null"
   ],

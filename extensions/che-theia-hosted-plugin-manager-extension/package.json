@@ -9,6 +9,7 @@
     "node"
   ],
   "dependencies": {
+    "inversify": "^5.0.1",
     "@theia/core": "next",
     "@theia/plugin-dev": "next",
     "@theia/plugin-ext": "next",

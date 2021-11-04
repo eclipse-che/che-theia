@@ -100,7 +100,7 @@ export class Production {
         return parseInt(await this.command.exec('du -s -k . | cut -f1'), 10);
     }
 
-    protected async yarnClean() {
+    protected async yarnClean(): Promise<void> {
         const yarnCleanFolder = path.resolve(__dirname, '../src/conf');
         const yarnCleanPath = path.join(yarnCleanFolder, '.yarnclean');
 
@@ -112,7 +112,7 @@ export class Production {
         Logger.info(output);
     }
 
-    protected async cleanupFind() {
+    protected async cleanupFind(): Promise<void> {
         const cleanupFindFolder = path.resolve(__dirname, '../src/conf');
 
         const cleanupFindContent = await fs.readFile(path.join(cleanupFindFolder, 'cleanup-find'));

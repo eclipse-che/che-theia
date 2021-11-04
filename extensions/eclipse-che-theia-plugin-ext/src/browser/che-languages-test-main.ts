@@ -10,8 +10,13 @@
 
 import * as theia from '@theia/plugin';
 
-import { LanguagesExt, MAIN_RPC_CONTEXT, PluginInfo } from '@theia/plugin-ext/lib/common/plugin-api-rpc';
-import { LanguagesMain, SerializedLanguageConfiguration } from '@theia/plugin-ext/lib/common/plugin-api-rpc';
+import {
+  LanguagesExt,
+  LanguagesMain,
+  MAIN_RPC_CONTEXT,
+  PluginInfo,
+  SerializedLanguageConfiguration,
+} from '@theia/plugin-ext/lib/common/plugin-api-rpc';
 import { MarkerData, SerializedDocumentFilter } from '@theia/plugin-ext/lib/common/plugin-api-rpc-model';
 import { inject, injectable } from 'inversify';
 

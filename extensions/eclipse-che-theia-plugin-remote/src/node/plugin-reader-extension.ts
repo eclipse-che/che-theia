@@ -46,7 +46,12 @@ export class PluginReaderExtension extends HostedPluginReader {
     });
   }
 
-  async handleLocalResource(req: express.Request, res: express.Response, localPath: string, pluginId: string) {
+  async handleLocalResource(
+    req: express.Request,
+    res: express.Response,
+    localPath: string,
+    pluginId: string
+  ): Promise<void> {
     const filePath = path.resolve(localPath, req.params.path);
     if (req.query.request === 'stat') {
       try {

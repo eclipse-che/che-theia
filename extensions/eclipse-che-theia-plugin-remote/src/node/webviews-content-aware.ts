@@ -82,11 +82,11 @@ export class WebviewsContentAware {
   // We need to leave backward compatibility with vscode resources that loads remotely.
   private rebind$_htmlSetter(webview: theia.Webview): void {
     Object.defineProperty(webview, '_html', {
-      get: function () {
+      get: function (): string {
         // @ts-ignore
         return this._html;
       }.bind(this),
-      set: function (value: string) {
+      set: function (value: string): void {
         // If DEVWORKSPACE_COMPONENT_NAME is defined use it else switch to che-server CHE_MACHINE_NAME env name
         const componentName = process.env.DEVWORKSPACE_COMPONENT_NAME || process.env.CHE_MACHINE_NAME;
         const sideCarScheme = `file-sidecar-${componentName}`;

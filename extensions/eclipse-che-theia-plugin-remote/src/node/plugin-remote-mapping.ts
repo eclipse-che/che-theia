@@ -68,7 +68,7 @@ export class HostedPluginMapping {
     return this.pluginsEndpoints.get(pluginID);
   }
 
-  setEndpoint(pluginId: string, endpointName: string) {
+  setEndpoint(pluginId: string, endpointName: string): void {
     this.pluginsEndpoints.set(pluginId, endpointName);
   }
 

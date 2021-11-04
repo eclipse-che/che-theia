@@ -9,6 +9,7 @@
     "src"
   ],
   "dependencies": {
+    "inversify": "^5.0.1",
     "@theia/core": "next",
     "@eclipse-che/theia-messaging": "0.0.1"
   },

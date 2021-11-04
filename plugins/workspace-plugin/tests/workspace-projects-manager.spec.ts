@@ -50,7 +50,7 @@ function watchMockImpl(
   path: string,
   options: {} | undefined,
   listener: (event: string, filename: string) => Promise<void>
-) {
+): void {
   watchListeners.push({
     path,
     listener,

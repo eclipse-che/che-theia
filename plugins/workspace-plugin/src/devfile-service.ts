@@ -108,7 +108,7 @@ export class DevfileServiceImpl {
     projectPath: string | undefined,
     projectGitLocation: string,
     projectGitRemoteBranch: string
-  ) {
+  ): void {
     if (!devfile.projects) {
       devfile.projects = [];
     }
