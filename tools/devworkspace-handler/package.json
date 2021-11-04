@@ -13,7 +13,7 @@
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",
-    "build": "yarn run format && yarn run compile && yarn run lint",
+    "build": "yarn run format && yarn run compile && yarn run lint && yarn run test",
     "compile": "tsc --project .",
     "format": "if-env SKIP_FORMAT=true && echo 'skip format check' || prettier --check '{src,tests}/**/*.ts' package.json",
     "format:fix": "prettier --write '{src,tests}/**/*.ts' package.json",
