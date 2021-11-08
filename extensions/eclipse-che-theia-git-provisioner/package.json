@@ -13,7 +13,7 @@
   ],
   "dependencies": {
     "inversify": "^5.0.1",
-    "fs-extra": "^8.1.0",
+    "fs-extra": "7.0.1",
     "@eclipse-che/theia-remote-api": "^0.0.1",
     "@eclipse-che/theia-plugin-ext": "^0.0.1",
     "@theia/core": "next",

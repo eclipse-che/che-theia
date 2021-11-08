@@ -17,7 +17,7 @@
     "request": "2.82.0",
     "tunnel": "0.0.6",
     "@theia/core": "next",
-    "fs-extra": "^8.1.0",
+    "fs-extra": "7.0.1",
     "js-yaml": "3.13.1",
     "@eclipse-che/workspace-telemetry-client": "latest",
     "@eclipse-che/api": "latest",
