@@ -437,8 +437,13 @@ describe('Test CheSideCarFileSystemImpl', () => {
 
 describe('Test CheSideCarFileSystemImpl with che server', () => {
   beforeAll(() => {
+    jest.resetModules();
+    jest.restoreAllMocks();
+  });
+
+  test('Should register File System Provider', async () => {
     const componentName = 'test';
-    process.env.MACHINE_NAME = componentName;
+    process.env.CHE_MACHINE_NAME = componentName;
 
     const registerFileSystemMock = jest.fn();
 
@@ -452,9 +457,5 @@ describe('Test CheSideCarFileSystemImpl with che server', () => {
 
     expect(registerFileSystemMock).toHaveBeenCalledTimes(1);
     expect(registerFileSystemMock).toHaveBeenCalledWith(`file-sidecar-${componentName}`);
-  });
-
-  afterAll(() => {
-    jest.restoreAllMocks();
   });
 });

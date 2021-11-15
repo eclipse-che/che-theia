@@ -10,7 +10,9 @@
     "src"
   ],
   "devDependencies": {
-    "eslint-plugin-sonarjs": "0.5.0"
+    "eslint-plugin-sonarjs": "0.5.0",
+    "ts-jest": "27.0.7",
+    "jest": "27.3.1"
   },
   "dependencies": {
     "moment": "^2.21.0",
