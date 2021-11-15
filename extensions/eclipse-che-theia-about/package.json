@@ -11,6 +11,10 @@
     "@theia/mini-browser": "next",
     "@eclipse-che/theia-plugin-ext": "^0.0.1"
   },
+  "devDependencies": {
+    "ts-jest": "27.0.7",
+    "jest": "27.3.1"
+  },
   "publishConfig": {
     "access": "public"
   },

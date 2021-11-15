@@ -14,12 +14,11 @@
     "*"
   ],
   "devDependencies": {
-    "@types/jest": "^26",
-    "ts-jest": "26.4.3",
-    "jest": "^26.6.3",
     "@eclipse-che/plugin": "0.0.1",
     "@theia/plugin-packager": "latest",
-    "@theia/plugin": "next"
+    "@theia/plugin": "next",
+    "ts-jest": "27.0.7",
+    "jest": "27.3.1"
   },
   "dependencies": {
     "inversify": "^5.0.1",

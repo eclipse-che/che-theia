@@ -413,10 +413,11 @@ describe('Test Resource Monitor Plugin', () => {
       const resMonitor = container.get(ResourceMonitor);
       sendRawQuery.mockReturnValueOnce(success).mockReturnValue(error);
       jest.useFakeTimers();
+      const setIntervalSpy = jest.spyOn(global, 'setInterval');
       await resMonitor.start(context, namespace);
       await resMonitor.requestMetricsServer();
       jest.runOnlyPendingTimers();
-      expect(setInterval).toHaveBeenLastCalledWith(expect.any(Function), 5000);
+      expect(setIntervalSpy).toHaveBeenLastCalledWith(expect.any(Function), 5000);
       jest.useRealTimers();
       expect(che.k8s.sendRawQuery).toBeCalledTimes(2);
       expect(che.k8s.sendRawQuery).toHaveBeenLastCalledWith(

@@ -12,7 +12,9 @@
     "src"
   ],
   "devDependencies": {
-    "@types/tunnel": "0.0.1"
+    "@types/tunnel": "0.0.1",
+    "ts-jest": "27.0.7",
+    "jest": "27.3.1"
   },
   "dependencies": {
     "tunnel": "0.0.6",
