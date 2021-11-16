@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+/* eslint-disable header/header */
 /**********************************************************************
  * Copyright (c) 2021 Red Hat, Inc.
  *
