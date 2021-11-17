@@ -46,6 +46,7 @@ processDevWorkspacePlugins() {
   # Array of object containing: name, env and extensions fields
   flattenedDevfile=$(cat "/devworkspace-metadata/flattened.devworkspace.yaml")
   vsixPerComponents=$(analyze_flattened_devfile "$flattenedDevfile")
+  IFS=$'\n' 
   for componentData in $vsixPerComponents; do
   
     # Component is in the name
