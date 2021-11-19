@@ -37,7 +37,7 @@ export class CheTheiaPluginsAnalyzer {
       return cheTheiaPluginsYamlInRepository.map(entry => {
         const sidecar: V1alpha2DevWorkspaceSpecTemplateComponentsItemsContainer = entry.override?.sidecar;
         if (sidecar && !sidecar.image) {
-          // image will be applied form the plugin registry
+          // image will be applied from the plugin registry
           sidecar.image = '';
         }
         return {
