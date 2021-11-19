@@ -64,6 +64,7 @@ processDevWorkspacePlugins() {
     # transform it into a space separated list
     urls=$(extract_urls_from_item "$componentData")
   
+    IFS=' '
     for url in $urls; do
       CURL_OPTIONS=""
       # check if URL starts with relative:extension/
