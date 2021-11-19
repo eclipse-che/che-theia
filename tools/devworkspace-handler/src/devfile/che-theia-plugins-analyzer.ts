@@ -10,6 +10,7 @@
 
 import * as jsYaml from 'js-yaml';
 
+import { V1alpha2DevWorkspaceSpecTemplateComponentsItemsContainer } from '@devfile/api';
 import { VSCodeExtensionEntry } from '../api/vscode-extension-entry';
 import { injectable } from 'inversify';
 
@@ -22,16 +23,31 @@ export class CheTheiaPluginsAnalyzer {
     // it's a yaml so convert it !
     const cheTheiaPluginsYamlInRepository = jsYaml.load(cheTheiaPluginsYamlContent);
 
-    // only format supported right now is list of ids as for example:
+    // example of the supported format:
     // - id: redhat/java8/latest
+    //   override:
+    //     preferences:
+    //       java.server.launchMode: LightWeight
+    //     sidecar:
+    //       memoryLimit: 1280Mi
+    //       cpuLimit: 128Mi
 
     if (cheTheiaPluginsYamlInRepository && Array.isArray(cheTheiaPluginsYamlInRepository)) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return cheTheiaPluginsYamlInRepository.map(entry => ({
-        id: entry.id,
-        resolved: false,
-        extensions: [],
-      }));
+      return cheTheiaPluginsYamlInRepository.map(entry => {
+        const sidecar: V1alpha2DevWorkspaceSpecTemplateComponentsItemsContainer = entry.override?.sidecar;
+        if (sidecar && !sidecar.image) {
+          // image will be applied form the plugin registry
+          sidecar.image = '';
+        }
+        return {
+          id: entry.id,
+          resolved: false,
+          extensions: [],
+          preferences: entry.override?.preferences,
+          sidecar: sidecar,
+        };
+      });
     }
 
     // not able to really see the content, return something empty

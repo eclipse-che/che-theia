@@ -34,9 +34,12 @@ describe('Test CheTheiaPluginsAnalyzer', () => {
     const cheTheiaPluginsYamlContent = await fs.readFile(cheTheiaPluginsYamlPath, 'utf-8');
 
     const entries = await cheTheiaPluginsAnalyzer.extractPlugins(cheTheiaPluginsYamlContent);
+
     expect(entries.length).toBe(1);
     expect(entries[0]).toStrictEqual({
       id: 'redhat/java/latest',
+      preferences: { 'java.server.launchMode': 'LightWeight' },
+      sidecar: { image: '', memoryLimit: '1280Mi' },
       resolved: false,
       extensions: [],
     });

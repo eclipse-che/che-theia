@@ -134,8 +134,24 @@ export class PluginRegistryResolver {
       vSCodeExtensionEntry.sidecarName = sidecar.name;
       delete sidecar.name;
     }
+    const vSCodeExtensionEntrySidecar = vSCodeExtensionEntry.sidecar;
     vSCodeExtensionEntry.sidecar = sidecar;
-    vSCodeExtensionEntry.preferences = cheTheiaPluginYaml.preferences;
+
+    //overwrite cpu and memory limit in sidecar
+    if (vSCodeExtensionEntrySidecar?.cpuLimit) {
+      vSCodeExtensionEntry.sidecar.cpuLimit = vSCodeExtensionEntrySidecar.cpuLimit;
+    }
+    if (vSCodeExtensionEntrySidecar?.memoryLimit) {
+      vSCodeExtensionEntry.sidecar.memoryLimit = vSCodeExtensionEntrySidecar.memoryLimit;
+    }
+
+    // merge preferences
+    // a preference from entry should overwrite a preference from registry which has identical key
+    const pluginPreferences = cheTheiaPluginYaml.preferences || {};
+    const overriddenPreferences = vSCodeExtensionEntry.preferences || {};
+    const allPreferences = { ...pluginPreferences, ...overriddenPreferences };
+
+    vSCodeExtensionEntry.preferences = allPreferences;
     vSCodeExtensionEntry.dependencies = cheTheiaPluginYaml.dependencies;
   }
 }
