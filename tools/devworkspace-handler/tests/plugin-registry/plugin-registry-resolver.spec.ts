@@ -47,6 +47,73 @@ describe('Test PluginRegistryResolver', () => {
     console.error = originalConsoleError;
   });
 
+  test('apply preferences form che-theia-plugins.yaml', async () => {
+    const entries: VSCodeExtensionEntry[] = [];
+
+    const preferences = { hello: 'world' };
+    const unresolvedOptionalEntry: VSCodeExtensionEntry = {
+      id: 'unresolved',
+      resolved: false,
+      optional: true,
+      extensions: [],
+      dependencies: [],
+      preferences: preferences,
+    };
+
+    urlFetcherFetchTextOptionalMock.mockResolvedValueOnce(
+      JSON.stringify({
+        dependencies: ['dep1'],
+      })
+    );
+    entries.push(unresolvedOptionalEntry);
+
+    await pluginRegistryResolver.resolve(entries);
+
+    expect(unresolvedOptionalEntry.preferences).toStrictEqual({ hello: 'world' });
+    expect(unresolvedOptionalEntry.resolved).toBeTruthy();
+  });
+
+  test('overwrite preference and sidecar resource limits', async () => {
+    const entries: VSCodeExtensionEntry[] = [];
+
+    const overriddenPreferences = { hello: 'moon' };
+    const overriddenSidecarResiurceLimits = { image: 'dummy-sidecar', cpuLimit: '512Mi', memoryLimit: '512Mi' };
+    const unresolvedOptionalEntry: VSCodeExtensionEntry = {
+      id: 'unresolved',
+      resolved: false,
+      optional: true,
+      extensions: [],
+      dependencies: [],
+      preferences: overriddenPreferences,
+      sidecar: overriddenSidecarResiurceLimits,
+    };
+
+    const dummySidecarName = 'dummy-sidecar';
+    const preferences = { hello: 'world', bye: 'moon' };
+    const extensions = ['http://fake-vsix'];
+    urlFetcherFetchTextOptionalMock.mockResolvedValueOnce(
+      JSON.stringify({
+        preferences,
+        extensions,
+        dependencies: ['dep1'],
+        sidecar: {
+          name: dummySidecarName,
+          cpuLimit: '200Mi',
+          memoryLimit: '300Mi',
+        },
+      })
+    );
+    entries.push(unresolvedOptionalEntry);
+
+    await pluginRegistryResolver.resolve(entries);
+
+    expect(unresolvedOptionalEntry.sidecarName).toBe(dummySidecarName);
+    expect(unresolvedOptionalEntry.preferences).toStrictEqual({ hello: 'moon', bye: 'moon' });
+    expect(unresolvedOptionalEntry.sidecar).toStrictEqual({ cpuLimit: '512Mi', memoryLimit: '512Mi' });
+    expect(unresolvedOptionalEntry.extensions).toStrictEqual(extensions);
+    expect(unresolvedOptionalEntry.resolved).toBeTruthy();
+  });
+
   test('basic resolve', async () => {
     const entries: VSCodeExtensionEntry[] = [];
     const unresolvedOptionalEntry: VSCodeExtensionEntry = {
