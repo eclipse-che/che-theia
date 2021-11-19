@@ -1,6 +1,2 @@
 - id: redhat/java/latest
-  override:
-    preferences:
-      java.server.launchMode: LightWeight
-    sidecar:
-      memoryLimit: 1280Mi 
+- id: golang/go/latest

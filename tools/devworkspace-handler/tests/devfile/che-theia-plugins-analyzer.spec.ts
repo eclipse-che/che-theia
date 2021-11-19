@@ -29,8 +29,27 @@ describe('Test CheTheiaPluginsAnalyzer', () => {
     cheTheiaPluginsAnalyzer = container.get(CheTheiaPluginsAnalyzer);
   });
 
-  test('basic', async () => {
+  test('che-theia-plugins.yaml contains only id', async () => {
     const cheTheiaPluginsYamlPath = path.resolve(__dirname, '..', '_data', 'che-theia', 'che-theia-plugins-id.yaml');
+    const cheTheiaPluginsYamlContent = await fs.readFile(cheTheiaPluginsYamlPath, 'utf-8');
+
+    const entries = await cheTheiaPluginsAnalyzer.extractPlugins(cheTheiaPluginsYamlContent);
+
+    expect(entries.length).toBe(2);
+    expect(entries[0]).toEqual({
+      id: 'redhat/java/latest',
+      resolved: false,
+      extensions: [],
+    });
+    expect(entries[1]).toEqual({
+      id: 'golang/go/latest',
+      resolved: false,
+      extensions: [],
+    });
+  });
+
+  test('basic', async () => {
+    const cheTheiaPluginsYamlPath = path.resolve(__dirname, '..', '_data', 'che-theia', 'che-theia-plugins.yaml');
     const cheTheiaPluginsYamlContent = await fs.readFile(cheTheiaPluginsYamlPath, 'utf-8');
 
     const entries = await cheTheiaPluginsAnalyzer.extractPlugins(cheTheiaPluginsYamlContent);
