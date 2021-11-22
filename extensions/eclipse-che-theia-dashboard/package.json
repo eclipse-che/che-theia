@@ -11,6 +11,7 @@
   "dependencies": {
     "@eclipse-che/api": "latest",
     "@theia/core": "next",
+    "@theia/plugin-ext": "next",
     "@eclipse-che/theia-remote-api": "^0.0.1"
   },
   "scripts": {

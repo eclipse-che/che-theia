@@ -50,6 +50,11 @@ export class K8sDevWorkspaceEnvVariables {
    */
   private readonly pluginRegistryInternalURL: string;
 
+  /**
+   * dashboardURL - Dashboard URL
+   */
+  private readonly dashboardURL: string;
+
   constructor() {
     if (process.env.DEVWORKSPACE_ID === undefined) {
       console.error('Environment variable DEVWORKSPACE_ID is not set');
@@ -92,6 +97,12 @@ export class K8sDevWorkspaceEnvVariables {
     } else {
       this.pluginRegistryInternalURL = process.env.CHE_PLUGIN_REGISTRY_INTERNAL_URL;
     }
+
+    if (process.env.CHE_DASHBOARD_URL === undefined) {
+      console.error('Environment variable CHE_DASHBOARD_URL is not set');
+    } else {
+      this.dashboardURL = process.env.CHE_DASHBOARD_URL;
+    }
   }
 
   getWorkspaceId(): string {
@@ -120,5 +131,9 @@ export class K8sDevWorkspaceEnvVariables {
 
   getPluginRegistryInternalURL(): string {
     return this.pluginRegistryInternalURL;
+  }
+
+  getDashboardURL(): string {
+    return this.dashboardURL;
   }
 }
