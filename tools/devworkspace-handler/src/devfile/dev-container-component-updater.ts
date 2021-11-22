@@ -78,6 +78,19 @@ export class DevContainerComponentUpdater {
     );
     devContainer.volumeMounts.push(...toInsertVolumeMounts);
 
+    // grab existing components that are volumes
+    const devWorkspaceComponents = devfileContext.devWorkspace?.spec?.template?.components || [];
+    const volumeComponents = devWorkspaceComponents
+      .filter(component => component.volume)
+      .map(component => component.name);
+    // keep only the volumes that are not yet there
+    const volumeComponentsToAdd = toInsertVolumeMounts
+      .filter(volumeMount => !volumeComponents.includes(volumeMount.name))
+      .map(volume => ({ name: volume.name, volume: {} }));
+    volumeComponentsToAdd.forEach(volumeComponent => {
+      devWorkspaceComponents.push(volumeComponent);
+    });
+
     // need to tweak the entrypoint to call the ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
     devContainer.args = ['sh', '-c', '${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}'];
 

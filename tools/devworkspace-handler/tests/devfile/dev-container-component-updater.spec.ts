@@ -44,7 +44,20 @@ describe('Test DevContainerComponentUpdater', () => {
   });
 
   test('basics', async () => {
-    const devfileContext = {} as DevfileContext;
+    const devfileContext = {
+      devWorkspace: {
+        spec: {
+          template: {
+            components: [
+              {
+                name: 'existingVolume',
+                volume: {},
+              },
+            ],
+          },
+        },
+      },
+    } as unknown as DevfileContext;
 
     const devContainerComponent: V1alpha2DevWorkspaceSpecTemplateComponents = {
       name: 'foo',
@@ -125,6 +138,11 @@ describe('Test DevContainerComponentUpdater', () => {
     ]);
     // args updated
     expect(devContainerComponent?.container?.args).toStrictEqual(['sh', '-c', '${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}']);
+
+    // check we have a new volume added
+    const components = devfileContext.devWorkspace.spec?.template?.components || [];
+    const componentsWithVolumes = components.filter(component => component.volume).map(component => component.name);
+    expect(componentsWithVolumes).toStrictEqual(['existingVolume', 'foo']);
   });
 
   test('basics without existing', async () => {
