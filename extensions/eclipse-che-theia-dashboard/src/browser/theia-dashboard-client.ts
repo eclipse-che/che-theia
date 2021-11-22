@@ -10,29 +10,55 @@
 
 import '../../src/browser/style/che-theia-dashboard-module.css';
 
+import { Command, CommandContribution, CommandRegistry } from '@theia/core';
 import { FrontendApplication, FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { inject, injectable } from 'inversify';
 
+import { DashboardService } from '@eclipse-che/theia-remote-api/lib/common/dashboard-service';
 import { FrontendApplicationStateService } from '@theia/core/lib/browser/frontend-application-state';
+import { OpenUriCommandHandler } from '@theia/plugin-ext/lib/main/browser/commands';
 import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 const THEIA_ICON_ID = 'theia:icon';
+
+export namespace CheTheiaDashboardCommands {
+  export const OPEN_DASHBOARD: Command = {
+    id: 'che.openDashboard',
+    label: 'Open Dashboard...',
+  };
+}
 
 /**
  * Provides basic Eclipse Che-Theia Dashboard extension that adds Show/Hide Dashboard button to the top menu.
  */
 @injectable()
-export class TheiaDashboardClient implements FrontendApplicationContribution {
+export class TheiaDashboardClient implements FrontendApplicationContribution, CommandContribution {
   private isExpanded: boolean = false;
 
   @inject(WorkspaceService)
   private workspaceService: WorkspaceService;
+  @inject(DashboardService)
+  private dashboardService: DashboardService;
+
+  @inject(OpenUriCommandHandler)
+  private openUriCommandHandler: OpenUriCommandHandler;
 
   constructor(
     @inject(FrontendApplicationStateService)
     protected readonly frontendApplicationStateService: FrontendApplicationStateService
   ) {
     this.frontendApplicationStateService.reachedState('ready').then(() => this.onReady());
+  }
+  registerCommands(commands: CommandRegistry): void {
+    this.doRegister(commands);
+  }
+  async doRegister(commands: CommandRegistry): Promise<void> {
+    const dashboardUrl = await this.dashboardService.getDashboardUrl();
+    if (dashboardUrl) {
+      commands.registerCommand(CheTheiaDashboardCommands.OPEN_DASHBOARD, {
+        execute: () => this.openDashboard(),
+      });
+    }
   }
 
   async onStart(app: FrontendApplication): Promise<void> {
@@ -93,5 +119,10 @@ export class TheiaDashboardClient implements FrontendApplicationContribution {
       return;
     }
     return url.replace(/^https?:\/\/[^\/]+/, match => `${match}/dashboard/#/ide`);
+  }
+
+  async openDashboard(): Promise<void> {
+    const url = await this.dashboardService.getDashboardUrl();
+    return this.openUriCommandHandler.execute(url);
   }
 }

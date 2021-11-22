@@ -8,12 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-export * from './certificate-service';
-export * from './factory-service';
-export * from './k8s-service';
-export * from './oauth-service';
-export * from './ssh-key-service';
-export * from './telemetry-service';
-export * from './user-service';
-export * from './workspace-service';
-export * from './dashboard-service';
+export const cheDashboardServicePath = '/services/che-dashboard-service';
+
+export const DashboardService = Symbol('DashboardService');
+
+export interface DashboardService {
+  getDashboardUrl(): Promise<string | undefined>;
+}

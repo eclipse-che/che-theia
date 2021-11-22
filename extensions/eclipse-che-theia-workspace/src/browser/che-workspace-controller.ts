@@ -16,6 +16,7 @@ import { Workspace, WorkspaceService } from '@eclipse-che/theia-remote-api/lib/c
 import { inject, injectable } from 'inversify';
 
 import { CheWorkspaceCommands } from './che-workspace-contribution';
+import { DashboardService } from '@eclipse-che/theia-remote-api/lib/common/dashboard-service';
 import { DevfileService } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 import { FileService } from '@theia/filesystem/lib/browser/file-service';
 import { FileStat } from '@theia/filesystem/lib/common/files';
@@ -91,7 +92,7 @@ export class CheWorkspaceController {
   @inject(FileService) protected readonly fileService: FileService;
   @inject(WorkspacePreferences) protected preferences: WorkspacePreferences;
   @inject(DefaultUriLabelProviderContribution) protected uriLabelProvider: DefaultUriLabelProviderContribution;
-
+  @inject(DashboardService) private dashboardService: DashboardService;
   DEFAULT_FILE_FILTER: FileDialogTreeFilters = {
     'Theia Workspace (*.theia-workspace)': [THEIA_EXT],
     'VS Code Workspace (*.code-workspace)': [VSCODE_EXT],
@@ -128,9 +129,23 @@ export class CheWorkspaceController {
       msg: 'Do you really want to close the workspace?',
     });
     if (await dialog.open()) {
-      await this.workspaceService.stop();
-
-      window.parent.postMessage('show-workspaces', '*');
+      try {
+        await this.workspaceService.stop();
+      } catch (error) {
+        console.debug('Error while stopping the workspace', error);
+      }
+      // inside an iframe ?
+      const insideFrame = window !== window.parent;
+      if (insideFrame) {
+        // ask dashboard to display the list of workspaces
+        window.parent.postMessage('show-workspaces', '*');
+      } else {
+        // if dashboard is there, open it
+        const url = await this.dashboardService.getDashboardUrl();
+        if (url) {
+          window.location.href = url;
+        }
+      }
     }
   }
 

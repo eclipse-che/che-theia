@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-export * from './certificate-service';
-export * from './factory-service';
-export * from './k8s-service';
-export * from './oauth-service';
-export * from './ssh-key-service';
-export * from './telemetry-service';
-export * from './user-service';
-export * from './workspace-service';
-export * from './dashboard-service';
+import { DashboardService } from '@eclipse-che/theia-remote-api/lib/common/dashboard-service';
+import { injectable } from 'inversify';
+
+@injectable()
+export class CheDashboardServiceImpl implements DashboardService {
+  async getDashboardUrl(): Promise<string | undefined> {
+    return process.env.CHE_DASHBOARD_URL;
+  }
+}
