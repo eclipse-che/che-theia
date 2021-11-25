@@ -52,18 +52,16 @@ export class CheTheiaUserPreferencesSynchronizer {
    */
   public async readTheiaUserPreferencesFromCheSettings(): Promise<void> {
     await ensureDir(dirname(THEIA_USER_PREFERENCES_PATH));
-    const client = this.cheK8SService.makeApiClient(k8s.CoreV1Api);
-    client.defaultHeaders = {
-      Accept: 'application/json',
-      'Content-Type': k8s.PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH,
-    };
-    const request = await client.readNamespacedConfigMap(
-      WORKSPACE_PREFERENCES_CONFIGMAP_NAME,
-      await this.getWorkspaceNamespace()
-    );
     let content = '';
-    if (request.body && request.body.data && request.body.data[THEIA_PREFERENCES_KEY]) {
-      content = JSON.stringify(JSON.parse(request.body.data[THEIA_PREFERENCES_KEY]), undefined, 3);
+    try {
+      const request = await this.cheK8SService
+        .makeApiClient(k8s.CoreV1Api)
+        .readNamespacedConfigMap(WORKSPACE_PREFERENCES_CONFIGMAP_NAME, await this.getWorkspaceNamespace());
+      if (request.body && request.body.data && request.body.data[THEIA_PREFERENCES_KEY]) {
+        content = JSON.stringify(JSON.parse(request.body.data[THEIA_PREFERENCES_KEY]), undefined, 3);
+      }
+    } catch (e) {
+      console.error('Failed to retrieve preferences storage.', e);
     }
     await writeFile(THEIA_USER_PREFERENCES_PATH, content, 'utf8');
   }
@@ -107,13 +105,17 @@ export class CheTheiaUserPreferencesSynchronizer {
           };
           const preferences = readFileSync(THEIA_USER_PREFERENCES_PATH).toString();
           const theiaPreferencesBeautified = JSON.stringify(JSON.parse(preferences), undefined, 3);
-          await client.patchNamespacedConfigMap(
-            WORKSPACE_PREFERENCES_CONFIGMAP_NAME,
-            await this.getWorkspaceNamespace(),
-            {
-              data: { [THEIA_PREFERENCES_KEY]: theiaPreferencesBeautified },
-            }
-          );
+          try {
+            await client.patchNamespacedConfigMap(
+              WORKSPACE_PREFERENCES_CONFIGMAP_NAME,
+              await this.getWorkspaceNamespace(),
+              {
+                data: { [THEIA_PREFERENCES_KEY]: theiaPreferencesBeautified },
+              }
+            );
+          } catch (e) {
+            console.error('Failed to update preferences storage.', e);
+          }
           return;
         }
       }
