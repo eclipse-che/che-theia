@@ -40,6 +40,7 @@ export class Production {
         'react-dom',
         'font-awesome',
         '@theia/monaco-editor-core',
+        'acorn-import-assertions',
     ];
 
     private dependencies: string[] = [];
