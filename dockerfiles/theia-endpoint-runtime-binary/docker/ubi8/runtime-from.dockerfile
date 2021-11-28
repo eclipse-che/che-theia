@@ -4,6 +4,4 @@ USER 0
 RUN microdnf -y install yum python38 python38-pyyaml jq && python3 --version && \
     yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
-    echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
-    # collect yq dependency wheels for offline install
-    python3 -m pip download yq -d /tmp
+    echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
