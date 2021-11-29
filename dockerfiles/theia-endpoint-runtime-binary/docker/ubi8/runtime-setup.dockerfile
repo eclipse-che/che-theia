@@ -1,2 +1,2 @@
-# curl already installed in ubi8
-RUN microdnf install -y python38 jq && pip3 install yq
+# install yq from local wheels we fetched earlier 
+RUN pip3 --version && pip3 install /tmp/*.whl && yq --version && rm -fr /tmp/*.whl 
