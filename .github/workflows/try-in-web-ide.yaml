@@ -14,7 +14,7 @@ name: Try in Web IDE
 
 on:
   pull_request_target:
-    types: [opened, synchronize]
+    types: [opened]
 
 jobs:
   add-link:
