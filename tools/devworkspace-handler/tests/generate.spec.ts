@@ -102,7 +102,7 @@ describe('Test Generate', () => {
     getContentUrlMethod.mockReturnValue(rawDevfileUrl);
     getBranchNameMethod.mockReturnValue('HEAD');
 
-    await generate.generate(devfileUrl, editor, SidecarPolicy.USE_DEV_CONTAINER, fakeoutputDir, []);
+    await generate.generate(devfileUrl, editor, SidecarPolicy.USE_DEV_CONTAINER, fakeoutputDir);
     expect(urlFetcherFetchTextMethod).toBeCalledWith(rawDevfileUrl);
 
     // expect to write the file
@@ -119,7 +119,7 @@ describe('Test Generate', () => {
     getBranchNameMethod.mockReturnValue('test-branch');
 
     //when
-    await generate.generate(devfileUrl, editor, SidecarPolicy.USE_DEV_CONTAINER, fakeoutputDir, []);
+    await generate.generate(devfileUrl, editor, SidecarPolicy.USE_DEV_CONTAINER, fakeoutputDir);
 
     //then
     expect((editorDevfile as V1alpha2DevWorkspaceTemplateSpec).projects).toStrictEqual([
@@ -130,21 +130,20 @@ describe('Test Generate', () => {
     ]);
   });
 
-  test('generate template with defined projects', async () => {
+  test('generate template with defined project', async () => {
     //given
     const pluginRegistryResolverSpy = jest.spyOn(pluginRegistryResolver, 'loadDevfilePlugin');
     pluginRegistryResolverSpy.mockResolvedValue(editorDevfile);
 
     //when
-    await generate.generate(devfileUrl, editor, SidecarPolicy.USE_DEV_CONTAINER, fakeoutputDir, [
-      { name: 'test-name', location: 'test-location' },
-      { name: 'test-name-1', location: 'test-location-1' },
-    ]);
+    await generate.generate(devfileUrl, editor, SidecarPolicy.USE_DEV_CONTAINER, fakeoutputDir, {
+      name: 'test-name',
+      location: 'test-location',
+    });
 
     //then
     expect((editorDevfile as V1alpha2DevWorkspaceTemplateSpec).projects).toStrictEqual([
       { name: 'test-name', zip: { location: 'test-location' } },
-      { name: 'test-name-1', zip: { location: 'test-location-1' } },
     ]);
   });
 });

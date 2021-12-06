@@ -54,7 +54,7 @@ describe('Test Main with stubs', () => {
     pluginRegistryUrl: string | undefined,
     editor: string | undefined,
     sidecarPolicy: string | undefined,
-    projects: { name: string; location: string }[] | undefined
+    project: { name: string; location: string } | undefined
   ) {
     // empty args
     process.argv = ['', ''];
@@ -73,10 +73,8 @@ describe('Test Main with stubs', () => {
     if (sidecarPolicy) {
       process.argv.push(`--sidecar-policy:${sidecarPolicy}`);
     }
-    if (projects) {
-      projects.forEach(p => {
-        process.argv.push(`--project.${p.name}=${p.location}`);
-      });
+    if (project) {
+      process.argv.push(`--project.${project.name}=${project.location}`);
     }
   }
 
@@ -107,7 +105,7 @@ describe('Test Main with stubs', () => {
     const main = new Main();
     const returnCode = await main.start();
     expect(returnCode).toBeTruthy();
-    expect(generateMethod).toBeCalledWith(FAKE_DEVFILE_URL, FAKE_EDITOR, SIDECAR_POLICY, FAKE_OUTPUT_FILE, []);
+    expect(generateMethod).toBeCalledWith(FAKE_DEVFILE_URL, FAKE_EDITOR, SIDECAR_POLICY, FAKE_OUTPUT_FILE, undefined);
     expect(mockedConsoleError).toBeCalledTimes(0);
   });
 
@@ -119,7 +117,7 @@ describe('Test Main with stubs', () => {
       FAKE_PLUGIN_REGISTRY_URL,
       FAKE_EDITOR,
       SidecarPolicy.USE_DEV_CONTAINER.toString(),
-      [{ name: 'test', location: 'test-location' }]
+      { name: 'test', location: 'test-location' }
     );
     const returnCode = await main.start();
     expect(returnCode).toBeTruthy();
@@ -128,7 +126,7 @@ describe('Test Main with stubs', () => {
       FAKE_EDITOR,
       SidecarPolicy.USE_DEV_CONTAINER.toString(),
       FAKE_OUTPUT_FILE,
-      [{ name: 'test', location: 'test-location' }]
+      { name: 'test', location: 'test-location' }
     );
     expect(mockedConsoleError).toBeCalledTimes(0);
   });

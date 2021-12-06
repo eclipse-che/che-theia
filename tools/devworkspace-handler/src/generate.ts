@@ -40,7 +40,7 @@ export class Generate {
     editorEntry: string,
     sidecarPolicy: SidecarPolicy,
     outputFile: string,
-    projects: { name: string; location: string }[]
+    project?: { name: string; location: string }
   ): Promise<void> {
     // gets the github URL
     const githubUrl = this.githubResolver.resolve(devfileUrl);
@@ -54,11 +54,8 @@ export class Generate {
     // devfile of the editor
     const editorDevfile = await this.pluginRegistryResolver.loadDevfilePlugin(editorEntry);
 
-    editorDevfile.projects = [];
-    if (projects.length > 0) {
-      projects.forEach(p => {
-        editorDevfile.projects.push({ name: p.name, zip: { location: p.location } });
-      });
+    if (project) {
+      editorDevfile.projects = [{ name: project.name, zip: { location: project.location } }];
     } else {
       editorDevfile.projects = [
         {
