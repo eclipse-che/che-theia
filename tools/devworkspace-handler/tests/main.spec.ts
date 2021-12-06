@@ -53,7 +53,8 @@ describe('Test Main with stubs', () => {
     outputFile: string | undefined,
     pluginRegistryUrl: string | undefined,
     editor: string | undefined,
-    sidecarPolicy: string | undefined
+    sidecarPolicy: string | undefined,
+    projects: { name: string; location: string }[] | undefined
   ) {
     // empty args
     process.argv = ['', ''];
@@ -72,10 +73,15 @@ describe('Test Main with stubs', () => {
     if (sidecarPolicy) {
       process.argv.push(`--sidecar-policy:${sidecarPolicy}`);
     }
+    if (projects) {
+      projects.forEach(p => {
+        process.argv.push(`--project.${p.name}=${p.location}`);
+      });
+    }
   }
 
   beforeEach(() => {
-    initArgs(FAKE_DEVFILE_URL, FAKE_OUTPUT_FILE, FAKE_PLUGIN_REGISTRY_URL, FAKE_EDITOR, SIDECAR_POLICY);
+    initArgs(FAKE_DEVFILE_URL, FAKE_OUTPUT_FILE, FAKE_PLUGIN_REGISTRY_URL, FAKE_EDITOR, SIDECAR_POLICY, undefined);
     spyInitBindings = jest.spyOn(InversifyBinding.prototype, 'initBindings');
     spyInitBindings.mockImplementation(() => Promise.resolve(container));
     toSelfMethod.mockReturnValue(selfMock), containerBindMethod.mockReturnValue(bindMock);
@@ -101,7 +107,7 @@ describe('Test Main with stubs', () => {
     const main = new Main();
     const returnCode = await main.start();
     expect(returnCode).toBeTruthy();
-    expect(generateMethod).toBeCalledWith(FAKE_DEVFILE_URL, FAKE_EDITOR, SIDECAR_POLICY, FAKE_OUTPUT_FILE);
+    expect(generateMethod).toBeCalledWith(FAKE_DEVFILE_URL, FAKE_EDITOR, SIDECAR_POLICY, FAKE_OUTPUT_FILE, []);
     expect(mockedConsoleError).toBeCalledTimes(0);
   });
 
@@ -112,7 +118,8 @@ describe('Test Main with stubs', () => {
       FAKE_OUTPUT_FILE,
       FAKE_PLUGIN_REGISTRY_URL,
       FAKE_EDITOR,
-      SidecarPolicy.USE_DEV_CONTAINER.toString()
+      SidecarPolicy.USE_DEV_CONTAINER.toString(),
+      [{ name: 'test', location: 'test-location' }]
     );
     const returnCode = await main.start();
     expect(returnCode).toBeTruthy();
@@ -120,14 +127,15 @@ describe('Test Main with stubs', () => {
       FAKE_DEVFILE_URL,
       FAKE_EDITOR,
       SidecarPolicy.USE_DEV_CONTAINER.toString(),
-      FAKE_OUTPUT_FILE
+      FAKE_OUTPUT_FILE,
+      [{ name: 'test', location: 'test-location' }]
     );
     expect(mockedConsoleError).toBeCalledTimes(0);
   });
 
   test('missing devfile', async () => {
     const main = new Main();
-    initArgs(undefined, FAKE_OUTPUT_FILE, FAKE_PLUGIN_REGISTRY_URL, FAKE_EDITOR, SIDECAR_POLICY);
+    initArgs(undefined, FAKE_OUTPUT_FILE, FAKE_PLUGIN_REGISTRY_URL, FAKE_EDITOR, SIDECAR_POLICY, undefined);
     const returnCode = await main.start();
     expect(mockedConsoleError).toBeCalled();
     expect(mockedConsoleError.mock.calls[1][1].toString()).toContain('missing --devfile-url: parameter');
@@ -137,7 +145,7 @@ describe('Test Main with stubs', () => {
 
   test('missing outputfile', async () => {
     const main = new Main();
-    initArgs(FAKE_DEVFILE_URL, undefined, undefined, undefined, undefined);
+    initArgs(FAKE_DEVFILE_URL, undefined, undefined, undefined, undefined, undefined);
     const returnCode = await main.start();
     expect(mockedConsoleError).toBeCalled();
     expect(mockedConsoleError.mock.calls[1][1].toString()).toContain('missing --output-file: parameter');
@@ -147,7 +155,7 @@ describe('Test Main with stubs', () => {
 
   test('invalid sidecar policy', async () => {
     const main = new Main();
-    initArgs(FAKE_DEVFILE_URL, undefined, undefined, undefined, 'FOO');
+    initArgs(FAKE_DEVFILE_URL, undefined, undefined, undefined, 'FOO', undefined);
     const returnCode = await main.start();
     expect(mockedConsoleError).toBeCalled();
     expect(mockedConsoleError.mock.calls[1][1].toString()).toContain(

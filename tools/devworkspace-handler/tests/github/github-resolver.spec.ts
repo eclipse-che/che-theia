@@ -37,6 +37,17 @@ describe('Test PluginRegistryResolver', () => {
     expect(githubResolver.resolve('http://github.com/eclipse/che').getContentUrl('README.md')).toBe(
       'https://raw.githubusercontent.com/eclipse/che/HEAD/README.md'
     );
+
+    expect(githubResolver.resolve('http://github.com/eclipse/che').getCloneUrl()).toBe(
+      'https://github.com/eclipse/che.git'
+    );
+
+    expect(githubResolver.resolve('https://github.com/eclipse/che').getRepoName()).toBe('che');
+
+    expect(githubResolver.resolve('http://github.com/eclipse/che').getBranchName()).toBe('HEAD');
+    expect(githubResolver.resolve('https://github.com/eclipse/che/tree/test-branch').getBranchName()).toBe(
+      'test-branch'
+    );
   });
 
   test('error', async () => {

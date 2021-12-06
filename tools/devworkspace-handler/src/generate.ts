@@ -39,7 +39,8 @@ export class Generate {
     devfileUrl: string,
     editorEntry: string,
     sidecarPolicy: SidecarPolicy,
-    outputFile: string
+    outputFile: string,
+    projects: { name: string; location: string }[]
   ): Promise<void> {
     // gets the github URL
     const githubUrl = this.githubResolver.resolve(devfileUrl);
@@ -52,6 +53,20 @@ export class Generate {
 
     // devfile of the editor
     const editorDevfile = await this.pluginRegistryResolver.loadDevfilePlugin(editorEntry);
+
+    editorDevfile.projects = [];
+    if (projects.length > 0) {
+      projects.forEach(p => {
+        editorDevfile.projects.push({ name: p.name, zip: { location: p.location } });
+      });
+    } else {
+      editorDevfile.projects = [
+        {
+          name: githubUrl.getRepoName(),
+          git: { remotes: { origin: githubUrl.getCloneUrl(), checkoutFrom: githubUrl.getBranchName() } },
+        },
+      ];
+    }
 
     // transform it into a devWorkspace template
     const metadata = editorDevfile.metadata;
