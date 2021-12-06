@@ -107,6 +107,13 @@ describe('Test Plugin', () => {
       const namespace = await plugin.getNamespace();
       expect(namespace).toBe('che-namespace');
     });
+    test('read che namespace from env variable', async () => {
+      const DEV_WORKSPACE_NAMESPACE_NAME = 'devWorkspaceNamespace';
+      process.env.DEVWORKSPACE_NAMESPACE = DEV_WORKSPACE_NAMESPACE_NAME;
+      const namespace = await plugin.getNamespace();
+      expect(namespace).toBe(DEV_WORKSPACE_NAMESPACE_NAME);
+      process.env.DEVWORKSPACE_NAMESPACE = '';
+    });
     test('read che namespace from workspace service if no infrastructureNamespace attribute in devile metadata', async () => {
       const devfile = {
         metadata: {},
