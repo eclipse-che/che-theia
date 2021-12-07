@@ -125,7 +125,7 @@ describe('Test Generate', () => {
     expect((editorDevfile as V1alpha2DevWorkspaceTemplateSpec).projects).toStrictEqual([
       {
         name: 'test-repo',
-        git: { remotes: { origin: 'https://github.com/org/repo.git', checkoutFrom: 'test-branch' } },
+        git: { remotes: { origin: 'https://github.com/org/repo.git' }, checkoutFrom: { revision: 'test-branch' } },
       },
     ]);
   });

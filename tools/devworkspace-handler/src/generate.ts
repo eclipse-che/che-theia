@@ -60,7 +60,7 @@ export class Generate {
       editorDevfile.projects = [
         {
           name: githubUrl.getRepoName(),
-          git: { remotes: { origin: githubUrl.getCloneUrl(), checkoutFrom: githubUrl.getBranchName() } },
+          git: { remotes: { origin: githubUrl.getCloneUrl() }, checkoutFrom: { revision: githubUrl.getBranchName() } },
         },
       ];
     }
