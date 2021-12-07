@@ -21,6 +21,7 @@ export class Main {
     let pluginRegistryUrl: string | undefined;
     let editor: string | undefined;
     let sidecarPolicy: SidecarPolicy | undefined;
+    let project: { name: string; location: string } | undefined;
     const args = process.argv.slice(2);
     args.forEach(arg => {
       if (arg.startsWith('--devfile-url:')) {
@@ -46,6 +47,11 @@ export class Main {
             `${policy} is not a valid sidecar policy. Available values are ${Object.values(SidecarPolicy)}`
           );
         }
+      }
+      if (arg.startsWith('--project.')) {
+        const name = arg.substring('--project.'.length, arg.indexOf('='));
+        const location = arg.substring(arg.indexOf('=') + 1);
+        project = { name, location };
       }
     });
     if (!pluginRegistryUrl) {
@@ -77,7 +83,7 @@ export class Main {
     container.bind(Generate).toSelf().inSingletonScope();
 
     const generate = container.get(Generate);
-    return generate.generate(devfileUrl, editor, sidecarPolicy, outputFile);
+    return generate.generate(devfileUrl, editor, sidecarPolicy, outputFile, project);
   }
 
   async start(): Promise<boolean> {
