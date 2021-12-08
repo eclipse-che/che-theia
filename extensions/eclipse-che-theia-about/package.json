@@ -3,12 +3,12 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "7.40.0",
+  "version": "7.40.1",
   "description": "Eclipse Che - Theia About menu",
   "dependencies": {
     "@theia/core": "1.18.0-next.178",
     "@theia/mini-browser": "1.18.0-next.178",
-    "@eclipse-che/theia-plugin-ext": "7.40.0"
+    "@eclipse-che/theia-plugin-ext": "7.40.1"
   },
   "publishConfig": {
     "access": "public"
