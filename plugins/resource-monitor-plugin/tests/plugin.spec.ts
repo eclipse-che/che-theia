@@ -69,20 +69,14 @@ const context: theia.PluginContext = {
 
 describe('Test Plugin', () => {
   jest.mock('../src/inversify-binding');
-  const devfileMock = jest.fn();
+  const getCurrentNamespace = jest.fn();
   let oldBindings: any;
   let initBindings: jest.Mock;
 
   beforeEach(() => {
     // Prepare Namespace
-    che.devfile.get = devfileMock;
-    const attributes = { infrastructureNamespace: 'che-namespace' };
-    const devfile = {
-      metadata: {
-        attributes,
-      },
-    };
-    devfileMock.mockReturnValue(devfile);
+    che.workspace.getCurrentNamespace = getCurrentNamespace;
+    getCurrentNamespace.mockReturnValue('che-namespace');
     oldBindings = InversifyBinding.prototype.initBindings;
     initBindings = jest.fn();
     InversifyBinding.prototype.initBindings = initBindings;
@@ -106,14 +100,6 @@ describe('Test Plugin', () => {
     test('read che namespace from devfile service', async () => {
       const namespace = await plugin.getNamespace();
       expect(namespace).toBe('che-namespace');
-    });
-    test('read che namespace from workspace service if no infrastructureNamespace attribute in devile metadata', async () => {
-      const devfile = {
-        metadata: {},
-      };
-      devfileMock.mockReturnValue(devfile);
-      const namespace = await plugin.getNamespace();
-      expect(namespace).toBe('');
     });
   });
 });

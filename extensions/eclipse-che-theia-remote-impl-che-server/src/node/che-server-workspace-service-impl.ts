@@ -23,6 +23,8 @@ export class CheServerWorkspaceServiceImpl implements WorkspaceService {
   @inject(CheServerRemoteApiImpl)
   private cheServerRemoteApiImpl: CheServerRemoteApiImpl;
 
+  private INFRASTRUCTURE_NAMESPACE = 'infrastructureNamespace';
+
   /**
    * Workspace client based variables.
    *
@@ -50,6 +52,11 @@ export class CheServerWorkspaceServiceImpl implements WorkspaceService {
 
   public async getCurrentWorkspaceId(): Promise<string> {
     return this.workspaceId;
+  }
+
+  public async getCurrentNamespace(): Promise<string> {
+    const workspace = await this.currentWorkspace();
+    return workspace.attributes?.[this.INFRASTRUCTURE_NAMESPACE] || workspace.namespace || '';
   }
 
   public async currentWorkspace(): Promise<Workspace> {

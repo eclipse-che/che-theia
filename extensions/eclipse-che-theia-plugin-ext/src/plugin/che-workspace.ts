@@ -64,6 +64,10 @@ export class CheWorkspaceImpl implements CheWorkspace {
     throw new Error('Method not implemented.');
   }
 
+  getCurrentNamespace(): Promise<string> {
+    return this.workspaceMain.$getCurrentNamespace();
+  }
+
   getAll(): Promise<cheApi.workspace.Workspace[]> {
     throw new Error('Method not implemented.');
   }

@@ -66,6 +66,9 @@ export function createAPIFactory(rpc: RPCProtocol): CheApiFactory {
       getCurrentWorkspace(): Promise<cheApi.workspace.Workspace> {
         return cheWorkspaceImpl.getCurrentWorkspace();
       },
+      getCurrentNamespace(): Promise<string> {
+        return cheWorkspaceImpl.getCurrentNamespace();
+      },
       getAll(): Promise<cheApi.workspace.Workspace[]> {
         return cheWorkspaceImpl.getAll();
       },

@@ -35,6 +35,7 @@ export interface CheWorkspace {
 
 export interface CheWorkspaceMain {
   $getCurrentWorkspace(): Promise<cheApi.workspace.Workspace>;
+  $getCurrentNamespace(): Promise<string>;
   // getAll(): Promise<Workspace[]>;
   // getAllByNamespace(namespace: string): Promise<Workspace[]>;
   $getById(workspaceId: string): Promise<cheApi.workspace.Workspace>;
