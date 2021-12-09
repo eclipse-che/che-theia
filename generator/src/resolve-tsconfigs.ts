@@ -58,7 +58,7 @@ export async function updateAssemblyTsConfigFile(rootFolder: string, assemblyFol
     // get assembly references as relative
     const preparedAssemblyReferences = assemblyReferences.map(reference => {
         const absolutePath = path.resolve(assemblyFolder, reference.path);
-        const relativePath = path.posix.relative(assemblyFolder, fs.realpathSync(absolutePath));
+        const relativePath = path.posix.relative(fs.realpathSync(assemblyFolder), fs.realpathSync(absolutePath));
         return { path: relativePath };
     });
 
