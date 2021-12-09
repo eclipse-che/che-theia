@@ -60,6 +60,10 @@ export class Init {
                 'yarn download:plugins && lerna run --scope="@eclipse-che/theia-assembly" build --parallel';
         }
 
+        if (scriptsConfiguration && scriptsConfiguration['prepare']) {
+            scriptsConfiguration['prepare'] = 'lerna run prepare && yarn compile';
+        }
+
         const theiaDevDependencies = theiaPackage.devDependencies || {};
         const prettierConfiguration = theiaPackage.prettier || {};
         const importSortConfiguration = theiaPackage.importSort || {};

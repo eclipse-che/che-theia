@@ -9,6 +9,7 @@
  ***********************************************************************/
 
 import * as axios from 'axios';
+import * as cp from 'child_process';
 import * as fs from 'fs-extra';
 import * as jsYaml from 'js-yaml';
 import * as os from 'os';
@@ -16,6 +17,13 @@ import * as path from 'path';
 import * as readPkg from 'read-pkg';
 import * as tmp from 'tmp';
 import * as yargs from 'yargs';
+
+import {
+    YarnWorkspace,
+    updateAssemblyTsConfigFile,
+    updateRootTsConfigFile,
+    updateTypescriptReferencesFor,
+} from './resolve-tsconfigs';
 
 import { CliError } from './cli-error';
 import { Logger } from './logger';
@@ -112,30 +120,13 @@ export class InitSources {
             })
         );
 
-        // await this.initRootCompilationUnits();
-    }
+        const yarnWorkspaces = this.getYarnWorkspaces();
+        await Promise.all(
+            this.extensions.map((extension: ISource) => this.updateTypescriptReferences(extension, yarnWorkspaces))
+        );
 
-    /**
-     * Update configs/root-compilation.tsconfig.json
-     */
-    async initRootCompilationUnits(): Promise<void> {
-        const browserCompilationUnitPath = path.join(this.rootFolder, 'examples/browser/tsconfig.json');
-        const browserRawData = await fs.readFile(browserCompilationUnitPath);
-        const browserParsedData = JSON.parse(browserRawData.toString());
-
-        const assemblyCompilationUnitPath = path.join(this.rootFolder, 'examples/assembly/tsconfig.json');
-        const assemblyRawData = await fs.readFile(assemblyCompilationUnitPath);
-        const assemblyParsedData = JSON.parse(assemblyRawData.toString());
-
-        const assemblyReferences = assemblyParsedData['references'] as Array<{ path: string }>;
-        const browserReferences = browserParsedData['references'] as Array<{ path: string }>;
-        const newData = browserReferences.concat(assemblyReferences);
-
-        browserParsedData['references'] = newData;
-
-        // write it back
-        const json = JSON.stringify(browserParsedData, undefined, 2);
-        await fs.writeFile(assemblyCompilationUnitPath, `${json}\n`);
+        await updateRootTsConfigFile(this.rootFolder);
+        await updateAssemblyTsConfigFile(this.rootFolder, this.assemblyFolder);
     }
 
     /**
@@ -223,6 +214,20 @@ export class InitSources {
                     const json = JSON.stringify(rawExtensionPackage, undefined, 2);
                     await fs.writeFile(extensionJsonPath, json + os.EOL, { encoding: 'utf-8' });
                 }
+            })
+        );
+    }
+
+    async updateTypescriptReferences(extension: ISource, yarnWorkspaces: Map<string, YarnWorkspace>): Promise<void> {
+        await Promise.all(
+            extension.extSymbolicLinks.map(async symbolicLink => {
+                const extensionJsonPath = path.join(symbolicLink, 'package.json');
+                const extensionPackage = await readPkg(extensionJsonPath, { normalize: false });
+
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const dependencies: any = extensionPackage.dependencies;
+                const keysDependencies = dependencies ? Object.keys(dependencies) : [];
+                await updateTypescriptReferencesFor(symbolicLink, keysDependencies, yarnWorkspaces);
             })
         );
     }
@@ -376,6 +381,26 @@ export class InitSources {
             extensionsYamlPath = tmpFile.name;
         }
         await this.generate(extensionsYamlPath, dev);
+    }
+
+    getYarnWorkspaces(): Map<string, YarnWorkspace> {
+        const yarnWorkspaces = new Map<string, YarnWorkspace>();
+
+        const yarnWorkspacesRawData = cp.execSync('yarn --json --silent workspaces info', { cwd: this.rootFolder });
+        const yarnWorkspacesParsedContent = JSON.parse(yarnWorkspacesRawData.toString());
+        if (yarnWorkspacesParsedContent && yarnWorkspacesParsedContent.data) {
+            const yarnWorkspacesParsedData = JSON.parse(yarnWorkspacesParsedContent.data.toString());
+            for (const [packageName, workspace] of Object.entries(yarnWorkspacesParsedData)) {
+                const yarnWorkspace = workspace as YarnWorkspace;
+                yarnWorkspace.location = path.join(this.rootFolder, yarnWorkspace.location);
+                yarnWorkspaces.set(packageName, yarnWorkspace);
+            }
+        }
+
+        if (yarnWorkspaces.size === 0) {
+            throw new Error('Yarn Workspaces are not found');
+        }
+        return yarnWorkspaces;
     }
 }
 

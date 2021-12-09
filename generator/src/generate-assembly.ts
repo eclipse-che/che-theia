@@ -115,23 +115,15 @@ async function preparePackageJsonFile(
 }
 
 async function prepareTsConfigFile(templateDir: string, examplesAssemblyFolder: string, config: Object): Promise<void> {
-    const browserTsConfigPath = path.join(examplesAssemblyFolder, '../browser/tsconfig.json');
-    const browserRawData = await fs.readFile(browserTsConfigPath);
-    const browserParsedData = JSON.parse(browserRawData.toString());
-
     const tsConfigTemplatePath = path.join(templateDir, 'assembly-compile.tsconfig.mst.json');
     const assemblyTemplateRawData = await fs.readFile(tsConfigTemplatePath);
-    const assemblyTemplateParsedData = JSON.parse(assemblyTemplateRawData.toString());
+    const assemblyRenderedData = mustache.render(assemblyTemplateRawData.toString(), config).replace(/&#x2F;/g, '/');
+    const assemblyTemplateParsedData = JSON.parse(assemblyRenderedData);
 
     const assemblyReferences = assemblyTemplateParsedData['references'] as Array<{ path: string }>;
-    const browserReferences = browserParsedData['references'] as Array<{ path: string }>;
-    const newData = browserReferences.concat(assemblyReferences);
-
-    assemblyTemplateParsedData['references'] = newData;
+    assemblyTemplateParsedData['references'] = assemblyReferences;
 
     // write it back
     const newContent = JSON.stringify(assemblyTemplateParsedData, undefined, 2);
-    const rendered = mustache.render(newContent, config).replace(/&#x2F;/g, '/');
-
-    await fs.writeFile(path.join(examplesAssemblyFolder, 'tsconfig.json'), rendered);
+    await fs.writeFile(path.join(examplesAssemblyFolder, 'tsconfig.json'), newContent);
 }
