@@ -23,6 +23,7 @@ import * as yargs from 'yargs';
 import { ISource, InitSources } from '../../src/init-sources';
 
 import { YargsMockup } from '../cdn.spec';
+import { generateAssembly } from '../../src/generate-assembly';
 
 jest.setTimeout(10000);
 
@@ -32,7 +33,7 @@ describe('Test Extensions', () => {
 
     const THEIA_DUMMY_VERSION = '1.2.3';
     const rootFolder = process.cwd();
-    const assemblyExamplePath = path.resolve(rootFolder, 'tests/init-sources/assembly-example');
+    const templatesPath = path.resolve(rootFolder, 'tests/init-sources/templates');
     const extensionExample1Path = path.resolve(rootFolder, 'tests/init-sources/extension-example');
     const extensionExample2Path = path.resolve(rootFolder, 'tests/init-sources/extension-example2');
     let rootFolderTmp: string;
@@ -43,6 +44,7 @@ describe('Test Extensions', () => {
     let sourceExtension1Tmp: string;
     let sourceExtension2Tmp: string;
     let extensionYamlTmp: string;
+    let theiaCorePackageTmp: string;
 
     beforeEach(async () => {
         rootFolderTmp = tmp.dirSync({ mode: 0o750, prefix: 'tmpExtensions', postfix: '' }).name;
@@ -54,15 +56,26 @@ describe('Test Extensions', () => {
         sourceExtension1Tmp = path.resolve(rootFolderTmp, 'source-code1');
         sourceExtension2Tmp = path.resolve(rootFolderTmp, 'source-code2');
         extensionYamlTmp = path.resolve(rootFolderTmp, 'extensions.yml');
+        theiaCorePackageTmp = path.resolve(packagesFolderTmp, 'core');
 
         await fs.ensureDir(rootFolderTmp);
+        await fs.copy(path.join(templatesPath, 'theia-root-package.json'), path.join(rootFolderTmp, 'package.json'));
+
         await fs.ensureDir(packagesFolderTmp);
         await fs.ensureDir(pluginsFolderTmp);
 
         await fs.ensureDir(assemblyFolderTmp);
+        await fs.copy(path.join(templatesPath, 'assembly-package.json'), path.join(assemblyFolderTmp, 'package.json'));
+
         await fs.copy(
-            path.join(assemblyExamplePath, 'assembly-package.json'),
-            path.join(assemblyFolderTmp, 'package.json')
+            path.join(templatesPath, 'assembly-tsconfig.json'),
+            path.join(assemblyFolderTmp, 'tsconfig.json')
+        );
+
+        await fs.ensureDir(theiaCorePackageTmp);
+        await fs.copy(
+            path.join(templatesPath, 'theia-core-package.json'),
+            path.join(packagesFolderTmp, 'core', 'package.json')
         );
 
         await fs.ensureDir(sourceExtension1Tmp);
@@ -90,7 +103,7 @@ describe('Test Extensions', () => {
 
     test('test init sources generator', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -162,7 +175,7 @@ describe('Test Extensions', () => {
 
     test('extension with empty dependencies', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -179,7 +192,7 @@ describe('Test Extensions', () => {
 
     test('extensions with dev mode', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -219,7 +232,7 @@ describe('Test Extensions', () => {
 
     test('use provided extensions', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -257,11 +270,18 @@ describe('Test Extensions', () => {
     });
 
     test('use default extensions', async () => {
+        await generateAssembly(assemblyFolderTmp, {
+            theiaVersion: THEIA_DUMMY_VERSION,
+            monacoVersion: '',
+            configDirPrefix: '../../',
+            packageRefPrefix: '../che-theia/extensions/',
+        });
+
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
-            cheTheiaFolderTmp,
+            rootFolderTmp,
             assemblyFolderTmp,
             THEIA_DUMMY_VERSION
         );
@@ -274,7 +294,7 @@ describe('Test Extensions', () => {
 
     test('use provided extensions with dev mode', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -313,7 +333,7 @@ describe('Test Extensions', () => {
 
     test('use default extensions with dev mode', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -337,7 +357,7 @@ describe('Test Extensions', () => {
 
     test('throw error if path to configuration does not exist', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -354,7 +374,7 @@ describe('Test Extensions', () => {
 
     test('default extension uri is unreachable', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -393,7 +413,7 @@ describe('Test Extensions', () => {
 
     test('use extensions and plugins', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -438,7 +458,7 @@ describe('Test Extensions', () => {
 
     test('aliases replace with local source folder', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -472,7 +492,7 @@ describe('Test Extensions', () => {
         };
 
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
