@@ -60,7 +60,7 @@ describe('Test Generate', () => {
     loadDevfilePlugin: pluginRegistryResolverLoadDevfilePluginMethod,
   } as any;
 
-  let editorDevfile = {};
+  let devfile = {};
 
   const devfileUrl = 'https://github.com/org/devfile-repo/tree/branch';
   const fakeoutputDir = '/fake-output';
@@ -80,13 +80,16 @@ describe('Test Generate', () => {
     container.bind(GithubResolver).toConstantValue(githubResolver);
     githubResolverResolveMethod.mockReturnValue(githubUrlMock);
 
-    editorDevfile = {
+    devfile = {
       schemaVersion: '2.1.0',
       metadata: {
         name: 'theia-ide',
       },
       commands: [],
     };
+    pluginRegistryResolverLoadDevfilePluginMethod.mockResolvedValue(devfile);
+    const jsYmalSpy = jest.spyOn(jsYaml, 'load');
+    jsYmalSpy.mockReturnValue(devfile);
 
     urlFetcherFetchTextMethod.mockResolvedValue(jsYaml.dump({ metadata: {} }));
     fsWriteFileSpy = jest.spyOn(fs, 'writeFile');
@@ -96,8 +99,6 @@ describe('Test Generate', () => {
   });
 
   test('basics', async () => {
-    pluginRegistryResolverLoadDevfilePluginMethod.mockResolvedValue(editorDevfile);
-
     const rawDevfileUrl = 'https://content-of-devfile.url';
     getContentUrlMethod.mockReturnValue(rawDevfileUrl);
     getBranchNameMethod.mockReturnValue('HEAD');
@@ -111,9 +112,6 @@ describe('Test Generate', () => {
 
   test('generate template with default project', async () => {
     //given
-    const pluginRegistryResolverSpy = jest.spyOn(pluginRegistryResolver, 'loadDevfilePlugin');
-    pluginRegistryResolverSpy.mockResolvedValue(editorDevfile);
-
     getCloneUrlMethod.mockReturnValue('https://github.com/org/repo.git');
     getRepoNameMethod.mockReturnValue('test-repo');
     getBranchNameMethod.mockReturnValue('test-branch');
@@ -122,7 +120,7 @@ describe('Test Generate', () => {
     await generate.generate(devfileUrl, editor, SidecarPolicy.USE_DEV_CONTAINER, fakeoutputDir);
 
     //then
-    expect((editorDevfile as V1alpha2DevWorkspaceTemplateSpec).projects).toStrictEqual([
+    expect((devfile as V1alpha2DevWorkspaceTemplateSpec).projects).toStrictEqual([
       {
         name: 'test-repo',
         git: { remotes: { origin: 'https://github.com/org/repo.git' }, checkoutFrom: { revision: 'test-branch' } },
@@ -131,10 +129,6 @@ describe('Test Generate', () => {
   });
 
   test('generate template with defined project', async () => {
-    //given
-    const pluginRegistryResolverSpy = jest.spyOn(pluginRegistryResolver, 'loadDevfilePlugin');
-    pluginRegistryResolverSpy.mockResolvedValue(editorDevfile);
-
     //when
     await generate.generate(devfileUrl, editor, SidecarPolicy.USE_DEV_CONTAINER, fakeoutputDir, {
       name: 'test-name',
@@ -142,7 +136,7 @@ describe('Test Generate', () => {
     });
 
     //then
-    expect((editorDevfile as V1alpha2DevWorkspaceTemplateSpec).projects).toStrictEqual([
+    expect((devfile as V1alpha2DevWorkspaceTemplateSpec).projects).toStrictEqual([
       { name: 'test-name', zip: { location: 'test-location' } },
     ]);
   });

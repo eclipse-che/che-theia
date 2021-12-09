@@ -55,9 +55,9 @@ export class Generate {
     const editorDevfile = await this.pluginRegistryResolver.loadDevfilePlugin(editorEntry);
 
     if (project) {
-      editorDevfile.projects = [{ name: project.name, zip: { location: project.location } }];
+      devfile.projects = [{ name: project.name, zip: { location: project.location } }];
     } else {
-      editorDevfile.projects = [
+      devfile.projects = [
         {
           name: githubUrl.getRepoName(),
           git: { remotes: { origin: githubUrl.getCloneUrl() }, checkoutFrom: { revision: githubUrl.getBranchName() } },
