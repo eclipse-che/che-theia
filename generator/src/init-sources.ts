@@ -112,31 +112,30 @@ export class InitSources {
             })
         );
 
-        await this.initRootCompilationUnits();
+        // await this.initRootCompilationUnits();
     }
 
     /**
      * Update configs/root-compilation.tsconfig.json
      */
     async initRootCompilationUnits() {
-        const rootCompilationUnitPath = path.join(this.rootFolder, 'configs/root-compilation.tsconfig.json');
-        const rawData = await fs.readFile(rootCompilationUnitPath);
-        const parsed = JSON.parse(rawData.toString());
+        const browserCompilationUnitPath = path.join(this.rootFolder, 'examples/browser/tsconfig.json');
+        const browserRawData = await fs.readFile(browserCompilationUnitPath);
+        const browserParsedData = JSON.parse(browserRawData.toString());
 
-        // add assembly unit
-        const item = {
-            path: '../examples/assembly/compile.tsconfig.json',
-        };
-        const assemblyTsConfig = (parsed['references'] as Array<{ path: string }>).find(
-            reference => reference['path'] === item['path']
-        );
-        if (!assemblyTsConfig) {
-            parsed['references'].push(item);
-        }
+        const assemblyCompilationUnitPath = path.join(this.rootFolder, 'examples/assembly/tsconfig.json');
+        const assemblyRawData = await fs.readFile(assemblyCompilationUnitPath);
+        const assemblyParsedData = JSON.parse(assemblyRawData.toString());
+
+        const assemblyReferences = assemblyParsedData['references'] as Array<{ path: string }>;
+        const browserReferences = browserParsedData['references'] as Array<{ path: string }>;
+        const newData = browserReferences.concat(assemblyReferences);
+
+        browserParsedData['references'] = newData;
 
         // write it back
-        const json = JSON.stringify(parsed, undefined, 2);
-        await fs.writeFile(rootCompilationUnitPath, `${json}\n`);
+        const json = JSON.stringify(browserParsedData, undefined, 2);
+        await fs.writeFile(assemblyCompilationUnitPath, `${json}\n`);
     }
 
     /**

@@ -55,8 +55,9 @@ export class Init {
         const theiaPackage = await readPkg(theiaPackagePath);
         const scriptsConfiguration = theiaPackage.scripts;
 
-        if (scriptsConfiguration && scriptsConfiguration['prepare:build']) {
-            scriptsConfiguration['prepare:build'] = 'yarn build && run lint && lerna run build';
+        if (scriptsConfiguration && scriptsConfiguration['build:examples']) {
+            scriptsConfiguration['build:examples'] =
+                'yarn download:plugins && lerna run --scope="@eclipse-che/theia-assembly" build --parallel';
         }
 
         const theiaDevDependencies = theiaPackage.devDependencies || {};
