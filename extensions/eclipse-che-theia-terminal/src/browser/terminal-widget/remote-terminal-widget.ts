@@ -13,7 +13,7 @@ import {
   RemoteTerminalWatcher,
 } from '../server-definition/remote-terminal-protocol';
 import { IBaseTerminalServer, TerminalProcessInfo } from '@theia/terminal/lib/common/base-terminal-protocol';
-import { OutputChannel, OutputChannelManager } from '@theia/output/lib/common/output-channel';
+import { OutputChannel, OutputChannelManager } from '@theia/output/lib/browser/output-channel';
 import { inject, injectable, postConstruct } from 'inversify';
 
 import { Deferred } from '@theia/core/lib/common/promise-util';

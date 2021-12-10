@@ -69,6 +69,7 @@ describe('Test Resource Monitor Plugin', () => {
     globalState: {
       get: jest.fn(),
       update: jest.fn(),
+      setKeysForSync: jest.fn(),
     },
     globalStoragePath: '',
     logPath: '',
@@ -79,6 +80,7 @@ describe('Test Resource Monitor Plugin', () => {
       update: jest.fn(),
     },
     asAbsolutePath: jest.fn(),
+    extensionMode: 3,
   };
   const statusBarItem: theia.StatusBarItem = {
     alignment: 1,
