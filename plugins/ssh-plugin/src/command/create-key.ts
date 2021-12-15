@@ -8,35 +8,37 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import * as che from '@eclipse-che/plugin';
 import * as theia from '@theia/plugin';
 
 import { MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY, MESSAGE_NEED_RESTART_WORKSPACE } from '../messages';
 import { askHostName, updateConfig, writeKey } from '../util/util';
+import { inject, injectable } from 'inversify';
 
 import { Command } from './command';
-import { injectable } from 'inversify';
+import { SshSecretHelper } from '../util/ssh-secret-helper';
 
 @injectable()
 export class CreateKey extends Command {
+  @inject(SshSecretHelper) private sshSecretHelper: SshSecretHelper;
+
   constructor() {
     super('ssh:create', 'SSH: Create Key...');
   }
 
   async run(): Promise<void> {
-    let hostName = await askHostName(MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY);
-    if (!hostName) {
-      hostName = `default-${Date.now()}`;
+    let keyName = await askHostName(MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY);
+    if (!keyName) {
+      keyName = `default-${Date.now()}`;
     }
 
-    const publicKey = await theia.window.showInputBox({ placeHolder: 'Enter public key' });
-    const privateKey = await theia.window.showInputBox({ placeHolder: 'Enter private key' });
+    const publicKey = (await theia.window.showInputBox({ placeHolder: 'Enter public key' })) || '';
+    const privateKey = (await theia.window.showInputBox({ placeHolder: 'Enter private key' })) || '';
 
     try {
-      await che.ssh.create({ name: hostName, service: 'vcs', publicKey: publicKey, privateKey });
-      await updateConfig(hostName);
-      await writeKey(hostName, privateKey!);
-      await theia.window.showInformationMessage(`Key pair for ${hostName} successfully created`);
+      this.sshSecretHelper.store({ name: keyName, privateKey, publicKey });
+      await updateConfig(keyName);
+      await writeKey(keyName, privateKey);
+      await theia.window.showInformationMessage(`Key pair for ${keyName} successfully created`);
       await theia.window.showWarningMessage(MESSAGE_NEED_RESTART_WORKSPACE);
     } catch (error) {
       await theia.window.showErrorMessage(error);

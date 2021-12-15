@@ -19,6 +19,7 @@ import { KeyRegistry } from './agent/key-registry';
 import { SSHAgent } from './agent/ssh-agent';
 import { SSHPlugin } from './plugin/plugin-model';
 import { SSHPluginImpl } from './ssh-plugin';
+import { SshSecretHelper } from './util/ssh-secret-helper';
 import { UploadPrivateKey } from './command/upload-private-key';
 import { ViewPublicKey } from './command/view-public-key';
 
@@ -39,6 +40,7 @@ export class InversifyBinding {
     container.bind(GenerateKeyForHost).toSelf().inSingletonScope();
     container.bind(UploadPrivateKey).toSelf().inSingletonScope();
     container.bind(ViewPublicKey).toSelf().inSingletonScope();
+    container.bind(SshSecretHelper).toSelf().inSingletonScope();
 
     return container;
   }

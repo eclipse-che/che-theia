@@ -13,7 +13,7 @@ import * as theia from '@theia/plugin';
 import { SSHAgent, SSHAgentConfig } from './agent/ssh-agent';
 import { inject, injectable } from 'inversify';
 
-import { AddKeyToGitHub } from './command/add-key-to-github';
+// import { AddKeyToGitHub } from './command/add-key-to-github';
 import { CreateKey } from './command/create-key';
 import { DeleteKey } from './command/delete-key';
 import { GenerateKey } from './command/generate-key';
@@ -22,15 +22,12 @@ import { GitListener } from './git/git-listener';
 import { InversifyBinding } from './inversify-bindings';
 import { KeyRegistry } from './agent/key-registry';
 import { SSHPlugin } from './plugin/plugin-model';
-import { UploadPrivateKey } from './command/upload-private-key';
+// import { UploadPrivateKey } from './command/upload-private-key';
 import { ViewPublicKey } from './command/view-public-key';
 
-export async function start(): Promise<SSHPlugin> {
-  // disable this plug-in on DevWorkspace as there is no che API / ssh service
-  if (process.env.DEVWORKSPACE_COMPONENT_NAME) {
-    return {} as SSHPlugin;
-  }
+export const CREDENTIALS_SECRET_NAME = 'workspace-credentials-secret';
 
+export async function start(): Promise<SSHPlugin> {
   const container = new InversifyBinding().initBindings();
 
   // start SSH authentication agent
@@ -53,8 +50,8 @@ export class SSHPluginImpl implements SSHPlugin {
   @inject(SSHAgent)
   private sshAgent: SSHAgent;
 
-  @inject(AddKeyToGitHub)
-  private cmdAddKeyToGitHub: AddKeyToGitHub;
+  // @inject(AddKeyToGitHub)
+  // private cmdAddKeyToGitHub: AddKeyToGitHub;
 
   @inject(GenerateKey)
   private cmdGenerateKey: GenerateKey;
@@ -68,8 +65,8 @@ export class SSHPluginImpl implements SSHPlugin {
   @inject(DeleteKey)
   private cmdDeleteKey: DeleteKey;
 
-  @inject(UploadPrivateKey)
-  private cmdUploadPrivateKey: UploadPrivateKey;
+  // @inject(UploadPrivateKey)
+  // private cmdUploadPrivateKey: UploadPrivateKey;
 
   @inject(ViewPublicKey)
   private cmdViewPublicKey: ViewPublicKey;
@@ -92,12 +89,12 @@ export class SSHPluginImpl implements SSHPlugin {
     theia.commands.registerCommand(this.cmdViewPublicKey, () => {
       this.cmdViewPublicKey.run();
     });
-    theia.commands.registerCommand(this.cmdUploadPrivateKey, () => {
-      this.cmdUploadPrivateKey.run();
-    });
-    theia.commands.registerCommand(this.cmdAddKeyToGitHub, () => {
-      this.cmdAddKeyToGitHub.run();
-    });
+    // theia.commands.registerCommand(this.cmdUploadPrivateKey, () => {
+    //   this.cmdUploadPrivateKey.run();
+    // });
+    // theia.commands.registerCommand(this.cmdAddKeyToGitHub, () => {
+    //   this.cmdAddKeyToGitHub.run();
+    // });
 
     return this;
   }
@@ -109,12 +106,12 @@ export class SSHPluginImpl implements SSHPlugin {
       { label: this.cmdViewPublicKey.label },
       { label: this.cmdCreateKey.label },
       { label: this.cmdDeleteKey.label },
-      { label: this.cmdUploadPrivateKey.label },
+      // { label: this.cmdUploadPrivateKey.label },
     ];
 
-    if (gitHubActions) {
-      items.push({ label: this.cmdAddKeyToGitHub.label });
-    }
+    // if (gitHubActions) {
+    //   items.push({ label: this.cmdAddKeyToGitHub.label });
+    // }
 
     const command = await theia.window.showQuickPick<theia.QuickPickItem>(items, {});
 
@@ -134,12 +131,12 @@ export class SSHPluginImpl implements SSHPlugin {
       } else if (command.label === this.cmdDeleteKey.label) {
         await this.cmdDeleteKey.run({ gitCloneFlow: true });
         return true;
-      } else if (command.label === this.cmdUploadPrivateKey.label) {
-        await this.cmdUploadPrivateKey.run({ gitCloneFlow: true });
-        return true;
-      } else if (command.label === this.cmdAddKeyToGitHub.label) {
-        await this.cmdAddKeyToGitHub.run({ gitCloneFlow: true });
-        return true;
+        // } else if (command.label === this.cmdUploadPrivateKey.label) {
+        //   await this.cmdUploadPrivateKey.run({ gitCloneFlow: true });
+        //   return true;
+        // } else if (command.label === this.cmdAddKeyToGitHub.label) {
+        //   await this.cmdAddKeyToGitHub.run({ gitCloneFlow: true });
+        //   return true;
       }
     }
 
@@ -147,7 +144,7 @@ export class SSHPluginImpl implements SSHPlugin {
   }
 
   async addKeyToGitHub(): Promise<boolean> {
-    return this.cmdAddKeyToGitHub.run({ gitCloneFlow: true });
+    return true;
   }
 
   async sshAgentConfig(): Promise<SSHAgentConfig> {

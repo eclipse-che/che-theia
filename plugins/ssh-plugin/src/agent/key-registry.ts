@@ -8,18 +8,18 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import * as che from '@eclipse-che/plugin';
 import * as theia from '@theia/plugin';
 
+import { SshPair, SshSecretHelper } from '../util/ssh-secret-helper';
 import { findKey, isEncrypted, output, registerKeyAskingPassword } from '../util/util';
+import { inject, injectable } from 'inversify';
 
 import { MESSAGE_GET_KEYS_FAILED } from '../messages';
-import { che as cheApi } from '@eclipse-che/api';
-import { injectable } from 'inversify';
 
 @injectable()
 export class KeyRegistry {
-  async getEncryptedKeys(keys: cheApi.ssh.SshPair[]): Promise<string[]> {
+  @inject(SshSecretHelper) private sshSecretHelper: SshSecretHelper;
+  async getEncryptedKeys(keys: SshPair[]): Promise<string[]> {
     const encryptedKeys: string[] = [];
     for (const key of keys) {
       try {
@@ -36,9 +36,9 @@ export class KeyRegistry {
   }
 
   async init(): Promise<void> {
-    let keys: cheApi.ssh.SshPair[];
+    let keys: SshPair[];
     try {
-      keys = await che.ssh.getAll('vcs');
+      keys = await this.sshSecretHelper.getAll();
     } catch (e) {
       theia.window.showErrorMessage(MESSAGE_GET_KEYS_FAILED);
       return;
