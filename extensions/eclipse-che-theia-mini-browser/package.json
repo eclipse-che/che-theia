@@ -7,8 +7,8 @@
   "description": "Customizations of Theia mini-browser for Eclipse Che",
   "dependencies": {
     "inversify": "^5.0.1",
-    "@theia/core": "1.18.0-next.178",
-    "@theia/mini-browser": "1.18.0-next.178",
+    "@theia/core": "1.18.0-next.108",
+    "@theia/mini-browser": "1.18.0-next.108",
     "@eclipse-che/theia-remote-api": "7.40.2",
     "@eclipse-che/theia-plugin-ext": "7.40.2"
   },

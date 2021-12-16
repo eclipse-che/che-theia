@@ -9,9 +9,9 @@
     "src"
   ],
   "dependencies": {
-    "@theia/core": "1.18.0-next.178",
+    "@theia/core": "1.18.0-next.108",
     "@eclipse-che/api": "7.40.0",
-    "@theia/workspace": "1.18.0-next.178",
+    "@theia/workspace": "1.18.0-next.108",
     "@eclipse-che/theia-remote-api": "7.40.2",
     "js-yaml": "3.13.1"
   },
