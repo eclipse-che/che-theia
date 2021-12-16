@@ -12,10 +12,10 @@
     "src"
   ],
   "dependencies": {
-    "@theia/core": "1.18.0-next.178",
-    "@theia/workspace": "1.18.0-next.178",
+    "@theia/core": "1.18.0-next.108",
+    "@theia/workspace": "1.18.0-next.108",
     "nsfw": "^2.1.2",
-    "@theia/preferences": "1.18.0-next.178",
+    "@theia/preferences": "1.18.0-next.108",
     "@eclipse-che/theia-plugin-ext": "7.40.1"
   },
   "devDependencies": {
