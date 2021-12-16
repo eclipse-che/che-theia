@@ -129,6 +129,7 @@ describe('Test Generate', () => {
   });
 
   test('generate template with defined project', async () => {
+    delete (devfile as any).metadata.name;
     //when
     await generate.generate(devfileUrl, editor, SidecarPolicy.USE_DEV_CONTAINER, fakeoutputDir, {
       name: 'test-name',
