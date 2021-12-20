@@ -16,10 +16,12 @@
 import * as cp from 'child_process';
 import * as fs from 'fs-extra';
 import * as json2yaml from 'json2yaml';
+import * as mustache from 'mustache';
 import * as path from 'path';
 import * as tmp from 'tmp';
 import * as yargs from 'yargs';
 
+import { AssemblyConfiguration, generateAssembly } from '../../src/generate-assembly';
 import { ISource, InitSources } from '../../src/init-sources';
 
 import { YargsMockup } from '../cdn.spec';
@@ -31,8 +33,16 @@ describe('Test Extensions', () => {
     jest.setTimeout(30000);
 
     const THEIA_DUMMY_VERSION = '1.2.3';
+
+    const assemblyTestConfig: AssemblyConfiguration = {
+        theiaVersion: THEIA_DUMMY_VERSION,
+        monacoVersion: '',
+        configDirPrefix: '../../',
+        packageRefPrefix: '../che-theia/extensions/',
+    };
+
     const rootFolder = process.cwd();
-    const assemblyExamplePath = path.resolve(rootFolder, 'tests/init-sources/assembly-example');
+    const templatesPath = path.resolve(rootFolder, 'tests/init-sources/templates');
     const extensionExample1Path = path.resolve(rootFolder, 'tests/init-sources/extension-example');
     const extensionExample2Path = path.resolve(rootFolder, 'tests/init-sources/extension-example2');
     let rootFolderTmp: string;
@@ -43,6 +53,7 @@ describe('Test Extensions', () => {
     let sourceExtension1Tmp: string;
     let sourceExtension2Tmp: string;
     let extensionYamlTmp: string;
+    let theiaCorePackageTmp: string;
 
     beforeEach(async () => {
         rootFolderTmp = tmp.dirSync({ mode: 0o750, prefix: 'tmpExtensions', postfix: '' }).name;
@@ -54,15 +65,31 @@ describe('Test Extensions', () => {
         sourceExtension1Tmp = path.resolve(rootFolderTmp, 'source-code1');
         sourceExtension2Tmp = path.resolve(rootFolderTmp, 'source-code2');
         extensionYamlTmp = path.resolve(rootFolderTmp, 'extensions.yml');
+        theiaCorePackageTmp = path.resolve(packagesFolderTmp, 'core');
 
         await fs.ensureDir(rootFolderTmp);
+        await fs.copy(path.join(templatesPath, 'theia-root-package.json'), path.join(rootFolderTmp, 'package.json'));
+
         await fs.ensureDir(packagesFolderTmp);
         await fs.ensureDir(pluginsFolderTmp);
 
         await fs.ensureDir(assemblyFolderTmp);
+        await fs.copy(path.join(templatesPath, 'assembly-package.json'), path.join(assemblyFolderTmp, 'package.json'));
+
         await fs.copy(
-            path.join(assemblyExamplePath, 'assembly-package.json'),
-            path.join(assemblyFolderTmp, 'package.json')
+            path.join(templatesPath, 'assembly-tsconfig.json'),
+            path.join(assemblyFolderTmp, 'tsconfig.json')
+        );
+
+        await fs.ensureDir(theiaCorePackageTmp);
+        await fs.copy(
+            path.join(templatesPath, 'theia-core-package.json'),
+            path.join(packagesFolderTmp, 'core', 'package.json')
+        );
+
+        await fs.copy(
+            path.join(extensionExample1Path, 'folder1', 'tsconfig.json'), // let's use a tsconfig from an example for core package to not duplicate few times tsconfig
+            path.join(packagesFolderTmp, 'core', 'tsconfig.json')
         );
 
         await fs.ensureDir(sourceExtension1Tmp);
@@ -74,7 +101,7 @@ describe('Test Extensions', () => {
         initGit(sourceExtension2Tmp);
     });
 
-    function initGit(cwd: string) {
+    function initGit(cwd: string): void {
         cp.execSync('git init', { cwd });
         cp.execSync('git checkout -b main', { cwd });
         cp.execSync('git config --local user.name "test user"', { cwd });
@@ -90,7 +117,7 @@ describe('Test Extensions', () => {
 
     test('test init sources generator', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -162,7 +189,7 @@ describe('Test Extensions', () => {
 
     test('extension with empty dependencies', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -179,7 +206,7 @@ describe('Test Extensions', () => {
 
     test('extensions with dev mode', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -219,7 +246,7 @@ describe('Test Extensions', () => {
 
     test('use provided extensions', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -257,11 +284,13 @@ describe('Test Extensions', () => {
     });
 
     test('use default extensions', async () => {
+        await generateAssembly(assemblyFolderTmp, assemblyTestConfig);
+
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
-            cheTheiaFolderTmp,
+            rootFolderTmp,
             assemblyFolderTmp,
             THEIA_DUMMY_VERSION
         );
@@ -274,7 +303,7 @@ describe('Test Extensions', () => {
 
     test('use provided extensions with dev mode', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -313,7 +342,7 @@ describe('Test Extensions', () => {
 
     test('use default extensions with dev mode', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -337,7 +366,7 @@ describe('Test Extensions', () => {
 
     test('throw error if path to configuration does not exist', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -354,7 +383,7 @@ describe('Test Extensions', () => {
 
     test('default extension uri is unreachable', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -393,7 +422,7 @@ describe('Test Extensions', () => {
 
     test('use extensions and plugins', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -438,7 +467,7 @@ describe('Test Extensions', () => {
 
     test('aliases replace with local source folder', async () => {
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -472,7 +501,7 @@ describe('Test Extensions', () => {
         };
 
         const initSources = new InitSources(
-            assemblyExamplePath,
+            rootFolderTmp,
             packagesFolderTmp,
             pluginsFolderTmp,
             cheTheiaFolderTmp,
@@ -485,4 +514,62 @@ describe('Test Extensions', () => {
 
         expect(source.clonedDir).toBe(sourceExtension1Tmp);
     });
+
+    test('check resolving typescript references', async () => {
+        await generateAssembly(assemblyFolderTmp, assemblyTestConfig);
+
+        const initSources = new InitSources(
+            rootFolderTmp,
+            packagesFolderTmp,
+            pluginsFolderTmp,
+            rootFolderTmp,
+            assemblyFolderTmp,
+            THEIA_DUMMY_VERSION
+        );
+
+        initSources.keepGitHistory = false;
+        await initSources.readConfigurationAndGenerate(undefined, false);
+
+        // check that all extensions are placed as references in the assembly tsconfig.json
+        const asssemblyTsConfigPath = path.join(assemblyFolderTmp, 'tsconfig.json');
+        const actualAssemblyTsConfigReferences = await getTypescriptReferences(asssemblyTsConfigPath);
+        const actualPaths = actualAssemblyTsConfigReferences.map(reference => reference.path);
+
+        const templateReferences = await getTemplateTypescriptReferences(assemblyTestConfig);
+        const templatePaths = templateReferences.map(reference => reference.path);
+
+        expect(templatePaths.every(reference => actualPaths.includes(reference))).toBeTruthy();
+
+        // check that dependencies from upstream are placed as references in the assembly tsconfig.json
+        // within the current suite '@theia/core' package is added, so let's check if it's present as a reference
+        expect(actualPaths.includes('../packages/core')).toBeTruthy();
+
+        // check that an extesion contains tsconfig with the corresponding references
+        const extensionTsConfigPath = path.join(
+            packagesFolderTmp,
+            '@che-eclipse-che-theia-activity-tracker',
+            'tsconfig.json'
+        );
+        const extesnionReferences = await getTypescriptReferences(extensionTsConfigPath);
+        const extensionReferencesPaths = extesnionReferences.map(reference => reference.path);
+
+        expect(extensionReferencesPaths.includes('../../../packages/core')).toBeTruthy();
+        expect(extensionReferencesPaths.includes('../eclipse-che-theia-plugin-ext')).toBeTruthy();
+    });
 });
+
+async function getTypescriptReferences(tsConfigPath: string): Promise<{ path: string }[]> {
+    const tsConfigRawData = await fs.readFile(tsConfigPath);
+    const tsConfigParsedData = JSON.parse(tsConfigRawData.toString());
+    return tsConfigParsedData.references || [];
+}
+
+async function getTemplateTypescriptReferences(config: AssemblyConfiguration): Promise<{ path: string }[]> {
+    const templateTsConfigPath = path.join(__dirname, '../../src', 'templates', 'assembly-compile.tsconfig.mst.json');
+    const content = await fs.readFile(templateTsConfigPath);
+
+    const rendered = mustache.render(content.toString(), config).replace(/&#x2F;/g, '/');
+
+    const tsConfigParsedData = JSON.parse(rendered);
+    return tsConfigParsedData.references || [];
+}

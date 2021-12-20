@@ -17,6 +17,7 @@ import { KeybindingContext, QuickAccessContribution, WidgetFactory } from '@thei
 import {
   REMOTE_TERMINAL_TARGET_SCOPE,
   REMOTE_TERMINAL_WIDGET_FACTORY_ID,
+  RemoteTerminalWidget,
   RemoteTerminalWidgetOptions,
 } from './terminal-widget/remote-terminal-widget';
 import {
@@ -34,7 +35,6 @@ import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/brows
 import { EndpointService } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { RemoteTerminaActiveKeybingContext } from './contribution/keybinding-context';
-import { RemoteTerminalWidget } from './terminal-widget/remote-terminal-widget';
 import { RemoteWebSocketConnectionProvider } from './server-definition/remote-connection';
 import { TerminalFrontendContribution } from '@theia/terminal/lib/browser/terminal-frontend-contribution';
 import { TerminalQuickOpenService } from './contribution/terminal-quick-open';

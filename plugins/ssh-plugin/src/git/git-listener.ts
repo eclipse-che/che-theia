@@ -102,7 +102,7 @@ export class GitListener {
     return false;
   }
 
-  private async retryClone(uri: string, path: string) {
+  private async retryClone(uri: string, path: string): Promise<void> {
     const parentPath = path.substring(0, path.lastIndexOf('/'));
 
     await theia.window.withProgress(
@@ -155,7 +155,7 @@ export class GitListener {
     }
   }
 
-  init() {
+  init(): void {
     let initialized: boolean;
     const onChange = () => {
       const vscodeGit = theia.plugins.getPlugin('vscode.git');

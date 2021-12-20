@@ -14,7 +14,8 @@ import { customizeWebpackConfig } from './webpack-customizer';
 const baseConfig = require('../webpack.config');
 
 // Export the customized webpack configuration object
-module.exports = function (env: { cdn: string; monacopkg: string }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+module.exports = function (env: { cdn: string; monacopkg: string }): any {
     customizeWebpackConfig(env.cdn, env.monacopkg, baseConfig);
     return baseConfig;
 };

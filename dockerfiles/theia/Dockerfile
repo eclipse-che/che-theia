@@ -58,33 +58,18 @@ RUN che-theia init -c ${HOME}/theia-source-code/che-theia/che-theia-init-sources
 # cleanup theia folders that we don't need to compile
 RUN rm -rf ${HOME}/theia-source-code/examples/browser && \
     rm -rf ${HOME}/theia-source-code/examples/electron && \
-    rm -rf ${HOME}/theia-source-code/packages/cpp && \
+    rm -rf ${HOME}/theia-source-code/examples/api-samples && \
+    rm -rf ${HOME}/theia-source-code/examples/api-tests && \
     rm -rf ${HOME}/theia-source-code/packages/git && \
-    rm -rf ${HOME}/theia-source-code/packages/java && \
-    rm -rf ${HOME}/theia-source-code/packages/java-debug && \
-    rm -rf ${HOME}/theia-source-code/packages/python && \
-    rm -rf ${HOME}/theia-source-code/packages/typescript && \
     # Allow the usage of ELECTRON_SKIP_BINARY_DOWNLOAD=1 by using a more recent version of electron \
-    sed -i 's|  "resolutions": {|  "resolutions": {\n    "**/electron": "7.0.0",\n    "**/keytar": "^7.7.0",|' ${HOME}/theia-source-code/package.json && \
+    sed -i 's|  "resolutions": {|  "resolutions": {\n    "**/electron": "7.0.0",\n   "**/lerna": "2.2.0",\n    "**/keytar": "^7.7.0",|' ${HOME}/theia-source-code/package.json && \
     # remove all electron-browser module to not compile them
     find . -name "electron-browser"  | xargs rm -rf {} && \
     find . -name "*-electron-module.ts"  | xargs rm -rf {} && \
     rm -rf ${HOME}/theia-source-code/dev-packages/electron/native && \
     echo "" > ${HOME}/theia-source-code/dev-packages/electron/scripts/post-install.js && \
     # Remove linter/formatters of theia
-    sed -i 's|concurrently -n compile,lint -c blue,green \\"theiaext compile\\" \\"theiaext lint\\"|concurrently -n compile -c blue \\"theiaext compile\\"|' ${HOME}/theia-source-code/dev-packages/ext-scripts/package.json && \
-    # Remove external configs removed
-    sed -i -n '/.*packages\/cpp/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    sed -i -n '/.*packages\/git/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    sed -i -n '/.*packages\/java/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    sed -i -n '/.*packages\/java-debug/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    sed -i -n '/.*packages\/python/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    sed -i -n '/.*packages\/typescript/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    sed -i -n '/.*examples\/api-samples/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    sed -i -n '/.*examples\/electron/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    # change update goal to be the eclipse che assembly
-    sed -i 's|.*"prepare:build".*|    \"prepare:build\"\: \"yarn build \&\& lerna run build\", |' ${HOME}/theia-source-code/package.json && \
-    cat ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json
+    sed -i 's|concurrently -n compile,lint -c blue,green \\"theiaext compile\\" \\"theiaext lint\\"|concurrently -n compile -c blue \\"theiaext compile\\"|' ${HOME}/theia-source-code/dev-packages/ext-scripts/package.json
 
 RUN che-theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 
@@ -95,7 +80,7 @@ RUN che-theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 # This is needed for some tools which use this variable and will fail with 401 Unauthorized error if it is invalid.
 # For example, vscode ripgrep downloading is an example of such case.
 RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
-    yarn ${YARN_FLAGS}
+    yarn ${YARN_FLAGS} && yarn build
 
 # Run into production mode
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-before-production.dockerfile}

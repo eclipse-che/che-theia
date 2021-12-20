@@ -1,0 +1,22 @@
+{
+  "extends": "../../configs/base.tsconfig",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "lib"
+  },
+  "include": [
+    "src"
+  ],
+  "references": [
+    {
+      "path": "../packages/@che-folder1"
+    },
+    {
+      "path": "../packages/@che-folder2"
+    },
+    {
+      "path": "../packages/@che-source-code2"
+    }
+  ]
+}

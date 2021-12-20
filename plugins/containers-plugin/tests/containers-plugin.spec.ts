@@ -59,6 +59,7 @@ describe('Test containers plugin', () => {
     globalState: {
       get: jest.fn(),
       update: jest.fn(),
+      setKeysForSync: jest.fn(),
     },
     globalStoragePath: '',
     logPath: '',
@@ -69,6 +70,7 @@ describe('Test containers plugin', () => {
       update: jest.fn(),
     },
     asAbsolutePath: jest.fn(),
+    extensionMode: 3,
   };
   /* eslint-disable @typescript-eslint/no-explicit-any */
   const treeView: theia.TreeView<any> = {

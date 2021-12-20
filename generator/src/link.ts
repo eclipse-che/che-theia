@@ -53,12 +53,16 @@ export async function handleCommand(args: any): Promise<void> {
     }
 }
 
-export async function link(cheTheiaProjectPath: string, theiaProjectPath: string, yarnLinkFolder: string) {
+export async function link(
+    cheTheiaProjectPath: string,
+    theiaProjectPath: string,
+    yarnLinkFolder: string
+): Promise<void> {
     await linkTheia(yarnLinkFolder, theiaProjectPath);
     await linkChe(yarnLinkFolder, cheTheiaProjectPath);
 }
 
-async function linkTheia(yarnLinkFolder: string, theiaProjectPath: string) {
+async function linkTheia(yarnLinkFolder: string, theiaProjectPath: string): Promise<void> {
     for (const rootName of ['packages', 'dev-packages', 'examples']) {
         const rootPath = path.resolve(theiaProjectPath, rootName);
         const folderNames = await fs.readdir(rootPath);
@@ -68,7 +72,7 @@ async function linkTheia(yarnLinkFolder: string, theiaProjectPath: string) {
     }
 }
 
-async function linkChe(yarnLinkFolder: string, cheTheiaProjectPath: string) {
+async function linkChe(yarnLinkFolder: string, cheTheiaProjectPath: string): Promise<void> {
     const packages = await fs.readdir(path.resolve(yarnLinkFolder, '@theia'));
     const cmd = new Command(cheTheiaProjectPath);
     for (const pkg of packages) {

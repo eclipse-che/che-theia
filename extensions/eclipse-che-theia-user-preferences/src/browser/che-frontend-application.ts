@@ -30,14 +30,14 @@ export class CheFrontendApplication implements FrontendApplicationContribution {
     return Promise.resolve();
   }
 
-  protected registerEventListeners(app: FrontendApplication) {
+  protected registerEventListeners(app: FrontendApplication): void {
     window.addEventListener('resize', () => this.scheduleLayoutPersistence(app));
     document.addEventListener('keydown', () => this.scheduleLayoutPersistence(app));
     document.addEventListener('mousedown', () => this.scheduleLayoutPersistence(app));
     document.addEventListener('mousemove', () => this.scheduleLayoutPersistence(app));
   }
 
-  protected scheduleLayoutPersistence(app: FrontendApplication) {
+  protected scheduleLayoutPersistence(app: FrontendApplication): void {
     this.clearTimeout(this.layoutPersistenceTimer);
 
     this.layoutPersistenceTimer = this.setTimeout(() => {

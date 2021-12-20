@@ -71,7 +71,7 @@ describe('Test Init', () => {
         const packageJson = JSON.parse(contentPackageJson.toString());
         expect(packageJson.name).toBe('@eclipse-che/theia-assembly');
         expect(packageJson['dependencies']['@theia/core']).toBe('^' + (await init.getCurrentVersion()));
-        expect(packageJson['scripts']['build']).toBe(
+        expect(packageJson['scripts']['bundle']).toBe(
             'theia build --mode production --config cdn/webpack.config.js --env cdn=./cdn.json' +
                 ' --env monacopkg=' +
                 Init.MONACO_CORE_PKG +
@@ -79,6 +79,7 @@ describe('Test Init', () => {
                 coreVersion +
                 ' && yarn run override-vs-loader'
         );
+        expect(packageJson['scripts']['build']).toBe('yarn compile && yarn bundle');
         // check folders have been created
         expect(fs.existsSync(examplesAssemblyFolderTmp)).toBeTruthy();
         expect(fs.existsSync(checkoutFolderTmp)).toBeTruthy();

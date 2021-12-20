@@ -105,7 +105,7 @@ export class Yarn {
      * @returns
      * @memberof Yarn
      */
-    protected isExcluded(pkg: string) {
+    protected isExcluded(pkg: string): boolean {
         const exist = this.excludedPackages.indexOf(pkg) !== -1;
         if (exist) {
             Logger.debug(` --> Excluding the dependency ${pkg}`);
@@ -229,7 +229,7 @@ export async function getFullPackageName(rootFolder: string, name: string): Prom
 /**
  * Returns the version of an installed package or the emtpy string if not installed
  */
-export async function getPackageVersion(rootFolder: string, name: string) {
+export async function getPackageVersion(rootFolder: string, name: string): Promise<string> {
     const nameWithVersion = getFullPackageName(rootFolder, name);
     return (await nameWithVersion).split('@').pop() || '';
 }

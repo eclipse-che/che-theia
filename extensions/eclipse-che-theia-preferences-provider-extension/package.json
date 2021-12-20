@@ -10,20 +10,27 @@
     "src"
   ],
   "dependencies": {
+    "inversify": "^5.0.1",
+    "@theia/application-package": "next",
+    "@eclipse-che/theia-remote-api": "^0.0.1",
     "@eclipse-che/api": "latest",
     "@eclipse-che/theia-plugin-ext": "^0.0.1",
     "@theia/core": "next",
     "@theia/preferences": "next",
     "@theia/workspace": "next"
   },
+  "devDependencies": {
+    "ts-jest": "27.0.7",
+    "jest": "27.3.1"
+  },
   "scripts": {
     "prepare": "yarn clean && yarn build && yarn test",
-    "clean": "rimraf lib",
+    "clean": "rimraf lib *.tsbuildinfo",
     "format": "if-env SKIP_FORMAT=true && echo 'skip format check' || prettier --check '{src,tests}/**/*.ts' package.json",
     "format:fix": "prettier --write '{src,tests}/**/*.ts' package.json",
     "lint": "if-env SKIP_LINT=true && echo 'skip lint check' || eslint --cache=true --no-error-on-unmatched-pattern=true '{src,tests}/**/*.ts'",
     "lint:fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,tests}/**/*.{ts,tsx}\"",
-    "compile": "tsc",
+    "compile": "tsc -b",
     "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue,purple\" \"yarn format\" \"yarn lint\" \"yarn compile\"",
     "test": "if-env SKIP_TEST=true && echo 'skip test' || jest --forceExit"
   },
@@ -33,6 +40,7 @@
     }
   ],
   "jest": {
+    "testEnvironment": "jsdom",
     "clearMocks": true,
     "collectCoverage": true,
     "collectCoverageFrom": [

@@ -50,7 +50,7 @@ function watchMockImpl(
   path: string,
   options: {} | undefined,
   listener: (event: string, filename: string) => Promise<void>
-) {
+): void {
   watchListeners.push({
     path,
     listener,
@@ -125,6 +125,7 @@ const context: theia.PluginContext = {
   globalState: {
     get: jest.fn(),
     update: jest.fn(),
+    setKeysForSync: jest.fn(),
   },
   globalStoragePath: '',
   logPath: '',
@@ -135,6 +136,7 @@ const context: theia.PluginContext = {
     update: jest.fn(),
   },
   asAbsolutePath: jest.fn(),
+  extensionMode: 3,
 };
 
 const appendLineMock = jest.fn();

@@ -35,12 +35,12 @@ export class Init {
         return (await readPkg(path.join(this.rootFolder, 'packages/core/package.json'))).version;
     }
 
-    async generate() {
+    async generate(): Promise<void> {
         await generateAssembly(this.examplesAssemblyFolder, {
             theiaVersion: '^' + (await this.getCurrentVersion()),
             monacoVersion: await this.getPackageWithVersion(Init.MONACO_CORE_PKG),
-            configDirPrefix: '../../packages/@che-',
-            packageRefPrefix: '../../config/',
+            configDirPrefix: '../../configs/',
+            packageRefPrefix: '../../packages/@che-',
         });
         // Generate checkout folder is does not exist
         await fs.ensureDir(this.checkoutFolder);
@@ -55,8 +55,13 @@ export class Init {
         const theiaPackage = await readPkg(theiaPackagePath);
         const scriptsConfiguration = theiaPackage.scripts;
 
-        if (scriptsConfiguration && scriptsConfiguration['prepare:build']) {
-            scriptsConfiguration['prepare:build'] = 'yarn build && run lint && lerna run build';
+        if (scriptsConfiguration && scriptsConfiguration['build:examples']) {
+            scriptsConfiguration['build:examples'] =
+                'yarn download:plugins && lerna run --scope="@eclipse-che/theia-assembly" build --parallel';
+        }
+
+        if (scriptsConfiguration && scriptsConfiguration['prepare']) {
+            scriptsConfiguration['prepare'] = 'lerna run prepare && yarn compile';
         }
 
         const theiaDevDependencies = theiaPackage.devDependencies || {};

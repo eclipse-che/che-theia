@@ -35,7 +35,7 @@ export const builder: CommandBuilder = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function handleCommand(args: any) {
+export async function handleCommand(args: any): Promise<void> {
     const cheTheiaDir = args['che-theia '] || process.cwd();
     const theiaVersion = args['theia-version']!;
     const monacoVersion = await getFullPackageName(cheTheiaDir, Init.MONACO_CORE_PKG);
@@ -86,26 +86,44 @@ export async function generateAssembly(examplesAssemblyFolder: string, config: A
     const srcDir = path.resolve(__dirname, '../src');
     const distDir = path.resolve(__dirname, '../dist');
     const templateDir = path.join(srcDir, 'templates');
-    const compileTsConfig = path.join(templateDir, 'assembly-compile.tsconfig.mst.json');
 
     // generate assembly if does not exists
     await fs.ensureDir(examplesAssemblyFolder);
 
-    const template = path.join(templateDir, 'assembly-package.mst.json');
-    const target = path.join(examplesAssemblyFolder, 'package.json');
-
-    await renderTemplate(template, target, config);
-    await renderTemplate(compileTsConfig, path.join(examplesAssemblyFolder, 'compile.tsconfig.mst.json'), config);
+    await preparePackageJsonFile(templateDir, examplesAssemblyFolder, config);
+    await prepareTsConfigFile(templateDir, examplesAssemblyFolder, config);
 
     Logger.info(`copying ${path.join(templateDir, 'cdn')} to ${path.join(examplesAssemblyFolder, 'cdn')}`);
     await fs.copy(path.join(templateDir, 'cdn'), path.join(examplesAssemblyFolder, 'cdn'));
     Logger.info('distdir=' + distDir);
+
     await fs.copy(path.join(distDir, 'cdn'), path.join(examplesAssemblyFolder, 'cdn'));
     await fs.copy(path.join(srcDir, 'scripts'), path.join(examplesAssemblyFolder, 'scripts'));
 }
 
-async function renderTemplate(template: string, target: string, config: Object): Promise<void> {
-    const content = await fs.readFile(template);
+async function preparePackageJsonFile(
+    templateDir: string,
+    examplesAssemblyFolder: string,
+    config: Object
+): Promise<void> {
+    const packageTemplatePath = path.join(templateDir, 'assembly-package.mst.json');
+    const content = await fs.readFile(packageTemplatePath);
+
     const rendered = mustache.render(content.toString(), config).replace(/&#x2F;/g, '/');
-    await fs.writeFile(target, rendered);
+
+    await fs.writeFile(path.join(examplesAssemblyFolder, 'package.json'), rendered);
+}
+
+async function prepareTsConfigFile(templateDir: string, examplesAssemblyFolder: string, config: Object): Promise<void> {
+    const tsConfigTemplatePath = path.join(templateDir, 'assembly-compile.tsconfig.mst.json');
+    const assemblyTemplateRawData = await fs.readFile(tsConfigTemplatePath);
+    const assemblyRenderedData = mustache.render(assemblyTemplateRawData.toString(), config).replace(/&#x2F;/g, '/');
+    const assemblyTemplateParsedData = JSON.parse(assemblyRenderedData);
+
+    const assemblyReferences = assemblyTemplateParsedData['references'] as Array<{ path: string }>;
+    assemblyTemplateParsedData['references'] = assemblyReferences;
+
+    // write it back
+    const newContent = JSON.stringify(assemblyTemplateParsedData, undefined, 2);
+    await fs.writeFile(path.join(examplesAssemblyFolder, 'tsconfig.json'), newContent);
 }
