@@ -75,8 +75,8 @@ export class ChePluginCommandContribution implements CommandContribution {
 
     const registry: ChePluginRegistry = {
       name,
-      uri,
-      publicUri: uri,
+      internalURI: uri,
+      publicURI: uri,
     };
 
     this.chePluginManager.addRegistry(registry);
