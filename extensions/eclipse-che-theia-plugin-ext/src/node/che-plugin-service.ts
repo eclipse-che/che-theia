@@ -105,8 +105,8 @@ export class ChePluginServiceImpl implements ChePluginService {
         if (publicUri) {
           this.defaultRegistry = {
             name: 'Eclipse Che plugins',
-            uri: this.normalizeEnding(uri),
-            publicUri: this.normalizeEnding(publicUri),
+            internalURI: this.normalizeEnding(uri),
+            publicURI: this.normalizeEnding(publicUri),
           };
 
           return this.defaultRegistry;
@@ -177,14 +177,14 @@ export class ChePluginServiceImpl implements ChePluginService {
         //      {publisher}/{pluginName}/{version}
         // or long, including the path to plugin meta.yaml
         //      {http/https}://{host}/{path}/{publisher}/{pluginName}/{version}
-        const longKeyFormat = registry.uri !== this.defaultRegistry.uri;
+        const longKeyFormat = registry.internalURI !== this.defaultRegistry.internalURI;
 
         for (let pIndex = 0; pIndex < registryPlugins.length; pIndex++) {
           const metadataInternal: ChePluginMetadataInternal = registryPlugins[pIndex];
           const pluginYamlURI = this.getPluginYamlURI(registry, metadataInternal);
 
           try {
-            const pluginMetadata = await this.loadPluginMetadata(pluginYamlURI, longKeyFormat, registry.publicUri);
+            const pluginMetadata = await this.loadPluginMetadata(pluginYamlURI, longKeyFormat, registry.publicURI);
             this.cachedPlugins.push(pluginMetadata);
             await this.client.notifyPluginCached(this.cachedPlugins.length);
           } catch (error) {
@@ -227,7 +227,7 @@ export class ChePluginServiceImpl implements ChePluginService {
    * @return list of available plugins
    */
   private async loadPluginList(registry: ChePluginRegistry): Promise<ChePluginMetadataInternal[]> {
-    const registryURI = registry.uri + '/plugins/';
+    const registryURI = registry.internalURI + '/plugins/';
     const registryContent = (await this.httpService.get(registryURI)) || '{}';
     return JSON.parse(registryContent) as ChePluginMetadataInternal[];
   }
@@ -243,16 +243,16 @@ export class ChePluginServiceImpl implements ChePluginService {
     if (plugin.links && plugin.links.self) {
       const self: string = plugin.links.self;
       if (self.startsWith('/')) {
-        if (registry.uri === this.defaultRegistry.uri) {
+        if (registry.internalURI === this.defaultRegistry.internalURI) {
           // To work in both single host and multi host modes.
           // In single host mode plugin registry url path is `plugin-registry/v3/plugins`,
           // for multi host mode the path is `v3/plugins`. So, in both cases plugin registry url
           // ends with `v3/plugins`, but ${plugin.links.self} starts with `/v3/plugins/${plugin.id}.
           // See https://github.com/eclipse/che-plugin-registry/blob/master/build/scripts/index.sh#L27
           // So the correct plugin url for both cases will be plugin registry url + plugin id.
-          return `${registry.uri}/plugins/${plugin.id}/`;
+          return `${registry.internalURI}/plugins/${plugin.id}/`;
         }
-        const uri = new URI(registry.uri);
+        const uri = new URI(registry.internalURI);
         return `${uri.scheme}://${uri.authority}${self}`;
       } else {
         const base = this.getBaseDirectory(registry);
@@ -265,7 +265,7 @@ export class ChePluginServiceImpl implements ChePluginService {
   }
 
   private getBaseDirectory(registry: ChePluginRegistry): string {
-    let uri = registry.uri;
+    let uri = registry.internalURI;
 
     if (uri.endsWith('.json')) {
       uri = uri.substring(0, uri.lastIndexOf('/') + 1);
