@@ -4,7 +4,7 @@
     "theia-extension",
     "terminal"
   ],
-  "version": "0.0.1",
+  "version": "7.41.0",
   "publishConfig": {
     "access": "public"
   },
@@ -20,15 +20,15 @@
   ],
   "dependencies": {
     "inversify": "^5.0.1",
-    "@theia/output": "next",
-    "@theia/core": "next",
+    "@theia/output": "1.22.0-next.1",
+    "@theia/core": "1.22.0-next.1",
     "vscode-jsonrpc": "^5.0.0",
-    "@theia/terminal": "next",
+    "@theia/terminal": "1.22.0-next.1",
     "xterm": "^4.11.0",
     "@phosphor/widgets": "1",
     "reconnecting-websocket": "^4.2.0",
-    "@eclipse-che/api": "latest",
-    "@eclipse-che/theia-remote-api": "^0.0.1",
+    "@eclipse-che/api": "7.41.0",
+    "@eclipse-che/theia-remote-api": "7.41.0",
     "vscode-ws-jsonrpc": "0.2.0"
   },
   "devDependencies": {
