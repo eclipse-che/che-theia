@@ -110,7 +110,7 @@ export class SSHPluginImpl implements SSHPlugin {
       { label: this.cmdCreateKey.label },
       { label: this.cmdDeleteKey.label },
     ];
-    // todo remove the condition when github oAuth is available for devworkspcae engine
+    // todo remove the condition when github oAuth is available for DevWorkspace engine
     if (!process.env.DEVWORKSPACE_ID) {
       items.push({ label: this.cmdUploadPrivateKey.label });
       if (gitHubActions) {
