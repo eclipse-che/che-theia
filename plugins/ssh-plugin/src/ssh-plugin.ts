@@ -89,7 +89,7 @@ export class SSHPluginImpl implements SSHPlugin {
     theia.commands.registerCommand(this.cmdViewPublicKey, () => {
       this.cmdViewPublicKey.run();
     });
-    // todo remove the condition when github oAuth is available for devworkspcae engine
+    // todo remove the condition when github oAuth is available for DevWorkspace engine
     if (!process.env.DEVWORKSPACE_ID) {
       theia.commands.registerCommand(this.cmdUploadPrivateKey, () => {
         this.cmdUploadPrivateKey.run();
