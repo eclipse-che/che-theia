@@ -140,7 +140,7 @@ export class SSHPluginImpl implements SSHPlugin {
       } else if (!process.env.DEVWORKSPACE_ID && command.label === this.cmdUploadPrivateKey.label) {
         await this.cmdUploadPrivateKey.run({ gitCloneFlow: true });
         return true;
-        // todo remove the DEVWORKSPACE_ID condition when github oAuth is available for devworkspcae engine
+        // todo remove the DEVWORKSPACE_ID condition when github oAuth is available for DevWorkspace engine
       } else if (!process.env.DEVWORKSPACE_ID && command.label === this.cmdAddKeyToGitHub.label) {
         await this.cmdAddKeyToGitHub.run({ gitCloneFlow: true });
         return true;
