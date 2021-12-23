@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import * as fs from 'fs-extra';
+import * as che from '@eclipse-che/plugin';
 import * as k8s from '@kubernetes/client-node';
 import * as theia from '@theia/plugin';
 
@@ -34,7 +34,7 @@ export class SshSecretHelper {
     try {
       const request = await this.getK8sCoreApi().readNamespacedSecret(
         CREDENTIALS_SECRET_NAME,
-        this.getWorkspaceNamespace()
+        await che.workspace.getCurrentNamespace()
       );
       data = request.body.data;
     } catch (e) {
@@ -54,7 +54,7 @@ export class SshSecretHelper {
     try {
       const request = await this.getK8sCoreApi().readNamespacedSecret(
         CREDENTIALS_SECRET_NAME,
-        this.getWorkspaceNamespace()
+        await che.workspace.getCurrentNamespace()
       );
       data = request.body.data;
     } catch (e) {
@@ -83,10 +83,10 @@ export class SshSecretHelper {
       'Content-Type': k8s.PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH,
     };
     try {
-      await client.patchNamespacedSecret(CREDENTIALS_SECRET_NAME, this.getWorkspaceNamespace(), {
+      await client.patchNamespacedSecret(CREDENTIALS_SECRET_NAME, await che.workspace.getCurrentNamespace(), {
         data: { [ssh.name]: Buffer.from(ssh.privateKey).toString('base64') },
       });
-      await client.patchNamespacedSecret(CREDENTIALS_SECRET_NAME, this.getWorkspaceNamespace(), {
+      await client.patchNamespacedSecret(CREDENTIALS_SECRET_NAME, await che.workspace.getCurrentNamespace(), {
         data: { [ssh.name + '.pub']: Buffer.from(ssh.publicKey).toString('base64') },
       });
     } catch (e) {
@@ -110,15 +110,19 @@ export class SshSecretHelper {
       ];
       const client = this.getK8sCoreApi();
       client.defaultHeaders = { Accept: 'application/json', 'Content-Type': k8s.PatchUtils.PATCH_FORMAT_JSON_PATCH };
-      await client.patchNamespacedSecret(CREDENTIALS_SECRET_NAME, this.getWorkspaceNamespace(), patchPrivate);
-      await client.patchNamespacedSecret(CREDENTIALS_SECRET_NAME, this.getWorkspaceNamespace(), patchPublic);
+      await client.patchNamespacedSecret(
+        CREDENTIALS_SECRET_NAME,
+        await che.workspace.getCurrentNamespace(),
+        patchPrivate
+      );
+      await client.patchNamespacedSecret(
+        CREDENTIALS_SECRET_NAME,
+        await che.workspace.getCurrentNamespace(),
+        patchPublic
+      );
     } catch (e) {
       theia.window.showErrorMessage('Failed to delete the SSH secret' + e);
     }
-  }
-
-  private getWorkspaceNamespace(): string {
-    return fs.readFileSync('/run/secrets/kubernetes.io/serviceaccount/namespace', 'utf-8');
   }
 }
 
