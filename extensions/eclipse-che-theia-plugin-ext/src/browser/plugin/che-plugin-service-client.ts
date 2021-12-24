@@ -75,7 +75,7 @@ export class ChePluginServiceClientImpl implements ChePluginServiceClient {
 
   async invalidRegistryFound(registry: ChePluginRegistry): Promise<void> {
     this.onInvalidRegistryFoundEmitter.fire(registry);
-    console.log('Unable to read plugin registry', registry.uri);
+    console.log('Unable to read plugin registry', registry.internalURI);
   }
 
   async invalidPluginFound(pluginYaml: string): Promise<void> {
