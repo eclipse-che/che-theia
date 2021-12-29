@@ -3,13 +3,13 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "7.41.0",
+  "version": "7.41.1",
   "description": "Eclipse Che - Theia credentials",
   "dependencies": {
     "inversify": "^5.0.1",
     "@theia/core": "1.22.0-next.1",
     "@kubernetes/client-node": "^0.12.1",
-    "@eclipse-che/theia-remote-impl-che-server": "7.41.0"
+    "@eclipse-che/theia-remote-impl-che-server": "7.41.1"
   },
   "devDependencies": {
     "ts-jest": "27.0.7",
