@@ -14,7 +14,7 @@ import { BTN_CONTINUE, MESSAGE_GET_KEYS_FAILED, MESSAGE_NO_SSH_KEYS } from '../m
 import { SshPair, SshSecretHelper } from '../util/ssh-secret-helper';
 import { findKey, getKeyFilePath, updateConfig } from '../util/util';
 import { inject, injectable } from 'inversify';
-import { pathExists, unlink } from 'fs-extra';
+import { pathExists, remove, unlink } from 'fs-extra';
 
 import { Command } from './command';
 
@@ -68,6 +68,8 @@ export class DeleteKey extends Command {
       const keyFile = getKeyFilePath(key.label);
       if (await pathExists(keyFile)) {
         await unlink(keyFile);
+        await remove(keyFile);
+        await remove(keyFile + '.pub');
         await updateConfig(key.label);
       }
 

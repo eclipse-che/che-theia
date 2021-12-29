@@ -8,10 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import * as fs from 'fs-extra';
+import * as os from 'os';
+import * as path from 'path';
 import * as theia from '@theia/plugin';
 
 import { SshPair, SshSecretHelper } from '../util/ssh-secret-helper';
-import { findKey, isEncrypted, output, registerKeyAskingPassword } from '../util/util';
+import { findKey, isEncrypted, output, registerKeyAskingPassword, updateConfig } from '../util/util';
 import { inject, injectable } from 'inversify';
 
 import { MESSAGE_GET_KEYS_FAILED } from '../messages';
@@ -42,6 +45,22 @@ export class KeyRegistry {
     } catch (e) {
       theia.window.showErrorMessage(MESSAGE_GET_KEYS_FAILED);
       return;
+    }
+
+    // Restore keys
+    const sshDir = path.resolve(os.homedir(), '.ssh');
+    if (!fs.existsSync(sshDir)) {
+      fs.mkdirSync(sshDir, { recursive: true });
+    }
+    for (const key of keys) {
+      const keyPath: string = path.resolve(sshDir, key.name);
+      if (!fs.existsSync(keyPath)) {
+        await fs.appendFile(keyPath, key.privateKey);
+        await fs.appendFile(keyPath + '.pub', key.publicKey);
+        await updateConfig(key.name);
+        // change permissions
+        await fs.chmod(keyPath, '600');
+      }
     }
 
     const encryptedKeys = await this.getEncryptedKeys(keys);

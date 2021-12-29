@@ -36,7 +36,7 @@ export class GenerateKey extends Command {
     const keyName = `default-${Date.now()}`;
     const sshPath = path.resolve(os.homedir(), '.ssh', keyName);
     const generate = new Promise<void>((resolve, reject) => {
-      const command = spawn('ssh-keygen', ['-t', 'ed25519', '-f', sshPath, '-N', '""']);
+      const command = spawn('ssh-keygen', ['-b', '4096', '-f', sshPath, '-N', '']);
       command.stderr.on('data', async data => {
         reject(data);
       });
@@ -49,8 +49,8 @@ export class GenerateKey extends Command {
       await updateConfig(keyName);
       await this.sshSecretHelper.store({
         name: keyName,
-        privateKey: fs.readFileSync(sshPath, { encoding: 'base64' }),
-        publicKey: fs.readFileSync(sshPath + '.pub', { encoding: 'base64' }),
+        privateKey: fs.readFileSync(sshPath).toString(),
+        publicKey: fs.readFileSync(sshPath + '.pub').toString(),
       });
       const VIEW = 'View';
       const viewActions: string[] = context && context.gitCloneFlow ? [VIEW, BTN_CONTINUE] : [VIEW];
