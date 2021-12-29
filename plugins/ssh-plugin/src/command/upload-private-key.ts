@@ -8,21 +8,24 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import * as che from '@eclipse-che/plugin';
 import * as os from 'os';
 import * as theia from '@theia/plugin';
 
 import { BTN_CONTINUE, MESSAGE_ENTER_KEY_NAME_OR_LEAVE_EMPTY } from '../messages';
 import { access, mkdtemp, readFile, remove, unlink } from 'fs-extra';
 import { askHostName, registerKeyAskingPassword, updateConfig, writeKey } from '../util/util';
+import { inject, injectable } from 'inversify';
 
 import { Command } from './command';
 import { R_OK } from 'constants';
-import { injectable } from 'inversify';
+import { SshSecretHelper } from '../util/ssh-secret-helper';
 import { join } from 'path';
 
 @injectable()
 export class UploadPrivateKey extends Command {
+  @inject(SshSecretHelper)
+  private sshSecretHelper: SshSecretHelper;
+
   constructor() {
     super('ssh:upload', 'SSH: Upload Private Key...');
   }
@@ -54,7 +57,7 @@ export class UploadPrivateKey extends Command {
     let keyFile: string | undefined;
     try {
       const keyContent = (await readFile(privateKeyPath.path)).toString();
-      await che.ssh.create({ name: hostName, service: 'vcs', privateKey: keyContent });
+      await this.sshSecretHelper.store({ name: hostName, publicKey: 'empty public key', privateKey: keyContent });
 
       keyFile = await writeKey(hostName, keyContent);
 

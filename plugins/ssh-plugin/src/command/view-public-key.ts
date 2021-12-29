@@ -44,7 +44,7 @@ export class ViewPublicKey extends Command {
     try {
       keys = await this.sshSecretHelper.getAll();
     } catch (e) {
-      await theia.window.showErrorMessage(MESSAGE_GET_KEYS_FAILED, e, ...actions);
+      await theia.window.showErrorMessage(MESSAGE_GET_KEYS_FAILED, ...actions);
       return;
     }
 

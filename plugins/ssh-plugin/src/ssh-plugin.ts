@@ -89,11 +89,11 @@ export class SSHPluginImpl implements SSHPlugin {
     theia.commands.registerCommand(this.cmdViewPublicKey, () => {
       this.cmdViewPublicKey.run();
     });
+    theia.commands.registerCommand(this.cmdUploadPrivateKey, () => {
+      this.cmdUploadPrivateKey.run();
+    });
     // todo remove the condition when github oAuth is available for DevWorkspace engine
     if (!process.env.DEVWORKSPACE_ID) {
-      theia.commands.registerCommand(this.cmdUploadPrivateKey, () => {
-        this.cmdUploadPrivateKey.run();
-      });
       theia.commands.registerCommand(this.cmdAddKeyToGitHub, () => {
         this.cmdAddKeyToGitHub.run();
       });
@@ -109,13 +109,11 @@ export class SSHPluginImpl implements SSHPlugin {
       { label: this.cmdViewPublicKey.label },
       { label: this.cmdCreateKey.label },
       { label: this.cmdDeleteKey.label },
+      { label: this.cmdUploadPrivateKey.label },
     ];
     // todo remove the condition when github oAuth is available for DevWorkspace engine
-    if (!process.env.DEVWORKSPACE_ID) {
-      items.push({ label: this.cmdUploadPrivateKey.label });
-      if (gitHubActions) {
-        items.push({ label: this.cmdAddKeyToGitHub.label });
-      }
+    if (!process.env.DEVWORKSPACE_ID && gitHubActions) {
+      items.push({ label: this.cmdAddKeyToGitHub.label });
     }
 
     const command = await theia.window.showQuickPick<theia.QuickPickItem>(items, {});
@@ -136,8 +134,7 @@ export class SSHPluginImpl implements SSHPlugin {
       } else if (command.label === this.cmdDeleteKey.label) {
         await this.cmdDeleteKey.run({ gitCloneFlow: true });
         return true;
-        // todo remove the DEVWORKSPACE_ID condition when github oAuth is available for DevWorkspace engine
-      } else if (!process.env.DEVWORKSPACE_ID && command.label === this.cmdUploadPrivateKey.label) {
+      } else if (command.label === this.cmdUploadPrivateKey.label) {
         await this.cmdUploadPrivateKey.run({ gitCloneFlow: true });
         return true;
         // todo remove the DEVWORKSPACE_ID condition when github oAuth is available for DevWorkspace engine
@@ -151,7 +148,12 @@ export class SSHPluginImpl implements SSHPlugin {
   }
 
   async addKeyToGitHub(): Promise<boolean> {
-    return true;
+    // todo remove the DEVWORKSPACE_ID condition when github oAuth is available for DevWorkspace engine
+    if (!process.env.DEVWORKSPACE_ID) {
+      return this.cmdAddKeyToGitHub.run({ gitCloneFlow: true });
+    } else {
+      return true;
+    }
   }
 
   async sshAgentConfig(): Promise<SSHAgentConfig> {
