@@ -6,7 +6,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "7.41.1",
+  "version": "7.41.2",
   "files": [
     "lib",
     "src"
@@ -22,7 +22,7 @@
     "@eclipse-che/workspace-telemetry-client": "0.0.1-1635937496",
     "@eclipse-che/api": "7.41.0",
     "@kubernetes/client-node": "^0.12.1",
-    "@eclipse-che/theia-remote-api": "7.41.1",
+    "@eclipse-che/theia-remote-api": "7.41.2",
     "@eclipse-che/workspace-client": "0.0.1-1632305737"
   },
   "devDependencies": {

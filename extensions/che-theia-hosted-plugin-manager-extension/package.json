@@ -3,7 +3,7 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "7.41.1",
+  "version": "7.41.2",
   "files": [
     "lib",
     "node"
@@ -13,7 +13,7 @@
     "@theia/core": "1.22.0-next.1",
     "@theia/plugin-dev": "1.22.0-next.1",
     "@theia/plugin-ext": "1.22.0-next.1",
-    "@eclipse-che/theia-remote-api": "7.41.1"
+    "@eclipse-che/theia-remote-api": "7.41.2"
   },
   "devDependencies": {
     "ts-jest": "27.0.7",
