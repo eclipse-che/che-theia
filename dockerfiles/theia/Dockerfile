@@ -168,6 +168,7 @@ COPY --from=build-result /che-theia-build/plugins /default-theia-plugins
     && find ${HOME} -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \;
 
 COPY --chown=theia:root --from=build-result /che-theia-build /home/theia
+RUN rm -rf /home/theia/plugins
 USER theia
 WORKDIR /projects
 COPY src/entrypoint.sh /entrypoint.sh
