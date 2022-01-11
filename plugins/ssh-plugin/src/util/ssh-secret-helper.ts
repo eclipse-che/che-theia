@@ -9,7 +9,9 @@
  ***********************************************************************/
 
 import * as che from '@eclipse-che/plugin';
+// import * as fs from 'fs-extra';
 import * as k8s from '@kubernetes/client-node';
+import * as path from 'path';
 import * as theia from '@theia/plugin';
 
 import { Buffer } from 'buffer';
@@ -92,6 +94,7 @@ export class SshSecretHelper {
     } catch (e) {
       theia.window.showErrorMessage('Failed to store the SSH key pair' + e);
     }
+    await this.updateSystemConfigFile(ssh.name);
   }
 
   async delete(name: string): Promise<void> {
@@ -122,6 +125,41 @@ export class SshSecretHelper {
       );
     } catch (e) {
       theia.window.showErrorMessage('Failed to delete the SSH secret' + e);
+    }
+    await this.updateSystemConfigFile(name);
+  }
+
+  private async updateSystemConfigFile(hostName: string): Promise<void> {
+    const client = this.getK8sCoreApi();
+    const namespace = await che.workspace.getCurrentNamespace();
+    let data;
+    try {
+      const request = await client.readNamespacedSecret(CREDENTIALS_SECRET_NAME, namespace);
+      data = request.body.data;
+    } catch (e) {
+      console.error('Failed to read the the SSH secret' + e);
+    }
+    const configContent = data && data.ssh_config ? Buffer.from(data.ssh_config, 'base64').toString() : '';
+    const configHost = hostName.startsWith('default-') ? '*' : hostName;
+    const configIdentityFile = path.resolve('/etc/ssh', hostName);
+    const keyConfig = `\nHost ${configHost}\nIdentityFile ${configIdentityFile}\nStrictHostKeyChecking = no\n`;
+    client.defaultHeaders = {
+      Accept: 'application/json',
+      'Content-Type': k8s.PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH,
+    };
+    try {
+      if (configContent.indexOf(keyConfig) >= 0) {
+        const newConfigContent = configContent.replace(keyConfig, '');
+        await client.patchNamespacedSecret(CREDENTIALS_SECRET_NAME, namespace, {
+          data: { ssh_config: Buffer.from(newConfigContent).toString('base64') },
+        });
+      } else {
+        await client.patchNamespacedSecret(CREDENTIALS_SECRET_NAME, namespace, {
+          data: { ssh_config: Buffer.from(configContent + keyConfig).toString('base64') },
+        });
+      }
+    } catch (e) {
+      console.error('Failed to store the the SSH system-wide config file' + e);
     }
   }
 }

@@ -47,6 +47,7 @@ export class KeyRegistry {
       return;
     }
 
+    // todo remove when https://github.com/devfile/devworkspace-operator/issues/732 is done
     // Restore keys
     const sshDir = path.resolve(os.homedir(), '.ssh');
     if (!fs.existsSync(sshDir)) {
