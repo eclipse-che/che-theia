@@ -159,7 +159,7 @@ export class SshSecretHelper {
         });
       }
     } catch (e) {
-      console.error('Failed to store the the SSH system-wide config file' + e);
+      console.error('Failed to store the SSH system-wide config file' + e);
     }
   }
 }
