@@ -3,13 +3,13 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "0.0.1",
+  "version": "7.42.0",
   "description": "Eclipse Che - Theia About menu",
   "dependencies": {
     "inversify": "^5.0.1",
-    "@theia/core": "next",
-    "@theia/mini-browser": "next",
-    "@eclipse-che/theia-plugin-ext": "^0.0.1"
+    "@theia/core": "1.22.0-next.15",
+    "@theia/mini-browser": "1.22.0-next.15",
+    "@eclipse-che/theia-plugin-ext": "7.42.0"
   },
   "devDependencies": {
     "ts-jest": "27.0.7",

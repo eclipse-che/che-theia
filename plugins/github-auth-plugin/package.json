@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/github-auth-plugin",
-  "version": "0.0.1",
+  "version": "7.42.0",
   "publisher": "Eclipse Che",
   "keywords": [
     "theia-plugin"
@@ -17,9 +17,9 @@
     "uuid": "^3.1.0"
   },
   "devDependencies": {
-    "@theia/plugin": "next",
+    "@theia/plugin": "1.22.0-next.15",
     "@theia/plugin-packager": "latest",
-    "@eclipse-che/plugin": "0.0.1",
+    "@eclipse-che/plugin": "7.42.0",
     "ts-jest": "27.0.7",
     "jest": "27.3.1"
   },
