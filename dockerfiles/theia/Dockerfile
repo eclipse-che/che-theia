@@ -104,6 +104,9 @@ RUN find /che-theia-build -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt 
     # Add missing permissions on shell scripts of plug-ins
     find /che-theia-build/plugins -name "*.sh" | xargs chmod +x
 
+# to copy the plug-ins folder into a runtime image more easily
+RUN mv /che-theia-build/plugins /default-theia-plugins
+
 ###
 # Runtime Image
 #
@@ -127,7 +130,7 @@ ENV USE_LOCAL_GIT=true \
 
 EXPOSE 3100 3130
 
-COPY --from=build-result /che-theia-build/plugins /default-theia-plugins
+COPY --from=build-result /default-theia-plugins /default-theia-plugins
 
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/runtime-install-dependencies.dockerfile}
 
