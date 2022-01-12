@@ -136,7 +136,7 @@ export class SshSecretHelper {
       const request = await client.readNamespacedSecret(CREDENTIALS_SECRET_NAME, namespace);
       data = request.body.data;
     } catch (e) {
-      console.error('Failed to read the the SSH secret' + e);
+      console.error('Failed to read the SSH secret' + e);
     }
     const configContent = data && data.ssh_config ? Buffer.from(data.ssh_config, 'base64').toString() : '';
     const configHost = hostName.startsWith('default-') ? '*' : hostName;
@@ -158,7 +158,7 @@ export class SshSecretHelper {
         });
       }
     } catch (e) {
-      console.error('Failed to store the the SSH system-wide config file' + e);
+      console.error('Failed to store the SSH system-wide config file' + e);
     }
   }
 }
