@@ -9,7 +9,6 @@
  ***********************************************************************/
 
 import * as che from '@eclipse-che/plugin';
-// import * as fs from 'fs-extra';
 import * as k8s from '@kubernetes/client-node';
 import * as path from 'path';
 import * as theia from '@theia/plugin';

@@ -35,7 +35,7 @@ export class CreateKey extends Command {
     const privateKey = (await theia.window.showInputBox({ placeHolder: 'Enter private key' })) || '';
 
     try {
-      this.sshSecretHelper.store({ name: keyName, privateKey, publicKey });
+      await this.sshSecretHelper.store({ name: keyName, privateKey, publicKey });
       await updateConfig(keyName);
       await writeKey(keyName, privateKey);
       await theia.window.showInformationMessage(`Key pair for ${keyName} successfully created`);
