@@ -23,7 +23,7 @@
     "eslint-plugin-sonarjs": "0.5.0",
     "if-env": "^1.0.4",
     "import-sort-style-eslint": "^6.0.0",
-    "lerna": "^2.11.0",
+    "lerna": "^4.0.0",
     "prettier": "^2.2.0",
     "prettier-plugin-import-sort": "^0.0.6",
     "rimraf": "3.0.2",
@@ -39,7 +39,6 @@
     "publish:next": "lerna run publish:next"
   },
   "resolutions": {
-    "lerna": "^2.11.0",
     "dot-prop": "^5.2.0",
     "elliptic": "^6.5.3",
     "serialize-javascript": "^3.1.0",
