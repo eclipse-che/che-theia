@@ -61,8 +61,10 @@ RUN rm -rf ${HOME}/theia-source-code/examples/browser && \
     rm -rf ${HOME}/theia-source-code/examples/api-samples && \
     rm -rf ${HOME}/theia-source-code/examples/api-tests && \
     rm -rf ${HOME}/theia-source-code/packages/git && \
+    # ovewrite upstream's lerna 4.0.0 as Che-Theia is not adapted to it
+    sed -r -e "s/\"lerna\": \"..*\"/\"lerna\": \"2.2.0\"/" ${HOME}/theia-source-code/package.json && \
     # Allow the usage of ELECTRON_SKIP_BINARY_DOWNLOAD=1 by using a more recent version of electron \
-    sed -i 's|  "resolutions": {|  "resolutions": {\n    "**/electron": "7.0.0",\n   "**/lerna": "2.2.0",\n    "**/keytar": "^7.7.0",\n    "**/vscode-ripgrep": "1.12.0",|' ${HOME}/theia-source-code/package.json && \
+    sed -i 's|  "resolutions": {|  "resolutions": {\n    "**/electron": "7.0.0",\n    "**/keytar": "^7.7.0",\n    "**/vscode-ripgrep": "1.12.0",|' ${HOME}/theia-source-code/package.json && \
     # remove all electron-browser module to not compile them
     find . -name "electron-browser"  | xargs rm -rf {} && \
     find . -name "*-electron-module.ts"  | xargs rm -rf {} && \
