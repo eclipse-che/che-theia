@@ -29,7 +29,7 @@ export async function start(context: theia.PluginContext): Promise<void> {
       } catch (e) {
         if (
           await theia.window.showWarningMessage(
-            'Github token is not setup. Try to create a factory with a private project and try again',
+            'Che could not authenticate to your Github account. The setup for Github OAuth provider is not complete.',
             'Setup instructions'
           )
         ) {
