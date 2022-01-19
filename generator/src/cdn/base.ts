@@ -45,11 +45,11 @@ export class CheCdnSupport {
     static instance: CheCdnSupport;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static register(context: any) {
+    static register(context: any): void {
         context[CheCdnSupport.className] = CheCdnSupport;
     }
 
-    static webpackLoader(source: string) {
+    static webpackLoader(source: string): string {
         if (source.match(/^module\.exports ?\= ?"data:/)) {
             return source;
         }
@@ -85,7 +85,8 @@ export class CheCdnSupport {
         if (!this.noCDN && withCDN) {
             const request = new XMLHttpRequest();
             // eslint-disable-next-line space-before-function-paren
-            request.onload = function () {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            request.onload = function (): any {
                 if ((this.status >= 200 && this.status < 300) || this.status === 304) {
                     result = withCDN;
                 }

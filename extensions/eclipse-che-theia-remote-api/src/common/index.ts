@@ -16,3 +16,4 @@ export * from './ssh-key-service';
 export * from './telemetry-service';
 export * from './user-service';
 export * from './workspace-service';
+export * from './dashboard-service';

@@ -14,6 +14,7 @@ import {
 } from '@eclipse-che/theia-remote-api/lib/common/certificate-service';
 import { CheK8SService, cheK8SServicePath } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
 import { ConnectionHandler, JsonRpcConnectionHandler } from '@theia/core';
+import { DashboardService, cheDashboardServicePath } from '@eclipse-che/theia-remote-api/lib/common/dashboard-service';
 import { DevfileService, cheDevfileServicePath } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 import { EndpointService, cheEndpointServicePath } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
 import { FactoryService, cheFactoryServicePath } from '@eclipse-che/theia-remote-api/lib/common/factory-service';
@@ -24,6 +25,7 @@ import { TelemetryService, cheTelemetryServicePath } from '@eclipse-che/theia-re
 import { UserService, cheUserServicePath } from '@eclipse-che/theia-remote-api/lib/common/user-service';
 import { WorkspaceService, cheWorkspaceServicePath } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
+import { CheDashboardServiceImpl } from './che-dashboard-service-impl';
 import { CheK8SServiceImpl } from './che-server-k8s-service-impl';
 import { CheServerCertificateServiceImpl } from './che-server-certificate-service-impl';
 import { CheServerDevfileServiceImpl } from './che-server-devfile-service-impl';
@@ -59,6 +61,7 @@ export default new ContainerModule(bind => {
   bind(CheServerEndpointServiceImpl).toSelf().inSingletonScope();
   bind(CheK8SServiceImpl).toSelf().inSingletonScope();
   bind(CheServerHttpServiceImpl).toSelf().inSingletonScope();
+  bind(CheDashboardServiceImpl).toSelf().inSingletonScope();
 
   bind(CertificateService).to(CheServerCertificateServiceImpl).inSingletonScope();
   bind(FactoryService).to(CheServerFactoryServiceImpl).inSingletonScope();
@@ -71,6 +74,7 @@ export default new ContainerModule(bind => {
   bind(DevfileService).to(CheServerDevfileServiceImpl).inSingletonScope();
   bind(EndpointService).to(CheServerEndpointServiceImpl).inSingletonScope();
   bind(HttpService).to(CheServerHttpServiceImpl).inSingletonScope();
+  bind(DashboardService).to(CheDashboardServiceImpl).inSingletonScope();
 
   bind(ConnectionHandler)
     .toDynamicValue(
@@ -122,5 +126,11 @@ export default new ContainerModule(bind => {
 
   bind(ConnectionHandler)
     .toDynamicValue(ctx => new JsonRpcConnectionHandler(cheHttpServicePath, () => ctx.container.get(HttpService)))
+    .inSingletonScope();
+
+  bind(ConnectionHandler)
+    .toDynamicValue(
+      ctx => new JsonRpcConnectionHandler(cheDashboardServicePath, () => ctx.container.get(DashboardService))
+    )
     .inSingletonScope();
 });

@@ -15,6 +15,7 @@ yarn-error.log
 asset-*
 .eslintcache
 plugins/vscode-*
+*.tsbuildinfo
 
 # MacOS
 .DS_Store

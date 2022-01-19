@@ -84,7 +84,7 @@ export class ChePluginManager {
   protected readonly devfileService: DevfileService;
 
   @postConstruct()
-  async onStart() {
+  async onStart(): Promise<void> {
     await this.initDefaults();
     const fireChanged = debounce(() => this.pluginRegistryListChangedEvent.fire(), 5000);
     this.preferenceService.onPreferenceChanged(async (event: PreferenceChange) => {
@@ -94,7 +94,7 @@ export class ChePluginManager {
       const oldPrefs = event.oldValue;
       if (oldPrefs) {
         for (const repoName of Object.keys(oldPrefs)) {
-          const registry = this.registryList.find(r => r.name === repoName && r.uri === oldPrefs[repoName]);
+          const registry = this.registryList.find(r => r.name === repoName && r.internalURI === oldPrefs[repoName]);
           if (registry) {
             this.registryList.splice(this.registryList.indexOf(registry), 1);
           }
@@ -103,7 +103,7 @@ export class ChePluginManager {
       const newPrefs = event.newValue;
       if (newPrefs) {
         for (const repoName of Object.keys(newPrefs)) {
-          this.registryList.push({ name: repoName, uri: newPrefs[repoName], publicUri: newPrefs[repoName] });
+          this.registryList.push({ name: repoName, internalURI: newPrefs[repoName], publicURI: newPrefs[repoName] });
         }
       }
       // notify that plugin registry list has been changed
@@ -111,7 +111,7 @@ export class ChePluginManager {
     });
     this.chePluginServiceClient.onInvalidRegistryFound(async registry => {
       const result = await this.messageService.warn(
-        `Invalid plugin registry URL: "${registry.uri}" is detected`,
+        `Invalid plugin registry URL: "${registry.internalURI}" is detected`,
         'Open settings.json'
       );
       if (result) {
@@ -154,12 +154,12 @@ export class ChePluginManager {
       Object.keys(prefs).forEach(repoName => {
         const uri = prefs[repoName];
 
-        const registry = this.registryList.find(r => r.uri === uri);
+        const registry = this.registryList.find(r => r.internalURI === uri);
         if (registry === undefined) {
           this.registryList.push({
             name: repoName,
-            uri: uri,
-            publicUri: uri,
+            internalURI: uri,
+            publicURI: uri,
           });
         }
       });
@@ -189,7 +189,7 @@ export class ChePluginManager {
     const prefs: { [index: string]: string } = {};
     this.registryList.forEach(r => {
       if (r.name !== 'Default') {
-        prefs[r.name] = r.uri;
+        prefs[r.name] = r.internalURI;
       }
     });
 
@@ -200,7 +200,7 @@ export class ChePluginManager {
   }
 
   removeRegistry(registry: ChePluginRegistry): void {
-    this.registryList = this.registryList.filter(r => r.uri !== registry.uri);
+    this.registryList = this.registryList.filter(r => r.internalURI !== registry.internalURI);
   }
 
   getRegistryList(): ChePluginRegistry[] {
@@ -236,7 +236,7 @@ export class ChePluginManager {
         .forEach(component => {
           const registryUrl = component.plugin?.registryUrl!;
           const name = component.plugin?.id!;
-          registries[name] = { name, uri: registryUrl, publicUri: registryUrl };
+          registries[name] = { name, internalURI: registryUrl, publicURI: registryUrl };
         });
     }
 
@@ -354,8 +354,8 @@ export class ChePluginManager {
     // we need to remove the registry URI from the start of the plugin
     const registries: string[] = [];
     this.registryList.forEach(registry => {
-      let uri = registry.uri;
-      if (uri === this.defaultRegistry.uri) {
+      let uri = registry.internalURI;
+      if (uri === this.defaultRegistry.internalURI) {
         return;
       }
 

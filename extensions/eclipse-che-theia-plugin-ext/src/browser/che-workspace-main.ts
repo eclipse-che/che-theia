@@ -41,6 +41,10 @@ export class CheWorkspaceMainImpl implements CheWorkspaceMain {
     );
   }
 
+  $getCurrentNamespace(): Promise<string> {
+    return this.workspaceService.getCurrentNamespace();
+  }
+
   async $getById(workspaceId: string): Promise<cheApi.workspace.Workspace> {
     return this.workspaceService.getWorkspaceById(workspaceId).then(
       workspace => workspace,

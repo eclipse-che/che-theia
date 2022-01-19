@@ -38,7 +38,7 @@ export const builder: CommandBuilder = {
 const EXCLUSIONS = ['@theia/plugin-packager'];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function handleCommand(args: any) {
+export async function handleCommand(args: any): Promise<void> {
     const cheTheiaDir = args['che-theia '] || process.cwd();
     const theiaVersion = args['theia-version'];
 
@@ -60,7 +60,7 @@ export async function handleCommand(args: any) {
 async function updateDependencies(
     packageJSONPath: string,
     replaceVersion: (packageName: string) => string | undefined
-) {
+): Promise<void> {
     try {
         await rewriteJson(packageJSONPath, pkgJson => {
             // we're assuming the package.json is well formed
@@ -74,7 +74,7 @@ async function updateDependencies(
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function replaceInSection(section: any, replaceVersion: (packageName: string) => string | undefined) {
+function replaceInSection(section: any, replaceVersion: (packageName: string) => string | undefined): void {
     if (section) {
         for (const dep in section) {
             if (section.hasOwnProperty(dep)) {

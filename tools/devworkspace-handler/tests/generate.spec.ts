@@ -20,6 +20,7 @@ import { GithubResolver } from '../src/github/github-resolver';
 import { PluginRegistryResolver } from '../src/plugin-registry/plugin-registry-resolver';
 import { SidecarPolicy } from '../src/api/devfile-context';
 import { UrlFetcher } from '../src/fetch/url-fetcher';
+import { V1alpha2DevWorkspaceTemplateSpec } from '@devfile/api/model/v1alpha2DevWorkspaceTemplateSpec';
 
 describe('Test Generate', () => {
   let container: Container;
@@ -27,8 +28,14 @@ describe('Test Generate', () => {
   let generate: Generate;
 
   const getContentUrlMethod = jest.fn();
+  const getCloneUrlMethod = jest.fn();
+  const getRepoNameMethod = jest.fn();
+  const getBranchNameMethod = jest.fn();
   const githubUrlMock = {
     getContentUrl: getContentUrlMethod,
+    getCloneUrl: getCloneUrlMethod,
+    getRepoName: getRepoNameMethod,
+    getBranchName: getBranchNameMethod,
   };
 
   const urlFetcherFetchTextMethod = jest.fn();
@@ -53,6 +60,15 @@ describe('Test Generate', () => {
     loadDevfilePlugin: pluginRegistryResolverLoadDevfilePluginMethod,
   } as any;
 
+  let devfile = {};
+
+  const devfileUrl = 'https://github.com/org/devfile-repo/tree/branch';
+  const fakeoutputDir = '/fake-output';
+  const editor = 'my/editor/latest';
+
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  let fsWriteFileSpy: any;
+
   beforeEach(() => {
     jest.restoreAllMocks();
     jest.resetAllMocks();
@@ -64,34 +80,65 @@ describe('Test Generate', () => {
     container.bind(GithubResolver).toConstantValue(githubResolver);
     githubResolverResolveMethod.mockReturnValue(githubUrlMock);
 
-    generate = container.get(Generate);
-  });
-
-  test('basics', async () => {
-    pluginRegistryResolverLoadDevfilePluginMethod.mockResolvedValue({
+    devfile = {
       schemaVersion: '2.1.0',
       metadata: {
         name: 'theia-ide',
       },
       commands: [],
-    });
-
-    const devfileUrl = 'http://my-devfile-url';
-    const fakeoutputDir = '/fake-output';
-    const editor = 'my/editor/latest';
-
-    const fsWriteFileSpy = jest.spyOn(fs, 'writeFile');
-    fsWriteFileSpy.mockReturnValue();
-
-    const rawDevfileUrl = 'https://content-of-devfile.url';
-    getContentUrlMethod.mockReturnValue(rawDevfileUrl);
+    };
+    pluginRegistryResolverLoadDevfilePluginMethod.mockResolvedValue(devfile);
+    const jsYmalSpy = jest.spyOn(jsYaml, 'load');
+    jsYmalSpy.mockReturnValue(devfile);
 
     urlFetcherFetchTextMethod.mockResolvedValue(jsYaml.dump({ metadata: {} }));
+    fsWriteFileSpy = jest.spyOn(fs, 'writeFile');
+    fsWriteFileSpy.mockReturnValue();
+
+    generate = container.get(Generate);
+  });
+
+  test('basics', async () => {
+    const rawDevfileUrl = 'https://content-of-devfile.url';
+    getContentUrlMethod.mockReturnValue(rawDevfileUrl);
+    getBranchNameMethod.mockReturnValue('HEAD');
 
     await generate.generate(devfileUrl, editor, SidecarPolicy.USE_DEV_CONTAINER, fakeoutputDir);
     expect(urlFetcherFetchTextMethod).toBeCalledWith(rawDevfileUrl);
 
     // expect to write the file
     expect(fsWriteFileSpy).toBeCalled();
+  });
+
+  test('generate template with default project', async () => {
+    //given
+    getCloneUrlMethod.mockReturnValue('https://github.com/org/repo.git');
+    getRepoNameMethod.mockReturnValue('test-repo');
+    getBranchNameMethod.mockReturnValue('test-branch');
+
+    //when
+    await generate.generate(devfileUrl, editor, SidecarPolicy.USE_DEV_CONTAINER, fakeoutputDir);
+
+    //then
+    expect((devfile as V1alpha2DevWorkspaceTemplateSpec).projects).toStrictEqual([
+      {
+        name: 'test-repo',
+        git: { remotes: { origin: 'https://github.com/org/repo.git' }, checkoutFrom: { revision: 'test-branch' } },
+      },
+    ]);
+  });
+
+  test('generate template with defined project', async () => {
+    delete (devfile as any).metadata.name;
+    //when
+    await generate.generate(devfileUrl, editor, SidecarPolicy.USE_DEV_CONTAINER, fakeoutputDir, {
+      name: 'test-name',
+      location: 'test-location',
+    });
+
+    //then
+    expect((devfile as V1alpha2DevWorkspaceTemplateSpec).projects).toStrictEqual([
+      { name: 'test-name', zip: { location: 'test-location' } },
+    ]);
   });
 });

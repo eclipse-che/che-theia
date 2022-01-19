@@ -49,7 +49,7 @@ export class CheShellLayoutRestorer extends ShellLayoutRestorer {
     });
   }
 
-  async storeLayout(app: FrontendApplication) {
+  async storeLayout(app: FrontendApplication): Promise<void> {
     const serializedLayoutData = this.deflate(app.shell.getLayoutData());
     if (this.previousStoredState !== serializedLayoutData) {
       super.storeLayout(app);

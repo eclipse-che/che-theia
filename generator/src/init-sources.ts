@@ -9,6 +9,7 @@
  ***********************************************************************/
 
 import * as axios from 'axios';
+import * as cp from 'child_process';
 import * as fs from 'fs-extra';
 import * as jsYaml from 'js-yaml';
 import * as os from 'os';
@@ -16,6 +17,13 @@ import * as path from 'path';
 import * as readPkg from 'read-pkg';
 import * as tmp from 'tmp';
 import * as yargs from 'yargs';
+
+import {
+    YarnWorkspace,
+    updateAssemblyTsConfigFile,
+    updateRootTsConfigFile,
+    updateTypescriptReferencesFor,
+} from './resolve-tsconfigs';
 
 import { CliError } from './cli-error';
 import { Logger } from './logger';
@@ -112,31 +120,13 @@ export class InitSources {
             })
         );
 
-        await this.initRootCompilationUnits();
-    }
-
-    /**
-     * Update configs/root-compilation.tsconfig.json
-     */
-    async initRootCompilationUnits() {
-        const rootCompilationUnitPath = path.join(this.rootFolder, 'configs/root-compilation.tsconfig.json');
-        const rawData = await fs.readFile(rootCompilationUnitPath);
-        const parsed = JSON.parse(rawData.toString());
-
-        // add assembly unit
-        const item = {
-            path: '../examples/assembly/compile.tsconfig.json',
-        };
-        const assemblyTsConfig = (parsed['references'] as Array<{ path: string }>).find(
-            reference => reference['path'] === item['path']
+        const yarnWorkspaces = this.getYarnWorkspaces();
+        await Promise.all(
+            this.extensions.map((extension: ISource) => this.updateTypescriptReferences(extension, yarnWorkspaces))
         );
-        if (!assemblyTsConfig) {
-            parsed['references'].push(item);
-        }
 
-        // write it back
-        const json = JSON.stringify(parsed, undefined, 2);
-        await fs.writeFile(rootCompilationUnitPath, `${json}\n`);
+        await updateRootTsConfigFile(this.rootFolder);
+        await updateAssemblyTsConfigFile(this.rootFolder, this.assemblyFolder);
     }
 
     /**
@@ -228,12 +218,26 @@ export class InitSources {
         );
     }
 
+    async updateTypescriptReferences(extension: ISource, yarnWorkspaces: Map<string, YarnWorkspace>): Promise<void> {
+        await Promise.all(
+            extension.extSymbolicLinks.map(async symbolicLink => {
+                const extensionJsonPath = path.join(symbolicLink, 'package.json');
+                const extensionPackage = await readPkg(extensionJsonPath, { normalize: false });
+
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const dependencies: any = extensionPackage.dependencies;
+                const keysDependencies = dependencies ? Object.keys(dependencies) : [];
+                await updateTypescriptReferencesFor(symbolicLink, keysDependencies, yarnWorkspaces);
+            })
+        );
+    }
+
     /**
      * Update the given dependency by comparing with global dependencies or checking if it's a theia dependency.
      * @param dependencyKey the key of dependency
      * @param dependencyValue its original value
      */
-    updateDependency(dependencyKey: string, dependencyValue: string) {
+    updateDependency(dependencyKey: string, dependencyValue: string): string {
         // is it already defined as a Theia dev dependency ? if yes then return this value
         const rest = this.globalDevDependencies.get(dependencyKey);
         if (rest) {
@@ -253,7 +257,7 @@ export class InitSources {
      * Insert the given extension into the package.json of the assembly.
      * @param extension the given extension
      */
-    async insertExtensionIntoAssembly(extension: ISource) {
+    async insertExtensionIntoAssembly(extension: ISource): Promise<void> {
         // first, read the assembly json file
         const assemblyPackageJsonPath = path.join(this.assemblyFolder, 'package.json');
         const assemblyJsonRawContent = require(assemblyPackageJsonPath);
@@ -349,7 +353,7 @@ export class InitSources {
         }
     }
 
-    async initSourceLocationAliases(alias: string[] | undefined) {
+    async initSourceLocationAliases(alias: string[] | undefined): Promise<void> {
         if (alias) {
             alias.forEach(element => {
                 if (element.indexOf('=')) {
@@ -377,6 +381,26 @@ export class InitSources {
             extensionsYamlPath = tmpFile.name;
         }
         await this.generate(extensionsYamlPath, dev);
+    }
+
+    getYarnWorkspaces(): Map<string, YarnWorkspace> {
+        const yarnWorkspaces = new Map<string, YarnWorkspace>();
+
+        const yarnWorkspacesRawData = cp.execSync('yarn --json --silent workspaces info', { cwd: this.rootFolder });
+        const yarnWorkspacesParsedContent = JSON.parse(yarnWorkspacesRawData.toString());
+        if (yarnWorkspacesParsedContent && yarnWorkspacesParsedContent.data) {
+            const yarnWorkspacesParsedData = JSON.parse(yarnWorkspacesParsedContent.data.toString());
+            for (const [packageName, workspace] of Object.entries(yarnWorkspacesParsedData)) {
+                const yarnWorkspace = workspace as YarnWorkspace;
+                yarnWorkspace.location = path.join(this.rootFolder, yarnWorkspace.location);
+                yarnWorkspaces.set(packageName, yarnWorkspace);
+            }
+        }
+
+        if (yarnWorkspaces.size === 0) {
+            throw new Error('Yarn Workspaces are not found');
+        }
+        return yarnWorkspaces;
     }
 }
 

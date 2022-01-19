@@ -31,6 +31,6 @@ export class PromptManager {
   }
 }
 
-function getKey(request: string, prompt: string) {
+function getKey(request: string, prompt: string): symbol {
   return Symbol.for(`key[${request}:${prompt}]`);
 }

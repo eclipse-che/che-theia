@@ -11,10 +11,10 @@
 import { AbstractInternalScanner, PortScanner } from '../../src/port-scanner';
 
 class DummyInternalScanner extends AbstractInternalScanner {
-  async getListeningPortV4() {
+  async getListeningPortV4(): Promise<string> {
     return super.readFilePromise(__dirname + '/port-scanner-listen-ipv4.stdout');
   }
-  async getListeningPortV6() {
+  async getListeningPortV6(): Promise<string> {
     return super.readFilePromise(__dirname + '/port-scanner-listen-ipv6.stdout');
   }
 }

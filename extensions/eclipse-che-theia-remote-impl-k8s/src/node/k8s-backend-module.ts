@@ -14,6 +14,7 @@ import {
 } from '@eclipse-che/theia-remote-api/lib/common/certificate-service';
 import { CheK8SService, cheK8SServicePath } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
 import { ConnectionHandler, JsonRpcConnectionHandler } from '@theia/core';
+import { DashboardService, cheDashboardServicePath } from '@eclipse-che/theia-remote-api/lib/common/dashboard-service';
 import { DevfileService, cheDevfileServicePath } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 import { EndpointService, cheEndpointServicePath } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
 import { FactoryService, cheFactoryServicePath } from '@eclipse-che/theia-remote-api/lib/common/factory-service';
@@ -28,6 +29,7 @@ import { ContainerModule } from 'inversify';
 import { K8SHttpServiceImpl } from './k8s-http-service-impl';
 import { K8SServiceImpl } from './k8s-service-impl';
 import { K8sCertificateServiceImpl } from './k8s-certificate-service-impl';
+import { K8sDashboardServiceImpl } from './k8s-dashboard-service-impl';
 import { K8sDevWorkspaceEnvVariables } from './k8s-devworkspace-env-variables';
 import { K8sDevfileServiceImpl } from './k8s-devfile-service-impl';
 import { K8sEndpointServiceImpl } from './k8s-endpoint-service-impl';
@@ -57,6 +59,7 @@ export default new ContainerModule(bind => {
   bind(K8sEndpointServiceImpl).toSelf().inSingletonScope();
   bind(K8SHttpServiceImpl).toSelf().inSingletonScope();
   bind(K8sDevWorkspaceEnvVariables).toSelf().inSingletonScope();
+  bind(K8sDashboardServiceImpl).toSelf().inSingletonScope();
 
   bind(CertificateService).to(K8sCertificateServiceImpl).inSingletonScope();
   bind(FactoryService).to(K8sFactoryServiceImpl).inSingletonScope();
@@ -69,6 +72,7 @@ export default new ContainerModule(bind => {
   bind(DevfileService).to(K8sDevfileServiceImpl).inSingletonScope();
   bind(EndpointService).to(K8sEndpointServiceImpl).inSingletonScope();
   bind(HttpService).to(K8SHttpServiceImpl).inSingletonScope();
+  bind(DashboardService).to(K8sDashboardServiceImpl).inSingletonScope();
 
   bind(ConnectionHandler)
     .toDynamicValue(
@@ -120,5 +124,11 @@ export default new ContainerModule(bind => {
 
   bind(ConnectionHandler)
     .toDynamicValue(ctx => new JsonRpcConnectionHandler(cheHttpServicePath, () => ctx.container.get(HttpService)))
+    .inSingletonScope();
+
+  bind(ConnectionHandler)
+    .toDynamicValue(
+      ctx => new JsonRpcConnectionHandler(cheDashboardServicePath, () => ctx.container.get(DashboardService))
+    )
     .inSingletonScope();
 });

@@ -8,6 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-describe('no-op', function () {
-  it('no-op', function () {});
+describe('no-op', () => {
+  it('no-op', () => {});
 });

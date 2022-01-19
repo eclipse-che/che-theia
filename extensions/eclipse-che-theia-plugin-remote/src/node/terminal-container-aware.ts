@@ -68,7 +68,7 @@ export class TerminalContainerAware {
     };
   }
 
-  addTerminalComponentAttribute(attributes: { [key: string]: string | null }) {
+  addTerminalComponentAttribute(attributes: { [key: string]: string | null }): void {
     if (process.env.DEVWORKSPACE_COMPONENT_NAME) {
       attributes[TerminalContainerAware.TERMINAL_COMPONENT_NAME] = process.env.DEVWORKSPACE_COMPONENT_NAME;
     } else if (process.env.CHE_MACHINE_NAME) {

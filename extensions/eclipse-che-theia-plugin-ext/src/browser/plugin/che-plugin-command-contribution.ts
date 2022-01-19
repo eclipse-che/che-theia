@@ -8,8 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { Command, MessageService } from '@theia/core/lib/common';
-import { CommandContribution, CommandRegistry } from '@theia/core/lib/common';
+import { Command, CommandContribution, CommandRegistry, MessageService } from '@theia/core/lib/common';
 import { inject, injectable } from 'inversify';
 
 import { ChePluginManager } from './che-plugin-manager';
@@ -76,8 +75,8 @@ export class ChePluginCommandContribution implements CommandContribution {
 
     const registry: ChePluginRegistry = {
       name,
-      uri,
-      publicUri: uri,
+      internalURI: uri,
+      publicURI: uri,
     };
 
     this.chePluginManager.addRegistry(registry);

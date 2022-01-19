@@ -62,7 +62,7 @@ export function customizeWebpackConfig(
                 cacheGroups: {
                     che: {
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        test(module: any, chunks: any) {
+                        test(module: any, chunks: any): any {
                             const req = module.userRequest;
                             const takeit = req && (req.endsWith(frontendIndex) || req.includes(cheExtensions));
                             if (takeit) {

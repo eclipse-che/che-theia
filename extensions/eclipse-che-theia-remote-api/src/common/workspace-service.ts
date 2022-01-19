@@ -55,6 +55,7 @@ export interface WorkspaceSettings {
 
 export const WorkspaceService = Symbol('WorkspaceService');
 export interface WorkspaceService {
+  getCurrentNamespace(): Promise<string>;
   getCurrentWorkspaceId(): Promise<string>;
   currentWorkspace(): Promise<Workspace>;
   getWorkspaceById(workspaceId: string): Promise<Workspace>;

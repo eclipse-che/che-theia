@@ -16,7 +16,7 @@
 import * as fs from 'fs-extra';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function rewriteJson(packageJSONPath: string, rewriteFunction: (json: any) => void) {
+export async function rewriteJson(packageJSONPath: string, rewriteFunction: (json: any) => void): Promise<void> {
     const json = await fs.readJSON(packageJSONPath);
     rewriteFunction(json);
 
@@ -24,7 +24,7 @@ export async function rewriteJson(packageJSONPath: string, rewriteFunction: (jso
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function replaceInSection(section: any, replaceVersion: (key: string) => string | undefined) {
+export function replaceInSection(section: any, replaceVersion: (key: string) => string | undefined): void {
     if (section) {
         for (const dep in section) {
             if (section.hasOwnProperty(dep)) {

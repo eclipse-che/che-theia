@@ -17,7 +17,7 @@ import { Cdn } from '../src/cdn';
 
 export class YargsMockup {
     options: any = {};
-    option(name: string, opt: any) {
+    option(name: string, opt: any): {} {
         this.options[name] = opt;
         return this;
     }

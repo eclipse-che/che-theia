@@ -32,4 +32,16 @@ export class GithubUrl {
   getUrl(): string {
     return `https://github.com/${this.repoUser}/${this.repoName}/tree/${this.branchName}/${this.subFolder}`;
   }
+
+  getCloneUrl(): string {
+    return `https://github.com/${this.repoUser}/${this.repoName}.git`;
+  }
+
+  getRepoName(): string {
+    return this.repoName;
+  }
+
+  getBranchName(): string {
+    return this.branchName;
+  }
 }

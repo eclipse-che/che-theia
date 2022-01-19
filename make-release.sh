@@ -134,7 +134,7 @@ apply_files_edits
 
 # commit change into branch
 if [[ ${NOCOMMIT} -eq 0 ]]; then
-  COMMIT_MSG="[release] Bump to ${VERSION} in ${BRANCH}"
+  COMMIT_MSG="chore: release: bump to ${VERSION} in ${BRANCH}"
   git commit -a -s -m "${COMMIT_MSG}"
   git pull origin "${BRANCH}"
   git push origin "${BRANCH}"
