@@ -80,7 +80,7 @@ export class DevWorkspaceUpdater {
 
     // finally, update dev container component with extensions to be deployed there
     if (extensionsForDevContainer) {
-      this.devContainerComponentUpdater.insert(devfileContext, extensionsForDevContainer);
+      await this.devContainerComponentUpdater.insert(devfileContext, extensionsForDevContainer);
     }
 
     // and add them
