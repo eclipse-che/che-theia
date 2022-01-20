@@ -92,12 +92,9 @@ export class SSHPluginImpl implements SSHPlugin {
     theia.commands.registerCommand(this.cmdUploadPrivateKey, () => {
       this.cmdUploadPrivateKey.run();
     });
-    // todo remove the condition when github oAuth is available for DevWorkspace engine
-    if (!process.env.DEVWORKSPACE_ID) {
-      theia.commands.registerCommand(this.cmdAddKeyToGitHub, () => {
-        this.cmdAddKeyToGitHub.run();
-      });
-    }
+    theia.commands.registerCommand(this.cmdAddKeyToGitHub, () => {
+      this.cmdAddKeyToGitHub.run();
+    });
 
     return this;
   }
@@ -111,8 +108,8 @@ export class SSHPluginImpl implements SSHPlugin {
       { label: this.cmdDeleteKey.label },
       { label: this.cmdUploadPrivateKey.label },
     ];
-    // todo remove the condition when github oAuth is available for DevWorkspace engine
-    if (!process.env.DEVWORKSPACE_ID && gitHubActions) {
+
+    if (gitHubActions) {
       items.push({ label: this.cmdAddKeyToGitHub.label });
     }
 
@@ -137,8 +134,7 @@ export class SSHPluginImpl implements SSHPlugin {
       } else if (command.label === this.cmdUploadPrivateKey.label) {
         await this.cmdUploadPrivateKey.run({ gitCloneFlow: true });
         return true;
-        // todo remove the DEVWORKSPACE_ID condition when github oAuth is available for DevWorkspace engine
-      } else if (!process.env.DEVWORKSPACE_ID && command.label === this.cmdAddKeyToGitHub.label) {
+      } else if (command.label === this.cmdAddKeyToGitHub.label) {
         await this.cmdAddKeyToGitHub.run({ gitCloneFlow: true });
         return true;
       }
@@ -148,12 +144,7 @@ export class SSHPluginImpl implements SSHPlugin {
   }
 
   async addKeyToGitHub(): Promise<boolean> {
-    // todo remove the DEVWORKSPACE_ID condition when github oAuth is available for DevWorkspace engine
-    if (!process.env.DEVWORKSPACE_ID) {
-      return this.cmdAddKeyToGitHub.run({ gitCloneFlow: true });
-    } else {
-      return true;
-    }
+    return this.cmdAddKeyToGitHub.run({ gitCloneFlow: true });
   }
 
   async sshAgentConfig(): Promise<SSHAgentConfig> {

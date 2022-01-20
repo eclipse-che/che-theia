@@ -14,12 +14,11 @@ import * as path from 'path';
 import * as theia from '@theia/plugin';
 
 import { BTN_CONTINUE, MESSAGE_NEED_RESTART_WORKSPACE } from '../messages';
+import { generateKey, updateConfig } from '../util/util';
 import { inject, injectable } from 'inversify';
 
 import { Command } from './command';
 import { SshSecretHelper } from '../util/ssh-secret-helper';
-import { spawn } from 'child_process';
-import { updateConfig } from '../util/util';
 
 @injectable()
 export class GenerateKey extends Command {
@@ -35,17 +34,8 @@ export class GenerateKey extends Command {
 
     const keyName = `default-${Date.now()}`;
     const sshPath = path.resolve(os.homedir(), '.ssh', keyName);
-    const generate = new Promise<void>((resolve, reject) => {
-      const command = spawn('ssh-keygen', ['-b', '4096', '-f', sshPath, '-N', '']);
-      command.stderr.on('data', async data => {
-        reject(data);
-      });
-      command.on('close', () => {
-        resolve();
-      });
-    });
     try {
-      await generate;
+      await generateKey(keyName);
       await updateConfig(keyName);
       await this.sshSecretHelper.store({
         name: keyName,
