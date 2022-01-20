@@ -53,7 +53,7 @@ export class CheGithubMainImpl implements CheGithubMain {
     return result.data;
   }
 
-  checkToken(): void {
+  private checkToken(): void {
     if (!this.token) {
       throw new Error('GitHub authentication token is not setup');
     }
