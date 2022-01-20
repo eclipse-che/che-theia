@@ -24,6 +24,7 @@
     "if-env": "^1.0.4",
     "import-sort-style-eslint": "^6.0.0",
     "lerna": "^2.11.0",
+    "node-addon-api": "3.1.0",
     "prettier": "^2.2.0",
     "prettier-plugin-import-sort": "^0.0.6",
     "rimraf": "3.0.2",
@@ -45,7 +46,7 @@
     "**/**/@types/node": "^12.0.0",
     "**/**/minimist": "^1.2.0",
     "**/mkdirp": "^0.5.1",
-    "**/keytar": "^7.7.0"
+    "**/keytar": "7.6.0"
   },
   "workspaces": {
     "packages": [
