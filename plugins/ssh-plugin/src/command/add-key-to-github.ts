@@ -9,6 +9,9 @@
  ***********************************************************************/
 
 import * as che from '@eclipse-che/plugin';
+import * as fs from 'fs-extra';
+import * as os from 'os';
+import * as path from 'path';
 import * as theia from '@theia/plugin';
 
 import {
@@ -17,14 +20,18 @@ import {
   MESSAGE_GET_KEYS_FAILED,
   MESSAGE_NO_SSH_KEYS,
 } from '../messages';
-import { updateConfig, writeKey } from '../util/util';
+import { SshPair, SshSecretHelper } from '../util/ssh-secret-helper';
+import { generateKey, updateConfig } from '../util/util';
+import { inject, injectable } from 'inversify';
 
 import { Command } from './command';
 import { che as cheApi } from '@eclipse-che/api';
-import { injectable } from 'inversify';
 
 @injectable()
 export class AddKeyToGitHub extends Command {
+  @inject(SshSecretHelper)
+  private sshSecretHelper: SshSecretHelper;
+
   constructor() {
     super('ssh:add_key_to_github', 'SSH: Add Existing Key To GitHub...');
   }
@@ -40,9 +47,9 @@ export class AddKeyToGitHub extends Command {
     }
 
     // get list of keys
-    let keys: cheApi.ssh.SshPair[];
+    let keys: SshPair[];
     try {
-      keys = await che.ssh.getAll('vcs');
+      keys = await this.sshSecretHelper.getAll();
     } catch (e) {
       await theia.window.showErrorMessage(MESSAGE_GET_KEYS_FAILED, ...actions);
       return false;
@@ -79,7 +86,7 @@ export class AddKeyToGitHub extends Command {
     } else {
       // pick key from the list
       const keyName = await theia.window.showQuickPick<theia.QuickPickItem>(
-        keys.map(k => ({ label: k.name! })),
+        keys.map(k => ({ label: k.name })),
         {}
       );
 
@@ -106,10 +113,17 @@ export class AddKeyToGitHub extends Command {
     return false;
   }
 
-  private async generateGitHubKey(): Promise<cheApi.ssh.SshPair> {
-    const key = await che.ssh.generate('vcs', 'github.com');
+  private async generateGitHubKey(): Promise<SshPair> {
+    const keyName = 'github.com';
+    await generateKey(keyName);
     await updateConfig('github.com');
-    await writeKey('github.com', key.privateKey!);
-    return key;
+    const sshPath = path.resolve(os.homedir(), '.ssh', keyName);
+    const sshPair = {
+      name: keyName,
+      privateKey: fs.readFileSync(sshPath).toString(),
+      publicKey: fs.readFileSync(sshPath + '.pub').toString(),
+    };
+    await this.sshSecretHelper.store(sshPair);
+    return sshPair;
   }
 }

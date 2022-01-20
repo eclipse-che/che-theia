@@ -75,6 +75,19 @@ export async function updateConfig(hostName: string): Promise<void> {
   }
 }
 
+export async function generateKey(name: string): Promise<void> {
+  const sshPath = path.resolve(os.homedir(), '.ssh', name);
+  return new Promise<void>((resolve, reject) => {
+    const command = spawn('ssh-keygen', ['-b', '4096', '-f', sshPath, '-N', '']);
+    command.stderr.on('data', async data => {
+      reject(data);
+    });
+    command.on('close', () => {
+      resolve();
+    });
+  });
+}
+
 /**
  * Creates a keyfile in ~/.ssh/ directory.
  * Returns path to the keyfile.

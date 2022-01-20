@@ -25,12 +25,9 @@ import { SSHPlugin } from './plugin/plugin-model';
 import { UploadPrivateKey } from './command/upload-private-key';
 import { ViewPublicKey } from './command/view-public-key';
 
-export async function start(): Promise<SSHPlugin> {
-  // disable this plug-in on DevWorkspace as there is no che API / ssh service
-  if (process.env.DEVWORKSPACE_COMPONENT_NAME) {
-    return {} as SSHPlugin;
-  }
+export const CREDENTIALS_SECRET_NAME = 'workspace-credentials-secret';
 
+export async function start(): Promise<SSHPlugin> {
   const container = new InversifyBinding().initBindings();
 
   // start SSH authentication agent

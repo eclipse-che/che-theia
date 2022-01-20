@@ -8,21 +8,20 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import * as che from '@eclipse-che/plugin';
 import * as theia from '@theia/plugin';
 
 import { BTN_CONTINUE, MESSAGE_GET_KEYS_FAILED, MESSAGE_NO_SSH_KEYS } from '../messages';
+import { SshPair, SshSecretHelper } from '../util/ssh-secret-helper';
 import { findKey, output } from '../util/util';
+import { inject, injectable } from 'inversify';
 
 import { Command } from './command';
-import { che as cheApi } from '@eclipse-che/api';
-import { injectable } from 'inversify';
 
 const FILE_SCHEME = 'publickey';
 
 @injectable()
 export class ViewPublicKey extends Command {
-  constructor() {
+  constructor(@inject(SshSecretHelper) protected sshSecretHelper: SshSecretHelper) {
     super('ssh:view', 'SSH: View Public Key...');
 
     theia.workspace.registerTextDocumentContentProvider(FILE_SCHEME, {
@@ -32,7 +31,7 @@ export class ViewPublicKey extends Command {
           keyName = keyName.substring('ssh@'.length);
         }
 
-        const key = await che.ssh.get('vcs', keyName);
+        const key = await sshSecretHelper.get(keyName);
         return key.publicKey;
       },
     });
@@ -41,9 +40,9 @@ export class ViewPublicKey extends Command {
   async run(context?: { gitCloneFlow?: boolean }): Promise<void> {
     const actions = context && context.gitCloneFlow ? [BTN_CONTINUE] : [];
 
-    let keys: cheApi.ssh.SshPair[];
+    let keys: SshPair[];
     try {
-      keys = await che.ssh.getAll('vcs');
+      keys = await this.sshSecretHelper.getAll();
     } catch (e) {
       await theia.window.showErrorMessage(MESSAGE_GET_KEYS_FAILED, ...actions);
       return;

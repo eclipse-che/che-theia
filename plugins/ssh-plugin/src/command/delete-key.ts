@@ -8,19 +8,21 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import * as che from '@eclipse-che/plugin';
 import * as theia from '@theia/plugin';
 
 import { BTN_CONTINUE, MESSAGE_GET_KEYS_FAILED, MESSAGE_NO_SSH_KEYS } from '../messages';
+import { SshPair, SshSecretHelper } from '../util/ssh-secret-helper';
 import { findKey, getKeyFilePath, updateConfig } from '../util/util';
-import { pathExists, unlink } from 'fs-extra';
+import { inject, injectable } from 'inversify';
+import { pathExists, remove, unlink } from 'fs-extra';
 
 import { Command } from './command';
-import { che as cheApi } from '@eclipse-che/api';
-import { injectable } from 'inversify';
 
 @injectable()
 export class DeleteKey extends Command {
+  @inject(SshSecretHelper)
+  private sshSecretHelper: SshSecretHelper;
+
   constructor() {
     super('ssh:delete', 'SSH: Delete Key...');
   }
@@ -28,9 +30,9 @@ export class DeleteKey extends Command {
   async run(context?: { gitCloneFlow?: boolean }): Promise<void> {
     const actions = context && context.gitCloneFlow ? [BTN_CONTINUE] : [];
 
-    let keys: cheApi.ssh.SshPair[];
+    let keys: SshPair[];
     try {
-      keys = await che.ssh.getAll('vcs');
+      keys = await this.sshSecretHelper.getAll();
     } catch (e) {
       await theia.window.showErrorMessage(MESSAGE_GET_KEYS_FAILED, ...actions);
       return;
@@ -62,10 +64,12 @@ export class DeleteKey extends Command {
     }
 
     try {
-      await che.ssh.deleteKey('vcs', key.label);
+      await this.sshSecretHelper.delete(key.label);
       const keyFile = getKeyFilePath(key.label);
       if (await pathExists(keyFile)) {
         await unlink(keyFile);
+        await remove(keyFile);
+        await remove(keyFile + '.pub');
         await updateConfig(key.label);
       }
 

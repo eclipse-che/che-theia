@@ -8,36 +8,59 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import * as che from '@eclipse-che/plugin';
+import * as fs from 'fs-extra';
+import * as os from 'os';
+import * as path from 'path';
 import * as theia from '@theia/plugin';
 
-import { askHostName, updateConfig, writeKey } from '../util/util';
+import { askHostName, updateConfig } from '../util/util';
+import { inject, injectable } from 'inversify';
 
 import { Command } from './command';
 import { MESSAGE_NEED_RESTART_WORKSPACE } from '../messages';
-import { injectable } from 'inversify';
+import { SshSecretHelper } from '../util/ssh-secret-helper';
+import { spawn } from 'child_process';
 
 @injectable()
 export class GenerateKeyForHost extends Command {
+  @inject(SshSecretHelper)
+  private sshSecretHelper: SshSecretHelper;
+
   constructor() {
     super('ssh:generate_for_host', 'SSH: Generate Key For Particular Host...');
   }
 
   async run(): Promise<void> {
-    const hostName = await askHostName();
-    if (!hostName) {
+    const keyName = await askHostName();
+    if (!keyName) {
       return;
     }
-    const key = await che.ssh.generate('vcs', hostName);
-    await updateConfig(hostName);
-    await writeKey(hostName, key.privateKey!);
+    const sshPath = path.resolve(os.homedir(), '.ssh', keyName);
+    const generate = new Promise<void>((resolve, reject) => {
+      const command = spawn('ssh-keygen', ['-t', 'ed25519', '-f', sshPath, '-N', '""']);
+      command.stderr.on('data', async data => {
+        reject(data);
+      });
+      command.on('close', () => {
+        resolve();
+      });
+    });
+    await generate;
+    await this.sshSecretHelper.store({
+      name: keyName,
+      privateKey: fs.readFileSync(sshPath, { encoding: 'base64' }),
+      publicKey: fs.readFileSync(sshPath + '.pub', { encoding: 'base64' }),
+    });
+    await updateConfig(keyName);
     const viewAction = 'View';
     const action = await theia.window.showInformationMessage(
-      `Key pair for ${hostName} successfully generated, do you want to view the public key?`,
+      `Key pair for ${keyName} successfully generated, do you want to view the public key?`,
       viewAction
     );
-    if (action === viewAction && key.privateKey) {
-      const document = await theia.workspace.openTextDocument({ content: key.publicKey });
+    if (action === viewAction) {
+      const document = await theia.workspace.openTextDocument({
+        content: fs.readFileSync(sshPath + '.pub').toString(),
+      });
       await theia.window.showTextDocument(document!);
     }
 

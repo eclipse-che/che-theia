@@ -8,18 +8,21 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import * as che from '@eclipse-che/plugin';
+import * as fs from 'fs-extra';
+import * as os from 'os';
+import * as path from 'path';
 import * as theia from '@theia/plugin';
 
-import { findKey, isEncrypted, output, registerKeyAskingPassword } from '../util/util';
+import { SshPair, SshSecretHelper } from '../util/ssh-secret-helper';
+import { findKey, isEncrypted, output, registerKeyAskingPassword, updateConfig } from '../util/util';
+import { inject, injectable } from 'inversify';
 
 import { MESSAGE_GET_KEYS_FAILED } from '../messages';
-import { che as cheApi } from '@eclipse-che/api';
-import { injectable } from 'inversify';
 
 @injectable()
 export class KeyRegistry {
-  async getEncryptedKeys(keys: cheApi.ssh.SshPair[]): Promise<string[]> {
+  @inject(SshSecretHelper) private sshSecretHelper: SshSecretHelper;
+  async getEncryptedKeys(keys: SshPair[]): Promise<string[]> {
     const encryptedKeys: string[] = [];
     for (const key of keys) {
       try {
@@ -36,12 +39,29 @@ export class KeyRegistry {
   }
 
   async init(): Promise<void> {
-    let keys: cheApi.ssh.SshPair[];
+    let keys: SshPair[];
     try {
-      keys = await che.ssh.getAll('vcs');
+      keys = await this.sshSecretHelper.getAll();
     } catch (e) {
       theia.window.showErrorMessage(MESSAGE_GET_KEYS_FAILED);
       return;
+    }
+
+    // todo remove when https://github.com/devfile/devworkspace-operator/issues/732 is done
+    // Restore keys
+    const sshDir = path.resolve(os.homedir(), '.ssh');
+    if (!fs.existsSync(sshDir)) {
+      fs.mkdirSync(sshDir, { recursive: true });
+    }
+    for (const key of keys) {
+      const keyPath: string = path.resolve(sshDir, key.name);
+      if (!fs.existsSync(keyPath)) {
+        await fs.appendFile(keyPath, key.privateKey);
+        await fs.appendFile(keyPath + '.pub', key.publicKey);
+        await updateConfig(key.name);
+        // change permissions
+        await fs.chmod(keyPath, '600');
+      }
     }
 
     const encryptedKeys = await this.getEncryptedKeys(keys);

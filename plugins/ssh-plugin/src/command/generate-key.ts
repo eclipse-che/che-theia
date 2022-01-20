@@ -8,17 +8,23 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import * as che from '@eclipse-che/plugin';
+import * as fs from 'fs-extra';
+import * as os from 'os';
+import * as path from 'path';
 import * as theia from '@theia/plugin';
 
 import { BTN_CONTINUE, MESSAGE_NEED_RESTART_WORKSPACE } from '../messages';
-import { updateConfig, writeKey } from '../util/util';
+import { generateKey, updateConfig } from '../util/util';
+import { inject, injectable } from 'inversify';
 
 import { Command } from './command';
-import { injectable } from 'inversify';
+import { SshSecretHelper } from '../util/ssh-secret-helper';
 
 @injectable()
 export class GenerateKey extends Command {
+  @inject(SshSecretHelper)
+  private sshSecretHelper: SshSecretHelper;
+
   constructor() {
     super('ssh:generate', 'SSH: Generate Key...');
   }
@@ -27,18 +33,25 @@ export class GenerateKey extends Command {
     const actions = context && context.gitCloneFlow ? [BTN_CONTINUE] : [];
 
     const keyName = `default-${Date.now()}`;
+    const sshPath = path.resolve(os.homedir(), '.ssh', keyName);
     try {
-      const key = await che.ssh.generate('vcs', keyName);
+      await generateKey(keyName);
       await updateConfig(keyName);
-      await writeKey(keyName, key.privateKey!);
+      await this.sshSecretHelper.store({
+        name: keyName,
+        privateKey: fs.readFileSync(sshPath).toString(),
+        publicKey: fs.readFileSync(sshPath + '.pub').toString(),
+      });
       const VIEW = 'View';
       const viewActions: string[] = context && context.gitCloneFlow ? [VIEW, BTN_CONTINUE] : [VIEW];
       const action = await theia.window.showInformationMessage(
         'Key pair successfully generated, do you want to view the public key?',
         ...viewActions
       );
-      if (action === VIEW && key.privateKey) {
-        const document = await theia.workspace.openTextDocument({ content: key.publicKey })!;
+      if (action === VIEW) {
+        const document = await theia.workspace.openTextDocument({
+          content: fs.readFileSync(sshPath + '.pub').toString(),
+        })!;
         await theia.window.showTextDocument(document!);
       }
 
