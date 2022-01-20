@@ -24,9 +24,7 @@ export class CheGithubMainImpl implements CheGithubMain {
   }
 
   async $uploadPublicSshKey(publicKey: string): Promise<void> {
-    if (!this.token) {
-      throw new Error('GitHub authentication token is not setup');
-    }
+    this.checkToken();
     try {
       await this.axiosInstance.post(
         'https://api.github.com/user/keys',
