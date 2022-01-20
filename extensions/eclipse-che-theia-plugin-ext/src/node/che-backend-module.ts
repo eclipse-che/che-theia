@@ -8,19 +8,22 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { CHE_PLUGIN_SERVICE_PATH, ChePluginService, ChePluginServiceClient } from '../common/che-plugin-protocol';
 import {
+  CHE_GITHUB_SERVICE_PATH,
   CHE_PRODUCT_SERVICE_PATH,
   CHE_TASK_SERVICE_PATH,
+  CheGitHubService,
   CheProductService,
   CheTaskClient,
   CheTaskService,
 } from '../common/che-protocol';
+import { CHE_PLUGIN_SERVICE_PATH, ChePluginService, ChePluginServiceClient } from '../common/che-plugin-protocol';
 import { ConnectionHandler, JsonRpcConnectionHandler } from '@theia/core';
 
 import { BackendApplicationContribution } from '@theia/core/lib/node/backend-application';
 import { CheClientIpServiceContribution } from './che-client-ip-service';
 import { CheEnvVariablesServerImpl } from './che-env-variables-server';
+import { CheGithubServiceImpl } from './che-github-service';
 import { ChePluginApiContribution } from './che-plugin-script-service';
 import { ChePluginApiProvider } from './che-plugin-api-provider';
 import { ChePluginServiceImpl } from './che-plugin-service';
@@ -80,6 +83,13 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
   bind(ConnectionHandler)
     .toDynamicValue(
       ctx => new JsonRpcConnectionHandler(CHE_PRODUCT_SERVICE_PATH, () => ctx.container.get(CheProductService))
+    )
+    .inSingletonScope();
+
+  bind(CheGitHubService).to(CheGithubServiceImpl).inSingletonScope();
+  bind(ConnectionHandler)
+    .toDynamicValue(
+      ctx => new JsonRpcConnectionHandler(CHE_GITHUB_SERVICE_PATH, () => ctx.container.get(CheGitHubService))
     )
     .inSingletonScope();
 });

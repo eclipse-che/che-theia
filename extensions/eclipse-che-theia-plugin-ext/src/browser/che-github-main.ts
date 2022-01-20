@@ -8,95 +8,54 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import { CheGitHubService, CheGithubMain } from '../common/che-protocol';
 import axios, { AxiosInstance } from 'axios';
 
-import { CheGithubMain } from '../common/che-protocol';
 import { GithubUser } from '@eclipse-che/plugin';
-import { OauthUtils } from '@eclipse-che/theia-remote-api/lib/browser/oauth-utils';
 import { interfaces } from 'inversify';
 
 export class CheGithubMainImpl implements CheGithubMain {
   private axiosInstance: AxiosInstance = axios;
   private token: string | undefined;
-  private readonly oAuthUtils: OauthUtils;
 
   constructor(container: interfaces.Container) {
-    this.oAuthUtils = container.get(OauthUtils);
+    const cheGitHubService: CheGitHubService = container.get(CheGitHubService);
+    cheGitHubService.getToken().then(token => (this.token = token));
   }
 
   async $uploadPublicSshKey(publicKey: string): Promise<void> {
+    this.checkToken();
     try {
-      await this.fetchToken();
-      await this.uploadKey(publicKey);
+      await this.axiosInstance.post(
+        'https://api.github.com/user/keys',
+        {
+          title: 'che-theia',
+          key: publicKey,
+        },
+        { headers: { Authorization: `Bearer ${this.token}` } }
+      );
     } catch (error) {
       console.error(error.message);
       throw error;
     }
   }
 
-  async uploadKey(publicKey: string): Promise<void> {
-    await this.axiosInstance.post(
-      'https://api.github.com/user/keys',
-      {
-        title: 'che-theia',
-        key: publicKey,
-      },
-      { headers: { Authorization: `Bearer ${this.token}` } }
-    );
-  }
-
   async $getToken(): Promise<string> {
-    await this.fetchToken();
-    if (this.token) {
-      return this.token;
-    } else {
-      throw new Error('Failed to get GitHub authentication token');
-    }
+    this.checkToken();
+    return this.token ? this.token : '';
   }
 
   async $getUser(): Promise<GithubUser> {
-    await this.fetchToken();
-    return this.getUser();
-  }
-
-  private async getUser(): Promise<GithubUser> {
+    this.checkToken();
     const result = await this.axiosInstance.get<GithubUser>('https://api.github.com/user', {
       headers: { Authorization: `Bearer ${this.token}` },
     });
     return result.data;
   }
 
-  private async fetchToken(): Promise<void> {
+  private checkToken(): void {
     if (!this.token) {
-      await this.updateToken();
-    } else {
-      try {
-        // Validate the GitHub token.
-        await this.getUser();
-      } catch (e) {
-        await this.updateToken();
-      }
-    }
-  }
-
-  private async updateToken(): Promise<void> {
-    const oAuthProvider = 'github';
-    const authenticateAndUpdateToken: () => Promise<void> = async () => {
-      await this.oAuthUtils.authenticate(oAuthProvider, ['repo', 'user', 'write:public_key']);
-      this.token = await this.oAuthUtils.getToken(oAuthProvider);
-    };
-
-    if (await this.oAuthUtils.isAuthenticated(oAuthProvider)) {
-      try {
-        // Validate the GitHub token.
-        await this.getUser();
-      } catch (e) {
-        if (/Request failed with status code 401/g.test(e.message)) {
-          await authenticateAndUpdateToken();
-        }
-      }
-    } else {
-      await authenticateAndUpdateToken();
+      throw new Error('GitHub authentication token is not setup');
     }
   }
 }
