@@ -63,18 +63,25 @@ describe('Test SidecarComponentsCreator', () => {
 
   test('basics no sidecarname and preferences', async () => {
     const entry: VSCodeExtensionEntryWithSidecar = {
-      id: 'plugin',
+      id: 'merged-registry-redhat-io-codeready-workspaces-plugin-java8-rhel8-sha256-f0ecc1812888611407c23ede1d3952dfb7b9bd597c336f22995cc4d8d9c23edd',
       resolved: true,
       extensions: ['http://first.vsix'],
       sidecar: {
-        image: 'my-image',
+        image:
+          'registry.redhat.io/codeready-workspaces/plugin-java8-rhel8@sha256:f0ecc1812888611407c23ede1d3952dfb7b9bd597c336f22995cc4d8d9c23edd',
       },
     };
     const components = await sidecarComponentsCreator.create([entry]);
-    expect(containerPluginRemoteUpdaterUpdateMethod).toBeCalledWith(`sidecar-${entry.id}`, entry.sidecar);
+    expect(containerPluginRemoteUpdaterUpdateMethod).toBeCalledWith(
+      'sidecar-merged-registry-redhat-io-codeready-workspaces-plugin-j',
+      entry.sidecar
+    );
     expect(components.length).toBe(1);
     const component = components[0];
-    expect(component.name).toBe(`sidecar-${entry.id}`);
+    expect(component.name).toBe('sidecar-merged-registry-redhat-io-codeready-workspaces-plugin-j');
+    // check length is cut to 63 characters
+    expect(component.name.length).toBe(63);
+
     expect(component.container).toBe(entry.sidecar);
     const componentAttributes = component.attributes || ({} as any);
     expect(componentAttributes['app.kubernetes.io/part-of']).toBe('che-theia.eclipse.org');
