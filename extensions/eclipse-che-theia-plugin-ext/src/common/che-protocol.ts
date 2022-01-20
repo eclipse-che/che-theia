@@ -535,6 +535,14 @@ export interface CheProductService {
   getProduct(): Promise<Product>;
 }
 
+export const CHE_GITHUB_SERVICE_PATH = '/che-github-service';
+
+export const CheGitHubService = Symbol('CheGitHubService');
+
+export interface CheGitHubService {
+  getToken(): Promise<string | undefined>;
+}
+
 export interface Product {
   // Product icon
   icon: string;

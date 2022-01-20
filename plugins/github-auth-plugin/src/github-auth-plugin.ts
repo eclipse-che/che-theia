@@ -23,7 +23,10 @@ export async function start(context: theia.PluginContext): Promise<void> {
     onDidChangeSessions: onDidChangeSessions.event,
     getSessions: async () => sessions,
     login: async (scopes: string[]) => {
-      if (!(await che.oAuth.isRegistered('github'))) {
+      let token = '';
+      try {
+        token = await che.github.getToken();
+      } catch (e) {
         if (
           await theia.window.showWarningMessage(
             'Che could not authenticate to your Github account. The setup for Github OAuth provider is not complete.',
@@ -35,12 +38,11 @@ export async function start(context: theia.PluginContext): Promise<void> {
             'https://www.eclipse.org/che/docs/che-7/administration-guide/configuring-authorization/#configuring-github-oauth_che'
           );
         }
-        return;
       }
       const githubUser = await che.github.getUser();
       const session = {
         id: v4(),
-        accessToken: await che.github.getToken(),
+        accessToken: token,
         account: { label: githubUser.login, id: githubUser.id.toString() },
         scopes,
       };

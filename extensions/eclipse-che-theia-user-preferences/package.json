@@ -20,7 +20,9 @@
     "@theia/workspace": "next",
     "nsfw": "^2.1.2",
     "@theia/preferences": "next",
-    "@eclipse-che/theia-plugin-ext": "^0.0.1"
+    "@eclipse-che/theia-plugin-ext": "^0.0.1",
+    "@kubernetes/client-node": "^0.12.1",
+    "@eclipse-che/theia-remote-impl-che-server": "0.0.1"
   },
   "devDependencies": {
     "rimraf": "latest",

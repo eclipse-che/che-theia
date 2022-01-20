@@ -27,7 +27,9 @@ export class SidecarComponentsCreator {
   ): Promise<V1alpha2DevWorkspaceSpecTemplateComponents[]> {
     // ok now add sidecar components
     return extensionsWithSidecars.map(entry => {
-      const sidecarName = entry.sidecarName || `sidecar-${entry.id.replace(/[^\w\s]/gi, '-')}`;
+      // ensure it's max 63 characters
+      const sidecarName = (entry.sidecarName || `sidecar-${entry.id.replace(/[^\w\s]/gi, '-')}`).substring(0, 63);
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const attributes: { [key: string]: any } = {
         'app.kubernetes.io/part-of': 'che-theia.eclipse.org',
