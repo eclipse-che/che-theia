@@ -41,7 +41,6 @@
     "publish:next": "lerna run publish:next"
   },
   "resolutions": {
-    "lerna": "^2.11.0",
     "dot-prop": "^5.2.0",
     "elliptic": "^6.5.3",
     "serialize-javascript": "^3.1.0",
