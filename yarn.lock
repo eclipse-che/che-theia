@@ -6524,7 +6524,7 @@ deasync@^0.1.19:
   integrity sha512-o21R8Vhv3wX0E19jpATUJIAinQ1I2rHIlAnzRRsMynWlIrvU0HbCwjpquPIYR544Tvg9z/L+NZQev5cjVD1/nQ==
   dependencies:
     bindings "^1.5.0"
-    node-addon-api "^1.7.1"
+    node-addon-api-1x "^1.7.1"
 
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3, debug@^2.6.8, debug@^2.6.9:
   version "2.6.9"
@@ -10698,7 +10698,7 @@ keytar@7.6.0:
   resolved "https://registry.yarnpkg.com/keytar/-/keytar-7.6.0.tgz#498e796443cb543d31722099443f29d7b5c44100"
   integrity sha512-H3cvrTzWb11+iv0NOAnoNAPgEapVZnYLVHZQyxmh7jdmVfR/c0jNNFEZ6AI38W/4DeTGTaY66ZX4Z1SbfKPvCQ==
   dependencies:
-    node-addon-api-latest "3.1.0"
+    node-addon-api "3.1.0"
     prebuild-install "^6.0.0"
 
 keyv@3.0.0:
@@ -11702,12 +11702,12 @@ node-abi@^2.21.0, node-abi@^2.7.0:
   dependencies:
     semver "^5.4.1"
 
-node-addon-api@^1.7.1:
+node-addon-api-1x@^1.7.1:
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-1.7.2.tgz#3df30b95720b53c24e59948b49532b662444f54d"
   integrity sha512-ibPK3iA+vaY1eEjESkQkM0BbCqFOaZMiXRTtdB0u7b4djtY6JnsjvPdUHVMg6xQt3B8fpTTWHI9A+ADjM9frzg==
 
-node-addon-api-latest@3.1.0:
+node-addon-api@3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-3.1.0.tgz#98b21931557466c6729e51cb77cd39c965f42239"
   integrity sha512-flmrDNB06LIl5lywUz7YlNGZH/5p0M7W28k8hzd9Lshtdh1wshD2Y+U4h9LD6KObOy1f+fEVdgprPrEymjM5uw==
