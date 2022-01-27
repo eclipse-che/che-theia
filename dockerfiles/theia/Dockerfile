@@ -30,6 +30,9 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 # avoid any linter/formater/unit test
 ENV SKIP_LINT=true SKIP_FORMAT=true SKIP_TEST=true
 
+# if true - then unpack che-theia plugins at building image step
+ENV UNPACK_CHE_THEIA_PLUGINS=true
+
 #{IF:DO_REMOTE_CHECK}
 # Invalidate cache if any source code has changed
 ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/${THEIA_GITHUB_REPO}/git/${GIT_REF} /tmp/branch_info.json
@@ -95,6 +98,8 @@ RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
 # Add yeoman generator & vscode git plug-ins
 COPY asset-untagged-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/production/plugins/theia_yeoman_plugin.theia
 
+# unpack che-theia plugins at building image step to avoid unpacking the plugins at starting IDE step and reduce Che-Theia start time
+RUN if [ "$UNPACK_CHE_THEIA_PLUGINS" = "true" ]; then cd plugins && ./unpack_che-theia_plugins; fi
 
 # Use node image
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/build-result-from.dockerfile}

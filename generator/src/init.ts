@@ -48,6 +48,10 @@ export class Init {
         // copy build all plugins scripts
         await fs.ensureDir(this.pluginsFolder);
         await fs.copy(path.resolve(__dirname, '../src/foreach_yarn'), path.join(this.pluginsFolder, 'foreach_yarn'));
+        await fs.copy(
+            path.resolve(__dirname, '../src/unpack_che-theia_plugins'),
+            path.join(this.pluginsFolder, 'unpack_che-theia_plugins')
+        );
     }
 
     async updadeBuildConfiguration(extensions: ISource[]): Promise<void> {
