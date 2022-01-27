@@ -13,7 +13,7 @@ const path = require('path');
 const spawnSync = require('child_process').spawnSync;
 
 const currentDir = __dirname;
-const targetDir = `${__dirname}/../production/plugins`
+const targetDir = `${__dirname}/../production/plugins`;
 
 mkdirSyncRecursive(targetDir);
 
