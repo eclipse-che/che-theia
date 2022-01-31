@@ -52,6 +52,7 @@ init() {
   TAG="next"
   DRY_RUN=false
   DOCKER_BUILD_TARGET=""
+  UNPACK_CHE_THEIA_PLUGINS="true"
   SKIP_TESTS=false
   NAME="che"
   ARGS=""
@@ -95,6 +96,9 @@ init() {
         shift ;;
       --skip-tests)
         SKIP_TESTS=true
+        shift ;;
+      --compressed-plugins)
+        prepare_build_args UNPACK_CHE_THEIA_PLUGINS="false"
         shift ;;
       --dockerfile:*)
         DOCKERFILE="${1#*:}"

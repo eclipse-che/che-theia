@@ -35,7 +35,7 @@ This script will build new docker image `eclipse/che-theia:next`. The image will
 General command to build Che-Theia with all possible argiments:
 
 ```bash
-./build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=${THEIA_VERSION} --tag:${IMAGE_TAG} --branch:${THEIA_BRANCH} --git-ref:${THEIA_GIT_REFS} --skip-tests
+./build.sh --build-args:GITHUB_TOKEN=${GITHUB_TOKEN},THEIA_VERSION=${THEIA_VERSION} --tag:${IMAGE_TAG} --branch:${THEIA_BRANCH} --git-ref:${THEIA_GIT_REFS} --skip-tests --compressed-plugins
 ```
 
 ### GitHub Token
@@ -107,6 +107,14 @@ This parameter is optional. Default value is `'refs\\/heads\\/master'`.
 Add this parameter to the build command to have a quick build and to skip running tests in dedicated container.
 
 By default tests are turned on.
+
+## Use compressed Che-Theia plugins
+
+**`--compressed-plugins`**
+
+Che-Theia plugins are unpacked at building image step by default. It allows to reduce a delay at starting IDE step, but the side effect is - enlarged docker image. Add this parameter to reduce docker image size and skip unpacking Che-Theia plugins at building docker image step.
+
+This parameter is optional. 
 
 ## Build only for specific type of Docker images (Alpine, UBI8, etc.)
 

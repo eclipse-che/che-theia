@@ -31,7 +31,7 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 ENV SKIP_LINT=true SKIP_FORMAT=true SKIP_TEST=true
 
 # if true - then unpack che-theia plugins at building image step
-ENV UNPACK_CHE_THEIA_PLUGINS=true
+ARG UNPACK_CHE_THEIA_PLUGINS="true"
 
 #{IF:DO_REMOTE_CHECK}
 # Invalidate cache if any source code has changed
