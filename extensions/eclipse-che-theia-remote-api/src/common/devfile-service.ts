@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2021 Red Hat, Inc.
+ * Copyright (c) 2021-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -22,6 +22,7 @@ export interface DevfileComponentStatus {
     };
   };
 }
+
 export interface DevfileMetadata {
   attributes?: { [attributeName: string]: string };
   description?: string;
@@ -34,13 +35,15 @@ export interface DevfileMetadata {
 }
 
 export interface Devfile {
-  apiVersion: string;
+  apiVersion?: string;
+  schemaVersion?: string;
   attributes?: { [attributeName: string]: string };
   metadata: DevfileMetadata;
   projects?: DevfileProject[];
   components?: DevfileComponent[];
   commands?: DevfileCommand[];
 }
+
 export interface DevfileCommandGroup {
   isDefault?: boolean;
   kind: 'build' | 'run' | 'test' | 'debug';

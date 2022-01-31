@@ -9,7 +9,8 @@
     "inversify": "^5.0.1",
     "@theia/core": "next",
     "@theia/mini-browser": "next",
-    "@eclipse-che/theia-plugin-ext": "^0.0.1"
+    "@eclipse-che/theia-plugin-ext": "^0.0.1",
+    "react": "^16.8.0"
   },
   "devDependencies": {
     "ts-jest": "27.0.7",

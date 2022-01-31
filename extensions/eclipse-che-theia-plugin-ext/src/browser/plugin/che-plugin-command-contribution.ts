@@ -12,7 +12,7 @@ import { Command, CommandContribution, CommandRegistry, MessageService } from '@
 import { inject, injectable } from 'inversify';
 
 import { ChePluginManager } from './che-plugin-manager';
-import { ChePluginRegistry } from '../../common/che-plugin-protocol';
+import { ChePluginRegistry } from '@eclipse-che/theia-remote-api/lib/common/plugin-service';
 import { QuickInputService } from '@theia/core/lib/browser';
 
 function cmd(id: string, label: string): Command {

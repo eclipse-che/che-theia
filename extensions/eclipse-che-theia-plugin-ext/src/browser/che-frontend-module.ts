@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -21,7 +21,6 @@ import {
   CheTaskClient,
   CheTaskService,
 } from '../common/che-protocol';
-import { CHE_PLUGIN_SERVICE_PATH, ChePluginService, ChePluginServiceClient } from '../common/che-plugin-protocol';
 import { CheSideCarContentReaderRegistryImpl, CheSideCarResourceResolver } from './che-sidecar-resource';
 import { CommandContribution, ResourceResolver } from '@theia/core/lib/common';
 import { ContainerModule, interfaces } from 'inversify';
@@ -35,6 +34,7 @@ import { ChePluginFrontentService } from './plugin/che-plugin-frontend-service';
 import { ChePluginHandleRegistry } from './che-plugin-handle-registry';
 import { ChePluginManager } from './plugin/che-plugin-manager';
 import { ChePluginMenu } from './plugin/che-plugin-menu';
+import { ChePluginServiceClient } from '@eclipse-che/theia-remote-api/lib/common/plugin-service';
 import { ChePluginServiceClientImpl } from './plugin/che-plugin-service-client';
 import { ChePluginView } from './plugin/che-plugin-view';
 import { ChePluginViewContribution } from './plugin/che-plugin-view-contribution';
@@ -72,13 +72,6 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
 
   bind(ChePluginServiceClientImpl).toSelf().inSingletonScope();
   bind(ChePluginServiceClient).toService(ChePluginServiceClientImpl);
-  bind(ChePluginService)
-    .toDynamicValue(ctx => {
-      const provider = ctx.container.get(WebSocketConnectionProvider);
-      const client: ChePluginServiceClient = ctx.container.get(ChePluginServiceClient);
-      return provider.createProxy<ChePluginService>(CHE_PLUGIN_SERVICE_PATH, client);
-    })
-    .inSingletonScope();
 
   rebind(WebviewEnvironment).to(CheWebviewEnvironment).inSingletonScope();
 

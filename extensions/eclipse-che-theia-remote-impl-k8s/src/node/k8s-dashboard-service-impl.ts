@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2021 Red Hat, Inc.
+ * Copyright (c) 2021-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -20,5 +20,13 @@ export class K8sDashboardServiceImpl implements DashboardService {
 
   async getDashboardUrl(): Promise<string | undefined> {
     return this.k8sDevWorkspaceEnvVariables.getDashboardURL();
+  }
+
+  async getEditorUrl(): Promise<string | undefined> {
+    const dashboardURL = this.k8sDevWorkspaceEnvVariables.getDashboardURL();
+    const namespace = this.k8sDevWorkspaceEnvVariables.getWorkspaceNamespace();
+    const workspaceName = this.k8sDevWorkspaceEnvVariables.getWorkspaceName();
+
+    return `${dashboardURL}/dashboard/#/ide/${namespace}/${workspaceName}`;
   }
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -26,17 +26,18 @@
     margin-left: 1px;
     overflow: hidden;
     transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, opacity 500ms ease-in-out 0ms;
-    background-color: var(--theia-successBackground);
-    color: #FFFFFF;
+    background-color: var(--theia-button-background);
+    color: var(--theia-button-foreground);
 }
 
 .che-plugins-notification .notification-button-panel:hover {
-    background-color: var(--theia-button-hover-background);
+    background-color: var(--theia-button-hoverBackground);
 }
 
-.che-plugins-notification .notification-button-panel:active {
-    box-shadow: 0px 0px 2px 0px var(--theia-button-background);
+.che-plugins-notification .notification-button-panel:focus {
+    box-shadow: 0px 0px 1px 1px var(--theia-focusBorder);
     outline: none;
+    background-color: var(--theia-button-hoverBackground);
 }
 
 .che-plugins-notification .notification.hiding {
@@ -44,7 +45,8 @@
 }
 
 .che-plugins-notification .notification-message,
-.che-plugins-notification .notification-button {
+.che-plugins-notification .notification-button,
+.che-plugins-notification .notification-persist-button {
     position: absolute;
     left: 0px;
     top: 9px;
@@ -54,7 +56,12 @@
     overflow: hidden;
 }
 
-.che-plugins-notification .notification-button {
+.che-plugins-notification .notification-persist-button {
+    right: 1px;
+}
+
+.che-plugins-notification .notification-button,
+.che-plugins-notification .notification-persist-button {
     cursor: pointer;
 }
 

@@ -11,8 +11,8 @@
 import { DeployedPlugin, HostedPluginServer, PluginMetadata } from '@theia/plugin-ext/lib/common/plugin-protocol';
 import { inject, injectable } from 'inversify';
 
-import { ChePluginMetadata } from '../../common/che-plugin-protocol';
-import { PluginFilter } from '../../common/plugin/plugin-filter';
+import { ChePluginMetadata } from '@eclipse-che/theia-remote-api/lib/common/plugin-service';
+import { PluginFilter } from './plugin-filter';
 
 @injectable()
 export class ChePluginFrontentService {

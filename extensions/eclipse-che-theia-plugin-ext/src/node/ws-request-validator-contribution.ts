@@ -16,16 +16,16 @@ import { inject, injectable } from 'inversify';
 import { Deferred } from '@theia/core/lib/common/promise-util';
 import { EndpointService } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
 import { ILogger } from '@theia/core/lib/common/logger';
-import { PluginApiContribution } from '@theia/plugin-ext/lib/main/node/plugin-service';
 import { SERVER_WEBVIEWS_ATTR_VALUE } from '../common/che-server-common';
 import { WebviewExternalEndpoint } from '@theia/plugin-ext/lib/main/common/webview-protocol';
+import { PluginApiContribution as WsRequestValidatorContributionImpl } from '@theia/plugin-ext/lib/main/node/plugin-service';
 
 const vhost = require('vhost');
 
 const pluginPath = (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + './theia/plugins/';
 
 @injectable()
-export class PluginApiContributionIntercepted extends PluginApiContribution {
+export class WsRequestValidatorContributionIntercepted extends WsRequestValidatorContributionImpl {
   @inject(EndpointService)
   private endpointService: EndpointService;
 

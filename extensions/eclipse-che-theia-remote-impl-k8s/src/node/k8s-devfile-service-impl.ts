@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2021 Red Hat, Inc.
+ * Copyright (c) 2021-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -39,7 +39,24 @@ export class K8sDevfileServiceImpl implements DevfileService {
     return devfileContent;
   }
 
-  async get(): Promise<Devfile> {
+  async get(fromCustomObject?: boolean): Promise<Devfile> {
+    if (fromCustomObject) {
+      const customObjectsApi = this.k8SService.makeApiClient(k8s.CustomObjectsApi);
+      const group = 'workspace.devfile.io';
+      const version = 'v1alpha2';
+
+      const response = await customObjectsApi.getNamespacedCustomObject(
+        group,
+        version,
+        this.env.getWorkspaceNamespace(),
+        'devworkspaces',
+        this.env.getWorkspaceName()
+      );
+
+      const body: { spec?: { template: Devfile } } = response.body;
+      return body.spec!.template;
+    }
+
     // get raw content
     const devfileRaw = await this.getRaw();
     return jsYaml.safeLoad(devfileRaw) as Devfile;
@@ -133,6 +150,10 @@ export class K8sDevfileServiceImpl implements DevfileService {
   }
 
   async updateDevfile(devfile: Devfile): Promise<void> {
+    await this.patch('/spec/template', devfile);
+  }
+
+  async patch(path: string, newValue: object): Promise<void> {
     // Grab custom resource object
     const customObjectsApi = this.k8SService.makeApiClient(k8s.CustomObjectsApi);
     const group = 'workspace.devfile.io';
@@ -141,8 +162,8 @@ export class K8sDevfileServiceImpl implements DevfileService {
     const patch = [
       {
         op: 'replace',
-        path: '/spec/template',
-        value: devfile,
+        path: path,
+        value: newValue,
       },
     ];
     const options = {
@@ -150,6 +171,7 @@ export class K8sDevfileServiceImpl implements DevfileService {
         'Content-type': k8s.PatchUtils.PATCH_FORMAT_JSON_PATCH,
       },
     };
+
     await customObjectsApi.patchNamespacedCustomObject(
       group,
       version,

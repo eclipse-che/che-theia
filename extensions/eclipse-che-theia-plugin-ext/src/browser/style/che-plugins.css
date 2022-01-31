@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -230,7 +230,7 @@
     top: 58px;
     height: 20px;
     line-height: 20px;
-    right: 85px;
+    right: 95px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -253,10 +253,12 @@
 | Plugin actions
 |----------------------------------------------------------------------------*/
 
-.che-plugin-list .che-plugin-action-add,
-.che-plugin-list .che-plugin-action-remove,
+.che-plugin-list .che-plugin-action-install,
 .che-plugin-list .che-plugin-action-installing,
-.che-plugin-list .che-plugin-action-removing {
+.che-plugin-list .che-plugin-action-installed,
+.che-plugin-list .che-plugin-action-to-be-installed,
+.che-plugin-list .che-plugin-action-removing,
+.che-plugin-list .che-plugin-action-to-be-removed {
     display: block;
     position: absolute;
     font-size: var(--theia-ui-font-size0);
@@ -266,49 +268,97 @@
     height: 22px;
     line-height: 22px;
     right: 4px;
-    width: 75px;
+    width: 85px;
     text-align: center;
     user-select: none;
     border-radius: 1px;
 }
 
-.che-plugin-list .che-plugin-action-add {
+/*************************************************************************
+ *
+ * Install
+ *
+ *************************************************************************/
+.che-plugin-list .che-plugin-action-install {
     cursor: pointer;
     color: var(--theia-button-foreground);
     background-color: var(--theia-button-background);
 }
 
-.che-plugin-list .che-plugin-action-add:hover {
+.che-plugin-list .che-plugin-action-install:hover {
     background-color: var(--theia-button-hoverBackground);
 }
 
-.che-plugin-list .che-plugin-action-add:active {
+.che-plugin-list .che-plugin-action-install:active {
     box-shadow: 0px 0px 1px 1px var(--theia-button-hoverBackground);
     outline: none;
 }
 
-.che-plugin-list .che-plugin-action-remove {
-    cursor: pointer;
-    color: var(--theia-inputValidation-warningBackground);
-    background-color: var(--theia-successBackground);
-}
-
-.che-plugin-list .che-plugin-action-remove:hover {
-    color: var(--theia-secondaryButton-foreground);
-    background-color: var(--theia-secondaryButton-hoverBackground);
-}
-
-.che-plugin-list .che-plugin-action-remove:active {
-    box-shadow: 0px 0px 1px 1px var(--theia-successBackground);
-    outline: none;
-}
+/*************************************************************************
+ *
+ * Installing
+ *
+ *************************************************************************/
 
 .che-plugin-list .che-plugin-action-installing {
     color: var(--theia-secondaryButton-disabledForeground);
     background-color: var(--theia-secondaryButton-disabledBackground);
 }
 
+/*************************************************************************
+ *
+ * Installed, To be Installed
+ *
+ *************************************************************************/
+
+.che-plugin-list .che-plugin-action-installed,
+.che-plugin-list .che-plugin-action-to-be-installed {
+    cursor: pointer;
+    color: var(--theia-inputValidation-warningBackground);
+    background-color: var(--theia-successBackground);
+}
+
+.che-plugin-list .che-plugin-action-installed:hover,
+.che-plugin-list .che-plugin-action-to-be-installed:hover {
+    color: var(--theia-secondaryButton-foreground);
+    background-color: var(--theia-secondaryButton-hoverBackground);
+}
+
+.che-plugin-list .che-plugin-action-installed:active,
+.che-plugin-list .che-plugin-action-to-be-installed:active {
+    box-shadow: 0px 0px 1px 1px var(--theia-successBackground);
+    outline: none;
+}
+
+/*************************************************************************
+ *
+ * Removing
+ *
+ *************************************************************************/
+
 .che-plugin-list .che-plugin-action-removing {
     color: var(--theia-secondaryButton-disabledForeground);
     background-color: var(--theia-secondaryButton-disabledBackground);
+}
+
+/*************************************************************************
+ *
+ * To be Removed
+ *
+ *************************************************************************/
+
+.che-plugin-list .che-plugin-action-to-be-removed {
+    cursor: pointer;
+    color: var(--theia-warningForeground);
+    background-color: var(--theia-warningBackground);
+}
+
+.che-plugin-list .che-plugin-action-to-be-removed:hover {
+    color: var(--theia-secondaryButton-foreground);
+    background-color: var(--theia-secondaryButton-hoverBackground);
+}
+
+.che-plugin-list .che-plugin-action-to-be-removed:active {
+    box-shadow: 0px 0px 1px 1px var(--theia-successBackground);
+    outline: none;
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2021 Red Hat, Inc.
+ * Copyright (c) 2021-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -23,12 +23,13 @@ export class K8SHttpServiceImpl implements HttpService {
   @inject(CertificateService)
   private certificateService: CertificateService;
 
-  async get(uri: string): Promise<string | undefined> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async get(uri: string, responseType?: 'text' | 'arraybuffer'): Promise<any | undefined> {
     const axiosInstance = await this.getAxiosInstance(uri);
     try {
       const response = await axiosInstance.get(uri, {
         transformResponse: [data => data],
-        responseType: 'text',
+        responseType: responseType || 'text',
       });
       return response.data;
     } catch (error) {
@@ -53,6 +54,20 @@ export class K8SHttpServiceImpl implements HttpService {
       // not found then we return undefined
       if (error.response && error.response.status === 404) {
         return undefined;
+      }
+      throw error;
+    }
+  }
+
+  async head(uri: string): Promise<boolean> {
+    const axiosInstance = await this.getAxiosInstance(uri);
+    try {
+      await axiosInstance.head(uri);
+      return true;
+    } catch (error) {
+      // not found then we return false
+      if (error.response && error.response.status === 404) {
+        return false;
       }
       throw error;
     }
