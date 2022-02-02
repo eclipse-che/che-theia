@@ -3,14 +3,14 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "0.0.1",
+  "version": "7.43.0",
   "description": "Eclipse Che - Theia Messaging",
   "dependencies": {
     "inversify": "^5.0.1",
-    "@eclipse-che/theia-remote-api": "^0.0.1",
+    "@eclipse-che/theia-remote-api": "7.43.0",
     "ws": "^7.1.2",
-    "@theia/core": "next",
-    "@eclipse-che/theia-plugin-ext": "^0.0.1"
+    "@theia/core": "1.23.0-next.4",
+    "@eclipse-che/theia-plugin-ext": "7.43.0"
   },
   "devDependencies": {
     "ts-jest": "27.0.7",
