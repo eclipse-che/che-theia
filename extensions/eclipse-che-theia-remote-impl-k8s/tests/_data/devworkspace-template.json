@@ -1,0 +1,143 @@
+{
+    "commands": [
+        {
+            "exec": {
+                "commandLine": "java -jar -Dspring-boot.run.profiles=mysql \\\n-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 \\\ntarget/*.jar\n",
+                "component": "tools",
+                "group": {
+                    "isDefault": true,
+                    "kind": "run"
+                },
+                "workingDir": "${PROJECTS_ROOT}/java-spring-petclinic"
+            },
+            "id": "run-with-mysql"
+        },
+        {
+            "exec": {
+                "commandLine": "java -jar -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 target/*.jar",
+                "component": "tools",
+                "group": {
+                    "isDefault": true,
+                    "kind": "run"
+                },
+                "workingDir": "${PROJECTS_ROOT}/java-spring-petclinic"
+            },
+            "id": "run-debug"
+        }
+    ],
+    "components": [
+        {
+            "container": {
+                "args": [
+                    "sh",
+                    "-c",
+                    "${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}"
+                ],
+                "endpoints": [
+                    {
+                        "exposure": "none",
+                        "name": "debug",
+                        "protocol": "tcp",
+                        "targetPort": 5005
+                    },
+                    {
+                        "exposure": "public",
+                        "name": "8080-tcp",
+                        "protocol": "http",
+                        "targetPort": 8080
+                    }
+                ],
+                "env": [
+                    {
+                        "name": "PLUGIN_REMOTE_ENDPOINT_EXECUTABLE",
+                        "value": "/remote-endpoint/plugin-remote-endpoint"
+                    },
+                    {
+                        "name": "THEIA_PLUGINS",
+                        "value": "local-dir:///plugins/sidecars/tools"
+                    }
+                ],
+                "image": "quay.io/devfile/universal-developer-image:ubi8-d433ed6",
+                "memoryLimit": "3Gi",
+                "sourceMapping": "/projects",
+                "volumeMounts": [
+                    {
+                        "name": "m2",
+                        "path": "/home/user/.m2"
+                    },
+                    {
+                        "name": "remote-endpoint",
+                        "path": "/remote-endpoint"
+                    },
+                    {
+                        "name": "plugins",
+                        "path": "/plugins"
+                    }
+                ]
+            },
+            "name": "tools"
+        },
+        {
+            "name": "m2",
+            "volume": {
+                "size": "1G"
+            }
+        },
+        {
+            "container": {
+                "endpoints": [
+                    {
+                        "exposure": "internal",
+                        "name": "db",
+                        "protocol": "tcp",
+                        "targetPort": 3306
+                    }
+                ],
+                "env": [
+                    {
+                        "name": "MYSQL_USER",
+                        "value": "petclinic"
+                    },
+                    {
+                        "name": "MYSQL_PASSWORD",
+                        "value": "petclinic"
+                    },
+                    {
+                        "name": "MYSQL_DATABASE",
+                        "value": "petclinic"
+                    },
+                    {
+                        "name": "PS1",
+                        "value": "$(echo ${0})\\\\$"
+                    }
+                ],
+                "image": "quay.io/eclipse/che--centos--mysql-57-centos7:latest-e08ee4d43b7356607685b69bde6335e27cf20c020f345b6c6c59400183882764",
+                "memoryLimit": "300Mi",
+                "sourceMapping": "/projects"
+            },
+            "name": "mysql"
+        },
+        {
+            "name": "theia-ide-workspace63092f2f66734133",
+            "plugin": {
+                "kubernetes": {
+                    "name": "theia-ide-workspace63092f2f66734133",
+                    "namespace": "admin-che"
+                }
+            }
+        }
+    ],
+    "projects": [
+        {
+            "git": {
+                "checkoutFrom": {
+                    "revision": "devfilev2"
+                },
+                "remotes": {
+                    "origin": "https://github.com/vitaliy-guliy/java-spring-petclinic.git"
+                }
+            },
+            "name": "java-spring-petclinic"
+        }
+    ]
+}

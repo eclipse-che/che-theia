@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2021 Red Hat, Inc.
+ * Copyright (c) 2021-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -13,6 +13,11 @@ import {
   cheCertificateServicePath,
 } from '@eclipse-che/theia-remote-api/lib/common/certificate-service';
 import { CheK8SService, cheK8SServicePath } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
+import {
+  ChePluginService,
+  ChePluginServiceClient,
+  chePluginServicePath,
+} from '@eclipse-che/theia-remote-api/lib/common/plugin-service';
 import { ConnectionHandler, JsonRpcConnectionHandler } from '@theia/core';
 import { DashboardService, cheDashboardServicePath } from '@eclipse-che/theia-remote-api/lib/common/dashboard-service';
 import { DevfileService, cheDevfileServicePath } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
@@ -35,6 +40,7 @@ import { K8sDevfileServiceImpl } from './k8s-devfile-service-impl';
 import { K8sEndpointServiceImpl } from './k8s-endpoint-service-impl';
 import { K8sFactoryServiceImpl } from './k8s-factory-service-impl';
 import { K8sOAuthServiceImpl } from './k8s-oauth-service-impl';
+import { K8sPluginServiceImpl } from './k8s-plugin-service-impl';
 import { K8sSshKeyServiceImpl } from './k8s-ssh-key-service-impl';
 import { K8sTelemetryServiceImpl } from './k8s-telemetry-service-impl';
 import { K8sUserServiceImpl } from './k8s-user-service-impl';
@@ -53,7 +59,9 @@ export default new ContainerModule(bind => {
   bind(K8sSshKeyServiceImpl).toSelf().inSingletonScope();
   bind(K8sTelemetryServiceImpl).toSelf().inSingletonScope();
   bind(K8sUserServiceImpl).toSelf().inSingletonScope();
+
   bind(K8sWorkspaceServiceImpl).toSelf().inSingletonScope();
+
   bind(K8SServiceImpl).toSelf().inSingletonScope();
   bind(K8sDevfileServiceImpl).toSelf().inSingletonScope();
   bind(K8sEndpointServiceImpl).toSelf().inSingletonScope();
@@ -67,7 +75,9 @@ export default new ContainerModule(bind => {
   bind(SshKeyService).to(K8sSshKeyServiceImpl).inSingletonScope();
   bind(TelemetryService).to(K8sTelemetryServiceImpl).inSingletonScope();
   bind(UserService).to(K8sUserServiceImpl).inSingletonScope();
+
   bind(WorkspaceService).to(K8sWorkspaceServiceImpl).inSingletonScope();
+
   bind(CheK8SService).to(K8SServiceImpl).inSingletonScope();
   bind(DevfileService).to(K8sDevfileServiceImpl).inSingletonScope();
   bind(EndpointService).to(K8sEndpointServiceImpl).inSingletonScope();
@@ -105,6 +115,21 @@ export default new ContainerModule(bind => {
   bind(ConnectionHandler)
     .toDynamicValue(
       ctx => new JsonRpcConnectionHandler(cheWorkspaceServicePath, () => ctx.container.get(WorkspaceService))
+    )
+    .inSingletonScope();
+
+  bind(K8sPluginServiceImpl).toSelf().inSingletonScope();
+  bind(ChePluginService).to(K8sPluginServiceImpl).inSingletonScope();
+
+  bind(ConnectionHandler)
+    .toDynamicValue(
+      ctx =>
+        new JsonRpcConnectionHandler<ChePluginServiceClient>(chePluginServicePath, client => {
+          const server: ChePluginService = ctx.container.get(ChePluginService);
+          server.setClient(client);
+          client.onDidCloseConnection(() => server.disconnectClient(client));
+          return server;
+        })
     )
     .inSingletonScope();
 

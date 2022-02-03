@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2019-2020 Red Hat, Inc.
+ * Copyright (c) 2019-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import { ChePluginMetadata } from '../che-plugin-protocol';
+import { ChePluginMetadata } from '@eclipse-che/theia-remote-api/lib/common/plugin-service';
 
 export namespace PluginFilter {
   // @installed
@@ -49,10 +49,8 @@ export namespace PluginFilter {
     const filters = filter.split(' ');
 
     filters.forEach(f => {
-      if (f) {
-        if (!f.startsWith('@')) {
-          filteredPlugins = PluginFilter.filterByText(filteredPlugins, f);
-        }
+      if (f && !f.startsWith('@')) {
+        filteredPlugins = PluginFilter.filterByText(filteredPlugins, f);
       }
     });
 

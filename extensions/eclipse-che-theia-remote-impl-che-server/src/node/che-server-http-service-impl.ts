@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2021 Red Hat, Inc.
+ * Copyright (c) 2021-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -23,12 +23,13 @@ export class CheServerHttpServiceImpl implements HttpService {
   @inject(CertificateService)
   private certificateService: CertificateService;
 
-  async get(uri: string): Promise<string | undefined> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async get(uri: string, responseType?: 'text' | 'arraybuffer'): Promise<any | undefined> {
     const axiosInstance = await this.getAxiosInstance(uri);
     try {
       const response = await axiosInstance.get(uri, {
         transformResponse: [data => data],
-        responseType: 'text',
+        responseType: responseType || 'text',
       });
       return response.data;
     } catch (error) {
@@ -43,6 +44,10 @@ export class CheServerHttpServiceImpl implements HttpService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async post(uri: string, data?: any): Promise<string | undefined> {
     throw new Error('httpsService.post() not supported');
+  }
+
+  async head(uri: string): Promise<boolean> {
+    throw new Error('httpsService.head() not supported');
   }
 
   /**

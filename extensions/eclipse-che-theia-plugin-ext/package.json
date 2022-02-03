@@ -37,7 +37,9 @@
     "drivelist": "9.0.2",
     "@eclipse-che/theia-remote-api": "^0.0.1",
     "@eclipse-che/workspace-telemetry-client": "latest",
-    "mime": "2.5.2"
+    "mime": "2.5.2",
+    "react": "^16.8.0",
+    "@phosphor/messaging": "1"
   },
   "devDependencies": {
     "clean-webpack-plugin": "^3.0.0",

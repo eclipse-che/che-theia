@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -17,7 +17,6 @@ import {
   CheTaskClient,
   CheTaskService,
 } from '../common/che-protocol';
-import { CHE_PLUGIN_SERVICE_PATH, ChePluginService, ChePluginServiceClient } from '../common/che-plugin-protocol';
 import { ConnectionHandler, JsonRpcConnectionHandler } from '@theia/core';
 
 import { BackendApplicationContribution } from '@theia/core/lib/node/backend-application';
@@ -26,14 +25,13 @@ import { CheEnvVariablesServerImpl } from './che-env-variables-server';
 import { CheGithubServiceImpl } from './che-github-service';
 import { ChePluginApiContribution } from './che-plugin-script-service';
 import { ChePluginApiProvider } from './che-plugin-api-provider';
-import { ChePluginServiceImpl } from './che-plugin-service';
 import { CheProductServiceImpl } from './che-product-service';
 import { CheTaskServiceImpl } from './che-task-service';
 import { ContainerModule } from 'inversify';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { ExtPluginApiProvider } from '@theia/plugin-ext';
-import { PluginApiContribution } from '@theia/plugin-ext/lib/main/node/plugin-service';
-import { PluginApiContributionIntercepted } from './plugin-service';
+import { PluginApiContribution as WsRequestValidatorContributionImpl } from '@theia/plugin-ext/lib/main/node/plugin-service';
+import { WsRequestValidatorContributionIntercepted } from './ws-request-validator-contribution';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
   bind(CheEnvVariablesServerImpl).toSelf().inSingletonScope();
@@ -47,7 +45,7 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
   bind(BackendApplicationContribution).toService(ChePluginApiContribution);
   bind(BackendApplicationContribution).toService(CheClientIpServiceContribution);
 
-  rebind(PluginApiContribution).to(PluginApiContributionIntercepted).inSingletonScope();
+  rebind(WsRequestValidatorContributionImpl).to(WsRequestValidatorContributionIntercepted).inSingletonScope();
 
   bind(CheTaskService)
     .toDynamicValue(ctx => new CheTaskServiceImpl(ctx.container))
@@ -57,21 +55,6 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
       ctx =>
         new JsonRpcConnectionHandler<CheTaskClient>(CHE_TASK_SERVICE_PATH, client => {
           const server: CheTaskService = ctx.container.get(CheTaskService);
-          server.setClient(client);
-          client.onDidCloseConnection(() => server.disconnectClient(client));
-          return server;
-        })
-    )
-    .inSingletonScope();
-
-  bind(ChePluginService)
-    .toDynamicValue(ctx => new ChePluginServiceImpl(ctx.container))
-    .inSingletonScope();
-  bind(ConnectionHandler)
-    .toDynamicValue(
-      ctx =>
-        new JsonRpcConnectionHandler<ChePluginServiceClient>(CHE_PLUGIN_SERVICE_PATH, client => {
-          const server: ChePluginService = ctx.container.get(ChePluginService);
           server.setClient(client);
           client.onDidCloseConnection(() => server.disconnectClient(client));
           return server;

@@ -72,7 +72,8 @@ declare module '@eclipse-che/plugin' {
         }
 
         export interface Devfile {
-            apiVersion: string;
+            apiVersion?: string;
+            schemaVersion?: string;
             attributes?: { [attributeName: string]: string };
             metadata: DevfileMetadata;
             projects?: DevfileProject[];

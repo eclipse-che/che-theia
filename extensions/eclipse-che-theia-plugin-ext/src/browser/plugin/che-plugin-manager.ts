@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,28 +9,50 @@
  ***********************************************************************/
 
 import {
-  ChePlugin,
+  Changes,
   ChePluginMetadata,
   ChePluginRegistries,
   ChePluginRegistry,
   ChePluginService,
-} from '../../common/che-plugin-protocol';
+} from '@eclipse-che/theia-remote-api/lib/common/plugin-service';
 import { ConfirmDialog, OpenerService } from '@theia/core/lib/browser';
-import { Emitter, Event, MessageService } from '@theia/core/lib/common';
+import { ConnectionStatus, ConnectionStatusService } from '@theia/core/lib/browser/connection-status-service';
+import { Emitter, Event, MessageService, MessageType, ProgressMessage, ProgressService } from '@theia/core/lib/common';
 import { PreferenceChange, PreferenceScope, PreferenceService } from '@theia/core/lib/browser/preferences';
 import { inject, injectable, postConstruct } from 'inversify';
 
 import { ChePluginFrontentService } from './che-plugin-frontend-service';
 import { ChePluginPreferences } from './che-plugin-preferences';
 import { ChePluginServiceClientImpl } from './che-plugin-service-client';
+import { DashboardService } from '@eclipse-che/theia-remote-api/lib/common/dashboard-service';
 import { DevfileService } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
-import { PluginFilter } from '../../common/plugin/plugin-filter';
+import { PluginFilter } from './plugin-filter';
 import { PluginServer } from '@theia/plugin-ext/lib/common/plugin-protocol';
 import URI from '@theia/core/lib/common/uri';
 import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 
 import debounce = require('lodash.debounce');
+
+export type ChePluginStatus =
+  | 'not_installed'
+  | 'installed'
+  | 'installing'
+  | 'removing'
+  | 'to_be_installed'
+  | 'to_be_removed'
+  | 'cancelling_installation'
+  | 'cancelling_removal';
+
+export interface ChePlugin {
+  publisher: string;
+  name: string;
+  version: string;
+  status: ChePluginStatus;
+  versionList: {
+    [version: string]: ChePluginMetadata;
+  };
+}
 
 @injectable()
 export class ChePluginManager {
@@ -45,19 +67,34 @@ export class ChePluginManager {
   private registryList: ChePluginRegistry[];
 
   /**
-   * List of installed plugins.
+   * List of installed plugins in format ${publisher}/${name}/${version}
    * Initialized by plugins received from workspace config.
    */
   private installedPlugins: string[];
 
+  /**
+   * List of plugins in format ${publisher}/${name}/${version}
+   * that will be installed and removed.
+   */
+  private changes: Changes = { toInstall: [], toRemove: [] };
+
   @inject(ChePluginService)
   protected readonly chePluginService: ChePluginService;
+
+  @inject(DashboardService)
+  protected readonly dashboardService: DashboardService;
 
   @inject(PluginServer)
   protected readonly pluginServer: PluginServer;
 
   @inject(MessageService)
   protected readonly messageService: MessageService;
+
+  @inject(ProgressService)
+  protected readonly progressService: ProgressService;
+
+  @inject(ConnectionStatusService)
+  protected readonly connectionStatusService: ConnectionStatusService;
 
   @inject(EnvVariablesServer)
   protected readonly envVariablesServer: EnvVariablesServer;
@@ -83,14 +120,32 @@ export class ChePluginManager {
   @inject(DevfileService)
   protected readonly devfileService: DevfileService;
 
+  private pageReloadURL: string | undefined;
+
+  protected onInitialized: () => void;
+  protected onInitializationFailed: () => void;
+
+  protected init: Promise<void> = new Promise<void>((resolve, reject) => {
+    this.onInitialized = resolve;
+    this.onInitializationFailed = reject;
+  });
+
   @postConstruct()
   async onStart(): Promise<void> {
-    await this.initDefaults();
+    try {
+      await this.initDefaults();
+      this.onInitialized();
+    } catch (error) {
+      this.onInitializationFailed();
+    }
+
     const fireChanged = debounce(() => this.pluginRegistryListChangedEvent.fire(), 5000);
+
     this.preferenceService.onPreferenceChanged(async (event: PreferenceChange) => {
       if (event.preferenceName !== 'chePlugins.repositories') {
         return;
       }
+
       const oldPrefs = event.oldValue;
       if (oldPrefs) {
         for (const repoName of Object.keys(oldPrefs)) {
@@ -100,6 +155,7 @@ export class ChePluginManager {
           }
         }
       }
+
       const newPrefs = event.newValue;
       if (newPrefs) {
         for (const repoName of Object.keys(newPrefs)) {
@@ -109,6 +165,7 @@ export class ChePluginManager {
       // notify that plugin registry list has been changed
       fireChanged();
     });
+
     this.chePluginServiceClient.onInvalidRegistryFound(async registry => {
       const result = await this.messageService.warn(
         `Invalid plugin registry URL: "${registry.internalURI}" is detected`,
@@ -120,6 +177,51 @@ export class ChePluginManager {
         this.openerService.getOpener(uri).then(opener => opener.open(uri));
       }
     });
+
+    this.chePluginServiceClient.onAskToInstallDependencies(async ask => {
+      const confirm = new ConfirmDialog({
+        title: 'Required Dependencies',
+        msg: `Plugin requires to install ${ask.dependencies.toString()}`,
+        ok: 'Install',
+      });
+
+      if (await confirm.open()) {
+        // remove necessary dependencies from toRemove list if present
+        ask.dependencies.forEach(dependency => {
+          if (this.changes.toRemove.find(value => value === dependency)) {
+            this.changes.toRemove = this.changes.toRemove.filter(value => value !== dependency);
+          }
+        });
+
+        // add dependencies toInstall list
+        ask.dependencies.forEach(dependency => {
+          if (!this.changes.toInstall.find(value => value === dependency)) {
+            this.changes.toInstall.push(dependency);
+          }
+        });
+
+        // notify backend
+        ask.confirm();
+      } else {
+        ask.deny();
+      }
+    });
+
+    this.connectionStatusService.onStatusChange(status => {
+      if (status === ConnectionStatus.OFFLINE) {
+        this.handleOffline();
+      }
+    });
+  }
+
+  /********************************************************************************
+   * Using to notify plugins view, that the plugin service is appying changes
+   ********************************************************************************/
+
+  protected readonly applyingChangesEvent = new Emitter<boolean>();
+
+  get onApplyingChanges(): Event<boolean> {
+    return this.applyingChangesEvent.event;
   }
 
   /********************************************************************************
@@ -166,20 +268,40 @@ export class ChePluginManager {
     }
   }
 
+  private initialized = false;
+
+  private deferredInstallation = false;
+
   private async initDefaults(): Promise<void> {
-    if (!this.defaultRegistry) {
-      this.defaultRegistry = await this.chePluginService.getDefaultRegistry();
+    if (this.initialized) {
+      return;
     }
 
-    if (!this.registryList) {
-      this.registryList = [this.defaultRegistry];
-      await this.restoreRegistryList();
-    }
+    this.defaultRegistry = await this.chePluginService.getDefaultRegistry();
 
-    if (!this.installedPlugins) {
-      // Get list of plugins from workspace config
-      this.installedPlugins = await this.chePluginService.getWorkspacePlugins();
+    this.registryList = [this.defaultRegistry];
+    await this.restoreRegistryList();
+
+    // Get list of installed plugins
+    this.installedPlugins = await this.chePluginService.getInstalledPlugins();
+
+    // check for deferred installation
+    this.deferredInstallation = await this.chePluginService.deferredInstallation();
+
+    // for deferred installation get list of changes
+    const unpersistedChanges = await this.chePluginService.getUnpersistedChanges();
+    if (unpersistedChanges) {
+      this.changes = {
+        toInstall: [...unpersistedChanges.toInstall],
+        toRemove: [...unpersistedChanges.toRemove],
+      };
+    } else {
+      this.changes = { toInstall: [], toRemove: [] };
     }
+  }
+
+  isDeferredInstallation(): boolean {
+    return this.deferredInstallation;
   }
 
   addRegistry(registry: ChePluginRegistry): void {
@@ -211,7 +333,7 @@ export class ChePluginManager {
    * Udates the Plugin cache
    */
   async updateCache(): Promise<void> {
-    await this.initDefaults();
+    await this.init;
 
     /**
      * Need to prepare this object to pass the plugins array through RPC.
@@ -247,7 +369,7 @@ export class ChePluginManager {
    * Returns plugin list from active registry
    */
   async getPlugins(filter: string): Promise<ChePlugin[]> {
-    await this.initDefaults();
+    await this.init;
 
     if (PluginFilter.hasType(filter, '@builtin')) {
       try {
@@ -258,12 +380,8 @@ export class ChePluginManager {
       }
     }
 
-    // Filter plugins if user requested the list of installed plugins
-    if (PluginFilter.hasType(filter, '@installed')) {
-      return await this.getInstalledPlugins(filter);
-    }
-
-    return await this.getAllPlugins(filter);
+    const installedPluginsOnly = PluginFilter.hasType(filter, '@installed');
+    return this.getAllPlugins(filter, installedPluginsOnly);
   }
 
   private async getBuiltInPlugins(filter: string): Promise<ChePlugin[]> {
@@ -274,64 +392,50 @@ export class ChePluginManager {
   /**
    * Returns the list of available plugins for the active plugin registry.
    */
-  private async getAllPlugins(filter: string): Promise<ChePlugin[]> {
+  private async getAllPlugins(filter: string, listInstalledOnly?: boolean): Promise<ChePlugin[]> {
     // get list of all plugins
-    const rawPlugins = await this.chePluginService.getPlugins(filter);
+    const rawPlugins = await this.chePluginService.getPlugins();
+    const filteredPlugins = PluginFilter.filterPlugins(rawPlugins, filter);
 
     // group the plugins
-    const grouppedPlugins = this.groupPlugins(rawPlugins);
-
-    // prepare list of installed plugins without versions and repository URI
-    const installedPluginsInfo = this.getInstalledPluginsInfo();
-
-    // update `installed` field for all the plugin
-    // if the plugin is installed, we need to set the proper version
-    grouppedPlugins.forEach(plugin => {
-      const publisherName = `${plugin.publisher}/${plugin.name}`;
-      installedPluginsInfo.forEach(info => {
-        if (info.publisherName === publisherName) {
-          // set plugin is installed
-          plugin.installed = true;
-          // set intalled version
-          plugin.version = info.version;
-        }
-      });
-    });
-
-    return grouppedPlugins;
-  }
-
-  /**
-   * Returns the list of installed plugins
-   */
-  private async getInstalledPlugins(filter: string): Promise<ChePlugin[]> {
-    const rawPlugins: ChePluginMetadata[] = await this.chePluginService.getPlugins(filter);
-
-    // group the plugins
-    const grouppedPlugins = this.groupPlugins(rawPlugins);
+    const grouppedPlugins = this.groupPlugins(filteredPlugins);
 
     // prepare list of installed plugins without versions and repository URI
     const installedPluginsInfo = this.getInstalledPluginsInfo();
 
     const installedPlugins: ChePlugin[] = [];
 
-    // update `installed` field for all the plugin
-    // if the plugin is installed, we ned to set the proper version
+    // if the plugin is installed, we need to set the proper version
     grouppedPlugins.forEach(plugin => {
-      const publisherName = `${plugin.publisher}/${plugin.name}`;
-      installedPluginsInfo.forEach(info => {
-        if (info.publisherName === publisherName) {
+      // check whether plugin is installed
+      installedPluginsInfo.forEach(value => {
+        if (plugin.publisher === value.publisher && plugin.name === value.name) {
           // set plugin is installed
-          plugin.installed = true;
+          plugin.status = 'installed';
           // set intalled version
-          plugin.version = info.version;
-
+          plugin.version = value.version;
           installedPlugins.push(plugin);
+        }
+      });
+
+      // check whether plugin will be installed
+      this.changes.toInstall.forEach(value => {
+        const parts = value.split('/');
+        if (plugin.publisher === parts[0] && plugin.name === parts[1]) {
+          plugin.status = 'to_be_installed';
+        }
+      });
+
+      // check whether plugin will be removed
+      this.changes.toRemove.forEach(value => {
+        const parts = value.split('/');
+        if (plugin.publisher === parts[0] && plugin.name === parts[1]) {
+          plugin.status = 'to_be_removed';
         }
       });
     });
 
-    return installedPlugins;
+    return listInstalledOnly ? installedPlugins : grouppedPlugins;
   }
 
   /**
@@ -349,7 +453,7 @@ export class ChePluginManager {
    * must be replaced on
    *     eclipse-che/tree-view-sample-plugin
    */
-  private getInstalledPluginsInfo(): { publisherName: string; version: string }[] {
+  private getInstalledPluginsInfo(): { publisher: string; name: string; version: string }[] {
     // prepare the list of registries
     // we need to remove the registry URI from the start of the plugin
     const registries: string[] = [];
@@ -368,7 +472,8 @@ export class ChePluginManager {
       registries.push(uri);
     });
 
-    const plugins: { publisherName: string; version: string }[] = [];
+    const plugins: { publisher: string; name: string; version: string }[] = [];
+
     this.installedPlugins.forEach(plugin => {
       if (plugin.endsWith('/meta.yaml')) {
         // it's non default registry
@@ -388,8 +493,11 @@ export class ChePluginManager {
         }
       });
 
+      const parts = plugin.split('/');
+
       plugins.push({
-        publisherName: plugin,
+        publisher: parts[0],
+        name: parts[1],
         version,
       });
     });
@@ -411,7 +519,7 @@ export class ChePluginManager {
           publisher: plugin.publisher,
           name: plugin.name,
           version: plugin.version,
-          installed: false,
+          status: 'not_installed',
           versionList: {},
         };
 
@@ -438,24 +546,31 @@ export class ChePluginManager {
    */
   async install(plugin: ChePlugin): Promise<boolean> {
     const metadata = plugin.versionList[plugin.version];
+    const pluginId = `${plugin.publisher}/${plugin.name}/${plugin.version}`;
 
     try {
       // add the plugin to workspace configuration
-      await this.chePluginService.addPlugin(metadata.key);
-      this.messageService.info(
-        `Plugin '${metadata.publisher}/${metadata.name}/${metadata.version}' has been successfully installed`
-      );
+      const installed = await this.chePluginService.installPlugin(metadata.key);
+      if (!installed) {
+        return false;
+      }
 
-      // add the plugin to the list of workspace plugins
-      this.installedPlugins.push(metadata.key);
+      if (this.deferredInstallation) {
+        if (!this.changes.toInstall.find(value => value === pluginId)) {
+          this.changes.toInstall.push(pluginId);
+        }
+      } else {
+        this.messageService.info(`Plugin '${pluginId}' has been successfully installed`);
+        // add the plugin to the list of workspace plugins
+        this.installedPlugins.push(metadata.key);
+      }
 
       // notify that workspace configuration has been changed
       this.notifyWorkspaceConfigurationChanged();
+
       return true;
     } catch (error) {
-      this.messageService.error(
-        `Unable to install plugin '${metadata.publisher}/${metadata.name}/${metadata.version}'. ${error.message}`
-      );
+      this.messageService.error(`Unable to install plugin '${pluginId}'. ${error.message}`);
       return false;
     }
   }
@@ -465,23 +580,64 @@ export class ChePluginManager {
    */
   async remove(plugin: ChePlugin): Promise<boolean> {
     const metadata = plugin.versionList[plugin.version];
+    const pluginId = `${plugin.publisher}/${plugin.name}/${plugin.version}`;
 
     try {
       // remove the plugin from workspace configuration
-      const key = `${metadata.publisher}/${metadata.name}/${metadata.version}`;
-      await this.chePluginService.removePlugin(key);
-      this.messageService.info(`Plugin '${key}' has been successfully removed`);
+      await this.chePluginService.removePlugin(pluginId);
 
-      // remove the plugin from the list of workspace plugins
-      this.installedPlugins = this.installedPlugins.filter(p => p !== metadata.key);
+      if (this.deferredInstallation) {
+        if (!this.changes.toRemove.find(value => value === pluginId)) {
+          this.changes.toRemove.push(pluginId);
+        }
+      } else {
+        this.messageService.info(`Plugin '${pluginId}' has been successfully removed`);
+
+        // remove the plugin from the list of workspace plugins
+        this.installedPlugins = this.installedPlugins.filter(p => p !== metadata.key);
+      }
 
       // notify that workspace configuration has been changed
       this.notifyWorkspaceConfigurationChanged();
       return true;
     } catch (error) {
-      this.messageService.error(
-        `Unable to remove plugin '${metadata.publisher}/${metadata.name}/${metadata.version}'. ${error.message}`
-      );
+      this.messageService.warn(error.message ? error.message : error);
+      return false;
+    }
+  }
+
+  async undoInstall(plugin: ChePlugin): Promise<boolean> {
+    const pluginId = `${plugin.publisher}/${plugin.name}/${plugin.version}`;
+
+    try {
+      // remove the plugin from workspace configuration
+      await this.chePluginService.removePlugin(pluginId);
+
+      this.changes.toInstall = this.changes.toInstall.filter(value => value !== pluginId);
+
+      // notify that workspace configuration has been changed
+      this.notifyWorkspaceConfigurationChanged();
+
+      return true;
+    } catch (error) {
+      this.messageService.warn(error.message ? error.message : error);
+      return false;
+    }
+  }
+
+  async undoRemove(plugin: ChePlugin): Promise<boolean> {
+    const pluginId = `${plugin.publisher}/${plugin.name}/${plugin.version}`;
+
+    try {
+      // call installPlugin to revert plugin removal
+      await this.chePluginService.installPlugin(pluginId);
+      this.changes.toRemove = this.changes.toRemove.filter(value => value !== pluginId);
+
+      // notify that workspace configuration has been changed
+      this.notifyWorkspaceConfigurationChanged();
+      return true;
+    } catch (error) {
+      this.messageService.error(`Unable to remove plugin '${pluginId}'. ${error.message}`);
       return false;
     }
   }
@@ -572,7 +728,7 @@ export class ChePluginManager {
    * If yes, IDE can send request to the dashboard to restart the workspace.
    */
   restartEnabled(): boolean {
-    return window.parent !== window;
+    return window.parent !== window || this.deferredInstallation;
   }
 
   async restartWorkspace(): Promise<void> {
@@ -591,6 +747,82 @@ export class ChePluginManager {
       const cheMachineTokenValue = cheMachineToken && cheMachineToken.value ? cheMachineToken.value : '';
       // ask Dashboard to restart the workspace giving him workspace ID & machine token
       window.parent.postMessage(`restart-workspace:${cheWorkspaceID}:${cheMachineTokenValue}`, '*');
+    }
+  }
+
+  async finalizeInstallation(): Promise<void> {
+    this.pageReloadURL = await this.dashboardService.getEditorUrl();
+
+    try {
+      if (this.pageReloadURL) {
+        const confirm = new ConfirmDialog({
+          title: 'Restart Workspace',
+          msg: 'After applying changes your workspace will be restarted',
+          ok: 'Apply and Restart',
+        });
+
+        if (await confirm.open()) {
+          await this.appyChanges();
+        }
+      } else {
+        await this.chePluginService.persist();
+      }
+    } catch (error) {
+      this.messageService.error(error.message);
+    }
+  }
+
+  private async appyChanges(): Promise<void> {
+    this.applyingChangesEvent.fire(true);
+
+    const message: ProgressMessage = {
+      type: MessageType.Progress,
+      text: 'Applying changes...',
+      options: {
+        location: 'notification',
+      },
+    };
+
+    const progress = await this.progressService.showProgress(message);
+
+    try {
+      await this.chePluginService.persist();
+      progress.report({
+        work: {
+          total: 1,
+          done: 1,
+        },
+      });
+
+      // in case ConnectionStatusService will not catch switching to offline mode,
+      // this timer will guarantee the page will be reloaded
+      await new Promise<void>(resolve => setTimeout(resolve, 5000));
+      await this.handleOffline();
+    } catch (e) {
+      progress.cancel();
+
+      this.messageService.error(e.message ? e.message : e);
+
+      const confirm = new ConfirmDialog({
+        title: 'Try again',
+        msg: 'An error occured while applying changes. Would you like to retry?',
+        ok: 'Retry',
+      });
+
+      if (await confirm.open()) {
+        await this.appyChanges();
+      } else {
+        this.pageReloadURL = undefined;
+        this.applyingChangesEvent.fire(false);
+      }
+    }
+  }
+
+  async handleOffline(): Promise<void> {
+    if (this.pageReloadURL) {
+      // timeout here lets Theia to update the UI after switching to offline mode
+      await new Promise<void>(resolve => setTimeout(resolve, 500));
+      window.location.replace(this.pageReloadURL);
     }
   }
 }

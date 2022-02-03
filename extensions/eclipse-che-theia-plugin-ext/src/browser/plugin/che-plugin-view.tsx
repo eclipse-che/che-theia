@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -12,9 +12,8 @@ import { injectable, inject, postConstruct } from 'inversify';
 import { Message } from '@phosphor/messaging';
 import { AlertMessage } from '@theia/core/lib/browser/widgets/alert-message';
 import * as React from 'react';
-import { ChePlugin } from '../../common/che-plugin-protocol';
 import { ChePluginServiceClientImpl } from './che-plugin-service-client';
-import { ChePluginManager } from './che-plugin-manager';
+import { ChePlugin, ChePluginManager } from './che-plugin-manager';
 import { ChePluginMenu } from './che-plugin-menu';
 import { ConfirmDialog } from '@theia/core/lib/browser';
 import { ChePluginViewToolbar } from './che-plugin-view-toolbar';
@@ -69,6 +68,7 @@ export class ChePluginView extends PluginWidget {
     protected init(): void {
         this.toDispose.push(this.chePluginManager.onWorkspaceConfigurationChanged(needToRestart => this.onWorkspaceConfigurationChanged()));
         this.toDispose.push(this.chePluginManager.onPluginRegistryListChanged(() => this.updateCache()));
+        this.toDispose.push(this.chePluginManager.onApplyingChanges(lock => this.onApplyingChanges(lock)));
         this.toDispose.push(this.chePluginMenu.onChangeFilter(filter => this.onChangeFilter(filter)));
         this.toDispose.push(this.chePluginMenu.onRefreshPluginList(() => this.updateCache()));
         this.toDispose.push(this.chePluginServiceClient.onPluginCacheSizeChanged(plugins => this.onPluginCacheSizeChanged(plugins)));
@@ -89,6 +89,11 @@ export class ChePluginView extends PluginWidget {
     protected async onWorkspaceConfigurationChanged(): Promise<void> {
         this.showRestartWorkspaceNotification = true;
         this.filter();
+    }
+
+    protected async onApplyingChanges(lock: boolean): Promise<void> {
+        this.status = lock ? 'loading' : 'filtering';
+        this.update();
     }
 
     protected async onPluginCacheSizeChanged(plugins: number): Promise<void> {
@@ -265,32 +270,57 @@ export class ChePluginView extends PluginWidget {
 
             const restartEnabled = this.chePluginManager.restartEnabled();
 
-            let notificationStyle = this.hidingRestartWorkspaceNotification ? 'notification hiding' : 'notification';
-            if (restartEnabled) {
-                notificationStyle += ' notification-button-panel';
+            let notificationInnerStyle = this.hidingRestartWorkspaceNotification ? 'notification hiding' : 'notification';
+            if (restartEnabled && this.status !== 'loading') {
+                notificationInnerStyle += ' notification-button-panel';
             }
 
-            const notification = restartEnabled ?
-                <div className='notification-button' onClick={this.onRestartWorkspaceNotificationClicked}
-                    title='Click to restart your workspace with applying changes'>
-                    <div className='notification-message-icon'><i className='fa fa-check-circle'></i></div>
-                    <div className='notification-message-text'>Click here to apply changes and restart your workspace</div>
-                </div>
-                :
+            let notification;
+            if (restartEnabled) {
+                if (this.chePluginManager.isDeferredInstallation()) {
+                    if (this.status === 'loading') {
+                        notification =
+                        <div className='notification-persist-button'
+                            title='Applying changes...'>
+                            <div className='notification-message-icon'><i className='fa fa-check-circle'></i></div>
+                            <div className='notification-message-text'>Applying changes...</div>
+                        </div>
+                    } else {
+                        notification =
+                        <div className='notification-persist-button' onClick={this.onApplyChangesClicked}
+                            title='Click here to apply changes and restart your workspace'>
+                            <div className='notification-message-icon'><i className='fa fa-check-circle'></i></div>
+                            <div className='notification-message-text'>Apply changes and restart your workspace</div>
+                        </div>
+                    }
+                } else {
+                    notification =
+                    <div className='notification-button' onClick={this.onRestartWorkspaceNotificationClicked}
+                        title='Click to restart your workspace with applying changes'>
+                        <div className='notification-message-icon'><i className='fa fa-check-circle'></i></div>
+                        <div className='notification-message-text'>Click here to apply changes and restart your workspace</div>
+                    </div>
+                }
+            } else {
+                notification =
                 <div className='notification-message'
                     title='Use dashboard to apply changes and restart your workspace'>
                     <div className='notification-message-icon'><i className='fa fa-exclamation-triangle'></i></div>
                     <div className='notification-message-text'>Use dashboard to apply changes and restart your workspace</div>
                 </div>;
+            }
+
+            const control = this.chePluginManager.isDeferredInstallation() ? undefined :
+                <div className='notification-control'>
+                    <div className='notification-hide' onClick={this.hideNotification} title='Hide'>
+                        <i className='fa fa-close alert-close' ></i>
+                    </div>
+                </div>;
 
             return <div className='che-plugins-notification'>
-                <div className={notificationStyle}>
+                <div className={notificationInnerStyle}>
                     {notification}
-                    <div className='notification-control'>
-                        <div className='notification-hide' onClick={this.hideNotification} title='Hide'>
-                            <i className='fa fa-close alert-close' ></i>
-                        </div>
-                    </div>
+                    {control}
                 </div>
             </div>;
         }
@@ -341,6 +371,10 @@ export class ChePluginView extends PluginWidget {
     protected onRestartWorkspaceNotificationClicked = async () => {
         await this.chePluginManager.restartWorkspace();
     };
+
+    protected onApplyChangesClicked = async () => {
+        await this.chePluginManager.finalizeInstallation();
+    }
 
     protected hideNotification = async () => {
         this.hidingRestartWorkspaceNotification = true;

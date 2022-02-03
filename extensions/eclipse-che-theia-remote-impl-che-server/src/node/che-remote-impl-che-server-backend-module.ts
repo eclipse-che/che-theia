@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2020 Red Hat, Inc.
+ * Copyright (c) 2020-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -13,6 +13,11 @@ import {
   cheCertificateServicePath,
 } from '@eclipse-che/theia-remote-api/lib/common/certificate-service';
 import { CheK8SService, cheK8SServicePath } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
+import {
+  ChePluginService,
+  ChePluginServiceClient,
+  chePluginServicePath,
+} from '@eclipse-che/theia-remote-api/lib/common/plugin-service';
 import { ConnectionHandler, JsonRpcConnectionHandler } from '@theia/core';
 import { DashboardService, cheDashboardServicePath } from '@eclipse-che/theia-remote-api/lib/common/dashboard-service';
 import { DevfileService, cheDevfileServicePath } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
@@ -33,6 +38,7 @@ import { CheServerEndpointServiceImpl } from './che-server-endpoint-service-impl
 import { CheServerFactoryServiceImpl } from './che-server-factory-service-impl';
 import { CheServerHttpServiceImpl } from './che-server-http-service-impl';
 import { CheServerOAuthServiceImpl } from './che-server-oauth-service-impl';
+import { CheServerPluginServiceImpl } from './che-server-plugin-service-impl';
 import { CheServerRemoteApiImpl } from './che-server-remote-api-impl';
 import { CheServerSshKeyServiceImpl } from './che-server-ssh-key-service-impl';
 import { CheServerTelemetryServiceImpl } from './che-server-telemetry-service-impl';
@@ -56,7 +62,10 @@ export default new ContainerModule(bind => {
   bind(CheServerSshKeyServiceImpl).toSelf().inSingletonScope();
   bind(CheServerTelemetryServiceImpl).toSelf().inSingletonScope();
   bind(CheServerUserServiceImpl).toSelf().inSingletonScope();
+
   bind(CheServerWorkspaceServiceImpl).toSelf().inSingletonScope();
+  bind(CheServerPluginServiceImpl).toSelf().inSingletonScope();
+
   bind(CheServerDevfileServiceImpl).toSelf().inSingletonScope();
   bind(CheServerEndpointServiceImpl).toSelf().inSingletonScope();
   bind(CheK8SServiceImpl).toSelf().inSingletonScope();
@@ -69,7 +78,10 @@ export default new ContainerModule(bind => {
   bind(SshKeyService).to(CheServerSshKeyServiceImpl).inSingletonScope();
   bind(TelemetryService).to(CheServerTelemetryServiceImpl).inSingletonScope();
   bind(UserService).to(CheServerUserServiceImpl).inSingletonScope();
+
   bind(WorkspaceService).to(CheServerWorkspaceServiceImpl).inSingletonScope();
+  bind(ChePluginService).to(CheServerPluginServiceImpl).inSingletonScope();
+
   bind(CheK8SService).to(CheK8SServiceImpl).inSingletonScope();
   bind(DevfileService).to(CheServerDevfileServiceImpl).inSingletonScope();
   bind(EndpointService).to(CheServerEndpointServiceImpl).inSingletonScope();
@@ -107,6 +119,18 @@ export default new ContainerModule(bind => {
   bind(ConnectionHandler)
     .toDynamicValue(
       ctx => new JsonRpcConnectionHandler(cheWorkspaceServicePath, () => ctx.container.get(WorkspaceService))
+    )
+    .inSingletonScope();
+
+  bind(ConnectionHandler)
+    .toDynamicValue(
+      ctx =>
+        new JsonRpcConnectionHandler<ChePluginServiceClient>(chePluginServicePath, client => {
+          const server: ChePluginService = ctx.container.get(ChePluginService);
+          server.setClient(client);
+          client.onDidCloseConnection(() => server.disconnectClient(client));
+          return server;
+        })
     )
     .inSingletonScope();
 

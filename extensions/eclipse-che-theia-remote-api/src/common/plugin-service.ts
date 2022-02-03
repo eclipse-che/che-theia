@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2019-2020 Red Hat, Inc.
+ * Copyright (c) 2019-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -17,16 +17,6 @@ export interface ChePluginRegistry {
   internalURI: string;
   // Public URI to access the registry resources from browser.
   publicURI: string;
-}
-
-export interface ChePlugin {
-  publisher: string;
-  name: string;
-  version: string;
-  installed: boolean;
-  versionList: {
-    [version: string]: ChePluginMetadata;
-  };
 }
 
 /**
@@ -63,10 +53,14 @@ export interface ChePluginRegistries {
   [name: string]: ChePluginRegistry;
 }
 
-export const CHE_PLUGIN_SERVICE_PATH = '/che-plugin-service';
+export interface Changes {
+  toInstall: string[];
+  toRemove: string[];
+}
+
+export const chePluginServicePath = '/che-plugin-service';
 
 export const ChePluginService = Symbol('ChePluginService');
-
 export interface ChePluginService extends JsonRpcServer<ChePluginServiceClient> {
   disconnectClient(client: ChePluginServiceClient): void;
 
@@ -85,30 +79,54 @@ export interface ChePluginService extends JsonRpcServer<ChePluginServiceClient> 
   /**
    * Returns a list of available plugins on the plugin registry.
    *
-   * @param filter filter
    * @return list of available plugins
    */
-  getPlugins(filter: string): Promise<ChePluginMetadata[]>;
+  getPlugins(): Promise<ChePluginMetadata[]>;
 
   /**
-   * Returns list of plugins described in workspace configuration.
+   * Returns list of installed plugins.
    */
-  getWorkspacePlugins(): Promise<string[]>;
+  getInstalledPlugins(): Promise<string[]>;
 
   /**
-   * Adds a plugin to workspace configuration.
+   * Adds a plugin to current workspace.
+   *
+   * @param plugin plugin id in format `publisher/name/version`
    */
-  addPlugin(pluginKey: string): Promise<void>;
+  installPlugin(plugin: string): Promise<boolean>;
 
   /**
-   * Removes a plugin from workspace configuration.
+   * Removes a plugin from current workspace.
+   *
+   * @param plugin plugin id in format `publisher/name/version`
+   * Throws an error with explanation message if the plugin cannot be removed.
    */
-  removePlugin(pluginKey: string): Promise<void>;
+  removePlugin(plugin: string): Promise<void>;
 
   /**
-   * Changes the plugin version.
+   * Updates the plugin / changes the plugin version.
    */
   updatePlugin(oldPluginKey: string, newPluginKey: string): Promise<void>;
+
+  /**
+   * Returns true, if the plugin service does not apply changes instantly.
+   * To complete the installation, client must call persist();
+   */
+  deferredInstallation(): Promise<boolean>;
+
+  /**
+   * Returns list of changes, that have been performed by the user but not yet applied.
+   */
+  getUnpersistedChanges(): Promise<Changes | undefined>;
+
+  /**
+   * Applies all the changes to the devfile.
+   */
+  persist(): Promise<void>;
+}
+
+export interface PluginDependencies {
+  plugins: string[];
 }
 
 export const ChePluginServiceClient = Symbol('ChePluginServiceClient');
@@ -137,4 +155,11 @@ export interface ChePluginServiceClient {
    * Called by Plugin Service when invalid plugin meta.yaml has been found while updating plugin cache.
    */
   invalidPluginFound(pluginYaml: string): Promise<void>;
+
+  /**
+   * Called by Plugin Service to ask the user to install plugin dependencies.
+   *
+   * @param plugins list of dependencies
+   */
+  askToInstallDependencies(dependencies: PluginDependencies): Promise<boolean>;
 }

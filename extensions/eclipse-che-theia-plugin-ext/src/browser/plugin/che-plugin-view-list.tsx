@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,8 +9,8 @@
  ***********************************************************************/
 
 import * as React from 'react';
-import { ChePluginManager } from './che-plugin-manager';
-import { ChePlugin, ChePluginMetadata } from '../../common/che-plugin-protocol';
+import { ChePlugin, ChePluginManager, ChePluginStatus } from './che-plugin-manager';
+import { ChePluginMetadata } from '@eclipse-che/theia-remote-api/lib/common/plugin-service';
 
 interface ListProps {
     pluginManager: ChePluginManager;
@@ -20,8 +20,6 @@ interface ListProps {
 
 interface ListState {
 }
-
-export type PluginStatus = 'not_installed' | 'installed' | 'installing' | 'removing';
 
 export class ChePluginViewList extends React.Component<ListProps, ListState> {
 
@@ -52,7 +50,7 @@ interface ListItemProps {
 }
 
 interface ListItemState {
-    pluginStatus: PluginStatus;
+    pluginStatus: ChePluginStatus;
     iconFailed: boolean;
 }
 
@@ -60,9 +58,7 @@ export class ChePluginListItem extends React.Component<ListItemProps, ListItemSt
 
     constructor(props: ListItemProps) {
         super(props);
-
-        const status = props.pluginItem.installed ? 'installed' : 'not_installed';
-
+        const status = props.pluginItem.status;
         this.state = {
             pluginStatus: status,
             iconFailed: false
@@ -183,6 +179,18 @@ export class ChePluginListItem extends React.Component<ListItemProps, ListItemSt
         return [<span>{text}</span>];
     }
 
+    componentDidUpdate(): void {
+        const plugin = this.props.pluginItem;
+
+        // align state with plugin.status
+        if (plugin.status !== this.state.pluginStatus) {
+            this.setState({
+                pluginStatus: plugin.status,
+                iconFailed: this.state.iconFailed
+            });
+        }
+    }
+
     render(): React.ReactNode {
         const plugin = this.props.pluginItem;
         const metadata = plugin.versionList[plugin.version];
@@ -191,7 +199,6 @@ export class ChePluginListItem extends React.Component<ListItemProps, ListItemSt
             return undefined;
         }
 
-        // I'm not sure whether 'key' attribute is necessary here
         return <div key={plugin.publisher + '/' + plugin.name} className='che-plugin'>
             <div className='che-plugin-content'>
                 {this.renderIcon(metadata)}
@@ -271,18 +278,28 @@ export class ChePluginListItem extends React.Component<ListItemProps, ListItemSt
 
         switch (this.state.pluginStatus) {
             case 'installed':
-                return <div className='che-plugin-action-remove' onClick={this.removePlugin}>Installed</div>;
+                return <div className='che-plugin-action-installed' onClick={this.removePlugin}>Installed</div>;
             case 'installing':
                 return <div className='che-plugin-action-installing'>Installing...</div>;
             case 'removing':
                 return <div className='che-plugin-action-removing'>Removing...</div>;
-        }
+            case 'to_be_installed':
+                return <div className='che-plugin-action-to-be-installed' onClick={this.undoInstall}>To be Installed</div>;
+            case 'to_be_removed':
+                return <div className='che-plugin-action-to-be-removed' onClick={this.undoRemove}>To be Removed</div>;
+            case 'cancelling_installation':
+                return <div className='che-plugin-action-removing'>Cancelling...</div>;
+            case 'cancelling_removal':
+                return <div className='che-plugin-action-installing'>Cancelling...</div>;
+            }
 
         // 'not_installed'
-        return <div className='che-plugin-action-add' onClick={this.installPlugin}>Install</div>;
+        return <div className='che-plugin-action-install' onClick={this.installPlugin}>Install</div>;
     }
 
-    protected setStatus(status: PluginStatus): void {
+    protected setStatus(status: ChePluginStatus): void {
+        this.props.pluginItem.status = status;
+
         this.setState({
             pluginStatus: status,
             iconFailed: this.state.iconFailed
@@ -294,11 +311,20 @@ export class ChePluginListItem extends React.Component<ListItemProps, ListItemSt
         this.setStatus('installing');
 
         const installed = await this.props.pluginManager.install(this.props.pluginItem);
-        if (installed) {
-            this.setStatus('installed');
+
+        if (this.props.pluginManager.isDeferredInstallation()) {
+            this.setStatus(installed ? 'to_be_installed' : previousStatus);
         } else {
-            this.setStatus(previousStatus);
+            this.setStatus(installed ? 'installed' : previousStatus);
         }
+    };
+
+    protected undoInstall = async () => {
+        const previousStatus = this.state.pluginStatus;
+        this.setStatus('cancelling_installation');
+
+        const cancelled = await this.props.pluginManager.undoInstall(this.props.pluginItem);
+        this.setStatus(cancelled ? 'not_installed' : previousStatus);
     };
 
     protected removePlugin = async () => {
@@ -306,11 +332,25 @@ export class ChePluginListItem extends React.Component<ListItemProps, ListItemSt
         this.setStatus('removing');
 
         const removed = await this.props.pluginManager.remove(this.props.pluginItem);
-        if (removed) {
-            this.setStatus('not_installed');
-        } else {
+
+        if (!removed) {
             this.setStatus(previousStatus);
+            return;
         }
+
+        if (this.props.pluginManager.isDeferredInstallation()) {
+            this.setStatus('to_be_removed');
+        } else {
+            this.setStatus('not_installed');
+        }
+    };
+
+    protected undoRemove = async () => {
+        const previousStatus = this.state.pluginStatus;
+        this.setStatus('cancelling_removal');
+
+        const cancelled = await this.props.pluginManager.undoRemove(this.props.pluginItem);
+        this.setStatus(cancelled ? 'installed' : previousStatus);
     };
 
     protected versionChanged = async (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -325,7 +365,7 @@ export class ChePluginListItem extends React.Component<ListItemProps, ListItemSt
             pluginStatus: this.state.pluginStatus
         });
 
-        if (plugin.installed) {
+        if (plugin.status === 'installed') {
             await this.props.pluginManager.changeVersion(this.props.pluginItem, versionBefore);
         }
     };
