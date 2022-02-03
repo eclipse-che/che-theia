@@ -1,0 +1,58 @@
+{
+  "name": "@eclipse-che/hackajob-plugin",
+  "version": "7.26.1",
+  "publisher": "hackajob",
+  "keywords": [
+    "theia-plugin"
+  ],
+  "description": "hackajob Plugin",
+  "license": "EPL-2.0",
+  "files": [
+    "src",
+    "resources"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "hackajob plugin configuration",
+      "properties": {
+        "che.hackajob.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable hackajob plugin."
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "5.6.3"
+  },
+  "devDependencies": {
+    "@theia/plugin": "1.11.0-next.c9db9754",
+    "@theia/plugin-packager": "latest",
+    "@eclipse-che/plugin": "7.26.1"
+  },
+  "extensionDependencies": [
+    "Eclipse Che.@eclipse-che/workspace-plugin"
+  ],
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "format": "if-env SKIP_FORMAT=true && echo 'skip format check' || prettier --check '{src,tests}/**/*.ts' package.json",
+    "format:fix": "prettier --write '{src,tests}/**/*.ts' package.json",
+    "lint": "if-env SKIP_LINT=true && echo 'skip lint check' || eslint --cache=true --no-error-on-unmatched-pattern=true '{src,tests}/**/*.ts'",
+    "lint:fix": "eslint --fix --cache=true --no-error-on-unmatched-pattern=true \"{src,tests}/**/*.{ts,tsx}\"",
+    "compile": "tsc",
+    "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia-plugin pack",
+    "watch": "tsc -w"
+  },
+  "engines": {
+    "theiaPlugin": "next"
+  },
+  "theiaPlugin": {
+    "backend": "lib/hackajob-plugin.js"
+  }
+}

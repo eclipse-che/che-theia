@@ -177,6 +177,10 @@ export class EndpointsTreeDataProvider implements theia.TreeDataProvider<Endpoin
         endpoint.exposure === EndpointExposure.FROM_RUNTIME_PORT_FORWARDING
     );
     publicEndpoints.forEach(endpoint => {
+      if (['TestsRunner', 'CodeAutoCommit'].includes(endpoint.name)) {
+        return;
+      }
+
       const targetPort = endpoint.targetPort;
       let label;
       if (endpoint.exposure === EndpointExposure.FROM_RUNTIME_PORT_FORWARDING) {

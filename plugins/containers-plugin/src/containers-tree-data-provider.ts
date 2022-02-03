@@ -60,6 +60,10 @@ export class ContainersTreeDataProvider implements theia.TreeDataProvider<ITreeN
     let hasRuntimeContainers = false;
 
     containers.forEach((container: IContainer) => {
+      if (['auto-commiter', 'tests-runner'].includes(container.name)) {
+        return;
+      }
+
       // container node
       const containerNode: ITreeNodeItem = {
         id: this.getRandId(),

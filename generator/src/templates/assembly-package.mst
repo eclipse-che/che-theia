@@ -11,7 +11,6 @@
         "preferences": {
           "editor.autoSave": "on",
           "git.defaultCloneDirectory": "/projects",
-          "application.confirmExit": "always",
           "files.enableTrash": false
         }
       }
@@ -44,7 +43,8 @@
     "@theia/task": "^{{ version }}",
     "@theia/userstorage": "^{{ version }}",
     "@theia/variable-resolver": "^{{ version }}",
-    "@theia/workspace": "^{{ version }}"
+    "@theia/workspace": "^{{ version }}",
+    "@theia/sessionstack": "0.0.1"
   },
   "bin": {
     "override-vs-loader": "./scripts/override-vs-loader.js"

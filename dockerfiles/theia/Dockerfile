@@ -32,7 +32,7 @@ ENV SKIP_LINT=true SKIP_FORMAT=true SKIP_TEST=true
 
 #{IF:DO_REMOTE_CHECK}
 # Invalidate cache if any source code has changed
-ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/${THEIA_GITHUB_REPO}/git/${GIT_REF} /tmp/branch_info.json
+# ADD https://${GITHUB_TOKEN}:x-oauth-basic@api.github.com/repos/${THEIA_GITHUB_REPO}/git/${GIT_REF} /tmp/branch_info.json
 #ENDIF
 
 # Clone theia

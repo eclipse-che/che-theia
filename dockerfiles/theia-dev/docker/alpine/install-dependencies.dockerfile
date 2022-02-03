@@ -14,4 +14,8 @@ RUN apk add --update --no-cache \
     # some lib to compile 'native-keymap' npm mpdule
     libx11-dev libxkbfile-dev \
     # synchronization tool
-    rsync
+    rsync \
+    # requirements to build keytar
+    libsecret-dev \
+    # requirements to run theia with yarn start
+    libsecret

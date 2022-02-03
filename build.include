@@ -11,12 +11,12 @@ set -e
 set -u
 
 IMAGE_TAG="latest"
-THEIA_GITHUB_REPO="eclipse-theia/theia"
-THEIA_VERSION="master"
-THEIA_BRANCH="master"
-THEIA_COMMIT_SHA="c9db9754"
-THEIA_GIT_REFS="refs\\/heads\\/master"
-THEIA_DOCKER_IMAGE_VERSION="7.26.1"
+THEIA_GITHUB_REPO="hackajob/theia"
+THEIA_VERSION="hackajob-1.10.0"
+THEIA_BRANCH="hackajob-1.10.0"
+THEIA_COMMIT_SHA="a530860932570941a672d841ac69423550847dc0"
+THEIA_GIT_REFS="refs\\/heads\\/hackajob-1.10.0"
+THEIA_DOCKER_IMAGE_VERSION=
 
 prepare_yarn_root_args() {
     IFS=',' read -r -a YARN_ARGS_ARRAY <<< "$@"
