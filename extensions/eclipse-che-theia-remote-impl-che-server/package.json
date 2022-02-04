@@ -14,7 +14,7 @@
   "dependencies": {
     "axios": "0.21.2",
     "inversify": "^5.0.1",
-    "request": "2.82.0",
+    "request": "2.88.2",
     "tunnel": "0.0.6",
     "@theia/core": "next",
     "fs-extra": "7.0.1",
