@@ -8,7 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
+import * as fs from 'fs-extra';
 import * as k8s from '@kubernetes/client-node';
+import * as os from 'os';
+import * as path from 'path';
 
 import { CheK8SService, K8SRawResponse } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
 
@@ -22,8 +25,29 @@ export class K8SServiceImpl implements CheK8SService {
   private kc: k8s.KubeConfig;
 
   constructor() {
+    const kubeconfig: k8s.KubeConfig = JSON.parse(
+      fs.readFileSync(path.resolve(os.homedir(), '.kube', 'config')).toString()
+    );
+    const tokenPath = path.resolve(os.homedir(), '.kube', 'token');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const k8sUser: any = kubeconfig.users.find(user => user.name === 'developer');
+    if (k8sUser) {
+      fs.ensureFileSync(tokenPath);
+      fs.writeFileSync(tokenPath, k8sUser.user.token);
+    }
+    const user = {
+      name: 'inClusterUser',
+      authProvider: {
+        name: 'tokenFile',
+        config: {
+          tokenFile: tokenPath,
+        },
+      },
+    };
     this.kc = new k8s.KubeConfig();
     this.kc.loadFromCluster();
+    this.kc.users = [];
+    this.kc.addUser(user);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

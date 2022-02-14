@@ -14,6 +14,7 @@ import 'reflect-metadata';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
+import { CheK8SService, WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common';
 import {
   GIT_USER_CONFIG_PATH,
   GitConfigurationController,
@@ -32,14 +33,27 @@ describe('Test GitConfigurationController', () => {
     getPreferences: cheTheiaUserPreferencesSynchronizerGetpreferencesMock,
     setPreferences: cheTheiaUserPreferencesSynchronizerSetpreferencesMock,
   } as any;
+  const workspaceService = {
+    getCurrentNamespace: jest.fn(),
+  } as any;
+  const coreV1ApiMock = {
+    listNamespacedConfigMap: jest.fn(),
+  };
+  const k8sServiceMakeApiClientMethod = jest.fn();
+  const k8sServiceMock = {
+    makeApiClient: k8sServiceMakeApiClientMethod,
+  } as any;
 
   beforeEach(async () => {
     jest.restoreAllMocks();
     jest.resetAllMocks();
     container = new Container();
     container.bind(CheTheiaUserPreferencesSynchronizer).toConstantValue(cheTheiaUserPreferencesSynchronizer);
+    container.bind(WorkspaceService).toConstantValue(workspaceService);
+    container.bind(CheK8SService).toConstantValue(k8sServiceMock);
     container.bind(GitConfigurationController).toSelf().inSingletonScope();
     gitConfigurationController = container.get(GitConfigurationController);
+    k8sServiceMakeApiClientMethod.mockReturnValue(coreV1ApiMock);
   });
 
   test('check Update', async () => {
