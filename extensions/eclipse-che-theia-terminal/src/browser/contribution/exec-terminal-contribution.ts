@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -32,12 +32,25 @@ import { TerminalKeybindingContext } from './keybinding-context';
 import { TerminalKeybindingContexts } from '@theia/terminal/lib/browser/terminal-keybinding-contexts';
 import { TerminalQuickOpenService } from './terminal-quick-open';
 import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
-import { filterRecipeContainers } from './terminal-command-filter';
+import { filterDevContainers } from './terminal-command-filter';
 import { isOSX } from '@theia/core/lib/common/os';
 
+/**
+ * The command should display all containers at a terminal creation,
+ * {@link NewTerminal} should be used to display only developer containers
+ */
 export const NewTerminalInSpecificContainer = {
   id: 'terminal-in-specific-container:new',
-  label: 'Open Terminal in specific container',
+  label: 'New Terminal in specific container',
+};
+
+/**
+ * The command should display only developer containers at a terminal creation,
+ * {@link NewTerminalInSpecificContainer} should be used to display all containers
+ */
+export const NewTerminal = {
+  id: 'che-terminal:new',
+  label: 'New Terminal',
 };
 
 export interface OpenTerminalHandler {
@@ -78,9 +91,19 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
           if (containerNameToExecute) {
             this.openTerminalByContainerName(containerNameToExecute);
           } else {
-            this.terminalQuickOpen.displayListMachines(containerName => {
+            this.terminalQuickOpen.displayAllContainers(containerName => {
               this.openTerminalByContainerName(containerName);
             });
+          }
+        },
+      });
+
+      registry.registerCommand(NewTerminal, {
+        execute: (containerNameToExecute: string) => {
+          if (containerNameToExecute) {
+            this.openTerminalByContainerName(containerNameToExecute);
+          } else {
+            this.newDevTerminal();
           }
         },
       });
@@ -164,7 +187,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
   private async registerTerminalCommandPerContainer(registry: CommandRegistry): Promise<void> {
     const containers = await this.remoteWorkspaceService.getContainerList();
 
-    for (const container of filterRecipeContainers(containers)) {
+    for (const container of filterDevContainers(containers)) {
       const termCommandPerContainer: Command = {
         id: 'terminal-for-' + container.name + '-container:new',
         label: 'New terminal for ' + container.name,
@@ -220,6 +243,41 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     return this.editorContainerName;
   }
 
+  /**
+   * Creates a new terminal in a developer container.
+   * A terminal will be created in the editor container if there is no Dev container.
+   */
+  async newDevTerminal(): Promise<void> {
+    const containers = await this.remoteWorkspaceService.getContainerList();
+    const devContainers = filterDevContainers(containers);
+    if (devContainers.length === 1) {
+      return this.openTerminalByContainerName(devContainers[0].name);
+    }
+
+    if (devContainers.length > 1) {
+      return this.terminalQuickOpen.displayContainers(devContainers, containerName => {
+        this.openTerminalByContainerName(containerName);
+      });
+    }
+
+    // there are no developer containers, let's try to create a terminal in the editor container
+    try {
+      const editorContainerName = await this.getEditorContainerName();
+      if (editorContainerName) {
+        await this.openTerminalByContainerName(editorContainerName);
+        return;
+      }
+    } catch (error) {
+      // let's create the default theia terminal
+      // see logic below
+    }
+
+    const cwd = await this.selectTerminalCwd();
+    const terminal = await super.newTerminal({ cwd });
+    this.open(terminal);
+    terminal.start();
+  }
+
   async newTerminal(options: TerminalWidgetOptions): Promise<TerminalWidget> {
     let containerName;
     let closeWidgetExitOrError: boolean = true;
@@ -263,8 +321,8 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     if (serverUrl) {
       menus.registerSubmenu(TerminalMenus.TERMINAL, 'Terminal');
       menus.registerMenuAction(TerminalMenus.TERMINAL_NEW, {
-        commandId: NewTerminalInSpecificContainer.id,
-        label: NewTerminalInSpecificContainer.label,
+        commandId: NewTerminal.id,
+        label: NewTerminal.label,
       });
     } else {
       super.registerMenus(menus);
@@ -291,8 +349,13 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     const serverUrl = await this.termApiEndPointProvider();
     if (serverUrl) {
       registry.registerKeybinding({
-        command: NewTerminalInSpecificContainer.id,
+        command: NewTerminal.id,
         keybinding: isOSX ? 'ctrl+shift+`' : 'ctrl+`',
+      });
+
+      registry.registerKeybinding({
+        command: NewTerminalInSpecificContainer.id,
+        keybinding: 'shift+alt+`',
       });
 
       registry.registerKeybinding({

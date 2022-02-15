@@ -9,10 +9,6 @@
  ***********************************************************************/
 
 import { Container, ContainerModule, interfaces } from 'inversify';
-import {
-  ExecTerminalFrontendContribution,
-  NewTerminalInSpecificContainer,
-} from './contribution/exec-terminal-contribution';
 import { KeybindingContext, QuickAccessContribution, WidgetFactory } from '@theia/core/lib/browser';
 import {
   REMOTE_TERMINAL_TARGET_SCOPE,
@@ -34,6 +30,7 @@ import { TerminalWidget, TerminalWidgetOptions } from '@theia/terminal/lib/brows
 
 import { EndpointService } from '@eclipse-che/theia-remote-api/lib/common/endpoint-service';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
+import { ExecTerminalFrontendContribution } from './contribution/exec-terminal-contribution';
 import { RemoteTerminaActiveKeybingContext } from './contribution/keybinding-context';
 import { RemoteWebSocketConnectionProvider } from './server-definition/remote-connection';
 import { TerminalFrontendContribution } from '@theia/terminal/lib/browser/terminal-frontend-contribution';
