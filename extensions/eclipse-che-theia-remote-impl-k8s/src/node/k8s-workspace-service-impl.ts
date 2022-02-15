@@ -132,7 +132,7 @@ export class K8sWorkspaceServiceImpl implements WorkspaceService {
       const devfile = await this.devfileService.get();
       (devfile.components || []).forEach(component => {
         if (component.container && component.name) {
-          const container: Container = { name: component.name };
+          const container: Container = { name: component.name, attributes: component.attributes };
           containers.push(container);
         }
       });
