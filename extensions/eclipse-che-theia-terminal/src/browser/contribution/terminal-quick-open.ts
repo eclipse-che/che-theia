@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,16 +9,14 @@
  ***********************************************************************/
 
 import { ApplicationShell, KeybindingRegistry, QuickInputService, QuickPickItem } from '@theia/core/lib/browser';
+import { Container, WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { inject, injectable } from 'inversify';
+import { isDevContainer, isToolingContainer } from './terminal-command-filter';
 
 import { OpenTerminalHandler } from './exec-terminal-contribution';
-import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
-import { isDevContainer } from './terminal-command-filter';
 
 @injectable()
 export class TerminalQuickOpenService {
-  private items: QuickPickItem[] = [];
-
   @inject(QuickInputService)
   private readonly quickInputService: QuickInputService;
 
@@ -31,16 +29,52 @@ export class TerminalQuickOpenService {
   @inject(KeybindingRegistry)
   protected readonly keybindingRegistry: KeybindingRegistry;
 
+  /** @deprecated use {@link displayContainers} or {@link displayAllContainers} instead */
   async displayListMachines(doOpen: OpenTerminalHandler): Promise<void> {
-    this.items = [];
+    return this.displayAllContainers(doOpen);
+  }
+
+  async displayContainers(
+    containers: Container[],
+    doOpen: OpenTerminalHandler,
+    showAllItem: boolean = true
+  ): Promise<void> {
+    if (containers.length < 1) {
+      return;
+    }
+
+    const items: QuickPickItem[] = containers.map(
+      container =>
+        ({
+          label: container.name,
+          execute: () => {
+            setTimeout(() => doOpen(container.name), 0);
+          },
+        } as QuickPickItem)
+    );
+
+    if (showAllItem) {
+      items.push({ type: 'separator', label: '' });
+      items.push({
+        label: 'Show All Containers...',
+        execute: () => {
+          setTimeout(() => this.displayAllContainers(doOpen), 0);
+        },
+      } as QuickPickItem);
+    }
+
+    this.quickInputService.showQuickPick(items, { placeholder: 'Select a container to create a new terminal' });
+  }
+
+  async displayAllContainers(doOpen: OpenTerminalHandler): Promise<void> {
+    const items = [];
 
     const containers = await this.workspaceService.getContainerList();
-
-    const devContainers = containers.filter(container => isDevContainer(container));
-    const toolingContainers = containers.filter(container => !isDevContainer(container));
+    const devContainers = containers.filter((container: Container) => isDevContainer(container));
+    const toolingContainers = containers.filter((container: Container) => isToolingContainer(container));
 
     const devContainerItems = devContainers.map(
-      container =>
+      (container: Container) =>
         ({
           label: container.name,
           execute: () => {
@@ -55,7 +89,7 @@ export class TerminalQuickOpenService {
     }
 
     const toolingContainerItems = toolingContainers.map(
-      container =>
+      (container: Container) =>
         ({
           label: container.name,
           execute: () => {
@@ -69,8 +103,8 @@ export class TerminalQuickOpenService {
       toolingContainerItems.unshift({ type: 'separator', label: groupLabel });
     }
 
-    this.items.push(...devContainerItems, ...toolingContainerItems);
+    items.push(...devContainerItems, ...toolingContainerItems);
 
-    this.quickInputService.showQuickPick(this.items, { placeholder: 'Select container to create new terminal' });
+    this.quickInputService.showQuickPick(items, { placeholder: 'Select container to create a new terminal' });
   }
 }
