@@ -46,9 +46,6 @@ import { createTerminalSearchFactory } from '@theia/terminal/lib/browser/search/
 
 export default new ContainerModule(
   (bind: interfaces.Bind, unbind: interfaces.Unbind, isBound: interfaces.IsBound, rebind: interfaces.Rebind) => {
-    // bind this contstant to prevent circle dependency
-    bind('terminal-in-specific-container-command-id').toConstantValue(NewTerminalInSpecificContainer.id);
-
     bind(KeybindingContext).to(RemoteTerminaActiveKeybingContext).inSingletonScope();
 
     bind(RemoteTerminalWidget).toSelf();

@@ -31,9 +31,6 @@ export class TerminalQuickOpenService {
   @inject(KeybindingRegistry)
   protected readonly keybindingRegistry: KeybindingRegistry;
 
-  @inject('terminal-in-specific-container-command-id')
-  protected readonly terminalInSpecificContainerCommandId: string;
-
   async displayListMachines(doOpen: OpenTerminalHandler): Promise<void> {
     this.items = [];
 
@@ -75,15 +72,5 @@ export class TerminalQuickOpenService {
     this.items.push(...devContainerItems, ...toolingContainerItems);
 
     this.quickInputService.showQuickPick(this.items, { placeholder: 'Select container to create new terminal' });
-  }
-
-  protected getShortCutCommand(): string | undefined {
-    const keyCommand = this.keybindingRegistry.getKeybindingsForCommand(this.terminalInSpecificContainerCommandId);
-    if (keyCommand) {
-      const accel = this.keybindingRegistry.acceleratorFor(keyCommand[0], '+');
-      return accel.join(' ');
-    }
-
-    return undefined;
   }
 }
