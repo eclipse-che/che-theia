@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2022 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -32,12 +32,16 @@ import { TerminalKeybindingContext } from './keybinding-context';
 import { TerminalKeybindingContexts } from '@theia/terminal/lib/browser/terminal-keybinding-contexts';
 import { TerminalQuickOpenService } from './terminal-quick-open';
 import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
-import { filterRecipeContainers } from './terminal-command-filter';
+import { filterDevContainers } from './terminal-command-filter';
 import { isOSX } from '@theia/core/lib/common/os';
 
+/**
+ * The command creates a terminal in the given container.
+ * Only developer containers are displayed as quick-pick items if no container is passed for the command execution.
+ */
 export const NewTerminalInSpecificContainer = {
   id: 'terminal-in-specific-container:new',
-  label: 'Open Terminal in specific container',
+  label: 'New Terminal',
 };
 
 export interface OpenTerminalHandler {
@@ -78,9 +82,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
           if (containerNameToExecute) {
             this.openTerminalByContainerName(containerNameToExecute);
           } else {
-            this.terminalQuickOpen.displayListMachines(containerName => {
-              this.openTerminalByContainerName(containerName);
-            });
+            this.newDevTerminal();
           }
         },
       });
@@ -164,7 +166,7 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
   private async registerTerminalCommandPerContainer(registry: CommandRegistry): Promise<void> {
     const containers = await this.remoteWorkspaceService.getContainerList();
 
-    for (const container of filterRecipeContainers(containers)) {
+    for (const container of filterDevContainers(containers)) {
       const termCommandPerContainer: Command = {
         id: 'terminal-for-' + container.name + '-container:new',
         label: 'New terminal for ' + container.name,
@@ -218,6 +220,41 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
       this.editorContainerName = ideComponent.component;
     }
     return this.editorContainerName;
+  }
+
+  /**
+   * Creates a new terminal in a developer container.
+   * A terminal will be created in the editor container if there is no Dev container.
+   */
+  async newDevTerminal(): Promise<void> {
+    const containers = await this.remoteWorkspaceService.getContainerList();
+    const devContainers = filterDevContainers(containers);
+    if (devContainers.length === 1) {
+      return this.openTerminalByContainerName(devContainers[0].name);
+    }
+
+    if (devContainers.length > 1) {
+      return this.terminalQuickOpen.displayContainers(devContainers, containerName => {
+        this.openTerminalByContainerName(containerName);
+      });
+    }
+
+    // there are no developer containers, let's try to create a terminal in the editor container
+    try {
+      const editorContainerName = await this.getEditorContainerName();
+      if (editorContainerName) {
+        await this.openTerminalByContainerName(editorContainerName);
+        return;
+      }
+    } catch (error) {
+      // let's create the default theia terminal
+      // see logic below
+    }
+
+    const cwd = await this.selectTerminalCwd();
+    const terminal = await super.newTerminal({ cwd });
+    this.open(terminal);
+    terminal.start();
   }
 
   async newTerminal(options: TerminalWidgetOptions): Promise<TerminalWidget> {
