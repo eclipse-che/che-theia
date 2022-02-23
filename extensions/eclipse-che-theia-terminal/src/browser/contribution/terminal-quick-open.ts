@@ -29,44 +29,8 @@ export class TerminalQuickOpenService {
   @inject(KeybindingRegistry)
   protected readonly keybindingRegistry: KeybindingRegistry;
 
-  /** @deprecated use {@link displayContainers} or {@link displayAllContainers} instead */
+  /** @deprecated use {@link displayContainers} instead */
   async displayListMachines(doOpen: OpenTerminalHandler): Promise<void> {
-    return this.displayAllContainers(doOpen);
-  }
-
-  async displayContainers(
-    containers: Container[],
-    doOpen: OpenTerminalHandler,
-    showAllItem: boolean = true
-  ): Promise<void> {
-    if (containers.length < 1) {
-      return;
-    }
-
-    const items: QuickPickItem[] = containers.map(
-      container =>
-        ({
-          label: container.name,
-          execute: () => {
-            setTimeout(() => doOpen(container.name), 0);
-          },
-        } as QuickPickItem)
-    );
-
-    if (showAllItem) {
-      items.push({ type: 'separator', label: '' });
-      items.push({
-        label: 'Show All Containers...',
-        execute: () => {
-          setTimeout(() => this.displayAllContainers(doOpen), 0);
-        },
-      } as QuickPickItem);
-    }
-
-    this.quickInputService.showQuickPick(items, { placeholder: 'Select a container to create a new terminal' });
-  }
-
-  async displayAllContainers(doOpen: OpenTerminalHandler): Promise<void> {
     const items = [];
 
     const containers = await this.workspaceService.getContainerList();
@@ -106,5 +70,23 @@ export class TerminalQuickOpenService {
     items.push(...devContainerItems, ...toolingContainerItems);
 
     this.quickInputService.showQuickPick(items, { placeholder: 'Select container to create a new terminal' });
+  }
+
+  async displayContainers(containers: Container[], doOpen: OpenTerminalHandler): Promise<void> {
+    if (containers.length < 1) {
+      return;
+    }
+
+    const items: QuickPickItem[] = containers.map(
+      container =>
+        ({
+          label: container.name,
+          execute: () => {
+            setTimeout(() => doOpen(container.name), 0);
+          },
+        } as QuickPickItem)
+    );
+
+    this.quickInputService.showQuickPick(items, { placeholder: 'Select a container to create a new terminal' });
   }
 }
