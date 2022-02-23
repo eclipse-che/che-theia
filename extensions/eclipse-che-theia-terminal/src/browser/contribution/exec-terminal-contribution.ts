@@ -36,20 +36,11 @@ import { filterDevContainers } from './terminal-command-filter';
 import { isOSX } from '@theia/core/lib/common/os';
 
 /**
- * The command should display all containers at a terminal creation,
- * {@link NewTerminal} should be used to display only developer containers
+ * The command creates a terminal in the given container.
+ * Only developer containers are displayed as quick-pick items if no container is passed for the command execution.
  */
 export const NewTerminalInSpecificContainer = {
   id: 'terminal-in-specific-container:new',
-  label: 'New Terminal in specific container',
-};
-
-/**
- * The command should display only developer containers at a terminal creation,
- * {@link NewTerminalInSpecificContainer} should be used to display all containers
- */
-export const NewTerminal = {
-  id: 'che-terminal:new',
   label: 'New Terminal',
 };
 
@@ -87,18 +78,6 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     const serverUrl = await this.termApiEndPointProvider();
     if (serverUrl) {
       registry.registerCommand(NewTerminalInSpecificContainer, {
-        execute: (containerNameToExecute: string) => {
-          if (containerNameToExecute) {
-            this.openTerminalByContainerName(containerNameToExecute);
-          } else {
-            this.terminalQuickOpen.displayAllContainers(containerName => {
-              this.openTerminalByContainerName(containerName);
-            });
-          }
-        },
-      });
-
-      registry.registerCommand(NewTerminal, {
         execute: (containerNameToExecute: string) => {
           if (containerNameToExecute) {
             this.openTerminalByContainerName(containerNameToExecute);
@@ -321,8 +300,8 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     if (serverUrl) {
       menus.registerSubmenu(TerminalMenus.TERMINAL, 'Terminal');
       menus.registerMenuAction(TerminalMenus.TERMINAL_NEW, {
-        commandId: NewTerminal.id,
-        label: NewTerminal.label,
+        commandId: NewTerminalInSpecificContainer.id,
+        label: NewTerminalInSpecificContainer.label,
       });
     } else {
       super.registerMenus(menus);
@@ -349,13 +328,8 @@ export class ExecTerminalFrontendContribution extends TerminalFrontendContributi
     const serverUrl = await this.termApiEndPointProvider();
     if (serverUrl) {
       registry.registerKeybinding({
-        command: NewTerminal.id,
-        keybinding: isOSX ? 'ctrl+shift+`' : 'ctrl+`',
-      });
-
-      registry.registerKeybinding({
         command: NewTerminalInSpecificContainer.id,
-        keybinding: 'shift+alt+`',
+        keybinding: isOSX ? 'ctrl+shift+`' : 'ctrl+`',
       });
 
       registry.registerKeybinding({
