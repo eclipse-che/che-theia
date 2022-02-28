@@ -3,7 +3,7 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "0.0.1",
+  "version": "7.44.0",
   "files": [
     "lib",
     "src"
@@ -12,12 +12,12 @@
     "inversify": "^5.0.1",
     "fs-extra": "7.0.1",
     "moment": "2.24.0",
-    "@theia/filesystem": "next",
-    "@theia/navigator": "next",
-    "@theia/core": "next",
-    "@eclipse-che/api": "latest",
-    "@theia/workspace": "next",
-    "@eclipse-che/theia-remote-api": "^0.0.1",
+    "@theia/filesystem": "1.24.0-next.1",
+    "@theia/navigator": "1.24.0-next.1",
+    "@theia/core": "1.24.0-next.1",
+    "@eclipse-che/api": "7.44.0",
+    "@theia/workspace": "1.24.0-next.1",
+    "@eclipse-che/theia-remote-api": "7.44.0",
     "js-yaml": "3.13.1",
     "react": "^16.8.0"
   },
