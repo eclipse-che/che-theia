@@ -16,7 +16,7 @@
     "inversify": "^5.0.1",
     "request": "2.88.2",
     "tunnel": "0.0.6",
-    "@theia/core": "next",
+    "@theia/core": "1.18.0-next.120",
     "fs-extra": "7.0.1",
     "js-yaml": "3.13.1",
     "@eclipse-che/workspace-telemetry-client": "latest",

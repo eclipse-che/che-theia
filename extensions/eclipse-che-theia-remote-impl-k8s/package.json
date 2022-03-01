@@ -19,7 +19,7 @@
   "dependencies": {
     "tunnel": "0.0.6",
     "inversify": "^5.0.1",
-    "@theia/core": "next",
+    "@theia/core": "1.18.0-next.120",
     "fs-extra": "7.0.1",
     "js-yaml": "3.13.1",
     "axios": "0.21.2",

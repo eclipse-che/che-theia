@@ -14,7 +14,7 @@
   ],
   "dependencies": {
     "@eclipse-che/plugin": "0.0.1",
-    "@theia/plugin": "next",
+    "@theia/plugin": "1.18.0-next.120",
     "inversify": "^5.0.1",
     "reflect-metadata": "^0.1.13"
   },

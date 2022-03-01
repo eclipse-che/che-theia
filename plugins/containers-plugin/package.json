@@ -33,7 +33,7 @@
     }
   },
   "devDependencies": {
-    "@theia/plugin": "next",
+    "@theia/plugin": "1.18.0-next.120",
     "@theia/plugin-packager": "latest",
     "@eclipse-che/plugin": "0.0.1",
     "ts-jest": "27.0.7",

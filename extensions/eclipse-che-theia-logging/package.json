@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "moment": "^2.21.0",
-    "@theia/core": "next",
+    "@theia/core": "1.18.0-next.120",
     "inversify": "^5.0.1"
   },
   "license": "EPL-2.0",

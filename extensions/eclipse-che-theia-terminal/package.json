@@ -20,10 +20,10 @@
   ],
   "dependencies": {
     "inversify": "^5.0.1",
-    "@theia/output": "next",
-    "@theia/core": "next",
+    "@theia/output": "1.18.0-next.120",
+    "@theia/core": "1.18.0-next.120",
     "vscode-jsonrpc": "^5.0.0",
-    "@theia/terminal": "next",
+    "@theia/terminal": "1.18.0-next.120",
     "xterm": "^4.11.0",
     "@phosphor/widgets": "1",
     "reconnecting-websocket": "^4.2.0",
