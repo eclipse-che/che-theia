@@ -11,13 +11,13 @@
   ],
   "dependencies": {
     "inversify": "^5.0.1",
-    "@theia/application-package": "next",
+    "@theia/application-package": "1.18.0-next.120",
     "@eclipse-che/theia-remote-api": "^0.0.1",
     "@eclipse-che/api": "latest",
     "@eclipse-che/theia-plugin-ext": "^0.0.1",
-    "@theia/core": "next",
-    "@theia/preferences": "next",
-    "@theia/workspace": "next"
+    "@theia/core": "1.18.0-next.120",
+    "@theia/preferences": "1.18.0-next.120",
+    "@theia/workspace": "1.18.0-next.120"
   },
   "devDependencies": {
     "ts-jest": "27.0.7",
