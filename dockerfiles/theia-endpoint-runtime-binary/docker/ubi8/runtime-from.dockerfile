@@ -1,5 +1,5 @@
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.5-230 as runtime
+FROM registry.access.redhat.com/ubi8-minimal:8.5-230.1645809059 as runtime
 USER 0
 RUN microdnf -y install yum python38 python38-pyyaml jq && python3 --version && \
     yum -y -q update && \
