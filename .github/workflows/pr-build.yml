@@ -25,7 +25,7 @@ jobs:
     - uses: actions/setup-node@v1
       name: Configuring nodejs 10.x version
       with:
-        node-version: '12.x'
+        node-version: '14.x'
     - name: build
       run: yarn
     - name: Test Coverage
@@ -41,7 +41,7 @@ jobs:
     - uses: actions/setup-node@v1
       name: Configuring nodejs 10.x version
       with:
-        node-version: '12.x'
+        node-version: '14.x'
     - name: build
       run: |
         docker image prune -a -f
