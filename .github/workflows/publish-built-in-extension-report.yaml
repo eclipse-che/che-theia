@@ -25,7 +25,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v1
       with:
-        node-version: '12'
+        node-version: '14.x'
     - name: Get current time
       uses: 1466587594/get-current-time@v1
       id: current-date-time
