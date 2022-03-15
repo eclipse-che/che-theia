@@ -11,8 +11,8 @@
   "dependencies": {
     "inversify": "^5.0.1",
     "@eclipse-che/api": "latest",
-    "@theia/core": "next",
-    "@theia/plugin-ext": "next",
+    "@theia/core": "1.18.0-next.120",
+    "@theia/plugin-ext": "1.18.0-next.120",
     "@eclipse-che/theia-remote-api": "^0.0.1"
   },
   "devDependencies": {
