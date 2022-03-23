@@ -1,3 +1,3 @@
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM registry.access.redhat.com/ubi8/nodejs-12:1-107 as build-result
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-14
+FROM registry.access.redhat.com/ubi8/nodejs-14:1-63 as build-result
 USER root
