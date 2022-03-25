@@ -1,4 +1,4 @@
-# Copyright (c) 2019-21 Red Hat, Inc.
+# Copyright (c) 2019-22 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -22,7 +22,7 @@ ENV PATH=${HOME}/.yarn/bin:${PATH}
 #{INCLUDE:docker/${BUILD_IMAGE_TARGET}/builder-nexe-setup.dockerfile}
 
 RUN /tmp/nexe/index.js -v && \
-    # Build remote binary with node runtime 12.x and che-theia node dependencies. nexe icludes to the binary only
+    # Build remote binary with node runtime 14.x and che-theia node dependencies. nexe icludes to the binary only
     # necessary dependencies.
     eval /tmp/nexe/index.js -i node_modules/@eclipse-che/theia-remote/lib/node/plugin-remote.js ${NEXE_FLAGS} -o ${HOME}/plugin-remote-endpoint
 

@@ -34,9 +34,9 @@ jobs:
       - uses: actions/checkout@v2
         name: Checkout che-theia source code
       - uses: actions/setup-node@v1
-        name: Configuring nodejs 12.x version
+        name: Configuring nodejs 14.x version
         with:
-          node-version: '12.x'
+          node-version: '14.x'
       - name: build
         run: |
           docker image prune -a -f
