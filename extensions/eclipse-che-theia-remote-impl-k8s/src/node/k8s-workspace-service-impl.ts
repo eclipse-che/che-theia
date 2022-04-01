@@ -90,7 +90,7 @@ export class K8sWorkspaceServiceImpl implements WorkspaceService {
   public async stop(): Promise<void> {
     // stopping the workspace is changing the started state to false
 
-    const customObjectsApi = this.k8SService.makeApiClient(k8s.CustomObjectsApi);
+    const customObjectsApi = await this.k8SService.makeApiClient(k8s.CustomObjectsApi);
     const group = 'workspace.devfile.io';
     const version = 'v1alpha2';
     const namespace = this.env.getWorkspaceNamespace();

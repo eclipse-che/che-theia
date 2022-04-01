@@ -19,9 +19,8 @@ import { Disposable, Emitter } from '@theia/core';
 import { createFile, pathExists, readFile, writeFile } from 'fs-extra';
 import { inject, injectable } from 'inversify';
 
-import { CheK8SService } from '@eclipse-che/theia-remote-api/lib/common/k8s-service';
-import { CheK8SServiceImpl } from '@eclipse-che/theia-remote-impl-che-server/lib/node/che-server-k8s-service-impl';
 import { CheTheiaUserPreferencesSynchronizer } from '@eclipse-che/theia-user-preferences-synchronizer/lib/node/che-theia-preferences-synchronizer';
+import { K8SServiceImpl } from '@eclipse-che/theia-remote-impl-k8s/lib/node/k8s-service-impl';
 import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { homedir } from 'os';
 import { resolve } from 'path';
@@ -42,14 +41,12 @@ export interface GitConfiguration {
 
 @injectable()
 export class GitConfigurationController implements CheGitService {
-  constructor(
-    @inject(WorkspaceService)
-    private readonly workspaceService: WorkspaceService,
-    @inject(CheK8SService)
-    private readonly cheK8SService: CheK8SServiceImpl
-  ) {
-    this.createGitconfigConfigmapIfNeeded().then(exists => {
-      if (exists) {
+  @inject(WorkspaceService)
+  private readonly workspaceService: WorkspaceService;
+
+  constructor(@inject(K8SServiceImpl) private readonly cheK8SService: K8SServiceImpl) {
+    this.createGitconfigConfigmapIfNeeded().then(configmapExists => {
+      if (configmapExists) {
         this.updateUserGitconfigFromConfigmap();
       }
     });
@@ -78,21 +75,12 @@ export class GitConfigurationController implements CheGitService {
     const configmap: k8s.V1ConfigMap = {
       metadata: {
         name: GITCONFIG_CONFIGMAP_NAME,
-        labels: {
-          'controller.devfile.io/mount-to-devworkspace': 'true',
-          'controller.devfile.io/watch-configmap': 'true',
-        },
-        annotations: {
-          'controller.devfile.io/mount-as': 'subpath',
-          'controller.devfile.io/mount-path': '/etc/',
-        },
       },
       data: { gitconfig: fs.existsSync(GIT_USER_CONFIG_PATH) ? fs.readFileSync(GIT_USER_CONFIG_PATH).toString() : '' },
     };
     try {
-      await this.cheK8SService
-        .makeApiClient(k8s.CoreV1Api)
-        .createNamespacedConfigMap(await this.workspaceService.getCurrentNamespace(), configmap);
+      const client = await this.cheK8SService.makeApiClient(k8s.CoreV1Api);
+      await client.createNamespacedConfigMap(await this.workspaceService.getCurrentNamespace(), configmap);
     } catch (e) {
       console.error('Failed to create gitconfig configmap. ' + e);
     }
@@ -101,9 +89,8 @@ export class GitConfigurationController implements CheGitService {
 
   private async isGitconfigConfigmapExists(): Promise<boolean> {
     try {
-      const request = await this.cheK8SService
-        .makeApiClient(k8s.CoreV1Api)
-        .listNamespacedConfigMap(await this.workspaceService.getCurrentNamespace());
+      const client = await this.cheK8SService.makeApiClient(k8s.CoreV1Api);
+      const request = await client.listNamespacedConfigMap(await this.workspaceService.getCurrentNamespace());
       return (
         request.body.items.find(
           configmap => configmap.metadata && configmap.metadata.name === GITCONFIG_CONFIGMAP_NAME
@@ -117,7 +104,7 @@ export class GitConfigurationController implements CheGitService {
 
   private async createGitconfigConfigmapIfNeededAndUpdate(): Promise<void> {
     await this.createGitconfigConfigmapIfNeeded();
-    const client = this.cheK8SService.makeApiClient(k8s.CoreV1Api);
+    const client = await this.cheK8SService.makeApiClient(k8s.CoreV1Api);
     client.defaultHeaders = {
       'Content-Type': k8s.PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH,
     };
@@ -136,9 +123,11 @@ export class GitConfigurationController implements CheGitService {
 
   private async updateUserGitconfigFromConfigmap(): Promise<void> {
     try {
-      const request = await this.cheK8SService
-        .makeApiClient(k8s.CoreV1Api)
-        .readNamespacedConfigMap(GITCONFIG_CONFIGMAP_NAME, await this.workspaceService.getCurrentNamespace());
+      const client = await this.cheK8SService.makeApiClient(k8s.CoreV1Api);
+      const request = await client.readNamespacedConfigMap(
+        GITCONFIG_CONFIGMAP_NAME,
+        await this.workspaceService.getCurrentNamespace()
+      );
       const content = request.body.data!.gitconfig;
       fs.ensureFileSync(GIT_USER_CONFIG_PATH);
       fs.writeFileSync(GIT_USER_CONFIG_PATH, content);

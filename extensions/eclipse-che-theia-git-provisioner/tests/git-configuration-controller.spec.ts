@@ -14,7 +14,6 @@ import 'reflect-metadata';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
-import { CheK8SService, WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common';
 import {
   GIT_USER_CONFIG_PATH,
   GitConfigurationController,
@@ -23,6 +22,8 @@ import {
 
 import { CheTheiaUserPreferencesSynchronizer } from '@eclipse-che/theia-user-preferences-synchronizer/lib/node/che-theia-preferences-synchronizer';
 import { Container } from 'inversify';
+import { K8SServiceImpl } from '@eclipse-che/theia-remote-impl-k8s/lib/node/k8s-service-impl';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common';
 
 describe('Test GitConfigurationController', () => {
   let container: Container;
@@ -50,7 +51,7 @@ describe('Test GitConfigurationController', () => {
     container = new Container();
     container.bind(CheTheiaUserPreferencesSynchronizer).toConstantValue(cheTheiaUserPreferencesSynchronizer);
     container.bind(WorkspaceService).toConstantValue(workspaceService);
-    container.bind(CheK8SService).toConstantValue(k8sServiceMock);
+    container.bind(K8SServiceImpl).toConstantValue(k8sServiceMock);
     container.bind(GitConfigurationController).toSelf().inSingletonScope();
     gitConfigurationController = container.get(GitConfigurationController);
     k8sServiceMakeApiClientMethod.mockReturnValue(coreV1ApiMock);

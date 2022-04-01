@@ -41,7 +41,7 @@ export class K8sDevfileServiceImpl implements DevfileService {
 
   async get(fromCustomObject?: boolean): Promise<Devfile> {
     if (fromCustomObject) {
-      const customObjectsApi = this.k8SService.makeApiClient(k8s.CustomObjectsApi);
+      const customObjectsApi = await this.k8SService.makeApiClient(k8s.CustomObjectsApi);
       const group = 'workspace.devfile.io';
       const version = 'v1alpha2';
 
@@ -64,7 +64,7 @@ export class K8sDevfileServiceImpl implements DevfileService {
 
   async getWorkspacePod(): Promise<V1Pod> {
     // get workspace pod
-    const k8sCoreV1Api = this.k8SService.makeApiClient(k8s.CoreV1Api);
+    const k8sCoreV1Api = await this.k8SService.makeApiClient(k8s.CoreV1Api);
     const labelSelector = `controller.devfile.io/devworkspace_id=${this.env.getWorkspaceId()}`;
     const { body } = await k8sCoreV1Api.listNamespacedPod(
       this.env.getWorkspaceNamespace(),
@@ -155,7 +155,7 @@ export class K8sDevfileServiceImpl implements DevfileService {
 
   async patch(path: string, newValue: object): Promise<void> {
     // Grab custom resource object
-    const customObjectsApi = this.k8SService.makeApiClient(k8s.CustomObjectsApi);
+    const customObjectsApi = await this.k8SService.makeApiClient(k8s.CustomObjectsApi);
     const group = 'workspace.devfile.io';
     const version = 'v1alpha2';
 
