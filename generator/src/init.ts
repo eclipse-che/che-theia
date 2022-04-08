@@ -101,6 +101,7 @@ export class Init {
                 }
             })
         );
+
         // grab all prettier, eslint stuff
         theiaPackage.prettier = prettierConfiguration;
         theiaPackage.importSort = importSortConfiguration;
