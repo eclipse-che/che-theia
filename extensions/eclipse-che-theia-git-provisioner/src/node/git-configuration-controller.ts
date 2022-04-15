@@ -27,7 +27,7 @@ import { resolve } from 'path';
 
 export const GIT_USER_CONFIG_PATH = resolve(homedir(), '.gitconfig');
 export const GIT_GLOBAL_CONFIG_PATH = '/etc/gitconfig';
-export const GITCONFIG_CONFIGMAP_NAME = 'workspace-git-config';
+export const GITCONFIG_CONFIGMAP_NAME = 'workspace-gitconfig-storage';
 
 export interface UserConfiguration {
   name: string | undefined;
@@ -75,6 +75,14 @@ export class GitConfigurationController implements CheGitService {
     const configmap: k8s.V1ConfigMap = {
       metadata: {
         name: GITCONFIG_CONFIGMAP_NAME,
+        annotations: {
+          'controller.devfile.io/mount-as': 'subpath',
+          'controller.devfile.io/mount-path': '/etc',
+        },
+        labels: {
+          'controller.devfile.io/mount-to-devworkspace': 'true',
+          'controller.devfile.io/watch-configmap': 'true',
+        },
       },
       data: { gitconfig: fs.existsSync(GIT_USER_CONFIG_PATH) ? fs.readFileSync(GIT_USER_CONFIG_PATH).toString() : '' },
     };

@@ -11,13 +11,13 @@
 import * as k8s from '@kubernetes/client-node';
 import * as nsfw from 'nsfw';
 
-import { CheK8SService, WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common';
 import { Emitter, Event } from '@theia/core';
 import { dirname, resolve } from 'path';
 import { ensureDir, readFile, writeFile } from 'fs-extra';
 import { inject, injectable } from 'inversify';
 
-import { CheK8SServiceImpl } from '@eclipse-che/theia-remote-impl-che-server/lib/node/che-server-k8s-service-impl';
+import { K8SServiceImpl } from '@eclipse-che/theia-remote-impl-k8s/lib/node/k8s-service-impl';
+import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common';
 import { homedir } from 'os';
 
 export const THEIA_PREFERENCES_KEY = 'theia-user-preferences';
@@ -26,8 +26,8 @@ export const THEIA_USER_PREFERENCES_PATH = resolve(homedir(), '.theia', 'setting
 
 @injectable()
 export class CheTheiaUserPreferencesSynchronizer {
-  @inject(CheK8SService)
-  private readonly cheK8SService: CheK8SServiceImpl;
+  @inject(K8SServiceImpl)
+  private readonly cheK8SService: K8SServiceImpl;
 
   @inject(WorkspaceService)
   private readonly workspaceService: WorkspaceService;
@@ -47,20 +47,24 @@ export class CheTheiaUserPreferencesSynchronizer {
   public async readTheiaUserPreferencesFromCheSettings(): Promise<void> {
     await ensureDir(dirname(THEIA_USER_PREFERENCES_PATH));
     let content = '';
+    let preferences;
     try {
-      const request = await this.cheK8SService
-        .makeApiClient(k8s.CoreV1Api)
-        .readNamespacedConfigMap(
-          WORKSPACE_PREFERENCES_CONFIGMAP_NAME,
-          await this.workspaceService.getCurrentNamespace()
-        );
+      const client = await this.cheK8SService.makeApiClient(k8s.CoreV1Api);
+      const request = await client.readNamespacedConfigMap(
+        WORKSPACE_PREFERENCES_CONFIGMAP_NAME,
+        await this.workspaceService.getCurrentNamespace()
+      );
       if (request.body && request.body.data && request.body.data[THEIA_PREFERENCES_KEY]) {
-        content = JSON.stringify(JSON.parse(request.body.data[THEIA_PREFERENCES_KEY]), undefined, 3);
+        preferences = JSON.parse(request.body.data[THEIA_PREFERENCES_KEY]);
+        content = JSON.stringify(preferences, undefined, 3);
       }
     } catch (e) {
       console.error('Failed to retrieve preferences storage.', e);
     }
     await writeFile(THEIA_USER_PREFERENCES_PATH, content, 'utf8');
+    if (preferences) {
+      this.onUserPreferencesModifyEmitter.fire(preferences);
+    }
   }
 
   public async getPreferences(): Promise<object> {
@@ -114,7 +118,7 @@ export class CheTheiaUserPreferencesSynchronizer {
       return;
     }
 
-    const client = this.cheK8SService.makeApiClient(k8s.CoreV1Api);
+    const client = await this.cheK8SService.makeApiClient(k8s.CoreV1Api);
     client.defaultHeaders = {
       Accept: 'application/json',
       'Content-Type': k8s.PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH,

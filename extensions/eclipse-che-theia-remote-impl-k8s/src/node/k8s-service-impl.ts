@@ -31,7 +31,7 @@ export class K8SServiceImpl implements CheK8SService {
   constructor() {
     const kubeconfigPath = path.resolve(os.homedir(), '.kube', 'config');
     const tokenPath: string = path.resolve(os.homedir(), '.kube', 'token');
-    this.checkExistsWithTimeout(kubeconfigPath.toString(), 300000)
+    this.checkExistsWithTimeout(kubeconfigPath.toString(), 30000)
       .then(() => {
         const kubeconfig: k8s.KubeConfig = JSON.parse(fs.readFileSync(kubeconfigPath).toString());
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
