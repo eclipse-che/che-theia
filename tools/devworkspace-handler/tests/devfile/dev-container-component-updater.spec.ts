@@ -78,6 +78,7 @@ describe('Test DevContainerComponentUpdater', () => {
             path: '/existing',
           },
         ],
+        command: ['tail'],
       },
     };
     devContainerComponentFinderFindMethod.mockResolvedValue(devContainerComponent);
@@ -137,7 +138,8 @@ describe('Test DevContainerComponentUpdater', () => {
       },
     ]);
     // args updated
-    expect(devContainerComponent?.container?.args).toStrictEqual(['sh', '-c', '${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}']);
+    expect(devContainerComponent?.container?.command).toEqual(['sh', '-c']);
+    expect(devContainerComponent?.container?.args).toStrictEqual(['${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}']);
 
     // check we have a new volume added
     const components = devfileContext.devWorkspace.spec?.template?.components || [];
@@ -169,7 +171,8 @@ describe('Test DevContainerComponentUpdater', () => {
     expect(devContainerComponent?.container?.endpoints).toBeUndefined();
     expect(devContainerComponent?.container?.volumeMounts).toBeUndefined();
     // args updated
-    expect(devContainerComponent?.container?.args).toStrictEqual(['sh', '-c', '${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}']);
+    expect(devContainerComponent?.container?.command).toEqual(['sh', '-c']);
+    expect(devContainerComponent?.container?.args).toStrictEqual(['${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}']);
   });
 
   test('not a dev container', async () => {

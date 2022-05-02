@@ -92,7 +92,8 @@ export class DevContainerComponentUpdater {
     });
 
     // need to tweak the entrypoint to call the ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
-    devContainer.args = ['sh', '-c', '${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}'];
+    devContainer.command = ['sh', '-c'];
+    devContainer.args = ['${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}'];
 
     // now, need to add the common stuff
     this.containerPluginRemoteUpdater.update(devContainerComponent.name, devContainer);
