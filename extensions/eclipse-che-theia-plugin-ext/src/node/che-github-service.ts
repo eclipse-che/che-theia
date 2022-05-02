@@ -8,7 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 import * as fs from 'fs-extra';
-import * as os from 'os';
 import * as path from 'path';
 
 import { CheGitHubService } from '../common/che-protocol';
@@ -17,7 +16,7 @@ import { injectable } from 'inversify';
 @injectable()
 export class CheGithubServiceImpl implements CheGitHubService {
   async getToken(): Promise<string | undefined> {
-    const credentialsPath = path.resolve(os.homedir(), '.git-credentials', 'credentials');
+    const credentialsPath = path.resolve('/.git-credentials', 'credentials');
     if (fs.existsSync(credentialsPath)) {
       const token = fs.readFileSync(credentialsPath).toString();
       return token.substring(token.lastIndexOf(':') + 1, token.indexOf('@'));
