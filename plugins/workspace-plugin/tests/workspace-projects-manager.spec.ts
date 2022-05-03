@@ -378,7 +378,7 @@ describe('Test Workspace Projects Manager', () => {
     expect(onProjectChangedSpy).toBeCalledTimes(0);
     expect(onProjectRemovedSpy).toBeCalledTimes(0);
 
-    expect(updateProjectMock).toBeCalledTimes(1);
+    expect(updateProjectMock).toBeCalledTimes(0);
     expect(deleteProjectMock).toBeCalledTimes(0);
   });
 
