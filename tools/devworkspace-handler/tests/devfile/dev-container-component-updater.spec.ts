@@ -138,7 +138,7 @@ describe('Test DevContainerComponentUpdater', () => {
       },
     ]);
     // args updated
-    expect(devContainerComponent?.container?.command).toEqual(['sh', '-c']);
+    expect(devContainerComponent?.container?.command).toStrictEqual(['sh', '-c']);
     expect(devContainerComponent?.container?.args).toStrictEqual(['${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}']);
 
     // check we have a new volume added
@@ -171,7 +171,7 @@ describe('Test DevContainerComponentUpdater', () => {
     expect(devContainerComponent?.container?.endpoints).toBeUndefined();
     expect(devContainerComponent?.container?.volumeMounts).toBeUndefined();
     // args updated
-    expect(devContainerComponent?.container?.command).toEqual(['sh', '-c']);
+    expect(devContainerComponent?.container?.command).toStrictEqual(['sh', '-c']);
     expect(devContainerComponent?.container?.args).toStrictEqual(['${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}']);
   });
 
