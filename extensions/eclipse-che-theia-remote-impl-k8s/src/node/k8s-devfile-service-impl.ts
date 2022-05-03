@@ -39,8 +39,8 @@ export class K8sDevfileServiceImpl implements DevfileService {
     return devfileContent;
   }
 
-  async get(fromCustomObject?: boolean): Promise<Devfile> {
-    if (fromCustomObject) {
+  async get(onCluster?: boolean): Promise<Devfile> {
+    if (onCluster) {
       const customObjectsApi = this.k8SService.makeApiClient(k8s.CustomObjectsApi);
       const group = 'workspace.devfile.io';
       const version = 'v1alpha2';

@@ -37,7 +37,7 @@ export class DevfileServiceImpl {
         })
         .then(async () => {
           try {
-            const devfile = await che.devfile.get();
+            const devfile = await che.devfile.get(true);
 
             this.updateOrCreateGitProject(
               devfile,
@@ -77,7 +77,7 @@ export class DevfileServiceImpl {
           try {
             const relativePath = fileUri.toRelativePath(projectPath, this.projectsRoot);
 
-            const devfile = await che.devfile.get();
+            const devfile = await che.devfile.get(true);
             const devfileChanged = this.deleteGitProject(devfile, relativePath);
             if (devfileChanged) {
               await che.devfile.update(devfile);

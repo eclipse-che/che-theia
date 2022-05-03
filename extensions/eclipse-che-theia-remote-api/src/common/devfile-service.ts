@@ -180,10 +180,20 @@ export interface DevfileProject {
 }
 
 export interface DevfileService {
-  // Provides raw content of the devfile as a string
+  // Provides raw content of the flattened devfile as a string
   getRaw(): Promise<string>;
-  // Get structured object of the devfile
-  get(): Promise<Devfile>;
+
+  /**
+   * Get the structured object of the devfile.
+   * Typical use of the in-cluster devfile is operating on it and updating the DevWorkspace afterwards.
+   * Typical use of the flattened devfile is geting a complete intormation about the DevWorkspace.
+   * Since the flattened devfile defines everything in the workspace explicitly.
+   *
+   * @param onCluster if true - returns the original (on-cluster) devfile,
+   * if false - returns the flattened devfile.
+   */
+  get(onCluster?: boolean): Promise<Devfile>;
+
   getComponentStatuses(): Promise<DevfileComponentStatus[]>;
 
   // Update the devfile based on the given content
