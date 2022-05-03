@@ -372,7 +372,7 @@ describe('Test Workspace Projects Manager', () => {
 
     await fireFileSystemChangedEvent(PROJECTS_ROOT, 'create', 'test-project-to-add');
 
-    expect(addWorkspaceFolderMock).toBeCalledTimes(1);
+    expect(addWorkspaceFolderMock).toBeCalledTimes(0);
     expect(removeWorkspaceFolderMock).toBeCalledTimes(0);
 
     expect(onProjectChangedSpy).toBeCalledTimes(1);
@@ -407,7 +407,7 @@ describe('Test Workspace Projects Manager', () => {
 
     await fireFileSystemChangedEvent(PROJECTS_ROOT, 'create', 'test-project-to-add');
 
-    expect(addWorkspaceFolderMock).toBeCalledTimes(1);
+    expect(addWorkspaceFolderMock).toBeCalledTimes(0);
     expect(removeWorkspaceFolderMock).toBeCalledTimes(0);
 
     expect(onProjectChangedSpy).toBeCalledTimes(1);
@@ -441,7 +441,7 @@ describe('Test Workspace Projects Manager', () => {
     await fireFileSystemChangedEvent(PROJECTS_ROOT, 'create', 'test-project-to-add');
 
     expect(addWorkspaceFolderMock).toBeCalledTimes(0);
-    expect(removeWorkspaceFolderMock).toBeCalledTimes(1);
+    expect(removeWorkspaceFolderMock).toBeCalledTimes(0);
 
     expect(onProjectChangedSpy).toBeCalledTimes(0);
     expect(onProjectRemovedSpy).toBeCalledTimes(1);
