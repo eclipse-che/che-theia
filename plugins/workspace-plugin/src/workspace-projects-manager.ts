@@ -80,8 +80,11 @@ export class WorkspaceProjectsManager {
       }
     }
 
-    await this.watchWorkspaceProjects();
-    await this.watchMultiRootProjects();
+    // Quick fix for https://github.com/eclipse/che/issues/21244
+    // Considering 99% of the workspaces are single-project,
+    // there is no need to update the Devfile automatically.
+    // await this.watchWorkspaceProjects();
+    // await this.watchMultiRootProjects();
   }
 
   async buildCloneCommands(projects: che.devfile.DevfileProject[]): Promise<TheiaImportCommand[]> {
