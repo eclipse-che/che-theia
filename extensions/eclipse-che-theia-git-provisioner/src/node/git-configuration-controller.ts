@@ -8,26 +8,21 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-import * as fs from 'fs-extra';
 // eslint-disable-next-line spaced-comment
 import * as ini from 'ini';
-import * as k8s from '@kubernetes/client-node';
 import * as nsfw from 'nsfw';
 
 import { CheGitClient, CheGitService, GIT_USER_EMAIL, GIT_USER_NAME } from '../common/git-protocol';
 import { Disposable, Emitter } from '@theia/core';
-import { createFile, pathExists, readFile, writeFile } from 'fs-extra';
+import { createFileSync, existsSync, pathExistsSync, readFileSync, readdirSync, writeFileSync } from 'fs-extra';
 import { inject, injectable } from 'inversify';
 
 import { CheTheiaUserPreferencesSynchronizer } from '@eclipse-che/theia-user-preferences-synchronizer/lib/node/che-theia-preferences-synchronizer';
-import { K8SServiceImpl } from '@eclipse-che/theia-remote-impl-k8s/lib/node/k8s-service-impl';
-import { WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common/workspace-service';
 import { homedir } from 'os';
 import { resolve } from 'path';
 
 export const GIT_USER_CONFIG_PATH = resolve(homedir(), '.gitconfig');
 export const GIT_GLOBAL_CONFIG_PATH = '/etc/gitconfig';
-export const GITCONFIG_CONFIGMAP_NAME = 'workspace-gitconfig-storage';
 
 export interface UserConfiguration {
   name: string | undefined;
@@ -41,20 +36,19 @@ export interface GitConfiguration {
 
 @injectable()
 export class GitConfigurationController implements CheGitService {
-  @inject(WorkspaceService)
-  private readonly workspaceService: WorkspaceService;
-
-  constructor(@inject(K8SServiceImpl) private readonly cheK8SService: K8SServiceImpl) {
-    this.createGitconfigConfigmapIfNeeded().then(configmapExists => {
-      if (configmapExists) {
-        this.updateUserGitconfigFromConfigmap();
-      }
-    });
-    this.onUserGitconfigChangedEvent(() => this.createGitconfigConfigmapIfNeededAndUpdate());
+  constructor(
+    @inject(CheTheiaUserPreferencesSynchronizer) protected preferencesService: CheTheiaUserPreferencesSynchronizer
+  ) {
+    this.userGitconfigDirty = this.readConfigurationFromGitConfigFile(GIT_USER_CONFIG_PATH)!;
+    this.fetchLocalGitconfig();
+    this.onUserGitconfigChangedEvent(() => this.fetchLocalGitconfig());
   }
 
-  @inject(CheTheiaUserPreferencesSynchronizer)
-  protected preferencesService: CheTheiaUserPreferencesSynchronizer;
+  private fetchLocalGitconfig(): void {
+    const userGitconfig = this.readConfigurationFromGitConfigFile(GIT_USER_CONFIG_PATH)!;
+    this.updateLocalGitconfig(userGitconfig);
+    this.userGitconfigDirty = userGitconfig;
+  }
 
   protected preferencesHandler: Disposable | undefined;
 
@@ -62,86 +56,45 @@ export class GitConfigurationController implements CheGitService {
 
   protected client: CheGitClient;
 
-  private onUserGitconfigChangedEmitter = new Emitter();
-  private onUserGitconfigChangedEvent = this.onUserGitconfigChangedEmitter.event;
+  private readonly projectsRoot = process.env.PROJECTS_ROOT || process.env.CHE_PROJECTS_ROOT || '/projects';
 
-  /**
-   * Returns true if the configmap already exists, otherwise returns false.
-   */
-  private async createGitconfigConfigmapIfNeeded(): Promise<boolean> {
-    if (await this.isGitconfigConfigmapExists()) {
-      return true;
-    }
-    const configmap: k8s.V1ConfigMap = {
-      metadata: {
-        name: GITCONFIG_CONFIGMAP_NAME,
-        annotations: {
-          'controller.devfile.io/mount-as': 'subpath',
-          'controller.devfile.io/mount-path': '/etc',
-        },
-        labels: {
-          'controller.devfile.io/mount-to-devworkspace': 'true',
-          'controller.devfile.io/watch-configmap': 'true',
-        },
-      },
-      data: { gitconfig: fs.existsSync(GIT_USER_CONFIG_PATH) ? fs.readFileSync(GIT_USER_CONFIG_PATH).toString() : '' },
-    };
-    try {
-      const client = await this.cheK8SService.makeApiClient(k8s.CoreV1Api);
-      await client.createNamespacedConfigMap(await this.workspaceService.getCurrentNamespace(), configmap);
-    } catch (e) {
-      console.error('Failed to create gitconfig configmap. ' + e);
-    }
-    return false;
-  }
+  private readonly onUserGitconfigChangedEmitter = new Emitter();
+  private readonly onUserGitconfigChangedEvent = this.onUserGitconfigChangedEmitter.event;
 
-  private async isGitconfigConfigmapExists(): Promise<boolean> {
-    try {
-      const client = await this.cheK8SService.makeApiClient(k8s.CoreV1Api);
-      const request = await client.listNamespacedConfigMap(await this.workspaceService.getCurrentNamespace());
-      return (
-        request.body.items.find(
-          configmap => configmap.metadata && configmap.metadata.name === GITCONFIG_CONFIGMAP_NAME
-        ) !== undefined
-      );
-    } catch (e) {
-      console.error('Failed to list configmaps. ' + e);
-    }
-    return false;
-  }
+  private userGitconfigDirty: GitConfiguration;
 
-  private async createGitconfigConfigmapIfNeededAndUpdate(): Promise<void> {
-    await this.createGitconfigConfigmapIfNeeded();
-    const client = await this.cheK8SService.makeApiClient(k8s.CoreV1Api);
-    client.defaultHeaders = {
-      'Content-Type': k8s.PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH,
-    };
-    try {
-      await client.patchNamespacedConfigMap(
-        GITCONFIG_CONFIGMAP_NAME,
-        await this.workspaceService.getCurrentNamespace(),
-        {
-          data: { gitconfig: fs.readFileSync(GIT_USER_CONFIG_PATH).toString() },
+  private updateLocalGitconfig(gitconfig: GitConfiguration): void {
+    readdirSync(this.projectsRoot, { withFileTypes: true })
+      .filter(dir => dir.isDirectory())
+      .forEach(dir => {
+        const localGitconfigPath = resolve(this.projectsRoot, dir.name, '.git', 'config');
+        let localGitconfig: GitConfiguration;
+        if (existsSync(localGitconfigPath)) {
+          localGitconfig = ini.parse(readFileSync(localGitconfigPath).toString());
+          // Add missing values
+          Object.keys(gitconfig).forEach(key => {
+            if (
+              localGitconfig[key] === undefined ||
+              JSON.stringify(localGitconfig[key]) === JSON.stringify(this.userGitconfigDirty[key])
+            ) {
+              localGitconfig[key] = gitconfig[key];
+            }
+          });
+          // Remove deleted values
+          Object.keys(localGitconfig).forEach(key => {
+            if (
+              gitconfig[key] === undefined &&
+              JSON.stringify(localGitconfig[key]) === JSON.stringify(this.userGitconfigDirty[key])
+            ) {
+              delete localGitconfig[key];
+            }
+          });
+        } else {
+          createFileSync(localGitconfigPath);
+          localGitconfig = gitconfig;
         }
-      );
-    } catch (e) {
-      console.error('Failed to update gitconfig configmap. ' + e);
-    }
-  }
-
-  private async updateUserGitconfigFromConfigmap(): Promise<void> {
-    try {
-      const client = await this.cheK8SService.makeApiClient(k8s.CoreV1Api);
-      const request = await client.readNamespacedConfigMap(
-        GITCONFIG_CONFIGMAP_NAME,
-        await this.workspaceService.getCurrentNamespace()
-      );
-      const content = request.body.data!.gitconfig;
-      fs.ensureFileSync(GIT_USER_CONFIG_PATH);
-      fs.writeFileSync(GIT_USER_CONFIG_PATH, content);
-    } catch (e) {
-      console.error('Failed to read gitconfig configmap. ' + e);
-    }
+        writeFileSync(localGitconfigPath, ini.stringify(localGitconfig));
+      });
   }
 
   public async watchGitConfigChanges(): Promise<void> {
@@ -149,9 +102,9 @@ export class GitConfigurationController implements CheGitService {
       return;
     }
 
-    const gitConfigExists = await pathExists(GIT_USER_CONFIG_PATH);
+    const gitConfigExists = pathExistsSync(GIT_USER_CONFIG_PATH);
     if (!gitConfigExists) {
-      await createFile(GIT_USER_CONFIG_PATH);
+      createFileSync(GIT_USER_CONFIG_PATH);
     }
 
     this.gitConfigWatcher = await nsfw(GIT_USER_CONFIG_PATH, async (events: nsfw.FileChangeEvent[]) => {
@@ -166,8 +119,6 @@ export class GitConfigurationController implements CheGitService {
           (preferences as { [index: string]: string })[GIT_USER_EMAIL] = userConfig.email!;
 
           await this.preferencesService.setPreferences(preferences);
-        } else if (event.action === nsfw.actions.CREATED) {
-          this.onUserGitconfigChangedEmitter.fire(undefined);
         }
       }
     });
@@ -177,7 +128,7 @@ export class GitConfigurationController implements CheGitService {
   async getUserConfigurationFromGitConfig(): Promise<UserConfiguration> {
     let name: string | undefined;
     let email: string | undefined;
-    const config = await this.readConfigurationFromGitConfigFile(GIT_USER_CONFIG_PATH);
+    const config = this.readConfigurationFromGitConfigFile(GIT_USER_CONFIG_PATH);
     if (config && config.user) {
       name = config.user.name;
       email = config.user.email;
@@ -185,7 +136,7 @@ export class GitConfigurationController implements CheGitService {
     if (name && email) {
       return { name, email };
     }
-    const globalConfig = await this.readConfigurationFromGitConfigFile(GIT_GLOBAL_CONFIG_PATH);
+    const globalConfig = this.readConfigurationFromGitConfigFile(GIT_GLOBAL_CONFIG_PATH);
     if (globalConfig && globalConfig.user) {
       name = name ? name : globalConfig.user.name;
       email = email ? email : globalConfig.user.email;
@@ -193,11 +144,11 @@ export class GitConfigurationController implements CheGitService {
     return { name, email };
   }
 
-  protected async readConfigurationFromGitConfigFile(path: string): Promise<GitConfiguration | undefined> {
-    if (!(await pathExists(path))) {
+  protected readConfigurationFromGitConfigFile(path: string): GitConfiguration | undefined {
+    if (!pathExistsSync(path)) {
       return;
     }
-    const gitConfigContent = await readFile(path, 'utf-8');
+    const gitConfigContent = readFileSync(path, 'utf-8');
     return ini.parse(gitConfigContent);
   }
 
@@ -208,7 +159,7 @@ export class GitConfigurationController implements CheGitService {
 
     this.preferencesHandler = this.preferencesService.onUserPreferencesModify(preferences => {
       const userConfig = this.getUserConfigurationFromPreferences(preferences);
-      this.updateGlobalGitConfig(userConfig);
+      this.updateUserGitConfig(userConfig);
       this.client.firePreferencesChanged();
     });
   }
@@ -221,13 +172,13 @@ export class GitConfigurationController implements CheGitService {
     };
   }
 
-  public async updateGlobalGitConfig(userConfig: UserConfiguration): Promise<void> {
+  public async updateUserGitConfig(userConfig: UserConfiguration): Promise<void> {
     if (userConfig.name === undefined && userConfig.email === undefined) {
       return;
     }
 
     // read existing content
-    let gitConfig = await this.readConfigurationFromGitConfigFile(GIT_USER_CONFIG_PATH);
+    let gitConfig = this.readConfigurationFromGitConfigFile(GIT_USER_CONFIG_PATH);
     if (!gitConfig) {
       gitConfig = {};
     } else if (!gitConfig.user) {
@@ -245,7 +196,7 @@ export class GitConfigurationController implements CheGitService {
     if (this.gitConfigWatcher) {
       await this.gitConfigWatcher.stop();
     }
-    await writeFile(GIT_USER_CONFIG_PATH, ini.stringify(gitConfig));
+    writeFileSync(GIT_USER_CONFIG_PATH, ini.stringify(gitConfig));
     this.onUserGitconfigChangedEmitter.fire(undefined);
     if (this.gitConfigWatcher) {
       await this.gitConfigWatcher.start();
