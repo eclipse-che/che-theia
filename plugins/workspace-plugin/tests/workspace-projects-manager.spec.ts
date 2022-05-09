@@ -372,13 +372,13 @@ describe('Test Workspace Projects Manager', () => {
 
     await fireFileSystemChangedEvent(PROJECTS_ROOT, 'create', 'test-project-to-add');
 
-    expect(addWorkspaceFolderMock).toBeCalledTimes(1);
+    expect(addWorkspaceFolderMock).toBeCalledTimes(0);
     expect(removeWorkspaceFolderMock).toBeCalledTimes(0);
 
-    expect(onProjectChangedSpy).toBeCalledTimes(1);
+    expect(onProjectChangedSpy).toBeCalledTimes(0);
     expect(onProjectRemovedSpy).toBeCalledTimes(0);
 
-    expect(updateProjectMock).toBeCalledTimes(1);
+    expect(updateProjectMock).toBeCalledTimes(0);
     expect(deleteProjectMock).toBeCalledTimes(0);
   });
 
@@ -407,10 +407,10 @@ describe('Test Workspace Projects Manager', () => {
 
     await fireFileSystemChangedEvent(PROJECTS_ROOT, 'create', 'test-project-to-add');
 
-    expect(addWorkspaceFolderMock).toBeCalledTimes(1);
+    expect(addWorkspaceFolderMock).toBeCalledTimes(0);
     expect(removeWorkspaceFolderMock).toBeCalledTimes(0);
 
-    expect(onProjectChangedSpy).toBeCalledTimes(1);
+    expect(onProjectChangedSpy).toBeCalledTimes(0);
     expect(onProjectRemovedSpy).toBeCalledTimes(0);
 
     expect(updateProjectMock).toBeCalledTimes(0);
@@ -441,13 +441,13 @@ describe('Test Workspace Projects Manager', () => {
     await fireFileSystemChangedEvent(PROJECTS_ROOT, 'create', 'test-project-to-add');
 
     expect(addWorkspaceFolderMock).toBeCalledTimes(0);
-    expect(removeWorkspaceFolderMock).toBeCalledTimes(1);
+    expect(removeWorkspaceFolderMock).toBeCalledTimes(0);
 
     expect(onProjectChangedSpy).toBeCalledTimes(0);
-    expect(onProjectRemovedSpy).toBeCalledTimes(1);
+    expect(onProjectRemovedSpy).toBeCalledTimes(0);
 
     expect(updateProjectMock).toBeCalledTimes(0);
-    expect(deleteProjectMock).toBeCalledTimes(1);
+    expect(deleteProjectMock).toBeCalledTimes(0);
   });
 
   test('test rejecting in workspaceProjectsManager.onProjectChanged for non-git project', async () => {
