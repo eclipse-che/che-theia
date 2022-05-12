@@ -39,8 +39,11 @@ export class GitConfigurationController implements CheGitService {
   constructor(
     @inject(CheTheiaUserPreferencesSynchronizer) protected preferencesService: CheTheiaUserPreferencesSynchronizer
   ) {
-    this.userGitconfigDirty = this.readConfigurationFromGitConfigFile(GIT_USER_CONFIG_PATH)!;
-    this.fetchLocalGitconfig();
+    this.preferencesService.getPreferences().then(preferences => {
+      this.updateUserGitconfigFromPreferences(preferences);
+      this.userGitconfigDirty = this.readConfigurationFromGitConfigFile(GIT_USER_CONFIG_PATH)!;
+      this.fetchLocalGitconfig();
+    });
     this.onUserGitconfigChangedEvent(() => this.fetchLocalGitconfig());
   }
 
@@ -158,10 +161,14 @@ export class GitConfigurationController implements CheGitService {
     }
 
     this.preferencesHandler = this.preferencesService.onUserPreferencesModify(preferences => {
-      const userConfig = this.getUserConfigurationFromPreferences(preferences);
-      this.updateUserGitConfig(userConfig);
-      this.client.firePreferencesChanged();
+      this.updateUserGitconfigFromPreferences(preferences);
     });
+  }
+
+  private updateUserGitconfigFromPreferences(preferences: object): void {
+    const userConfig = this.getUserConfigurationFromPreferences(preferences);
+    this.updateUserGitonfigFromUserConfig(userConfig);
+    this.client.firePreferencesChanged();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -172,7 +179,7 @@ export class GitConfigurationController implements CheGitService {
     };
   }
 
-  public async updateUserGitConfig(userConfig: UserConfiguration): Promise<void> {
+  public async updateUserGitonfigFromUserConfig(userConfig: UserConfiguration): Promise<void> {
     if (userConfig.name === undefined && userConfig.email === undefined) {
       return;
     }

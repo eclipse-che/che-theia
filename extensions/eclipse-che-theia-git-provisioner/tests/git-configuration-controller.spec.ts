@@ -21,6 +21,7 @@ import {
   UserConfiguration,
 } from '../src/node/git-configuration-controller';
 
+import { CheGitClient } from '../lib/common/git-protocol';
 import { CheTheiaUserPreferencesSynchronizer } from '@eclipse-che/theia-user-preferences-synchronizer/lib/node/che-theia-preferences-synchronizer';
 import { Container } from 'inversify';
 
@@ -35,15 +36,20 @@ describe('Test GitConfigurationController', () => {
     setPreferences: cheTheiaUserPreferencesSynchronizerSetpreferencesMock,
     onTheiaUserPreferencesCreated: cheTheiaUserPreferencesSynchronizerOnTheiaUserPreferencesCreatedMock,
   } as any;
+  cheTheiaUserPreferencesSynchronizerGetpreferencesMock.mockResolvedValue({});
+  const cheGitClient: CheGitClient = {
+    firePreferencesChanged: jest.fn(),
+  };
 
   beforeEach(async () => {
     jest.restoreAllMocks();
-    jest.resetAllMocks();
+    // jest.resetAllMocks();
     jest.spyOn(fs, 'readdirSync').mockReturnValue([]);
     container = new Container();
     container.bind(CheTheiaUserPreferencesSynchronizer).toConstantValue(cheTheiaUserPreferencesSynchronizer);
     container.bind(GitConfigurationController).toSelf().inSingletonScope();
     gitConfigurationController = container.get(GitConfigurationController);
+    gitConfigurationController.setClient(cheGitClient);
   });
 
   test('check Update', async () => {
@@ -62,7 +68,7 @@ describe('Test GitConfigurationController', () => {
       email: 'my@fake.email',
     };
 
-    await gitConfigurationController.updateUserGitConfig(userConfig);
+    await gitConfigurationController.updateUserGitonfigFromUserConfig(userConfig);
     expect(gitConfigurationController).toBeDefined();
 
     // it should contain lfs data
