@@ -10,3 +10,4 @@
 
 export const SS_CRT_PATH = '/tmp/che/secret/ca.crt';
 export const PUBLIC_CRT_PATH = '/public-certs';
+export const PUBLIC_ROOT_CRT_PATH = '/etc/ssl/certs/ca-certificates.crt';
