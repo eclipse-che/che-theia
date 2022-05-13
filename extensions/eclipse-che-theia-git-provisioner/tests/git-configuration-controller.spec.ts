@@ -45,6 +45,7 @@ describe('Test GitConfigurationController', () => {
     jest.restoreAllMocks();
     // jest.resetAllMocks();
     jest.spyOn(fs, 'readdirSync').mockReturnValue([]);
+    jest.spyOn(fs, 'pathExistsSync').mockReturnValue(false);
     container = new Container();
     container.bind(CheTheiaUserPreferencesSynchronizer).toConstantValue(cheTheiaUserPreferencesSynchronizer);
     container.bind(GitConfigurationController).toSelf().inSingletonScope();
