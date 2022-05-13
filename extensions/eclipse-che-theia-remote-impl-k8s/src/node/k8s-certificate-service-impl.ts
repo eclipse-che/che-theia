@@ -11,7 +11,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
-import { PUBLIC_CRT_PATH, SS_CRT_PATH } from './k8s-server-https';
+import { PUBLIC_CRT_PATH, PUBLIC_ROOT_CRT_PATH, SS_CRT_PATH } from './k8s-server-https';
 
 import { CertificateService } from '@eclipse-che/theia-remote-api/lib/common/certificate-service';
 import { injectable } from 'inversify';
@@ -36,6 +36,12 @@ export class K8sCertificateServiceImpl implements CertificateService {
           certificateAuthority.push(content);
         }
       }
+    }
+
+    const existsPublicRootCrt = await fs.pathExists(PUBLIC_ROOT_CRT_PATH);
+    if (existsPublicRootCrt) {
+      const content = await fs.readFile(PUBLIC_ROOT_CRT_PATH);
+      certificateAuthority.push(content);
     }
 
     return certificateAuthority.length > 0 ? certificateAuthority : undefined;
