@@ -13,13 +13,25 @@ import * as ini from 'ini';
 import * as nsfw from 'nsfw';
 
 import { CheGitClient, CheGitService, GIT_USER_EMAIL, GIT_USER_NAME } from '../common/git-protocol';
-import { createFile, pathExists, readFile, writeFile } from 'fs-extra';
+import {
+  CheTheiaUserPreferencesSynchronizer,
+  THEIA_USER_PREFERENCES_PATH,
+} from '@eclipse-che/theia-user-preferences-synchronizer/lib/node/che-theia-preferences-synchronizer';
+import { Disposable, Emitter } from '@theia/core';
+import { basename, dirname, resolve } from 'path';
+import {
+  createFileSync,
+  ensureDirSync,
+  existsSync,
+  pathExistsSync,
+  readFileSync,
+  readdirSync,
+  watch,
+  writeFileSync,
+} from 'fs-extra';
 import { inject, injectable } from 'inversify';
 
-import { CheTheiaUserPreferencesSynchronizer } from '@eclipse-che/theia-user-preferences-synchronizer/lib/node/che-theia-preferences-synchronizer';
-import { Disposable } from '@theia/core';
 import { homedir } from 'os';
-import { resolve } from 'path';
 
 export const GIT_USER_CONFIG_PATH = resolve(homedir(), '.gitconfig');
 export const GIT_GLOBAL_CONFIG_PATH = '/etc/gitconfig';
@@ -36,8 +48,47 @@ export interface GitConfiguration {
 
 @injectable()
 export class GitConfigurationController implements CheGitService {
-  @inject(CheTheiaUserPreferencesSynchronizer)
-  protected preferencesService: CheTheiaUserPreferencesSynchronizer;
+  constructor(
+    @inject(CheTheiaUserPreferencesSynchronizer) protected preferencesService: CheTheiaUserPreferencesSynchronizer
+  ) {
+    this.onGitClientSetEvent(async () => {
+      await this.checkExistsWithTimeout(THEIA_USER_PREFERENCES_PATH, 60000);
+      this.userGitconfigDirty = this.readConfigurationFromGitConfigFile(GIT_USER_CONFIG_PATH)!;
+      const preferences = await this.preferencesService.getPreferences();
+      await this.updateUserGitconfigFromPreferences(preferences);
+    });
+    this.onUserGitconfigChangedEvent(() => this.fetchLocalGitconfig());
+  }
+
+  private checkExistsWithTimeout(filePath: string, timeout: number): Promise<void> {
+    return new Promise((resolvePromise, reject) => {
+      if (existsSync(filePath)) {
+        resolvePromise();
+        return;
+      }
+      const timer = setTimeout(() => {
+        watcher.close();
+        reject(new Error('File did not exists and was not created during the timeout.'));
+      }, timeout);
+
+      const dir = dirname(filePath);
+      ensureDirSync(dir);
+      const pathBasename = basename(filePath);
+      const watcher = watch(dir, (eventType, filename) => {
+        if (eventType === 'rename' && filename === pathBasename) {
+          clearTimeout(timer);
+          watcher.close();
+          resolvePromise();
+        }
+      });
+    });
+  }
+
+  private fetchLocalGitconfig(): void {
+    const userGitconfig = this.readConfigurationFromGitConfigFile(GIT_USER_CONFIG_PATH)!;
+    this.updateLocalGitconfig(userGitconfig);
+    this.userGitconfigDirty = userGitconfig;
+  }
 
   protected preferencesHandler: Disposable | undefined;
 
@@ -45,19 +96,65 @@ export class GitConfigurationController implements CheGitService {
 
   protected client: CheGitClient;
 
+  private readonly projectsRoot = process.env.PROJECTS_ROOT || process.env.CHE_PROJECTS_ROOT || '/projects';
+
+  private readonly onUserGitconfigChangedEmitter = new Emitter();
+  private readonly onUserGitconfigChangedEvent = this.onUserGitconfigChangedEmitter.event;
+
+  private readonly onGitClientSetEmitter = new Emitter();
+  private readonly onGitClientSetEvent = this.onGitClientSetEmitter.event;
+
+  private userGitconfigDirty: GitConfiguration;
+
+  private updateLocalGitconfig(gitconfig: GitConfiguration): void {
+    readdirSync(this.projectsRoot, { withFileTypes: true })
+      .filter(dir => dir.isDirectory())
+      .forEach(dir => {
+        const localGitconfigPath = resolve(this.projectsRoot, dir.name, '.git', 'config');
+        let localGitconfig: GitConfiguration;
+        if (existsSync(localGitconfigPath)) {
+          localGitconfig = ini.parse(readFileSync(localGitconfigPath).toString());
+          // Add missing values
+          Object.keys(gitconfig).forEach(key => {
+            if (
+              localGitconfig[key] === undefined ||
+              JSON.stringify(localGitconfig[key]) === JSON.stringify(this.userGitconfigDirty[key])
+            ) {
+              localGitconfig[key] = gitconfig[key];
+            }
+          });
+          // Remove deleted values
+          Object.keys(localGitconfig).forEach(key => {
+            if (
+              gitconfig[key] === undefined &&
+              JSON.stringify(localGitconfig[key]) === JSON.stringify(this.userGitconfigDirty[key])
+            ) {
+              delete localGitconfig[key];
+            }
+          });
+        } else {
+          createFileSync(localGitconfigPath);
+          localGitconfig = gitconfig;
+        }
+        writeFileSync(localGitconfigPath, ini.stringify(localGitconfig));
+      });
+  }
+
   public async watchGitConfigChanges(): Promise<void> {
     if (this.gitConfigWatcher) {
       return;
     }
 
-    const gitConfigExists = await pathExists(GIT_USER_CONFIG_PATH);
+    const gitConfigExists = pathExistsSync(GIT_USER_CONFIG_PATH);
     if (!gitConfigExists) {
-      await createFile(GIT_USER_CONFIG_PATH);
+      createFileSync(GIT_USER_CONFIG_PATH);
     }
 
     this.gitConfigWatcher = await nsfw(GIT_USER_CONFIG_PATH, async (events: nsfw.FileChangeEvent[]) => {
       for (const event of events) {
         if (event.action === nsfw.actions.MODIFIED) {
+          this.onUserGitconfigChangedEmitter.fire(undefined);
+
           const userConfig = await this.getUserConfigurationFromGitConfig();
           const preferences = await this.preferencesService.getPreferences();
 
@@ -74,7 +171,7 @@ export class GitConfigurationController implements CheGitService {
   async getUserConfigurationFromGitConfig(): Promise<UserConfiguration> {
     let name: string | undefined;
     let email: string | undefined;
-    const config = await this.readConfigurationFromGitConfigFile(GIT_USER_CONFIG_PATH);
+    const config = this.readConfigurationFromGitConfigFile(GIT_USER_CONFIG_PATH);
     if (config && config.user) {
       name = config.user.name;
       email = config.user.email;
@@ -82,7 +179,7 @@ export class GitConfigurationController implements CheGitService {
     if (name && email) {
       return { name, email };
     }
-    const globalConfig = await this.readConfigurationFromGitConfigFile(GIT_GLOBAL_CONFIG_PATH);
+    const globalConfig = this.readConfigurationFromGitConfigFile(GIT_GLOBAL_CONFIG_PATH);
     if (globalConfig && globalConfig.user) {
       name = name ? name : globalConfig.user.name;
       email = email ? email : globalConfig.user.email;
@@ -90,11 +187,11 @@ export class GitConfigurationController implements CheGitService {
     return { name, email };
   }
 
-  protected async readConfigurationFromGitConfigFile(path: string): Promise<GitConfiguration | undefined> {
-    if (!(await pathExists(path))) {
+  protected readConfigurationFromGitConfigFile(path: string): GitConfiguration | undefined {
+    if (!pathExistsSync(path)) {
       return;
     }
-    const gitConfigContent = await readFile(path, 'utf-8');
+    const gitConfigContent = readFileSync(path, 'utf-8');
     return ini.parse(gitConfigContent);
   }
 
@@ -104,10 +201,14 @@ export class GitConfigurationController implements CheGitService {
     }
 
     this.preferencesHandler = this.preferencesService.onUserPreferencesModify(preferences => {
-      const userConfig = this.getUserConfigurationFromPreferences(preferences);
-      this.updateGlobalGitConfig(userConfig);
-      this.client.firePreferencesChanged();
+      this.updateUserGitconfigFromPreferences(preferences);
     });
+  }
+
+  private async updateUserGitconfigFromPreferences(preferences: object): Promise<void> {
+    const userConfig = this.getUserConfigurationFromPreferences(preferences);
+    await this.updateUserGitonfigFromUserConfig(userConfig);
+    this.client.firePreferencesChanged();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -118,13 +219,13 @@ export class GitConfigurationController implements CheGitService {
     };
   }
 
-  public async updateGlobalGitConfig(userConfig: UserConfiguration): Promise<void> {
+  public async updateUserGitonfigFromUserConfig(userConfig: UserConfiguration): Promise<void> {
     if (userConfig.name === undefined && userConfig.email === undefined) {
       return;
     }
 
     // read existing content
-    let gitConfig = await this.readConfigurationFromGitConfigFile(GIT_USER_CONFIG_PATH);
+    let gitConfig = this.readConfigurationFromGitConfigFile(GIT_USER_CONFIG_PATH);
     if (!gitConfig) {
       gitConfig = {};
     } else if (!gitConfig.user) {
@@ -142,7 +243,8 @@ export class GitConfigurationController implements CheGitService {
     if (this.gitConfigWatcher) {
       await this.gitConfigWatcher.stop();
     }
-    await writeFile(GIT_USER_CONFIG_PATH, ini.stringify(gitConfig));
+    writeFileSync(GIT_USER_CONFIG_PATH, ini.stringify(gitConfig));
+    this.onUserGitconfigChangedEmitter.fire(undefined);
     if (this.gitConfigWatcher) {
       await this.gitConfigWatcher.start();
     }
@@ -150,6 +252,7 @@ export class GitConfigurationController implements CheGitService {
 
   setClient(client: CheGitClient): void {
     this.client = client;
+    this.onGitClientSetEmitter.fire(undefined);
   }
 
   dispose(): void {
