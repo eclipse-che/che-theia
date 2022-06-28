@@ -58,8 +58,10 @@ export class CheTheiaPluginsDevfileResolver implements DevfileResolver {
       cheTheiaPluginsYamlContent = devfileContext.devfile.attributes?.['.che/che-theia-plugins.yaml'];
     }
 
-    // no content, skip
+    // no content
     if (!cheTheiaPluginsYamlContent && !vscodeExtensionJsonContent) {
+      // we have to update the workspace anyway, but without extensions
+      await this.devWorkspaceUpdater.update(devfileContext, [], [], { extensions: [] });
       return;
     }
 

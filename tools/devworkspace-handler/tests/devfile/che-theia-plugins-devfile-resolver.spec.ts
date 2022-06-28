@@ -492,7 +492,7 @@ describe('Test CheTheiaPluginsDevfileResolver', () => {
     expect(cheTheiaPluginSidecarMergerMergeSpy).toBeCalledTimes(0);
     expect(cheTheiaPluginDevContainerMergerMergeSpy).toBeCalledTimes(0);
 
-    // no update
-    expect(devWorkspaceUpdaterUpdateMethod).toBeCalledTimes(0);
+    // devWorkspace should be updated
+    expect(devWorkspaceUpdaterUpdateMethod).toBeCalledTimes(1);
   });
 });
