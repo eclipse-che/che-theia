@@ -40,6 +40,7 @@ export class CheMiniBrowserEnvironment extends MiniBrowserEnvironment {
       MiniBrowserEndpoint.HOST_PATTERN_DEFAULT;
 
     this._hostPatternPromise = Promise.resolve(miniBrowserHostName);
+    this._hostPattern = miniBrowserHostName;
   }
 
   get hostPatternPromise(): Promise<string> {
