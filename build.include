@@ -10,13 +10,13 @@
 set -e
 set -u
 
-IMAGE_TAG="next"
+IMAGE_TAG="latest"
 THEIA_GITHUB_REPO="eclipse-theia/theia"
 THEIA_VERSION="master"
 THEIA_BRANCH="master"
 THEIA_COMMIT_SHA="38e2ba301785ec4a08dfc27a8b23d159f489bbdf"
 THEIA_GIT_REFS="refs\\/heads\\/master"
-THEIA_DOCKER_IMAGE_VERSION=
+THEIA_DOCKER_IMAGE_VERSION="7.50.0"
 SHA1_SUFFIX=
 
 prepare_yarn_root_args() {
