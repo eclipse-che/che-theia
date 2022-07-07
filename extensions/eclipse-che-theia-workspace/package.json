@@ -11,7 +11,7 @@
   "dependencies": {
     "inversify": "^5.0.1",
     "fs-extra": "7.0.1",
-    "moment": "2.24.0",
+    "moment": "2.29.4",
     "@theia/filesystem": "1.18.0-next.120",
     "@theia/navigator": "1.18.0-next.120",
     "@theia/core": "1.18.0-next.120",
