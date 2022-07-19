@@ -13,6 +13,7 @@
 import 'reflect-metadata';
 
 import * as fs from 'fs-extra';
+import * as jsYaml from 'js-yaml';
 import * as p from 'path';
 
 import { CHE_PLUGINS_JSON, K8sPluginServiceImpl } from '../../src/node/k8s-plugin-service-impl';
@@ -208,6 +209,130 @@ extensions:
   - https://download.jboss.org/jbosstools/vscode/3rdparty/vscode-java-debug/vscode-java-debug-0.26.0.vsix
 `;
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// plugin registry index.json
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const ATLASSIAN_ATLASCODE_CHE_THEIA_PLUGIN_YAML = `
+schemaVersion: 1.0.0
+metadata:
+  id: atlassian/atlascode
+  publisher: atlassian
+  name: atlascode
+  version: latest
+  displayName: Jira and Bitbucket (Official)
+  description: Bringing the power of Jira and Bitbucket to VS Code
+  repository: https://bitbucket.org/atlassianlabs/atlascode.git
+  categories:
+    - Other
+  icon: /images/atlassian-atlascode-icon.png
+dependencies:
+  - redhat/vscode-yaml
+extensions:
+  - https://open-vsx.org/api/atlassian/atlascode/2.8.6/file/atlassian.atlascode-2.8.6.vsix
+`;
+
+const BMEWBURN_VSCODE_INTELEPHENSE_CLIENT_CHE_THEIA_PLUGIN_YAML = `
+schemaVersion: 1.0.0
+metadata:
+  id: bmewburn/vscode-intelephense-client
+  publisher: bmewburn
+  name: vscode-intelephense-client
+  version: latest
+  displayName: PHP Intelephense
+  description: PHP code intelligence for Visual Studio Code
+  repository: https://github.com/bmewburn/vscode-intelephense.git
+  categories:
+    - Programming Languages
+    - Linters
+    - Formatters
+  icon: /images/bmewburn-vscode-intelephense-client-icon.png
+sidecar:
+  memoryLimit: 1Gi
+  memoryRequest: 20Mi
+  cpuLimit: 500m
+  cpuRequest: 30m
+  image: quay.io/eclipse/che-plugin-sidecar:php-c939ba4
+dependencies: []
+extensions:
+  - https://github.com/redhat-developer/codeready-workspaces-vscode-extensions/releases/download/7.44-che-assets/vscode-intelephense-client-1.5.4.vsix
+`;
+
+const VSCODE_TYPESCRIPT_LANGUAGE_FEATURES_CHE_THEIA_PLUGIN_YAML = `
+schemaVersion: 1.0.0
+metadata:
+  id: vscode/typescript-language-features
+  publisher: vscode
+  name: typescript-language-features
+  version: latest
+  displayName: TypeScript and JavaScript Language Features (built-in)
+  description: Provides rich language support for JavaScript and TypeScript.
+  repository: https://github.com/theia-ide/vscode-builtin-extensions
+  categories:
+    - Programming Languages
+  icon: /images/vscode-typescript-language-features-icon.png
+sidecar:
+  memoryLimit: 512Mi
+  memoryRequest: 20Mi
+  cpuLimit: 500m
+  cpuRequest: 30m
+  image: quay.io/eclipse/che-plugin-sidecar:node-c939ba4
+dependencies: []
+extensions:
+  - https://open-vsx.org/api/vscode/typescript-language-features/1.49.3/file/vscode.typescript-language-features-1.49.3.vsix
+`;
+
+const REDHAT_VSCODE_YAML_CHE_THEIA_PLUGIN_YAML = `
+schemaVersion: 1.0.0
+metadata:
+  id: redhat/vscode-yaml
+  publisher: redhat
+  name: vscode-yaml
+  version: latest
+  displayName: YAML
+  description: YAML Language Support by Red Hat, with built-in Kubernetes syntax support
+  repository: https://github.com/redhat-developer/vscode-yaml
+  categories:
+    - Programming Languages
+    - Linters
+    - Snippets
+    - Formatters
+  icon: /images/redhat-vscode-yaml-icon.png
+sidecar:
+  name: vscode-yaml
+  memoryLimit: 256Mi
+  memoryRequest: 20Mi
+  cpuLimit: 500m
+  cpuRequest: 30m
+  image: quay.io/eclipse/che-plugin-sidecar:node-c939ba4
+dependencies: []
+extensions:
+  - https://open-vsx.org/api/redhat/vscode-yaml/0.14.0/file/redhat.vscode-yaml-0.14.0.vsix
+`;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const DUMMY_DEVFILE: Devfile = {
+  metadata: {},
+  components: [
+    {
+      name: 'theia-ide',
+      attributes: {
+        'app.kubernetes.io/component': 'che-theia',
+      },
+    },
+    {
+      attributes: [],
+      container: {
+        mountSources: true,
+        image: 'image',
+      },
+    },
+  ],
+};
+
 class TestDevfileService extends K8sDevfileServiceImpl {}
 
 class TestWorkspaceService extends K8sWorkspaceServiceImpl {}
@@ -230,10 +355,34 @@ describe('Test K8sPluginServiceImpl', () => {
   const ORIGINAL_ENV = { ...process.env };
 
   let devWorkspaceTemplateContent: string;
+  let devWorkspaceTemplateWithInlinedExtensionsJsonContent: string;
+  let devWorkspaceTemplateWithInlinedCheTheiaPluginsYamlContent: string;
 
   beforeAll(async () => {
     const devWorkspaceTemplatePath = p.resolve(__dirname, '..', '_data', 'devworkspace-template.json');
     devWorkspaceTemplateContent = await fs.readFile(devWorkspaceTemplatePath, 'utf-8');
+
+    const devWorkspaceTemplateWithInlinedExtensionsJsonYaml = p.resolve(
+      __dirname,
+      '..',
+      '_data',
+      'devworkspace-template-with-inlined-extensions-json.yaml'
+    );
+    devWorkspaceTemplateWithInlinedExtensionsJsonContent = await fs.readFile(
+      devWorkspaceTemplateWithInlinedExtensionsJsonYaml,
+      'utf-8'
+    );
+
+    const devWorkspaceTemplateWithInlinedCheTheiaPluginsYaml = p.resolve(
+      __dirname,
+      '..',
+      '_data',
+      'devworkspace-template-with-inlined-che-theia-plugins.yaml'
+    );
+    devWorkspaceTemplateWithInlinedCheTheiaPluginsYamlContent = await fs.readFile(
+      devWorkspaceTemplateWithInlinedCheTheiaPluginsYaml,
+      'utf-8'
+    );
   });
 
   beforeEach(async () => {
@@ -266,6 +415,8 @@ describe('Test K8sPluginServiceImpl', () => {
     container.bind(HttpService).toConstantValue(httpServiceMock);
 
     devfileService = new TestDevfileService();
+    jest.spyOn(devfileService, 'get').mockImplementation(async () => DUMMY_DEVFILE);
+
     workspaceService = new TestWorkspaceService();
 
     container.bind(DevfileService).toConstantValue(devfileService);
@@ -296,8 +447,6 @@ describe('Test K8sPluginServiceImpl', () => {
     });
 
     Object.assign(fs, {
-      pathExists: async (path: string): Promise<boolean> => path === '/projects',
-
       readdir: async (path: string): Promise<string[]> => {
         if (path === '/projects') {
           return ['project1'];
@@ -424,6 +573,136 @@ describe('Test K8sPluginServiceImpl', () => {
     await pluginService.deferred.promise;
 
     expect(writeFileMock).toBeCalledTimes(0);
+  });
+
+  test('initialize :: should handle inlined .vscode/extensions.json', async () => {
+    process.env.CHE_PLUGIN_REGISTRY_URL = 'http://public.uri/v3/';
+    process.env.CHE_PLUGIN_REGISTRY_INTERNAL_URL = 'http://internal.uri/v3/';
+
+    const devfile = jsYaml.safeLoad(devWorkspaceTemplateWithInlinedExtensionsJsonContent) as Devfile;
+    const getDevfileMock = jest.spyOn(devfileService, 'get');
+    getDevfileMock.mockImplementation(async () => devfile);
+
+    let writtenPluginsJSONContent = '';
+
+    const writeFileMock = jest.fn();
+    writeFileMock.mockImplementation(async (path: string, data: string): Promise<void> => {
+      if (path === CHE_PLUGINS_JSON) {
+        writtenPluginsJSONContent = data;
+        return;
+      }
+
+      return Promise.reject();
+    });
+
+    Object.assign(fs, {
+      writeFile: writeFileMock,
+    });
+
+    mockGet.mockImplementation(async (url: string): Promise<string | undefined> => {
+      switch (url) {
+        case 'http://internal.uri/v3/plugins/vscode/typescript-language-features/latest/che-theia-plugin.yaml':
+          return VSCODE_TYPESCRIPT_LANGUAGE_FEATURES_CHE_THEIA_PLUGIN_YAML;
+
+        case 'http://internal.uri/v3/plugins/atlassian/atlascode/latest/che-theia-plugin.yaml':
+          return ATLASSIAN_ATLASCODE_CHE_THEIA_PLUGIN_YAML;
+
+        case 'http://internal.uri/v3/plugins/bmewburn/vscode-intelephense-client/latest/che-theia-plugin.yaml':
+          return BMEWBURN_VSCODE_INTELEPHENSE_CLIENT_CHE_THEIA_PLUGIN_YAML;
+
+        case 'http://internal.uri/v3/plugins/redhat/vscode-yaml/latest/che-theia-plugin.yaml':
+          return REDHAT_VSCODE_YAML_CHE_THEIA_PLUGIN_YAML;
+      }
+
+      return undefined;
+    });
+
+    const pluginService = container.get(K8sPluginServiceImpl);
+    await pluginService.deferred.promise;
+
+    expect(writeFileMock).toHaveBeenCalledTimes(1);
+    expect(getDevfileMock).toHaveBeenCalledTimes(1);
+
+    expect(JSON.parse(writtenPluginsJSONContent)).toEqual({
+      plugins: [
+        'vscode.typescript-language-features',
+        'bmewburn.vscode-intelephense-client',
+        'atlassian.atlascode',
+        'redhat.vscode-yaml',
+      ],
+    });
+
+    expect(pluginService.installedPlugins).toEqual([
+      'vscode/typescript-language-features/latest',
+      'bmewburn/vscode-intelephense-client/latest',
+      'atlassian/atlascode/latest',
+      'redhat/vscode-yaml/latest',
+    ]);
+  });
+
+  test('initialize :: should handle inlined .che/che-theia-plugins.yaml', async () => {
+    process.env.CHE_PLUGIN_REGISTRY_URL = 'http://public.uri/v3/';
+    process.env.CHE_PLUGIN_REGISTRY_INTERNAL_URL = 'http://internal.uri/v3/';
+
+    const devfile = jsYaml.safeLoad(devWorkspaceTemplateWithInlinedCheTheiaPluginsYamlContent) as Devfile;
+    const getDevfileMock = jest.spyOn(devfileService, 'get');
+    getDevfileMock.mockImplementation(async () => devfile);
+
+    let writtenPluginsJSONContent = '';
+
+    const writeFileMock = jest.fn();
+    writeFileMock.mockImplementation(async (path: string, data: string): Promise<void> => {
+      if (path === CHE_PLUGINS_JSON) {
+        writtenPluginsJSONContent = data;
+        return;
+      }
+
+      return Promise.reject();
+    });
+
+    Object.assign(fs, {
+      writeFile: writeFileMock,
+    });
+
+    mockGet.mockImplementation(async (url: string): Promise<string | undefined> => {
+      switch (url) {
+        case 'http://internal.uri/v3/plugins/vscode/typescript-language-features/latest/che-theia-plugin.yaml':
+          return VSCODE_TYPESCRIPT_LANGUAGE_FEATURES_CHE_THEIA_PLUGIN_YAML;
+
+        case 'http://internal.uri/v3/plugins/atlassian/atlascode/latest/che-theia-plugin.yaml':
+          return ATLASSIAN_ATLASCODE_CHE_THEIA_PLUGIN_YAML;
+
+        case 'http://internal.uri/v3/plugins/bmewburn/vscode-intelephense-client/latest/che-theia-plugin.yaml':
+          return BMEWBURN_VSCODE_INTELEPHENSE_CLIENT_CHE_THEIA_PLUGIN_YAML;
+
+        case 'http://internal.uri/v3/plugins/redhat/vscode-yaml/latest/che-theia-plugin.yaml':
+          return REDHAT_VSCODE_YAML_CHE_THEIA_PLUGIN_YAML;
+      }
+
+      return undefined;
+    });
+
+    const pluginService = container.get(K8sPluginServiceImpl);
+    await pluginService.deferred.promise;
+
+    expect(writeFileMock).toHaveBeenCalledTimes(1);
+    expect(getDevfileMock).toHaveBeenCalledTimes(1);
+
+    expect(JSON.parse(writtenPluginsJSONContent)).toEqual({
+      plugins: [
+        'vscode.typescript-language-features',
+        'atlassian.atlascode',
+        'redhat.vscode-yaml',
+        'bmewburn.vscode-intelephense-client',
+      ],
+    });
+
+    expect(pluginService.installedPlugins).toEqual([
+      'vscode/typescript-language-features/latest',
+      'atlassian/atlascode/latest',
+      'redhat/vscode-yaml/latest',
+      'bmewburn/vscode-intelephense-client/latest',
+    ]);
   });
 
   test('get default registry', async () => {

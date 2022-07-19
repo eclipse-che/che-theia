@@ -13,14 +13,23 @@ import * as jsYaml from 'js-yaml';
 import * as jsoncparser from 'jsonc-parser';
 import * as path from 'path';
 
-import { Changes, ChePluginRegistry } from '@eclipse-che/theia-remote-api/lib/common/plugin-service';
+import {
+  Changes,
+  ChePluginMetadata,
+  ChePluginRegistries,
+  ChePluginRegistry,
+} from '@eclipse-che/theia-remote-api/lib/common/plugin-service';
+import {
+  ChePluginMetadataInternal,
+  PluginServiceImpl,
+} from '@eclipse-che/theia-remote-api/lib/common/plugin-service-impl';
 import { Devfile, DevfileComponent } from '@eclipse-che/theia-remote-api/lib/common/devfile-service';
 import { inject, injectable, postConstruct } from 'inversify';
 
 import { K8sDevWorkspaceEnvVariables } from './k8s-devworkspace-env-variables';
 import { K8sDevfileServiceImpl } from './k8s-devfile-service-impl';
 import { K8sWorkspaceServiceImpl } from './k8s-workspace-service-impl';
-import { PluginServiceImpl } from '@eclipse-che/theia-remote-api/lib/common/plugin-service-impl';
+import URI from '@theia/core/lib/common/uri';
 
 export const CHE_PLUGINS_JSON = '/plugins/che-plugins.json';
 
@@ -81,6 +90,26 @@ export interface Installation {
   cache: {
     [plugin: string]: CheTheiaPlugin.Plugin;
   };
+}
+
+/**
+ * Describes properties in che-theia-plugin.yaml
+ */
+export interface CheTheiaPluginYaml {
+  metadata: {
+    id: string;
+    publisher: string;
+    name: string;
+    version: string;
+    displayName: string;
+    description: string;
+    repository: string;
+    categories: string[];
+    icon: string;
+  };
+
+  dependencies?: string[];
+  extensions?: string[];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,6 +198,16 @@ export class K8sPluginServiceImpl extends PluginServiceImpl {
     try {
       const pluginList: PluginList = { plugins: [] };
 
+      const devfile: Devfile = await this.devfileService.get();
+
+      if (devfile.attributes && devfile.attributes['.vscode/extensions.json']) {
+        await this.fetchPluginsFromExtensionsJSON(devfile.attributes['.vscode/extensions.json'], pluginList);
+      }
+
+      if (devfile.attributes && devfile.attributes['.che/che-theia-plugins.yaml']) {
+        await this.fetchPluginsFromCheTheiaPluginsYaml(devfile.attributes['.che/che-theia-plugins.yaml'], pluginList);
+      }
+
       const projects = await fs.readdir(projectsRoot);
       for (const project of projects) {
         const extensionsJson = path.join(projectsRoot, project, '.vscode', 'extensions.json');
@@ -176,33 +215,7 @@ export class K8sPluginServiceImpl extends PluginServiceImpl {
         if ((await fs.pathExists(extensionsJson)) && (await fs.stat(extensionsJson)).isFile()) {
           try {
             const content = await fs.readFile(extensionsJson, 'utf-8');
-            const strippedContent = jsoncparser.stripComments(content);
-            const extensions = jsoncparser.parse(strippedContent);
-
-            const recommendations = extensions['recommendations'];
-
-            const heap: Installation = {
-              plugins: [],
-              cache: {},
-            };
-
-            for (const recommendation of recommendations) {
-              const parts: string[] = recommendation.split('.');
-
-              await this.prepareToInstall(`${parts[0]}/${parts[1]}/latest`, heap, false);
-
-              for (const plugin of heap.plugins) {
-                const pluginParts: string[] = plugin.split('/');
-
-                if (!pluginList.plugins.find(value => value === `${pluginParts[0]}.${pluginParts[1]}`)) {
-                  pluginList.plugins.push(`${pluginParts[0]}.${pluginParts[1]}`);
-                }
-
-                if (!this.installedPlugins.find(value => value === plugin)) {
-                  this.installedPlugins.push(plugin);
-                }
-              }
-            }
+            await this.fetchPluginsFromExtensionsJSON(content, pluginList);
           } catch (thisError) {
             console.error(
               `Unable to get list of extensions for ${project}. ${thisError.message ? thisError.message : thisError}`
@@ -214,6 +227,73 @@ export class K8sPluginServiceImpl extends PluginServiceImpl {
       await this.writeChePluginsJSON(pluginList);
     } catch (error) {
       throw new Error(ERRMSG + (error ? ' :: ' + (error.message ? error.message : error) : ''));
+    }
+  }
+
+  async fetchPluginsFromExtensionsJSON(content: string, pluginList: PluginList): Promise<void> {
+    const strippedContent = jsoncparser.stripComments(content);
+    const extensions = jsoncparser.parse(strippedContent);
+
+    const recommendations = extensions['recommendations'];
+
+    const heap: Installation = {
+      plugins: [],
+      cache: {},
+    };
+
+    for (const recommendation of recommendations) {
+      const parts: string[] = recommendation.split('.');
+
+      try {
+        await this.prepareToInstall(`${parts[0]}/${parts[1]}/latest`, heap, false);
+      } catch (error) {
+        console.error(`Unable to get plugin metadata for ${recommendation}`);
+        continue;
+      }
+
+      for (const plugin of heap.plugins) {
+        const pluginParts: string[] = plugin.split('/');
+
+        if (!pluginList.plugins.find(value => value === `${pluginParts[0]}.${pluginParts[1]}`)) {
+          pluginList.plugins.push(`${pluginParts[0]}.${pluginParts[1]}`);
+        }
+
+        if (!this.installedPlugins.find(value => value === plugin)) {
+          this.installedPlugins.push(plugin);
+        }
+      }
+    }
+  }
+
+  async fetchPluginsFromCheTheiaPluginsYaml(content: string, pluginList: PluginList): Promise<void> {
+    const yaml = jsYaml.load(content);
+
+    const heap: Installation = {
+      plugins: [],
+      cache: {},
+    };
+
+    for (const requiredPlugin of yaml) {
+      const pluginID = requiredPlugin['id'];
+
+      try {
+        await this.prepareToInstall(pluginID, heap, false);
+      } catch (error) {
+        console.error(`Unable to get plugin metadata for ${pluginID}`);
+        continue;
+      }
+
+      for (const plugin of heap.plugins) {
+        const pluginParts: string[] = plugin.split('/');
+
+        if (!pluginList.plugins.find(value => value === `${pluginParts[0]}.${pluginParts[1]}`)) {
+          pluginList.plugins.push(`${pluginParts[0]}.${pluginParts[1]}`);
+        }
+
+        if (!this.installedPlugins.find(value => value === plugin)) {
+          this.installedPlugins.push(plugin);
+        }
+      }
     }
   }
 
@@ -267,6 +347,130 @@ export class K8sPluginServiceImpl extends PluginServiceImpl {
     };
 
     return this.defaultRegistry;
+  }
+
+  private getCheTheiaPluginYamlURI(registry: ChePluginRegistry, plugin: ChePluginMetadataInternal): string {
+    if (plugin.links && plugin.links.plugin) {
+      const pluginURI: string = plugin.links.plugin;
+
+      if (pluginURI.startsWith('/')) {
+        const uri = new URI(registry.internalURI);
+        return `${uri.scheme}://${uri.authority}${pluginURI}`;
+      } else {
+        const base = this.getBaseDirectory(registry);
+        return `${base}${pluginURI}`;
+      }
+    } else {
+      const base = this.getBaseDirectory(registry);
+      return `${base}/${plugin.id}/che-theia-plugin.yaml`;
+    }
+  }
+
+  /**
+   * Updates the plugin cache
+   *
+   * @param registries list of plugin registries
+   */
+  async updateCache(registries: ChePluginRegistries): Promise<void> {
+    if (!this.client) {
+      throw new Error('PluginServiceImpl is not properly inisialized. ChePluginServiceClient is not set.');
+    }
+
+    await this.deferred.promise;
+
+    // clear cache
+    this.cachedPlugins = [];
+
+    // ensure default plugin registry URI is set
+    if (!this.defaultRegistry) {
+      await this.getDefaultRegistry();
+    }
+
+    let availablePlugins = 0;
+    await this.client.notifyPluginCacheSizeChanged(0);
+
+    for (const registryName in registries) {
+      if (!registries.hasOwnProperty(registryName)) {
+        continue;
+      }
+
+      const registry = registries[registryName];
+      try {
+        const registryPlugins = await this.loadPluginList(registry);
+        if (!Array.isArray(registryPlugins)) {
+          await this.client.invalidRegistryFound(registry);
+          continue;
+        }
+
+        availablePlugins += registryPlugins.length;
+        await this.client.notifyPluginCacheSizeChanged(availablePlugins);
+
+        for (let pIndex = 0; pIndex < registryPlugins.length; pIndex++) {
+          const metadataInternal: ChePluginMetadataInternal = registryPlugins[pIndex];
+          const cheTheiaPluginYamlURI = this.getCheTheiaPluginYamlURI(registry, metadataInternal);
+          try {
+            const pluginMetadata = await this.loadCheTheiaPluginYaml(cheTheiaPluginYamlURI, registry.publicURI);
+            this.cachedPlugins.push(pluginMetadata);
+            await this.client.notifyPluginCached(this.cachedPlugins.length);
+          } catch (error) {
+            await this.client.invalidPluginFound(cheTheiaPluginYamlURI);
+          }
+        }
+      } catch (error) {
+        await this.client.invalidRegistryFound(registry);
+      }
+    }
+
+    // notify client that caching the plugins has been finished
+    await this.client.notifyCachingComplete();
+  }
+
+  async loadCheTheiaPluginYaml(yamlURI: string, pluginRegistryURI: string): Promise<ChePluginMetadata> {
+    let yamlContent: string | undefined;
+    try {
+      yamlContent = await this.httpService.get(yamlURI);
+    } catch (error) {
+      return Promise.reject(`Failure to load ${yamlURI}`);
+    }
+
+    if (!yamlContent) {
+      throw new Error(`Failure to parse ${yamlURI}`);
+    }
+
+    try {
+      const plugin: CheTheiaPluginYaml = jsYaml.safeLoad(yamlContent);
+
+      let icon = plugin.metadata.icon;
+      if (icon.startsWith('http://') || icon.startsWith('https://')) {
+        // icon refers on external resource
+        icon = icon;
+      } else {
+        // icon must be relative to plugin registry ROOT
+        icon = icon.startsWith('/') ? pluginRegistryURI + icon : pluginRegistryURI + '/' + icon;
+      }
+
+      return {
+        publisher: plugin.metadata.publisher,
+        name: plugin.metadata.name,
+        version: plugin.metadata.version,
+        type: 'VS Code extension',
+        displayName: plugin.metadata.displayName,
+        title: plugin.metadata.displayName,
+        description: plugin.metadata.description,
+        icon,
+        url: '',
+        repository: plugin.metadata.repository,
+        firstPublicationDate: '',
+        category: plugin.metadata.categories ? plugin.metadata.categories.toString() : '',
+        latestUpdateDate: '',
+        key: `${plugin.metadata.id}/${plugin.metadata.version}`,
+        builtIn: false,
+        extensions: plugin.extensions ? [...plugin.extensions] : undefined,
+        dependencies: plugin.dependencies ? [...plugin.dependencies] : undefined,
+      };
+    } catch (error) {
+      throw new Error(`Failure to parse ${yamlURI}`);
+    }
   }
 
   async getInstalledPlugins(): Promise<string[]> {

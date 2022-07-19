@@ -1,0 +1,289 @@
+attributes:
+  .che/che-theia-plugins.yaml: |
+    - id: vscode/typescript-language-features/latest
+    - id: atlassian/atlascode/latest
+    - id: bmewburn/vscode-intelephense-client/latest
+  dw.metadata.annotations:
+    che.eclipse.org/che-editor: https://gist.githubusercontent.com/vitaliy-guliy/bc6ff64a716a30bfc7492cec9314f3cf/raw/abcfeff8ccc9a1992fa9a6d4fe7a7a558dc7b7df/editor.meta.yaml
+    che.eclipse.org/devfile-source: |
+      scm:
+        repo: 'https://github.com/vitaliy-guliy/web-nodejs-sample.git'
+        revision: che-qe-extensions-test
+        fileName: devfile.yaml
+      factory:
+        params: >-
+          url=https://github.com/vitaliy-guliy/web-nodejs-sample/tree/che-qe-extensions-test&che-editor=https://gist.githubusercontent.com/vitaliy-guliy/bc6ff64a716a30bfc7492cec9314f3cf/raw/abcfeff8ccc9a1992fa9a6d4fe7a7a558dc7b7df/editor.meta.yaml
+    che.eclipse.org/last-updated-timestamp: "2022-07-12T11:25:04.110Z"
+commands:
+- apply:
+    component: remote-runtime-injector
+  attributes:
+    controller.devfile.io/imported-by: theia-ide-workspaced740715bb27b4967
+  id: init-container-command
+- exec:
+    commandLine: npm install
+    component: tools
+    group:
+      kind: build
+    label: Download dependencies
+    workingDir: ${PROJECTS_ROOT}/web-nodejs-sample/app
+  id: 1-dependencies
+- exec:
+    commandLine: nodemon app.js
+    component: tools
+    group:
+      kind: run
+    label: Run the web app
+    workingDir: ${PROJECTS_ROOT}/web-nodejs-sample/app
+  id: 2-run
+- exec:
+    commandLine: npm install; nodemon app.js
+    component: tools
+    group:
+      kind: run
+    label: Run the web app (and download dependencies)
+    workingDir: ${PROJECTS_ROOT}/web-nodejs-sample/app
+  id: 3-install-and-run
+- exec:
+    commandLine: nodemon --inspect app.js
+    component: tools
+    group:
+      isDefault: true
+      kind: debug
+    label: Run the web app (debugging enabled)
+    workingDir: ${PROJECTS_ROOT}/web-nodejs-sample/app
+  id: 4-debug
+- exec:
+    commandLine: 'node_server_pids=$(pgrep -fx ''.*nodemon (--inspect )?app.js'' |
+      tr "\\n" " ") && echo "Stopping node server with PIDs: ${node_server_pids}"
+      &&  kill -15 ${node_server_pids} &>/dev/null && echo ''Done.'''
+    component: tools
+    group:
+      kind: run
+    label: Stop the web app
+  id: 5-stopapp
+components:
+- attributes:
+    app.kubernetes.io/component: che-theia
+    app.kubernetes.io/part-of: che-theia.eclipse.org
+    che-theia.eclipse.org/vscode-extensions:
+    - https://open-vsx.org/api/atlassian/atlascode/2.8.6/file/atlassian.atlascode-2.8.6.vsix
+    controller.devfile.io/imported-by: theia-ide-workspaced740715bb27b4967
+  container:
+    cpuLimit: 1500m
+    cpuRequest: 100m
+    endpoints:
+    - attributes:
+        controller.devfile.io/endpoint-url: https://192.168.49.2.nip.io/workspaced740715bb27b4967/theia-ide/3100/
+        cookiesAuthEnabled: true
+        discoverable: false
+        type: main
+        urlRewriteSupported: true
+      exposure: public
+      name: theia
+      protocol: https
+      secure: false
+      targetPort: 3100
+    - attributes:
+        controller.devfile.io/endpoint-url: https://192.168.49.2.nip.io/workspaced740715bb27b4967/theia-ide/webviews/
+        cookiesAuthEnabled: true
+        discoverable: false
+        type: webview
+        unique: true
+        urlRewriteSupported: true
+      exposure: public
+      name: webviews
+      protocol: https
+      secure: false
+      targetPort: 3100
+    - attributes:
+        controller.devfile.io/endpoint-url: https://192.168.49.2.nip.io/workspaced740715bb27b4967/theia-ide/mini-browser/
+        cookiesAuthEnabled: true
+        discoverable: false
+        type: mini-browser
+        unique: true
+        urlRewriteSupported: true
+      exposure: public
+      name: mini-browser
+      protocol: https
+      secure: false
+      targetPort: 3100
+    - attributes:
+        controller.devfile.io/endpoint-url: https://192.168.49.2.nip.io/workspaced740715bb27b4967/theia-ide/3130/
+        discoverable: false
+        type: ide-dev
+        urlRewriteSupported: true
+      exposure: public
+      name: theia-dev
+      protocol: http
+      targetPort: 3130
+    - attributes:
+        controller.devfile.io/endpoint-url: https://192.168.49.2.nip.io/workspaced740715bb27b4967/theia-ide/13131/
+        discoverable: false
+        urlRewriteSupported: true
+      exposure: public
+      name: theia-redirect-1
+      protocol: http
+      targetPort: 13131
+    - attributes:
+        controller.devfile.io/endpoint-url: https://192.168.49.2.nip.io/workspaced740715bb27b4967/theia-ide/13132/
+        discoverable: false
+        urlRewriteSupported: true
+      exposure: public
+      name: theia-redirect-2
+      protocol: http
+      targetPort: 13132
+    - attributes:
+        controller.devfile.io/endpoint-url: https://192.168.49.2.nip.io/workspaced740715bb27b4967/theia-ide/13133/
+        discoverable: false
+        urlRewriteSupported: true
+      exposure: public
+      name: theia-redirect-3
+      protocol: http
+      targetPort: 13133
+    - attributes:
+        controller.devfile.io/endpoint-url: wss://192.168.49.2.nip.io/workspaced740715bb27b4967/theia-ide/3333/
+        cookiesAuthEnabled: true
+        discoverable: false
+        type: collocated-terminal
+        urlRewriteSupported: true
+      exposure: public
+      name: terminal
+      protocol: wss
+      secure: false
+      targetPort: 3333
+    env:
+    - name: THEIA_PLUGINS
+      value: local-dir:///plugins
+    - name: HOSTED_PLUGIN_HOSTNAME
+      value: 0.0.0.0
+    - name: HOSTED_PLUGIN_PORT
+      value: "3130"
+    - name: THEIA_HOST
+      value: 127.0.0.1
+    - name: CHE_DASHBOARD_URL
+      value: https://192.168.49.2.nip.io
+    - name: CHE_PLUGIN_REGISTRY_URL
+      value: https://192.168.49.2.nip.io/plugin-registry/v3
+    - name: CHE_PLUGIN_REGISTRY_INTERNAL_URL
+      value: http://plugin-registry.eclipse-che.svc:8080/v3
+    image: quay.io/vgulyy/che-theia:check-inlined-plugins
+    memoryLimit: 512M
+    mountSources: true
+    sourceMapping: /projects
+    volumeMounts:
+    - name: plugins
+      path: /plugins
+    - name: theia-local
+      path: /home/theia/.theia
+  name: theia-ide
+- attributes:
+    controller.devfile.io/imported-by: theia-ide-workspaced740715bb27b4967
+  name: plugins
+  volume: {}
+- attributes:
+    controller.devfile.io/imported-by: theia-ide-workspaced740715bb27b4967
+  name: theia-local
+  volume: {}
+- attributes:
+    app.kubernetes.io/component: machine-exec
+    app.kubernetes.io/part-of: che-theia.eclipse.org
+    controller.devfile.io/imported-by: theia-ide-workspaced740715bb27b4967
+  container:
+    command:
+    - /go/bin/che-machine-exec
+    - --url
+    - 127.0.0.1:3333
+    env:
+    - name: CHE_DASHBOARD_URL
+      value: https://192.168.49.2.nip.io
+    - name: CHE_PLUGIN_REGISTRY_URL
+      value: https://192.168.49.2.nip.io/plugin-registry/v3
+    - name: CHE_PLUGIN_REGISTRY_INTERNAL_URL
+      value: http://plugin-registry.eclipse-che.svc:8080/v3
+    image: quay.io/eclipse/che-machine-exec@sha256:45ac7cf14440ae4a6eceb6a9fba9ded845acf3981fd1c9b0761e994a1cdf0df7
+    sourceMapping: /projects
+  name: che-machine-exec
+- attributes:
+    app.kubernetes.io/component: remote-runtime-injector
+    app.kubernetes.io/part-of: che-theia.eclipse.org
+    controller.devfile.io/imported-by: theia-ide-workspaced740715bb27b4967
+  container:
+    env:
+    - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+      value: /remote-endpoint/plugin-remote-endpoint
+    - name: REMOTE_ENDPOINT_VOLUME_NAME
+      value: remote-endpoint
+    - name: CHE_DASHBOARD_URL
+      value: https://192.168.49.2.nip.io
+    - name: CHE_PLUGIN_REGISTRY_URL
+      value: https://192.168.49.2.nip.io/plugin-registry/v3
+    - name: CHE_PLUGIN_REGISTRY_INTERNAL_URL
+      value: http://plugin-registry.eclipse-che.svc:8080/v3
+    image: quay.io/eclipse/che-theia-endpoint-runtime-binary@sha256:e72767d42e745132870ee9a5087774447ecfddcb5d279b877a4bfbf41892b5fd
+    sourceMapping: /projects
+    volumeMounts:
+    - name: plugins
+      path: /plugins
+    - name: remote-endpoint
+      path: /remote-endpoint
+  name: remote-runtime-injector
+- attributes:
+    controller.devfile.io/imported-by: theia-ide-workspaced740715bb27b4967
+  name: remote-endpoint
+  volume:
+    ephemeral: true
+- attributes:
+    app.kubernetes.io/name: tools
+    che-theia.eclipse.org/vscode-extensions:
+    - https://open-vsx.org/api/vscode/typescript-language-features/1.49.3/file/vscode.typescript-language-features-1.49.3.vsix
+    - https://github.com/redhat-developer/codeready-workspaces-vscode-extensions/releases/download/7.44-che-assets/vscode-intelephense-client-1.5.4.vsix
+    - https://open-vsx.org/api/redhat/vscode-yaml/0.14.0/file/redhat.vscode-yaml-0.14.0.vsix
+  container:
+    args:
+    - sh
+    - -c
+    - ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+    endpoints:
+    - attributes:
+        controller.devfile.io/endpoint-url: http://workspaced740715bb27b4967-1.192.168.49.2.nip.io/
+      exposure: public
+      name: nodejs
+      protocol: http
+      targetPort: 3000
+    env:
+    - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+      value: /remote-endpoint/plugin-remote-endpoint
+    - name: THEIA_PLUGINS
+      value: local-dir:///plugins/sidecars/tools
+    - name: CHE_DASHBOARD_URL
+      value: https://192.168.49.2.nip.io
+    - name: CHE_PLUGIN_REGISTRY_URL
+      value: https://192.168.49.2.nip.io/plugin-registry/v3
+    - name: CHE_PLUGIN_REGISTRY_INTERNAL_URL
+      value: http://plugin-registry.eclipse-che.svc:8080/v3
+    image: quay.io/devspaces/udi-rhel8:3.1
+    memoryLimit: 1G
+    mountSources: true
+    sourceMapping: /projects
+    volumeMounts:
+    - name: npm
+      path: /home/user/.npm
+    - name: remote-endpoint
+      path: /remote-endpoint
+    - name: plugins
+      path: /plugins
+  name: tools
+- name: npm
+  volume:
+    size: 1G
+events:
+  preStart:
+  - init-container-command
+projects:
+- git:
+    checkoutFrom:
+      revision: che-qe-extensions-test
+    remotes:
+      origin: https://github.com/vitaliy-guliy/web-nodejs-sample.git
+  name: web-nodejs-sample

@@ -14,8 +14,10 @@ export interface ChePluginRegistry {
   // Display name
   name: string;
   // Registry internal URI, is used for cross-container comnmunication.
+  // Should not contain a trailing slash.
   internalURI: string;
   // Public URI to access the registry resources from browser.
+  // Should not contain a trailing slash.
   publicURI: string;
 }
 
@@ -40,6 +42,10 @@ export interface ChePluginMetadata {
   // Plugin KEY. Used to set in workpsace configuration
   key: string;
   builtIn: boolean;
+
+  // to be compatible with dev workspaces
+  dependencies?: string[];
+  extensions?: string[];
 }
 
 /**
