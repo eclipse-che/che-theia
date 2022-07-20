@@ -51,7 +51,7 @@ jobs:
           echo "[INFO] No existing tags detected for $VERSION"
         fi
     - uses: actions/setup-node@v1
-      name: Configuring nodejs 12.x version
+      name: Configuring nodejs 14.x version
       with:
         node-version: '14.x'
     - name: Login to docker.io
