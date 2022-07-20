@@ -36,23 +36,26 @@ export class ContainersService {
 
     const devfile = await che.devfile.get();
 
-    this._containers = componentStatuses.map(componentStatus => {
-      // search for a matching component
-      const devfileComponent = (devfile.components || []).find(component => component.name === componentStatus.name);
-
+    const devfileComponentsWithContainers = (devfile.components || []).filter(c => c.container);
+    const containers = [];
+    // eslint-disable-next-line guard-for-in
+    for (const component of devfileComponentsWithContainers) {
+      const componentStatus = componentStatuses.find(c => c.name === component.name);
+      if (!componentStatus) {
+        return;
+      }
       const container: IContainer = {
-        name: componentStatus.name,
+        name: component.name!,
         status: 'RUNNING',
         endpoints: componentStatus.endpoints,
         isDev: componentStatus.isUser,
+        env: component.container!.env,
+        volumeMounts: component.container!.volumeMounts,
+        commands: this.getContainerCommands(component.name!, devfile),
       };
-      if (devfileComponent && devfileComponent.container) {
-        container.env = devfileComponent.container.env;
-        container.volumeMounts = devfileComponent.container.volumeMounts;
-        container.commands = this.getContainerCommands(componentStatus.name, devfile);
-      }
-      return container;
-    });
+      containers.push(container);
+    }
+    this._containers = containers;
   }
 
   get containers(): Array<IContainer> {
