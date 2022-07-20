@@ -28,7 +28,7 @@
     "download": "^8.0.0",
     "fs-extra": "^9.0.1",
     "handlebars": "^4.7.6",
-    "moment": "^2.27.0",
+    "moment": "^2.29.4",
     "semver": "^7.3.2",
     "simple-git": "^2.12.0",
     "vsix-info": "^0.0.3"

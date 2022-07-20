@@ -14481,7 +14481,7 @@ strong-log-transformer@^1.0.6:
     byline "^5.0.0"
     duplexer "^0.1.1"
     minimist "^0.1.0"
-    moment "^2.6.0"
+    moment "^2.29.4"
     through "^2.3.4"
 
 stylehacks@^4.0.0:
