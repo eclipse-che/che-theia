@@ -36,27 +36,74 @@ export class ContainersService {
 
     const devfile = await che.devfile.get();
 
-    const devfileComponentsWithContainers = (devfile.components || []).filter(c => c.container);
-    const containers = [];
-    // eslint-disable-next-line guard-for-in
-    for (const component of devfileComponentsWithContainers) {
-      const componentStatus = componentStatuses.find(c => c.name === component.name);
-      if (!componentStatus) {
-        return;
+    this._containers = [];
+    for (const componentStatus of componentStatuses) {
+      // search for a matching component
+      const devfileComponent = (devfile.components || []).find(component => component.name === componentStatus.name);
+
+      if (devfileComponent && this.isTheiaComponent(devfileComponent) && componentStatus.name !== 'theia-ide') {
+        continue;
       }
+
       const container: IContainer = {
-        name: component.name!,
+        name: componentStatus.name,
         status: 'RUNNING',
         endpoints: componentStatus.endpoints,
         isDev: componentStatus.isUser,
-        env: component.container!.env,
-        volumeMounts: component.container!.volumeMounts,
-        commands: this.getContainerCommands(component.name!, devfile),
       };
-      containers.push(container);
+      if (devfileComponent && devfileComponent.container) {
+        container.env = devfileComponent.container.env;
+        container.volumeMounts = devfileComponent.container.volumeMounts;
+        container.commands = this.getContainerCommands(componentStatus.name, devfile);
+      }
+      this._containers.push(container);
     }
-    this._containers = containers;
   }
+
+  private isTheiaComponent(container: che.devfile.DevfileComponent): boolean {
+    const attribute = this.findAttributeByAttributeEnding('part-of', container.attributes);
+    return !!attribute && attribute === 'che-theia.eclipse.org';
+  }
+
+  private findAttributeByAttributeEnding(ending: string, attributes?: { [key: string]: string }): string | undefined {
+    if (!attributes) {
+      return undefined;
+    }
+
+    for (const attribute in attributes) {
+      if (attributes.hasOwnProperty(attribute) && attribute.endsWith(ending)) {
+        return attributes[attribute];
+      }
+    }
+  }
+
+
+  // async updateContainers(): Promise<void> {
+  //   const componentStatuses = await che.devfile.getComponentStatuses();
+
+  //   const devfile = await che.devfile.get();
+
+  //   const devfileComponentsWithContainers = (devfile.components || []).filter(c => c.container);
+  //   const containers = [];
+  //   // eslint-disable-next-line guard-for-in
+  //   for (const component of devfileComponentsWithContainers) {
+  //     const componentStatus = componentStatuses.find(c => c.name === component.name);
+  //     if (!componentStatus) {
+  //       continue;
+  //     }
+  //     const container: IContainer = {
+  //       name: component.name!,
+  //       status: 'RUNNING',
+  //       endpoints: componentStatus.endpoints,
+  //       isDev: componentStatus.isUser,
+  //       env: component.container!.env,
+  //       volumeMounts: component.container!.volumeMounts,
+  //       commands: this.getContainerCommands(component.name!, devfile),
+  //     };
+  //     containers.push(container);
+  //   }
+  //   this._containers = containers;
+  // }
 
   get containers(): Array<IContainer> {
     return this._containers;
