@@ -77,34 +77,6 @@ export class ContainersService {
     }
   }
 
-
-  // async updateContainers(): Promise<void> {
-  //   const componentStatuses = await che.devfile.getComponentStatuses();
-
-  //   const devfile = await che.devfile.get();
-
-  //   const devfileComponentsWithContainers = (devfile.components || []).filter(c => c.container);
-  //   const containers = [];
-  //   // eslint-disable-next-line guard-for-in
-  //   for (const component of devfileComponentsWithContainers) {
-  //     const componentStatus = componentStatuses.find(c => c.name === component.name);
-  //     if (!componentStatus) {
-  //       continue;
-  //     }
-  //     const container: IContainer = {
-  //       name: component.name!,
-  //       status: 'RUNNING',
-  //       endpoints: componentStatus.endpoints,
-  //       isDev: componentStatus.isUser,
-  //       env: component.container!.env,
-  //       volumeMounts: component.container!.volumeMounts,
-  //       commands: this.getContainerCommands(component.name!, devfile),
-  //     };
-  //     containers.push(container);
-  //   }
-  //   this._containers = containers;
-  // }
-
   get containers(): Array<IContainer> {
     return this._containers;
   }
