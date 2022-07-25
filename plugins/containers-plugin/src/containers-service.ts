@@ -36,9 +36,14 @@ export class ContainersService {
 
     const devfile = await che.devfile.get();
 
-    this._containers = componentStatuses.map(componentStatus => {
+    this._containers = [];
+    for (const componentStatus of componentStatuses) {
       // search for a matching component
       const devfileComponent = (devfile.components || []).find(component => component.name === componentStatus.name);
+
+      if (devfileComponent && this.isTheiaComponent(devfileComponent) && componentStatus.name !== 'theia-ide') {
+        continue;
+      }
 
       const container: IContainer = {
         name: componentStatus.name,
@@ -51,8 +56,25 @@ export class ContainersService {
         container.volumeMounts = devfileComponent.container.volumeMounts;
         container.commands = this.getContainerCommands(componentStatus.name, devfile);
       }
-      return container;
-    });
+      this._containers.push(container);
+    }
+  }
+
+  private isTheiaComponent(container: che.devfile.DevfileComponent): boolean {
+    const attribute = this.findAttributeByAttributeEnding('part-of', container.attributes);
+    return !!attribute && attribute === 'che-theia.eclipse.org';
+  }
+
+  private findAttributeByAttributeEnding(ending: string, attributes?: { [key: string]: string }): string | undefined {
+    if (!attributes) {
+      return undefined;
+    }
+
+    for (const attribute in attributes) {
+      if (attributes.hasOwnProperty(attribute) && attribute.endsWith(ending)) {
+        return attributes[attribute];
+      }
+    }
   }
 
   get containers(): Array<IContainer> {
