@@ -4,7 +4,7 @@
     "theia-extension",
     "terminal"
   ],
-  "version": "0.0.1",
+  "version": "7.52.0",
   "publishConfig": {
     "access": "public"
   },
@@ -27,8 +27,8 @@
     "xterm": "^4.11.0",
     "@phosphor/widgets": "1",
     "reconnecting-websocket": "^4.2.0",
-    "@eclipse-che/api": "latest",
-    "@eclipse-che/theia-remote-api": "^0.0.1",
+    "@eclipse-che/api": "7.52.0",
+    "@eclipse-che/theia-remote-api": "7.52.0",
     "vscode-ws-jsonrpc": "0.2.0"
   },
   "devDependencies": {
