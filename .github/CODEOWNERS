@@ -1,10 +1,10 @@
 # Default Owners
-* @azatsarynnyy @RomanNikitenko @vzhukovs
+* @azatsarynnyy @RomanNikitenko
 
 # Custom folders
-configs/** @azatsarynnyy @RomanNikitenko @vzhukovs
-devfiles/** @azatsarynnyy @RomanNikitenko @vzhukovs
-dockerfiles/** @azatsarynnyy @RomanNikitenko @vzhukovs
-extensions/** @azatsarynnyy @RomanNikitenko @vzhukovs
-generator/** @azatsarynnyy @RomanNikitenko @vzhukovs
+configs/** @azatsarynnyy @RomanNikitenko
+devfiles/** @azatsarynnyy @RomanNikitenko
+dockerfiles/** @azatsarynnyy @RomanNikitenko
+extensions/** @azatsarynnyy @RomanNikitenko
+generator/** @azatsarynnyy @RomanNikitenko
 plugins/** @vinokurig @vitaliy-guliy @svor
