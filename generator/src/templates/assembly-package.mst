@@ -44,8 +44,7 @@
     "@theia/userstorage": "^{{ version }}",
     "@theia/variable-resolver": "^{{ version }}",
     "@theia/workspace": "^{{ version }}",
-    "@theia/sessionstack": "0.0.1",
-    "@theia/ui-event-listener": "0.0.1"
+    "@theia/sessionstack": "0.0.1"
   },
   "bin": {
     "override-vs-loader": "./scripts/override-vs-loader.js"
