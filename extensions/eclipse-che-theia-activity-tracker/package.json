@@ -3,16 +3,16 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "1.0.0",
+  "version": "7.56.0",
   "files": [
     "lib",
     "src"
   ],
   "dependencies": {
     "inversify": "^5.0.1",
-    "@eclipse-che/theia-remote-api": "^0.0.1",
+    "@eclipse-che/theia-remote-api": "7.56.0",
     "@theia/core": "1.18.0-next.120",
-    "@eclipse-che/theia-plugin-ext": "^0.0.1"
+    "@eclipse-che/theia-plugin-ext": "7.56.0"
   },
   "devDependencies": {
     "ts-jest": "27.0.7",
