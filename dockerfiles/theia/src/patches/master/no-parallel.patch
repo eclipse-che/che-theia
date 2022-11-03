@@ -1,0 +1,22 @@
+diff --git a/dev-packages/cli/src/download-plugins.ts b/dev-packages/cli/src/download-plugins.ts
+index 7bc24a07185..1e2ce335fb9 100644
+--- a/dev-packages/cli/src/download-plugins.ts
++++ b/dev-packages/cli/src/download-plugins.ts
+@@ -104,7 +104,7 @@ export default async function downloadPlugins(options: DownloadPluginsOptions =
+                 ? await fs.readdir(extensionPackCachePath)
+                 : []
+         );
+-        console.warn('--- downloading plugins ---');
++        console.warn('--- downloading plugins (no-parallel mode) ---');
+         // Download the raw plugins defined by the `theiaPlugins` property.
+         // This will include both "normal" plugins as well as "extension packs".
+         const downloads = [];
+@@ -113,7 +113,7 @@ export default async function downloadPlugins(options: DownloadPluginsOptions =
+             if (cachedExtensionPacks.has(plugin) || typeof pluginUrl !== 'string') {
+                 continue;
+             }
+-            downloads.push(downloadPluginAsync(failures, plugin, pluginUrl, pluginsDir, packed));
++            downloads.push(await downloadPluginAsync(failures, plugin, pluginUrl, pluginsDir, packed));
+         }
+         await Promise.all(downloads);
+         console.warn('--- collecting extension-packs ---');
