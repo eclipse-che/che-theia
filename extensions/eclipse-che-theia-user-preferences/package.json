@@ -5,7 +5,7 @@
     "che",
     "preferences"
   ],
-  "version": "0.0.1",
+  "version": "7.57.0",
   "license": "EPL-2.0",
   "files": [
     "lib",
@@ -14,15 +14,15 @@
   "dependencies": {
     "inversify": "^5.0.1",
     "fs-extra": "7.0.1",
-    "@eclipse-che/theia-remote-api": "^0.0.1",
+    "@eclipse-che/theia-remote-api": "7.57.0",
     "@theia/core": "1.18.0-next.120",
     "@theia/filesystem": "1.18.0-next.120",
     "@theia/workspace": "1.18.0-next.120",
     "nsfw": "^2.1.2",
     "@theia/preferences": "1.18.0-next.120",
-    "@eclipse-che/theia-plugin-ext": "^0.0.1",
+    "@eclipse-che/theia-plugin-ext": "7.57.0",
     "@kubernetes/client-node": "^0.12.1",
-    "@eclipse-che/theia-remote-impl-che-server": "0.0.1"
+    "@eclipse-che/theia-remote-impl-che-server": "7.57.0"
   },
   "devDependencies": {
     "rimraf": "latest",
