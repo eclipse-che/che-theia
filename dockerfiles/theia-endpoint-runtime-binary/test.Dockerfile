@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.7-923 as runtime
+FROM registry.access.redhat.com/ubi8-minimal:8.7-923.1669829893 as runtime
 
 RUN microdnf install -y python38 jq && pip3 install yq
 COPY /src/ /tests/src
