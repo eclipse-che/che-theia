@@ -1,6 +1,6 @@
 {
     "name": "@eclipse-che/plugin",
-    "version": "0.0.1",
+    "version": "7.59.0",
     "description": "Eclipse Che specific Theia plugin API",
     "publishConfig": {
         "access": "public"
@@ -11,7 +11,7 @@
         "src"
     ],
     "dependencies": {
-        "@eclipse-che/api": "latest"
+        "@eclipse-che/api": "7.59.0"
     },
     "scripts": {
         "prepare": "",
