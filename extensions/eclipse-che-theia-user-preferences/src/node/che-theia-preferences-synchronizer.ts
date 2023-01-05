@@ -17,7 +17,7 @@ import { dirname, resolve } from 'path';
 import { ensureDir, readFile, writeFile } from 'fs-extra';
 import { inject, injectable } from 'inversify';
 
-import { CheK8SServiceImpl } from '@eclipse-che/theia-remote-impl-che-server/lib/node/che-server-k8s-service-impl';
+import { K8SServiceImpl } from '@eclipse-che/theia-remote-impl-k8s/lib/node/k8s-service-impl';
 import { homedir } from 'os';
 
 export const THEIA_PREFERENCES_KEY = 'theia-user-preferences';
@@ -27,7 +27,7 @@ export const THEIA_USER_PREFERENCES_PATH = resolve(homedir(), '.theia', 'setting
 @injectable()
 export class CheTheiaUserPreferencesSynchronizer {
   @inject(CheK8SService)
-  private readonly cheK8SService: CheK8SServiceImpl;
+  private readonly cheK8SService: K8SServiceImpl;
 
   @inject(WorkspaceService)
   private readonly workspaceService: WorkspaceService;

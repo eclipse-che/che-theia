@@ -1146,15 +1146,15 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.3.tgz#90420f9f9c6d3987f176a19a7d8e764271a2f55d"
   integrity sha512-Fxt+AfXgjMoin2maPIYzFZnQjAXjAL0PHscM5pRTtatFqB+vZxAM9tLp2Optnuw3QOQC40jTNeGYFOMvyf7v9g==
 
-"@eclipse-che/api@^7.0.0-beta-4.0", "@eclipse-che/api@latest":
-  version "7.34.2"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.34.2.tgz#e047aece3627268231d7e677da87596bcf2f8adb"
-  integrity sha512-YxQhYPgOb+KU+po3ghQHfPEfwYMPVIO8/LkFgZM+Jr83K0F0cN72PNb4HVaPgyNHInjEQFmwYSculn4oFtaTbQ==
-
 "@eclipse-che/api@^7.38.1":
   version "7.38.2"
   resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.38.2.tgz#4a06ab38b50fca4fabe921952efe3b98270ee317"
   integrity sha512-AXETX0B2f+qaLTlg9BDw6XrVwaIFrl1ZE+vaFLqxMqdbbBo76v6yegCuYwxFFxXAeVJ47+yqeYtOKU02dn/lgA==
+
+"@eclipse-che/api@latest":
+  version "7.34.2"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.34.2.tgz#e047aece3627268231d7e677da87596bcf2f8adb"
+  integrity sha512-YxQhYPgOb+KU+po3ghQHfPEfwYMPVIO8/LkFgZM+Jr83K0F0cN72PNb4HVaPgyNHInjEQFmwYSculn4oFtaTbQ==
 
 "@eclipse-che/plugin@latest":
   version "0.0.1-1629115197"
@@ -1162,17 +1162,6 @@
   integrity sha512-LCZhqYTt8UQRlzUosSbixp80tx4W9vPPblgzh9wfqfx1F3qpP90eWdsjO/LXEFkaxC5QGcE0PYHryP6o4jBQLA==
   dependencies:
     "@eclipse-che/api" latest
-
-"@eclipse-che/workspace-client@latest":
-  version "0.0.1-1625140858"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-client/-/workspace-client-0.0.1-1625140858.tgz#9f49ef07a15fb72e90fad5db1209dec62284567c"
-  integrity sha512-2llTOZWwkqPIP7yc0RYsKZKVvvf/3lw4BXF9EXFJAA0rZ8xbwEBAaeu5sPUOCcyALsf2+P668d3VTVEF3+mU8Q==
-  dependencies:
-    "@eclipse-che/api" "^7.0.0-beta-4.0"
-    axios "^0.21.1"
-    qs "^6.9.4"
-    tunnel "0.0.6"
-    websocket "1.0.23"
 
 "@eclipse-che/workspace-telemetry-client@latest":
   version "0.0.1-1635937496"
@@ -2155,7 +2144,7 @@
     "@theia/variable-resolver" "1.18.0-next.120+1811b5ee59e"
     ajv "^6.5.3"
     jsonc-parser "^2.2.0"
-    moment "2.29.4"
+    moment "2.24.0"
     valid-filename "^2.0.1"
 
 "@tootallnate/once@1":
@@ -4094,13 +4083,6 @@ axios@0.21.2:
   version "0.21.2"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.2.tgz#21297d5084b2aeeb422f5d38e7be4fbb82239017"
   integrity sha512-87otirqUw3e8CzHTMO+/9kh/FSgXt/eVDvipijwDtEuwbkySWZ9SBm6VEubmJ/kLKEoLQV/POhxXFb66bfekfg==
-  dependencies:
-    follow-redirects "^1.14.0"
-
-axios@^0.21.1:
-  version "0.21.4"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
-  integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==
   dependencies:
     follow-redirects "^1.14.0"
 
@@ -11166,7 +11148,12 @@ modify-values@^1.0.0:
   resolved "https://registry.yarnpkg.com/modify-values/-/modify-values-1.0.1.tgz#b3939fa605546474e3e3e3c63d64bd43b4ee6022"
   integrity sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==
 
-moment@^2.29.4, moment@^2.27.0, moment@^2.24.0, moment@^2.21.0, moment@^2.6.0:
+moment@2.24.0:
+  version "2.24.0"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.24.0.tgz#0d055d53f5052aa653c9f6eb68bb5d12bf5c2b5b"
+  integrity sha512-bV7f+6l2QigeBBZSM/6yTNq4P2fNpSWj/0e7jQcy87A8e7o2nAfP/34/2ky5Vw4B9S446EtIhodAzkFCcR4dQg==
+
+moment@2.29.4, moment@^2.29.4, moment@^2.6.0:
   version "2.29.4"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
   integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
@@ -11258,7 +11245,7 @@ mute-stream@0.0.7:
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.7.tgz#3075ce93bc21b8fab43e1bc4da7e8115ed1e7bab"
   integrity sha1-MHXOk7whuPq0PhvE2n6BFe0ee6s=
 
-nan@^2.12.1, nan@^2.14.0, nan@^2.3.3:
+nan@^2.12.1, nan@^2.14.0:
   version "2.15.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.15.0.tgz#3f34a473ff18e15c1b5626b62903b5ad6e665fee"
   integrity sha512-8ZtvEnA2c5aYCZYd1cvgdnU6cqwixRoYg70xPLWUws5ORTa/lnw+u4amixRS/Ac5U5mQVgp9pnlSUnbNWFaWZQ==
@@ -12854,13 +12841,6 @@ qs@6.7.0:
   version "6.7.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.7.0.tgz#41dc1a015e3d581f1621776be31afb2876a9b1bc"
   integrity sha512-VCdBRNFTX1fyE7Nb6FYoURo/SPe62QCaAyzJvUjwRaIsc+NePBEniHlvxFmmX56+HZphIGtV0XeCirBtpDrTyQ==
-
-qs@^6.9.4:
-  version "6.10.1"
-  resolved "https://registry.yarnpkg.com/qs/-/qs-6.10.1.tgz#4931482fa8d647a5aab799c5271d2133b981fb6a"
-  integrity sha512-M528Hph6wsSVOBiYUnGf+K/7w0hNshs/duGsNXPUCLH5XAqjEtiPGwNONLV0tBH8NoGb0mvD5JubnUTrujKDTg==
-  dependencies:
-    side-channel "^1.0.4"
 
 qs@~6.5.2:
   version "6.5.2"
@@ -15174,7 +15154,7 @@ type-is@^1.6.4, type-is@~1.6.17, type-is@~1.6.18:
     media-typer "0.3.0"
     mime-types "~2.1.24"
 
-typedarray-to-buffer@^3.1.2, typedarray-to-buffer@^3.1.5:
+typedarray-to-buffer@^3.1.5:
   version "3.1.5"
   resolved "https://registry.yarnpkg.com/typedarray-to-buffer/-/typedarray-to-buffer-3.1.5.tgz#a97ee7a9ff42691b9f783ff1bc5112fe3fca9080"
   integrity sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==
@@ -16017,16 +15997,6 @@ websocket-extensions@>=0.1.1:
   resolved "https://registry.yarnpkg.com/websocket-extensions/-/websocket-extensions-0.1.4.tgz#7f8473bc839dfd87608adb95d7eb075211578a42"
   integrity sha512-OqedPIGOfsDlo31UNwYbCFMSaO9m9G/0faIHj5/dZFDMFqPTcx6UwqyOy3COEaEOg/9VsGIpdqn62W5KhoKSpg==
 
-websocket@1.0.23:
-  version "1.0.23"
-  resolved "https://registry.yarnpkg.com/websocket/-/websocket-1.0.23.tgz#20de8ec4a7126b09465578cd5dbb29a9c296aac6"
-  integrity sha1-IN6OxKcSawlGVXjNXbspqcKWqsY=
-  dependencies:
-    debug "^2.2.0"
-    nan "^2.3.3"
-    typedarray-to-buffer "^3.1.2"
-    yaeti "^0.0.4"
-
 whatwg-encoding@^1.0.5:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/whatwg-encoding/-/whatwg-encoding-1.0.5.tgz#5abacf777c32166a51d085d6b4f3e7d27113ddb0"
@@ -16324,11 +16294,6 @@ y18n@^5.0.5:
   version "5.0.8"
   resolved "https://registry.yarnpkg.com/y18n/-/y18n-5.0.8.tgz#7f4934d0f7ca8c56f95314939ddcd2dd91ce1d55"
   integrity sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==
-
-yaeti@^0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/yaeti/-/yaeti-0.0.4.tgz#89fe739c45ac4491028973193262a837693a66b6"
-  integrity sha1-if5znEWsRJECiXMZMmKoN2k6ZrY=
 
 yallist@^2.1.2:
   version "2.1.2"

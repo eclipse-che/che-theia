@@ -1,6 +1,0 @@
----
-apiVersion: 1.0.0
-attributes:
-  attributeName: 'attributeValue' 
-metadata:
-  name: test

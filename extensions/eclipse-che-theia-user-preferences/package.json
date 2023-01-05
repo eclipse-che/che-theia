@@ -22,7 +22,7 @@
     "@theia/preferences": "1.18.0-next.120",
     "@eclipse-che/theia-plugin-ext": "^0.0.1",
     "@kubernetes/client-node": "^0.12.1",
-    "@eclipse-che/theia-remote-impl-che-server": "0.0.1"
+    "@eclipse-che/theia-remote-impl-k8s": "0.0.1"
   },
   "devDependencies": {
     "rimraf": "latest",

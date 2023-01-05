@@ -12,17 +12,16 @@ import * as k8s from '@kubernetes/client-node';
 
 import { CredentialsServer, PasswordContent } from '../common/credentials-protocol';
 import { inject, injectable } from 'inversify';
-
-import { CheK8SServiceImpl } from '@eclipse-che/theia-remote-impl-che-server/lib/node/che-server-k8s-service-impl';
-import { CheServerWorkspaceServiceImpl } from '@eclipse-che/theia-remote-impl-che-server/lib/node/che-server-workspace-service-impl';
+import { CheK8SService, WorkspaceService } from '@eclipse-che/theia-remote-api/lib/common';
+import { K8SServiceImpl } from '@eclipse-che/theia-remote-impl-k8s/lib/node/k8s-service-impl';
 
 @injectable()
 export class CheCredentialsServer implements CredentialsServer {
-  @inject(CheK8SServiceImpl)
-  private readonly cheK8SService: CheK8SServiceImpl;
+  @inject(CheK8SService)
+  private readonly cheK8SService: K8SServiceImpl;
 
-  @inject(CheServerWorkspaceServiceImpl)
-  private readonly workspaceService: CheServerWorkspaceServiceImpl;
+  @inject(WorkspaceService)
+  private readonly workspaceService: WorkspaceService;
 
   private readonly CREDENTIALS_SECRET_NAME = 'workspace-credentials-secret';
   private readonly INFRASTRUCTURE_NAMESPACE = 'infrastructureNamespace';
