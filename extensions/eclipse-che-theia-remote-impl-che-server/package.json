@@ -23,7 +23,7 @@
     "@eclipse-che/api": "latest",
     "@kubernetes/client-node": "^0.12.1",
     "@eclipse-che/theia-remote-api": "^0.0.1",
-    "@eclipse-che/workspace-client": "latest"
+    "@eclipse-che/workspace-client": "0.0.1-1671716979"
   },
   "devDependencies": {
     "ts-jest": "27.0.7",
