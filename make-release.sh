@@ -74,12 +74,6 @@ apply_files_edits () {
       exit 1
     fi
 
-    WS_CLIENT_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@eclipse-che/workspace-client/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
-    if [[ ! ${WS_CLIENT_VERSION} ]] || [[ ${WS_CLIENT_VERSION} == \"Unauthorized\" ]]; then
-      echo "Failed to get @eclipse-che/workspace-client latest version from npmjs.org. Try again."; echo
-      exit 1
-    fi
-
     WS_TELEMETRY_CLIENT_VERSION=$(curl -sSL http://registry.npmjs.org/-/package/@eclipse-che/workspace-telemetry-client/dist-tags | sed 's/.*"latest":"\(.*\)".*/\1/')
     if [[ ! ${WS_TELEMETRY_CLIENT_VERSION} ]] || [[ ${WS_TELEMETRY_CLIENT_VERSION} == \"Unauthorized\" ]]; then
       echo "Failed to get @eclipse-che/workspace-telemetry-client latest version from npmjs.org. Try again."; echo
@@ -118,8 +112,6 @@ apply_files_edits () {
       PACKAGE_JSON="${m}"/package.json
       # shellcheck disable=SC2086
       sed_in_place -r -e "/plugin-packager/!s/(\"@theia\/..*\": )(\"next\")/\1\"${THEIA_VERSION}\"/" ${PACKAGE_JSON}
-      # shellcheck disable=SC2086
-      sed_in_place -r -e "s/(\"@eclipse-che\/workspace-client\": )(\"latest\")/\1\"$WS_CLIENT_VERSION\"/" ${PACKAGE_JSON}
       # shellcheck disable=SC2086
       sed_in_place -r -e "s/(\"@eclipse-che\/workspace-telemetry-client\": )(\"latest\")/\1\"$WS_TELEMETRY_CLIENT_VERSION\"/" ${PACKAGE_JSON}
       # shellcheck disable=SC2086
