@@ -3,7 +3,7 @@
   "keywords": [
     "theia-extension"
   ],
-  "version": "0.0.1",
+  "version": "7.61.0",
   "license": "EPL-2.0",
   "files": [
     "lib",
@@ -12,9 +12,9 @@
   "dependencies": {
     "inversify": "^5.0.1",
     "@theia/application-package": "1.18.0-next.120",
-    "@eclipse-che/theia-remote-api": "^0.0.1",
-    "@eclipse-che/api": "latest",
-    "@eclipse-che/theia-plugin-ext": "^0.0.1",
+    "@eclipse-che/theia-remote-api": "7.61.0",
+    "@eclipse-che/api": "7.61.0",
+    "@eclipse-che/theia-plugin-ext": "7.61.0",
     "@theia/core": "1.18.0-next.120",
     "@theia/preferences": "1.18.0-next.120",
     "@theia/workspace": "1.18.0-next.120"
