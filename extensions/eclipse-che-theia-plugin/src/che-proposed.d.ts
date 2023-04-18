@@ -214,7 +214,7 @@ declare module '@eclipse-che/plugin' {
             sparseCheckoutDirs?: string[];
         }
         export function update(updatedDevfile: Devfile): Promise<void>;
-        export function get(): Promise<Devfile>;
+        export function get(onCluster?: boolean): Promise<Devfile>;
         export function getComponentStatuses(): Promise<DevfileComponentStatus[]>;
         export function createWorkspace(devfilePath: string): Promise<void>;
     }

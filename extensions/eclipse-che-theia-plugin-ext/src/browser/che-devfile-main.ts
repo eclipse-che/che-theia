@@ -42,8 +42,8 @@ export class CheDevfileMainImpl implements CheDevfileMain {
     await this.openFactoryWindow(factoryURI);
   }
 
-  async $get(): Promise<Devfile> {
-    return this.devfileService.get();
+  async $get(onCluster?: boolean): Promise<Devfile> {
+    return this.devfileService.get(onCluster);
   }
 
   async $update(updatedDevfile: Devfile): Promise<void> {
