@@ -39,7 +39,10 @@ import {
 import { LogCallback, RemoteHostTraceLogger } from './remote-trace-logger';
 import { OutputChannelRegistryExt, PluginDeployerHandler } from '@theia/plugin-ext/lib/common';
 
+import { PLUGIN_RPC_CONTEXT as CHE_PLUGIN_RPC_CONTEXT } from '@eclipse-che/theia-plugin-ext/lib/common/che-protocol';
 import { CheEnvVariablesServerImpl } from '@eclipse-che/theia-plugin-ext/lib/node/che-env-variables-server';
+import { CheSideCarContentReaderImpl } from '@eclipse-che/theia-plugin-ext/lib/plugin/che-sidecar-content-reader';
+import { CheSideCarFileSystemImpl } from '@eclipse-che/theia-plugin-ext/lib/plugin/che-sidecar-file-system';
 import { Deferred } from '@theia/core/lib/common/promise-util';
 import { DocumentContainerAware } from './document-container-aware';
 import { Emitter } from '@theia/core/lib/common/event';
@@ -273,6 +276,15 @@ to pick-up automatically a free port`)
     const pluginRemoteBrowser = webSocketClient.rpc.getProxy(MAIN_REMOTE_RPC_CONTEXT.PLUGIN_REMOTE_BROWSER);
     const pluginRemoteNodeImplt = new PluginRemoteNodeImpl(pluginRemoteBrowser);
     webSocketClient.rpc.set(MAIN_REMOTE_RPC_CONTEXT.PLUGIN_REMOTE_NODE, pluginRemoteNodeImplt);
+
+    webSocketClient.rpc.set(
+      CHE_PLUGIN_RPC_CONTEXT.CHE_SIDERCAR_CONTENT_READER,
+      new CheSideCarContentReaderImpl(webSocketClient.rpc)
+    );
+    webSocketClient.rpc.set(
+      CHE_PLUGIN_RPC_CONTEXT.CHE_SIDECAR_FILE_SYSTEM,
+      new CheSideCarFileSystemImpl(webSocketClient.rpc)
+    );
 
     const pluginHostRPC = new PluginHostRPC(webSocketClient.rpc);
     pluginHostRPC.initialize();
