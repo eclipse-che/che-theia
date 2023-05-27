@@ -13,7 +13,6 @@ set -e
 set -o pipefail
 
 parse "$@"
-yarn ${YARN_OPTS}
 
 #Added to handle experimental Travis tag
 if [[ -n "${TAG:-}" ]]; then
